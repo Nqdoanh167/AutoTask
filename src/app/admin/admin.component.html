@@ -1,11 +1,17 @@
 <div class="wrapper">
   <div class="content-wrapper">
-    <ng-container *ngIf="user else nonUser;">
+    <ng-container *ngIf="user; else nonUser">
       <app-header>
         <div class="left">
           <ul class="nav">
             <li class="nav-item">
-              <a [routerLink]="['/admin/setting/job']" routerLinkActive="active" class="nav-link">Job</a>
+              <a
+                [routerLink]="['/admin/setting/job']"
+                routerLinkActive="active"
+                class="nav-link"
+              >
+                Job
+              </a>
             </li>
           </ul>
         </div>
@@ -22,5 +28,4 @@
       </div>
     </ng-template>
   </div>
-
 </div>

@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { InputMaskComponent } from './input-mask.component';
+import {InputMaskComponent} from './input-mask.component';
 
 describe('InputMaskComponent', () => {
   let component: InputMaskComponent;
@@ -8,9 +8,8 @@ describe('InputMaskComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InputMaskComponent ]
-    })
-    .compileComponents();
+      declarations: [InputMaskComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

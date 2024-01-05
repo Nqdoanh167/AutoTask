@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 @Component({
   selector: 'app-breadcrumb',
   templateUrl: './breadcrumb.component.html',
@@ -9,6 +9,6 @@ export class BreadcrumbComponent implements OnInit {
   menu: Array<any> = [];
   @Input() breadcrumbList: Array<any> = [];
 
-  constructor() { }
-  ngOnInit() { }
+  constructor() {}
+  ngOnInit() {}
 }

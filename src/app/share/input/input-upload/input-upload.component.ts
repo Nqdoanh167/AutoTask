@@ -6,9 +6,9 @@ import {
   EventEmitter,
   ViewChild,
 } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
-import { StorageService } from 'src/app/services/api/storage.service';
-import { ObjectAny } from 'src/app/types/viewmodels';
+import {ToastrService} from 'ngx-toastr';
+import {StorageService} from 'src/app/services/api/storage.service';
+import {ObjectAny} from 'src/app/types/viewmodels';
 
 @Component({
   selector: 'app-input-upload',
@@ -31,9 +31,10 @@ export class InputUploadComponent implements OnInit {
   statusAudio = 'end';
   constructor(
     private storageService: StorageService,
-    private toastr: ToastrService) { }
+    private toastr: ToastrService,
+  ) {}
 
-  ngOnInit(): void { }
+  ngOnInit(): void {}
   onChange(event: any) {
     this.urlChange.emit(event);
   }
@@ -45,7 +46,7 @@ export class InputUploadComponent implements OnInit {
       // if (this.height) query.height = this.height
       accept = 'image/x-png,image/gif,image/jpeg,image/x-icon';
     }
-    this.loading = true
+    this.loading = true;
     this.storageService.attach(accept, 2, this.bodyUpload).subscribe({
       next: (res) => {
         if (res.data?.length) {
@@ -57,7 +58,7 @@ export class InputUploadComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         this.toastr.warning(err);
-      }
+      },
     });
   }
   startAudio() {

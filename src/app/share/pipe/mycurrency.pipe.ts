@@ -1,6 +1,6 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
-@Pipe({ name: 'mycurrency' })
+@Pipe({name: 'mycurrency'})
 export class MycurrencyPipe implements PipeTransform {
   option = {
     mask: 'separator.2',

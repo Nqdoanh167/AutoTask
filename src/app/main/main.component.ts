@@ -14,33 +14,33 @@ export class MainComponent implements OnInit {
   isHiddenSidebar = false;
   biz!: Biz;
 
-public listNavItems: ISidebar[] = [];
+  public listNavItems: ISidebar[] = [];
 
-    public listFlowNavItems: ISidebar[] = [
-        {
-            link: '/flow/rule',
-            name: 'Cấu hình quy tắc',
-            isActive: true,
-        },
-        {
-            link: '/flow/data',
-            name: 'Cấu hình dữ liệu',
-            isActive: true,
-        },
-    ];
+  public listFlowNavItems: ISidebar[] = [
+    {
+      link: '/flow/rule',
+      name: 'Cấu hình quy tắc',
+      isActive: true,
+    },
+    {
+      link: '/flow/data',
+      name: 'Cấu hình dữ liệu',
+      isActive: true,
+    },
+  ];
 
-    public listSettingNavItems: ISidebar[] = [
-        {
-            link: '/setting/permission',
-            name: 'Phân quyền',
-            isActive: true,
-        },
-        {
-            link: '/setting/non',
-            name: 'Menu trống',
-            isActive: true,
-        },
-    ];
+  public listSettingNavItems: ISidebar[] = [
+    {
+      link: '/setting/permission',
+      name: 'Phân quyền',
+      isActive: true,
+    },
+    {
+      link: '/setting/non',
+      name: 'Menu trống',
+      isActive: true,
+    },
+  ];
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -62,11 +62,11 @@ public listNavItems: ISidebar[] = [];
           let route: ActivatedRoute = this.router.routerState.root;
           const url = this.router.url;
           if (url.includes(`/${EModule.FLOW}`)) {
-              this.listNavItems = this.listFlowNavItems;
+            this.listNavItems = this.listFlowNavItems;
           } else if (url.includes(`/${EModule.SETTING}`)) {
-              this.listNavItems = this.listSettingNavItems;
+            this.listNavItems = this.listSettingNavItems;
           } else {
-              this.listNavItems = [];
+            this.listNavItems = [];
           }
           let routeTitle = '';
           while (route!.firstChild) {
@@ -78,7 +78,7 @@ public listNavItems: ISidebar[] = [];
           this.isHiddenSidebar =
             route.snapshot.data['isHiddenSidebar'] || false;
           return routeTitle;
-        })
+        }),
       )
       .subscribe((title: string) => {
         if (title) {
@@ -87,5 +87,5 @@ public listNavItems: ISidebar[] = [];
       });
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {}
 }

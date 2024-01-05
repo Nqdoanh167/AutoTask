@@ -509,7 +509,7 @@ export interface Segment {
       serviceType: string;
       value: string;
       values: string[];
-    }
+    },
   ];
   displayName: string;
   isManualGroup: boolean;
@@ -1344,15 +1344,15 @@ export interface ISidebar {
 export enum EModule {
   TABLE = 'table',
   FLOW = 'flow',
-  SETTING = 'setting'
+  SETTING = 'setting',
 }
 
 export enum EFlowTab {
   RULE = 'rule',
-  DATA = 'data'
+  DATA = 'data',
 }
 
 export enum ESettingTab {
   PERMISSION = 'permission',
-  NON = 'non'
+  NON = 'non',
 }

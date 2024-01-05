@@ -7,18 +7,15 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 // component
 import {SidebarModule} from '../share/sidebar/sidebar.module';
 
-
 @NgModule({
-  declarations: [
-    MainComponent,
-  ],
+  declarations: [MainComponent],
   imports: [
     MainRoutingModule,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
     HeaderModule,
-    SidebarModule
-  ]
+    SidebarModule,
+  ],
 })
-export class MainModule { }
+export class MainModule {}

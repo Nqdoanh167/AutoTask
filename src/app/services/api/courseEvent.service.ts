@@ -1,10 +1,10 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BaseApiService } from './base.service';
-import { EntityResult, CourseEvent } from 'src/app/types/viewmodels';
-import { Subject, takeUntil } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service';
+import {Injectable, OnDestroy} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BaseApiService} from './base.service';
+import {EntityResult, CourseEvent} from 'src/app/types/viewmodels';
+import {Subject, takeUntil} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {AuthService} from './auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +13,8 @@ export class CourseEventService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
 
   api = {
-    courseEvent: ''
-  }
+    courseEvent: '',
+  };
   private defaultParams: any = {};
   constructor(
     httpClient: HttpClient,
@@ -22,12 +22,15 @@ export class CourseEventService extends BaseApiService implements OnDestroy {
   ) {
     super(httpClient);
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
-      next: res => {
+      next: (res) => {
         if (res) {
-          this.setApiAddress(environment.apiAddress, `bizs/${res.alias}/course-event`)
+          this.setApiAddress(
+            environment.apiAddress,
+            `bizs/${res.alias}/course-event`,
+          );
         }
-      }
-    })
+      },
+    });
   }
 
   ngOnDestroy(): void {
@@ -38,9 +41,11 @@ export class CourseEventService extends BaseApiService implements OnDestroy {
   }
   courseEvent = {
     get: (params = {}) =>
-      this.httpClient.get<EntityResult<CourseEvent[]>>(this.createUrl([this.api.courseEvent]), {
-        params: this.createParams(Object.assign(params, this.defaultParams)),
-      })
+      this.httpClient.get<EntityResult<CourseEvent[]>>(
+        this.createUrl([this.api.courseEvent]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
   };
-
 }

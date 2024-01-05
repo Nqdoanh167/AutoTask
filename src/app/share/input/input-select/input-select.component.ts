@@ -6,7 +6,7 @@ import {
   EventEmitter,
   ViewChild,
 } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-input-select',
@@ -39,10 +39,10 @@ export class InputSelectComponent implements OnInit {
   // tslint:disable-next-line:no-output-on-prefix
   @Output() onRemove = new EventEmitter<any>();
   showSelectTag = false;
-  constructor(private toastr: ToastrService) { }
-  ngOnInit(): void { }
+  constructor(private toastr: ToastrService) {}
+  ngOnInit(): void {}
 
-  onKeyDownTag({ event }: { event: any }) {
+  onKeyDownTag({event}: {event: any}) {
     const value = event.target.value.trim();
     if (value?.length) {
       setTimeout(() => {
@@ -52,30 +52,32 @@ export class InputSelectComponent implements OnInit {
       this.showSelectTag = true;
     }
   }
-  focusout({ event }: { event: any }) {
-    this.onBlurInput({ event });
+  focusout({event}: {event: any}) {
+    this.onBlurInput({event});
   }
   handleChooseTag(tag: any) {
     this.onChange.emit(tag);
   }
-  onBlurInput({ event }: { event: any }) {
+  onBlurInput({event}: {event: any}) {
     this.onChange.emit(this.tags);
     setTimeout(() => {
       this.showSelectTag = false;
     }, 150);
   }
-  onClickInput({ event }: { event: any }) {
+  onClickInput({event}: {event: any}) {
     this.showSelectTag = true;
   }
   isSelect(item: any) {
     let result = false;
     const isSelect = this.tags === item;
-    if (isSelect) { result = true; }
+    if (isSelect) {
+      result = true;
+    }
     return result;
   }
 
-  onRemoveTag({ tag, index }: { tag: any, index: number }) {
-    this.onRemove.emit({ tag, index });
+  onRemoveTag({tag, index}: {tag: any; index: number}) {
+    this.onRemove.emit({tag, index});
   }
   // replaceTextTag(tag) {
   //   if (!this.listItemSelect.length) return tag
@@ -90,6 +92,8 @@ export class InputSelectComponent implements OnInit {
   //   return t
   // }
   focusInputtag() {
-    if (this.showInputCreate) { this.spans.nativeElement.focus(); }
+    if (this.showInputCreate) {
+      this.spans.nativeElement.focus();
+    }
   }
 }

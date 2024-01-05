@@ -1,23 +1,23 @@
 // custom pipe
-import { PipeTransform, Pipe, OnDestroy } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
-import { MainService } from 'src/app/services/api/main.service'
-import { Status } from 'src/app/types/viewmodels';
+import {PipeTransform, Pipe, OnDestroy} from '@angular/core';
+import {Subject, takeUntil} from 'rxjs';
+import {MainService} from 'src/app/services/api/main.service';
+import {Status} from 'src/app/types/viewmodels';
 
-@Pipe({ name: 'filterColorOrder' })
+@Pipe({name: 'filterColorOrder'})
 export class FilterColorOrderPipe implements PipeTransform, OnDestroy {
   destroy = new Subject();
   statuses: Status[] = [];
   constructor(private mainService: MainService) {
     // statuses
     this.mainService.listStatus.pipe(takeUntil(this.destroy)).subscribe({
-      next: res => {
+      next: (res) => {
         console.log('res', res);
         if (res?.length) {
           this.statuses = res;
         }
-      }
-    })
+      },
+    });
   }
   ngOnDestroy(): void {
     // Called once, before the instance is destroyed.
@@ -26,10 +26,10 @@ export class FilterColorOrderPipe implements PipeTransform, OnDestroy {
     this.destroy.complete();
   }
   transform(code: string, type: string = 'background'): any {
-    const item = this.statuses.find(s => s.code === code);
+    const item = this.statuses.find((s) => s.code === code);
     if (item) {
       if (type === 'style') {
-        return { backgroundColor: item.bgColor, color: item.txtColor };
+        return {backgroundColor: item.bgColor, color: item.txtColor};
       }
       if (type === 'bgColor') {
         return item.bgColor;
@@ -41,6 +41,6 @@ export class FilterColorOrderPipe implements PipeTransform, OnDestroy {
         return item.name || code;
       }
     }
-    return { color: '#fff' };
+    return {color: '#fff'};
   }
 }

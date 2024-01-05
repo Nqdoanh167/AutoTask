@@ -1,43 +1,89 @@
-<div class="source d-flex align-items-center flex-wrap" (mouseover)="mouseover()" [ngClass]="{show: isHover}">
-
+<div
+  class="source d-flex align-items-center flex-wrap"
+  (mouseover)="mouseover()"
+  [ngClass]="{show: isHover}"
+>
   <ng-container *ngIf="values.length; else noneValue">
     <div class="d-flex flex-wrap cursor-pointer">
-
       <ng-container *ngFor="let value of values">
-
-        <a *ngIf="value.link" href="{{value.link}}" target="_blank" [tooltip]="value.name" class="ms-2 py-2">
-          <img src="{{value.picture || './assets/images/default-product.png'}}" height="24px" width="24px"
-            class="rounded-circle" alt="">
+        <a
+          *ngIf="value.link"
+          href="{{ value.link }}"
+          target="_blank"
+          [tooltip]="value.name"
+          class="ms-2 py-2"
+        >
+          <img
+            src="{{ value.picture || './assets/images/default-product.png' }}"
+            height="24px"
+            width="24px"
+            class="rounded-circle"
+            alt=""
+          />
         </a>
         <div *ngIf="!value.link" [tooltip]="value.name" class="ms-2 py-2">
-          <img src="{{value.picture || './assets/images/default-product.png'}}" height="24px" width="24px"
-            class="rounded-circle" alt="">
+          <img
+            src="{{ value.picture || './assets/images/default-product.png' }}"
+            height="24px"
+            width="24px"
+            class="rounded-circle"
+            alt=""
+          />
         </div>
       </ng-container>
-      <div class="d-flex align-items-center"  tooltip="Nguồn đơn">
+      <div class="d-flex align-items-center" tooltip="Nguồn đơn">
         <i class="fa-solid fa-chevron-down me-2"></i>
       </div>
-
     </div>
   </ng-container>
   <ng-template #noneValue>
-    <div class="source__header cursor-pointer">Nguồn đơn <i class="fa-solid fa-chevron-down ms-1"></i></div>
+    <div class="source__header cursor-pointer">
+      Nguồn đơn
+      <i class="fa-solid fa-chevron-down ms-1"></i>
+    </div>
   </ng-template>
 
   <div class="source__list dropdown-menu">
-    <div class="item dropdown-item " *ngFor="let item of listTypeSource"
-      [ngClass]="{active: valueIds.includes(item.id)}">
-      <div class="source d-flex align-items-center flex-wrap" (mouseover)="mouseover(item)"
-        [ngClass]="{show: item.isHover}">
+    <div
+      class="item dropdown-item"
+      *ngFor="let item of listTypeSource"
+      [ngClass]="{active: valueIds.includes(item.id)}"
+    >
+      <div
+        class="source d-flex align-items-center flex-wrap"
+        (mouseover)="mouseover(item)"
+        [ngClass]="{show: item.isHover}"
+      >
         <div class="source__header w-100" (click)="onSelect(item)">
-          <img *ngIf="item.picture" src="{{item.picture}}" class="rounded me-2" height="28px" width="28px" alt="">
-          <span class="fw-500 text-truncate">{{item.name}}</span>
+          <img
+            *ngIf="item.picture"
+            src="{{ item.picture }}"
+            class="rounded me-2"
+            height="28px"
+            width="28px"
+            alt=""
+          />
+          <span class="fw-500 text-truncate">{{ item.name }}</span>
         </div>
-        <div class="source__list dropdown-menu custom-scrollbar" *ngIf="item.rows.length">
-          <div class="item dropdown-item" *ngFor="let row of item.rows" [ngClass]="{active: valueIds.includes(row.id)}">
+        <div
+          class="source__list dropdown-menu custom-scrollbar"
+          *ngIf="item.rows.length"
+        >
+          <div
+            class="item dropdown-item"
+            *ngFor="let row of item.rows"
+            [ngClass]="{active: valueIds.includes(row.id)}"
+          >
             <div class="source__header" (click)="onSelect(item, row)">
-              <img *ngIf="row.picture" src="{{row.picture}}" class="rounded me-2" height="28px" width="28px" alt="">
-              <span class="fw-500 text-truncate">{{row.name}}</span>
+              <img
+                *ngIf="row.picture"
+                src="{{ row.picture }}"
+                class="rounded me-2"
+                height="28px"
+                width="28px"
+                alt=""
+              />
+              <span class="fw-500 text-truncate">{{ row.name }}</span>
             </div>
           </div>
         </div>

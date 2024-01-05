@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { AuthService } from 'src/app/services/api/auth.service';
-import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
+import {Component, OnInit} from '@angular/core';
+import {NavigationEnd, Router} from '@angular/router';
+import {AuthService} from 'src/app/services/api/auth.service';
+import {BreadcrumbService} from 'src/app/services/common/breadcrumb.service';
 import {Biz, ISidebar, User} from 'src/app/types/viewmodels';
 
 @Component({
@@ -32,11 +32,14 @@ export class SidebarComponent implements OnInit {
       iconActive: './assets/images/module/setting-active.svg',
       isActive: false,
     },
-
   ];
   biz!: Biz;
   user!: User;
-  constructor(private router: Router, private authService: AuthService, private breadcrumbService: BreadcrumbService) {
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private breadcrumbService: BreadcrumbService,
+  ) {
     this.authService.currentBiz.subscribe((res) => {
       if (res) this.biz = res;
     });

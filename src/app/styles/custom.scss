@@ -551,7 +551,9 @@ progressbar.custom-progress {
     animation: widthScale linear 0.6s;
 
     .metrics {
-      animation: widthScale linear 0.6s, sizeScale linear 0.6s;
+      animation:
+        widthScale linear 0.6s,
+        sizeScale linear 0.6s;
     }
   }
 }

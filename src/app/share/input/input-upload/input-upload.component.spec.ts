@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
-import { InputUploadComponent } from './input-upload.component';
+import {InputUploadComponent} from './input-upload.component';
 
 describe('InputUploadComponent', () => {
   let component: InputUploadComponent;
@@ -8,9 +8,8 @@ describe('InputUploadComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ InputUploadComponent ]
-    })
-    .compileComponents();
+      declarations: [InputUploadComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {

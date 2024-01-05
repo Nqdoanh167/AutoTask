@@ -9,15 +9,27 @@ const defaultFormatter = {
   YY: (date: Date) => date.getFullYear() % 100,
   yyyy: (date: Date) => date.getFullYear().toString().padStart(2, '0'),
 };
-export const formatDate = (date: any, format: string, formatter: any = defaultFormatter) => {
+export const formatDate = (
+  date: any,
+  format: string,
+  formatter: any = defaultFormatter,
+) => {
   date = new Date(date);
   // sort keys by length, then value
   const keys = Object.keys(formatter)
     .sort((a, b) => {
-      if (a.length > b.length) { return -1; }
-      if (a.length < b.length) { return 1; }
-      if (a > b) { return -1; }
-      if (a < b) { return 1; }
+      if (a.length > b.length) {
+        return -1;
+      }
+      if (a.length < b.length) {
+        return 1;
+      }
+      if (a > b) {
+        return -1;
+      }
+      if (a < b) {
+        return 1;
+      }
       return 0;
     })
     .join('|');

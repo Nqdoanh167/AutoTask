@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {environment} from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -8,9 +8,9 @@ import { environment } from 'src/environments/environment';
 export class BaseApiService {
   private apiAddress = environment.apiAddress;
 
-  constructor(protected httpClient: HttpClient) { }
+  constructor(protected httpClient: HttpClient) {}
 
-  protected createParams(params: { [key: string]: any }): HttpParams {
+  protected createParams(params: {[key: string]: any}): HttpParams {
     return Object.keys(params).reduce((m, k) => {
       if (params[k] != null) {
         return m.set(k, params[k].toString());

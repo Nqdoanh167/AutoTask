@@ -1,13 +1,9 @@
-import { NgModule } from '@angular/core';
-import { TimeViewPipe } from './timeView.pipe';
+import {NgModule} from '@angular/core';
+import {TimeViewPipe} from './timeView.pipe';
 // pipe
 @NgModule({
-  declarations: [TimeViewPipe
-  ],
-  imports: [
-  ],
-  exports: [
-    TimeViewPipe,
-  ]
+  declarations: [TimeViewPipe],
+  imports: [],
+  exports: [TimeViewPipe],
 })
-export class PipeTimeViewModule { }
+export class PipeTimeViewModule {}

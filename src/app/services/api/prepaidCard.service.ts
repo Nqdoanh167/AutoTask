@@ -1,10 +1,14 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BaseApiService } from './base.service';
-import { EntityResult, PrepaidCard, BeautyOrderService } from 'src/app/types/viewmodels';
-import { Subject, takeUntil } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service';
+import {Injectable, OnDestroy} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BaseApiService} from './base.service';
+import {
+  EntityResult,
+  PrepaidCard,
+  BeautyOrderService,
+} from 'src/app/types/viewmodels';
+import {Subject, takeUntil} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {AuthService} from './auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +18,7 @@ export class PrepaidCardService extends BaseApiService implements OnDestroy {
 
   api = {
     card: 'cards',
-  }
+  };
   private defaultParams: any = {};
   constructor(
     httpClient: HttpClient,
@@ -22,12 +26,15 @@ export class PrepaidCardService extends BaseApiService implements OnDestroy {
   ) {
     super(httpClient);
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
-      next: res => {
+      next: (res) => {
         if (res) {
-          this.setApiAddress(environment.apiAddress, `bizs/${res.alias}/prepaid-card`)
+          this.setApiAddress(
+            environment.apiAddress,
+            `bizs/${res.alias}/prepaid-card`,
+          );
         }
-      }
-    })
+      },
+    });
   }
 
   ngOnDestroy(): void {
@@ -38,17 +45,25 @@ export class PrepaidCardService extends BaseApiService implements OnDestroy {
   }
   card = {
     get: (params = {}) =>
-      this.httpClient.get<EntityResult<PrepaidCard[]>>(this.createUrl([this.api.card]), {
-        params: this.createParams(Object.assign(params, this.defaultParams)),
-      }),
+      this.httpClient.get<EntityResult<PrepaidCard[]>>(
+        this.createUrl([this.api.card]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     show: (id: string) =>
-      this.httpClient.get<EntityResult<PrepaidCard>>(this.createUrl([this.api.card, id]), {
-        params: {},
-      }),
+      this.httpClient.get<EntityResult<PrepaidCard>>(
+        this.createUrl([this.api.card, id]),
+        {
+          params: {},
+        },
+      ),
     showCode: (code: string) =>
-      this.httpClient.get<EntityResult<PrepaidCard>>(this.createUrl([this.api.card, 'code', code]), {
-        params: {},
-      })
-  }
-
+      this.httpClient.get<EntityResult<PrepaidCard>>(
+        this.createUrl([this.api.card, 'code', code]),
+        {
+          params: {},
+        },
+      ),
+  };
 }

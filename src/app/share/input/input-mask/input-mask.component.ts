@@ -1,12 +1,21 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { Biz } from 'src/app/types/viewmodels';
-import { AuthService } from 'src/app/services/api/auth.service';
-import { Subject, takeUntil } from 'rxjs';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
+import {Biz} from 'src/app/types/viewmodels';
+import {AuthService} from 'src/app/services/api/auth.service';
+import {Subject, takeUntil} from 'rxjs';
 
 @Component({
   selector: 'app-input-mask',
   templateUrl: './input-mask.component.html',
-  styleUrls: ['./input-mask.component.scss']
+  styleUrls: ['./input-mask.component.scss'],
 })
 export class InputMaskComponent implements OnInit, OnChanges {
   @Input() id: string | null = null;
@@ -23,8 +32,8 @@ export class InputMaskComponent implements OnInit, OnChanges {
   @Input() defaultOption = {};
   option = {
     mask: 'separator.2',
-    symbol: "₫",
-    thousandSeparator: ","
+    symbol: '₫',
+    thousandSeparator: ',',
   };
   @Output() changeValue = new EventEmitter<number>();
   @Output() paste = new EventEmitter<Event>();
@@ -32,8 +41,8 @@ export class InputMaskComponent implements OnInit, OnChanges {
   destroy = new Subject();
   constructor(
     private authService: AuthService,
-    private cdr: ChangeDetectorRef
-  ) { }
+    private cdr: ChangeDetectorRef,
+  ) {}
   ngOnChanges(changes: SimpleChanges): void {
     this.cdr.detectChanges();
 
@@ -45,24 +54,23 @@ export class InputMaskComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-
     if (!isNaN(Number(String(this.max)))) {
-      this.max = Number(String(this.max))
+      this.max = Number(String(this.max));
     }
     if (!isNaN(Number(String(this.min)))) {
-      this.min = Number(String(this.min))
+      this.min = Number(String(this.min));
     }
 
     if (!this.value) this.value = 0;
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
-      next: res => {
+      next: (res) => {
         if (res) {
           this.biz = res;
 
           this.setupOption(this.biz);
         }
-      }
-    })
+      },
+    });
   }
   setupOption(biz: Biz) {
     if (!biz) return;
@@ -70,16 +78,15 @@ export class InputMaskComponent implements OnInit, OnChanges {
       mask: biz.currency.mask,
       symbol: biz.currency.symbol,
       thousandSeparator: biz.currency.thousandSeparator,
-    }
+    };
     if (this.isQuantity) {
       this.option.mask = 'separator.0';
       this.option.symbol = '';
       Object.assign(this.option, this.defaultOption);
       setTimeout(() => {
         this.onKeyup();
-      }, 0)
+      }, 0);
     }
-
   }
 
   ngOnDestroy(): void {
@@ -103,11 +110,9 @@ export class InputMaskComponent implements OnInit, OnChanges {
         this.changeValue.emit(this.value);
       }
     }
-
   }
   onChange() {
     if (!this.value) this.value = 0;
     this.changeValue.emit(this.value);
   }
-
 }

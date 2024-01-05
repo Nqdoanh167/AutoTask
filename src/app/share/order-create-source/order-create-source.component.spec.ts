@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { OrderCreateSourceComponent } from './order-create-source.component';
+import {OrderCreateSourceComponent} from './order-create-source.component';
 
 describe('OrderCreateSourceComponent', () => {
   let component: OrderCreateSourceComponent;
@@ -8,9 +8,8 @@ describe('OrderCreateSourceComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ OrderCreateSourceComponent ]
-    })
-    .compileComponents();
+      declarations: [OrderCreateSourceComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

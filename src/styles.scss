@@ -2,15 +2,15 @@
 @import 'src/app/styles/variable';
 
 /* Importing Bootstrap SCSS file. */
-@import "../node_modules/bootstrap/scss/bootstrap.scss";
+@import '../node_modules/bootstrap/scss/bootstrap.scss';
 
 /* Importing Datepicker SCSS file. */
-@import "../node_modules/ngx-bootstrap/datepicker/bs-datepicker";
+@import '../node_modules/ngx-bootstrap/datepicker/bs-datepicker';
 
 /* Importing Package @ng-select/ng-select https://www.npmjs.com/package/@ng-select/ng-select*/
 @import 'node_modules/@ng-select/ng-select/themes/default.theme';
 /* Font Roboto*/
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 // body {
 //   background-color: ;
@@ -34,7 +34,7 @@
 
 // btn
 .btn-lg,
-.btn-group-lg>.btn {
+.btn-group-lg > .btn {
   display: inline-flex;
   align-items: center;
 }
@@ -70,7 +70,7 @@
     vertical-align: middle;
   }
 
-  &> :not(:first-child) {
+  & > :not(:first-child) {
     border-top: none;
   }
 }
@@ -140,9 +140,11 @@ body {
     justify-content: space-between;
     flex-wrap: wrap;
 
-    .left {}
+    .left {
+    }
 
-    .right {}
+    .right {
+    }
   }
 
   &__body {
@@ -150,36 +152,36 @@ body {
   }
   .tableFixHead {
     overflow: auto;
-  
+
     table {
       border-collapse: separate; /* Don't collapse */
       border-spacing: 0;
-  
+
       th {
         border-bottom: 1px solid var(--bs-gray-200);
       }
     }
   }
-  
+
   .tableFixHead thead {
     position: relative;
   }
-  
+
   .tableFixHead thead th {
     position: sticky;
     top: 0;
     z-index: 1;
   }
-  
+
   .table {
     margin: 0;
-  
+
     th,
     td {
       border-bottom: 1px solid var(--bs-gray-200);
       background-color: #fcfcfc;
     }
-  
+
     th {
       color: var(--bs-gray-500);
       padding-top: 28px;
@@ -189,18 +191,18 @@ body {
       line-height: 15px;
       vertical-align: middle;
     }
-  
+
     td {
       line-height: 18px;
       vertical-align: middle;
       padding: 0.75rem 0.5rem;
     }
-  
+
     & > :not(:first-child) {
       border-top: none;
     }
   }
-  
+
   // end table
   .table-responsive {
     overflow-y: auto;
@@ -280,8 +282,14 @@ body {
   height: auto;
 }
 
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected .ng-option-label,
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked .ng-option-label {
+.ng-dropdown-panel
+  .ng-dropdown-panel-items
+  .ng-option.ng-option-selected
+  .ng-option-label,
+.ng-dropdown-panel
+  .ng-dropdown-panel-items
+  .ng-option.ng-option-selected.ng-option-marked
+  .ng-option-label {
   font-weight: 500;
 }
 
@@ -331,7 +339,6 @@ body {
 }
 
 .ng-select-custom.ng-select-disabled {
-
   .ng-select-container,
   input,
   .ng-placeholder {
@@ -339,7 +346,10 @@ body {
   }
 }
 
-.ng-select-custom.option-white-space-unset .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+.ng-select-custom.option-white-space-unset
+  .ng-dropdown-panel
+  .ng-dropdown-panel-items
+  .ng-option {
   white-space: unset;
 }
 
@@ -371,15 +381,20 @@ body {
 
 // pagination
 .pagination {
-  &-page {}
+  &-page {
+  }
 
-  &-next {}
+  &-next {
+  }
 
-  &-prev {}
+  &-prev {
+  }
 
-  &-first {}
+  &-first {
+  }
 
-  &-last {}
+  &-last {
+  }
 
   .page-item {
     margin: 0 4px;
@@ -598,7 +613,6 @@ bs-daterangepicker-container {
   z-index: 9999;
 }
 
-
 .caret-wrapper {
   display: inline-flex;
   flex-direction: column;
@@ -675,7 +689,6 @@ bs-daterangepicker-container {
   border: 1px solid #e7e9ef;
   box-sizing: border-box;
   border-radius: 6px;
-
 }
 .btn {
   white-space: nowrap;
@@ -709,7 +722,7 @@ bs-daterangepicker-container {
   border-right: 11px solid #2e77fa;
 }
 .badge-tag .triangle:after {
-  content: "";
+  content: '';
   position: absolute;
   height: 6px;
   width: 6px;
@@ -722,7 +735,7 @@ bs-daterangepicker-container {
 .text-href:hover {
   color: var(--bs-primary);
   text-decoration: underline;
-  transition: .2s all ease;
+  transition: 0.2s all ease;
 }
 .text-href {
   cursor: pointer;

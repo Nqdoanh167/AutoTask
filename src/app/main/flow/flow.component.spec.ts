@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { FlowComponent } from './flow.component';
+import {FlowComponent} from './flow.component';
 
 describe('FlowComponent', () => {
   let component: FlowComponent;
@@ -8,7 +8,7 @@ describe('FlowComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [FlowComponent]
+      declarations: [FlowComponent],
     });
     fixture = TestBed.createComponent(FlowComponent);
     component = fixture.componentInstance;

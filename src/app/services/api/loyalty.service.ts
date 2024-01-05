@@ -1,10 +1,10 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BaseApiService } from './base.service';
-import { EntityResult, LoyaltyRank } from 'src/app/types/viewmodels';
-import { Subject, takeUntil } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service';
+import {Injectable, OnDestroy} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BaseApiService} from './base.service';
+import {EntityResult, LoyaltyRank} from 'src/app/types/viewmodels';
+import {Subject, takeUntil} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {AuthService} from './auth.service';
 declare const FB: any;
 
 @Injectable({
@@ -17,14 +17,17 @@ export class LoyaltyService extends BaseApiService implements OnDestroy {
     ranks: 'ranks',
   };
   private defaultParams: any = {};
-  constructor(httpClient: HttpClient, private authService: AuthService) {
+  constructor(
+    httpClient: HttpClient,
+    private authService: AuthService,
+  ) {
     super(httpClient);
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
       next: (res) => {
         if (res) {
           this.setApiAddress(
             environment.apiAddress,
-            `bizs/${res.alias}/loyalty`
+            `bizs/${res.alias}/loyalty`,
           );
           this.defaultParams = {
             bizId: res.id,
@@ -46,7 +49,7 @@ export class LoyaltyService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.ranks]),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
   };
 }

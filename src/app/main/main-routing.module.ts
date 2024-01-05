@@ -8,22 +8,25 @@ const routes: Routes = [
     path: '',
     component: MainComponent,
     children: [
-      { 
+      {
         path: '',
         redirectTo: 'task',
         pathMatch: 'full',
       },
       {
         path: 'task',
-        loadChildren: () => import('./task/task.module').then(m => m.TaskModule),
+        loadChildren: () =>
+          import('./task/task.module').then((m) => m.TaskModule),
       },
       {
         path: 'flow',
-        loadChildren: () => import('./flow/flow.module').then(m => m.FlowModule),
+        loadChildren: () =>
+          import('./flow/flow.module').then((m) => m.FlowModule),
       },
       {
         path: 'setting',
-        loadChildren: () => import('./setting/setting.module').then(m => m.SettingModule),
+        loadChildren: () =>
+          import('./setting/setting.module').then((m) => m.SettingModule),
       },
     ],
   },

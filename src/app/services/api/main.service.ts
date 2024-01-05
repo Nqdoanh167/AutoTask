@@ -1,6 +1,6 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BaseApiService } from './base.service';
+import {Injectable, OnDestroy} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BaseApiService} from './base.service';
 import {
   EntityResult,
   Config,
@@ -17,10 +17,10 @@ import {
   User,
   IRoleAct,
 } from 'src/app/types/viewmodels';
-import { BehaviorSubject, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service';
-import { Router } from '@angular/router';
+import {BehaviorSubject, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {AuthService} from './auth.service';
+import {Router} from '@angular/router';
 declare const FB: any;
 
 @Injectable({
@@ -33,13 +33,11 @@ export class MainService extends BaseApiService implements OnDestroy {
     .pipe(distinctUntilChanged());
 
   private currentConfigSubject = new BehaviorSubject<Config>(
-    null as unknown as Config
+    null as unknown as Config,
   );
-  private listTagSubject = new BehaviorSubject<Tag[]>(
-    null as unknown as Tag[]
-  );
+  private listTagSubject = new BehaviorSubject<Tag[]>(null as unknown as Tag[]);
   private listStatusSubject = new BehaviorSubject<Status>(
-    null as unknown as Status
+    null as unknown as Status,
   );
   public currentConfig = this.currentConfigSubject
     .asObservable()
@@ -56,7 +54,7 @@ export class MainService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
   private listAppointmentRoomSubject = new BehaviorSubject<AppointmentRoom[]>(
-    null as unknown as AppointmentRoom[]
+    null as unknown as AppointmentRoom[],
   );
   public listAppointmentRoom = this.listAppointmentRoomSubject
     .asObservable()
@@ -78,7 +76,10 @@ export class MainService extends BaseApiService implements OnDestroy {
     appointmentStatus: 'appointment-statuses',
   };
   private defaultParams: any = {};
-  constructor(httpClient: HttpClient, private authService: AuthService) {
+  constructor(
+    httpClient: HttpClient,
+    private authService: AuthService,
+  ) {
     super(httpClient);
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
       next: (res) => {
@@ -87,7 +88,7 @@ export class MainService extends BaseApiService implements OnDestroy {
           this.biz = res;
           this.setApiAddress(
             environment.apiModule,
-            `bizs/${res.alias}/auto-task`
+            `bizs/${res.alias}/auto-task`,
           );
         }
       },
@@ -122,20 +123,20 @@ export class MainService extends BaseApiService implements OnDestroy {
     create: (body = {}) =>
       this.httpClient.post<EntityResult<Tag>>(
         this.createUrl([this.api.tag]),
-        body
+        body,
       ),
     update: (id: string, body = {}) =>
       this.httpClient.put<EntityResult<Tag>>(
         this.createUrl([this.api.tag, id]),
-        body
+        body,
       ),
     show: (id: string) =>
       this.httpClient.get<EntityResult<Tag>>(
-        this.createUrl([this.api.tag, id])
+        this.createUrl([this.api.tag, id]),
       ),
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<Tag>>(
-        this.createUrl([this.api.tag, id])
+        this.createUrl([this.api.tag, id]),
       ),
   };
   config = {
@@ -144,12 +145,12 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.config]),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     update: (body = {}) =>
       this.httpClient.put<EntityResult<Config>>(
         this.createUrl([this.api.config]),
-        body
+        body,
       ),
   };
 
@@ -157,47 +158,47 @@ export class MainService extends BaseApiService implements OnDestroy {
     create: (body = {}) =>
       this.httpClient.post<EntityResult<SaleReason>>(
         this.createUrl([this.api.saleReason]),
-        body
+        body,
       ),
     update: (id: string, body = {}) =>
       this.httpClient.put<EntityResult<SaleReason>>(
         this.createUrl([this.api.saleReason, id]),
-        body
+        body,
       ),
     get: (params = {}) =>
       this.httpClient.get<EntityResult<SaleReason[]>>(
         this.createUrl([this.api.saleReason]),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     delete: (id: string, body = {}) =>
       this.httpClient.delete<EntityResult<SaleReason>>(
-        this.createUrl([this.api.saleReason, id])
+        this.createUrl([this.api.saleReason, id]),
       ),
   };
   saleHistory = {
     create: (body = {}) =>
       this.httpClient.post<EntityResult<SaleHistory>>(
         this.createUrl([this.api.saleHistory]),
-        body
+        body,
       ),
     update: (id: string, body = {}) =>
       this.httpClient.put<EntityResult<SaleHistory>>(
         this.createUrl([this.api.saleHistory, id]),
-        body
+        body,
       ),
     updateResult: (id: string, body = {}) =>
       this.httpClient.put<EntityResult<SaleHistory>>(
         this.createUrl([this.api.saleHistory, id, 'result']),
-        body
+        body,
       ),
     get: (params = {}) =>
       this.httpClient.get<EntityResult<SaleHistory[]>>(
         this.createUrl([this.api.saleHistory]),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
   };
   appointmentStatus = {
@@ -206,30 +207,30 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.appointmentStatus]),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     create: (body = {}) =>
       this.httpClient.post<EntityResult<AppointmentStatus>>(
         this.createUrl([this.api.appointmentStatus]),
-        body
+        body,
       ),
     update: (id: string, body = {}) =>
       this.httpClient.put<EntityResult<AppointmentStatus>>(
         this.createUrl([this.api.appointmentStatus, id]),
-        body
+        body,
       ),
     updatePos: (id: string, body = {}) =>
       this.httpClient.put<EntityResult<AppointmentStatus>>(
         this.createUrl([this.api.appointmentStatus, id, 'pos']),
-        body
+        body,
       ),
     show: (id: string) =>
       this.httpClient.get<EntityResult<AppointmentStatus>>(
-        this.createUrl([this.api.appointmentStatus, id])
+        this.createUrl([this.api.appointmentStatus, id]),
       ),
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<AppointmentStatus>>(
-        this.createUrl([this.api.appointmentStatus, id])
+        this.createUrl([this.api.appointmentStatus, id]),
       ),
   };
   appointmentRoom = {
@@ -238,25 +239,25 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.appointmentRoom]),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     create: (body = {}) =>
       this.httpClient.post<EntityResult<AppointmentRoom>>(
         this.createUrl([this.api.appointmentRoom]),
-        body
+        body,
       ),
     update: (id: string, body = {}) =>
       this.httpClient.put<EntityResult<AppointmentRoom>>(
         this.createUrl([this.api.appointmentRoom, id]),
-        body
+        body,
       ),
     show: (id: string) =>
       this.httpClient.get<EntityResult<AppointmentRoom>>(
-        this.createUrl([this.api.appointmentRoom, id])
+        this.createUrl([this.api.appointmentRoom, id]),
       ),
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<AppointmentRoom>>(
-        this.createUrl([this.api.appointmentRoom, id])
+        this.createUrl([this.api.appointmentRoom, id]),
       ),
   };
   appointmentBooking = {
@@ -265,37 +266,37 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.appointmentBooking]),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     getList: (params = {}) =>
       this.httpClient.get<EntityResult<AppointmentBooking[]>>(
         this.createUrl([this.api.appointmentBooking, 'list']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     create: (body = {}) =>
       this.httpClient.post<EntityResult<AppointmentBooking>>(
         this.createUrl([this.api.appointmentBooking]),
-        body
+        body,
       ),
     update: (id: string, body = {}) =>
       this.httpClient.put<EntityResult<AppointmentBooking>>(
         this.createUrl([this.api.appointmentBooking, id]),
-        body
+        body,
       ),
     pushOrder: (id: string, body = {}) =>
       this.httpClient.post<EntityResult<AppointmentBooking>>(
         this.createUrl([this.api.appointmentBooking, id, 'order']),
-        body
+        body,
       ),
     show: (id: string) =>
       this.httpClient.get<EntityResult<AppointmentBooking>>(
-        this.createUrl([this.api.appointmentBooking, id])
+        this.createUrl([this.api.appointmentBooking, id]),
       ),
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<AppointmentBooking>>(
-        this.createUrl([this.api.appointmentBooking, id])
+        this.createUrl([this.api.appointmentBooking, id]),
       ),
   };
 
@@ -305,30 +306,30 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.staff]),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     create: (body = {}) =>
       this.httpClient.post<EntityResult<Staff>>(
         this.createUrl([this.api.staff]),
-        body
+        body,
       ),
     update: (id: string, body = {}) =>
       this.httpClient.put<EntityResult<Staff>>(
         this.createUrl([this.api.staff, id]),
-        body
+        body,
       ),
     updateOrderViewColumn: (body = {}) =>
       this.httpClient.put<EntityResult<Config>>(
         this.createUrl([this.api.staff, 'order-view-columns']),
-        body
+        body,
       ),
     show: (id: string) =>
       this.httpClient.get<EntityResult<Staff>>(
-        this.createUrl([this.api.staff, id])
+        this.createUrl([this.api.staff, id]),
       ),
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<Staff>>(
-        this.createUrl([this.api.staff, id])
+        this.createUrl([this.api.staff, id]),
       ),
   };
   copyText(text: string) {
@@ -365,7 +366,7 @@ export class MainService extends BaseApiService implements OnDestroy {
     // Đơn có chi nhánh => Check quyền theo chi nhánh
     if (type === 'order' && order?.['branch']) {
       const branch = this.bizConfig?.staff?.branches.find(
-        (b: any) => b.id === order?.['branch']
+        (b: any) => b.id === order?.['branch'],
       );
       if (branch?.role === 'LEADER') return true;
       return (
@@ -392,12 +393,15 @@ export class MainService extends BaseApiService implements OnDestroy {
       return per && this.bizConfig?.staff?.roleAct[per];
     }
     // Check leader Branch
-    const branch = this.bizConfig?.staff?.branches.find((b: any) => b.id === id);
+    const branch = this.bizConfig?.staff?.branches.find(
+      (b: any) => b.id === id,
+    );
     if (branch?.role === 'LEADER') return true;
     return (
       per &&
       this.bizConfig?.staff?.roleAct &&
-      this.bizConfig.staff.roleAct[id] && this.bizConfig.staff.roleAct[id][per as keyof IRoleAct]
+      this.bizConfig.staff.roleAct[id] &&
+      this.bizConfig.staff.roleAct[id][per as keyof IRoleAct]
     );
   }
 

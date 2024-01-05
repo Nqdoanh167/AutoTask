@@ -1,8 +1,11 @@
 <div class="modal-header">
-  <div class=" fs-4 fw-bold">
-    Tuỳ chỉnh bảng
-  </div>
-  <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="hideModal()">
+  <div class="fs-4 fw-bold">Tuỳ chỉnh bảng</div>
+  <button
+    type="button"
+    class="btn-close close pull-right"
+    aria-label="Close"
+    (click)="hideModal()"
+  >
     <span aria-hidden="true" class="visually-hidden">&times;</span>
   </button>
 </div>
@@ -16,9 +19,18 @@
       <div>
         <form [formGroup]="form" novalidate>
           <div class="list-value">
-            <div class="columns-item mt-1" *ngFor="let data of listColumns; let i = index">
+            <div
+              class="columns-item mt-1"
+              *ngFor="let data of listColumns; let i = index"
+            >
               <label class="cursor-pointer">
-                <input class="me-2" type="checkbox" [defaultChecked]="listChecked.includes(data.value)"  [value]="data.value" (change)="onCheckboxChange($event)" />
+                <input
+                  class="me-2"
+                  type="checkbox"
+                  [defaultChecked]="listChecked.includes(data.value)"
+                  [value]="data.value"
+                  (change)="onCheckboxChange($event)"
+                />
                 {{ data.name }}
               </label>
             </div>
@@ -28,14 +40,20 @@
     </div>
     <div class="col-6">
       <div class="fw-500">Các cột hiển thị</div>
-      <bs-sortable [(ngModel)]="listColumnsActive" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle text-center" wrapperClass="sortable-wrapper"></bs-sortable>
+      <bs-sortable
+        [(ngModel)]="listColumnsActive"
+        [itemTemplate]="itemTemplate"
+        itemClass="sortable-item"
+        itemActiveClass="sortable-item-active"
+        placeholderItem="Drag here"
+        placeholderClass="placeholderStyle text-center"
+        wrapperClass="sortable-wrapper"
+      ></bs-sortable>
 
       <ng-template #itemTemplate let-item="item" let-index="index">
         <div class="columns-item mt-1">
           <div class="d-flex justify-content-between align-items-center">
-            <span>
-              {{ index + 1 }}: {{ item.value.name }}
-            </span>
+            <span>{{ index + 1 }}: {{ item.value.name }}</span>
             <i class="fa fa-arrows-alt-v"></i>
           </div>
         </div>
@@ -46,10 +64,24 @@
 <div class="modal-footer">
   <div class="d-flex justify-content-between w-100">
     <div>
-      <button type="button" class="btn btn-default mx-2" (click)="onReload()"> Đặt lại </button>
+      <button type="button" class="btn btn-default mx-2" (click)="onReload()">
+        Đặt lại
+      </button>
     </div>
-    <div class="d-flex"><button type="button" class="btn button-cancel mx-2" (click)="hideModal()"> Hủy </button>
-      <button class="btn btn-primary mx-2 text-white" type="button" (click)="onSubmit()"><span>Lưu</span>
+    <div class="d-flex">
+      <button
+        type="button"
+        class="btn button-cancel mx-2"
+        (click)="hideModal()"
+      >
+        Hủy
+      </button>
+      <button
+        class="btn btn-primary mx-2 text-white"
+        type="button"
+        (click)="onSubmit()"
+      >
+        <span>Lưu</span>
       </button>
     </div>
   </div>

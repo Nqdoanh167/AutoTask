@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -7,10 +7,10 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { uniq } from 'lodash';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { IColumns, IDataColumns } from 'src/app/types/viewmodels';
-import { listColumns } from 'src/app/variable';
+import {uniq} from 'lodash';
+import {BsModalRef} from 'ngx-bootstrap/modal';
+import {IColumns, IDataColumns} from 'src/app/types/viewmodels';
+import {listColumns} from 'src/app/variable';
 
 @Component({
   selector: 'app-orderable-table',
@@ -26,7 +26,10 @@ export class OrderableTableComponent implements OnInit {
   public listColumns!: IColumns[];
   public listColumnsActive!: IColumns[];
   public listChecked: string[] = [];
-  constructor(private modalRef: BsModalRef, private fb: FormBuilder) {
+  constructor(
+    private modalRef: BsModalRef,
+    private fb: FormBuilder,
+  ) {
     this.form = this.fb.group({
       checkArray: this.fb.array([], [Validators.required]),
     });
@@ -45,7 +48,7 @@ export class OrderableTableComponent implements OnInit {
       checkArray.push(new FormControl(el));
     });
   }
-  get f(): { [key: string]: AbstractControl } {
+  get f(): {[key: string]: AbstractControl} {
     return this.form.controls;
   }
 
@@ -67,7 +70,7 @@ export class OrderableTableComponent implements OnInit {
         i++;
       });
       this.listColumnsActive = this.listColumnsActive.filter(
-        (el) => el.value !== e.target.value
+        (el) => el.value !== e.target.value,
       );
     }
   }
@@ -91,7 +94,7 @@ export class OrderableTableComponent implements OnInit {
     if (this.form.valid) {
       const listColumns = uniq([...this.form.value.checkArray]);
       const sequenceColumns = this.listColumnsActive.filter((el) =>
-        listColumns.includes(el.value)
+        listColumns.includes(el.value),
       );
       localStorage.setItem(this.typeColumn, JSON.stringify(sequenceColumns));
       this.hideModal();

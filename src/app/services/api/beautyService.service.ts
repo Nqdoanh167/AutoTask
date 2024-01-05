@@ -1,10 +1,14 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BaseApiService } from './base.service';
-import { EntityResult, BeautyService, BeautyOrderService } from 'src/app/types/viewmodels';
-import { Subject, takeUntil } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service';
+import {Injectable, OnDestroy} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BaseApiService} from './base.service';
+import {
+  EntityResult,
+  BeautyService,
+  BeautyOrderService,
+} from 'src/app/types/viewmodels';
+import {Subject, takeUntil} from 'rxjs';
+import {environment} from 'src/environments/environment';
+import {AuthService} from './auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +19,7 @@ export class BeautyServiceService extends BaseApiService implements OnDestroy {
   api = {
     service: 'services',
     orderService: 'order-services',
-  }
+  };
   private defaultParams: any = {};
   constructor(
     httpClient: HttpClient,
@@ -23,12 +27,15 @@ export class BeautyServiceService extends BaseApiService implements OnDestroy {
   ) {
     super(httpClient);
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
-      next: res => {
+      next: (res) => {
         if (res) {
-          this.setApiAddress(environment.apiAddress, `bizs/${res.alias}/beauty-service`)
+          this.setApiAddress(
+            environment.apiAddress,
+            `bizs/${res.alias}/beauty-service`,
+          );
         }
-      }
-    })
+      },
+    });
   }
 
   ngOnDestroy(): void {
@@ -39,19 +46,27 @@ export class BeautyServiceService extends BaseApiService implements OnDestroy {
   }
   service = {
     get: (params = {}) =>
-      this.httpClient.get<EntityResult<BeautyService[]>>(this.createUrl([this.api.service]), {
-        params: this.createParams(Object.assign(params, this.defaultParams)),
-      }),
+      this.httpClient.get<EntityResult<BeautyService[]>>(
+        this.createUrl([this.api.service]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     show: (id: string) =>
-      this.httpClient.get<EntityResult<BeautyService>>(this.createUrl([this.api.service, id]), {
-        params: {},
-      })
+      this.httpClient.get<EntityResult<BeautyService>>(
+        this.createUrl([this.api.service, id]),
+        {
+          params: {},
+        },
+      ),
   };
   orderService = {
     get: (params = {}) =>
-      this.httpClient.get<EntityResult<BeautyOrderService[]>>(this.createUrl([this.api.orderService]), {
-        params: this.createParams(Object.assign(params, this.defaultParams)),
-      })
+      this.httpClient.get<EntityResult<BeautyOrderService[]>>(
+        this.createUrl([this.api.orderService]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
   };
-
 }

@@ -1,39 +1,46 @@
-import { Injectable, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BaseApiService } from './base.service';
-import { BehaviorSubject } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
-import { BizService } from './biz.service';
-import { Biz, BizModule, Branch, ERole, User } from 'src/app/types/viewmodels';
-import { environment } from 'src/environments/environment';
+import {Injectable, Inject} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BaseApiService} from './base.service';
+import {BehaviorSubject} from 'rxjs';
+import {distinctUntilChanged} from 'rxjs/operators';
+import {BizService} from './biz.service';
+import {Biz, BizModule, Branch, ERole, User} from 'src/app/types/viewmodels';
+import {environment} from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User>(null as unknown as User);
-  public currentUser = this.currentUserSubject.asObservable().pipe(distinctUntilChanged());
+  private currentUserSubject = new BehaviorSubject<User>(
+    null as unknown as User,
+  );
+  public currentUser = this.currentUserSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
   private currentBizSubject = new BehaviorSubject<Biz>(null as unknown as Biz);
-  public currentBiz = this.currentBizSubject.asObservable().pipe(distinctUntilChanged());
+  public currentBiz = this.currentBizSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
 
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public branches = new BehaviorSubject<Branch[]>([]);
   public modules = new BehaviorSubject<BizModule[]>([]);
-  public isLoggedIn = this.isLoggedInSubject.asObservable().pipe(distinctUntilChanged());
+  public isLoggedIn = this.isLoggedInSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
 
   public refToken: string | null = null;
 
-  constructor(private bizService: BizService) { }
+  constructor(private bizService: BizService) {}
 
-  auth = {
-  };
+  auth = {};
 
   popular() {
     let alias = 'test';
 
-    const parsedURL = new URL(location.href)
+    const parsedURL = new URL(location.href);
     if (environment.production) {
-      alias = parsedURL.pathname.substring(1).replace(/\/.*/, "")
+      alias = parsedURL.pathname.substring(1).replace(/\/.*/, '');
     }
 
     if (this.getToken() && alias) {
@@ -48,22 +55,21 @@ export class AuthService {
             this.refToken = res.refToken || null;
             this.isLoggedInSubject.next(true);
           } else {
-            window.location.href = parsedURL.origin
+            window.location.href = parsedURL.origin;
           }
         },
         error: (error) => {
           // console.log('error');
           // this.logout()
           window.location.href = '/';
-        }
-      }
-      );
-    }else {
-      window.location.href = '/'
+        },
+      });
+    } else {
+      window.location.href = '/';
     }
   }
   isOwner(): boolean {
-    return this.currentBizSubject?.value?.user.role == ERole.OWNER
+    return this.currentBizSubject?.value?.user.role == ERole.OWNER;
   }
   getToken(name = 'smaxapp_token'): string {
     const token = localStorage.getItem(name);

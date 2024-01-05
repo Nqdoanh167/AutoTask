@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import {Biz, ObjectAny} from 'src/app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
-import { AuthService } from 'src/app/services/api/auth.service';
+import {AuthService} from 'src/app/services/api/auth.service';
 
 @Component({
   selector: 'app-input-checkbox',
@@ -69,7 +69,10 @@ export class InputSelectCheckboxComponent implements OnInit, OnChanges {
     listUsers: [],
   };
 
-  constructor(private elemRef: ElementRef, private authService: AuthService) {
+  constructor(
+    private elemRef: ElementRef,
+    private authService: AuthService,
+  ) {
     this.authService.currentBiz.pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.biz = res;
@@ -140,7 +143,7 @@ export class InputSelectCheckboxComponent implements OnInit, OnChanges {
     if (checked) {
       if (type === 'all') {
         this.valueCurrent = this.listItemSelect.map(
-          (item: ObjectAny) => item[this.itemKey]
+          (item: ObjectAny) => item[this.itemKey],
         );
       } else {
         if (!this.valueCurrent.includes(item[this.itemKey])) {
@@ -152,14 +155,14 @@ export class InputSelectCheckboxComponent implements OnInit, OnChanges {
         this.valueCurrent = [];
       } else {
         this.valueCurrent = this.valueCurrent.filter(
-          (v) => v !== item[this.itemKey]
+          (v) => v !== item[this.itemKey],
         );
 
         try {
           if (item.children?.length) {
             const itemIds = item.children.map((c: any) => c[this.itemKey]);
             this.valueCurrent = this.valueCurrent.filter(
-              (v) => !itemIds.includes(v)
+              (v) => !itemIds.includes(v),
             );
           }
         } catch (error) {}

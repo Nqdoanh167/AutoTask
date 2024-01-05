@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { PermissionComponent } from './permission.component';
+import {PermissionComponent} from './permission.component';
 
 describe('PermissionComponent', () => {
   let component: PermissionComponent;
@@ -8,7 +8,7 @@ describe('PermissionComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PermissionComponent]
+      declarations: [PermissionComponent],
     });
     fixture = TestBed.createComponent(PermissionComponent);
     component = fixture.componentInstance;

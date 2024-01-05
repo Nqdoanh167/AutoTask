@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { InputSelectComponent } from './input-select.component';
+import {InputSelectComponent} from './input-select.component';
 
 describe('InputSelectComponent', () => {
   let component: InputSelectComponent;
@@ -8,9 +8,8 @@ describe('InputSelectComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InputSelectComponent ]
-    })
-    .compileComponents();
+      declarations: [InputSelectComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

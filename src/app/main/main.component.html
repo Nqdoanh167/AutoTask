@@ -1,8 +1,8 @@
 <div class="wrapper">
   <!-- <app-sidebar></app-sidebar> -->
-  <app-sidebar *ngIf="biz && !isHiddenSidebar;"></app-sidebar>
+  <app-sidebar *ngIf="biz && !isHiddenSidebar"></app-sidebar>
   <div class="content-wrapper" [ngClass]="{'ps-0': isHiddenSidebar}">
-    <ng-container *ngIf="biz; else nonBiz;">
+    <ng-container *ngIf="biz; else nonBiz">
       <app-header>
         <div class="left">
           <ul class="nav flex-nowrap">

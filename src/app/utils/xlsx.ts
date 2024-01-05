@@ -1,13 +1,24 @@
 import * as XLSX from 'xlsx';
 import * as _ from 'lodash';
-export const exportFileOrder = ({ sheetName = 'sheet1', headerName = [], headerValue = [], rows = [], }: { sheetName?: string, headerName: string[], headerValue: string[], rows: any }) => {
+export const exportFileOrder = ({
+  sheetName = 'sheet1',
+  headerName = [],
+  headerValue = [],
+  rows = [],
+}: {
+  sheetName?: string;
+  headerName: string[];
+  headerValue: string[];
+  rows: any;
+}) => {
   const ws = XLSX.utils.aoa_to_sheet([headerName]);
   const wscols = [];
-   for (var i = 0; i < headerName.length; i++) {  // columns length added
-     wscols.push({ wch: headerName[i].length + 5 })
-   }
+  for (var i = 0; i < headerName.length; i++) {
+    // columns length added
+    wscols.push({wch: headerName[i].length + 5});
+  }
 
-  ws['!cols'] = wscols
+  ws['!cols'] = wscols;
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
@@ -19,19 +30,25 @@ export const exportFileOrder = ({ sheetName = 'sheet1', headerName = [], headerV
     });
   });
   /* generate buffer */
-  const buf = XLSX.write(wb, {  bookType: 'xlsx', type: 'array' });
+  const buf = XLSX.write(wb, {bookType: 'xlsx', type: 'array'});
   return buf;
 };
 
-export const readFile = ({ file, headers = [] }: { file: any, headers: string[] }) => {
-  const res: any = { isSuccess: false, data: [], valid: false, message: '' };
+export const readFile = ({
+  file,
+  headers = [],
+}: {
+  file: any;
+  headers: string[];
+}) => {
+  const res: any = {isSuccess: false, data: [], valid: false, message: ''};
   try {
     // XLSX.read
-    const workbook = XLSX.read(file, { type: 'binary' });
+    const workbook = XLSX.read(file, {type: 'binary'});
     const sheets = workbook.SheetNames;
     if (sheets.length) {
       const ws = workbook.Sheets[sheets[0]];
-      const dataJson = XLSX.utils.sheet_to_json(ws, { defval: null });
+      const dataJson = XLSX.utils.sheet_to_json(ws, {defval: null});
       // valid
       if (!dataJson || !dataJson.length) {
         res.message = 'File chưa có dữ liệu';
@@ -44,11 +61,11 @@ export const readFile = ({ file, headers = [] }: { file: any, headers: string[] 
         const firstRow: any = dataJson[0];
         if (firstRow) {
           const invalidHeader = Object.keys(firstRow)?.some((field) =>
-            headers.includes(field?.toString().trim() || '')
+            headers.includes(field?.toString().trim() || ''),
           );
           if (!invalidHeader) {
             res.message = `Tên tiêu đề cần có ít nhất 1 trong các cột: ${headers.join(
-              ', '
+              ', ',
             )}`;
             return res;
           }

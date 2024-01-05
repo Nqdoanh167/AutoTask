@@ -11,13 +11,13 @@ import {AuthService} from './auth.service';
 })
 export class LocationService extends BaseApiService implements OnDestroy {
   private listProvinceSubject = new BehaviorSubject<Location[]>(
-    null as unknown as Location[]
+    null as unknown as Location[],
   );
   public listProvince = this.listProvinceSubject
     .asObservable()
     .pipe(distinctUntilChanged());
   private listDistrictSubject = new BehaviorSubject<Location[]>(
-    null as unknown as Location[]
+    null as unknown as Location[],
   );
   public listDistrict = this.listDistrictSubject
     .asObservable()
@@ -29,14 +29,17 @@ export class LocationService extends BaseApiService implements OnDestroy {
     location: '',
   };
   private defaultParams: any = {};
-  constructor(httpClient: HttpClient, private authService: AuthService) {
+  constructor(
+    httpClient: HttpClient,
+    private authService: AuthService,
+  ) {
     super(httpClient);
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
       next: (res) => {
         if (res) {
           this.setApiAddress(
             environment.apiAddress,
-            `bizs/${res.alias}/location`
+            `bizs/${res.alias}/location`,
           );
         }
       },
@@ -55,28 +58,28 @@ export class LocationService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.location, 'provinces']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     getDistrict: (params = {}) =>
       this.httpClient.get<EntityResult<Location[]>>(
         this.createUrl([this.api.location, 'districts']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     getWard: (params = {}) =>
       this.httpClient.get<EntityResult<Location[]>>(
         this.createUrl([this.api.location, 'wards']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     getPostCode: (params = {}) =>
       this.httpClient.get<EntityResult<Location[]>>(
         this.createUrl([this.api.location, 'postcode']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        }
+        },
       ),
     getDetectAddress: (params = {}) =>
       this.httpClient.get<
