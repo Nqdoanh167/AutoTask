@@ -1,5 +1,5 @@
 {
-  "name": "fontend-auto-task-calendar-1",
+  "name": "fontend-auto-task",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -13,7 +13,7 @@
     "prettier:fix": "prettier --write .",
     "check-types": "tsc --pretty --noEmit",
     "pre-commit": "npm run lint:fix && npm run prettier:fix",
-    "test-all": "npm run lint && npm run prettier && npm run build && npm run check-types",
+    "test-all": "npm run check-types && npm run lint:fix && npm run prettier && npm run build ",
     "prepare": "husky install"
   },
   "lint-staged": {
