@@ -1334,9 +1334,20 @@ export interface Source {
 export interface ISidebar {
   link: string;
   name: string;
-  icon: string;
-  iconActive: string;
+  icon?: string;
+  iconActive?: string;
   isActive: boolean;
   children?: ISidebar[];
   disabled?: boolean;
+}
+
+export enum EModule {
+  TABLE = 'table',
+  FLOW = 'flow',
+  SETTING = 'flow'
+}
+
+export enum EFlowTab {
+  RULE = 'rule',
+  DATA = 'data'
 }

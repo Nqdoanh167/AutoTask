@@ -4,7 +4,19 @@
   <div class="content-wrapper" [ngClass]="{'ps-0': isHiddenSidebar}">
     <ng-container *ngIf="biz; else nonBiz;">
       <app-header>
-        <div class="left"></div>
+        <div class="left">
+          <ul class="nav flex-nowrap">
+            <li *ngFor="let item of listNavItems" class="nav-item">
+              <a
+                [routerLink]="[item.link]"
+                class="nav-link"
+                routerLinkActive="active"
+              >
+                {{ item.name }}
+              </a>
+            </li>
+          </ul>
+        </div>
         <div class="right"></div>
       </app-header>
       <router-outlet></router-outlet>

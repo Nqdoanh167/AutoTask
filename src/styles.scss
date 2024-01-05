@@ -828,3 +828,26 @@ a {
     }
   }
 }
+
+//Layout
+.nav {
+  display: flex;
+  padding-left: 10px;
+  .nav-item {
+    .nav-link {
+      color: #686c7b;
+      font-weight: bold;
+      line-height: 20px;
+      border-radius: 8px;
+      &.active {
+        color: $neutral;
+        background-color: #eef0f3;
+      }
+    }
+    &:first-child {
+      .nav-link {
+        padding-left: 20px;
+      }
+    }
+  }
+}
