@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {environment} from 'src/environments/environment';
@@ -9,7 +9,7 @@ import {AuthService} from './auth.service';
 @Injectable({
   providedIn: 'root',
 })
-export class StorageService extends BaseApiService {
+export class StorageService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
 
   constructor(
