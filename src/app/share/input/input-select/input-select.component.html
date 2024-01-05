@@ -1,0 +1,25 @@
+<div class="frame-input-tag w-100" *ngIf="showInputCreate">
+  <input #spans type="text" class="form-control h-lg w-100" (click)="onClickInput({ event: $event })" [(ngModel)]="tags"
+    (focusout)="focusout({ event: $event })" (blur)="onBlurInput({ event: $event })" [maxlength]="maxlength"
+    (keyup)="onKeyDownTag({ event: $event })" [attr.placeholder]="placeholder" *ngIf="inputType === 'input'">
+  <textarea #spans type="text" class="form-control w-100" (click)="onClickInput({ event: $event })"
+    [(ngModel)]="tags" (focusout)="focusout({ event: $event })" (blur)="onBlurInput({ event: $event })"
+    [maxlength]="maxlength" (keyup)="onKeyDownTag({ event: $event })" [attr.placeholder]="placeholder"
+    *ngIf="inputType === 'textarea'" style="max-height: 80px;"></textarea>
+  <!-- <div #spans id="input-text" class="form-control" (click)="onClickInput({ event: $event })"
+      (focusout)="focusout({ event: $event })"
+      (blur)="onBlurInput({ event: $event })" (keyup)="onKeyDownTag({ event: $event })" [attr.placeholder]="placeholder"
+      contenteditable="true" wrap="soft" spellcheck="false"></div> -->
+  <!--  && showSelectTag -->
+  <ul class="list-tag custom-scrollbar" *ngIf="listItemSelect?.length && showSelectTag">
+    <li *ngFor="let item of listItemSelect" class="item-select"
+      [ngClass]="{ selected: isSelect(item), 'item-center': itemStyleCenter }" (click)="handleChooseTag(item)">
+      <ng-container *ngIf="template;else nonTemplate;">
+        <ng-container *ngTemplateOutlet="template; context: { item: item }"></ng-container>
+      </ng-container>
+      <ng-template #nonTemplate>
+        {{ item }}
+      </ng-template>
+    </li>
+  </ul>
+</div>

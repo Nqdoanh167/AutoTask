@@ -1,0 +1,85 @@
+@mixin box($width, $height: $width) {
+  width: $width;
+  height: $height;
+}
+
+@mixin calculateSize(
+  $property,
+  $minuend: '0px',
+  $subtrahend1: '0px',
+  $subtrahend2: '0px',
+  $subtrahend3: '0px',
+  $subtrahend4: '0px'
+) {
+  #{$property}: calc(
+    #{$minuend} - #{$subtrahend1} - #{$subtrahend2} - #{$subtrahend3} - #{$subtrahend4}
+  );
+}
+
+@mixin box-shadow($top, $left, $blur, $color, $inset: '') {
+  -webkit-box-shadow: $top $left $blur $color #{$inset};
+  -moz-box-shadow: $top $left $blur $color #{$inset};
+  box-shadow: $top $left $blur $color #{$inset};
+}
+
+@mixin limit-text-row($number) {
+  overflow: hidden;
+  line-clamp: $number;
+  display: -webkit-box;
+  -webkit-line-clamp: $number;
+  -webkit-box-orient: vertical;
+}
+
+@mixin imageCircle($size) {
+  width: $size;
+  height: $size;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+@mixin input-placeholder {
+  &.placeholder {
+    @content;
+  }
+  &:-moz-placeholder {
+    @content;
+  }
+  &::-moz-placeholder {
+    @content;
+  }
+  &:-ms-input-placeholder {
+    @content;
+  }
+  &::-webkit-input-placeholder {
+    @content;
+  }
+}
+
+@mixin font-source($size: false, $colour: false, $weight: false, $lh: false) {
+  @if $size {
+    font-size: $size;
+  }
+  @if $colour {
+    color: $colour;
+  }
+  @if $weight {
+    font-weight: $weight;
+  }
+  @if $lh {
+    line-height: $lh;
+  }
+}
+
+@mixin pseudo(
+  $width: 100%,
+  $height: 100%,
+  $display: inline-block,
+  $pos: absolute,
+  $content: ''
+) {
+  content: $content;
+  display: $display;
+  position: $pos;
+  @include box($width, $height);
+}

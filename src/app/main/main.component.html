@@ -1,0 +1,21 @@
+<div class="wrapper">
+  <!-- <app-sidebar></app-sidebar> -->
+  <app-sidebar *ngIf="biz && !isHiddenSidebar;"></app-sidebar>
+  <div class="content-wrapper" [ngClass]="{'ps-0': isHiddenSidebar}">
+    <ng-container *ngIf="biz; else nonBiz;">
+      <app-header>
+        <div class="left"></div>
+        <div class="right"></div>
+      </app-header>
+      <router-outlet></router-outlet>
+    </ng-container>
+    <ng-template #nonBiz>
+      <div class="loading">
+        <div class="spinner-grow text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div>Loading...</div>
+      </div>
+    </ng-template>
+  </div>
+</div>
