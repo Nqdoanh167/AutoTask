@@ -1,0 +1,32 @@
+<div class="btn-group" dropdown #dropdownDate="bs-dropdown" [insideClick]="true"
+  [ngClass]="{'d-inline-block': inputType === 'icon', 'd-block': inputType === 'input'}">
+  <ng-container *ngIf="inputType === 'input'">
+    <div dropdownToggle [class]="classCustomize" class="form-control cursor-point text-truncate h-sm d-flex justify-content-between align-items-center"
+      [ngClass]="{ focus: dropdownDate.isOpen, 'pe-none': readonly }">
+      <span>{{ value | date: "dd/MM/YYYY HH:mm"}}</span>
+      <span *ngIf="!value" class="text-placeholder">{{placeholder}}</span>
+      <i *ngIf="iconSuffix" [class]="iconSuffix"></i>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="inputType === 'icon'">
+    <div dropdownToggle>
+      <i [class]="classIcon" class="cursor-point"></i>
+    </div>
+  </ng-container>
+  <div *dropdownMenu class="dropdown-menu dropdown-menu__date" role="menu">
+    <div class="d-flex align-items-center flex-column">
+      <bs-datepicker-inline (bsValueChange)="datetime.date = $event" [bsValue]="datetime.date"
+        [bsConfig]="{ containerClass: 'theme-blue' }">
+      </bs-datepicker-inline>
+      <timepicker class="mt-2" [(ngModel)]="datetime.time" [showMeridian]="false"></timepicker>
+    </div>
+    <div class="text-end">
+      <div class="btn btn-light" (click)="dropdownDate.hide()">
+        Cancel
+      </div>
+      <div class="btn btn-outline-primary ml-2" (click)="setDate({dropdownDate: dropdownDate})">
+        OK
+      </div>
+    </div>
+  </div>
+</div>

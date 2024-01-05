@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Smax App | Appointment</title>
+  <base href="./">
+  <script>
+    (function () {
+      var __pathnames = window.location.pathname.split('/')
+      if (__pathnames?.length > 0 && __pathnames[1]) {
+        window['_app_base'] = '/' + __pathnames[1] + '/auto-task/';
+      }
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link href="https://unpkg.com/angular-calendar@0.31.0/css/angular-calendar.css" rel="stylesheet">
+  <link href="https://unpkg.com/flatpickr@4.6.13/dist/flatpickr.css" rel="stylesheet">
+
+</head>
+
+<body>
+  <app-root></app-root>
+  <script src="/demo/auto-task/assets/js/ckeditor/ckeditor.js"></script>
+  <script src="/demo/auto-task/assets/js/bootstrap.bundle.min.js"></script>
+  <script>
+    CKEDITOR.plugins.addExternal('youtube', '/demo/auto-task/assets/plugins/youtube/', 'plugin.js');
+    CKEDITOR.plugins.addExternal('colorbutton', '/demo/auto-task/assets/plugins/colorbutton/', 'plugin.js');
+    CKEDITOR.plugins.addExternal('panelbutton', '/demo/auto-task/assets/plugins/panelbutton/', 'plugin.js');
+    CKEDITOR.plugins.addExternal('floatpanel', '/demo/auto-task/assets/plugins/floatpanel/', 'plugin.js');
+    CKEDITOR.plugins.addExternal('justify', '/demo/auto-task/assets/plugins/justify/', 'plugin.js');
+  </script>
+  <script>
+    let SDK_SERVER_ADDRESS = '/files';
+    if (location.host.indexOf('localhost') > -1) {
+      SDK_SERVER_ADDRESS = 'https://dev.smax.app/files'
+    }
+
+    (function (d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = `${SDK_SERVER_ADDRESS}/public/js/smax-chat-sdk.js`;
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'smax-chat-js-sdk'));
+  </script>
+</body>
+
+</html>
