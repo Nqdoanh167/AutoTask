@@ -31,12 +31,12 @@ public listNavItems: ISidebar[] = [];
 
     public listSettingNavItems: ISidebar[] = [
         {
-            link: '/flow/rule',
+            link: '/setting/permission',
             name: 'Phân quyền',
             isActive: true,
         },
         {
-            link: '/flow/data',
+            link: '/setting/non',
             name: 'Menu trống',
             isActive: true,
         },
@@ -65,6 +65,8 @@ public listNavItems: ISidebar[] = [];
               this.listNavItems = this.listFlowNavItems;
           } else if (url.includes(`/${EModule.SETTING}`)) {
               this.listNavItems = this.listSettingNavItems;
+          } else {
+              this.listNavItems = [];
           }
           let routeTitle = '';
           while (route!.firstChild) {

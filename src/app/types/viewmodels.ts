@@ -1344,10 +1344,15 @@ export interface ISidebar {
 export enum EModule {
   TABLE = 'table',
   FLOW = 'flow',
-  SETTING = 'flow'
+  SETTING = 'setting'
 }
 
 export enum EFlowTab {
   RULE = 'rule',
   DATA = 'data'
+}
+
+export enum ESettingTab {
+  PERMISSION = 'permission',
+  NON = 'non'
 }
