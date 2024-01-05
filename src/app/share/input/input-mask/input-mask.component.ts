@@ -3,7 +3,7 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
+  OnChanges, OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
@@ -17,7 +17,7 @@ import {Subject, takeUntil} from 'rxjs';
   templateUrl: './input-mask.component.html',
   styleUrls: ['./input-mask.component.scss'],
 })
-export class InputMaskComponent implements OnInit, OnChanges {
+export class InputMaskComponent implements OnInit, OnChanges, OnDestroy {
   @Input() id: string | null = null;
   @Input() className: string | null = null;
   @Input() placeholder: string | null = null;
@@ -36,7 +36,7 @@ export class InputMaskComponent implements OnInit, OnChanges {
     thousandSeparator: ',',
   };
   @Output() changeValue = new EventEmitter<number>();
-  @Output() paste = new EventEmitter<Event>();
+  @Output() pasteEvent = new EventEmitter<Event>();
   biz!: Biz;
   destroy = new Subject();
   constructor(
@@ -94,7 +94,7 @@ export class InputMaskComponent implements OnInit, OnChanges {
     this.destroy.complete();
   }
   onPaste(event: Event) {
-    this.paste.emit(event);
+    this.pasteEvent.emit(event);
   }
   onKeyup(isEmit = false) {
     if (typeof this.max === 'number' && this.value > this.max) {

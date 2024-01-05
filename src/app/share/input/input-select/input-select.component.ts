@@ -29,15 +29,15 @@ export class InputSelectComponent implements OnInit {
   @Input() tagEmpty = 'Thẻ tag rỗng';
   @Input() enableCreateText = true;
   @Input() showInputCreate = true;
-  @Input() islistenOnPaste = false; // Lắng nghe sự kiện onPaste
+  @Input() islistenOnPaste = false; // Lắng nghe sự kiện pasteEvent
   @Input() template: any;
   @Input() templateActive: any;
   // tslint:disable-next-line:no-output-on-prefix
-  @Output() onChange = new EventEmitter<any>();
+  @Output() changeEvent = new EventEmitter<any>();
   // tslint:disable-next-line:no-output-on-prefix
-  @Output() onPaste = new EventEmitter<any>();
+  @Output() pasteEvent = new EventEmitter<any>();
   // tslint:disable-next-line:no-output-on-prefix
-  @Output() onRemove = new EventEmitter<any>();
+  @Output() removeEvent = new EventEmitter<any>();
   showSelectTag = false;
   constructor(private toastr: ToastrService) {}
   ngOnInit(): void {}
@@ -56,10 +56,10 @@ export class InputSelectComponent implements OnInit {
     this.onBlurInput({event});
   }
   handleChooseTag(tag: any) {
-    this.onChange.emit(tag);
+    this.changeEvent.emit(tag);
   }
   onBlurInput({event}: {event: any}) {
-    this.onChange.emit(this.tags);
+    this.changeEvent.emit(this.tags);
     setTimeout(() => {
       this.showSelectTag = false;
     }, 150);
@@ -77,7 +77,7 @@ export class InputSelectComponent implements OnInit {
   }
 
   onRemoveTag({tag, index}: {tag: any; index: number}) {
-    this.onRemove.emit({tag, index});
+    this.removeEvent.emit({tag, index});
   }
   // replaceTextTag(tag) {
   //   if (!this.listItemSelect.length) return tag

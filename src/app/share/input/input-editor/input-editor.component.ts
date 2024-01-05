@@ -104,7 +104,7 @@ export class InputEditorComponent implements OnInit {
   @Input() content!: string;
   @Output() contentChange: EventEmitter<string> = new EventEmitter();
   // tslint:disable-next-line:no-output-native
-  @Output() blur: EventEmitter<string> = new EventEmitter();
+  @Output() blurEvent: EventEmitter<string> = new EventEmitter();
   timeOut: any;
   constructor() {}
   ngOnInit(): void {}
@@ -112,6 +112,6 @@ export class InputEditorComponent implements OnInit {
     this.contentChange.emit(this.content);
   }
   onBlur() {
-    this.blur.emit(this.content);
+    this.blurEvent.emit(this.content);
   }
 }

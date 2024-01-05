@@ -15,7 +15,7 @@ export class InputDatetimeComponent implements OnInit {
   @Input() placeholder = 'Thời gian';
   @Input() value: any = '';
   // tslint:disable-next-line:no-output-native
-  @Output('change') change = new EventEmitter<Date>();
+  @Output() changeEvent = new EventEmitter<Date>();
   datetime = {
     date: new Date(),
     time: new Date(),
@@ -33,7 +33,7 @@ export class InputDatetimeComponent implements OnInit {
     const time = new Date(this.datetime.time);
     date.setHours(time.getHours());
     date.setMinutes(time.getMinutes());
-    this.change.emit(date);
+    this.changeEvent.emit(date);
     dropdownDate.hide();
   }
 }

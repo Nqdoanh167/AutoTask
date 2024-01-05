@@ -8,7 +8,7 @@ import {
   HostListener,
   ViewChild,
   OnChanges,
-  SimpleChanges,
+  SimpleChanges, OnDestroy,
 } from '@angular/core';
 import {Biz, ObjectAny} from 'src/app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
@@ -19,7 +19,7 @@ import {AuthService} from 'src/app/services/api/auth.service';
   templateUrl: './input-select-checkbox.component.html',
   styleUrls: ['./input-select-checkbox.component.scss'],
 })
-export class InputSelectCheckboxComponent implements OnInit, OnChanges {
+export class InputSelectCheckboxComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('inputSearch') inputSearch!: any;
   @HostListener('document:click', ['$event'])
   onClick(ev: MouseEvent): void {}
@@ -48,11 +48,11 @@ export class InputSelectCheckboxComponent implements OnInit, OnChanges {
   };
 
   // tslint:disable-next-line:no-output-on-prefix
-  @Output() onChange = new EventEmitter<any>();
+  @Output() changeEvent = new EventEmitter<any>();
   // tslint:disable-next-line:no-output-on-prefix
-  @Output() onSearch = new EventEmitter<any>();
+  @Output() searchEvent = new EventEmitter<any>();
   // tslint:disable-next-line:no-output-on-prefix
-  @Output() onRemove = new EventEmitter<any>();
+  @Output() removeEvent = new EventEmitter<any>();
   valueCurrent: string[] = [];
   isListHide = true;
   timeout: any = null;
@@ -136,7 +136,7 @@ export class InputSelectCheckboxComponent implements OnInit, OnChanges {
     }
   }
   onRemoveItemSelect() {
-    this.onRemove.emit(this.value);
+    this.removeEvent.emit(this.value);
   }
   onSelectItem(event: Event, type: string, item: any) {
     const checked = (event.target as HTMLInputElement).checked;
@@ -173,11 +173,11 @@ export class InputSelectCheckboxComponent implements OnInit, OnChanges {
     const value = (event.target as HTMLInputElement).value;
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
-      this.onSearch.emit(value);
+      this.searchEvent.emit(value);
     }, this.debounce);
   }
   onFilter() {
-    this.onChange.emit(this.valueCurrent);
+    this.changeEvent.emit(this.valueCurrent);
     this.value = this.valueCurrent;
     this.isListHide = true;
   }
