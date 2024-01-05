@@ -8,7 +8,8 @@ import {
   HostListener,
   ViewChild,
   OnChanges,
-  SimpleChanges, OnDestroy,
+  SimpleChanges,
+  OnDestroy,
 } from '@angular/core';
 import {Biz, ObjectAny} from 'src/app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
@@ -19,7 +20,9 @@ import {AuthService} from 'src/app/services/api/auth.service';
   templateUrl: './input-select-checkbox.component.html',
   styleUrls: ['./input-select-checkbox.component.scss'],
 })
-export class InputSelectCheckboxComponent implements OnInit, OnChanges, OnDestroy {
+export class InputSelectCheckboxComponent
+  implements OnInit, OnChanges, OnDestroy
+{
   @ViewChild('inputSearch') inputSearch!: any;
   @HostListener('document:click', ['$event'])
   onClick(ev: MouseEvent): void {}
