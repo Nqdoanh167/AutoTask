@@ -1,12 +1,16 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ETypeButton, ETypeFilter, IFilterTopTable} from '@app/types/common';
+import {ICommonDataSource} from '@app/types/viewmodels';
+import {Subject} from 'rxjs';
 
 @Component({
   selector: 'app-action',
   templateUrl: './action.component.html',
   styleUrls: ['./action.component.scss'],
 })
-export class ActionComponent {
+export class ActionComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject();
+
   public typeActions = [
     {
       value: 'call',
@@ -67,5 +71,48 @@ export class ActionComponent {
       icon: './assets/images/icon/plus.svg',
     },
   ];
+  public dataSource: ICommonDataSource<any, any> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+    },
+    total: 0,
+  };
   constructor() {}
+
+  ngOnInit() {}
+
+  getDataSource(isReset?: boolean) {
+    let params = {...this.dataSource.paramsQuery};
+    if (isReset) {
+      params.limit = 20;
+      params.page = 1;
+    }
+  }
+
+  handleUpdate(value: any) {}
+  handleDelete(value: any) {}
+
+  pageChanged(event: {page?: number; itemsPerPage?: number}, limit: any): void {
+    if (event.page) {
+      this.dataSource.paramsQuery = {
+        ...this.dataSource.paramsQuery,
+        page: event.page,
+      };
+    }
+    if (limit?.target?.value) {
+      this.dataSource.paramsQuery = {
+        ...this.dataSource.paramsQuery,
+        limit: Number(limit?.target?.value || 10),
+        page: 1,
+      };
+    }
+    this.getDataSource();
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
 }

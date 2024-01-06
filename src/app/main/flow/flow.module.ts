@@ -10,6 +10,9 @@ import {ChainActionComponent} from './data/components/chain-action/chain-action.
 import {ResultComponent} from './data/components/result/result.component';
 import {ReasonComponent} from './data/components/reason/reason.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
+import {FormsModule} from '@angular/forms';
+import {PaginationModule} from 'ngx-bootstrap/pagination';
+import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 
 @NgModule({
   declarations: [
@@ -26,6 +29,9 @@ import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top
     FlowRoutingModule,
     TabsModule,
     FilterTopTableComponent,
+    FormsModule,
+    PaginationModule,
+    ConvertTypeModule,
   ],
 })
 export class FlowModule {}

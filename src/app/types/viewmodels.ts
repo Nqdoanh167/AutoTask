@@ -2,6 +2,13 @@ export interface ObjectAny {
   [name: string]: any;
 }
 
+export interface ICommonDataSource<T, K> {
+  rows: T[];
+  loading: boolean;
+  paramsQuery: K;
+  total: number;
+}
+
 export interface Option {
   id?: string;
   label?: string;
