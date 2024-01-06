@@ -10,10 +10,12 @@ import {ChainActionComponent} from './data/components/chain-action/chain-action.
 import {ResultComponent} from './data/components/result/result.component';
 import {ReasonComponent} from './data/components/reason/reason.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-pagination.component';
+import {ModalUpdateActionComponent} from './data/content-modal/modal-update-action/modal-update-action.component';
+import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +26,7 @@ import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-
     ChainActionComponent,
     ResultComponent,
     ReasonComponent,
+    ModalUpdateActionComponent,
   ],
   imports: [
     CommonModule,
@@ -34,6 +37,8 @@ import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-
     PaginationModule,
     ConvertTypeModule,
     CustomPaginationComponent,
+    CustomModalComponent,
+    ReactiveFormsModule,
   ],
 })
 export class FlowModule {}

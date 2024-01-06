@@ -1,4 +1,4 @@
-<ng-container *transloco="let tc; read: 'common'">
+<ng-container>
   <div class="custom-modal modal-default">
     <div class="modal-header">
       <span class="modal-title pull-left">
@@ -26,13 +26,13 @@
           class="btn button-default-modal"
           type="button"
         >
-          {{ tc('button.cancel') }}
+          Cancel
         </button>
         <custom-button-loading
           (action)="!isSubmitting && onSubmit()"
           [isLoading]="isSubmitting"
           [type]="'button'"
-          [textButton]="tc('button.save')"
+          [textButton]="'Save'"
           [className]="'button-submit-modal'"
         ></custom-button-loading>
       </div>

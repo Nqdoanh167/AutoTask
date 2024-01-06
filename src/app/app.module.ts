@@ -11,6 +11,9 @@ import {TokenInterceptor} from './services/token.interceptor';
 import {APP_BASE_HREF} from '@angular/common';
 import {registerLocaleData} from '@angular/common';
 import localeVi from '@angular/common/locales/vi';
+import {ModalModule} from 'ngx-bootstrap/modal';
+import {NgSelectModule} from '@ng-select/ng-select';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 registerLocaleData(localeVi, 'vi');
 @Injectable()
@@ -23,6 +26,14 @@ export class GlobalErrorHandler implements ErrorHandler {
   }
 }
 
+const uiModule = [
+  ToastrModule.forRoot(),
+  ModalModule.forRoot(),
+  NgSelectModule,
+];
+
+const formModule = [FormsModule, ReactiveFormsModule];
+
 @NgModule({
   declarations: [AppComponent, NotfoundComponent],
   imports: [
@@ -31,6 +42,8 @@ export class GlobalErrorHandler implements ErrorHandler {
     HttpClientModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
+    [...uiModule],
+    [...formModule],
   ],
   providers: [
     {provide: LOCALE_ID, useValue: 'vi'},

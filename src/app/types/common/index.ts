@@ -25,9 +25,11 @@ export interface IFilterTopTable {
   clearable?: boolean;
 }
 
+export type NameButton = 'reload' | 'add_new';
+
 export interface IFilterTopButton {
   className?: string;
-  name?: string;
+  name?: NameButton;
   type?: ETypeButton;
   label?: string;
   icon?: string;

@@ -11,19 +11,13 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {Subject} from 'rxjs';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
-import {TranslocoModule} from '@ngneat/transloco';
 
 @Component({
   selector: 'app-custom-modal',
   templateUrl: './custom-modal.component.html',
   styleUrls: ['./custom-modal.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    CustomButtonLoadingComponent,
-    TranslocoModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, CustomButtonLoadingComponent],
 })
 export class CustomModalComponent implements OnInit, OnDestroy {
   @Input() isLoading: boolean = false;

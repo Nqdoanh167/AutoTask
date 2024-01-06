@@ -1,7 +1,14 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ETypeButton, ETypeFilter, IFilterTopTable} from '@app/types/common';
+import {
+  ETypeButton,
+  ETypeFilter,
+  IFilterTopButton,
+  IFilterTopTable,
+} from '@app/types/common';
 import {ICommonDataSource} from '@app/types/viewmodels';
 import {Subject} from 'rxjs';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {ModalUpdateActionComponent} from '@main/flow/data/content-modal/modal-update-action/modal-update-action.component';
 
 @Component({
   selector: 'app-action',
@@ -58,14 +65,14 @@ export class ActionComponent implements OnInit, OnDestroy {
       bindValue: 'value',
     },
   ];
-  public configButtons = [
+  public configButtons: IFilterTopButton[] = [
     {
       name: 'reload',
       type: ETypeButton.DEFAULT,
       icon: './assets/images/icon/reload.svg',
     },
     {
-      name: 'add',
+      name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm mới',
       icon: './assets/images/icon/plus.svg',
@@ -80,7 +87,7 @@ export class ActionComponent implements OnInit, OnDestroy {
     },
     total: 0,
   };
-  constructor() {}
+  constructor(private readonly modalService: BsModalService) {}
 
   ngOnInit() {}
 
@@ -90,11 +97,19 @@ export class ActionComponent implements OnInit, OnDestroy {
       params.limit = 20;
       params.page = 1;
     }
-    console.log(this.dataSource.paramsQuery);
   }
 
   handleUpdate(value: any) {}
   handleDelete(value: any) {}
+
+  handleAction(name: string) {
+    if (name === 'reload') {
+      this.getDataSource(true);
+    }
+    if (name === 'add_new') {
+      this.modalService.show(ModalUpdateActionComponent);
+    }
+  }
 
   pageChanged(dataPage: {page: number; limit: number}): void {
     const {page, limit} = dataPage;
