@@ -1,0 +1,165 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.custom-modal-confirm {
+  border-radius: vars.$radius-l;
+  border: 2px solid vars.$white;
+  &.outstanding {
+    .modal-body {
+      border: 2px solid vars.$orange-500;
+      animation: shake 0.5s forwards;
+    }
+  }
+  .modal-header {
+    padding: 10px;
+    border-bottom: none;
+  }
+  .button-confirm {
+    color: #fff;
+    border: none;
+    background-color: #2077fa;
+  }
+  .button-advance {
+    width: 50%;
+    border-radius: vars.$radius-s;
+    font-weight: 600;
+
+    &.btn-default {
+      //background-color: #dedede;
+      border-color: vars.$neutral-100;
+      color: vars.$neutral-400;
+    }
+  }
+  .modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 8px;
+  }
+  .modal-body {
+    z-index: 1;
+    background-color: #fff;
+    border-radius: vars.$radius-l;
+    padding: 16px;
+    border: 2px solid vars.$white;
+  }
+  .overlay {
+    z-index: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    &.show {
+      opacity: 1;
+      animation: fade 0.8s forwards;
+      visibility: visible;
+    }
+    &.hide {
+      opacity: 0;
+      animation: rotatedrop 8s forwards;
+
+      visibility: hidden;
+    }
+  }
+  .text-description {
+    white-space: pre-line;
+  }
+  .button-cancel {
+    border: 1px solid #dcdcdc;
+  }
+}
+
+.icon-modal {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.custom-modal-confirm.warning {
+  .icon-modal {
+    background-color: rgba(223, 52, 52, 0.25);
+    svg {
+      path {
+        fill: #df3434;
+      }
+    }
+  }
+  .button-confirm {
+    background-color: #df3434;
+  }
+}
+
+.custom-modal-confirm.info {
+  .icon-modal {
+    background-color: rgba(18, 103, 229, 0.25);
+    svg {
+      path {
+        fill: #1267e5;
+      }
+    }
+  }
+  .button-confirm {
+    background-color: #1267e5;
+  }
+}
+
+.text-description {
+  color: vars.$neutral-400;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  60% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: translate(1px, 1px) rotate(0deg);
+  }
+  10% {
+    transform: translate(-1px, -2px) rotate(-1deg);
+  }
+  20% {
+    transform: translate(-3px, 0px) rotate(1deg);
+  }
+  30% {
+    transform: translate(3px, 2px) rotate(0deg);
+  }
+  40% {
+    transform: translate(1px, -1px) rotate(1deg);
+  }
+  50% {
+    transform: translate(-1px, 2px) rotate(-1deg);
+  }
+  60% {
+    transform: translate(-3px, 1px) rotate(0deg);
+  }
+  70% {
+    transform: translate(3px, 1px) rotate(-1deg);
+  }
+  80% {
+    transform: translate(-1px, -1px) rotate(1deg);
+  }
+  90% {
+    transform: translate(1px, 2px) rotate(0deg);
+  }
+  100% {
+    transform: translate(1px, -2px) rotate(0deg);
+  }
+}

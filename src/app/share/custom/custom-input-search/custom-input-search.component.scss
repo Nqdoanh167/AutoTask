@@ -1,0 +1,21 @@
+@use 'src/app/styles/variable' as vars;
+
+.custom-input-search {
+  border: none;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: #e7e9ef;
+  i {
+    color: vars.$neutral-400;
+  }
+  //&:hover {
+  //  outline: 2px solid #E0E9FF;
+  //}
+}
+
+input {
+  border: none;
+  outline: 0;
+  width: 100%;
+  background: unset;
+}

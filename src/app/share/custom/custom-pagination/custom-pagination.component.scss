@@ -1,0 +1,33 @@
+@import 'src/app/styles/variable';
+
+.custom-pagination {
+  .page-size {
+    //padding: 9px 12px;
+    background: #e7e9ef;
+    border: none;
+    border-radius: 6px;
+    ng-select {
+      min-width: 60px;
+    }
+  }
+}
+
+.custom-change-page {
+  button {
+    width: 40px;
+    height: 40px;
+    background: #e7e9ef;
+    border-radius: 50%;
+
+    &:hover {
+      color: $white;
+      background-color: $neutral;
+    }
+  }
+  .disabled {
+    cursor: not-allowed;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.15);
+    }
+  }
+}

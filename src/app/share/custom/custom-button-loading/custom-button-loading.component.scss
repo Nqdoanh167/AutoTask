@@ -1,0 +1,17 @@
+@import 'src/app/styles/variable';
+
+button {
+  background-color: #2077fa;
+  color: $white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  &:hover {
+    opacity: 0.9 !important;
+    background-color: #2077fa;
+  }
+  &.loading {
+    opacity: 0.8 !important;
+    cursor: not-allowed !important;
+  }
+}

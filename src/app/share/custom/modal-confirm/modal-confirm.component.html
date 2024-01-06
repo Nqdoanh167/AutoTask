@@ -1,0 +1,176 @@
+<ng-template #template>
+  <div
+    *transloco="let tc; read: 'common'"
+    class="custom-modal-confirm"
+    [ngClass]="modalContent.type"
+  >
+    <div class="modal-body">
+      <div class="d-flex justify-content-between">
+        <div class="d-flex gap-3">
+          <ng-container [ngSwitch]="modalContent.type">
+            <div *ngSwitchCase="'warning'">
+              <ng-container *ngTemplateOutlet="iconWarning"></ng-container>
+            </div>
+            <div *ngSwitchCase="'info'">
+              <ng-container *ngTemplateOutlet="iconInfo"></ng-container>
+            </div>
+          </ng-container>
+
+          <div
+            class="d-flex flex-column justify-content-start align-items-start"
+          >
+            <h5 class="modal-title pull-left">{{ modalContent.title }}</h5>
+            <span class="text-description text-left">
+              {{ modalContent.description }}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-close close"
+          aria-label="Close"
+          (click)="hideModal()"
+        >
+          <span aria-hidden="true" class="visually-hidden">
+            <i class="fa-solid fa-xmark"></i>
+          </span>
+        </button>
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button
+          type="button"
+          class="btn button-outline button-cancel"
+          (click)="decline()"
+        >
+          {{ modalContent.cancelText || tc('button.cancel') }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary button-confirm"
+          [ngClass]="modalContent.type"
+          (click)="confirm()"
+        >
+          {{ modalContent.okText || tc('button.save') }}
+        </button>
+      </div>
+    </div>
+    <div
+      class="overlay"
+      (click)="handleClickOverlay($event)"
+      [ngClass]="{show: isOpenBackdrop, hide: !isOpenBackdrop}"
+    ></div>
+  </div>
+</ng-template>
+
+<ng-template #templateAdvance>
+  <div
+    *transloco="let tc; read: 'common'"
+    class="custom-modal-confirm"
+    [ngClass]="modalContent.type"
+    [class.outstanding]="isClickOverlay"
+  >
+    <div class="modal-body">
+      <div class="d-flex flex-column justify-content-center align-items-center">
+        <h5 class="modal-title pull-left text-center">
+          {{ modalContent.title }}
+        </h5>
+        <p
+          class="mb-2 text-description"
+          style="white-space: pre-line"
+          [innerHTML]="modalContent.description"
+        ></p>
+      </div>
+      <div class="mb-3">
+        <ng-content select="[childContent]"></ng-content>
+      </div>
+      <div
+        class="d-flex justify-content-center gap-2 mt-2"
+        [ngClass]="{'flex-row-reverse': modalContent.type === 'warning'}"
+      >
+        <button
+          type="button"
+          class="btn button-outline button-advance"
+          (click)="decline()"
+        >
+          {{ modalContent.cancelText || tc('button.cancel') }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary button-confirm button-advance"
+          [ngClass]="modalContent.type"
+          (click)="confirm()"
+        >
+          {{ modalContent.okText || tc('button.save') }}
+        </button>
+      </div>
+    </div>
+    <div
+      class="overlay"
+      (click)="handleClickOverlay($event)"
+      [ngClass]="{show: isOpenBackdrop, hide: !isOpenBackdrop}"
+    ></div>
+  </div>
+</ng-template>
+
+<ng-template #iconWarning>
+  <div class="icon-modal warning">
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M12 8.625C12.6213 8.625 13.125 9.12868 13.125 9.75V12.75C13.125 13.3713 12.6213 13.875 12 13.875C11.3787 13.875 10.875 13.3713 10.875 12.75V9.75C10.875 9.12868 11.3787 8.625 12 8.625Z"
+        fill="#17234E"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M10.6885 2.22792C11.0871 1.99675 11.5397 1.875 12.0006 1.875C12.4614 1.875 12.9141 1.99675 13.3127 2.22792C13.7105 2.45858 14.0404 2.79 14.2692 3.18876C14.2697 3.18966 14.2702 3.19055 14.2707 3.19145L22.5186 17.4377C22.7486 17.8361 22.8699 18.2879 22.8703 18.7479C22.8707 19.2079 22.7502 19.66 22.5209 20.0587C22.2916 20.4575 21.9616 20.789 21.5638 21.0201C21.166 21.2511 20.7145 21.3736 20.2545 21.3752L20.2506 21.3752H3.75058L3.74661 21.3752C3.28662 21.3736 2.83512 21.2511 2.43736 21.0201C2.03959 20.789 1.70953 20.4575 1.48023 20.0587C1.25093 19.66 1.13045 19.2079 1.13086 18.7479C1.13127 18.2879 1.25255 17.8361 1.48255 17.4377L9.73041 3.19145C9.73095 3.19051 9.73149 3.18956 9.73204 3.18862C9.96087 2.78992 10.2907 2.45855 10.6885 2.22792ZM10.7068 3.75024L11.6804 4.3139L3.4311 18.5627C3.43103 18.5629 3.43117 18.5626 3.4311 18.5627C3.39838 18.6196 3.38092 18.6843 3.38086 18.7499C3.3808 18.8156 3.39801 18.8802 3.43077 18.9372C3.46353 18.9941 3.51068 19.0415 3.5675 19.0745C3.62394 19.1073 3.68794 19.1248 3.75319 19.1252H20.248C20.3132 19.1248 20.3772 19.1073 20.4337 19.0745C20.4905 19.0415 20.5376 18.9941 20.5704 18.9372C20.6031 18.8802 20.6204 18.8156 20.6203 18.7499C20.6202 18.6844 20.603 18.62 20.5703 18.5633C20.5702 18.5631 20.5704 18.5634 20.5703 18.5633L12.3179 4.30903C12.2859 4.25312 12.2397 4.20665 12.184 4.17433C12.1283 4.14202 12.065 4.125 12.0006 4.125C11.9362 4.125 11.8729 4.14202 11.8172 4.17433C11.7614 4.20665 11.7152 4.25311 11.6832 4.30902L10.7068 3.75024Z"
+        fill="#17234E"
+      />
+      <path
+        d="M12 18C12.8284 18 13.5 17.3284 13.5 16.5C13.5 15.6716 12.8284 15 12 15C11.1716 15 10.5 15.6716 10.5 16.5C10.5 17.3284 11.1716 18 12 18Z"
+        fill="#17234E"
+      />
+    </svg>
+  </div>
+</ng-template>
+
+<ng-template #iconInfo>
+  <div class="icon-modal info">
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M12 4.125C7.65076 4.125 4.125 7.65076 4.125 12C4.125 16.3492 7.65076 19.875 12 19.875C16.3492 19.875 19.875 16.3492 19.875 12C19.875 7.65076 16.3492 4.125 12 4.125ZM1.875 12C1.875 6.40812 6.40812 1.875 12 1.875C17.5919 1.875 22.125 6.40812 22.125 12C22.125 17.5919 17.5919 22.125 12 22.125C6.40812 22.125 1.875 17.5919 1.875 12Z"
+        fill="#17234E"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M12 6.375C12.6213 6.375 13.125 6.87868 13.125 7.5V12.375C13.125 12.9963 12.6213 13.5 12 13.5C11.3787 13.5 10.875 12.9963 10.875 12.375V7.5C10.875 6.87868 11.3787 6.375 12 6.375Z"
+        fill="#17234E"
+      />
+      <path
+        d="M12 17.625C12.8284 17.625 13.5 16.9534 13.5 16.125C13.5 15.2966 12.8284 14.625 12 14.625C11.1716 14.625 10.5 15.2966 10.5 16.125C10.5 16.9534 11.1716 17.625 12 17.625Z"
+        fill="#17234E"
+      />
+    </svg>
+  </div>
+</ng-template>
+
+<!--<bs-modal-backdrop-->
+<!--  *ngIf="isOpenBackdrop"-->
+<!--  class="modal-backdrop fade in show"-->
+<!--&gt;</bs-modal-backdrop>-->

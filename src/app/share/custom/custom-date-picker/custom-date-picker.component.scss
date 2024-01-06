@@ -1,0 +1,27 @@
+.custom-date-picker {
+  height: 100%;
+  position: relative;
+
+  &.input-full-width {
+    input {
+      min-width: unset;
+      width: 100%;
+    }
+  }
+
+  input {
+    height: 100% !important;
+    border: 1px solid #e7e9ef;
+    border-radius: 8px;
+    padding: 0 10px;
+    min-width: 250px;
+  }
+
+  img {
+    cursor: pointer;
+    font-size: 18px;
+    position: absolute;
+    right: 10px;
+    top: 30%;
+  }
+}

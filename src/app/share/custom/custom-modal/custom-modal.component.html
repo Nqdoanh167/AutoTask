@@ -1,0 +1,41 @@
+<ng-container *transloco="let tc; read: 'common'">
+  <div class="custom-modal modal-default">
+    <div class="modal-header">
+      <span class="modal-title pull-left">
+        <ng-content select="[modalTitle]"></ng-content>
+      </span>
+      <button
+        (click)="onHideModal()"
+        aria-label="Close"
+        class="btn-close close pull-right"
+        type="button"
+      >
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <ng-content select="[modalBody]"></ng-content>
+    </div>
+    <div class="modal-footer">
+      <div #modalFooter>
+        <ng-content select="[modalFooter]"></ng-content>
+      </div>
+      <div class="d-flex gap-2" *ngIf="!modalFooter.children.length">
+        <button
+          (click)="onHideModal()"
+          class="btn button-default-modal"
+          type="button"
+        >
+          {{ tc('button.cancel') }}
+        </button>
+        <custom-button-loading
+          (action)="!isSubmitting && onSubmit()"
+          [isLoading]="isSubmitting"
+          [type]="'button'"
+          [textButton]="tc('button.save')"
+          [className]="'button-submit-modal'"
+        ></custom-button-loading>
+      </div>
+    </div>
+  </div>
+</ng-container>
