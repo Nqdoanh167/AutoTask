@@ -4,7 +4,7 @@ import {HeaderComponent} from './header.component';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {RouterModule} from '@angular/router';
 import {LogoModule} from 'smaxapp';
-import {BreadcrumbComponent} from '../breadcrumb/breadcrumb.component';
+import {BreadcrumbComponent} from '@share/breadcrumb/breadcrumb.component';
 
 @NgModule({
   declarations: [HeaderComponent, BreadcrumbComponent],
