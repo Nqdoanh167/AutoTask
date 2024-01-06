@@ -129,6 +129,7 @@ $secondary-100: #eef3ff; // Background
 // Neutral colors
 $neutral-600: #030c29; // Hover & Clicked
 $neutral-500: #0f1835; // Normal, Text, Title
+$neutral-450: #1a233d;
 $neutral-400: #787b83; // Second text
 $neutral-300: #afb2bd; // Disabled
 $neutral-200: #dadee5; // Grap Stroke, Stroke, Hover
@@ -209,7 +210,7 @@ $input-medium: 36px;
 $input-large: 48px;
 
 // Layout size
-$header-height: 51;
+$header-height: 50;
 $padding-content-site: 40;
 $padding-content-card: 32;
 $padding-content-site-card: $padding-content-site + $padding-content-card;
