@@ -6,7 +6,7 @@
       <ng-container *ngIf="filter.type === ETypeFilter.SEARCH">
         <custom-input-search
           [className]="'input-medium'"
-          (searchEvent)="onSearch($event)"
+          (searchEvent)="onSearch($event, filter.name)"
           [placeholder]="filter.placeholder || 'Search...'"
         ></custom-input-search>
       </ng-container>
@@ -14,6 +14,7 @@
         <custom-select-search
           [className]="'input-medium'"
           [selectData]="filter"
+          (selectEvent)="onSelectValue($event, filter.name)"
         ></custom-select-search>
       </ng-container>
     </ng-container>

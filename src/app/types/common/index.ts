@@ -22,6 +22,7 @@ export interface IFilterTopTable {
   bindValue?: string;
   isCreatable?: boolean;
   className?: string;
+  clearable?: boolean;
 }
 
 export interface IFilterTopButton {

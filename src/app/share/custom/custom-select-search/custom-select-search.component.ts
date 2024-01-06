@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {FormsModule} from '@angular/forms';
@@ -22,6 +22,7 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
         [multiple]="selectData.multiple || false"
         (search)="onSearchOption()"
         [closeOnSelect]="!selectData.multiple"
+        [clearable]="!!selectData.clearable"
       >
         <ng-template *ngIf="selectData.isCreatable" ng-header-tmp>
           <div (click)="onCreateOption()" class="cursor-point">
@@ -59,6 +60,7 @@ export class CustomSelectSearchComponent implements OnInit {
     bindLabel: 'name',
     bindValue: 'id',
   };
+  @Output() selectEvent = new EventEmitter<string>();
 
   constructor() {}
 
@@ -68,5 +70,7 @@ export class CustomSelectSearchComponent implements OnInit {
 
   onCreateOption() {}
 
-  handleChangeValue($event: any) {}
+  handleChangeValue(value: string) {
+    this.selectEvent.emit(value);
+  }
 }

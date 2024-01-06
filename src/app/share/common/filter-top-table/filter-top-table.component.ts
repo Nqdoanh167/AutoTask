@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
 import {
@@ -21,38 +21,20 @@ import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/cu
   styleUrls: ['./filter-top-table.component.scss'],
 })
 export class FilterTopTableComponent {
-  public configFilters: IFilterTopTable[] = [
-    {
-      type: ETypeFilter.SEARCH,
-      placeholder: 'Search...',
-    },
-    {
-      type: ETypeFilter.SELECT,
-      placeholder: 'Status',
-      options: [],
-    },
-    {
-      type: ETypeFilter.SELECT,
-      placeholder: 'Type',
-      options: [],
-    },
-  ];
-  public configButtons: IFilterTopButton[] = [
-    {
-      name: 'reload',
-      type: ETypeButton.DEFAULT,
-      icon: './assets/images/icon/reload.svg',
-    },
-    {
-      name: 'add',
-      type: ETypeButton.PRIMARY,
-      label: 'Thêm mới',
-      icon: './assets/images/icon/plus.svg',
-    },
-  ];
+  @Output() searchEvent = new EventEmitter<{term: string; name: string}>();
+  @Output() selectEvent = new EventEmitter<{value: string; name: string}>();
+
+  @Input() configFilters: IFilterTopTable[] = [];
+  @Input() configButtons: IFilterTopButton[] = [];
 
   protected readonly ETypeFilter = ETypeFilter;
   protected readonly ETypeButton = ETypeButton;
   constructor() {}
-  onSearch(searchText: string) {}
+  onSearch(term: string, name: string = 'search') {
+    this.searchEvent.emit({term, name});
+  }
+
+  onSelectValue(value: string, name: string = 'select') {
+    this.selectEvent.emit({value, name});
+  }
 }
