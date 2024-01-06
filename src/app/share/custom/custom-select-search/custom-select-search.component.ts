@@ -1,16 +1,14 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ISelectSearch, ObjectAny} from '@app/types/viewmodels';
 import {CommonModule} from '@angular/common';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {FormsModule} from '@angular/forms';
-import {TranslocoModule} from '@ngneat/transloco';
+import {ETypeFilter, IFilterTopTable} from '@app/types/common';
 
 @Component({
   selector: 'custom-select-search',
   template: `
     <div
-      class="custom-select-search {{ className }}"
-      *transloco="let tc; read: 'common'"
+      class="custom-select-search {{ selectData.className }} {{ className }}"
     >
       <ng-select
         (change)="handleChangeValue($event)"
@@ -18,18 +16,18 @@ import {TranslocoModule} from '@ngneat/transloco';
         appearance="outline"
         id="select-search"
         [searchable]="selectData.searchable || false"
-        [placeholder]="selectData.placeHolder || ''"
+        [placeholder]="selectData.placeholder || ''"
         class="dropdown-auto-width"
         [class.custom-input-multiple]="selectData.multiple"
         [multiple]="selectData.multiple || false"
-        (search)="selectData.onSearch?.($event)"
+        (search)="onSearchOption()"
         [closeOnSelect]="!selectData.multiple"
       >
         <ng-template *ngIf="selectData.isCreatable" ng-header-tmp>
-          <div (click)="selectData.onCreateOption?.()" class="cursor-point">
+          <div (click)="onCreateOption()" class="cursor-point">
             <div class="option-create cursor-pointer">
               <i class="fa-solid fa-plus me-2"></i>
-              {{ tc('button.add') }}
+              Add option
             </div>
           </div>
         </ng-template>
@@ -45,28 +43,28 @@ import {TranslocoModule} from '@ngneat/transloco';
   `,
   styleUrls: ['./custom-select-search.component.scss'],
   standalone: true,
-  imports: [CommonModule, NgSelectModule, FormsModule, TranslocoModule],
+  imports: [CommonModule, NgSelectModule, FormsModule],
 })
 export class CustomSelectSearchComponent implements OnInit {
   public dataSelect: any = undefined;
   @Input() className?: string;
-  @Input() selectData: ISelectSearch = {
+  @Input() selectData: IFilterTopTable = {
+    type: ETypeFilter.SELECT,
     name: '',
     options: [],
-    placeHolder: '',
-    onChange: () => {},
+    placeholder: '',
     searchable: false,
-    onSearch: () => {},
     multiple: false,
     isCreatable: false,
-    onCreateOption: () => {},
   };
 
   constructor() {}
 
   ngOnInit(): void {}
 
-  handleChangeValue($event: any) {
-    this.selectData.onChange?.($event);
-  }
+  onSearchOption() {}
+
+  onCreateOption() {}
+
+  handleChangeValue($event: any) {}
 }

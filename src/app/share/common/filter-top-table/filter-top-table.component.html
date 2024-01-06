@@ -1,0 +1,34 @@
+<div class="filter-top-table d-flex justify-content-between align-items-center">
+  <div class="left d-flex align-items-center gap-3">
+    <ng-container *ngFor="let filter of configFilters">
+      <ng-container *ngIf="filter.type === ETypeFilter.SEARCH">
+        <custom-input-search
+          [className]="'input-medium'"
+          (searchEvent)="onSearch($event)"
+          [placeholder]="filter.placeholder || 'Search...'"
+        ></custom-input-search>
+      </ng-container>
+      <ng-container *ngIf="filter.type === ETypeFilter.SELECT">
+        <custom-select-search
+          [className]="'input-medium'"
+          [selectData]="filter"
+        ></custom-select-search>
+      </ng-container>
+    </ng-container>
+  </div>
+  <div class="right d-flex align-items-center gap-3">
+    <ng-container *ngFor="let filter of configButtons">
+      <button
+        type="button"
+        class="btn button-medium {{ filter.className }}"
+        [ngClass]="{
+          'button-fill secondary-color': filter.type === ETypeButton.PRIMARY,
+          'button-outline': filter.type === ETypeButton.DEFAULT,
+          'button-sub-primary': filter.type === ETypeButton.SUB_PRIMARY
+        }"
+      >
+        {{ filter.label }}
+      </button>
+    </ng-container>
+  </div>
+</div>
