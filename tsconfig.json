@@ -3,7 +3,14 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
+    "paths": {
+      "@app/*": ["./src/app/*"],
+      "@main/*": ["./src/app/main/*"],
+      "@core/*": ["./src/app/core/*"],
+      "@share/*": ["./src/app/share/*"]
+    },
     "outDir": "./dist/out-tsc",
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,

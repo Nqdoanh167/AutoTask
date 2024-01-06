@@ -57,7 +57,8 @@
     "tslib": "^2.3.0",
     "uuid": "^8.3.2",
     "xlsx": "^0.18.5",
-    "zone.js": "~0.13.0"
+    "zone.js": "~0.13.0",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^16.2.11",
