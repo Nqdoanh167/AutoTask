@@ -1,13 +1,12 @@
-@import 'src/app/styles/variable';
+@use 'src/app/styles/variable' as vars;
 
 .custom-pagination {
   .page-size {
-    //padding: 9px 12px;
-    background: #e7e9ef;
+    background: vars.$neutral-50;
     border: none;
     border-radius: 6px;
     ng-select {
-      min-width: 60px;
+      min-width: 100px;
     }
   }
 }
@@ -20,8 +19,8 @@
     border-radius: 50%;
 
     &:hover {
-      color: $white;
-      background-color: $neutral;
+      color: vars.$white;
+      background-color: vars.$neutral-500;
     }
   }
   .disabled {

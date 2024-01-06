@@ -13,6 +13,7 @@ import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top
 import {FormsModule} from '@angular/forms';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
+import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-pagination.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
     FormsModule,
     PaginationModule,
     ConvertTypeModule,
+    CustomPaginationComponent,
   ],
 })
 export class FlowModule {}

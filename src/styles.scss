@@ -383,7 +383,7 @@ body {
 
 // end ng-select
 
-// pagination
+//// pagination
 .pagination {
   &-page {
   }
@@ -405,10 +405,10 @@ body {
     z-index: 0;
 
     .page-link {
-      line-height: 30px;
-      border-radius: 9px;
-      height: 30px;
-      min-width: 30px;
+      line-height: 18px;
+      border-radius: 20px;
+      height: 40px;
+      min-width: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -419,6 +419,7 @@ body {
     &.active {
       .page-link {
         color: var(--bs-light);
+        background-color: $neutral;
       }
     }
 
@@ -430,7 +431,7 @@ body {
   }
 }
 
-// end pagination
+//// end pagination
 
 .cdk-drag-placeholder {
   opacity: 0;

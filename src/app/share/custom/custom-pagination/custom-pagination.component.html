@@ -1,25 +1,21 @@
 <div
-  class="custom-pagination d-flex justify-content-between align-items-center flex-wrap"
+  class="custom-pagination d-flex justify-content-between align-items-center flex-wrap mt-3"
 >
   <div class="d-flex align-items-center">
-    <span>Rows per page</span>
+    <span>Hiển thị</span>
     <div class="mx-2 page-size">
       <ng-select
         appearance="outline"
         id="integration"
         [items]="optionSize"
         [clearable]="false"
-        (change)="changePageSize($event)"
+        (change)="pageChanged({}, $event)"
         [(ngModel)]="selectedSize"
         [dropdownPosition]="'top'"
-      >
-        >
-      </ng-select>
+      ></ng-select>
     </div>
     <ng-container *ngIf="type === 'number'">
-      <span>
-        {{ dataInfo.start }} - {{ dataInfo.end }} of {{ dataInfo.total }}
-      </span>
+      <span>trong tổng số {{ dataInfo.total }} bản ghi</span>
     </ng-container>
   </div>
   <div class="mt-2 mt-sm-2 mt-md-0">
@@ -30,28 +26,28 @@
 </div>
 
 <ng-template #lazy>
-  <!--  <div class="custom-change-page">-->
-  <!--    <button (click)="changePageLazy('before')" type="button" class="btn mx-2">-->
-  <!--      <i class="fa-solid fa-arrow-left"></i>-->
-  <!--    </button>-->
-  <!--    <button (click)="changePageLazy('after')" type="button" class="btn">-->
-  <!--      <i class="fa-solid fa-arrow-right"></i>-->
-  <!--    </button>-->
-  <!--  </div>-->
+  <div class="custom-change-page">
+    <button (click)="changePageLazy('before')" type="button" class="btn mx-2">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <button (click)="changePageLazy('after')" type="button" class="btn">
+      <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </div>
 </ng-template>
 
 <ng-template #number>
   <pagination
-    [totalItems]="dataInfo.total || 0"
+    [totalItems]="total || 0"
     [(ngModel)]="currentPage"
-    (pageChanged)="onChangePage($event)"
+    (pageChanged)="pageChanged($event, null)"
     [itemsPerPage]="selectedSize"
     [maxSize]="3"
     [boundaryLinks]="true"
     [rotate]="false"
     previousText="&lsaquo;"
     nextText="&rsaquo;"
-    firstText="First"
-    lastText="End"
+    firstText="Trang đầu"
+    lastText="Trang cuối"
   ></pagination>
 </ng-template>

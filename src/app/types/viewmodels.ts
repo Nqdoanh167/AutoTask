@@ -1363,3 +1363,14 @@ export enum ESettingTab {
   PERMISSION = 'permission',
   NON = 'non',
 }
+
+export type ITypePaginate = 'number' | 'lazy';
+export type IChangePage = 'before' | 'after';
+
+export interface IMetaData {
+  total?: number;
+  totalPage?: number;
+  countRows?: number;
+  currentPage?: number;
+  limit?: number;
+}

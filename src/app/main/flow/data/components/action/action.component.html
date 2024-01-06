@@ -54,38 +54,9 @@
       </tbody>
     </table>
   </div>
-  <div class="right d-flex justify-content-between mt-3">
-    <div class="d-flex align-items-center">
-      <span class="text-secondary" style="width: auto">Hiển thị</span>
-      <select
-        class="form-select border-0 mx-2"
-        [(ngModel)]="dataSource.paramsQuery!.limit"
-        style="width: 100px"
-        (change)="pageChanged({}, $event)"
-      >
-        <option [value]="10">10</option>
-        <option [value]="20">20</option>
-        <option [value]="50">50</option>
-        <option [value]="100">100</option>
-      </select>
-      <span class="text-secondary">trong tổng số</span>
-      <span class="text-secondary mx-1">{{ dataSource.total || 0 }}</span>
-      <span class="text-secondary">bản ghi</span>
-    </div>
-    <pagination
-      [boundaryLinks]="true"
-      [totalItems]="dataSource.total! || 0"
-      [itemsPerPage]="
-        (dataSource.paramsQuery?.limit | convertType: 'number') || 10
-      "
-      [(ngModel)]="dataSource.paramsQuery!.page"
-      (pageChanged)="pageChanged($event, null)"
-      [rotate]="false"
-      [maxSize]="4"
-      previousText="&lsaquo;"
-      nextText="&rsaquo;"
-      firstText="Trang đầu"
-      lastText="Trang cuối"
-    ></pagination>
-  </div>
+  <custom-pagination
+    [selectedSize]="dataSource.paramsQuery.limit"
+    [currentPage]="dataSource.paramsQuery.page"
+    (changePageEvent)="pageChanged($event)"
+  ></custom-pagination>
 </div>

@@ -90,22 +90,24 @@ export class ActionComponent implements OnInit, OnDestroy {
       params.limit = 20;
       params.page = 1;
     }
+    console.log(this.dataSource.paramsQuery);
   }
 
   handleUpdate(value: any) {}
   handleDelete(value: any) {}
 
-  pageChanged(event: {page?: number; itemsPerPage?: number}, limit: any): void {
-    if (event.page) {
+  pageChanged(dataPage: {page: number; limit: number}): void {
+    const {page, limit} = dataPage;
+    if (page) {
       this.dataSource.paramsQuery = {
         ...this.dataSource.paramsQuery,
-        page: event.page,
+        page: page,
       };
     }
-    if (limit?.target?.value) {
+    if (limit) {
       this.dataSource.paramsQuery = {
         ...this.dataSource.paramsQuery,
-        limit: Number(limit?.target?.value || 10),
+        limit: Number(limit),
         page: 1,
       };
     }

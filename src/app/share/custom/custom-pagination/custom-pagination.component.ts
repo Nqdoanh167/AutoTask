@@ -24,11 +24,12 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
     total: 0,
     countRows: 0,
   };
+  @Input() total: number = 0;
   @Input() type: ITypePaginate = 'number';
-  @Input() selectedSize = 10;
-  @Input() optionSize = [10, 20, 50];
-  @Output() changePageSizeEvent = new EventEmitter<number>();
-  @Output() changePageEvent = new EventEmitter<number>();
+  @Input() selectedSize = 20;
+  @Input() currentPage = 1;
+  @Input() optionSize = [10, 20, 50, 100];
+  @Output() changePageEvent = new EventEmitter<{page: number; limit: number}>();
   @Output() changePageLazyEvent = new EventEmitter<IChangePage>();
   public dataInfo = {
     ...this.metaData,
@@ -36,13 +37,11 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
     end: 0,
   };
 
-  public currentPage = 1;
-
-  changePageSize(value: number) {
-    this.changePageSizeEvent.emit(value);
-  }
-
   constructor() {}
+
+  ngOnChanges(changes: any) {}
+
+  ngOnInit(): void {}
 
   calculateInfo() {
     const start = this.selectedSize * (this.currentPage - 1) + 1;
@@ -52,19 +51,17 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
     this.dataInfo = {start, end, ...this.metaData};
   }
 
-  ngOnChanges(changes: any) {
-    this.dataInfo = {...this.dataInfo, ...changes.metaData.currentValue};
-    this.calculateInfo();
-  }
-
-  ngOnInit(): void {
-    this.calculateInfo();
-  }
-
-  onChangePage(event: any) {
-    // console.log("-> event", event);
-    // this.currentPage = event.page;
-    this.changePageEvent.emit(event.page);
+  pageChanged(event: {page?: number; itemsPerPage?: number}, limit: any): void {
+    if (event.page) {
+      this.currentPage = event.page;
+    }
+    if (limit?.target?.value) {
+      this.selectedSize = Number(limit?.target?.value || 20);
+    }
+    this.changePageEvent.emit({
+      page: this.currentPage,
+      limit: this.selectedSize,
+    });
   }
 
   changePageLazy(value: IChangePage): void {
