@@ -9,6 +9,7 @@ import {ActionComponent} from './data/components/action/action.component';
 import {ChainActionComponent} from './data/components/chain-action/chain-action.component';
 import {ResultComponent} from './data/components/result/result.component';
 import {ReasonComponent} from './data/components/reason/reason.component';
+import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,11 @@ import {ReasonComponent} from './data/components/reason/reason.component';
     ResultComponent,
     ReasonComponent,
   ],
-  imports: [CommonModule, FlowRoutingModule, TabsModule],
+  imports: [
+    CommonModule,
+    FlowRoutingModule,
+    TabsModule,
+    FilterTopTableComponent,
+  ],
 })
 export class FlowModule {}

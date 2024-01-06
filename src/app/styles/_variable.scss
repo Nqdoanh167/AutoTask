@@ -418,8 +418,10 @@ $pagination-height: 56;
   color: $white;
   &.secondary-color {
     background-color: $secondary-500;
+    color: $white;
     &:hover {
       background-color: $secondary-600;
+      color: $white;
     }
   }
   &.disabled {
@@ -459,6 +461,10 @@ $pagination-height: 56;
   color: $neutral-400;
   background-color: $white;
   border: 1px solid #e8ecf2;
+  &:hover {
+    border: 1px solid #e8ecf2;
+    background-color: $neutral-50;
+  }
   &.disabled {
     color: $neutral-300;
     background-color: $neutral-100;

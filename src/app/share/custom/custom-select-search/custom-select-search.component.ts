@@ -33,9 +33,9 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
         </ng-template>
         <ng-option
           *ngFor="let item of selectData?.options; index as i"
-          [value]="item.value"
-          ><div [ngStyle]="item.style">
-            {{ item.label }}
+          [value]="item[selectData.bindValue!]"
+          ><div [ngStyle]="item['style']">
+            {{ item[selectData.bindLabel!] }}
           </div></ng-option
         >
       </ng-select>
@@ -56,6 +56,8 @@ export class CustomSelectSearchComponent implements OnInit {
     searchable: false,
     multiple: false,
     isCreatable: false,
+    bindLabel: 'name',
+    bindValue: 'id',
   };
 
   constructor() {}

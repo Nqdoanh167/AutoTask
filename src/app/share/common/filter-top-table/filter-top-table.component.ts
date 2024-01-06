@@ -47,6 +47,7 @@ export class FilterTopTableComponent {
       name: 'add',
       type: ETypeButton.PRIMARY,
       label: 'Thêm mới',
+      icon: './assets/images/icon/plus.svg',
     },
   ];
 
