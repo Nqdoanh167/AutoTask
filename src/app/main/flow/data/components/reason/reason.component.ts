@@ -105,8 +105,8 @@ export class ReasonComponent implements OnInit, OnDestroy {
   onDelete(value: any) {}
 
   handleDeleteAction(value: any) {
-    const title = 'Xóa kết quả';
-    const description = `Bạn sắp xóa kết quả ${
+    const title = 'Xóa nguyên nhân';
+    const description = `Bạn sắp xóa nguyên nhân ${
       value.name || ''
     }, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
