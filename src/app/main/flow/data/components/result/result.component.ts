@@ -25,7 +25,7 @@ export class ResultComponent implements OnInit, OnDestroy {
   public configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
-      placeholder: 'Tìm theo Nguyên nhân...',
+      placeholder: 'Tìm theo Kết quả...',
     },
   ];
   public configButtons: IFilterTopButton[] = [

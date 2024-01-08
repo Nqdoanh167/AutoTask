@@ -25,7 +25,7 @@ export class ReasonComponent implements OnInit, OnDestroy {
   public configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
-      placeholder: 'Tìm theo Kết quả...',
+      placeholder: 'Tìm theo Nguyên nhân...',
     },
   ];
   public configButtons: IFilterTopButton[] = [
