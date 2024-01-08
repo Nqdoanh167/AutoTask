@@ -1,0 +1,44 @@
+<div class="modal-update-action">
+  <app-custom-modal [isSubmitting]="loading.submit" (submitModal)="onSubmit()">
+    <ng-container modalTitle>
+      {{ sourceData?.id ? 'Chỉnh sửa' : 'Thêm mới' }} Nguyên nhân
+    </ng-container>
+    <ng-container modalBody>
+      <form [formGroup]="updateForm">
+        <div class="mb-2">
+          <label class="form-control-label" for="displayName">
+            Nguyên nhân
+            <span class="required">*</span>
+          </label>
+          <input
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && f['displayName'].errors}"
+            [placeholder]="'Nhập Nguyên nhân...'"
+            formControlName="displayName"
+            id="displayName"
+            type="text"
+          />
+          <div
+            *ngIf="submitted && f['displayName'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="f['displayName'].errors?.['required']">
+              Nguyên nhân không được bỏ trống
+            </div>
+            <div *ngIf="f['displayName'].errors?.['maxlength']">
+              Nguyên nhân không hợp lệ
+            </div>
+          </div>
+        </div>
+      </form>
+    </ng-container>
+  </app-custom-modal>
+</div>
+
+<ng-template #loadingTemp>
+  <div class="w-100 text-center">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading</span>
+    </div>
+  </div>
+</ng-template>

@@ -1,1 +1,71 @@
-<p>reason works!</p>
+<div class="action-tab">
+  <app-filter-top-table
+    [configFilters]="configFilters"
+    [configButtons]="configButtons"
+    (clickButtonEvent)="handleAction($event)"
+  ></app-filter-top-table>
+  <div class="table-responsive tableFixHead custom-scrollbar">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nguyên nhân</th>
+          <th>Ngày tạo</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          class="text-center"
+          *ngIf="!dataSource.rows.length && !dataSource.loading"
+        >
+          <td colspan="12">
+            <div>Không có dữ liệu</div>
+          </td>
+        </tr>
+        <tr class="text-center" *ngIf="dataSource.loading">
+          <td colspan="12">
+            <div class="spinner-grow text-primary" role="status">
+              <span class="visually-hidden">Loading</span>
+            </div>
+            <div>Loading</div>
+          </td>
+        </tr>
+        <tr *ngFor="let item of dataSource.rows; index as i">
+          <td>-</td>
+          <td>-</td>
+          <td class="columns-action">
+            <div class="d-flex">
+              <span
+                (click)="handleUpdate(item)"
+                class="d-flex align-items-center btn-action-table"
+              >
+                <img src="./assets/images/icon/edit.svg" alt="" />
+              </span>
+              <span
+                (click)="handleDeleteAction(item)"
+                class="d-flex align-items-center btn-action-table"
+              >
+                <img src="./assets/images/icon/remove.svg" alt="" />
+              </span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <custom-pagination
+    [selectedSize]="dataSource.paramsQuery.limit"
+    [currentPage]="dataSource.paramsQuery.page"
+    (changePageEvent)="pageChanged($event)"
+  ></custom-pagination>
+
+  <modal-confirm [key]="'delete'" (confirmEvent)="onDelete($event)">
+    <div class="state-warning d-flex gap-2" childContent>
+      <div><i class="fa-regular fa-circle-question"></i></div>
+      <div>
+        Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu
+        của bản ghi cũng sẽ bị ảnh hưởng.
+      </div>
+    </div>
+  </modal-confirm>
+</div>

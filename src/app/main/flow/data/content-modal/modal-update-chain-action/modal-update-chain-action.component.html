@@ -1,7 +1,7 @@
 <div class="modal-update-action">
   <app-custom-modal [isSubmitting]="loading.submit" (submitModal)="onSubmit()">
     <ng-container modalTitle>
-      {{ sourceData?.id ? 'Chỉnh sửa' : 'Thêm mới' }} chuỗi hành động
+      {{ sourceData?.id ? 'Chỉnh sửa' : 'Thêm mới' }} Chuỗi hành động
     </ng-container>
     <ng-container modalBody>
       <form [formGroup]="updateForm">
