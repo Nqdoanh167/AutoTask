@@ -44,7 +44,7 @@
                 <img src="./assets/images/icon/edit.svg" alt="" />
               </span>
               <span
-                (click)="handleDelete(item)"
+                (click)="handleDeleteAction(item)"
                 class="d-flex align-items-center btn-action-table"
               >
                 <img src="./assets/images/icon/remove.svg" alt="" />
@@ -60,4 +60,14 @@
     [currentPage]="dataSource.paramsQuery.page"
     (changePageEvent)="pageChanged($event)"
   ></custom-pagination>
+
+  <modal-confirm [key]="'delete'" (confirmEvent)="onDelete($event)">
+    <div class="state-warning d-flex gap-2" childContent>
+      <div><i class="fa-regular fa-circle-question"></i></div>
+      <div>
+        Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu
+        của bản ghi cũng sẽ bị ảnh hưởng.
+      </div>
+    </div>
+  </modal-confirm>
 </div>

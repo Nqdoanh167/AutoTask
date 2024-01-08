@@ -17,6 +17,7 @@ import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-
 import {ModalUpdateActionComponent} from './data/content-modal/modal-update-action/modal-update-action.component';
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {NgSelectModule} from '@ng-select/ng-select';
+import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
     CustomModalComponent,
     ReactiveFormsModule,
     NgSelectModule,
+    ModalConfirmComponent,
   ],
 })
 export class FlowModule {}

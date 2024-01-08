@@ -13,7 +13,6 @@ import {BsModalRef, BsModalService, ModalModule} from 'ngx-bootstrap/modal';
 import {ModalConfirmService} from './modal-confirm.service';
 import {CommonModule} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
-import {TranslocoModule} from '@ngneat/transloco';
 
 export interface IModalConfirmContent {
   title?: string;
@@ -31,7 +30,7 @@ export interface IModalConfirmContent {
   styleUrls: ['./modal-confirm.component.scss'],
   providers: [BsModalService],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslocoModule, ModalModule],
+  imports: [CommonModule, ReactiveFormsModule, ModalModule],
 })
 export class ModalConfirmComponent implements OnInit, OnDestroy {
   @ViewChild('template', {static: true}) template!: TemplateRef<any>;

@@ -7,7 +7,7 @@
       <form [formGroup]="updateForm">
         <div class="mb-2">
           <label class="form-control-label" for="displayName">
-            Name
+            Tên hành động
             <span class="required">*</span>
           </label>
           <input
@@ -39,8 +39,6 @@
             [ngClass]="{
               'is-invalid': submitted && f['type'].errors
             }"
-            [disabled]="!!sourceData"
-            [readonly]="!!sourceData"
             [placeholder]="'Chọn loại hành động'"
             [searchable]="false"
             appearance="outline"
@@ -72,8 +70,6 @@
             [ngClass]="{
               'is-invalid': submitted && f['results'].errors
             }"
-            [disabled]="!!sourceData"
-            [readonly]="!!sourceData"
             [placeholder]="'Chọn kết quả'"
             [searchable]="false"
             [multiple]="true"
@@ -95,8 +91,6 @@
             [ngClass]="{
               'is-invalid': submitted && f['reasons'].errors
             }"
-            [disabled]="!!sourceData"
-            [readonly]="!!sourceData"
             [placeholder]="'Chọn nguyên nhân'"
             [searchable]="false"
             [multiple]="true"

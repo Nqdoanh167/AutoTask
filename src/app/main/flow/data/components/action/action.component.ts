@@ -10,6 +10,9 @@ import {Subject} from 'rxjs';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateActionComponent} from '@main/flow/data/content-modal/modal-update-action/modal-update-action.component';
 import {ConfigurationService} from '@app/services/api/configuration.service';
+import {CommonService} from '@app/services/common/common.service';
+import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 
 @Component({
   selector: 'app-action',
@@ -47,7 +50,7 @@ export class ActionComponent implements OnInit, OnDestroy {
     },
   ];
   public dataSource: ICommonDataSource<any, any> = {
-    rows: [],
+    rows: [{}],
     loading: false,
     paramsQuery: {
       page: 1,
@@ -58,6 +61,8 @@ export class ActionComponent implements OnInit, OnDestroy {
   constructor(
     private readonly modalService: BsModalService,
     private readonly configurationService: ConfigurationService,
+    private readonly commonService: CommonService,
+    private readonly modalConfirmService: ModalConfirmService,
   ) {}
 
   ngOnInit() {}
@@ -70,8 +75,13 @@ export class ActionComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleUpdate(value: any) {}
-  handleDelete(value: any) {}
+  handleUpdate(value: any) {
+    this.modalService.show(ModalUpdateActionComponent, {
+      initialState: {
+        sourceData: value,
+      },
+    });
+  }
 
   handleAction(name: string) {
     if (name === 'reload') {
@@ -98,6 +108,27 @@ export class ActionComponent implements OnInit, OnDestroy {
       };
     }
     this.getDataSource();
+  }
+
+  onDelete(value: any) {}
+
+  handleDeleteAction(value: any) {
+    const title = 'Xóa hành động';
+    const description = `Bạn sắp xóa hành động ${
+      value.name || ''
+    }, hành động này không thể hoàn tác.`;
+    const okText = 'Xóa';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'warning',
+      modalType: 'advance',
+      context: value,
+    };
+
+    this.modalConfirmService.openModal(modalContent, 'delete');
   }
   ngOnDestroy(): void {
     this.destroy$.next(true);

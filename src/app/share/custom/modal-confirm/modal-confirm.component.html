@@ -1,9 +1,5 @@
 <ng-template #template>
-  <div
-    *transloco="let tc; read: 'common'"
-    class="custom-modal-confirm"
-    [ngClass]="modalContent.type"
-  >
+  <div class="custom-modal-confirm" [ngClass]="modalContent.type">
     <div class="modal-body">
       <div class="d-flex justify-content-between">
         <div class="d-flex gap-3">
@@ -42,7 +38,7 @@
           class="btn button-outline button-cancel"
           (click)="decline()"
         >
-          {{ modalContent.cancelText || tc('button.cancel') }}
+          {{ modalContent.cancelText || 'Hủy' }}
         </button>
         <button
           type="button"
@@ -50,7 +46,7 @@
           [ngClass]="modalContent.type"
           (click)="confirm()"
         >
-          {{ modalContent.okText || tc('button.save') }}
+          {{ modalContent.okText || 'Lưu' }}
         </button>
       </div>
     </div>
@@ -64,7 +60,6 @@
 
 <ng-template #templateAdvance>
   <div
-    *transloco="let tc; read: 'common'"
     class="custom-modal-confirm"
     [ngClass]="modalContent.type"
     [class.outstanding]="isClickOverlay"
@@ -92,7 +87,7 @@
           class="btn button-outline button-advance"
           (click)="decline()"
         >
-          {{ modalContent.cancelText || tc('button.cancel') }}
+          {{ modalContent.cancelText || 'Hủy' }}
         </button>
         <button
           type="button"
@@ -100,7 +95,7 @@
           [ngClass]="modalContent.type"
           (click)="confirm()"
         >
-          {{ modalContent.okText || tc('button.save') }}
+          {{ modalContent.okText || 'Lưu' }}
         </button>
       </div>
     </div>
