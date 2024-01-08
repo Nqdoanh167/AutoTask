@@ -75,7 +75,7 @@
                         />
                       </div>
                       <span
-                        (click)="handleUpdateAction(item, i)"
+                        [routerLink]="item.id"
                         class="d-flex align-items-center btn-action-table"
                       >
                         <img src="./assets/images/icon/edit.svg" alt="" />

@@ -19,6 +19,7 @@ export class RuleComponent {
   public dataSource: ICommonDataSource<any, any> = {
     rows: [
       {
+        id: 1,
         name: 'CSKH',
         isExpand: false,
         children: [
@@ -28,6 +29,7 @@ export class RuleComponent {
         ],
       },
       {
+        id: 2,
         name: 'HDSD',
         isExpand: false,
         children: [
@@ -76,8 +78,6 @@ export class RuleComponent {
   }
 
   handleExpandRow(value: any) {}
-
-  handleUpdateAction(value: any, index: number) {}
   handleToggleAction(value: any, index: number) {}
 
   dropRow(value: any) {}

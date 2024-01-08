@@ -11,23 +11,23 @@ export class ChainDetailComponent {
   protected readonly undefined = undefined;
   public configButtons: IFilterTopButton[] = [
     {
-      name: 'reload',
+      name: 'back',
       type: ETypeButton.DEFAULT,
       label: 'Quay lại',
-      icon: './assets/images/icon/reload.svg',
+      icon: './assets/images/icon/back.svg',
     },
     {
       name: 'introduce',
       type: ETypeButton.SUB_PRIMARY,
       label: 'HDSD',
-      icon: './assets/images/icon/reload-primary.svg',
-      activeIcon: './assets/images/icon/reload-white.svg',
+      icon: './assets/images/icon/notebook-primary.svg',
+      activeIcon: './assets/images/icon/notebook-white.svg',
     },
     {
       name: 'save',
       type: ETypeButton.PRIMARY,
       label: 'Lưu',
-      icon: './assets/images/icon/plus.svg',
+      icon: './assets/images/icon/save.svg',
     },
   ];
 

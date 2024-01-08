@@ -18,15 +18,20 @@ const routes: Routes = [
       },
       {
         path: 'rule',
-        component: RuleComponent,
+        children: [
+          {
+            path: ':id',
+            component: ChainDetailComponent,
+          },
+          {
+            path: '',
+            component: RuleComponent,
+          },
+        ],
       },
       {
         path: 'data',
         component: DataComponent,
-      },
-      {
-        path: 'chain/:id',
-        component: ChainDetailComponent,
       },
     ],
   },
