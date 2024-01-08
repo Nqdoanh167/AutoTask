@@ -787,3 +787,34 @@ a {
     }
   }
 }
+
+.no-data {
+  text-align: center;
+  padding: 10px;
+}
+
+.is-invalid {
+  outline: 1px solid #dc3545 !important;
+  border-radius: 6px;
+
+  .ng-select-container {
+    border: none !important;
+
+    .ng-clear-wrapper,
+    .ng-arrow-wrapper .ng-arrow {
+      color: #dc3545 !important;
+      border-color: #dc3545 transparent transparent;
+    }
+  }
+
+  i {
+    color: #dc3545;
+  }
+}
+
+.non-form-invalid-feedback {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}

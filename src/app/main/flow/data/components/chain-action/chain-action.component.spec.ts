@@ -2,7 +2,7 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {ChainActionComponent} from './chain-action.component';
 
-describe('ChainActionComponent', () => {
+describe('ActionComponent', () => {
   let component: ChainActionComponent;
   let fixture: ComponentFixture<ChainActionComponent>;
 

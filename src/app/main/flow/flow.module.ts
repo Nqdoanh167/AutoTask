@@ -18,6 +18,7 @@ import {ModalUpdateActionComponent} from './data/content-modal/modal-update-acti
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {ModalUpdateChainActionComponent} from '@main/flow/data/content-modal/modal-update-chain-action/modal-update-chain-action.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.c
     ResultComponent,
     ReasonComponent,
     ModalUpdateActionComponent,
+    ModalUpdateChainActionComponent,
   ],
   imports: [
     CommonModule,

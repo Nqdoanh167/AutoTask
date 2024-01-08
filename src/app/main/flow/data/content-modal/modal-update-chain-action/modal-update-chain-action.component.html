@@ -1,0 +1,92 @@
+<div class="modal-update-action">
+  <app-custom-modal [isSubmitting]="loading.submit" (submitModal)="onSubmit()">
+    <ng-container modalTitle>
+      {{ sourceData?.id ? 'Chỉnh sửa' : 'Thêm mới' }} chuỗi hành động
+    </ng-container>
+    <ng-container modalBody>
+      <form [formGroup]="updateForm">
+        <div class="mb-3">
+          <label class="form-control-label" for="displayName">
+            Tên chuỗi hành động
+            <span class="required">*</span>
+          </label>
+          <input
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && f['displayName'].errors}"
+            [placeholder]="'Nhập tên Chuỗi hành động...'"
+            formControlName="displayName"
+            id="displayName"
+            type="text"
+          />
+          <div
+            *ngIf="submitted && f['displayName'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="f['displayName'].errors?.['required']">
+              Name is required
+            </div>
+            <div *ngIf="f['displayName'].errors?.['maxlength']">
+              Invalid Name
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <p class="subhead">Các hành động trong chuỗi</p>
+          <ng-container formArrayName="actions">
+            <div
+              *ngFor="let action of formActions.controls; let i = index"
+              [formGroupName]="i"
+              class="mb-2"
+            >
+              <label class="form-control-label" for="action{{ i }}">
+                Hành động {{ i + 1 }}
+                <span class="required">*</span>
+              </label>
+              <div class="d-flex">
+                <ng-select
+                  [placeholder]="'Chọn Hành động'"
+                  [searchable]="false"
+                  [multiple]="true"
+                  [items]="actions"
+                  [style.width]="'90%'"
+                  [ngClass]="{'is-invalid': submitted && !action?.value?.value}"
+                  class="dropdown-auto-width custom-input-multiple"
+                  formControlName="value"
+                  id="action{{ i }}"
+                  labelForId="action{{ i }}"
+                  bindValue="id"
+                  bindLabel="name"
+                  appendTo=".modal"
+                ></ng-select>
+                <span
+                  (click)="removeAction(i)"
+                  class="d-flex align-items-center btn-action-table"
+                >
+                  <img src="./assets/images/icon/x.svg" alt="" />
+                </span>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+        <div class="mb-2">
+          <button
+            type="button"
+            (click)="addActions()"
+            class="btn text-link button-medium button-sub-primary secondary-color"
+          >
+            <i class="fas fa-plus me-2"></i>
+            Thêm hành động
+          </button>
+        </div>
+      </form>
+    </ng-container>
+  </app-custom-modal>
+</div>
+
+<ng-template #loadingTemp>
+  <div class="w-100 text-center">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading</span>
+    </div>
+  </div>
+</ng-template>
