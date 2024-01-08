@@ -58,6 +58,19 @@
   th,
   td {
     border-bottom: 1px solid var(--bs-gray-200);
+    &.main-row {
+      min-height: 36px;
+      padding: 10px;
+      .title {
+        background-color: $neutral-50 !important;
+        border-radius: $radius-s;
+      }
+    }
+  }
+
+  tr {
+    &.childRow {
+    }
   }
 
   th {
@@ -76,6 +89,22 @@
 
   & > :not(:first-child) {
     border-top: none;
+  }
+  &.table-none-border {
+    th,
+    td {
+      border: none !important;
+    }
+  }
+  &.thin-table {
+    th {
+      padding: 8px !important;
+    }
+  }
+  &.table-medium-head {
+    th {
+      padding: 12px 8px !important;
+    }
   }
 }
 
@@ -257,6 +286,12 @@ body {
       &::-webkit-scrollbar-thumb {
         display: block;
       }
+    }
+  }
+  &.table-none-border {
+    th,
+    td {
+      border: none !important;
     }
   }
 }

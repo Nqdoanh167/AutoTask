@@ -21,6 +21,13 @@ import {ModalUpdateChainActionComponent} from '@main/flow/data/content-modal/mod
 import {ResultComponent} from '@main/flow/data/components/result/result.component';
 import {ModalUpdateResultComponent} from '@main/flow/data/content-modal/modal-update-result/modal-update-result.component';
 import {ModalUpdateReasonComponent} from '@main/flow/data/content-modal/modal-update-reason/modal-update-reason.component';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {
+  CdkDrag,
+  CdkDragHandle,
+  CdkDragPreview,
+  CdkDropList,
+} from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -49,6 +56,11 @@ import {ModalUpdateReasonComponent} from '@main/flow/data/content-modal/modal-up
     ReactiveFormsModule,
     NgSelectModule,
     ModalConfirmComponent,
+    TooltipModule,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    CdkDragPreview,
   ],
 })
 export class FlowModule {}

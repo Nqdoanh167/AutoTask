@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {NotfoundComponent} from '../../notfound/notfound.component';
+import {NotfoundComponent} from '@app/notfound/notfound.component';
 import {FlowComponent} from './flow.component';
 import {RuleComponent} from './rule/rule.component';
 import {DataComponent} from './data/data.component';
@@ -12,7 +12,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'data',
+        redirectTo: 'rule',
         pathMatch: 'full',
       },
       {

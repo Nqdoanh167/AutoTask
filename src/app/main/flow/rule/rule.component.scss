@@ -1,0 +1,127 @@
+@use 'src/app/styles/variable' as vars;
+
+.rule-site {
+  .table-responsive {
+    min-height: 200px;
+    max-height: 500px;
+    tr {
+      &.rootRow {
+        &.isExpand {
+          .icon-expand {
+            //transform: rotate(0deg);
+            animation: rotateDrop 0.2s forwards;
+          }
+        }
+        &.isCollapse {
+          .icon-expand {
+            animation: rotateTop 0.2s forwards;
+          }
+        }
+        &.main-action {
+          background-color: vars.$neutral-50 !important;
+          border-radius: vars.$radius-s;
+          height: 36px;
+          padding: 0 10px;
+        }
+        .child-item {
+          margin-top: 10px;
+          overflow: hidden;
+          border: 1px solid vars.$secondary-500;
+          border-radius: vars.$radius-s;
+        }
+      }
+      &.childRow {
+        border: 1px solid vars.$secondary-500;
+        border-radius: vars.$radius-l;
+        &.isExpand {
+        }
+        &.isCollapse {
+        }
+        table {
+          .columns-name {
+          }
+        }
+      }
+    }
+  }
+  .table {
+    .columns-name {
+      width: 30%;
+    }
+    .columns-result {
+      width: 30%;
+    }
+  }
+}
+
+@keyframes rotateDrop {
+  0% {
+    transform: rotate(0);
+  }
+  10% {
+    transform: rotate(10deg);
+  }
+  20% {
+    transform: rotate(20deg);
+  }
+  50% {
+    transform: rotate(50deg);
+  }
+  70% {
+    transform: rotate(70deg);
+  }
+  80% {
+    transform: rotate(80deg);
+  }
+  100% {
+    transform: rotate(90deg);
+  }
+}
+
+@keyframes rotateTop {
+  0% {
+    transform: rotate(90deg);
+  }
+  10% {
+    transform: rotate(80deg);
+  }
+  20% {
+    transform: rotate(70deg);
+  }
+  50% {
+    transform: rotate(50deg);
+  }
+  70% {
+    transform: rotate(30deg);
+  }
+  80% {
+    transform: rotate(20deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes dropRow {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(20px);
+  }
+}
+
+@keyframes briefRow {
+  0% {
+    transform: translateY(20px);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}

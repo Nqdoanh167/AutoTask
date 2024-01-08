@@ -1048,6 +1048,10 @@ i {
 }
 
 .form-switch {
+  cursor: pointer;
+  .form-check-input {
+    cursor: pointer;
+  }
   .form-check-input:checked {
     background-color: #7ec964;
     border-color: #7ec964;
