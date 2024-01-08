@@ -28,6 +28,7 @@ import {
   CdkDragPreview,
   CdkDropList,
 } from '@angular/cdk/drag-drop';
+import {ChainDetailComponent} from './chain-detail/chain-detail.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import {
     ModalUpdateChainActionComponent,
     ModalUpdateResultComponent,
     ModalUpdateReasonComponent,
+    ChainDetailComponent,
   ],
   imports: [
     CommonModule,

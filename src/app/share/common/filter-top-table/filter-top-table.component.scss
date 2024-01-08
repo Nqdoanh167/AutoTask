@@ -3,4 +3,18 @@
     max-width: 16px;
     max-height: 16px;
   }
+  img.activeIcon {
+    display: none;
+  }
+  img.icon {
+    display: block;
+  }
+  &:hover {
+    img.icon {
+      display: none;
+    }
+    img.activeIcon {
+      display: block !important;
+    }
+  }
 }

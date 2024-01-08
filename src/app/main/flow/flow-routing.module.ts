@@ -4,6 +4,7 @@ import {NotfoundComponent} from '@app/notfound/notfound.component';
 import {FlowComponent} from './flow.component';
 import {RuleComponent} from './rule/rule.component';
 import {DataComponent} from './data/data.component';
+import {ChainDetailComponent} from '@main/flow/chain-detail/chain-detail.component';
 
 const routes: Routes = [
   {
@@ -22,6 +23,10 @@ const routes: Routes = [
       {
         path: 'data',
         component: DataComponent,
+      },
+      {
+        path: 'chain/:id',
+        component: ChainDetailComponent,
       },
     ],
   },
