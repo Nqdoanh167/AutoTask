@@ -9,6 +9,7 @@ import {ICommonDataSource} from '@app/types/viewmodels';
 import {Subject} from 'rxjs';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateActionComponent} from '@main/flow/data/content-modal/modal-update-action/modal-update-action.component';
+import {ConfigurationService} from '@app/services/api/configuration.service';
 
 @Component({
   selector: 'app-action',
@@ -18,40 +19,7 @@ import {ModalUpdateActionComponent} from '@main/flow/data/content-modal/modal-up
 export class ActionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject();
 
-  public typeActions = [
-    {
-      value: 'call',
-      label: 'Gọi điện',
-    },
-    {
-      value: 'sendSMS',
-      label: 'Nhắn tin',
-    },
-    {
-      value: 'createRecord',
-      label: 'Tạo bản ghi Khách hàng',
-    },
-    {
-      value: 'callBlock',
-      label: 'Gọi Block Automation',
-    },
-    {
-      value: 'othor',
-      label: 'Khác',
-    },
-    {
-      value: 'closeChain',
-      label: 'Đóng chuỗi',
-    },
-    {
-      value: 'move',
-      label: 'Chuyển sang Hành động khác',
-    },
-    {
-      value: 'addChainAction',
-      label: 'Thêm Chuỗi hành động khác',
-    },
-  ];
+  public actionTypes: any = this.configurationService.actionTypes;
   public configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
@@ -60,7 +28,7 @@ export class ActionComponent implements OnInit, OnDestroy {
     {
       type: ETypeFilter.SELECT,
       placeholder: 'Loại',
-      options: this.typeActions,
+      options: this.actionTypes,
       bindLabel: 'label',
       bindValue: 'value',
     },
@@ -87,7 +55,10 @@ export class ActionComponent implements OnInit, OnDestroy {
     },
     total: 0,
   };
-  constructor(private readonly modalService: BsModalService) {}
+  constructor(
+    private readonly modalService: BsModalService,
+    private readonly configurationService: ConfigurationService,
+  ) {}
 
   ngOnInit() {}
 

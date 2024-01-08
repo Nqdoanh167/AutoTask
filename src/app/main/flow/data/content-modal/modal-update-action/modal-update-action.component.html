@@ -1,11 +1,11 @@
 <div class="modal-update-action">
   <app-custom-modal [isSubmitting]="loading.submit" (submitModal)="onSubmit()">
     <ng-container modalTitle>
-      {{ sourceData?.id ? 'Edit' : 'Add new' }}
+      {{ sourceData?.id ? 'Chỉnh sửa' : 'Thêm mới' }} hành động
     </ng-container>
     <ng-container modalBody>
       <form [formGroup]="updateForm">
-        <div class="mb-3">
+        <div class="mb-2">
           <label class="form-control-label" for="displayName">
             Name
             <span class="required">*</span>
@@ -29,6 +29,85 @@
               Invalid Name
             </div>
           </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="actionType">
+            Loại
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['type'].errors
+            }"
+            [disabled]="!!sourceData"
+            [readonly]="!!sourceData"
+            [placeholder]="'Chọn loại hành động'"
+            [searchable]="false"
+            appearance="outline"
+            formControlName="type"
+            id="actionType"
+            labelForId="actionType"
+            appendTo=".modal"
+          >
+            <ng-container>
+              <ng-option
+                *ngFor="let item of actionTypes; index as i"
+                [value]="item.value"
+              >
+                {{ item.label }}
+              </ng-option>
+            </ng-container>
+          </ng-select>
+          <div *ngIf="submitted && f['type'].errors" class="invalid-feedback">
+            <div *ngIf="f['type'].errors?.['required']">
+              Loại hành động không được bỏ trống
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="results">
+            Kết quả có thể xảy ra
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['results'].errors
+            }"
+            [disabled]="!!sourceData"
+            [readonly]="!!sourceData"
+            [placeholder]="'Chọn kết quả'"
+            [searchable]="false"
+            [multiple]="true"
+            [items]="results"
+            class="dropdown-auto-width custom-input-multiple"
+            formControlName="results"
+            id="results"
+            labelForId="results"
+            bindValue="id"
+            bindLabel="name"
+            appendTo=".modal"
+          ></ng-select>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="reasons">
+            Nguyên nhân có thể xảy ra
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['reasons'].errors
+            }"
+            [disabled]="!!sourceData"
+            [readonly]="!!sourceData"
+            [placeholder]="'Chọn nguyên nhân'"
+            [searchable]="false"
+            [multiple]="true"
+            [items]="reasons"
+            class="dropdown-auto-width custom-input-multiple"
+            appearance="outline"
+            formControlName="type"
+            id="reasons"
+            labelForId="dataType"
+            appendTo=".modal"
+          ></ng-select>
         </div>
       </form>
     </ng-container>

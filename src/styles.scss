@@ -265,7 +265,22 @@ body {
 
 .form-control,
 .form-select {
+  @extend .input-medium;
   background-color: $gray-400;
+
+  &:focus {
+    box-shadow: unset;
+    background-color: #e7e9ef;
+    border-color: #e7e9ef;
+  }
+
+  &-label {
+    color: $neutral-400;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 14px;
+    margin-bottom: 8px;
+  }
 
   &.has-error {
     border-color: #dc3545 !important;

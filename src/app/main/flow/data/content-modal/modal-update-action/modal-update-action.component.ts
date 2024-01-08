@@ -10,6 +10,7 @@ import {Subject} from 'rxjs';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
+import {ConfigurationService} from '@app/services/api/configuration.service';
 
 @Component({
   selector: 'app-modal-update-action',
@@ -20,11 +21,17 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   @Input() sourceData?: any;
   @Output() updateSuccess = new EventEmitter();
   private destroy$ = new Subject();
+
+  public actionTypes: any = [];
   public submitted = false;
   public updateForm = this.fb.group({
     displayName: [null, [Validators.required, Validators.maxLength(255)]],
-    isManualGroup: [false],
+    type: [null, [Validators.required]],
+    results: [null],
+    reasons: [null],
   });
+  public results = [];
+  public reasons = [];
   public loading = {
     submit: false,
     data: false,
@@ -35,7 +42,10 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     private readonly toastr: ToastrService,
     private readonly modalRef: BsModalRef,
     private readonly fb: FormBuilder,
-  ) {}
+    private readonly configurationService: ConfigurationService,
+  ) {
+    this.actionTypes = configurationService.actionTypes;
+  }
 
   get f(): {[key: string]: AbstractControl} {
     return this.updateForm.controls;

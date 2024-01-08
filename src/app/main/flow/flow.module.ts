@@ -16,6 +16,7 @@ import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-pagination.component';
 import {ModalUpdateActionComponent} from './data/content-modal/modal-update-action/modal-update-action.component';
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
+import {NgSelectModule} from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.comp
     CustomPaginationComponent,
     CustomModalComponent,
     ReactiveFormsModule,
+    NgSelectModule,
   ],
 })
 export class FlowModule {}
