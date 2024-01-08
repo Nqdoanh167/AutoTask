@@ -12,22 +12,22 @@ import {Biz, ISidebar, User} from 'src/app/types/viewmodels';
 export class SidebarComponent implements OnInit {
   sidebars: ISidebar[] = [
     {
-      link: '/task',
-      name: 'Table',
+      link: '/dashboard',
+      name: 'Dashboard',
       icon: './assets/images/module/table.svg',
       iconActive: './assets/images/module/table-active.svg',
       isActive: true,
     },
     {
-      link: '/flow',
-      name: 'Flow',
+      link: '/config',
+      name: 'Cấu hình Quy tắc và Dữ liệu',
       icon: './assets/images/module/flow.svg',
       iconActive: './assets/images/module/flow-active.svg',
       isActive: false,
     },
     {
       link: '/setting',
-      name: 'Setting',
+      name: 'Cài đặt',
       icon: './assets/images/module/setting.svg',
       iconActive: './assets/images/module/setting-active.svg',
       isActive: false,

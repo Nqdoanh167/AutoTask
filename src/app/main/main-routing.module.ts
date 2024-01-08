@@ -10,16 +10,18 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'task',
+        redirectTo: 'dashboard',
         pathMatch: 'full',
       },
       {
-        path: 'task',
+        path: 'dashboard',
         loadChildren: () =>
-          import('./task/task.module').then((m) => m.TaskModule),
+          import('@main/dashboard/dashboard.module').then(
+            (m) => m.DashboardModule,
+          ),
       },
       {
-        path: 'flow',
+        path: 'config',
         loadChildren: () =>
           import('./flow/flow.module').then((m) => m.FlowModule),
       },

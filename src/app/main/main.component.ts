@@ -16,14 +16,14 @@ export class MainComponent implements OnInit {
 
   public listNavItems: ISidebar[] = [];
 
-  public listFlowNavItems: ISidebar[] = [
+  public listConfigNavItems: ISidebar[] = [
     {
-      link: '/flow/rule',
+      link: '/config/rule',
       name: 'Cấu hình quy tắc',
       isActive: true,
     },
     {
-      link: '/flow/data',
+      link: '/config/data',
       name: 'Cấu hình dữ liệu',
       isActive: true,
     },
@@ -61,8 +61,8 @@ export class MainComponent implements OnInit {
         map(() => {
           let route: ActivatedRoute = this.router.routerState.root;
           const url = this.router.url;
-          if (url.includes(`/${EModule.FLOW}`)) {
-            this.listNavItems = this.listFlowNavItems;
+          if (url.includes(`/${EModule.CONFIG}`)) {
+            this.listNavItems = this.listConfigNavItems;
           } else if (url.includes(`/${EModule.SETTING}`)) {
             this.listNavItems = this.listSettingNavItems;
           } else {
