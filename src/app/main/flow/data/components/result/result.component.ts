@@ -14,7 +14,6 @@ import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.co
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {ModalUpdateResultComponent} from '@main/flow/data/content-modal/modal-update-result/modal-update-result.component';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {IActResult} from '@app/types/flow';
 
 @Component({
@@ -143,11 +142,11 @@ export class ResultComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleDeleteAction(value: any) {
+  handleDeleteAction(value: IActResult) {
     const title = 'Xóa kết quả';
-    const description = `Bạn sắp xóa kết quả ${
+    const description = `Bạn sắp xóa kết quả <b>${
       value.name || ''
-    }, hành động này không thể hoàn tác.`;
+    }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
 
     const modalContent: IModalConfirmContent = {

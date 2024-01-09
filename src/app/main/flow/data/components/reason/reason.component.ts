@@ -142,11 +142,11 @@ export class ReasonComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleDeleteAction(value: any) {
+  handleDeleteAction(value: IActReason) {
     const title = 'Xóa nguyên nhân';
-    const description = `Bạn sắp xóa nguyên nhân ${
+    const description = `Bạn sắp xóa nguyên nhân <b>${
       value.name || ''
-    }, hành động này không thể hoàn tác.`;
+    }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
 
     const modalContent: IModalConfirmContent = {

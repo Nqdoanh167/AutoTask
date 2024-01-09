@@ -145,11 +145,11 @@ export class ChainActionComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleDeleteAction(value: any) {
+  handleDeleteAction(value: IChainAct) {
     const title = 'Xóa chuỗi hành động';
-    const description = `Bạn sắp xóa chuỗi hành động ${
+    const description = `Bạn sắp xóa chuỗi hành động <b>${
       value.name || ''
-    }, hành động này không thể hoàn tác.`;
+    }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
 
     const modalContent: IModalConfirmContent = {

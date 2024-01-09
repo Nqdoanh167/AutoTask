@@ -152,11 +152,11 @@ export class ActionComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleDeleteAction(value: any) {
+  handleDeleteAction(value: IAction) {
     const title = 'Xóa hành động';
-    const description = `Bạn sắp xóa hành động ${
+    const description = `Bạn sắp xóa hành động <b>${
       value.name || ''
-    }, hành động này không thể hoàn tác.`;
+    }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
 
     const modalContent: IModalConfirmContent = {
