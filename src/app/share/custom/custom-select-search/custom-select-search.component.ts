@@ -70,7 +70,7 @@ export class CustomSelectSearchComponent implements OnInit {
 
   onCreateOption() {}
 
-  handleChangeValue(value: string) {
+  handleChangeValue(value?: string) {
     this.selectEvent.emit(value);
   }
 }

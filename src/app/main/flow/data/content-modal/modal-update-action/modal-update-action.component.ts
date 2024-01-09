@@ -11,6 +11,9 @@ import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ConfigurationService} from '@app/services/api/configuration.service';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
+import {EActionType, IBodyAction, IBodyResultReason} from '@app/types/flow';
 
 @Component({
   selector: 'app-modal-update-action',
@@ -22,13 +25,13 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   @Output() updateSuccess = new EventEmitter();
   private destroy$ = new Subject();
 
-  public actionTypes: any = [];
+  public actionTypes: {value: EActionType; label: string}[] = [];
   public submitted = false;
   public updateForm = this.fb.group({
-    displayName: [null, [Validators.required, Validators.maxLength(255)]],
+    name: [null, [Validators.required, Validators.maxLength(255)]],
     type: [null, [Validators.required]],
-    results: [null],
-    reasons: [null],
+    resultIds: [null],
+    reasonIds: [null],
   });
   public results = [];
   public reasons = [];
@@ -43,6 +46,8 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     private readonly modalRef: BsModalRef,
     private readonly fb: FormBuilder,
     private readonly configurationService: ConfigurationService,
+    private readonly autoTaskService: AutoTaskService,
+    private readonly commonService: CommonService,
   ) {
     this.actionTypes = configurationService.actionTypes;
   }
@@ -62,15 +67,45 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
 
   handleUpdate() {
     this.loading.submit = true;
+    const {type, reasonIds, resultIds} = this.updateForm.value;
     const body = {
       ...this.updateForm.value,
-      conditions: [],
-      isHidden: false,
-    } as unknown as any;
+      type: Number(type),
+      resultIds: resultIds ?? [],
+      reasonIds: reasonIds ?? [],
+    } as unknown as IBodyAction;
     if (this.sourceData?.id) {
-      this.hideModal();
+      this.autoTaskService.action
+        .update(this.sourceData.id, body)
+        .pipe()
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess('update');
+              this.updateSuccess.emit();
+              this.hideModal();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => this.commonService.handleErr(err),
+        });
     } else {
-      this.hideModal();
+      this.autoTaskService.action
+        .create(body)
+        .pipe()
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess('create');
+              this.updateSuccess.emit();
+              this.hideModal();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => this.commonService.handleErr(err),
+        });
     }
   }
 

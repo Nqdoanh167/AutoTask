@@ -8,7 +8,7 @@ export enum ETabConfigData {
 }
 
 export enum EActionType {
-  CALL0 = 0,
+  CALL = 0,
   SMS = 1,
   CREATE_CUSTOMER = 2,
   BLOCK_AUTOMATION = 3,

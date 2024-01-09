@@ -22,7 +22,7 @@ import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/cu
 })
 export class FilterTopTableComponent {
   @Output() searchEvent = new EventEmitter<{term: string; name: string}>();
-  @Output() selectEvent = new EventEmitter<{value: string; name: string}>();
+  @Output() selectEvent = new EventEmitter<{value?: string; name: string}>();
   @Output() clickButtonEvent = new EventEmitter<string>();
 
   @Input() configFilters: IFilterTopTable[] = [];
@@ -35,7 +35,7 @@ export class FilterTopTableComponent {
     this.searchEvent.emit({term, name});
   }
 
-  onSelectValue(value: string, name: string = 'select') {
+  onSelectValue(value?: string, name: string = 'select') {
     this.selectEvent.emit({value, name});
   }
 

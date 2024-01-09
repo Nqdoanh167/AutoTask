@@ -4,6 +4,7 @@ import {BaseApiService} from './base.service';
 import {Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
+import {EActionType} from '@app/types/flow';
 
 @Injectable({
   providedIn: 'root',
@@ -18,35 +19,39 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
 
   public actionTypes = [
     {
-      value: 'call',
+      value: EActionType.CALL,
       label: 'Gọi điện',
     },
     {
-      value: 'sendSMS',
+      value: EActionType.SMS,
       label: 'Nhắn tin',
     },
     {
-      value: 'createRecord',
+      value: EActionType.CREATE_CUSTOMER,
       label: 'Tạo bản ghi Khách hàng',
     },
     {
-      value: 'callBlock',
+      value: EActionType.BLOCK_AUTOMATION,
       label: 'Gọi Block Automation',
     },
     {
-      value: 'othor',
+      value: EActionType.OTHER,
       label: 'Khác',
     },
     {
-      value: 'closeChain',
+      value: EActionType.CREATE_ORDER,
+      label: 'Tạo đơn hàng',
+    },
+    {
+      value: EActionType.CLOSE_CHAIN,
       label: 'Đóng chuỗi',
     },
     {
-      value: 'move',
+      value: EActionType.CHANGE_ACTION,
       label: 'Chuyển sang Hành động khác',
     },
     {
-      value: 'addChainAction',
+      value: EActionType.ADD_CHAIN,
       label: 'Thêm Chuỗi hành động khác',
     },
   ];
