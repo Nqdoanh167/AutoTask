@@ -29,6 +29,91 @@
           ></app-filter-top-table>
         </div>
       </div>
+      <div class="table-responsive tableFixHead custom-scrollbar mt-3">
+        <table class="table table-none-border table-medium-head">
+          <thead>
+            <tr>
+              <th class="columns-index">Thứ tự</th>
+              <th class="columns-action">Hành động</th>
+              <th class="columns-result">Kết quả</th>
+              <th class="columns-duration">
+                Độ trễ
+                <i
+                  class="fa-regular fa-circle-question ms-1"
+                  tooltip="Khoảng thời gian thực hiện hành động kế"
+                  placement="right"
+                ></i>
+              </th>
+              <th class="columns-next-action">Hành động kế</th>
+            </tr>
+          </thead>
+          <tbody cdkDropList (cdkDropListDropped)="dropRow($event)">
+            <tr
+              class="text-center"
+              *ngIf="!dataSource.rows.length && !dataSource.loading"
+            >
+              <td colspan="12">
+                <div>Không có dữ liệu</div>
+              </td>
+            </tr>
+            <tr class="text-center" *ngIf="dataSource.loading">
+              <td colspan="12">
+                <div class="spinner-grow text-primary" role="status">
+                  <span class="visually-hidden">Loading</span>
+                </div>
+                <div>Loading</div>
+              </td>
+            </tr>
+            <ng-container *ngFor="let item of dataSource.rows; index as i">
+              <tr cdkDrag cdkDragLockAxis="y" class="rootRow">
+                <td class="" colspan="1">
+                  <div class="d-flex align-items-center">
+                    <span
+                      cdkDragHandle
+                      (click)="$event.preventDefault()"
+                      class="d-flex align-items-center cursor-pointer"
+                    >
+                      <img src="./assets/images/icon/dragDrop.svg" alt="" />
+                    </span>
+                    <span class="fw-500">#1</span>
+                  </div>
+                </td>
+                <td class="" colspan="1000">
+                  <div class="child-item" *ngIf="item.children.length">
+                    <table class="table table-none-border">
+                      <tbody>
+                        <ng-container
+                          *ngFor="
+                            let child of item.children;
+                            let lastChild = last
+                          "
+                        >
+                          <tr>
+                            <td class="columns-action">{{ child.name }}</td>
+                            <td class="columns-result">-</td>
+                            <td class="columns-duration">-</td>
+                            <td class="columns-next-action">-</td>
+                          </tr>
+                          <tr *ngIf="!lastChild" class="padding-row">
+                            <td colspan="12"></td>
+                          </tr>
+                        </ng-container>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+                <div
+                  *cdkDragPreview
+                  matchSize="true"
+                  class="container dragdrop-placeholder"
+                >
+                  {{ item.name }}
+                </div>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>

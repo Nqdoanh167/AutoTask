@@ -13,6 +13,7 @@ import {environment} from '../../../../environments/environment';
 import {BizService} from '@app/services/api/biz.service';
 import {Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
+import {ICommonDataSource} from '@app/types/viewmodels';
 
 @Component({
   selector: 'app-chain-detail',
@@ -21,6 +22,81 @@ import {AuthService} from '@app/services/api/auth.service';
 })
 export class ChainDetailComponent implements OnDestroy {
   @ViewChild('template') template!: TemplateRef<any>;
+
+  public dataSource: ICommonDataSource<any, any> = {
+    rows: [
+      {
+        id: 1,
+        name: 'CSKH',
+        isExpand: false,
+        children: [
+          {
+            name: 'Gọi lần đầu',
+          },
+        ],
+      },
+      {
+        id: 2,
+        name: 'HDSD',
+        isExpand: false,
+        children: [
+          {
+            name: 'Gọi chào hàng',
+          },
+        ],
+      },
+    ],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+    },
+    total: 0,
+  };
+
+  public detailChain = {
+    createdBy: {
+      id: '640e9043784a12c99281206c',
+      name: 'An Hải',
+      picture:
+        'https://lh3.googleusercontent.com/a/AGNmyxambgm4-ZDfHnWvasN5iTncc0VVGXlp2n21hDOK=s96-c',
+      email: 'haian.nt@tinasoft.vn',
+    },
+    isActive: true,
+    createdAt: '2024-01-08T07:59:05.267Z',
+    updatedAt: '2024-01-08T07:59:05.358Z',
+    id: '659bab49870ed0a5409a5497',
+    actionResults: [
+      {
+        id: '659bab49f0652ecf1e8e2a9f',
+        ordering: 1,
+        action: {
+          name: 'string',
+          id: '659b7a717c946924af815dee',
+        },
+        results: [
+          {
+            ordering: 3,
+            nextActions: [
+              {
+                ordering: 4,
+                type: '0',
+                delayType: '0',
+                action: {
+                  name: 'string',
+                  id: '659b7a717c946924af815dee',
+                },
+              },
+            ],
+            result: {
+              name: 'string',
+              id: '659bb5b1f7cff15333789fa3',
+            },
+          },
+        ],
+      },
+    ],
+  };
 
   protected readonly undefined = undefined;
   public configButtons: IFilterTopButton[] = [
@@ -77,6 +153,8 @@ export class ChainDetailComponent implements OnDestroy {
     const url = `${environment.urlDomain}/${this.currentBiz}/config/data`;
     window.open(url, '_blank');
   }
+
+  dropRow(value: any) {}
 
   ngOnDestroy(): void {
     this.destroy$.next(true);
