@@ -92,6 +92,8 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       this.updateForm.patchValue({
         ...(this.sourceData as any),
         isHidden: false,
+        resultIds: this.sourceData.results?.map((result) => result.id),
+        reasonIds: this.sourceData.reasons?.map((reason) => reason.id),
       });
       if (this.sourceData?.reasons?.length) {
         this.reasons.rows = this.sourceData?.reasons;

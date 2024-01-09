@@ -6,7 +6,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {Subject} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
@@ -68,7 +68,10 @@ export class ModalUpdateReasonComponent implements OnDestroy, OnInit {
     if (this.sourceData?.id) {
       this.autoTaskService.actionReason
         .update(this.sourceData.id, body)
-        .pipe()
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => (this.loading.submit = false)),
+        )
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
@@ -84,7 +87,10 @@ export class ModalUpdateReasonComponent implements OnDestroy, OnInit {
     } else {
       this.autoTaskService.actionReason
         .create(body)
-        .pipe()
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => (this.loading.submit = false)),
+        )
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
