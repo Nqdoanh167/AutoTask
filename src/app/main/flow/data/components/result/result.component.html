@@ -32,7 +32,7 @@
           </td>
         </tr>
         <tr *ngFor="let item of dataSource.rows; index as i">
-          <td>{{ item.name }}</td>
+          <td>{{ item.name || '-' }}</td>
           <td>{{ item.createdAt | timeView }}</td>
           <td class="columns-action">
             <div class="d-flex">

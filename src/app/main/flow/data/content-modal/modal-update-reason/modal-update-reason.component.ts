@@ -11,7 +11,7 @@ import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ConfigurationService} from '@app/services/api/configuration.service';
-import {IBodyResultReason} from '@app/types/flow';
+import {IActReason, IBodyResultReason} from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 
@@ -21,7 +21,7 @@ import {CommonService} from '@app/services/common/common.service';
   styleUrls: ['./modal-update-reason.component.scss'],
 })
 export class ModalUpdateReasonComponent implements OnDestroy, OnInit {
-  @Input() sourceData?: any;
+  @Input() sourceData?: IActReason;
   @Output() updateSuccess = new EventEmitter();
   private destroy$ = new Subject();
 

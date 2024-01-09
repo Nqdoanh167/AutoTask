@@ -6,7 +6,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {Subject} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {
   AbstractControl,
   FormArray,
@@ -16,6 +16,11 @@ import {
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ConfigurationService} from '@app/services/api/configuration.service';
+import {IAction, IActReason, IBodyChainAct, IChainAct} from '@app/types/flow';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
+import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
+import {uniqBy} from 'lodash';
 
 @Component({
   selector: 'app-modal-update-chain-action',
@@ -23,20 +28,30 @@ import {ConfigurationService} from '@app/services/api/configuration.service';
   styleUrls: ['./modal-update-chain-action.component.scss'],
 })
 export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
-  @Input() sourceData?: any;
+  @Input() sourceData?: IChainAct;
   @Output() updateSuccess = new EventEmitter();
   private destroy$ = new Subject();
 
   public submitted = false;
   public updateForm = this.fb.group({
-    displayName: [null, [Validators.required, Validators.maxLength(255)]],
+    name: [null, [Validators.required, Validators.maxLength(255)]],
     actions: this.fb.array([]),
+    isActive: true,
   });
   public loading = {
     submit: false,
     data: false,
   };
-  public actions = [];
+  public actions: ICommonDataLazy<IAction, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
 
   constructor(
     private readonly modalService: BsModalService,
@@ -44,6 +59,8 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     private readonly modalRef: BsModalRef,
     private readonly fb: FormBuilder,
     private readonly configurationService: ConfigurationService,
+    private readonly autoTaskService: AutoTaskService,
+    private readonly commonService: CommonService,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
@@ -65,17 +82,85 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     }
   }
 
+  getAction() {
+    this.actions.loading = true;
+    this.autoTaskService.action
+      .get(this.actions.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.actions.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.actions.rows = uniqBy(
+              this.actions.rows.concat(res.data),
+              'id',
+            );
+            this.actions.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.actions.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.actions.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  handleLoadMore() {
+    if (this.actions.isAllowLoadMore) {
+      this.actions.paramsQuery!.page! += 1;
+      this.getAction();
+    }
+  }
+
   handleUpdate() {
     this.loading.submit = true;
+    const {actions, name, isActive} = this.updateForm.value;
+    const actionIds: string[] =
+      actions?.map((action: any) => action.value) || [];
     const body = {
-      ...this.updateForm.value,
-      conditions: [],
-      isHidden: false,
-    } as unknown as any;
+      actionIds,
+      name,
+      isActive,
+    } as unknown as IBodyChainAct;
     if (this.sourceData?.id) {
-      this.hideModal();
+      this.autoTaskService.chainAction
+        .update(this.sourceData.id, body)
+        .pipe()
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess('update');
+              this.updateSuccess.emit();
+              this.hideModal();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => this.commonService.handleErr(err),
+        });
     } else {
-      this.hideModal();
+      this.autoTaskService.chainAction
+        .create(body)
+        .pipe()
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess('create');
+              this.updateSuccess.emit();
+              this.hideModal();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => this.commonService.handleErr(err),
+        });
     }
   }
 

@@ -114,3 +114,9 @@ export interface IChainAct {
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
 }
+
+export interface IBodyChainAct {
+  name: string;
+  isActive: boolean;
+  actionIds: string[];
+}

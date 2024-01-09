@@ -6,28 +6,21 @@
     <ng-container modalBody>
       <form [formGroup]="updateForm">
         <div class="mb-3">
-          <label class="form-control-label" for="displayName">
+          <label class="form-control-label" for="name">
             Tên chuỗi hành động
             <span class="required">*</span>
           </label>
           <input
             class="form-control"
-            [ngClass]="{'is-invalid': submitted && f['displayName'].errors}"
+            [ngClass]="{'is-invalid': submitted && f['name'].errors}"
             [placeholder]="'Nhập tên Chuỗi hành động...'"
-            formControlName="displayName"
-            id="displayName"
+            formControlName="name"
+            id="name"
             type="text"
           />
-          <div
-            *ngIf="submitted && f['displayName'].errors"
-            class="invalid-feedback"
-          >
-            <div *ngIf="f['displayName'].errors?.['required']">
-              Name is required
-            </div>
-            <div *ngIf="f['displayName'].errors?.['maxlength']">
-              Invalid Name
-            </div>
+          <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
+            <div *ngIf="f['name'].errors?.['required']">Name is required</div>
+            <div *ngIf="f['name'].errors?.['maxlength']">Invalid Name</div>
           </div>
         </div>
         <div class="mb-2">
@@ -46,11 +39,13 @@
                 <ng-select
                   [placeholder]="'Chọn Hành động'"
                   [searchable]="false"
-                  [multiple]="true"
-                  [items]="actions"
+                  [items]="actions.rows"
                   [style.width]="'90%'"
                   [ngClass]="{'is-invalid': submitted && !action?.value?.value}"
-                  class="dropdown-auto-width custom-input-multiple"
+                  (open)="getAction()"
+                  [loading]="actions.loading"
+                  (scrollToEnd)="handleLoadMore()"
+                  class="dropdown-auto-width"
                   formControlName="value"
                   id="action{{ i }}"
                   labelForId="action{{ i }}"

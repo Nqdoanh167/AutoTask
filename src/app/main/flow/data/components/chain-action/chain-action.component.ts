@@ -5,14 +5,16 @@ import {
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {ICommonDataSource} from '@app/types/viewmodels';
-import {Subject} from 'rxjs';
+import {ICommonDataSource, IQueryBase} from '@app/types/viewmodels';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {ModalUpdateChainActionComponent} from '@main/flow/data/content-modal/modal-update-chain-action/modal-update-chain-action.component';
+import {IChainAct} from '@app/types/flow';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
 
 @Component({
   selector: 'app-chain-action',
@@ -41,8 +43,8 @@ export class ChainActionComponent implements OnInit, OnDestroy {
       icon: './assets/images/icon/plus.svg',
     },
   ];
-  public dataSource: ICommonDataSource<any, any> = {
-    rows: [{}],
+  public dataSource: ICommonDataSource<IChainAct, IQueryBase> = {
+    rows: [],
     loading: false,
     paramsQuery: {
       page: 1,
@@ -55,9 +57,12 @@ export class ChainActionComponent implements OnInit, OnDestroy {
     private readonly configurationService: ConfigurationService,
     private readonly commonService: CommonService,
     private readonly modalConfirmService: ModalConfirmService,
+    private readonly autoTaskService: AutoTaskService,
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getDataSource();
+  }
 
   getDataSource(isReset?: boolean) {
     let params = {...this.dataSource.paramsQuery};
@@ -65,14 +70,35 @@ export class ChainActionComponent implements OnInit, OnDestroy {
       params.limit = 20;
       params.page = 1;
     }
+    this.dataSource.loading = true;
+    this.autoTaskService.chainAction
+      .get(params)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.dataSource.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.dataSource.rows = res.data;
+            this.dataSource.total = res.total;
+          }
+        },
+      });
   }
 
-  handleUpdate(value: any) {
-    this.modalService.show(ModalUpdateChainActionComponent, {
-      initialState: {
-        sourceData: value,
+  handleUpdate(value?: IChainAct) {
+    const modalUpdate = this.modalService.show(
+      ModalUpdateChainActionComponent,
+      {
+        initialState: {
+          sourceData: value,
+        },
       },
-    });
+    );
+    modalUpdate?.content?.updateSuccess
+      .pipe()
+      .subscribe(() => this.getDataSource());
   }
 
   handleAction(name: string) {
@@ -80,7 +106,7 @@ export class ChainActionComponent implements OnInit, OnDestroy {
       this.getDataSource(true);
     }
     if (name === 'add_new') {
-      this.modalService.show(ModalUpdateChainActionComponent);
+      this.handleUpdate();
     }
   }
 
@@ -101,7 +127,22 @@ export class ChainActionComponent implements OnInit, OnDestroy {
     this.getDataSource();
   }
 
-  onDelete(value: any) {}
+  onDelete(value: IChainAct) {
+    this.autoTaskService.chainAction
+      .delete(value.id)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('delete');
+            this.getDataSource();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
+  }
 
   handleDeleteAction(value: any) {
     const title = 'Xóa chuỗi hành động';
@@ -121,6 +162,13 @@ export class ChainActionComponent implements OnInit, OnDestroy {
 
     this.modalConfirmService.openModal(modalContent, 'delete');
   }
+
+  onSearch(value: {term: string; name: string}) {
+    const {term} = value;
+    this.dataSource.paramsQuery.q = term;
+    this.getDataSource(true);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();
