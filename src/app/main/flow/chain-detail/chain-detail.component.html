@@ -32,3 +32,68 @@
     </div>
   </div>
 </div>
+
+<ng-template #template>
+  <div class="modal-default">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">HDSD Cấu hình quy tắc</h4>
+      <button
+        type="button"
+        class="btn-close close pull-right"
+        aria-label="Close"
+        (click)="introductionModalRef?.hide()"
+      >
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <ul class="list-unstyled">
+        <li>
+          1. Module Auto Task phục vụ cho các ngành đặc thù có quy trình bán
+          hàng dài, cần sự can thiệp sâu của con người chứ không thể hoàn toàn
+          phụ thuộc Automation và bán nhanh như Thương mại điện tử.
+        </li>
+        <li style="white-space: pre-line">
+          2. Thứ tự của Chuỗi hành động thể hiện độ ưu tiên khi thực hiện hành
+          động có liên quan đến chuỗi. {{ '\n ' }} VD: Khi lên Task mới cho 1
+          Lead (khách hàng tiềm năng), thì mặc định task đó sẽ bắt đầu ở chuỗi
+          có độ ưu tiên cao nhất (thường sẽ là chuỗi chăm sóc để chốt được đơn)
+        </li>
+        <li>
+          3. Thứ tự của các hành động trong 1 chuỗi cũng thể hiện độ ưu tiên.
+          Chuỗi sẽ luôn thực hiện hành động có độ ưu tiên cao nhất trước.
+        </li>
+        <li style="white-space: pre-line">
+          4. Một Hành động có thể dẫn đến nhiều Kết quả. Giữa chúng có quan hệ
+          “Hoặc”. {{ '\n' }}VD: Hành động Gọi điện có thể có kết quả Chốt đơn
+          hoặc Không nghe máy hoặc Không hứng thú
+        </li>
+        <li style="white-space: pre-line">
+          5. Một Kết quả có thể dẫn đến nhiều Hành động kế. Giữa chúng có quan
+          hệ “Và”.{{ '\n' }}VD: Sau khi Gọi điện với kết quả Chốt đơn thành công
+          thì hành động kế là Tạo đơn hàng mới và Gửi tin SMS báo đơn và Đóng
+          chuỗi hiện tại và Thêm Deal vào chuỗi “HDSD sản phẩm
+        </li>
+        <li>
+          6. Bạn có thể kích hoạt/huỷ kích hoạt 1 chuỗi. Cẩn trọng với hành động
+          này vì có thể có chuỗi khác/lead cần chăm sóc đang ở trong chuỗi.
+        </li>
+        <li>
+          7. Đa số các hành động có thể cài đặt để thực hiện 1 cách tự động, như
+          Tạo đơn mới, Chạy kịch bản Automation, Thêm chuỗi khác vào task,...
+          Nhưng cũng có một số hành động cần phải thực hiện thủ công, và nên
+          được thực hiện thủ công bởi con người như Gọi điện.
+        </li>
+        <li>
+          8. Nhằm tập trung dữ liệu để quản lý quy trình chất lượng hơn, việc
+          thêm mới, chỉnh sửa hoặc xoá Chuỗi hành động, Hành động, Kết quả,
+          Nguyên nhân cần được thiết lập trước trong menu
+          <span (click)="handleNavigate()" class="text-link">
+            Cấu hình dữ liệu
+          </span>
+          . Menu Cấu hình quy tắc chỉ phục vụ việc thiết lập quy trình
+        </li>
+      </ul>
+    </div>
+  </div>
+</ng-template>

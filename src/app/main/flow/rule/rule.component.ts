@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {ETypeFilter, IFilterTopTable} from '@app/types/common';
 import {ICommonDataSource} from '@app/types/viewmodels';
 import {Subject} from 'rxjs';
@@ -8,7 +8,7 @@ import {Subject} from 'rxjs';
   templateUrl: './rule.component.html',
   styleUrls: ['./rule.component.scss'],
 })
-export class RuleComponent {
+export class RuleComponent implements OnDestroy {
   private destroy$ = new Subject();
   public configFilters: IFilterTopTable[] = [
     {
