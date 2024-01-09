@@ -20,7 +20,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
   imports: [CommonModule, PaginationModule, FormsModule, NgSelectModule],
 })
 export class CustomPaginationComponent implements OnInit, OnChanges {
-  @Input() metaData: IMetaData = {
+  @Input() metaData: any = {
     total: 0,
     countRows: 0,
   };

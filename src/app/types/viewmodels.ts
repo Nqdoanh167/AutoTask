@@ -9,6 +9,13 @@ export interface ICommonDataSource<T, K> {
   total: number;
 }
 
+export interface ICommonDataLazy<T, K> {
+  rows: T[];
+  loading: boolean;
+  paramsQuery: K;
+  isAllowLoadMore: boolean;
+}
+
 export interface Option {
   id?: string;
   label?: string;
@@ -70,6 +77,7 @@ export interface EntityResult<T> {
   total: number;
   data: T;
   viewer?: User;
+  meta?: IMetaData;
 }
 export interface Location {
   id: string;
@@ -1368,11 +1376,11 @@ export type ITypePaginate = 'number' | 'lazy';
 export type IChangePage = 'before' | 'after';
 
 export interface IMetaData {
-  total?: number;
-  totalPage?: number;
-  countRows?: number;
-  currentPage?: number;
-  limit?: number;
+  total: number;
+  totalPage: number;
+  countRows: number;
+  currentPage: number;
+  limit: number;
 }
 
 export interface AccountPublic {

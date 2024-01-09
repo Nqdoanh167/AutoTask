@@ -6,14 +6,27 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {Subject} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import {EActionType, IBodyAction, IBodyResultReason} from '@app/types/flow';
+import {
+  EActionType,
+  IAction,
+  IActReason,
+  IActResult,
+  IBodyAction,
+  IBodyResultReason,
+} from '@app/types/flow';
+import {
+  ICommonDataLazy,
+  ICommonDataSource,
+  IQueryBase,
+} from '@app/types/viewmodels';
+import {uniqBy} from 'lodash';
 
 @Component({
   selector: 'app-modal-update-action',
@@ -21,7 +34,7 @@ import {EActionType, IBodyAction, IBodyResultReason} from '@app/types/flow';
   styleUrls: ['./modal-update-action.component.scss'],
 })
 export class ModalUpdateActionComponent implements OnDestroy, OnInit {
-  @Input() sourceData?: any;
+  @Input() sourceData?: IAction;
   @Output() updateSuccess = new EventEmitter();
   private destroy$ = new Subject();
 
@@ -33,8 +46,26 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     resultIds: [null],
     reasonIds: [null],
   });
-  public results = [];
-  public reasons = [];
+  public results: ICommonDataLazy<IActResult, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+  public reasons: ICommonDataLazy<IActReason, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
   public loading = {
     submit: false,
     data: false,
@@ -62,7 +93,73 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
         ...(this.sourceData as any),
         isHidden: false,
       });
+      if (this.sourceData?.reasons?.length) {
+        this.reasons.rows = this.sourceData?.reasons;
+      }
+      if (this.sourceData?.results?.length) {
+        this.results.rows = this.sourceData?.results;
+      }
     }
+  }
+
+  getReason() {
+    this.reasons.loading = true;
+    this.autoTaskService.actionReason
+      .get(this.reasons.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.reasons.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.reasons.rows = uniqBy(
+              this.reasons.rows.concat(res.data),
+              'id',
+            );
+            this.reasons.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.reasons.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.reasons.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getResult() {
+    this.results.loading = true;
+    this.autoTaskService.actionResult
+      .get(this.results.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.results.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.results.rows = uniqBy(
+              this.results.rows.concat(res.data),
+              'id',
+            );
+            this.results.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.results.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.results.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
   }
 
   handleUpdate() {
@@ -118,6 +215,21 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
 
   hideModal(): void {
     this.modalRef.hide();
+  }
+
+  handleLoadMore(key: 'reason' | 'result') {
+    if (key === 'reason') {
+      if (this.reasons.isAllowLoadMore) {
+        this.reasons.paramsQuery!.page! += 1;
+        this.getReason();
+      }
+    }
+    if (key === 'result') {
+      if (this.results.isAllowLoadMore) {
+        this.results.paramsQuery!.page! += 1;
+        this.getResult();
+      }
+    }
   }
 
   ngOnDestroy(): void {

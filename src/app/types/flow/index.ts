@@ -44,6 +44,7 @@ export interface IAction {
   resultIds: string[];
   reasonIds: string[];
   results?: IActResult[];
+  reasons?: IActReason[];
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;

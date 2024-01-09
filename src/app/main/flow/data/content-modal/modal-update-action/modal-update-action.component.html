@@ -70,19 +70,22 @@
             [placeholder]="'Chọn kết quả'"
             [searchable]="false"
             [multiple]="true"
-            [items]="results"
+            [items]="results.rows"
+            (open)="getResult()"
+            [loading]="results.loading"
+            (scrollToEnd)="handleLoadMore('result')"
             class="dropdown-auto-width custom-input-multiple"
             formControlName="resultIds"
             id="results"
             labelForId="results"
-            bindValue="id"
             bindLabel="name"
+            bindValue="id"
             appendTo=".modal"
           ></ng-select>
         </div>
         <div class="mb-2">
           <label class="form-control-label" for="reasons">
-            Nguyên nhân có thể xảy ra
+            Nguyên nhân dẫn đến kết quả
           </label>
           <ng-select
             [ngClass]="{
@@ -91,13 +94,18 @@
             [placeholder]="'Chọn nguyên nhân'"
             [searchable]="false"
             [multiple]="true"
-            [items]="reasons"
+            [items]="reasons.rows"
+            (open)="getReason()"
+            [loading]="reasons.loading"
+            (scrollToEnd)="handleLoadMore('reason')"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             formControlName="reasonIds"
             id="reasons"
             labelForId="dataType"
             appendTo=".modal"
+            bindLabel="name"
+            bindValue="id"
           ></ng-select>
         </div>
       </form>
