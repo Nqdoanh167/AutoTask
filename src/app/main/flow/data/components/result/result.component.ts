@@ -50,6 +50,7 @@ export class ResultComponent implements OnInit, OnDestroy {
     paramsQuery: {
       page: 1,
       limit: 20,
+      sort: '-createdAt',
     },
     total: 0,
   };
@@ -160,6 +161,13 @@ export class ResultComponent implements OnInit, OnDestroy {
 
     this.modalConfirmService.openModal(modalContent, 'delete');
   }
+
+  onSearch(value: {term: string; name: string}) {
+    const {term} = value;
+    this.dataSource.paramsQuery.q = term;
+    this.getDataSource(true);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();

@@ -3,6 +3,7 @@
     [configFilters]="configFilters"
     [configButtons]="configButtons"
     (clickButtonEvent)="handleAction($event)"
+    (searchEvent)="onSearch($event)"
   ></app-filter-top-table>
   <div class="table-responsive tableFixHead custom-scrollbar">
     <table class="table">

@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Subject} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {
   ETypeButton,
   ETypeFilter,
@@ -13,6 +13,8 @@ import {CommonService} from '@app/services/common/common.service';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalUpdateReasonComponent} from '@main/flow/data/content-modal/modal-update-reason/modal-update-reason.component';
+import {IActReason} from '@app/types/flow';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
 
 @Component({
   selector: 'app-reason',
@@ -41,12 +43,13 @@ export class ReasonComponent implements OnInit, OnDestroy {
       icon: './assets/images/icon/plus.svg',
     },
   ];
-  public dataSource: ICommonDataSource<any, any> = {
-    rows: [{}],
+  public dataSource: ICommonDataSource<IActReason, any> = {
+    rows: [],
     loading: false,
     paramsQuery: {
       page: 1,
       limit: 20,
+      sort: '-createdAt',
     },
     total: 0,
   };
@@ -55,9 +58,12 @@ export class ReasonComponent implements OnInit, OnDestroy {
     private readonly configurationService: ConfigurationService,
     private readonly commonService: CommonService,
     private readonly modalConfirmService: ModalConfirmService,
+    private readonly autoTaskService: AutoTaskService,
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getDataSource();
+  }
 
   getDataSource(isReset?: boolean) {
     let params = {...this.dataSource.paramsQuery};
@@ -65,14 +71,32 @@ export class ReasonComponent implements OnInit, OnDestroy {
       params.limit = 20;
       params.page = 1;
     }
+    this.dataSource.loading = true;
+    this.autoTaskService.actionReason
+      .get(params)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.dataSource.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.dataSource.rows = res.data;
+            this.dataSource.total = res.total;
+          }
+        },
+      });
   }
 
-  handleUpdate(value: any) {
-    this.modalService.show(ModalUpdateReasonComponent, {
+  handleUpdate(value?: IActReason) {
+    const modalUpdate = this.modalService.show(ModalUpdateReasonComponent, {
       initialState: {
         sourceData: value,
       },
     });
+    modalUpdate?.content?.updateSuccess
+      .pipe()
+      .subscribe(() => this.getDataSource());
   }
 
   handleAction(name: string) {
@@ -80,7 +104,7 @@ export class ReasonComponent implements OnInit, OnDestroy {
       this.getDataSource(true);
     }
     if (name === 'add_new') {
-      this.modalService.show(ModalUpdateReasonComponent);
+      this.handleUpdate();
     }
   }
 
@@ -101,7 +125,22 @@ export class ReasonComponent implements OnInit, OnDestroy {
     this.getDataSource();
   }
 
-  onDelete(value: any) {}
+  onDelete(value: IActReason) {
+    this.autoTaskService.actionReason
+      .delete(value.id)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('delete');
+            this.getDataSource();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
+  }
 
   handleDeleteAction(value: any) {
     const title = 'Xóa nguyên nhân';
@@ -121,6 +160,13 @@ export class ReasonComponent implements OnInit, OnDestroy {
 
     this.modalConfirmService.openModal(modalContent, 'delete');
   }
+
+  onSearch(value: {term: string; name: string}) {
+    const {term} = value;
+    this.dataSource.paramsQuery.q = term;
+    this.getDataSource(true);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();

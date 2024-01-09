@@ -6,26 +6,23 @@
     <ng-container modalBody>
       <form [formGroup]="updateForm">
         <div class="mb-2">
-          <label class="form-control-label" for="displayName">
+          <label class="form-control-label" for="name">
             Nguyên nhân
             <span class="required">*</span>
           </label>
           <input
             class="form-control"
-            [ngClass]="{'is-invalid': submitted && f['displayName'].errors}"
+            [ngClass]="{'is-invalid': submitted && f['name'].errors}"
             [placeholder]="'Nhập Nguyên nhân...'"
-            formControlName="displayName"
-            id="displayName"
+            formControlName="name"
+            id="name"
             type="text"
           />
-          <div
-            *ngIf="submitted && f['displayName'].errors"
-            class="invalid-feedback"
-          >
-            <div *ngIf="f['displayName'].errors?.['required']">
+          <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
+            <div *ngIf="f['name'].errors?.['required']">
               Nguyên nhân không được bỏ trống
             </div>
-            <div *ngIf="f['displayName'].errors?.['maxlength']">
+            <div *ngIf="f['name'].errors?.['maxlength']">
               Nguyên nhân không hợp lệ
             </div>
           </div>

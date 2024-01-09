@@ -3,6 +3,7 @@
     [configFilters]="configFilters"
     [configButtons]="configButtons"
     (clickButtonEvent)="handleAction($event)"
+    (searchEvent)="onSearch($event)"
   ></app-filter-top-table>
   <div class="table-responsive tableFixHead custom-scrollbar">
     <table class="table">
@@ -31,8 +32,8 @@
           </td>
         </tr>
         <tr *ngFor="let item of dataSource.rows; index as i">
-          <td>-</td>
-          <td>-</td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.createdAt | timeView }}</td>
           <td class="columns-action">
             <div class="d-flex">
               <span

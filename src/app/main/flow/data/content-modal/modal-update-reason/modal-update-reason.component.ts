@@ -11,6 +11,9 @@ import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ConfigurationService} from '@app/services/api/configuration.service';
+import {IBodyResultReason} from '@app/types/flow';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
 
 @Component({
   selector: 'app-modal-update-result',
@@ -25,7 +28,7 @@ export class ModalUpdateReasonComponent implements OnDestroy, OnInit {
   public actionTypes: any = [];
   public submitted = false;
   public updateForm = this.fb.group({
-    displayName: [null, [Validators.required, Validators.maxLength(255)]],
+    name: [null, [Validators.required, Validators.maxLength(255)]],
   });
   public loading = {
     submit: false,
@@ -38,6 +41,8 @@ export class ModalUpdateReasonComponent implements OnDestroy, OnInit {
     private readonly modalRef: BsModalRef,
     private readonly fb: FormBuilder,
     private readonly configurationService: ConfigurationService,
+    private readonly autoTaskService: AutoTaskService,
+    private readonly commonService: CommonService,
   ) {
     this.actionTypes = configurationService.actionTypes;
   }
@@ -59,16 +64,41 @@ export class ModalUpdateReasonComponent implements OnDestroy, OnInit {
     this.loading.submit = true;
     const body = {
       ...this.updateForm.value,
-      conditions: [],
-      isHidden: false,
-    } as unknown as any;
+    } as unknown as IBodyResultReason;
     if (this.sourceData?.id) {
-      this.hideModal();
+      this.autoTaskService.actionReason
+        .update(this.sourceData.id, body)
+        .pipe()
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess('update');
+              this.updateSuccess.emit();
+              this.hideModal();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => this.commonService.handleErr(err),
+        });
     } else {
-      this.hideModal();
+      this.autoTaskService.actionReason
+        .create(body)
+        .pipe()
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess('create');
+              this.updateSuccess.emit();
+              this.hideModal();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => this.commonService.handleErr(err),
+        });
     }
   }
-
   onSubmit(): void {
     this.submitted = true;
     if (this.updateForm.valid) {
