@@ -91,18 +91,20 @@
                   </div>
                   <div
                     class="child-item"
-                    *ngIf="item.isExpand && item.children.length"
+                    *ngIf="item.isExpand && item.actionResults.length"
                   >
                     <table class="table table-none-border">
                       <tbody>
                         <ng-container
                           *ngFor="
-                            let child of item.children;
+                            let child of item.actionResults;
                             let lastChild = last
                           "
                         >
                           <tr>
-                            <td class="columns-name">{{ child.name }}</td>
+                            <td class="columns-name">
+                              {{ child.action?.name || '-' }}
+                            </td>
                             <td class="columns-result">-</td>
                             <td class="columns-next-action">-</td>
                           </tr>
@@ -127,8 +129,8 @@
         </table>
       </div>
       <custom-pagination
-        [selectedSize]="dataSource.paramsQuery.limit"
-        [currentPage]="dataSource.paramsQuery.page"
+        [selectedSize]="dataSource.paramsQuery!.limit!"
+        [currentPage]="dataSource.paramsQuery!.page!"
         (changePageEvent)="pageChanged($event)"
         [total]="dataSource.total"
       ></custom-pagination>

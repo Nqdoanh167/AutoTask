@@ -115,6 +115,10 @@ export interface IChainAct {
   updatedBy: AccountPublic;
 }
 
+export interface IChainActRule extends IChainAct {
+  isExpand: boolean;
+}
+
 export interface IBodyChainAct {
   name: string;
   isActive: boolean;
