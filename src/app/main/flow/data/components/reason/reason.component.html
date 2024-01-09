@@ -57,6 +57,7 @@
     [selectedSize]="dataSource.paramsQuery.limit"
     [currentPage]="dataSource.paramsQuery.page"
     (changePageEvent)="pageChanged($event)"
+    [total]="dataSource.total"
   ></custom-pagination>
 
   <modal-confirm [key]="'delete'" (confirmEvent)="onDelete($event)">

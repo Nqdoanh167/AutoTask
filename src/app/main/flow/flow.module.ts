@@ -29,6 +29,7 @@ import {
   CdkDropList,
 } from '@angular/cdk/drag-drop';
 import {ChainDetailComponent} from './chain-detail/chain-detail.component';
+import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 
 @NgModule({
   declarations: [
@@ -63,6 +64,7 @@ import {ChainDetailComponent} from './chain-detail/chain-detail.component';
     CdkDrag,
     CdkDragHandle,
     CdkDragPreview,
+    PipeTimeViewModule,
   ],
 })
 export class FlowModule {}

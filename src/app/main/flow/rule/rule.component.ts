@@ -71,7 +71,6 @@ export class RuleComponent implements OnDestroy {
       this.dataSource.paramsQuery = {
         ...this.dataSource.paramsQuery,
         limit: Number(limit),
-        page: 1,
       };
     }
     this.getDataSource();

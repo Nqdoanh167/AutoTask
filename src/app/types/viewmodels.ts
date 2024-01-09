@@ -1386,3 +1386,17 @@ export interface AccountPublic {
   createdAt: string;
   isFollowReport?: boolean;
 }
+
+export interface IQueryBase {
+  // agency?: number
+  'limit'?: number;
+  'page'?: number;
+  'before'?: Date;
+  'after'?: Date;
+  'q'?: string;
+  'filter'?: any;
+  'sort'?: string;
+  'searchFields[]'?: string[];
+
+  [name: string]: any;
+}

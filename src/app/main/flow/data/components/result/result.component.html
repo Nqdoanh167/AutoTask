@@ -31,8 +31,8 @@
           </td>
         </tr>
         <tr *ngFor="let item of dataSource.rows; index as i">
-          <td>-</td>
-          <td>-</td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.createdAt | timeView }}</td>
           <td class="columns-action">
             <div class="d-flex">
               <span
@@ -54,8 +54,9 @@
     </table>
   </div>
   <custom-pagination
-    [selectedSize]="dataSource.paramsQuery.limit"
-    [currentPage]="dataSource.paramsQuery.page"
+    [selectedSize]="dataSource.paramsQuery!.limit!"
+    [currentPage]="dataSource.paramsQuery!.page!"
+    [total]="dataSource.total"
     (changePageEvent)="pageChanged($event)"
   ></custom-pagination>
 

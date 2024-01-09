@@ -104,7 +104,6 @@ export class ActionComponent implements OnInit, OnDestroy {
       this.dataSource.paramsQuery = {
         ...this.dataSource.paramsQuery,
         limit: Number(limit),
-        page: 1,
       };
     }
     this.getDataSource();

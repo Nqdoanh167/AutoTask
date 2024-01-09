@@ -17,7 +17,7 @@ import {
 @Injectable({
   providedIn: 'root',
 })
-export class BeautyServiceService extends BaseApiService implements OnDestroy {
+export class AutoTaskService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
 
   api = {
@@ -36,7 +36,10 @@ export class BeautyServiceService extends BaseApiService implements OnDestroy {
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
       next: (res) => {
         if (res) {
-          this.setApiAddress(environment.apiAddress, `bizs/${res.alias}/`);
+          this.setApiAddress(
+            environment.apiAddress,
+            `bizs/${res.alias}/auto-task`,
+          );
         }
       },
     });
@@ -60,7 +63,7 @@ export class BeautyServiceService extends BaseApiService implements OnDestroy {
         body,
       ),
     update: (id: string, body: IBodyAction) =>
-      this.httpClient.put<EntityResult<IAction>>(
+      this.httpClient.patch<EntityResult<IAction>>(
         this.createUrl([this.api.action, id]),
         body,
       ),
@@ -84,7 +87,7 @@ export class BeautyServiceService extends BaseApiService implements OnDestroy {
         body,
       ),
     update: (id: string, body: IBodyResultReason) =>
-      this.httpClient.put<EntityResult<IActResult>>(
+      this.httpClient.patch<EntityResult<IActResult>>(
         this.createUrl([this.api.actionResult, id]),
         body,
       ),
@@ -108,7 +111,7 @@ export class BeautyServiceService extends BaseApiService implements OnDestroy {
         body,
       ),
     update: (id: string, body: IBodyResultReason) =>
-      this.httpClient.put<EntityResult<IActReason>>(
+      this.httpClient.patch<EntityResult<IActReason>>(
         this.createUrl([this.api.actionReason, id]),
         body,
       ),
@@ -136,7 +139,7 @@ export class BeautyServiceService extends BaseApiService implements OnDestroy {
         body,
       ),
     update: (id: string, body: IBodyResultReason) =>
-      this.httpClient.put<EntityResult<IChainAct>>(
+      this.httpClient.patch<EntityResult<IChainAct>>(
         this.createUrl([this.api.chainAction, id]),
         body,
       ),
