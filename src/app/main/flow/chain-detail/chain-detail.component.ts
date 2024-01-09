@@ -66,6 +66,7 @@ export class ChainDetailComponent implements OnDestroy {
     createdAt: '2024-01-08T07:59:05.267Z',
     updatedAt: '2024-01-08T07:59:05.358Z',
     id: '659bab49870ed0a5409a5497',
+    name: 'CSKH',
     actionResults: [
       {
         id: '659bab49f0652ecf1e8e2a9f',

@@ -1374,3 +1374,15 @@ export interface IMetaData {
   currentPage?: number;
   limit?: number;
 }
+
+export interface AccountPublic {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  roleIds: string[];
+  isActive: boolean;
+  picture: string;
+  createdAt: string;
+  isFollowReport?: boolean;
+}
