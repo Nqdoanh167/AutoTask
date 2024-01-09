@@ -174,7 +174,10 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     if (this.sourceData?.id) {
       this.autoTaskService.action
         .update(this.sourceData.id, body)
-        .pipe()
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => (this.loading.submit = false)),
+        )
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
@@ -190,7 +193,10 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     } else {
       this.autoTaskService.action
         .create(body)
-        .pipe()
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => (this.loading.submit = false)),
+        )
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
