@@ -77,6 +77,17 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
         ...(this.sourceData as any),
         isHidden: false,
       });
+      if (this.sourceData.actionResults.length) {
+        this.formActions.clear();
+        this.sourceData.actionResults?.forEach((actionResult) => {
+          this.formActions.push(
+            this.fb.group({
+              value: actionResult.action?.id,
+              label: actionResult.action?.name,
+            }),
+          );
+        });
+      }
     } else {
       this.addActions();
     }

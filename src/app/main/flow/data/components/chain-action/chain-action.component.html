@@ -34,8 +34,19 @@
         </tr>
         <tr *ngFor="let item of dataSource.rows; index as i">
           <td>{{ item.name || '-' }}</td>
-          <td>-</td>
-          <td>-</td>
+          <td class="column-list-action">
+            <div *ngIf="item.actionResults?.length">
+              <span
+                *ngFor="let action of item.actionResults; let lastAction = last"
+              >
+                {{ action.action?.name || '-' }}
+                <span *ngIf="!lastAction && item.actionResults.length > 1">
+                  ,&nbsp;
+                </span>
+              </span>
+            </div>
+          </td>
+          <td>{{ item?.createdAt | timeView }}</td>
           <td class="columns-action">
             <div class="d-flex">
               <span

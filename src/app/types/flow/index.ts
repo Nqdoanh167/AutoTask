@@ -94,7 +94,7 @@ export interface IChainActResult {
   ordering: number;
   chainActId: string;
   actionId: string;
-  action: IAction;
+  action?: IAction;
   results: IChainResult[];
   createdAt: Date;
   updatedAt: Date;
@@ -108,7 +108,7 @@ export interface IChainAct {
   isActive: boolean;
   ordering: number;
   actionResultIds: string[];
-  actionResults: [];
+  actionResults: IChainActResult[];
   createdAt: Date;
   updatedAt: Date;
   createdBy: AccountPublic;

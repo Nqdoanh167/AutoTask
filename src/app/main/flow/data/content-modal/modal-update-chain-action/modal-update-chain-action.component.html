@@ -42,7 +42,7 @@
                   [items]="actions.rows"
                   [style.width]="'90%'"
                   [ngClass]="{'is-invalid': submitted && !action?.value?.value}"
-                  (open)="getAction()"
+                  (open)="!actions.rows.length && getAction()"
                   [loading]="actions.loading"
                   (scrollToEnd)="handleLoadMore()"
                   class="dropdown-auto-width"
@@ -52,7 +52,13 @@
                   bindValue="id"
                   bindLabel="name"
                   appendTo=".modal"
-                ></ng-select>
+                >
+                  <ng-template ng-label-tmp let-item="item">
+                    <div>
+                      {{ item.label ?? action?.value?.label ?? '-' }}
+                    </div>
+                  </ng-template>
+                </ng-select>
                 <span
                   (click)="removeAction(i)"
                   class="d-flex align-items-center btn-action-table"
