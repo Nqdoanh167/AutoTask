@@ -27,13 +27,14 @@
         .child-item {
           margin-top: 10px;
           overflow: hidden;
-          border: 1px solid vars.$secondary-500;
-          border-radius: vars.$radius-s;
+          .item-row {
+            border: 1px solid vars.$secondary-500;
+            border-radius: vars.$radius-s;
+            border-collapse: unset !important;
+          }
         }
       }
       &.childRow {
-        border: 1px solid vars.$secondary-500;
-        border-radius: vars.$radius-l;
         &.isExpand {
         }
         &.isCollapse {
