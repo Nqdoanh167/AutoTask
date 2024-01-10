@@ -220,7 +220,7 @@
                             appendTo="body"
                           ></ng-select>
                         </div>
-                        <div class="col-6">
+                        <div class="col-5">
                           <ng-select
                             [placeholder]="'Chọn loại'"
                             (scrollToEnd)="handleLoadMore('action')"
@@ -239,6 +239,14 @@
                               Thủ công
                             </ng-option>
                           </ng-select>
+                        </div>
+                        <div class="col center-item">
+                          <span
+                            (click)="removeNextAction(result, nextActionIndex)"
+                            class="d-flex align-items-center cursor-pointer"
+                          >
+                            <img src="./assets/images/icon/x.svg" alt="" />
+                          </span>
                         </div>
                       </div>
                     </div>

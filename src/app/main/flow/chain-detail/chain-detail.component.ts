@@ -19,6 +19,7 @@ import {
   IChainAct,
   IChainActResult,
   IChainNextAction,
+  IChainResult,
 } from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
@@ -176,6 +177,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   handleAddNextAction(actResult: IChainActResult, index: number) {}
+
+  removeNextAction(chainResult: IChainResult, index: number) {
+    chainResult?.nextActions?.splice(index, 1);
+  }
 
   getResult() {
     this.results.loading = true;
