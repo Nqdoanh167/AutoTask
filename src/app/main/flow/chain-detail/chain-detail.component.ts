@@ -18,7 +18,6 @@ import {
   IActResult,
   IChainAct,
   IChainActResult,
-  IChainNextAction,
   IChainResult,
 } from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';

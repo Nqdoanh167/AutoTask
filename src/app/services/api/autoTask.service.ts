@@ -10,8 +10,11 @@ import {
   IActReason,
   IActResult,
   IBodyAction,
+  IBodyChainResult,
   IBodyResultReason,
+  IBodyUpdateOrdering,
   IChainAct,
+  IChainResult,
 } from '@app/types/flow';
 
 @Injectable({
@@ -143,9 +146,27 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.chainAction, id]),
         body,
       ),
+    updateMany: (body: IBodyUpdateOrdering) =>
+      this.httpClient.patch<EntityResult<IChainAct>>(
+        this.createUrl([this.api.chainAction]),
+        body,
+      ),
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<any>>(
         this.createUrl([this.api.chainAction, id]),
+      ),
+  };
+
+  chainActResult = {
+    update: (id: string, body: IBodyChainResult) =>
+      this.httpClient.patch<EntityResult<IChainResult>>(
+        this.createUrl([this.api.chainActionResult, id]),
+        body,
+      ),
+    updateMany: (body: IBodyChainResult) =>
+      this.httpClient.patch<EntityResult<IChainResult>>(
+        this.createUrl([this.api.chainActionResult]),
+        body,
       ),
   };
 

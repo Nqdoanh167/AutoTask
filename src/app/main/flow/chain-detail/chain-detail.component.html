@@ -81,7 +81,13 @@
                   </div>
                 </td>
                 <td class="columns-action">
-                  {{ item.action?.name }}
+                  <!--                  {{ item.action?.name }}-->
+                  <input
+                    type="text"
+                    class="input-medium"
+                    [value]="item.action?.name"
+                    readonly
+                  />
                 </td>
                 <td class="columns-result">
                   <div
@@ -251,7 +257,7 @@
                       </div>
                     </div>
                   </div>
-                  <div>
+                  <div [style.width]="'92%'">
                     <button
                       type="button"
                       class="btn button-medium button-sub-primary secondary-color w-100"

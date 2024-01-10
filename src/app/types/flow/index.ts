@@ -124,3 +124,14 @@ export interface IBodyChainAct {
   isActive: boolean;
   actionIds: string[];
 }
+
+export interface IBodyChainResult {
+  ordering?: number;
+  resultId: string;
+  nextActions: IChainNextAction[];
+}
+
+export interface IBodyUpdateOrdering {
+  ordering: number;
+  id: string;
+}
