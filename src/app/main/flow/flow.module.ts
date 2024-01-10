@@ -30,6 +30,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import {ChainDetailComponent} from './chain-detail/chain-detail.component';
 import {PipeTimeViewModule} from '@share/pipe/timeView.module';
+import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import {PipeTimeViewModule} from '@share/pipe/timeView.module';
     CdkDragHandle,
     CdkDragPreview,
     PipeTimeViewModule,
+    CustomButtonLoadingComponent,
   ],
 })
 export class FlowModule {}

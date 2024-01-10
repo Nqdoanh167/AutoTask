@@ -25,6 +25,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {uniqBy} from 'lodash';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
+import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-chain-detail',
@@ -89,7 +90,13 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     isAllowLoadMore: false,
   };
   public submittedModal = false;
-  public selectedActionId?: string;
+  public selectedResulRowId?: string;
+  public selectedResulRowIndex?: number;
+  public resultsInRow: IActResult[] = [];
+
+  public addNextActionForm = this.fb.group({
+    resultId: [null, [Validators.required]],
+  });
 
   private chainId?: string;
 
@@ -102,6 +109,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     private readonly route: ActivatedRoute,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
+    private readonly fb: FormBuilder,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -114,6 +122,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       this.chainId = params['id'];
       if (this.chainId) this.getDetailChain();
     });
+  }
+
+  get f(): {[key: string]: AbstractControl} {
+    return this.addNextActionForm.controls;
   }
 
   ngOnInit() {
@@ -221,12 +233,35 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   handleAddNextAction(actResult: IChainActResult, index: number) {
+    this.selectedResulRowId = actResult.id;
+    this.selectedResulRowIndex = index;
+    // console.log(this.getResultsByIndex(index));
+    this.resultsInRow =
+      this.detailChain?.actionResults[index].results
+        ?.map((result) => {
+          return {
+            id: result.resultId || '',
+            name:
+              this.results.rows.find(
+                (element) => element.id === result.resultId,
+              )?.name || '',
+          };
+        })
+        .filter((el) => !!el.id) || [];
     this.addNextActionModalRef = this.modalService.show(
       this.templateAddNextAction,
       {
         class: '',
       },
     );
+    this.addNextActionModalRef?.onHide?.pipe().subscribe(() => {
+      this.selectedResulRowId = undefined;
+      this.selectedResulRowIndex = undefined;
+      this.resultsInRow = [];
+      this.addNextActionForm.patchValue({
+        resultId: null,
+      });
+    });
   }
 
   removeNextAction(chainResult: IChainResult, index: number) {
@@ -306,6 +341,37 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         this.getResult();
       }
     }
+  }
+
+  getResultsByIndex(): {name: string; id: string}[] {
+    let results;
+    console.log(this.selectedResulRowIndex);
+    try {
+      results =
+        this.detailChain?.actionResults[this.selectedResulRowIndex!].results
+          ?.map((result) => {
+            return {
+              id: result.resultId || '',
+              name:
+                this.results.rows.find(
+                  (element) => element.id === result.resultId,
+                )?.name || '',
+            };
+          })
+          .filter((el) => !!el.id) || [];
+    } catch (e) {
+      console.log(e);
+    }
+    return results || [];
+  }
+
+  onSubmitModal() {
+    if (this.addNextActionForm.invalid) return;
+    this.submittedModal = true;
+    const {resultId} = this.addNextActionForm.value;
+    console.log(resultId);
+    this.addNextActionModalRef?.hide();
+    // this.detailChain?.actionResults[this.selectedResulRowIndex!].results
   }
 
   ngOnDestroy(): void {
