@@ -1,9 +1,10 @@
 @use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
 
 .rule-site {
   .table-responsive {
     min-height: 200px;
-    max-height: 500px;
+    @include mixins.calculateSize('max-height', '100vh', '230px');
     tr {
       &.rootRow {
         &.isExpand {
