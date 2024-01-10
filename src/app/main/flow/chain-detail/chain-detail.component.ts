@@ -5,101 +5,36 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import {ModalUpdateActionComponent} from '@main/flow/data/content-modal/modal-update-action/modal-update-action.component';
 import {ETypeButton, IFilterTopButton} from '@app/types/common';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {environment} from '../../../../environments/environment';
-import {BizService} from '@app/services/api/biz.service';
-import {Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
-import {ICommonDataSource} from '@app/types/viewmodels';
+import {
+  EChainNextActType,
+  EDelayTypeChainNextAct,
+  IAction,
+  IActResult,
+  IChainAct,
+  IChainActResult,
+  IChainNextAction,
+} from '@app/types/flow';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
+import {uniqBy} from 'lodash';
+import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 
 @Component({
   selector: 'app-chain-detail',
   templateUrl: './chain-detail.component.html',
   styleUrls: ['./chain-detail.component.scss'],
 })
-export class ChainDetailComponent implements OnDestroy {
+export class ChainDetailComponent implements OnDestroy, OnInit {
   @ViewChild('template') template!: TemplateRef<any>;
 
-  public dataSource: ICommonDataSource<any, any> = {
-    rows: [
-      {
-        id: 1,
-        name: 'CSKH',
-        isExpand: false,
-        children: [
-          {
-            name: 'Gọi lần đầu',
-          },
-        ],
-      },
-      {
-        id: 2,
-        name: 'HDSD',
-        isExpand: false,
-        children: [
-          {
-            name: 'Gọi chào hàng',
-          },
-        ],
-      },
-    ],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 20,
-    },
-    total: 0,
-  };
-
-  public detailChain = {
-    createdBy: {
-      id: '640e9043784a12c99281206c',
-      name: 'An Hải',
-      picture:
-        'https://lh3.googleusercontent.com/a/AGNmyxambgm4-ZDfHnWvasN5iTncc0VVGXlp2n21hDOK=s96-c',
-      email: 'haian.nt@tinasoft.vn',
-    },
-    isActive: true,
-    createdAt: '2024-01-08T07:59:05.267Z',
-    updatedAt: '2024-01-08T07:59:05.358Z',
-    id: '659bab49870ed0a5409a5497',
-    name: 'CSKH',
-    actionResults: [
-      {
-        id: '659bab49f0652ecf1e8e2a9f',
-        ordering: 1,
-        action: {
-          name: 'string',
-          id: '659b7a717c946924af815dee',
-        },
-        results: [
-          {
-            ordering: 3,
-            nextActions: [
-              {
-                ordering: 4,
-                type: '0',
-                delayType: '0',
-                action: {
-                  name: 'string',
-                  id: '659b7a717c946924af815dee',
-                },
-              },
-            ],
-            result: {
-              name: 'string',
-              id: '659bb5b1f7cff15333789fa3',
-            },
-          },
-        ],
-      },
-    ],
-  };
-
-  protected readonly undefined = undefined;
+  public detailChain?: IChainAct;
+  protected readonly EChainNextActType = EChainNextActType;
   public configButtons: IFilterTopButton[] = [
     {
       name: 'back',
@@ -123,12 +58,44 @@ export class ChainDetailComponent implements OnDestroy {
   ];
 
   public introductionModalRef?: BsModalRef;
+  public loading = {
+    detail: false,
+    submit: false,
+  };
+
+  public results: ICommonDataLazy<IActResult, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
+  public actions: ICommonDataLazy<IAction, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
+  private chainId?: string;
+
   private currentBiz = '';
   private destroy$ = new Subject();
   constructor(
     private readonly router: Router,
     private readonly modalService: BsModalService,
     private authService: AuthService,
+    private readonly route: ActivatedRoute,
+    private readonly autoTaskService: AutoTaskService,
+    private readonly commonService: CommonService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -136,6 +103,33 @@ export class ChainDetailComponent implements OnDestroy {
         if (res) {
           this.currentBiz = res.alias || '';
         }
+      });
+    this.route.params.subscribe((params) => {
+      this.chainId = params['id'];
+      if (this.chainId) this.getDetailChain();
+    });
+  }
+
+  ngOnInit() {}
+
+  getDetailChain() {
+    this.loading.detail = true;
+    this.autoTaskService.chainAction
+      .getOne(this.chainId!)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loading.detail = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.detailChain = res.data;
+            console.log('this.detailChain', this.detailChain);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
       });
   }
 
@@ -148,6 +142,9 @@ export class ChainDetailComponent implements OnDestroy {
         class: 'modal-lg',
       });
     }
+    if (name === 'save') {
+      console.log(this.detailChain);
+    }
   }
 
   handleNavigate() {
@@ -156,6 +153,103 @@ export class ChainDetailComponent implements OnDestroy {
   }
 
   dropRow(value: any) {}
+
+  handleAddResult(actResult: IChainActResult, index: number) {
+    this.detailChain?.actionResults[index].results.push({
+      resultId: undefined,
+      nextActions: [
+        {
+          type: EChainNextActType.AUTO,
+          delayType: EDelayTypeChainNextAct.DAY,
+          delayValue: 1,
+          actionId: undefined,
+        },
+        {
+          type: EChainNextActType.MANUAL,
+          delayType: EDelayTypeChainNextAct.HOUR,
+          delayValue: 2,
+          actionId: undefined,
+        },
+      ],
+    });
+  }
+
+  handleAddNextAction(actResult: IChainActResult, index: number) {}
+
+  getResult() {
+    this.results.loading = true;
+    this.autoTaskService.actionResult
+      .get(this.results.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.results.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.results.rows = uniqBy(
+              this.results.rows.concat(res.data),
+              'id',
+            );
+            this.results.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.results.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.results.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getAction() {
+    this.actions.loading = true;
+    this.autoTaskService.action
+      .get(this.actions.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.actions.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.actions.rows = uniqBy(
+              this.actions.rows.concat(res.data),
+              'id',
+            );
+            this.actions.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.actions.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.actions.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  handleLoadMore(key: 'action' | 'result') {
+    if (key === 'action') {
+      if (this.actions.isAllowLoadMore) {
+        this.actions.paramsQuery!.page! += 1;
+        this.getAction();
+      }
+    }
+    if (key === 'result') {
+      if (this.results.isAllowLoadMore) {
+        this.results.paramsQuery!.page! += 1;
+        this.getResult();
+      }
+    }
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next(true);

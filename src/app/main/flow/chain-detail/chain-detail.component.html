@@ -5,7 +5,7 @@
         class="header-site d-flex justify-content-between align-items-center"
       >
         <div class="d-flex align-items-center gap-5">
-          <span class="fw-bold">Chăm sóc chốt đơn</span>
+          <span class="fw-bold">{{ detailChain?.name || '-' }}</span>
           <div class="form-check form-switch mb-0">
             <input
               checked
@@ -50,13 +50,13 @@
           <tbody cdkDropList (cdkDropListDropped)="dropRow($event)">
             <tr
               class="text-center"
-              *ngIf="!dataSource.rows.length && !dataSource.loading"
+              *ngIf="!detailChain?.actionResults?.length && !loading.detail"
             >
               <td colspan="12">
                 <div>Không có dữ liệu</div>
               </td>
             </tr>
-            <tr class="text-center" *ngIf="dataSource.loading">
+            <tr class="text-center" *ngIf="loading.detail">
               <td colspan="12">
                 <div class="spinner-grow text-primary" role="status">
                   <span class="visually-hidden">Loading</span>
@@ -64,7 +64,9 @@
                 <div>Loading</div>
               </td>
             </tr>
-            <ng-container *ngFor="let item of dataSource.rows; index as i">
+            <ng-container
+              *ngFor="let item of detailChain?.actionResults; index as i"
+            >
               <tr cdkDrag cdkDragLockAxis="y" class="rootRow">
                 <td class="" colspan="1">
                   <div class="d-flex align-items-center">
@@ -75,31 +77,123 @@
                     >
                       <img src="./assets/images/icon/dragDrop.svg" alt="" />
                     </span>
-                    <span class="fw-500">#1</span>
+                    <span class="fw-500">#{{ i + 1 }}</span>
                   </div>
                 </td>
-                <td class="" colspan="1000">
-                  <div class="child-item" *ngIf="item.children.length">
-                    <table class="table table-none-border">
-                      <tbody>
-                        <ng-container
-                          *ngFor="
-                            let child of item.children;
-                            let lastChild = last
-                          "
-                        >
-                          <tr>
-                            <td class="columns-action">{{ child.name }}</td>
-                            <td class="columns-result">-</td>
-                            <td class="columns-duration">-</td>
-                            <td class="columns-next-action">-</td>
-                          </tr>
-                          <tr *ngIf="!lastChild" class="padding-row">
-                            <td colspan="12"></td>
-                          </tr>
-                        </ng-container>
-                      </tbody>
-                    </table>
+                <td class="columns-action">
+                  {{ item.action?.name }}
+                </td>
+                <td class="columns-result">
+                  <div
+                    class="mt-2"
+                    *ngFor="let result of item.results; let resultIndex = index"
+                  >
+                    <ng-select
+                      [placeholder]="'Chọn kết quả'"
+                      [searchable]="false"
+                      [items]="results.rows"
+                      (open)="!results.rows.length && getResult()"
+                      [loading]="results.loading"
+                      (scrollToEnd)="handleLoadMore('result')"
+                      [(ngModel)]="result.resultId"
+                      [clearable]="false"
+                      class="dropdown-auto-width"
+                      id="results-{{ resultIndex }}"
+                      bindLabel="name"
+                      bindValue="id"
+                      appendTo="body"
+                    ></ng-select>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      class="btn button-medium button-sub-primary secondary-color w-100"
+                      (click)="handleAddResult(item, i)"
+                      [class.mt-2]="item.results.length"
+                    >
+                      <i class="fa-solid fa-plus me-1"></i>
+                      Kết quả khác
+                    </button>
+                  </div>
+                </td>
+                <td class="columns-duration">
+                  <div
+                    class="mt-2"
+                    *ngFor="let result of item.results; let resultIndex = index"
+                  >
+                    <div
+                      *ngFor="
+                        let nextAction of result['nextActions'];
+                        let nextActionIndex = index
+                      "
+                    >
+                      {{ nextAction.delayType }}
+                    </div>
+                  </div>
+                </td>
+                <td class="columns-next-action">
+                  <div
+                    class=""
+                    *ngFor="let result of item.results; let resultIndex = index"
+                  >
+                    <div
+                      *ngFor="
+                        let nextAction of result['nextActions'];
+                        let nextActionIndex = index;
+                        let firstAction = first
+                      "
+                    >
+                      <div class="row gx-2" [class.mt-2]="!firstAction">
+                        <div class="col-6">
+                          <ng-select
+                            [placeholder]="'Chọn hành động'"
+                            [searchable]="false"
+                            [items]="actions.rows"
+                            (open)="!actions.rows.length && getAction()"
+                            [loading]="actions.loading"
+                            (scrollToEnd)="handleLoadMore('action')"
+                            [(ngModel)]="nextAction.actionId"
+                            [clearable]="false"
+                            class="dropdown-auto-width w-100"
+                            id="action-{{ nextActionIndex }}-{{ resultIndex }}"
+                            bindLabel="name"
+                            bindValue="id"
+                            appendTo="body"
+                          ></ng-select>
+                        </div>
+                        <div class="col-6">
+                          <ng-select
+                            [placeholder]="'Chọn loại'"
+                            (scrollToEnd)="handleLoadMore('action')"
+                            [(ngModel)]="nextAction.type"
+                            [clearable]="false"
+                            class="dropdown-auto-width w-100"
+                            id="typeAction-{{ nextActionIndex }}-{{
+                              resultIndex
+                            }}"
+                            appendTo="body"
+                          >
+                            <ng-option [value]="EChainNextActType.AUTO">
+                              Tự động
+                            </ng-option>
+                            <ng-option [value]="EChainNextActType.MANUAL">
+                              Thủ công
+                            </ng-option>
+                          </ng-select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      class="btn button-medium button-sub-primary secondary-color w-100"
+                      (click)="handleAddNextAction(item, i)"
+                      [class.mt-2]="item.results.length"
+                    >
+                      <i class="fa-solid fa-plus me-1"></i>
+                      Hành động kế khác
+                    </button>
                   </div>
                 </td>
                 <div
@@ -107,7 +201,7 @@
                   matchSize="true"
                   class="container dragdrop-placeholder"
                 >
-                  {{ item.name || '-' }}
+                  {{ item.action?.name || '-' }}
                 </div>
               </tr>
             </ng-container>

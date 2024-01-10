@@ -22,10 +22,10 @@ export enum EActionType {
 export interface IActResult {
   id: string;
   name: string;
-  createdBy: AccountPublic;
-  updatedBy: AccountPublic;
-  createdAt: Date;
-  updatedAt: Date;
+  createdBy?: AccountPublic;
+  updatedBy?: AccountPublic;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IActReason {
@@ -77,16 +77,16 @@ export enum EDelayTypeChainNextAct {
 export interface IChainNextAction {
   type: EChainNextActType;
   delayType: EDelayTypeChainNextAct;
-  ordering: number;
+  ordering?: number;
   delayValue: number;
-  actionId: string;
-  action: IAction;
+  actionId?: string;
+  action?: IAction;
 }
 
 export interface IChainResult {
-  ordering: number;
-  resultId: string;
-  result: IActResult;
+  ordering?: number;
+  resultId?: string;
+  result?: IActResult;
   nextActions: IChainNextAction[];
 }
 
