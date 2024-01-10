@@ -13,6 +13,7 @@ import {
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
+  IBulkUpdateChainActResult,
   IChainAct,
   IChainResult,
 } from '@app/types/flow';
@@ -148,7 +149,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       ),
     updateMany: (body: IBodyUpdateOrdering) =>
       this.httpClient.patch<EntityResult<IChainAct>>(
-        this.createUrl([this.api.chainAction]),
+        this.createUrl([this.api.chainAction, 'update-many']),
         body,
       ),
     delete: (id: string) =>
@@ -163,9 +164,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.chainActionResult, id]),
         body,
       ),
-    updateMany: (body: IBodyChainResult) =>
+    updateMany: (body: IBulkUpdateChainActResult) =>
       this.httpClient.patch<EntityResult<IChainResult>>(
-        this.createUrl([this.api.chainActionResult]),
+        this.createUrl([this.api.chainActionResult, 'update-many']),
         body,
       ),
   };

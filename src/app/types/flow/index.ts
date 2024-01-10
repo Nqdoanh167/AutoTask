@@ -75,10 +75,11 @@ export enum EDelayTypeChainNextAct {
 }
 
 export interface IChainNextAction {
-  type: EChainNextActType;
-  delayType: EDelayTypeChainNextAct;
+  id?: string;
+  type?: EChainNextActType;
+  delayType?: EDelayTypeChainNextAct;
   ordering?: number;
-  delayValue: number;
+  delayValue?: number;
   actionId?: string;
   action?: IAction;
 }
@@ -91,6 +92,7 @@ export interface IChainResult {
 }
 
 export interface IChainActResult {
+  id: string;
   ordering: number;
   chainActId: string;
   actionId: string;
@@ -134,4 +136,10 @@ export interface IBodyChainResult {
 export interface IBodyUpdateOrdering {
   ordering: number;
   id: string;
+}
+
+export interface IBulkUpdateChainActResult {
+  results: IBodyChainResult[];
+  id: string;
+  ordering?: number;
 }

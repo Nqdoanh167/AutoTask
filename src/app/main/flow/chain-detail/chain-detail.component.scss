@@ -1,6 +1,11 @@
+@use 'src/app/styles/variable' as vars;
+
 .chain-detail-site {
 }
 .table {
+  .rootRow {
+    //border: 1px solid vars.$secondary-500;
+  }
   .columns-index {
     width: 5%;
   }

@@ -16,6 +16,7 @@ import {
   EDelayTypeChainNextAct,
   IAction,
   IActResult,
+  IBulkUpdateChainActResult,
   IChainAct,
   IChainActResult,
   IChainResult,
@@ -111,7 +112,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getResult();
+    this.getAction();
+  }
 
   getDetailChain() {
     this.loading.detail = true;
@@ -124,8 +128,26 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.detailChain = res.data;
-            console.log('this.detailChain', this.detailChain);
+            this.detailChain = {
+              ...res.data,
+              actionResults: res.data?.actionResults?.map((actResult) => {
+                return {
+                  ...actResult,
+                  results: actResult?.results?.map((result) => {
+                    return {
+                      ...result,
+                      resultId: result?.result?.id,
+                      nextActions: result?.nextActions?.map((nextAction) => {
+                        return {
+                          ...nextAction,
+                          actionId: nextAction?.action?.id,
+                        };
+                      }),
+                    };
+                  }),
+                };
+              }),
+            };
           } else {
             this.commonService.handleResErr(res);
           }
@@ -144,8 +166,33 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       });
     }
     if (name === 'save') {
-      console.log(this.detailChain);
+      this.onSaveChainAct();
     }
+  }
+
+  onSaveChainAct() {
+    const body = this.detailChain?.actionResults?.map((actResult) => {
+      return {
+        results: actResult.results,
+        id: actResult.id,
+      };
+    }) as unknown as IBulkUpdateChainActResult;
+    this.loading.submit = true;
+    this.autoTaskService.chainActResult
+      .updateMany(body)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
   }
 
   handleNavigate() {
@@ -160,15 +207,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       resultId: undefined,
       nextActions: [
         {
-          type: EChainNextActType.AUTO,
-          delayType: EDelayTypeChainNextAct.DAY,
-          delayValue: 1,
-          actionId: undefined,
-        },
-        {
-          type: EChainNextActType.MANUAL,
-          delayType: EDelayTypeChainNextAct.HOUR,
-          delayValue: 2,
+          type: undefined,
+          delayType: undefined,
+          delayValue: undefined,
           actionId: undefined,
         },
       ],
