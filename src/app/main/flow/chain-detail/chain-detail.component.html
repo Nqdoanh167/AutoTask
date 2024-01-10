@@ -349,3 +349,42 @@
     </div>
   </div>
 </ng-template>
+
+<ng-template #templateAddNextAction>
+  <div class="modal-default">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Thêm Hành động kế</h4>
+      <button
+        type="button"
+        class="btn-close close pull-right"
+        aria-label="Close"
+        (click)="addNextActionModalRef?.hide()"
+      >
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="mb-2">
+        <label class="form-control-label" for="action-modal">
+          Hành động
+          <span class="required">*</span>
+        </label>
+        <ng-select
+          [placeholder]="'Chọn Hành động'"
+          [searchable]="false"
+          [items]="actions.rows"
+          [(ngModel)]="selectedActionId"
+          [ngClass]="{'is-invalid': submittedModal && !selectedActionId}"
+          [loading]="actions.loading"
+          (open)="!actions.rows.length && getAction()"
+          (scrollToEnd)="handleLoadMore('action')"
+          class="dropdown-auto-width"
+          id="action-modal"
+          bindValue="id"
+          bindLabel="name"
+          appendTo=".modal"
+        ></ng-select>
+      </div>
+    </div>
+  </div>
+</ng-template>

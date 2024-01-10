@@ -33,6 +33,7 @@ import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 })
 export class ChainDetailComponent implements OnDestroy, OnInit {
   @ViewChild('template') template!: TemplateRef<any>;
+  @ViewChild('templateAddNextAction') templateAddNextAction!: TemplateRef<any>;
 
   public detailChain?: IChainAct;
   protected readonly EChainNextActType = EChainNextActType;
@@ -60,6 +61,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   ];
 
   public introductionModalRef?: BsModalRef;
+  public addNextActionModalRef?: BsModalRef;
   public loading = {
     detail: false,
     submit: false,
@@ -86,6 +88,8 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+  public submittedModal = false;
+  public selectedActionId?: string;
 
   private chainId?: string;
 
@@ -216,7 +220,14 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     });
   }
 
-  handleAddNextAction(actResult: IChainActResult, index: number) {}
+  handleAddNextAction(actResult: IChainActResult, index: number) {
+    this.addNextActionModalRef = this.modalService.show(
+      this.templateAddNextAction,
+      {
+        class: '',
+      },
+    );
+  }
 
   removeNextAction(chainResult: IChainResult, index: number) {
     chainResult?.nextActions?.splice(index, 1);
