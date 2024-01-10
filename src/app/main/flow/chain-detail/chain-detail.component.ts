@@ -35,6 +35,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
   public detailChain?: IChainAct;
   protected readonly EChainNextActType = EChainNextActType;
+  protected readonly EDelayTypeChainNextAct = EDelayTypeChainNextAct;
   public configButtons: IFilterTopButton[] = [
     {
       name: 'back',

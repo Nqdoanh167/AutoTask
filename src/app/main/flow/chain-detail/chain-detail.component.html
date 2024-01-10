@@ -85,8 +85,12 @@
                 </td>
                 <td class="columns-result">
                   <div
-                    class="mt-2"
-                    *ngFor="let result of item.results; let resultIndex = index"
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
+                      let result of item.results;
+                      let resultIndex = index;
+                      let firstResult = first
+                    "
                   >
                     <ng-select
                       [placeholder]="'Chọn kết quả'"
@@ -103,6 +107,19 @@
                       bindValue="id"
                       appendTo="body"
                     ></ng-select>
+                    <div
+                      *ngFor="
+                        let nextAction of result['nextActions'];
+                        let nextActionIndex = index;
+                        let firstAction = first
+                      "
+                    >
+                      <div
+                        *ngIf="!firstAction"
+                        [style.height]="'36px'"
+                        class="padding-temp mt-2"
+                      ></div>
+                    </div>
                   </div>
                   <div>
                     <button
@@ -118,23 +135,65 @@
                 </td>
                 <td class="columns-duration">
                   <div
-                    class="mt-2"
-                    *ngFor="let result of item.results; let resultIndex = index"
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
+                      let result of item.results;
+                      let resultIndex = index;
+                      let firstResult = first
+                    "
                   >
                     <div
                       *ngFor="
                         let nextAction of result['nextActions'];
-                        let nextActionIndex = index
+                        let nextActionIndex = index;
+                        let firstAction = first
                       "
                     >
-                      {{ nextAction.delayType }}
+                      <div class="row gx-2" [class.mt-2]="!firstAction">
+                        <div class="col-6">
+                          <ng-select
+                            [placeholder]="'Chọn loại'"
+                            [(ngModel)]="nextAction.delayType"
+                            [clearable]="false"
+                            class="dropdown-auto-width"
+                            id="delayType-{{ nextActionIndex }}-{{
+                              resultIndex
+                            }}"
+                            appendTo="body"
+                          >
+                            <ng-option [value]="EDelayTypeChainNextAct.NOW">
+                              Ngay lập tức
+                            </ng-option>
+                            <ng-option [value]="EDelayTypeChainNextAct.MINUTE">
+                              Phút
+                            </ng-option>
+                            <ng-option [value]="EDelayTypeChainNextAct.HOUR">
+                              Giờ
+                            </ng-option>
+                            <ng-option [value]="EDelayTypeChainNextAct.DAY">
+                              Ngày
+                            </ng-option>
+                          </ng-select>
+                        </div>
+                        <div class="col-6">
+                          <input
+                            class="input-medium"
+                            type="number"
+                            [(ngModel)]="nextAction.delayValue"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </td>
                 <td class="columns-next-action">
                   <div
-                    class=""
-                    *ngFor="let result of item.results; let resultIndex = index"
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
+                      let result of item.results;
+                      let resultIndex = index;
+                      let firstResult = first
+                    "
                   >
                     <div
                       *ngFor="
@@ -154,7 +213,7 @@
                             (scrollToEnd)="handleLoadMore('action')"
                             [(ngModel)]="nextAction.actionId"
                             [clearable]="false"
-                            class="dropdown-auto-width w-100"
+                            class="dropdown-auto-width"
                             id="action-{{ nextActionIndex }}-{{ resultIndex }}"
                             bindLabel="name"
                             bindValue="id"
@@ -167,7 +226,7 @@
                             (scrollToEnd)="handleLoadMore('action')"
                             [(ngModel)]="nextAction.type"
                             [clearable]="false"
-                            class="dropdown-auto-width w-100"
+                            class="dropdown-auto-width"
                             id="typeAction-{{ nextActionIndex }}-{{
                               resultIndex
                             }}"
