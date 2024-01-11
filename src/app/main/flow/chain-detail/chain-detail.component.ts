@@ -201,11 +201,15 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               return false;
             } else if (nextActions?.length) {
               for (const nextAction of nextActions) {
-                if (
+                if (nextAction.delayType === EDelayTypeChainNextAct.NOW) {
+                  if (!nextAction.actionId || nextAction.type === undefined) {
+                    return false;
+                  }
+                } else if (
                   !nextAction.actionId ||
                   nextAction.type === undefined ||
                   nextAction.delayType === undefined ||
-                  !nextAction.delayValue === undefined
+                  nextAction.delayValue === undefined
                 ) {
                   return false;
                 }
@@ -246,6 +250,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.commonService.handleResSuccess('update');
+            this.submitted = false;
           } else {
             this.commonService.handleResErr(res);
           }
@@ -411,10 +416,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
   handleUpdateChain(event: any) {
     if (!this.detailChain?.id) return;
-    console.log(
-      '=>(chain-detail.component.ts:412) value',
-      event.target.checked,
-    );
     const body = {
       isActive: event.target.checked,
     } as unknown as IBodyChainAct;
