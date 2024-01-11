@@ -44,6 +44,7 @@
                   placement="right"
                 ></i>
               </th>
+              <th class="columns-step-center"></th>
               <th class="columns-next-action">Hành động kế</th>
             </tr>
           </thead>
@@ -205,6 +206,40 @@
                         </div>
                       </div>
                     </div>
+                  </div>
+                </td>
+                <td class="columns-step-center content">
+                  <div
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
+                      let result of item.results;
+                      let resultIndex = index;
+                      let firstResult = first;
+                      let lastResult = last
+                    "
+                  >
+                    <div
+                      class="columns-step-item"
+                      *ngFor="
+                        let nextAction of result['nextActions'];
+                        let nextActionIndex = index;
+                        let firstAction = first;
+                        let lastAction = last
+                      "
+                      [class.mt-2]="!firstAction"
+                      [ngClass]="{
+                        'columns-step-item--first':
+                          result['nextActions'].length !== 1 && firstAction,
+                        'columns-step-item--last':
+                          result['nextActions'].length !== 1 && lastAction,
+                        'columns-step-item--one':
+                          result['nextActions'].length === 1,
+                        'columns-step-item--center':
+                          !firstAction &&
+                          !lastAction &&
+                          result['nextActions'].length !== 1
+                      }"
+                    ></div>
                   </div>
                 </td>
                 <td class="columns-next-action">

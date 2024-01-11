@@ -18,8 +18,75 @@
     vertical-align: top;
   }
   .columns-duration {
-    width: 25%;
+    width: 23%;
     vertical-align: top;
+  }
+  .columns-step-center {
+    width: 2%;
+    &.content {
+      vertical-align: top;
+    }
+    .columns-step-item {
+      height: 36px;
+      background: url(^assets/images/icon/step.svg) center no-repeat;
+      &::before {
+        content: none;
+        width: 0;
+        height: 0;
+      }
+      &--center {
+        position: relative;
+        &::before {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          top: -10px;
+          left: calc(50% - 1px);
+          background-color: #dfe2ee;
+        }
+        &::after {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          bottom: -10px;
+          left: calc(50% - 1px);
+          background-color: #dfe2ee;
+        }
+      }
+
+      &--last {
+        background: url(^assets/images/icon/step-last.svg) center -40px no-repeat;
+        position: relative;
+        &::before {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          top: -10px;
+          left: calc(50% - 1px);
+          background-color: #dfe2ee;
+        }
+      }
+      &--first {
+        background: url(^assets/images/icon/step-first.svg) center 15px
+          no-repeat;
+        position: relative;
+        &::after {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          bottom: -10px;
+          left: calc(50% - 1px);
+          background-color: #dfe2ee;
+        }
+      }
+      &--one {
+        background: url(^assets/images/icon/step-once.svg) center no-repeat;
+      }
+    }
   }
   .columns-next-action {
     width: 30%;
