@@ -223,8 +223,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   onSaveChainAct() {
-    console.log(this.validateBeforeSubmit());
-    // if (!this.validateBeforeSubmit()) return;
+    if (!this.validateBeforeSubmit()) return;
     const body = this.detailChain?.actionResults?.map((actResult) => {
       return {
         results: actResult.results,
@@ -232,21 +231,21 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       };
     }) as unknown as IBulkUpdateChainActResult;
     this.loading.submit = true;
-    // this.autoTaskService.chainActResult
-    //   .updateMany(body)
-    //   .pipe()
-    //   .subscribe({
-    //     next: (res) => {
-    //       if (res.status === 200) {
-    //         this.commonService.handleResSuccess('update');
-    //       } else {
-    //         this.commonService.handleResErr(res);
-    //       }
-    //     },
-    //     error: (err) => {
-    //       this.commonService.handleErr(err);
-    //     },
-    //   });
+    this.autoTaskService.chainActResult
+      .updateMany(body)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
   }
 
   handleNavigate() {
