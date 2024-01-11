@@ -106,6 +106,7 @@
                       [loading]="results.loading"
                       (scrollToEnd)="handleLoadMore('result')"
                       [(ngModel)]="result.resultId"
+                      [ngClass]="{'is-invalid': submitted && !result.resultId}"
                       [clearable]="false"
                       class="dropdown-auto-width"
                       id="results-{{ resultIndex }}"
@@ -158,6 +159,13 @@
                       <div class="row gx-2" [class.mt-2]="!firstAction">
                         <div class="col-6">
                           <ng-select
+                            [ngClass]="{
+                              'is-invalid':
+                                submitted &&
+                                ((result.resultId &&
+                                  nextAction.delayType === undefined) ||
+                                  !result.resultId)
+                            }"
                             [placeholder]="'Chọn loại'"
                             [(ngModel)]="nextAction.delayType"
                             [clearable]="false"
@@ -183,6 +191,13 @@
                         </div>
                         <div class="col-6">
                           <input
+                            [ngClass]="{
+                              'is-invalid':
+                                submitted &&
+                                ((result.resultId &&
+                                  nextAction.delayValue === undefined) ||
+                                  !result.resultId)
+                            }"
                             class="input-medium"
                             type="number"
                             [(ngModel)]="nextAction.delayValue"
@@ -211,6 +226,13 @@
                       <div class="row gx-2" [class.mt-2]="!firstAction">
                         <div class="col-6">
                           <ng-select
+                            [ngClass]="{
+                              'is-invalid':
+                                submitted &&
+                                ((result.resultId &&
+                                  nextAction.actionId === undefined) ||
+                                  !result.resultId)
+                            }"
                             [placeholder]="'Chọn hành động'"
                             [searchable]="false"
                             [items]="actions.rows"
@@ -228,6 +250,13 @@
                         </div>
                         <div class="col-5">
                           <ng-select
+                            [ngClass]="{
+                              'is-invalid':
+                                submitted &&
+                                ((result.resultId &&
+                                  nextAction.type === undefined) ||
+                                  !result.resultId)
+                            }"
                             [placeholder]="'Chọn loại'"
                             (scrollToEnd)="handleLoadMore('action')"
                             [(ngModel)]="nextAction.type"

@@ -90,6 +90,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     isAllowLoadMore: false,
   };
   public submittedModal = false;
+  public submitted = false;
   public selectedResulRowId?: string;
   public selectedResulRowIndex?: number;
   public resultsInRow: IActResult[] = [];
@@ -186,7 +187,44 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     }
   }
 
+  validateBeforeSubmit(): boolean {
+    try {
+      this.submitted = true;
+      const actionResults = this.detailChain?.actionResults;
+      if (!actionResults?.length) return true;
+      for (const actionResult of actionResults) {
+        if (actionResult?.results?.length) {
+          for (const result of actionResult.results) {
+            const {resultId, nextActions} = result;
+            if (!resultId) {
+              return false;
+            } else if (nextActions?.length) {
+              for (const nextAction of nextActions) {
+                if (
+                  !nextAction.actionId ||
+                  nextAction.type === undefined ||
+                  nextAction.delayType === undefined ||
+                  !nextAction.delayValue === undefined
+                ) {
+                  return false;
+                }
+              }
+            }
+          }
+        } else {
+          return true;
+        }
+      }
+      return true;
+    } catch (e) {
+      console.log(e);
+      return true;
+    }
+  }
+
   onSaveChainAct() {
+    console.log(this.validateBeforeSubmit());
+    // if (!this.validateBeforeSubmit()) return;
     const body = this.detailChain?.actionResults?.map((actResult) => {
       return {
         results: actResult.results,
@@ -194,21 +232,21 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       };
     }) as unknown as IBulkUpdateChainActResult;
     this.loading.submit = true;
-    this.autoTaskService.chainActResult
-      .updateMany(body)
-      .pipe()
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.commonService.handleResSuccess('update');
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
+    // this.autoTaskService.chainActResult
+    //   .updateMany(body)
+    //   .pipe()
+    //   .subscribe({
+    //     next: (res) => {
+    //       if (res.status === 200) {
+    //         this.commonService.handleResSuccess('update');
+    //       } else {
+    //         this.commonService.handleResErr(res);
+    //       }
+    //     },
+    //     error: (err) => {
+    //       this.commonService.handleErr(err);
+    //     },
+    //   });
   }
 
   handleNavigate() {
@@ -235,7 +273,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   handleAddNextAction(actResult: IChainActResult, index: number) {
     this.selectedResulRowId = actResult.id;
     this.selectedResulRowIndex = index;
-    // console.log(this.getResultsByIndex(index));
     this.resultsInRow =
       this.detailChain?.actionResults[index].results
         ?.map((result) => {
@@ -341,28 +378,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         this.getResult();
       }
     }
-  }
-
-  getResultsByIndex(): {name: string; id: string}[] {
-    let results;
-    console.log(this.selectedResulRowIndex);
-    try {
-      results =
-        this.detailChain?.actionResults[this.selectedResulRowIndex!].results
-          ?.map((result) => {
-            return {
-              id: result.resultId || '',
-              name:
-                this.results.rows.find(
-                  (element) => element.id === result.resultId,
-                )?.name || '',
-            };
-          })
-          .filter((el) => !!el.id) || [];
-    } catch (e) {
-      console.log(e);
-    }
-    return results || [];
   }
 
   onSubmitModal() {
