@@ -16,6 +16,7 @@ import {
   EDelayTypeChainNextAct,
   IAction,
   IActResult,
+  IBodyChainAct,
   IBulkUpdateChainActResult,
   IChainAct,
   IChainActResult,
@@ -406,6 +407,30 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  handleUpdateChain(event: any) {
+    if (!this.detailChain?.id) return;
+    console.log(
+      '=>(chain-detail.component.ts:412) value',
+      event.target.checked,
+    );
+    const body = {
+      isActive: event.target.checked,
+    } as unknown as IBodyChainAct;
+    this.autoTaskService.chainAction
+      .update(this.detailChain?.id, body)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
   }
 
   ngOnDestroy(): void {
