@@ -1393,6 +1393,7 @@ export interface AccountPublic {
   picture: string;
   createdAt: string;
   isFollowReport?: boolean;
+  phone?: string;
 }
 
 export interface IQueryBase {

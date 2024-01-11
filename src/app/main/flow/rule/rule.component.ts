@@ -2,8 +2,16 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ETypeFilter, IFilterTopTable} from '@app/types/common';
 import {ICommonDataSource, IQueryBase} from '@app/types/viewmodels';
 import {finalize, Subject, takeUntil} from 'rxjs';
-import {IChainAct, IChainActRule} from '@app/types/flow';
+import {
+  ENextStepType,
+  IUpdateChainActDto,
+  IBodyUpdateOrdering,
+  IChainActRule,
+} from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {ConfigurationService} from '@app/services/api/configuration.service';
 
 @Component({
   selector: 'app-rule',
@@ -28,7 +36,13 @@ export class RuleComponent implements OnDestroy, OnInit {
     total: 0,
   };
 
-  constructor(private readonly autoTaskService: AutoTaskService) {}
+  public nextStepTypes = this.configurationService.nextStepTypes;
+
+  constructor(
+    private readonly autoTaskService: AutoTaskService,
+    private readonly commonService: CommonService,
+    private readonly configurationService: ConfigurationService,
+  ) {}
 
   onSearch(value: any) {}
 
@@ -52,12 +66,17 @@ export class RuleComponent implements OnDestroy, OnInit {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.dataSource.rows = res.data?.map((chain) => {
-              return {
-                ...chain,
-                isExpand: false,
-              };
-            });
+            this.dataSource.rows = res.data
+              ?.map((chain) => {
+                return {
+                  ...chain,
+                  actionResults: chain.actionResults?.sort(
+                    (a, b) => a.ordering - b.ordering,
+                  ),
+                  isExpand: false,
+                };
+              })
+              .sort((a, b) => a.ordering - b.ordering);
             this.dataSource.total = res.total;
           }
         },
@@ -82,9 +101,68 @@ export class RuleComponent implements OnDestroy, OnInit {
   }
 
   handleExpandRow(value: any) {}
-  handleToggleAction(value: any, index: number) {}
+  handleToggleAction(event: any, id?: string) {
+    if (!id) return;
+    const isActive = event.target.checked;
+    const body = {
+      isActive: event.target.checked,
+    } as unknown as IUpdateChainActDto;
+    this.autoTaskService.chainAction
+      .update(id, body)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
+  }
 
-  dropRow(value: any) {}
+  dropRow(event: CdkDragDrop<any[]>) {
+    try {
+      if (event.previousIndex === event.currentIndex) return;
+      moveItemInArray(
+        this.dataSource.rows,
+        event.previousIndex,
+        event.currentIndex,
+      );
+    } catch (e) {
+      console.log(e);
+    }
+    this.updateOrdering();
+  }
+
+  updateOrdering() {
+    const body = this.dataSource?.rows?.map((row, index) => {
+      return {
+        id: row.id,
+        ordering: index + 1,
+      };
+    }) as unknown as IBodyUpdateOrdering;
+    this.autoTaskService.chainAction
+      .updateMany(body)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleResErr(err),
+      });
+  }
+
+  renderNameType(value: ENextStepType) {
+    return (
+      this.nextStepTypes?.find((type: any) => type.value == value)?.label ?? '-'
+    );
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next(true);

@@ -4,9 +4,11 @@ import {
   ActivatedRouteSnapshot,
   RouterStateSnapshot,
   Router,
+  UrlTree,
 } from '@angular/router';
 import {Observable, of} from 'rxjs';
 import {AuthService} from 'src/app/services/api/auth.service';
+import {environment} from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -22,14 +24,21 @@ export class AuthGuard implements CanActivate {
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
-  ): Observable<boolean> {
-    if (this.token) {
-      return of(true);
-    } else {
-      window.location.href = 'https://smax.app';
-      // this.router.navigate(['/']);
-      // this.router.navigate(['/login']);
-      return of(false);
+  ):
+    | Observable<boolean | UrlTree>
+    | Promise<boolean | UrlTree>
+    | boolean
+    | UrlTree {
+    if (!this.token) {
+      this.authService.logout();
+      if (environment.production) {
+        // this.router.navigate(['/login'], { queryParams: { redirect: state.url } })
+        setTimeout(() => {
+          window.open(`https://smax.app/login`, '_self');
+        }, 1000);
+      }
+      return false;
     }
+    return true;
   }
 }

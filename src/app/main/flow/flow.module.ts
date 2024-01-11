@@ -31,6 +31,8 @@ import {
 import {ChainDetailComponent} from './chain-detail/chain-detail.component';
 import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {FilterDataModule} from '@share/pipe/filter-data/filter-data.module';
 
 @NgModule({
   declarations: [
@@ -67,6 +69,8 @@ import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/
     CdkDragPreview,
     PipeTimeViewModule,
     CustomButtonLoadingComponent,
+    BsDropdownModule,
+    FilterDataModule,
   ],
 })
 export class FlowModule {}

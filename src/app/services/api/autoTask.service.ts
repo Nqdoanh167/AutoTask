@@ -9,13 +9,18 @@ import {
   IAction,
   IActReason,
   IActResult,
+  IAddTaskChainDto,
   IBodyAction,
+  IUpdateChainActDto,
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
   IBulkUpdateChainActResult,
   IChainAct,
   IChainResult,
+  ITask,
+  ITaskDto,
+  IPickResultForActionDto,
 } from '@app/types/flow';
 
 @Injectable({
@@ -30,6 +35,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     actionReason: 'act-reason',
     chainAction: 'chain-act',
     chainActionResult: 'chain-act-result',
+    task: 'task',
+    taskChain: 'task-chain',
   };
   private defaultParams: any = {};
   constructor(
@@ -142,7 +149,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.chainAction]),
         body,
       ),
-    update: (id: string, body: IBodyResultReason) =>
+    update: (id: string, body: IUpdateChainActDto) =>
       this.httpClient.patch<EntityResult<IChainAct>>(
         this.createUrl([this.api.chainAction, id]),
         body,
@@ -155,6 +162,52 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<any>>(
         this.createUrl([this.api.chainAction, id]),
+      ),
+  };
+
+  task = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<ITask[]>>(
+        this.createUrl([this.api.task]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    getOne: (id: string) =>
+      this.httpClient.get<EntityResult<ITask>>(
+        this.createUrl([this.api.task, id]),
+      ),
+    create: (body: ITaskDto) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task]),
+        body,
+      ),
+    update: (id: string, body: ITaskDto) =>
+      this.httpClient.patch<EntityResult<ITask>>(
+        this.createUrl([this.api.task, id]),
+        body,
+      ),
+    updateTaskChain: (id: string, body: IAddTaskChainDto) =>
+      this.httpClient.put<EntityResult<ITask>>(
+        this.createUrl([this.api.task, id, 'update-chain']),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<null>>(
+        this.createUrl([this.api.task, id]),
+      ),
+  };
+
+  taskChain = {
+    closeChain: (id: string) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.taskChain, id, 'close-chain']),
+        {},
+      ),
+    pickResult: (id: string, body: IPickResultForActionDto) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.taskChain, id, 'pick-result']),
+        body,
       ),
   };
 

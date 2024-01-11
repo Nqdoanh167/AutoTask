@@ -15,6 +15,7 @@ import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.ser
 import {ModalUpdateChainActionComponent} from '@main/flow/data/content-modal/modal-update-chain-action/modal-update-chain-action.component';
 import {IChainAct} from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {sortBy, sortIcon} from '@app/utils/common';
 
 @Component({
   selector: 'app-chain-action',
@@ -53,6 +54,8 @@ export class ChainActionComponent implements OnInit, OnDestroy {
     },
     total: 0,
   };
+  private sortProperty: string = 'createdAt';
+  private sortOrder = 1;
   constructor(
     private readonly modalService: BsModalService,
     private readonly configurationService: ConfigurationService,
@@ -81,7 +84,14 @@ export class ChainActionComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.dataSource.rows = res.data;
+            this.dataSource.rows = res.data?.map((chain) => {
+              return {
+                ...chain,
+                actionResults: chain.actionResults?.sort(
+                  (a, b) => a.ordering - b.ordering,
+                ),
+              };
+            });
             this.dataSource.total = res.total;
           }
         },
@@ -168,6 +178,24 @@ export class ChainActionComponent implements OnInit, OnDestroy {
     const {term} = value;
     this.dataSource.paramsQuery.q = term;
     this.getDataSource(true);
+  }
+
+  sortBy(property: string): void {
+    const {sortProperty, sortOrder, sortQuery} = sortBy(
+      this.sortOrder,
+      this.sortProperty,
+      property,
+    );
+    [this.sortProperty, this.sortOrder] = [sortProperty, sortOrder];
+    this.dataSource.paramsQuery = {
+      ...this.dataSource.paramsQuery,
+      sort: sortQuery ? sortQuery : undefined,
+    };
+    this.getDataSource(true);
+  }
+
+  sortIcon(property: string) {
+    return sortIcon(property, this.sortProperty, this.sortOrder);
   }
 
   ngOnDestroy(): void {

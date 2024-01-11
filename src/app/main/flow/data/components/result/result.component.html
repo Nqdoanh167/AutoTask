@@ -9,8 +9,18 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Kết quả</th>
-          <th>Ngày tạo</th>
+          <th (click)="sortBy('name')" class="th-allow-sort">
+            <span class="icon-sort" [innerHTML]="sortIcon('name')"></span>
+            Kết quả
+          </th>
+          <th (click)="sortBy('type')" class="th-allow-sort">
+            <span class="icon-sort" [innerHTML]="sortIcon('type')"></span>
+            Loại
+          </th>
+          <th (click)="sortBy('createdAt')" class="th-allow-sort">
+            <span class="icon-sort" [innerHTML]="sortIcon('createdAt')"></span>
+            Ngày tạo
+          </th>
           <th>Thao tác</th>
         </tr>
       </thead>
@@ -33,6 +43,7 @@
         </tr>
         <tr *ngFor="let item of dataSource.rows; index as i">
           <td>{{ item.name || '-' }}</td>
+          <td>{{ renderNameType(item.type) || '-' }}</td>
           <td>{{ item.createdAt | timeView }}</td>
           <td class="columns-action">
             <div class="d-flex">

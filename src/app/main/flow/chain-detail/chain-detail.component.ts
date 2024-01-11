@@ -9,24 +9,31 @@ import {ETypeButton, IFilterTopButton} from '@app/types/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {environment} from '../../../../environments/environment';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {finalize, forkJoin, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {
   EChainNextActType,
-  EDelayTypeChainNextAct,
+  EDelayType,
+  ENextStepType,
   IAction,
   IActResult,
-  IBodyChainAct,
+  IUpdateChainActDto,
   IBulkUpdateChainActResult,
   IChainAct,
   IChainActResult,
+  IChainNextAction,
   IChainResult,
+  IFistActionDelayDto,
 } from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {uniqBy} from 'lodash';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {ConfigurationService} from '@app/services/api/configuration.service';
+import {AutomationService} from '@app/services/api/automation.service';
+import {IBlockAutomation} from '@app/types/automation';
 
 @Component({
   selector: 'app-chain-detail',
@@ -43,7 +50,8 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   };
   public detailChain?: IChainAct;
   protected readonly EChainNextActType = EChainNextActType;
-  protected readonly EDelayTypeChainNextAct = EDelayTypeChainNextAct;
+  protected readonly EDelayType = EDelayType;
+  protected readonly ENextStepType = ENextStepType;
   public configButtons: IFilterTopButton[] = [
     {
       name: 'back',
@@ -65,6 +73,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       icon: './assets/images/icon/save.svg',
     },
   ];
+  public listActionInChain: IAction[] = [];
 
   public introductionModalRef?: BsModalRef;
   public addNextActionModalRef?: BsModalRef;
@@ -90,15 +99,39 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+  public blocks: ICommonDataLazy<IBlockAutomation, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+  public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
   public submittedModal = false;
   public submitted = false;
-  public selectedResulRowId?: string;
   public selectedResulRowIndex?: number;
   public resultsInRow: IActResult[] = [];
 
   public addNextActionForm = this.fb.group({
     resultId: [null, [Validators.required]],
   });
+  public nextStepTypes = this.configurationService.nextStepTypes;
+  public fistActionDelay: IFistActionDelayDto = {
+    delayType: undefined,
+    delayValue: undefined,
+  };
 
   private chainId?: string;
 
@@ -112,6 +145,8 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly fb: FormBuilder,
+    private readonly configurationService: ConfigurationService,
+    private readonly automationService: AutomationService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -133,6 +168,8 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   ngOnInit() {
     this.getResult();
     this.getAction();
+    this.getBlock();
+    this.getActionChain();
   }
 
   getDetailChain() {
@@ -146,25 +183,38 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
+            this.fistActionDelay = {
+              delayType: res?.data?.fistActionDelay?.delayType,
+              delayValue: res?.data?.fistActionDelay?.delayValue,
+            } as IFistActionDelayDto;
             this.detailChain = {
               ...res.data,
-              actionResults: res.data?.actionResults?.map((actResult) => {
-                return {
-                  ...actResult,
-                  results: actResult?.results?.map((result) => {
-                    return {
-                      ...result,
-                      resultId: result?.result?.id,
-                      nextActions: result?.nextActions?.map((nextAction) => {
-                        return {
-                          ...nextAction,
-                          actionId: nextAction?.action?.id,
-                        };
-                      }),
-                    };
-                  }),
-                };
-              }),
+              actionResults: res.data?.actionResults
+                ?.map((actResult) => {
+                  if (actResult.action) {
+                    this.listActionInChain.push(actResult.action);
+                  }
+                  return {
+                    ...actResult,
+                    results: actResult?.results?.map((result) => {
+                      return {
+                        ...result,
+                        resultId: result?.result?.id,
+                        nextActions: result?.nextActions?.map((nextAction) => {
+                          return {
+                            moveToActionId:
+                              nextAction?.moveToAction?.chainActResultId,
+                            addNewChainId: nextAction?.addNewChain?.chainId,
+                            callToBlockId:
+                              nextAction?.callBlockAutomation?.blockId,
+                            ...nextAction,
+                          };
+                        }),
+                      };
+                    }),
+                  };
+                })
+                .sort((a, b) => a.ordering - b.ordering),
             };
           } else {
             this.commonService.handleResErr(res);
@@ -192,6 +242,15 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     try {
       this.submitted = true;
       const actionResults = this.detailChain?.actionResults;
+      const {delayType, delayValue} = this.fistActionDelay;
+      if (
+        delayType !== EDelayType.NOW &&
+        (delayType === undefined ||
+          delayValue === undefined ||
+          delayValue === null)
+      ) {
+        return false;
+      }
       if (!actionResults?.length) return true;
       for (const actionResult of actionResults) {
         if (actionResult?.results?.length) {
@@ -201,12 +260,25 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               return false;
             } else if (nextActions?.length) {
               for (const nextAction of nextActions) {
-                if (nextAction.delayType === EDelayTypeChainNextAct.NOW) {
-                  if (!nextAction.actionId || nextAction.type === undefined) {
+                switch (nextAction.nextAction) {
+                  case ENextStepType.CONTINUE_TO_NEXT_ACTION:
+                    if (!nextAction.moveToActionId) return false;
+                    break;
+                  case ENextStepType.ADD_CHAIN:
+                    if (!nextAction.addNewChainId) return false;
+                    break;
+                  case ENextStepType.CALL_BLOCK_AUTOMATION:
+                    if (!nextAction.callToBlockId) return false;
+                    break;
+                  default:
+                    break;
+                }
+                if (nextAction.delayType === EDelayType.NOW) {
+                  if (!nextAction.nextAction || nextAction.type === undefined) {
                     return false;
                   }
                 } else if (
-                  !nextAction.actionId ||
+                  !nextAction.nextAction ||
                   nextAction.type === undefined ||
                   nextAction.delayType === undefined ||
                   nextAction.delayValue === undefined
@@ -228,92 +300,193 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   onSaveChainAct() {
-    if (!this.validateBeforeSubmit()) return;
-    const body = this.detailChain?.actionResults?.map((actResult) => {
-      return {
-        results: actResult.results,
-        id: actResult.id,
-      };
-    }) as unknown as IBulkUpdateChainActResult;
+    if (!this.validateBeforeSubmit() || !this.detailChain?.id) return;
+    const bodyUpdateResults = this.detailChain?.actionResults?.map(
+      (actResult, index) => {
+        return {
+          results: actResult.results?.map((result) => {
+            return {
+              ...result,
+              nextActions: result?.nextActions?.map((nextAction) => {
+                const modify = {
+                  addNewChain: nextAction.addNewChainId
+                    ? {
+                        chainId: nextAction.addNewChainId,
+                      }
+                    : null,
+                  callBlockAutomation: nextAction.callToBlockId
+                    ? {
+                        blockId: nextAction.callToBlockId,
+                      }
+                    : null,
+                  moveToAction: nextAction.moveToActionId
+                    ? {
+                        chainActResultId: nextAction.moveToActionId,
+                      }
+                    : null,
+                };
+                return {
+                  ...nextAction,
+                  ...modify,
+                };
+              }),
+            };
+          }),
+          id: actResult.id,
+          ordering: index + 1,
+        };
+      },
+    ) as unknown as IBulkUpdateChainActResult;
+    const bodyDetailChain = {
+      fistActionDelay: this.fistActionDelay,
+    } as unknown as IUpdateChainActDto;
     this.loading.submit = true;
     this.configButtons[this.configButtons.length - 1].loading = true;
-    this.autoTaskService.chainActResult
-      .updateMany(body)
+    forkJoin([
+      this.autoTaskService.chainActResult.updateMany(bodyUpdateResults),
+      this.autoTaskService.chainAction.update(
+        this.detailChain.id!,
+        bodyDetailChain,
+      ),
+    ])
       .pipe(
-        takeUntil(this.destroy$),
         finalize(() => {
           this.loading.submit = false;
           this.configButtons[this.configButtons.length - 1].loading = false;
+          this.submitted = false;
         }),
       )
       .subscribe({
         next: (res) => {
-          if (res.status === 200) {
+          const responseResult = res[0];
+          const responseDetail = res[1];
+
+          if (responseResult.status === 200 && responseDetail.status === 200) {
             this.commonService.handleResSuccess('update');
-            this.submitted = false;
-          } else {
-            this.commonService.handleResErr(res);
+          } else if (responseResult.status !== 200) {
+            this.commonService.handleResErr(responseResult);
+          } else if (responseDetail.status !== 200) {
+            this.commonService.handleResErr(responseDetail);
           }
         },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
+        error: (err) => this.commonService.handleErr(err),
       });
   }
 
-  handleNavigate() {
-    const url = `${environment.urlDomain}/${this.currentBiz}/config/data`;
+  handleNavigate(path?: string) {
+    let url = `${environment.urlDomain}/${this.currentBiz}/config/data`;
+    if (path) {
+      url += path;
+    }
     window.open(url, '_blank');
   }
 
-  dropRow(value: any) {}
+  dropRow(event: CdkDragDrop<any[]>) {
+    try {
+      if (event.previousIndex === event.currentIndex) return;
+      moveItemInArray(
+        this.detailChain!.actionResults,
+        event.previousIndex,
+        event.currentIndex,
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  dropResultRow(event: CdkDragDrop<any[]>, array: any[]) {
+    try {
+      if (event.previousIndex === event.currentIndex) return;
+      moveItemInArray(array, event.previousIndex, event.currentIndex);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   newNextAction() {
     return {
       type: undefined,
       delayType: undefined,
       delayValue: undefined,
-      actionId: undefined,
+      moveToAction: {
+        chainActResultId: undefined,
+      },
+      addNewChain: {
+        chainId: undefined,
+      },
+      callBlockAutomation: {
+        blockId: undefined,
+      },
+      callToBlockId: undefined,
+      moveToActionId: undefined,
+      addNewChainId: undefined,
     };
   }
 
-  handleAddResult(actResult: IChainActResult, index: number) {
-    this.detailChain?.actionResults[index].results.push({
-      resultId: undefined,
-      nextActions: [this.newNextAction()],
-    });
+  handleAddAction() {}
+
+  handleRemoveAction() {}
+
+  handleRemoveResult(indexAction: number, currentResultIndex: number) {
+    this.detailChain?.actionResults[indexAction]?.results.splice(
+      currentResultIndex,
+      1,
+    );
+  }
+  handleAddResult(
+    actResult: IChainActResult,
+    index: number,
+    currentResultIndex?: number,
+  ) {
+    if (currentResultIndex === undefined) {
+      this.detailChain?.actionResults[index]?.results.push({
+        resultId: undefined,
+        nextActions: [this.newNextAction()],
+      });
+    } else {
+      if (currentResultIndex === -1) {
+        this.detailChain?.actionResults[index]?.results.unshift({
+          resultId: undefined,
+          nextActions: [this.newNextAction()],
+        });
+      } else {
+        this.detailChain?.actionResults[index]?.results?.splice(
+          currentResultIndex!,
+          0,
+          {
+            resultId: undefined,
+            nextActions: [this.newNextAction()],
+          },
+        );
+      }
+    }
   }
 
-  handleAddNextAction(actResult: IChainActResult, index: number) {
-    this.selectedResulRowId = actResult.id;
-    this.selectedResulRowIndex = index;
-    this.resultsInRow =
-      this.detailChain?.actionResults[index].results
-        ?.map((result) => {
-          return {
-            id: result.resultId || '',
-            name:
-              this.results.rows.find(
-                (element) => element.id === result.resultId,
-              )?.name || '',
-          };
-        })
-        .filter((el) => !!el.id) || [];
-    this.addNextActionModalRef = this.modalService.show(
-      this.templateAddNextAction,
-      {
-        class: '',
-      },
-    );
-    this.addNextActionModalRef?.onHide?.pipe().subscribe(() => {
-      this.selectedResulRowId = undefined;
-      this.selectedResulRowIndex = undefined;
-      this.resultsInRow = [];
-      this.submittedModal = false;
-      this.addNextActionForm.patchValue({
-        resultId: null,
-      });
-    });
+  handleAddNextAction(
+    actResult: IChainActResult,
+    actionIndex: number,
+    resultIndex: number,
+    currentNextActionIndex?: number,
+  ) {
+    if (currentNextActionIndex === undefined) {
+      this.detailChain?.actionResults[actionIndex]?.results?.[
+        resultIndex
+      ]?.nextActions.push(this.newNextAction());
+    } else {
+      if (currentNextActionIndex === -1) {
+        this.detailChain?.actionResults[actionIndex]?.results?.[
+          resultIndex
+        ]?.nextActions?.unshift(this.newNextAction());
+      } else {
+        this.detailChain?.actionResults[actionIndex]?.results?.[
+          resultIndex
+        ]?.nextActions?.splice(
+          currentNextActionIndex!,
+          0,
+          this.newNextAction(),
+        );
+      }
+    }
   }
 
   removeNextAction(chainResult: IChainResult, index: number) {
@@ -322,6 +495,36 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     } else {
       chainResult?.nextActions?.splice(index, 1);
     }
+  }
+
+  getActionChain() {
+    this.actionChains.loading = true;
+    this.autoTaskService.chainAction
+      .get(this.actionChains.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.actionChains.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.actionChains.rows = uniqBy(
+              this.actionChains.rows.concat(res.data),
+              'id',
+            );
+            this.actionChains.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.actionChains.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.actionChains.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
   }
 
   getResult() {
@@ -384,11 +587,39 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       });
   }
 
-  handleLoadMore(key: 'action' | 'result') {
+  getBlock() {
+    this.blocks.loading = true;
+    this.automationService.block
+      .getMany({})
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.blocks.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.blocks.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  handleLoadMore(key: 'action' | 'result' | 'actionChain') {
     if (key === 'action') {
       if (this.actions.isAllowLoadMore) {
         this.actions.paramsQuery!.page! += 1;
         this.getAction();
+      }
+    }
+    if (key === 'actionChain') {
+      if (this.actionChains.isAllowLoadMore) {
+        this.actionChains.paramsQuery!.page! += 1;
+        this.getActionChain();
       }
     }
     if (key === 'result') {
@@ -418,7 +649,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     if (!this.detailChain?.id) return;
     const body = {
       isActive: event.target.checked,
-    } as unknown as IBodyChainAct;
+    } as unknown as IUpdateChainActDto;
     this.autoTaskService.chainAction
       .update(this.detailChain?.id, body)
       .pipe()
@@ -432,6 +663,21 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         },
         error: (err) => this.commonService.handleErr(err),
       });
+  }
+
+  handleChangeNextAction(nextAction: IChainNextAction) {
+    nextAction.addNewChain = {
+      chainId: undefined,
+    };
+    nextAction.callBlockAutomation = {
+      blockId: undefined,
+    };
+    nextAction.moveToAction = {
+      chainActResultId: undefined,
+    };
+    nextAction.addNewChainId = undefined;
+    nextAction.moveToActionId = undefined;
+    nextAction.callToBlockId = undefined;
   }
 
   ngOnDestroy(): void {

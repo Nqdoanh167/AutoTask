@@ -15,6 +15,7 @@ import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.co
 import {ModalUpdateReasonComponent} from '@main/flow/data/content-modal/modal-update-reason/modal-update-reason.component';
 import {IActReason} from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {sortBy, sortIcon} from '@app/utils/common';
 
 @Component({
   selector: 'app-reason',
@@ -53,6 +54,8 @@ export class ReasonComponent implements OnInit, OnDestroy {
     },
     total: 0,
   };
+  private sortProperty: string = 'createdAt';
+  private sortOrder = 1;
   constructor(
     private readonly modalService: BsModalService,
     private readonly configurationService: ConfigurationService,
@@ -165,6 +168,24 @@ export class ReasonComponent implements OnInit, OnDestroy {
     const {term} = value;
     this.dataSource.paramsQuery.q = term;
     this.getDataSource(true);
+  }
+
+  sortBy(property: string): void {
+    const {sortProperty, sortOrder, sortQuery} = sortBy(
+      this.sortOrder,
+      this.sortProperty,
+      property,
+    );
+    [this.sortProperty, this.sortOrder] = [sortProperty, sortOrder];
+    this.dataSource.paramsQuery = {
+      ...this.dataSource.paramsQuery,
+      sort: sortQuery ? sortQuery : undefined,
+    };
+    this.getDataSource(true);
+  }
+
+  sortIcon(property: string) {
+    return sortIcon(property, this.sortProperty, this.sortOrder);
   }
 
   ngOnDestroy(): void {

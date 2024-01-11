@@ -1,4 +1,4 @@
-import {AccountPublic} from '@app/types/viewmodels';
+import {AccountPublic, Customer} from '@app/types/viewmodels';
 
 export enum ETabConfigData {
   ACTION = 'action',
@@ -8,20 +8,31 @@ export enum ETabConfigData {
 }
 
 export enum EActionType {
-  CALL = 0,
-  SMS = 1,
-  CREATE_CUSTOMER = 2,
-  BLOCK_AUTOMATION = 3,
-  OTHER = 4,
-  CREATE_ORDER = 5,
-  CLOSE_CHAIN = 6,
-  CHANGE_ACTION = 7,
-  ADD_CHAIN = 8,
+  CALL = 'CALL',
+  SEND_BLOCK_AUTOMATION = 'SEND_BLOCK_AUTOMATION',
+  OTHER = 'OTHER',
+}
+
+export enum ENextStepType {
+  CONTINUE_TO_NEXT_ACTION = 'CONTINUE_TO_NEXT_ACTION',
+  CREATE_ORDER = 'CREATE_ORDER',
+  CALL_BLOCK_AUTOMATION = 'CALL_BLOCK_AUTOMATION',
+  CLOSE_CHAIN = 'CLOSE_CHAIN',
+  ADD_CHAIN = 'ADD_CHAIN',
+}
+
+export enum EResultType {
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  COMPLETED = 'COMPLETED',
+  UNCOMPLETED = 'UNCOMPLETED',
+  SKIP = 'SKIP',
 }
 
 export interface IActResult {
   id: string;
   name: string;
+  type: EResultType;
   createdBy?: AccountPublic;
   updatedBy?: AccountPublic;
   createdAt?: Date;
@@ -67,7 +78,7 @@ export enum EChainNextActType {
   MANUAL = 1,
 }
 
-export enum EDelayTypeChainNextAct {
+export enum EDelayType {
   NOW = 0,
   MINUTE = 1,
   HOUR = 2,
@@ -77,11 +88,22 @@ export enum EDelayTypeChainNextAct {
 export interface IChainNextAction {
   id?: string;
   type?: EChainNextActType;
-  delayType?: EDelayTypeChainNextAct;
+  delayType?: EDelayType;
   ordering?: number;
   delayValue?: number;
-  actionId?: string;
-  action?: IAction;
+  nextAction?: ENextStepType;
+  moveToAction?: {
+    chainActResultId: undefined;
+  };
+  addNewChain?: {
+    chainId?: string;
+  };
+  callBlockAutomation?: {
+    blockId?: string;
+  };
+  callToBlockId?: string;
+  moveToActionId?: string;
+  addNewChainId?: string;
 }
 
 export interface IChainResult {
@@ -104,10 +126,16 @@ export interface IChainActResult {
   updatedBy: AccountPublic;
 }
 
+export interface IFistActionDelayDto {
+  delayType?: EDelayType;
+  delayValue?: number;
+}
+
 export interface IChainAct {
   id: string;
   name: string;
   isActive: boolean;
+  fistActionDelay: IFistActionDelayDto;
   ordering: number;
   actionResultIds: string[];
   actionResults: IChainActResult[];
@@ -121,7 +149,7 @@ export interface IChainActRule extends IChainAct {
   isExpand: boolean;
 }
 
-export interface IBodyChainAct {
+export interface IUpdateChainActDto {
   name: string;
   isActive: boolean;
   actionIds: string[];
@@ -131,6 +159,7 @@ export interface IBodyChainResult {
   ordering?: number;
   resultId: string;
   nextActions: IChainNextAction[];
+  fistActionDelay: IFistActionDelayDto;
 }
 
 export interface IBodyUpdateOrdering {
@@ -142,4 +171,104 @@ export interface IBulkUpdateChainActResult {
   results: IBodyChainResult[];
   id: string;
   ordering?: number;
+}
+
+export enum ELeadDeal {
+  LEAD = 'LEAD',
+  DEAL = 'DEAL',
+}
+
+export enum ETypeProduct {
+  PRODUCT,
+  COURSE,
+  SERVICE,
+  SIM_CARD,
+}
+
+export interface IProductDto {
+  id: string;
+  type: ETypeProduct;
+  name: string;
+}
+
+export interface ILeadDealDto extends Customer {
+  type: ELeadDeal;
+}
+
+export enum ETaskChainType {
+  ACTIVE = 'ACTIVE',
+  CLOSED = 'CLOSED',
+}
+
+export enum ETaskChainResultType {
+  CURRENT = 'CURRENT',
+  BACKGROUND_PROCESSING = 'BACKGROUND_PROCESSING',
+  COMPLETED = 'COMPLETED',
+}
+
+export interface ITaskChainResult {
+  type: ETaskChainResultType;
+  action: IAction;
+  deadlineDate: Date;
+  executedDate: Date;
+  result: IActResult;
+  resultIndex: number;
+  reason: IActReason;
+  reasonIndex: number;
+  executeAction: any;
+  note: string;
+  backgroundProcessingActions: any;
+  results: IChainResult[];
+  createdBy: AccountPublic;
+  updatedBy: AccountPublic;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ITaskChain {
+  id: string;
+  status: ETaskChainType;
+  name: string;
+  taskId: string;
+  task: ITask;
+  chainActId: string;
+  chainActionResults: IChainActResult[];
+  taskChainResults: ITaskChainResult[];
+  currentChainResultIndex: number;
+  createdBy: AccountPublic;
+  updatedBy: AccountPublic;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ITask {
+  id: string;
+  name: string;
+  leadDeal?: ILeadDealDto;
+  products: IProductDto[];
+  counselor: AccountPublic;
+  taskChainIds: string[];
+  taskChains: ITaskChain[];
+  createdBy: AccountPublic;
+  updatedBy: AccountPublic;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ITaskDto {
+  name: string;
+  leadDeal: ILeadDealDto;
+  products: IProductDto[];
+  counselorId: string;
+}
+
+export interface IAddTaskChainDto {
+  addChainActIds: string[];
+  removeTaskChainIds?: string[];
+}
+
+export interface IPickResultForActionDto {
+  resultIndex: number;
+  reasonIndex?: number;
+  note: string;
 }

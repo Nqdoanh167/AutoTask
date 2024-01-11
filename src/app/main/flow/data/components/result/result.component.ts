@@ -14,7 +14,8 @@ import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.co
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {ModalUpdateResultComponent} from '@main/flow/data/content-modal/modal-update-result/modal-update-result.component';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {IActResult} from '@app/types/flow';
+import {EActionType, EResultType, IActResult} from '@app/types/flow';
+import {sortBy, sortIcon} from '@app/utils/common';
 
 @Component({
   selector: 'app-result',
@@ -53,6 +54,9 @@ export class ResultComponent implements OnInit, OnDestroy {
     },
     total: 0,
   };
+  public resultTypes = this.configurationService.resultTypes;
+  private sortProperty: string = 'createdAt';
+  private sortOrder = 1;
   constructor(
     private readonly modalService: BsModalService,
     private readonly configurationService: ConfigurationService,
@@ -165,6 +169,30 @@ export class ResultComponent implements OnInit, OnDestroy {
     const {term} = value;
     this.dataSource.paramsQuery.q = term;
     this.getDataSource(true);
+  }
+
+  sortBy(property: string): void {
+    const {sortProperty, sortOrder, sortQuery} = sortBy(
+      this.sortOrder,
+      this.sortProperty,
+      property,
+    );
+    [this.sortProperty, this.sortOrder] = [sortProperty, sortOrder];
+    this.dataSource.paramsQuery = {
+      ...this.dataSource.paramsQuery,
+      sort: sortQuery ? sortQuery : undefined,
+    };
+    this.getDataSource(true);
+  }
+
+  sortIcon(property: string) {
+    return sortIcon(property, this.sortProperty, this.sortOrder);
+  }
+
+  renderNameType(value: EResultType) {
+    return (
+      this.resultTypes?.find((type: any) => type.value == value)?.label ?? '-'
+    );
   }
 
   ngOnDestroy(): void {

@@ -7,7 +7,14 @@ import {
   Output,
 } from '@angular/core';
 import {finalize, Subject, takeUntil} from 'rxjs';
-import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ConfigurationService} from '@app/services/api/configuration.service';
@@ -27,6 +34,8 @@ import {
   IQueryBase,
 } from '@app/types/viewmodels';
 import {uniqBy} from 'lodash';
+import {IBlockAutomation} from '@app/types/automation';
+import {AutomationService} from '@app/services/api/automation.service';
 
 @Component({
   selector: 'app-modal-update-action',
@@ -40,22 +49,18 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
 
   public actionTypes: {value: EActionType; label: string}[] = [];
   public submitted = false;
-  public updateForm = this.fb.group({
-    name: [null, [Validators.required, Validators.maxLength(255)]],
-    type: [null, [Validators.required]],
-    resultIds: [null],
-    reasonIds: [null],
-  });
-  public results: ICommonDataLazy<IActResult, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 20,
-      sort: '-createdAt',
+  public updateForm = this.fb.group(
+    {
+      name: [null, [Validators.required, Validators.maxLength(255)]],
+      type: [null, [Validators.required]],
+      resultIds: [null],
+      reasonIds: [null],
+      callBlockAutomation: this.fb.group({
+        blockId: null,
+      }),
     },
-    isAllowLoadMore: false,
-  };
+    {validators: [this.allOrNoneRequired]},
+  );
   public reasons: ICommonDataLazy<IActReason, IQueryBase> = {
     rows: [],
     loading: false,
@@ -66,10 +71,24 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+
+  public blocks: ICommonDataLazy<IBlockAutomation, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 20,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
   public loading = {
     submit: false,
     data: false,
   };
+
+  protected readonly EActionType = EActionType;
 
   constructor(
     private readonly modalService: BsModalService,
@@ -79,6 +98,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     private readonly configurationService: ConfigurationService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
+    private readonly automationService: AutomationService,
   ) {
     this.actionTypes = configurationService.actionTypes;
   }
@@ -87,21 +107,51 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     return this.updateForm.controls;
   }
 
+  allOrNoneRequired(form: FormGroup) {
+    const type = form.get('type');
+    const blockId = form.get('callBlockAutomation.blockId');
+    if (type?.value === EActionType.SEND_BLOCK_AUTOMATION && !blockId?.value) {
+      blockId?.setErrors({required: true});
+    } else {
+      blockId?.setErrors(null);
+    }
+    return null;
+  }
+
   ngOnInit(): void {
     if (this.sourceData) {
       this.updateForm.patchValue({
         ...(this.sourceData as any),
         isHidden: false,
-        resultIds: this.sourceData.results?.map((result) => result.id),
         reasonIds: this.sourceData.reasons?.map((reason) => reason.id),
       });
       if (this.sourceData?.reasons?.length) {
         this.reasons.rows = this.sourceData?.reasons;
       }
-      if (this.sourceData?.results?.length) {
-        this.results.rows = this.sourceData?.results;
-      }
     }
+    this.getBlock();
+  }
+
+  getBlock() {
+    this.blocks.loading = true;
+    this.automationService.block
+      .getMany({})
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.blocks.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.blocks.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
   }
 
   getReason() {
@@ -134,44 +184,17 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       });
   }
 
-  getResult() {
-    this.results.loading = true;
-    this.autoTaskService.actionResult
-      .get(this.results.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.results.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.results.rows = uniqBy(
-              this.results.rows.concat(res.data),
-              'id',
-            );
-            this.results.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.results.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.results.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
   handleUpdate() {
     this.loading.submit = true;
-    const {type, reasonIds, resultIds} = this.updateForm.value;
+    const {type, reasonIds, resultIds, callBlockAutomation} =
+      this.updateForm.value;
     const body = {
       ...this.updateForm.value,
-      type: Number(type),
       resultIds: resultIds ?? [],
       reasonIds: reasonIds ?? [],
+      callBlockAutomation: callBlockAutomation?.blockId
+        ? callBlockAutomation
+        : null,
     } as unknown as IBodyAction;
     if (this.sourceData?.id) {
       this.autoTaskService.action
@@ -232,12 +255,12 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
         this.getReason();
       }
     }
-    if (key === 'result') {
-      if (this.results.isAllowLoadMore) {
-        this.results.paramsQuery!.page! += 1;
-        this.getResult();
-      }
-    }
+  }
+
+  handleChangeType() {
+    this.f['callBlockAutomation'].patchValue({
+      blockId: null,
+    });
   }
 
   ngOnDestroy(): void {

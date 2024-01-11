@@ -11,12 +11,18 @@ import {
   AbstractControl,
   FormArray,
   FormBuilder,
+  FormGroup,
   Validators,
 } from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ConfigurationService} from '@app/services/api/configuration.service';
-import {IAction, IActReason, IBodyChainAct, IChainAct} from '@app/types/flow';
+import {
+  IAction,
+  IUpdateChainActDto,
+  IChainAct,
+  EDelayType,
+} from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
@@ -37,6 +43,13 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     name: [null, [Validators.required, Validators.maxLength(255)]],
     actions: this.fb.array([]),
     isActive: true,
+    fistActionDelay: this.fb.group(
+      {
+        delayType: EDelayType.NOW,
+        delayValue: null,
+      },
+      {validators: [this.allOrNoneRequired]},
+    ),
   });
   public loading = {
     submit: false,
@@ -52,6 +65,8 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+  public selectedActionIds: string[] = [];
+  protected readonly EDelayType = EDelayType;
 
   constructor(
     private readonly modalService: BsModalService,
@@ -67,8 +82,23 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     return this.updateForm.controls;
   }
 
+  get fDelay(): {[key: string]: AbstractControl} {
+    return this.updateForm.controls.fistActionDelay.controls;
+  }
+
   get formActions() {
     return <FormArray>this.updateForm.get('actions');
+  }
+
+  allOrNoneRequired(form: FormGroup) {
+    const type = form.get('delayType');
+    const value = form.get('delayValue');
+    if (type?.value !== EDelayType.NOW && !value?.value) {
+      value?.setErrors({required: true});
+    } else {
+      value?.setErrors(null);
+    }
+    return null;
   }
 
   ngOnInit(): void {
@@ -91,6 +121,15 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     } else {
       this.addActions();
     }
+
+    this.updateForm.valueChanges.pipe().subscribe((form) => {
+      const {actions} = form;
+      this.selectedActionIds = actions
+        ?.filter((action: any) => {
+          return action.value;
+        })
+        .map((action: any) => action.value) as string[];
+    });
   }
 
   getAction() {
@@ -132,14 +171,15 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
 
   handleUpdate() {
     this.loading.submit = true;
-    const {actions, name, isActive} = this.updateForm.value;
+    const {actions, name, isActive, fistActionDelay} = this.updateForm.value;
     const actionIds: string[] =
       actions?.map((action: any) => action.value) || [];
     const body = {
       actionIds,
       name,
       isActive,
-    } as unknown as IBodyChainAct;
+      fistActionDelay,
+    } as unknown as IUpdateChainActDto;
     if (this.sourceData?.id) {
       this.autoTaskService.chainAction
         .update(this.sourceData.id, body)
@@ -210,6 +250,12 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
       return;
     }
     this.formActions.removeAt(index);
+  }
+
+  handleChangeTypeDelay() {
+    this.updateForm.get('fistActionDelay')?.patchValue({
+      delayValue: null,
+    });
   }
 
   ngOnDestroy(): void {

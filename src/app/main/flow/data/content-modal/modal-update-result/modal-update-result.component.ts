@@ -25,10 +25,11 @@ export class ModalUpdateResultComponent implements OnDestroy, OnInit {
   @Output() updateSuccess = new EventEmitter();
   private destroy$ = new Subject();
 
-  public actionTypes: any = [];
+  public resultTypes: any = [];
   public submitted = false;
   public updateForm = this.fb.group({
     name: [null, [Validators.required, Validators.maxLength(255)]],
+    type: [null, [Validators.required]],
   });
   public loading = {
     submit: false,
@@ -44,7 +45,7 @@ export class ModalUpdateResultComponent implements OnDestroy, OnInit {
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
   ) {
-    this.actionTypes = configurationService.actionTypes;
+    this.resultTypes = configurationService.resultTypes;
   }
 
   get f(): {[key: string]: AbstractControl} {

@@ -1058,6 +1058,19 @@ i {
   }
 }
 
+.dropdown-menu-custom {
+  transform: translateY(-9px) !important;
+  .dropdown-item {
+    padding: 10px 15px;
+    &:hover {
+      background-color: $secondary-100 !important;
+    }
+    &:active {
+      color: $neutral;
+    }
+  }
+}
+
 // COMMON STYLE
 //.modal-open .modal {
 //  background: #00000077;

@@ -456,6 +456,12 @@ body {
   }
 }
 
+.ng-select-custom.borderless {
+  .ng-select-container {
+    border: none;
+  }
+}
+
 // end ng-select
 
 //// pagination

@@ -38,10 +38,10 @@
             }"
             [placeholder]="'Chọn loại hành động'"
             [searchable]="false"
+            (change)="handleChangeType()"
             appearance="outline"
             formControlName="type"
             id="actionType"
-            labelForId="actionType"
             appendTo=".modal"
           >
             <ng-container>
@@ -59,30 +59,49 @@
             </div>
           </div>
         </div>
-        <div class="mb-2">
-          <label class="form-control-label" for="results">
-            Kết quả có thể xảy ra
+        <div
+          *ngIf="f['type'].value === EActionType.SEND_BLOCK_AUTOMATION"
+          formGroupName="callBlockAutomation"
+          class="mb-2"
+        >
+          <label class="form-control-label" for="callBlockAutomation.blockId">
+            Block Automation
+            <span class="required">*</span>
           </label>
           <ng-select
             [ngClass]="{
-              'is-invalid': submitted && f['resultIds'].errors
+              'is-invalid':
+                submitted && !f['callBlockAutomation'].value?.blockId
             }"
-            [placeholder]="'Chọn kết quả'"
-            [searchable]="false"
-            [multiple]="true"
-            [closeOnSelect]="false"
-            [items]="results.rows"
-            (open)="getResult()"
-            [loading]="results.loading"
-            (scrollToEnd)="handleLoadMore('result')"
-            class="dropdown-auto-width custom-input-multiple"
-            formControlName="resultIds"
-            id="results"
-            labelForId="results"
+            [placeholder]="'Chọn Block'"
+            [searchable]="true"
+            [items]="blocks.rows"
+            [loading]="blocks.loading"
+            class="dropdown-auto-width"
+            appearance="outline"
+            formControlName="blockId"
+            id="callBlockAutomation.blockId"
             bindLabel="name"
             bindValue="id"
             appendTo=".modal"
-          ></ng-select>
+          >
+            <ng-container>
+              <ng-option
+                *ngFor="let item of actionTypes; index as i"
+                [value]="item.value"
+              >
+                {{ item.label }}
+              </ng-option>
+            </ng-container>
+          </ng-select>
+          <div
+            *ngIf="submitted && !f['callBlockAutomation'].value?.blockId"
+            class="invalid-feedback"
+          >
+            <div *ngIf="!f['callBlockAutomation'].value?.blockId">
+              Block không được bỏ trống
+            </div>
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-control-label" for="reasons">
@@ -104,7 +123,6 @@
             appearance="outline"
             formControlName="reasonIds"
             id="reasons"
-            labelForId="dataType"
             appendTo=".modal"
             bindLabel="name"
             bindValue="id"

@@ -1,0 +1,95 @@
+<div class="modal-update-action">
+  <form [formGroup]="updateForm">
+    <app-custom-modal
+      [isSubmitting]="loading.submit"
+      (submitModal)="onSubmit()"
+    >
+      <ng-container modalTitle>Chỉnh sửa hành động</ng-container>
+      <ng-container modalBody>
+        <div class="mb-2">
+          <label class="form-control-label" for="name">
+            Tên hành động
+            <span class="required">*</span>
+          </label>
+          <input
+            class="form-control"
+            [placeholder]="'Nhập tên Hành động...'"
+            [(ngModel)]="action"
+            [ngModelOptions]="{standalone: true}"
+            [readonly]="true"
+            id="name"
+            type="text"
+          />
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="result">
+            Kết quả
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['resultId'].errors
+            }"
+            [placeholder]="'Chọn kết quả'"
+            [searchable]="true"
+            [items]="results"
+            class="dropdown-auto-width"
+            appearance="outline"
+            formControlName="resultId"
+            id="result"
+            appendTo=".modal-update-action"
+            bindLabel="name"
+            bindValue="id"
+          ></ng-select>
+          <div
+            *ngIf="submitted && f['resultId'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="f['resultId'].errors?.['required']">
+              Kết quả không được bỏ trống
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="reasons">Nguyên nhân</label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['reasonId'].errors
+            }"
+            [placeholder]="'Chọn nguyên nhân'"
+            [searchable]="true"
+            [items]="reasons"
+            class="dropdown-auto-width"
+            appearance="outline"
+            formControlName="reasonId"
+            id="reasons"
+            appendTo=".modal-update-action"
+            bindLabel="name"
+            bindValue="id"
+          ></ng-select>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="note">Ghi chú</label>
+          <textarea
+            formControlName="note"
+            id="note"
+            placeholder="Nhập ghi chú..."
+            rows="5"
+          ></textarea>
+        </div>
+      </ng-container>
+    </app-custom-modal>
+  </form>
+</div>
+
+<ng-template #loadingTemp>
+  <div class="w-100 text-center">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Đang tải</span>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #selectNoData>
+  <ng-option [value]="null">Không có dữ liệu</ng-option>
+</ng-template>

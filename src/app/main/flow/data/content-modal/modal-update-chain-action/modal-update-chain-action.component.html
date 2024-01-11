@@ -5,7 +5,7 @@
     </ng-container>
     <ng-container modalBody>
       <form [formGroup]="updateForm">
-        <div class="mb-3">
+        <div class="mb-2">
           <label class="form-control-label" for="name">
             Tên chuỗi hành động
             <span class="required">*</span>
@@ -19,8 +19,57 @@
             type="text"
           />
           <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
-            <div *ngIf="f['name'].errors?.['required']">Name is required</div>
-            <div *ngIf="f['name'].errors?.['maxlength']">Invalid Name</div>
+            <div *ngIf="f['name'].errors?.['required']">
+              Tên chuỗi không được bỏ trống
+            </div>
+            <div *ngIf="f['name'].errors?.['maxlength']">Tên không hợp lệ</div>
+          </div>
+        </div>
+        <div formGroupName="fistActionDelay" class="mb-3">
+          <label class="form-control-label">
+            Độ trễ chuỗi
+            <i
+              class="fa-regular fa-circle-question ms-1"
+              tooltip="Sau bao lâu thực hiện hành động đầu tiên của chuỗi"
+              placement="right"
+            ></i>
+          </label>
+          <ng-select
+            [placeholder]="'Chọn loại'"
+            [ngClass]="{
+              'is-invalid': submitted && fDelay['delayType'].value === undefined
+            }"
+            (change)="handleChangeTypeDelay()"
+            [clearable]="false"
+            [searchable]="false"
+            class="dropdown-auto-width mb-2"
+            id="delayType-first-action"
+            formControlName="delayType"
+            appendTo=".modal"
+          >
+            <ng-option [value]="EDelayType.NOW">Ngay lập tức</ng-option>
+            <ng-option [value]="EDelayType.MINUTE">Phút</ng-option>
+            <ng-option [value]="EDelayType.HOUR">Giờ</ng-option>
+            <ng-option [value]="EDelayType.DAY">Ngày</ng-option>
+          </ng-select>
+          <div
+            class="mb-3"
+            *ngIf="
+              ![undefined, EDelayType.NOW].includes(fDelay['delayType'].value)
+            "
+          >
+            <input
+              [ngClass]="{
+                'is-invalid':
+                  submitted &&
+                  (fDelay['delayValue'].value === undefined ||
+                    fDelay['delayValue'].value === null)
+              }"
+              formControlName="delayValue"
+              placeholder="Nhập số nguyên"
+              class="input-medium"
+              type="number"
+            />
           </div>
         </div>
         <div class="mb-2">
@@ -39,13 +88,15 @@
                 <ng-select
                   [placeholder]="'Chọn Hành động'"
                   [searchable]="false"
-                  [items]="actions.rows"
+                  [items]="
+                    actions.rows | filterData: selectedActionIds : ['id']
+                  "
                   [style.width]="'90%'"
                   [ngClass]="{'is-invalid': submitted && !action?.value?.value}"
                   (open)="!actions.rows.length && getAction()"
                   [loading]="actions.loading"
                   (scrollToEnd)="handleLoadMore()"
-                  class="dropdown-auto-width"
+                  class="dropdown-auto-width input-medium"
                   formControlName="value"
                   id="action{{ i }}"
                   labelForId="action{{ i }}"

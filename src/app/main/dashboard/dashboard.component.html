@@ -1,23 +1,125 @@
 <div class="dashboard-site">
   <div class="card">
     <div class="card-body">
-      <div
-        style="height: 85vh"
-        class="d-flex justify-content-center align-items-center flex-column"
-      >
-        <img
-          class="mb-2"
-          width="300"
-          src="https://media4.giphy.com/media/qgQUggAC3Pfv687qPC/giphy.gif?cid=ecf05e471slat08wgjch1r1a5va9fkj9la84un3mtm4llpql&ep=v1_gifs_search&rid=giphy.gif&ct=g"
-        />
-        <p><a href="https://giphy.com/gifs/toXKzaJP3WIgM"></a></p>
-        <h5 class="fw-bold">Feature is being developed !!!!!</h5>
-        <p>
-          By:
-          <b>Loki</b>
-          from
-          <b>Smax Dev team</b>
-        </p>
+      <div class="content-site">
+        <app-filter-top-table
+          [configFilters]="configFilters"
+          [configButtons]="configButtons"
+          (clickButtonEvent)="handleAction($event)"
+          (searchEvent)="onSearch($event)"
+          (selectEvent)="onSelectFilter($event)"
+        ></app-filter-top-table>
+        <div class="table-responsive tableFixHead custom-scrollbar">
+          <table class="table">
+            <thead>
+              <tr>
+                <th (click)="sortBy('name')" class="th-allow-sort">
+                  <span class="icon-sort" [innerHTML]="sortIcon('name')"></span>
+                  Task
+                </th>
+                <th>Chuỗi hành động hiện tại</th>
+                <th>Hành động cần làm kế tiếp</th>
+                <th>Lead/Deal</th>
+                <th>Sản phẩm quan tâm</th>
+                <th>Nhân viên phụ trách</th>
+                <th>Ngày tạo</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="text-center"
+                *ngIf="!dataSource.rows.length && !dataSource.loading"
+              >
+                <td colspan="12">
+                  <div>Không có dữ liệu</div>
+                </td>
+              </tr>
+              <tr class="text-center" *ngIf="dataSource.loading">
+                <td colspan="12">
+                  <div class="spinner-grow text-primary" role="status">
+                    <span class="visually-hidden">Loading</span>
+                  </div>
+                  <div>Loading</div>
+                </td>
+              </tr>
+              <tr *ngFor="let item of dataSource.rows; index as i">
+                <td>
+                  <div
+                    class="fw-500 cursor-pointer"
+                    (click)="handleUpdate(item)"
+                  >
+                    {{ item.name || '-' }}
+                  </div>
+                </td>
+                <td>-</td>
+                <td>-</td>
+                <td>
+                  <div class="d-flex flex-column" *ngIf="item.leadDeal">
+                    <span class="fw-500">{{ item.leadDeal?.name || '-' }}</span>
+                    <span *ngIf="item.leadDeal?.phone">
+                      {{ item.leadDeal?.phone || '-' }}
+                    </span>
+                    <span *ngIf="item.leadDeal?.address">
+                      {{ item.leadDeal?.address || '-' }}
+                    </span>
+                  </div>
+                </td>
+                <td>-</td>
+                <td>
+                  <div class="d-flex" *ngIf="item.counselor">
+                    <img
+                      src="{{ item.counselor.picture }}"
+                      fallback="assets/images/avatar.svg"
+                      class="avatar me-2"
+                    />
+                    <div class="d-flex flex-column">
+                      <span class="fw-500">
+                        {{ item.counselor?.name || '-' }}
+                      </span>
+                      <span>{{ item.counselor?.email || '-' }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  {{ item.createdAt | timeView }}
+                </td>
+                <td class="columns-action">
+                  <div class="d-flex">
+                    <span
+                      (click)="handleUpdate(item)"
+                      class="d-flex align-items-center btn-action-table"
+                    >
+                      <img src="./assets/images/icon/edit.svg" alt="" />
+                    </span>
+                    <span
+                      (click)="handleDeleteAction(item)"
+                      class="d-flex align-items-center btn-action-table"
+                    >
+                      <img src="./assets/images/icon/remove.svg" alt="" />
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <custom-pagination
+          [selectedSize]="dataSource.paramsQuery.limit"
+          [currentPage]="dataSource.paramsQuery.page"
+          (changePageEvent)="pageChanged($event)"
+          [total]="dataSource.total"
+        ></custom-pagination>
+
+        <modal-confirm [key]="'delete'" (confirmEvent)="onDelete($event)">
+          <div class="state-warning d-flex gap-2" childContent>
+            <div><i class="fa-regular fa-circle-question"></i></div>
+            <div>
+              Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng
+              dữ liệu của bản ghi cũng sẽ bị ảnh hưởng.
+            </div>
+          </div>
+        </modal-confirm>
       </div>
     </div>
   </div>

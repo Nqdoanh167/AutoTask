@@ -4,7 +4,7 @@ import {BaseApiService} from './base.service';
 import {Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
-import {EActionType} from '@app/types/flow';
+import {EActionType, ENextStepType, EResultType} from '@app/types/flow';
 
 @Injectable({
   providedIn: 'root',
@@ -23,36 +23,58 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
       label: 'Gọi điện',
     },
     {
-      value: EActionType.SMS,
-      label: 'Nhắn tin',
-    },
-    {
-      value: EActionType.CREATE_CUSTOMER,
-      label: 'Tạo bản ghi Khách hàng',
-    },
-    {
-      value: EActionType.BLOCK_AUTOMATION,
-      label: 'Gọi Block Automation',
+      value: EActionType.SEND_BLOCK_AUTOMATION,
+      label: 'Gửi Block Automation',
     },
     {
       value: EActionType.OTHER,
       label: 'Khác',
     },
+  ];
+
+  public resultTypes = [
     {
-      value: EActionType.CREATE_ORDER,
+      value: EResultType.SUCCESS,
+      label: 'Thành công',
+    },
+    {
+      value: EResultType.FAILED,
+      label: 'Thất bại',
+    },
+    {
+      value: EResultType.COMPLETED,
+      label: 'Hoàn thành',
+    },
+    {
+      value: EResultType.UNCOMPLETED,
+      label: 'Chưa hoàn thành',
+    },
+    {
+      value: EResultType.SKIP,
+      label: 'Bỏ qua',
+    },
+  ];
+
+  public nextStepTypes = [
+    {
+      value: ENextStepType.CONTINUE_TO_NEXT_ACTION,
+      label: 'Hành động tiếp theo trong chuỗi',
+    },
+    {
+      value: ENextStepType.CREATE_ORDER,
       label: 'Tạo đơn hàng',
     },
     {
-      value: EActionType.CLOSE_CHAIN,
-      label: 'Đóng chuỗi',
+      value: ENextStepType.CALL_BLOCK_AUTOMATION,
+      label: 'Gọi Block Automation',
     },
     {
-      value: EActionType.CHANGE_ACTION,
-      label: 'Chuyển sang Hành động khác',
+      value: ENextStepType.CLOSE_CHAIN,
+      label: 'Đóng chuỗi HĐ',
     },
     {
-      value: EActionType.ADD_CHAIN,
-      label: 'Thêm Chuỗi hành động khác',
+      value: ENextStepType.ADD_CHAIN,
+      label: 'Thêm chuỗi HĐ mới',
     },
   ];
   constructor(

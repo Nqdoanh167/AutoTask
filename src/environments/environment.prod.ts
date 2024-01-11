@@ -3,8 +3,8 @@ export const environment = {
   module: 'auto-task',
   apiAddress: 'https://smax.app/api',
   apiModule: 'https://smax.app/api',
-  urlDomain: 'https://dev.smax.app',
-  clientUrl: 'https://dev.smax.app',
+  urlDomain: 'https://smax.app',
+  clientUrl: 'https://smax.app',
 };
 
 const parsedURL = new URL(location.href);

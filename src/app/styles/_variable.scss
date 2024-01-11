@@ -191,6 +191,15 @@ $space-xl: 24px;
 $space-xxl: 32px;
 $space-xxxl: 40px;
 
+// Padding
+$padding-xs: 2px;
+$padding-s: 4px;
+$padding-m: 8px;
+$padding-l: 16px;
+$padding-xl: 24px;
+$padding-xxl: 32px;
+$padding-xxxl: 40px;
+
 // Radius
 $radius-xs: 2px;
 $radius-s: 6px;
@@ -254,7 +263,7 @@ $pagination-height: 56;
 
 .headline {
   font-size: 16px !important;
-  line-height: 18px !important;
+  line-height: 22px !important;
   font-weight: 600 !important;
 }
 
@@ -454,6 +463,14 @@ $pagination-height: 56;
       color: $white;
     }
   }
+  &.red-color {
+    color: $red-500;
+    background-color: $red-100;
+    &:hover {
+      background-color: $red-500;
+      color: $white;
+    }
+  }
   &.disabled {
     color: $neutral-300;
     background-color: $neutral-100;
@@ -620,7 +637,7 @@ $pagination-height: 56;
     &.one-side-buttons {
       display: flex;
       align-items: center;
-      justify-content: end;
+      justify-content: flex-end;
       gap: 8px;
     }
     &.two-side-buttons {
@@ -700,7 +717,7 @@ $pagination-height: 56;
   }
   &:active,
   &:focus {
-    border: 1px solid $secondary-500;
+    border: 2px solid $secondary-300;
   }
   &.grey-bg {
     background-color: $neutral-100;

@@ -10,9 +10,18 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Tên hành động</th>
-          <th>Loại hành động</th>
-          <th>Ngày tạo</th>
+          <th (click)="sortBy('name')" class="th-allow-sort">
+            <span class="icon-sort" [innerHTML]="sortIcon('name')"></span>
+            Tên hành động
+          </th>
+          <th (click)="sortBy('type')" class="th-allow-sort">
+            <span class="icon-sort" [innerHTML]="sortIcon('type')"></span>
+            Loại hành động
+          </th>
+          <th (click)="sortBy('createdAt')" class="th-allow-sort">
+            <span class="icon-sort" [innerHTML]="sortIcon('createdAt')"></span>
+            Ngày tạo
+          </th>
           <th>Thao tác</th>
         </tr>
       </thead>

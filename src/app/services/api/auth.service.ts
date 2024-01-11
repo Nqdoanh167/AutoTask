@@ -1,5 +1,5 @@
 import {Injectable, Inject} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {BehaviorSubject} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
@@ -31,7 +31,10 @@ export class AuthService {
 
   public refToken: string | null = null;
 
-  constructor(private bizService: BizService) {}
+  constructor(
+    private bizService: BizService,
+    protected httpClient: HttpClient,
+  ) {}
 
   auth = {};
 
@@ -39,6 +42,9 @@ export class AuthService {
     let alias = 'test';
 
     const parsedURL = new URL(location.href);
+    if (!environment.production && !this.isAuthenticated) {
+      this.loginInDev();
+    }
     if (environment.production) {
       alias = parsedURL.pathname.substring(1).replace(/\/.*/, '');
     }
@@ -47,7 +53,6 @@ export class AuthService {
       this.bizService.biz.get(alias).subscribe({
         next: (res) => {
           if (res.data?.id) {
-            // localStorage.setItem('user', JSON.stringify(res.data));
             this.currentUserSubject.next(res.viewer!);
             this.currentBizSubject.next(res.data);
             this.branches.next(res.data.branches);
@@ -55,17 +60,23 @@ export class AuthService {
             this.refToken = res.refToken || null;
             this.isLoggedInSubject.next(true);
           } else {
-            window.location.href = parsedURL.origin;
+            // window.location.href = parsedURL.origin;
           }
         },
         error: (error) => {
-          // console.log('error');
-          // this.logout()
-          window.location.href = '/';
+          if (environment.production) {
+            // window.location.href = '/';
+          } else {
+            this.loginInDev();
+          }
         },
       });
     } else {
-      window.location.href = '/';
+      if (environment.production) {
+        // window.location.href = '/';
+      } else {
+        this.loginInDev();
+      }
     }
   }
   isOwner(): boolean {
@@ -79,15 +90,34 @@ export class AuthService {
     localStorage.setItem(name, token);
   }
   setUser(user: User) {
-    // localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
 
   logout() {
     localStorage.removeItem('smaxapp_token');
     window.location.href = '/';
-    // localStorage.removeItem('user');
     this.isLoggedInSubject.next(false);
+  }
+
+  loginInDev() {
+    const headers = new HttpHeaders().set(
+      'Authorization',
+      'Basic bG9uZy5kdkB0aW5hc29mdC52bjoxMjMxMjM=',
+    );
+    const res = this.httpClient.post(
+      'https://dev.smax.app/api/auth',
+      {},
+      {headers},
+    );
+    res.pipe().subscribe({
+      next: (res: any) => {
+        if (res.data['access_token']) {
+          this.setToken(res.data['access_token']);
+          this.isLoggedInSubject.next(true);
+          window.location.reload();
+        }
+      },
+    });
   }
 
   isAuthenticated(): boolean {
@@ -95,16 +125,6 @@ export class AuthService {
     const token = this.getToken();
     // return a boolean reflecting
     // whether or not the token is expired
-    // return this.tokenNotExpired(token);
-    // console.log('token', token);
-    return token ? true : false;
+    return !!token;
   }
-  // tokenNotExpired(token) {
-  //   if (token) {
-  //     var jwtHelper = new JwtHelperService();
-  //     return token != null && !jwtHelper.isTokenExpired(token);
-  //   } else {
-  //     return false;
-  //   }
-  // }
 }

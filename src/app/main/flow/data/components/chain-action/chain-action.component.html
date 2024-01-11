@@ -9,9 +9,15 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Tên chuỗi hành động</th>
+          <th (click)="sortBy('name')" class="th-allow-sort">
+            <span class="icon-sort" [innerHTML]="sortIcon('name')"></span>
+            Tên chuỗi hành động
+          </th>
           <th>Hành động trong chuỗi</th>
-          <th>Ngày tạo</th>
+          <th (click)="sortBy('createdAt')" class="th-allow-sort">
+            <span class="icon-sort" [innerHTML]="sortIcon('createdAt')"></span>
+            Ngày tạo
+          </th>
           <th>Thao tác</th>
         </tr>
       </thead>
