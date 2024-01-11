@@ -288,6 +288,7 @@
                   </div>
                   <div [style.width]="'92%'">
                     <button
+                      *ngIf="item.results.length"
                       type="button"
                       class="btn button-medium button-sub-primary secondary-color w-100"
                       (click)="handleAddNextAction(item, i)"

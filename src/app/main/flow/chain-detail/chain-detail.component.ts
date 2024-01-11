@@ -218,7 +218,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       return true;
     } catch (e) {
       console.log(e);
-      return true;
+      return false;
     }
   }
 
@@ -303,6 +303,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       this.selectedResulRowId = undefined;
       this.selectedResulRowIndex = undefined;
       this.resultsInRow = [];
+      this.submittedModal = false;
       this.addNextActionForm.patchValue({
         resultId: null,
       });
@@ -310,7 +311,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   removeNextAction(chainResult: IChainResult, index: number) {
-    chainResult?.nextActions?.splice(index, 1);
+    if (chainResult?.nextActions?.length <= 1) {
+      chainResult.nextActions = [];
+    } else {
+      chainResult?.nextActions?.splice(index, 1);
+    }
   }
 
   getResult() {
@@ -389,12 +394,18 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   onSubmitModal() {
-    if (this.addNextActionForm.invalid) return;
-    this.submittedModal = true;
-    const {resultId} = this.addNextActionForm.value;
-    console.log(resultId);
-    this.addNextActionModalRef?.hide();
-    // this.detailChain?.actionResults[this.selectedResulRowIndex!].results
+    try {
+      if (this.addNextActionForm.invalid) return;
+      this.submittedModal = true;
+      const {resultId} = this.addNextActionForm.value;
+      const findResult = this.detailChain?.actionResults[
+        this.selectedResulRowIndex!
+      ]?.results?.find((result) => result?.resultId === resultId);
+      findResult?.nextActions.push(this.newNextAction());
+      this.addNextActionModalRef?.hide();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   ngOnDestroy(): void {
