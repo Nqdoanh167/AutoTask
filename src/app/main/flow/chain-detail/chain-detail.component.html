@@ -35,6 +35,7 @@
             <tr>
               <th class="columns-index">Thứ tự</th>
               <th class="columns-action">Hành động</th>
+              <th class="columns-step-or-center"></th>
               <th class="columns-result">Kết quả</th>
               <th class="columns-duration">
                 Độ trễ
@@ -82,13 +83,51 @@
                   </div>
                 </td>
                 <td class="columns-action">
-                  <!--                  {{ item.action?.name }}-->
                   <input
                     type="text"
                     class="input-medium"
                     [value]="item.action?.name"
                     readonly
                   />
+                </td>
+                <td class="columns-step-or-center content">
+                  <div
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
+                      let result of item.results;
+                      let resultIndex = index;
+                      let firstResult = first;
+                      let lastResult = last
+                    "
+                  >
+                    <div
+                      [ngClass]="{
+                        'columns-step-item--first':
+                          item.results.length !== 1 && firstResult,
+                        'columns-step-item--last':
+                          item.results.length !== 1 && lastResult,
+                        'columns-step-item--one': item.results.length === 1,
+                        'columns-step-item--center':
+                          !firstResult &&
+                          !lastResult &&
+                          item.results.length !== 1
+                      }"
+                      class="columns-step-item"
+                    ></div>
+                    <div
+                      *ngFor="
+                        let nextAction of result['nextActions'];
+                        let nextActionIndex = index;
+                        let firstAction = first
+                      "
+                    >
+                      <div
+                        *ngIf="!firstAction"
+                        [style.height]="'36px'"
+                        class="padding-temp mt-2"
+                      ></div>
+                    </div>
+                  </div>
                 </td>
                 <td class="columns-result">
                   <div

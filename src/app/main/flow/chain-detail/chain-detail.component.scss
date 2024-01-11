@@ -18,8 +18,99 @@
     vertical-align: top;
   }
   .columns-duration {
-    width: 23%;
+    width: 20%;
     vertical-align: top;
+  }
+  .columns-step-or-center {
+    width: 3%;
+    &.content {
+      vertical-align: top;
+    }
+    .columns-step-item {
+      height: 36px;
+      background: url(^assets/images/icon/step-or.svg) center no-repeat;
+      &::before {
+        content: none;
+        width: 0;
+        height: 0;
+      }
+      &--center {
+        position: relative;
+        &::before {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          top: -10px;
+          left: calc(50% - 9px);
+          background-color: #dfe2ee;
+        }
+        &::after {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          bottom: -10px;
+          left: calc(50% - 9px);
+          background-color: #dfe2ee;
+        }
+      }
+
+      &--last {
+        background: url(^assets/images/icon/step-or-last.svg) center -17px no-repeat;
+        position: relative;
+        &::before {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          top: -10px;
+          left: calc(50% - 9px);
+          background-color: #dfe2ee;
+        }
+      }
+      &--first {
+        background: url(^assets/images/icon/step-or-first.svg) center 5px
+          no-repeat;
+        position: relative;
+        &::after {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          bottom: -10px;
+          left: calc(50% - 9px);
+          background-color: #dfe2ee;
+        }
+      }
+      &--one {
+        background: url(^assets/images/icon/step-once.svg) center no-repeat;
+      }
+    }
+    .padding-temp {
+      background: url(^assets/images/icon/step-or-temp.svg) center no-repeat;
+      background-position-x: calc(50% - 8px);
+      background-position-y: -40px;
+      position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 12px;
+        top: -10px;
+        left: calc(50% - 9px);
+        background-color: #dfe2ee;
+      }
+      &::after {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 12px;
+        bottom: -10px;
+        left: calc(50% - 9px);
+        background-color: #dfe2ee;
+      }
+    }
   }
   .columns-step-center {
     width: 2%;
