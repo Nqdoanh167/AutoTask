@@ -34,4 +34,6 @@ export interface IFilterTopButton {
   label?: string;
   icon?: string;
   activeIcon?: string;
+  loading?: boolean;
+  disabled?: boolean;
 }

@@ -33,21 +33,30 @@
             filter.type === ETypeButton.SUB_PRIMARY
         }"
         (click)="onClick(filter.name || 'button')"
+        [disabled]="filter.disabled"
       >
-        <img
-          *ngIf="filter.icon"
-          src="{{ filter.icon }}"
-          alt=""
-          class="icon"
-          [ngClass]="{'me-1': !!filter.label}"
-        />
-        <img
-          *ngIf="filter.activeIcon || filter.icon"
-          src="{{ filter.activeIcon ?? filter.icon }}"
-          alt=""
-          class="activeIcon"
-          [ngClass]="{'me-1': !!filter.label}"
-        />
+        <ng-container *ngIf="!filter.loading">
+          <img
+            *ngIf="filter.icon"
+            src="{{ filter.icon }}"
+            alt=""
+            class="icon"
+            [ngClass]="{'me-1': !!filter.label}"
+          />
+          <img
+            *ngIf="filter.activeIcon || filter.icon"
+            src="{{ filter.activeIcon ?? filter.icon }}"
+            alt=""
+            class="activeIcon"
+            [ngClass]="{'me-1': !!filter.label}"
+          />
+        </ng-container>
+        <ng-container *ngIf="filter.loading">
+          <i
+            class="fas fa-spinner fa-spin me-1-2"
+            [ngClass]="{'me-1': !!filter.label}"
+          ></i>
+        </ng-container>
         {{ filter.label }}
       </button>
     </ng-container>

@@ -36,6 +36,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   @ViewChild('template') template!: TemplateRef<any>;
   @ViewChild('templateAddNextAction') templateAddNextAction!: TemplateRef<any>;
 
+  public loading = {
+    detail: false,
+    submit: false,
+  };
   public detailChain?: IChainAct;
   protected readonly EChainNextActType = EChainNextActType;
   protected readonly EDelayTypeChainNextAct = EDelayTypeChainNextAct;
@@ -63,10 +67,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
   public introductionModalRef?: BsModalRef;
   public addNextActionModalRef?: BsModalRef;
-  public loading = {
-    detail: false,
-    submit: false,
-  };
 
   public results: ICommonDataLazy<IActResult, IQueryBase> = {
     rows: [],
@@ -231,9 +231,16 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       };
     }) as unknown as IBulkUpdateChainActResult;
     this.loading.submit = true;
+    this.configButtons[this.configButtons.length - 1].loading = true;
     this.autoTaskService.chainActResult
       .updateMany(body)
-      .pipe()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loading.submit = false;
+          this.configButtons[this.configButtons.length - 1].loading = false;
+        }),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -255,17 +262,19 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
   dropRow(value: any) {}
 
+  newNextAction() {
+    return {
+      type: undefined,
+      delayType: undefined,
+      delayValue: undefined,
+      actionId: undefined,
+    };
+  }
+
   handleAddResult(actResult: IChainActResult, index: number) {
     this.detailChain?.actionResults[index].results.push({
       resultId: undefined,
-      nextActions: [
-        {
-          type: undefined,
-          delayType: undefined,
-          delayValue: undefined,
-          actionId: undefined,
-        },
-      ],
+      nextActions: [this.newNextAction()],
     });
   }
 
