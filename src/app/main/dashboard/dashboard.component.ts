@@ -100,17 +100,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   handleUpdate(value?: any) {
-    const modalUpdate = this.modalService.show(ModalUpdateTaskComponent, {
-      initialState: {
-        sourceData: value,
-      },
-      class: 'modal-xl',
-      ignoreBackdropClick: true,
-      keyboard: false,
-    });
-    modalUpdate?.content?.updateSuccess
-      .pipe()
-      .subscribe(() => this.getDataSource());
+    try {
+      const modalUpdate = this.modalService.show(ModalUpdateTaskComponent, {
+        initialState: {
+          sourceData: value,
+        },
+        class: 'modal-xl',
+        ignoreBackdropClick: true,
+        keyboard: false,
+      });
+      modalUpdate?.content?.updateSuccess.pipe().subscribe(() => {
+        this.getDataSource();
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   handleAction(name: string) {
