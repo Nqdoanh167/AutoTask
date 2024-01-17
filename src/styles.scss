@@ -459,6 +459,10 @@ body {
 .ng-select-custom.borderless {
   .ng-select-container {
     border: none;
+    &:hover {
+      border: none;
+      box-shadow: none;
+    }
   }
 }
 

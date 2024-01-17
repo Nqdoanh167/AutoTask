@@ -143,8 +143,12 @@
                               <tr>
                                 <th>Hẹn giờ</th>
                                 <th>Hành động</th>
-                                <th>Thực hiện hành động</th>
-                                <th>Kết quả & Nguyên nhân</th>
+                                <th class="column-take-action">
+                                  Thực hiện hành động
+                                </th>
+                                <th class="column-result">
+                                  Kết quả & Nguyên nhân
+                                </th>
                                 <th>Bước tiếp theo</th>
                                 <th>Ghi chú</th>
                                 <th></th>
@@ -169,7 +173,7 @@
                                 <td>
                                   {{ taskChainResult.action?.name || '-' }}
                                 </td>
-                                <td>
+                                <td class="column-take-action">
                                   <div>
                                     <ng-container
                                       [ngSwitch]="taskChainResult?.action?.type"
@@ -209,7 +213,21 @@
                                     </ng-container>
                                   </div>
                                 </td>
-                                <td>-</td>
+                                <td class="column-result">
+                                  <div>
+                                    <ng-select
+                                      [placeholder]="'Chọn kết quả'"
+                                      [searchable]="true"
+                                      [items]="taskChainResult.results"
+                                      class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                                      formControlName="resultId"
+                                      id="result"
+                                      bindLabel="result.name"
+                                      bindValue="result.id"
+                                      appendTo=".modal-update-task"
+                                    ></ng-select>
+                                  </div>
+                                </td>
                                 <td>-</td>
                                 <td class="columns-desc">
                                   <div>{{ taskChainResult?.note || '-' }}</div>
