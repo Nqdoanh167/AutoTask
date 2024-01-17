@@ -17,14 +17,13 @@ import {
   ENextStepType,
   IAction,
   IActResult,
-  IUpdateChainActDto,
-  IManyUpdateChainActResultDto,
   IChainAct,
   IChainActResult,
   IChainNextAction,
   IChainResult,
   IFistActionDelayDto,
   IManyUpsertChainActResultDto,
+  IUpdateChainActDto,
 } from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
@@ -164,6 +163,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
   get f(): {[key: string]: AbstractControl} {
     return this.addNextActionForm.controls;
+  }
+
+  getListActionIdInChain() {
+    return this.listActionInChain.map((action) => action.id) || [];
   }
 
   ngOnInit() {
@@ -406,6 +409,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  handleChangeAction(selectedAction: IAction, index: number) {
+    //   replace action in list action in chain at index by selectedAction
+    this.listActionInChain[index] = selectedAction;
   }
 
   newNextAction() {
