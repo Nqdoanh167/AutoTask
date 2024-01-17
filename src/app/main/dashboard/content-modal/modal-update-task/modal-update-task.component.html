@@ -141,8 +141,8 @@
                           <table class="table">
                             <thead>
                               <tr>
-                                <th>Hẹn giờ</th>
-                                <th>Hành động</th>
+                                <th class="column-timer">Hẹn giờ</th>
+                                <th class="columns-action-main">Hành động</th>
                                 <th class="column-take-action">
                                   Thực hiện hành động
                                 </th>
@@ -150,8 +150,8 @@
                                   Kết quả & Nguyên nhân
                                 </th>
                                 <th>Bước tiếp theo</th>
-                                <th>Ghi chú</th>
-                                <th></th>
+                                <th class="columns-desc">Ghi chú</th>
+                                <th class="columns-action"></th>
                               </tr>
                             </thead>
                             <tbody>
@@ -169,8 +169,10 @@
                                   index as i
                                 "
                               >
-                                <td>-</td>
-                                <td>
+                                <td class="column-timer">
+                                  <div>-</div>
+                                </td>
+                                <td class="columns-action-main">
                                   {{ taskChainResult.action?.name || '-' }}
                                 </td>
                                 <td class="column-take-action">
