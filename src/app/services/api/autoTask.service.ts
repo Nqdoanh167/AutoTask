@@ -164,6 +164,15 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.delete<EntityResult<any>>(
         this.createUrl([this.api.chainAction, id]),
       ),
+    deleteChainAct: (id: string, chainActResultId: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([
+          this.api.chainAction,
+          id,
+          'chain-act-result',
+          chainActResultId,
+        ]),
+      ),
   };
 
   task = {

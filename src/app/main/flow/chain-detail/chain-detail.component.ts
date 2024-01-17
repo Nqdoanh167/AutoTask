@@ -467,8 +467,20 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     }
   }
 
-  handleRemoveAction(currentIndex: number) {
-    this.detailChain?.actionResults.splice(currentIndex, 1);
+  handleRemoveAction(currentIndex: number, chainActResult: IChainActResult) {
+    if (!this.detailChain?.id || !chainActResult.id) return;
+    this.autoTaskService.chainAction
+      .deleteChainAct(this.detailChain?.id, chainActResult.id!)
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.detailChain?.actionResults.splice(currentIndex, 1);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
   }
 
   handleRemoveResult(indexAction: number, currentResultIndex: number) {
