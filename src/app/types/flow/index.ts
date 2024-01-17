@@ -167,10 +167,18 @@ export interface IBodyUpdateOrdering {
   id: string;
 }
 
-export interface IBulkUpdateChainActResult {
+export interface IManyUpdateChainActResultDto {
   results: IBodyChainResult[];
   id: string;
   ordering?: number;
+}
+
+export interface IManyUpsertChainActResultDto {
+  results: IBodyChainResult[];
+  id?: string;
+  ordering: number;
+  actionId: string;
+  chainActId: string;
 }
 
 export enum ELeadDeal {

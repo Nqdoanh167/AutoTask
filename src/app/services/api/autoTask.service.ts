@@ -15,12 +15,13 @@ import {
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
-  IBulkUpdateChainActResult,
+  IManyUpdateChainActResultDto,
   IChainAct,
   IChainResult,
   ITask,
   ITaskDto,
   IPickResultForActionDto,
+  IManyUpsertChainActResultDto,
 } from '@app/types/flow';
 
 @Injectable({
@@ -217,9 +218,14 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.chainActionResult, id]),
         body,
       ),
-    updateMany: (body: IBulkUpdateChainActResult) =>
+    updateMany: (body: IManyUpdateChainActResultDto) =>
       this.httpClient.patch<EntityResult<IChainResult>>(
         this.createUrl([this.api.chainActionResult, 'update-many']),
+        body,
+      ),
+    upsertMany: (body: IManyUpsertChainActResultDto) =>
+      this.httpClient.put<EntityResult<IChainResult>>(
+        this.createUrl([this.api.chainActionResult, 'upsert-many']),
         body,
       ),
   };

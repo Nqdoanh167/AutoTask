@@ -169,7 +169,46 @@
                                 <td>
                                   {{ taskChainResult.action?.name || '-' }}
                                 </td>
-                                <td>-</td>
+                                <td>
+                                  <div>
+                                    <ng-container
+                                      [ngSwitch]="taskChainResult?.action?.type"
+                                    >
+                                      <ng-container
+                                        *ngSwitchCase="EActionType.CALL"
+                                      >
+                                        <div>
+                                          Gọi điện
+                                          <i
+                                            class="fa-solid fa-phone-volume ms-2 cursor-pointer"
+                                            style="color: #53b27f"
+                                          ></i>
+                                        </div>
+                                      </ng-container>
+                                      <ng-container
+                                        *ngSwitchCase="
+                                          EActionType.SEND_BLOCK_AUTOMATION
+                                        "
+                                      >
+                                        <div>
+                                          Gửi Block Automation
+                                          <i
+                                            class="fa-solid fa-robot ms-2 cursor-pointer"
+                                            style="color: #53b27f"
+                                          ></i>
+                                        </div>
+                                      </ng-container>
+                                      <ng-container
+                                        *ngSwitchCase="EActionType.OTHER"
+                                      >
+                                        <div>Khác</div>
+                                      </ng-container>
+                                      <ng-container *ngSwitchDefault>
+                                        <div>-</div>
+                                      </ng-container>
+                                    </ng-container>
+                                  </div>
+                                </td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td class="columns-desc">

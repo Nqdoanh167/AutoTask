@@ -18,7 +18,7 @@ import {
   IAction,
   IActResult,
   IUpdateChainActDto,
-  IBulkUpdateChainActResult,
+  IManyUpdateChainActResultDto,
   IChainAct,
   IChainActResult,
   IChainNextAction,
@@ -336,7 +336,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
           ordering: index + 1,
         };
       },
-    ) as unknown as IBulkUpdateChainActResult;
+    ) as unknown as IManyUpdateChainActResultDto;
     const bodyDetailChain = {
       fistActionDelay: this.fistActionDelay,
     } as unknown as IUpdateChainActDto;

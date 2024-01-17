@@ -9,6 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import {
+  EActionType,
   ETaskChainType,
   ETypeProduct,
   IAddTaskChainDto,
@@ -60,6 +61,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     addTaskChain: false,
   };
   protected readonly ETaskChainType = ETaskChainType;
+  protected readonly EActionType = EActionType;
   public submitted = false;
   public updateForm = this.fb.group({
     name: ['Task mới', [Validators.required]],
