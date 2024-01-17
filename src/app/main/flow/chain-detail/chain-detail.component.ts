@@ -467,7 +467,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     }
   }
 
-  handleRemoveAction() {}
+  handleRemoveAction(currentIndex: number) {
+    this.detailChain?.actionResults.splice(currentIndex, 1);
+  }
 
   handleRemoveResult(indexAction: number, currentResultIndex: number) {
     this.detailChain?.actionResults[indexAction]?.results.splice(
