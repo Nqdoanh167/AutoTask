@@ -129,7 +129,11 @@
               </td>
             </tr>
             <ng-container
-              *ngFor="let item of detailChain?.actionResults; index as i"
+              *ngFor="
+                let item of detailChain?.actionResults;
+                index as i;
+                let lastAction = last
+              "
             >
               <tr cdkDrag cdkDragLockAxis="y" class="rootRow">
                 <td class="" colspan="1">
@@ -137,7 +141,7 @@
                     <span class="fw-500">#{{ i + 1 }}</span>
                   </div>
                 </td>
-                <td class="columns-action group-data">
+                <td class="columns-action">
                   <div class="d-flex gap-2">
                     <div
                       cdkDragHandle
@@ -146,12 +150,25 @@
                     >
                       <img src="./assets/images/icon/dragDrop.svg" alt="" />
                     </div>
-                    <input
-                      type="text"
-                      class="input-medium"
-                      [value]="item.action?.name"
-                      readonly
-                    />
+                    <ng-select
+                      [style.width]="'95%'"
+                      [placeholder]="'Chọn hành động'"
+                      [searchable]="false"
+                      [items]="actions.rows"
+                      (open)="!actions.rows.length && getAction()"
+                      [loading]="actions.loading"
+                      (scrollToEnd)="handleLoadMore('action')"
+                      [(ngModel)]="item.actionId"
+                      [ngClass]="{
+                        'is-invalid': submitted && !item.actionId
+                      }"
+                      [clearable]="false"
+                      class="dropdown-auto-width"
+                      id="actions-{{ i }}"
+                      bindLabel="name"
+                      bindValue="id"
+                      appendTo="body"
+                    ></ng-select>
                     <div
                       style="width: 30px"
                       class="button-more-option d-flex justify-content-center align-items-center"
@@ -173,7 +190,7 @@
                           <button
                             class="dropdown-item"
                             type="button"
-                            (click)="handleAddAction()"
+                            (click)="handleAddAction(i)"
                           >
                             <div class="d-flex align-items-center">
                               <i class="fa-solid fa-plus me-2"></i>
@@ -183,7 +200,7 @@
                           <button
                             class="dropdown-item"
                             type="button"
-                            (click)="handleAddAction()"
+                            (click)="handleAddAction(i + 1)"
                           >
                             <div class="d-flex align-items-center">
                               <i class="fa-solid fa-plus me-2"></i>
@@ -206,16 +223,6 @@
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div>
-                    <button
-                      type="button"
-                      class="btn button-add-row text-link w-100 mt-2"
-                      (click)="handleAddAction()"
-                    >
-                      <i class="fa-solid fa-plus me-1"></i>
-                      Thêm hành động
-                    </button>
                   </div>
                 </td>
                 <td class="columns-step-or-center content">
@@ -247,7 +254,7 @@
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
                         let firstAction = first;
-                        let lastAction = last
+                        let lastNextAction = last
                       "
                     >
                       <div
@@ -403,19 +410,19 @@
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
                         let firstAction = first;
-                        let lastAction = last
+                        let lastNextAction = last
                       "
                       [class.mt-2]="!firstAction"
                       [ngClass]="{
                         'columns-step-item--first':
                           result['nextActions'].length !== 1 && firstAction,
                         'columns-step-item--last':
-                          result['nextActions'].length !== 1 && lastAction,
+                          result['nextActions'].length !== 1 && lastNextAction,
                         'columns-step-item--one':
                           result['nextActions'].length === 1,
                         'columns-step-item--center':
                           !firstAction &&
-                          !lastAction &&
+                          !lastNextAction &&
                           result['nextActions'].length !== 1
                       }"
                     ></div>
@@ -442,7 +449,7 @@
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
                         let firstAction = first;
-                        let lastAction = last
+                        let lastNextAction = last
                       "
                     >
                       <div
@@ -795,6 +802,21 @@
                 </td>
               </tr>
             </ng-container>
+            <tr class="thinRow">
+              <td></td>
+              <td class="p-0">
+                <div>
+                  <button
+                    type="button"
+                    class="btn button-add-row text-link w-100 mt-2"
+                    (click)="handleAddAction()"
+                  >
+                    <i class="fa-solid fa-plus me-1"></i>
+                    Thêm hành động
+                  </button>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>

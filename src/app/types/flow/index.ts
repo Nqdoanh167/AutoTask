@@ -114,16 +114,16 @@ export interface IChainResult {
 }
 
 export interface IChainActResult {
-  id: string;
+  id?: string;
   ordering: number;
-  chainActId: string;
-  actionId: string;
+  chainActId?: string;
+  actionId?: string;
   action?: IAction;
   results: IChainResult[];
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy: AccountPublic;
-  updatedBy: AccountPublic;
+  createdAt?: Date;
+  updatedAt?: Date;
+  createdBy?: AccountPublic;
+  updatedBy?: AccountPublic;
 }
 
 export interface IFistActionDelayDto {

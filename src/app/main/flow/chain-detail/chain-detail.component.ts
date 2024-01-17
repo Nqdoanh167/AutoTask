@@ -24,6 +24,7 @@ import {
   IChainNextAction,
   IChainResult,
   IFistActionDelayDto,
+  IManyUpsertChainActResultDto,
 } from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
@@ -196,6 +197,8 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                   }
                   return {
                     ...actResult,
+                    actionId: actResult?.action?.id,
+                    chainActId: res.data.id,
                     results: actResult?.results?.map((result) => {
                       return {
                         ...result,
@@ -334,16 +337,18 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
           }),
           id: actResult.id,
           ordering: index + 1,
+          chainActId: this.detailChain?.id,
+          actionId: actResult.actionId,
         };
       },
-    ) as unknown as IManyUpdateChainActResultDto;
+    ) as unknown as IManyUpsertChainActResultDto;
     const bodyDetailChain = {
       fistActionDelay: this.fistActionDelay,
     } as unknown as IUpdateChainActDto;
     this.loading.submit = true;
     this.configButtons[this.configButtons.length - 1].loading = true;
     forkJoin([
-      this.autoTaskService.chainActResult.updateMany(bodyUpdateResults),
+      this.autoTaskService.chainActResult.upsertMany(bodyUpdateResults),
       this.autoTaskService.chainAction.update(
         this.detailChain.id!,
         bodyDetailChain,
@@ -423,7 +428,44 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     };
   }
 
-  handleAddAction() {}
+  handleAddAction(currentIndex?: number) {
+    if (currentIndex === undefined) {
+      this.detailChain?.actionResults.push({
+        id: undefined,
+        results: [
+          {
+            resultId: undefined,
+            nextActions: [this.newNextAction()],
+          },
+        ],
+        ordering: this.detailChain?.actionResults.length + 1,
+      });
+    } else {
+      if (currentIndex === -1) {
+        this.detailChain?.actionResults.unshift({
+          id: undefined,
+          results: [
+            {
+              resultId: undefined,
+              nextActions: [this.newNextAction()],
+            },
+          ],
+          ordering: 1,
+        });
+      } else {
+        this.detailChain?.actionResults.splice(currentIndex!, 0, {
+          id: undefined,
+          results: [
+            {
+              resultId: undefined,
+              nextActions: [this.newNextAction()],
+            },
+          ],
+          ordering: currentIndex! + 1,
+        });
+      }
+    }
+  }
 
   handleRemoveAction() {}
 

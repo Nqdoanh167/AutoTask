@@ -4,10 +4,19 @@
 }
 .table-responsive {
   max-height: calc(100vh - 170px);
+  height: calc(100vh - 170px);
 }
 .table {
+  &:hover {
+    .thinRow {
+      visibility: visible;
+    }
+  }
   .rootRow {
     border-bottom: 1px solid vars.$neutral-100;
+  }
+  .thinRow {
+    visibility: hidden;
   }
   .columns-index {
     width: 5%;
