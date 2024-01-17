@@ -74,7 +74,7 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
     },
     {
       value: ENextStepType.ADD_CHAIN,
-      label: 'Thêm chuỗi HĐ mới',
+      label: 'Thêm HĐ từ chuỗi khác',
     },
   ];
   constructor(

@@ -503,7 +503,7 @@
                                 ENextStepType.ADD_CHAIN
                               ].includes(nextAction.nextAction)
                             "
-                            class="col-4"
+                            class="col"
                           >
                             <div
                               *ngIf="
@@ -548,8 +548,14 @@
                                       nextAction.addNewChainId === undefined) ||
                                       !result.resultId)
                                 }"
-                                [(ngModel)]="nextAction.addNewChainId"
-                                [placeholder]="'Chọn Chuỗi'"
+                                [(ngModel)]="nextAction.addNewChainActId"
+                                (change)="
+                                  handleChangeActionFromNewChain(
+                                    $event,
+                                    nextAction
+                                  )
+                                "
+                                [placeholder]="'Chọn HĐ từ chuỗi khác'"
                                 [searchable]="true"
                                 [items]="
                                   actionChains.rows
@@ -563,8 +569,24 @@
                                 }}"
                                 bindLabel="name"
                                 bindValue="id"
+                                groupBy="actionResults"
                                 appendTo="body"
-                              ></ng-select>
+                              >
+                                <ng-template ng-optgroup-tmp let-item="item">
+                                  {{ item?.name || '-' }}
+                                </ng-template>
+                                <ng-template ng-option-tmp let-item="item">
+                                  {{ item?.action?.name || '-' }}
+                                </ng-template>
+                                <ng-template ng-label-tmp let-item="item">
+                                  {{ item?.action?.name || '-' }}&nbsp;
+                                  <span class="fw-500">
+                                    (
+                                    {{ item?.chainAct?.name || '-' }}
+                                    )
+                                  </span>
+                                </ng-template>
+                              </ng-select>
                             </div>
                             <div
                               *ngIf="
@@ -599,7 +621,7 @@
                               ></ng-select>
                             </div>
                           </div>
-                          <div class="col-3">
+                          <div class="col-2">
                             <ng-select
                               [ngClass]="{
                                 'is-invalid':

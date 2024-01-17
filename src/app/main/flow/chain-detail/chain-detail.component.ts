@@ -211,6 +211,8 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                             moveToActionId:
                               nextAction?.moveToAction?.chainActResultId,
                             addNewChainId: nextAction?.addNewChain?.chainId,
+                            addNewChainActId:
+                              nextAction?.addNewChain?.chainActResultId,
                             callToBlockId:
                               nextAction?.callBlockAutomation?.blockId,
                             ...nextAction,
@@ -306,7 +308,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   onSaveChainAct() {
-    if (!this.validateBeforeSubmit() || !this.detailChain?.id) return;
+    if (!this.detailChain?.id) return;
     const bodyUpdateResults = this.detailChain?.actionResults?.map(
       (actResult, index) => {
         return {
@@ -315,11 +317,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               ...result,
               nextActions: result?.nextActions?.map((nextAction) => {
                 const modify = {
-                  addNewChain: nextAction.addNewChainId
-                    ? {
-                        chainId: nextAction.addNewChainId,
-                      }
-                    : null,
                   callBlockAutomation: nextAction.callToBlockId
                     ? {
                         blockId: nextAction.callToBlockId,
@@ -572,6 +569,23 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
+            res.data = res.data.map((chain) => {
+              return {
+                ...chain,
+                actionResults: chain.actionResults?.map((actResult) => {
+                  return {
+                    ...actResult,
+                    chainAct: {
+                      id: chain.id,
+                      name: chain.name,
+                    },
+                    action: {
+                      ...actResult.action,
+                    },
+                  };
+                }),
+              };
+            }) as unknown as IChainAct[];
             this.actionChains.rows = uniqBy(
               this.actionChains.rows.concat(res.data),
               'id',
@@ -732,6 +746,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   handleChangeNextAction(nextAction: IChainNextAction) {
     nextAction.addNewChain = {
       chainId: undefined,
+      chainActResultId: undefined,
     };
     nextAction.callBlockAutomation = {
       blockId: undefined,
@@ -740,8 +755,19 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       chainActResultId: undefined,
     };
     nextAction.addNewChainId = undefined;
+    nextAction.addNewChainActId = undefined;
     nextAction.moveToActionId = undefined;
     nextAction.callToBlockId = undefined;
+  }
+
+  handleChangeActionFromNewChain(
+    value: IChainActResult,
+    nextAction: IChainNextAction,
+  ) {
+    nextAction.addNewChain = {
+      chainId: value.chainAct?.id,
+      chainActResultId: value.id,
+    };
   }
 
   ngOnDestroy(): void {

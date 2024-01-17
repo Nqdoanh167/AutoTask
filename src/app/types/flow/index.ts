@@ -97,6 +97,7 @@ export interface IChainNextAction {
   };
   addNewChain?: {
     chainId?: string;
+    chainActResultId?: string;
   };
   callBlockAutomation?: {
     blockId?: string;
@@ -104,6 +105,7 @@ export interface IChainNextAction {
   callToBlockId?: string;
   moveToActionId?: string;
   addNewChainId?: string;
+  addNewChainActId?: string;
 }
 
 export interface IChainResult {
@@ -117,6 +119,7 @@ export interface IChainActResult {
   id?: string;
   ordering: number;
   chainActId?: string;
+  chainAct?: IChainAct;
   actionId?: string;
   action?: IAction;
   results: IChainResult[];
