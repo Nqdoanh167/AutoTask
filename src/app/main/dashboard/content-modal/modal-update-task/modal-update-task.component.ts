@@ -80,6 +80,45 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       province: null,
       provinceCode: null,
     }),
+    taskChains: this.fb.array([
+      this.fb.group({
+        id: null,
+        name: null,
+        taskChainResults: this.fb.array([
+          this.fb.group({
+            id: null,
+            status: null,
+            deadlineDate: null,
+            action: this.fb.group({
+              id: null,
+              name: null,
+            }),
+            resultIndex: null,
+            reasonIndex: null,
+            note: null,
+            result: null,
+            results: this.fb.array([
+              this.fb.group({
+                nextActions: this.fb.array([
+                  this.fb.group({
+                    addNewChain: null,
+                    callBlockAutomation: null,
+                    delayType: null,
+                    moveToAction: null,
+                    nextAction: null,
+                    type: null,
+                  }),
+                ]),
+                result: this.fb.group({
+                  id: null,
+                  name: null,
+                }),
+              }),
+            ]),
+          }),
+        ]),
+      }),
+    ]),
     products: this.fb.array([]),
     counselorId: null,
   });
@@ -170,6 +209,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     return <FormArray>this.updateForm.get('products');
   }
 
+  get formTaskChains() {
+    return <FormArray>this.updateForm.get('taskChains');
+  }
+
   get formLeadDeal() {
     return <FormGroup>this.updateForm.get('leadDeal');
   }
@@ -181,10 +224,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   ngOnInit() {
     this.getProvince();
     if (this.sourceData) {
-      this.updateForm.patchValue({
-        ...(this.sourceData as any),
-        counselorId: this.sourceData?.counselor?.id,
-      });
+      this.patchForm(this.sourceData);
       this.sourceData?.leadDeal?.provinceCode &&
         this.getDistrict(this.sourceData?.leadDeal?.provinceCode);
       this.sourceData?.leadDeal?.districtCode &&
@@ -208,6 +248,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.sourceData = res.data;
+            this.patchForm(res.data);
           } else {
             this.commonService.handleResErr(res);
           }
@@ -216,6 +257,60 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           this.commonService.handleErr(err);
         },
       });
+  }
+
+  patchForm(dataSource: ITask) {
+    this.updateForm.patchValue({...dataSource} as any);
+    this.formTaskChains.clear();
+    dataSource.taskChains?.forEach((taskChain) => {
+      const taskChainForm = this.fb.group({
+        id: taskChain.id,
+        name: taskChain.name,
+        taskChainResults: this.fb.array([]),
+      });
+      taskChain.taskChainResults?.forEach((taskChainResult) => {
+        const taskChainResultForm = this.fb.group({
+          id: taskChainResult?.id,
+          status: taskChainResult?.status,
+          deadlineDate: taskChainResult?.deadlineDate,
+          action: this.fb.group({
+            id: taskChainResult.action.id,
+            name: taskChainResult.action.name,
+          }),
+          resultIndex: null,
+          reasonIndex: null,
+          note: taskChainResult.note,
+          result: taskChainResult.result,
+          results: this.fb.array([]),
+        });
+        taskChainResult.results?.forEach((result) => {
+          const resultForm = this.fb.group({
+            result: this.fb.group({
+              id: result.result?.id,
+              name: result.result?.name,
+            }),
+            nextActions: this.fb.array([]),
+          });
+          result.nextActions?.forEach((nextAction) => {
+            const nextActionForm = this.fb.group({
+              addNewChain: nextAction.addNewChain,
+              callBlockAutomation: nextAction.callBlockAutomation,
+              delayType: nextAction.delayType,
+              moveToAction: nextAction.moveToAction,
+              nextAction: nextAction.nextAction,
+              type: nextAction.type,
+            });
+            (<FormArray>resultForm.controls.nextActions).push(nextActionForm);
+          });
+          (<FormArray>taskChainResultForm.controls.results).push(resultForm);
+        });
+        (<FormArray>taskChainForm.controls.taskChainResults).push(
+          taskChainResultForm,
+        );
+      });
+      (<FormArray>this.updateForm.controls.taskChains).push(taskChainForm);
+    });
+    console.log(this.updateForm.value);
   }
 
   getActionChain() {

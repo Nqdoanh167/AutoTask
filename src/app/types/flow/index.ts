@@ -218,7 +218,8 @@ export enum ETaskChainResultType {
 }
 
 export interface ITaskChainResult {
-  type: ETaskChainResultType;
+  id?: string;
+  status: ETaskChainResultType;
   action: IAction;
   deadlineDate: Date;
   executedDate: Date;

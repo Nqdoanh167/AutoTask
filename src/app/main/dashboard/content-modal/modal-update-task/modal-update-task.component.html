@@ -96,6 +96,17 @@
                         </span>
                         <div class="d-flex gap-2 align-items-center">
                           <button
+                            (click)="
+                              $event.preventDefault();
+                              $event.stopPropagation();
+                              getDetailTask()
+                            "
+                            class="btn button-medium button-outline"
+                            type="button"
+                          >
+                            Làm mới
+                          </button>
+                          <button
                             *ngIf="taskChain.status !== ETaskChainType.CLOSED"
                             (click)="handleCloseChain($event, taskChain)"
                             type="button"
@@ -265,7 +276,6 @@
                                       [searchable]="true"
                                       [items]="taskChainResult.results"
                                       class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                                      id="result"
                                       bindLabel="result.name"
                                       bindValue="result.id"
                                       appendTo=".modal-update-task"
@@ -277,14 +287,15 @@
                                         taskChainResult.action.reasons || []
                                       "
                                       class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                                      id="reason"
                                       bindLabel="name"
                                       bindValue="id"
                                       appendTo=".modal-update-task"
                                     ></ng-select>
                                   </div>
                                 </td>
-                                <td>-</td>
+                                <td>
+                                  <div>-</div>
+                                </td>
                                 <td class="columns-desc">
                                   <div>
                                     <app-textarea
@@ -296,20 +307,26 @@
                                 </td>
                                 <td class="columns-action">
                                   <div class="d-flex">
-                                    <span
-                                      (click)="
-                                        handleUpdateActionInChain(
-                                          taskChainResult,
-                                          taskChain
-                                        )
-                                      "
-                                      class="d-flex align-items-center btn-action-table"
+                                    <!--                                    <span-->
+                                    <!--                                      (click)="-->
+                                    <!--                                        handleUpdateActionInChain(-->
+                                    <!--                                          taskChainResult,-->
+                                    <!--                                          taskChain-->
+                                    <!--                                        )-->
+                                    <!--                                      "-->
+                                    <!--                                      class="d-flex align-items-center btn-action-table"-->
+                                    <!--                                    >-->
+                                    <!--                                      <img-->
+                                    <!--                                        src="./assets/images/icon/grey-save.svg"-->
+                                    <!--                                        alt=""-->
+                                    <!--                                      />-->
+                                    <!--                                    </span>-->
+                                    <button
+                                      type="button"
+                                      class="btn button-medium button-fill secondary-color"
                                     >
-                                      <img
-                                        src="./assets/images/icon/edit.svg"
-                                        alt=""
-                                      />
-                                    </span>
+                                      Lưu
+                                    </button>
                                   </div>
                                 </td>
                               </tr>
