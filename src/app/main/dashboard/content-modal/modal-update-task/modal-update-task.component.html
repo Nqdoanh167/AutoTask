@@ -181,7 +181,7 @@
                                   <ng-template #popTemplate>
                                     <div
                                       class="popover-timer align-items-center"
-                                      style="width: 300px"
+                                      style="width: 350px"
                                     >
                                       <label
                                         class="form-control-label d-flex align-items-center gap-2 mb-2"
@@ -193,19 +193,23 @@
                                       </label>
                                       <div class="d-flex gap-2">
                                         <input
+                                          mask="000"
+                                          [allowNegativeNumbers]="false"
                                           name="between_from"
                                           class="form-control text-right"
-                                          placeholder="Ngày"
+                                          placeholder="Ngày (0-999)"
                                         />
                                         <input
+                                          mask="Hh"
                                           name="between_from"
                                           class="form-control text-right"
                                           placeholder="Giờ (0-23)"
                                         />
                                         <input
+                                          mask="m0"
                                           name="between_from"
                                           class="form-control text-right"
-                                          placeholder="Phút (0-60)"
+                                          placeholder="Phút (0-59)"
                                         />
                                       </div>
                                     </div>
@@ -266,11 +270,29 @@
                                       bindValue="result.id"
                                       appendTo=".modal-update-task"
                                     ></ng-select>
+                                    <ng-select
+                                      [placeholder]="'Chọn nguyên nhân'"
+                                      [searchable]="true"
+                                      [items]="
+                                        taskChainResult.action.reasons || []
+                                      "
+                                      class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                                      id="reason"
+                                      bindLabel="name"
+                                      bindValue="id"
+                                      appendTo=".modal-update-task"
+                                    ></ng-select>
                                   </div>
                                 </td>
                                 <td>-</td>
                                 <td class="columns-desc">
-                                  <div>{{ taskChainResult?.note || '-' }}</div>
+                                  <div>
+                                    <app-textarea
+                                      inputClass="bg-white border-0"
+                                      placeholder="Nhập ghi chú..."
+                                      [value]="taskChainResult.note || ''"
+                                    ></app-textarea>
+                                  </div>
                                 </td>
                                 <td class="columns-action">
                                   <div class="d-flex">

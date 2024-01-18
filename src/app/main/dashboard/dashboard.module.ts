@@ -19,6 +19,7 @@ import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/up
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {NgxMaskDirective} from 'ngx-mask';
+import {TextAreaComponent} from '@share/input/textarea/textarea.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import {NgxMaskDirective} from 'ngx-mask';
     BsDropdownModule,
     PopoverModule,
     NgxMaskDirective,
+    TextAreaComponent,
   ],
 })
 export class DashboardModule {}

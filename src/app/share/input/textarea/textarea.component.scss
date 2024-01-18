@@ -1,0 +1,13 @@
+.form-control {
+  height: auto;
+  resize: none;
+  overflow: hidden;
+}
+
+.card-note-input {
+  background-color: #fff1bc;
+  border: none;
+  &:focus {
+    box-shadow: none;
+  }
+}

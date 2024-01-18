@@ -14,6 +14,7 @@ import localeVi from '@angular/common/locales/vi';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {provideEnvironmentNgxMask} from 'ngx-mask';
 
 registerLocaleData(localeVi, 'vi');
 @Injectable()
@@ -54,6 +55,7 @@ const formModule = [FormsModule, ReactiveFormsModule];
     },
     {provide: ErrorHandler, useClass: GlobalErrorHandler},
     {provide: APP_BASE_HREF, useValue: (window as any)['_app_base'] || '/'},
+    provideEnvironmentNgxMask(),
   ],
   bootstrap: [AppComponent],
 })
