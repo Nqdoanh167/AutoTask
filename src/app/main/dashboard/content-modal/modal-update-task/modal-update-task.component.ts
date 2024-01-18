@@ -250,20 +250,20 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         let isOverDeadline = false;
         if (true) {
           const subDate = calculateTime(
-            '2023-12-31T23:59:59.999Z',
+            '2024-12-31T23:59:59.999Z',
             new Date(),
             'metrics',
           ) as {days?: number; hours?: number; minutes?: number};
           deadlineDay = subDate.days || 0;
           deadlineHour = subDate.hours || 0;
           deadlineMinute = subDate.minutes || 0;
-          isOverDeadline = moment().isAfter('2023-12-31T23:59:59.999Z');
+          isOverDeadline = moment().isAfter('2024-12-31T23:59:59.999Z');
         }
         const taskChainResultForm = this.fb.group({
           id: taskChainResult?.id,
           status: taskChainResult?.status,
           // deadlineDate: taskChainResult?.deadlineDate,
-          deadlineDate: '2023-12-31T23:59:59.999Z',
+          deadlineDate: '2024-12-31T23:59:59.999Z',
           deadlineDay: deadlineDay,
           deadlineHour: deadlineHour,
           deadlineMinute: deadlineMinute,

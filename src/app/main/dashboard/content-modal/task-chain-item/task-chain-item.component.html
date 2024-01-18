@@ -32,7 +32,9 @@
                 <td class="column-timer">
                   <div
                     class="timer fw-500"
-                    [popover]="popTemplate"
+                    [popover]="
+                      !taskChainResult.value?.isOverDeadline ? popTemplate : ''
+                    "
                     placement="right"
                     [outsideClick]="true"
                     *ngIf="taskChainResult.value?.deadlineDate"
