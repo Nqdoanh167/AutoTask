@@ -19,9 +19,7 @@
         <div class="content-wrapper position-relative">
           <button
             *ngIf="sourceData?.id"
-            (click)="
-              $event.preventDefault(); $event.stopPropagation(); getDetailTask()
-            "
+            (click)="getDetailTask()"
             class="btn button-medium button-outline button-header d-flex align-items-center"
             type="button"
             [disabled]="loading.getDetail"
