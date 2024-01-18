@@ -235,6 +235,7 @@ export interface ITaskChainResult {
   updatedBy: AccountPublic;
   createdAt: Date;
   updatedAt: Date;
+  [key: string]: any;
 }
 
 export interface ITaskChain {

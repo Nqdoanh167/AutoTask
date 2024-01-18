@@ -13,7 +13,11 @@ export const diffMinutes = (minuend: any, subtrahend: any): number => {
   return diff;
 };
 
-export const calculateTime = (subtrahend?: any, minuend?: any): string => {
+export const calculateTime = (
+  subtrahend?: any,
+  minuend?: any,
+  typeReturn: 'metrics' | 'string' = 'string',
+) => {
   if (!subtrahend) return '-';
   let diff = diffMinutes(subtrahend, minuend);
 
@@ -32,6 +36,13 @@ export const calculateTime = (subtrahend?: any, minuend?: any): string => {
   const days = Math.floor(minutes / 1440);
   string = days ? `${days}d, ${hours}h` : string;
 
+  if (typeReturn === 'metrics') {
+    return {
+      days,
+      hours,
+      minutes: remainingMinutes,
+    };
+  }
   return string;
 };
 

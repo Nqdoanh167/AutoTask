@@ -82,7 +82,11 @@
                     </div>
                   </div>
                   <div class="list-chain mt-2">
-                    <accordion class="accordion-white" [isAnimated]="true">
+                    <accordion
+                      formArrayName="taskChains"
+                      class="accordion-white"
+                      [isAnimated]="true"
+                    >
                       <div
                         *ngIf="!sourceData?.taskChains?.length"
                         class="text-center mt-3 mb-3"
@@ -90,9 +94,12 @@
                         Không có dữ liệu chuỗi hành động
                       </div>
                       <accordion-group
-                        [isOpen]="taskChain.status !== ETaskChainType.CLOSED"
+                        [formGroupName]="chainIndex"
+                        [isOpen]="
+                          taskChain.value.status !== ETaskChainType.CLOSED
+                        "
                         *ngFor="
-                          let taskChain of sourceData?.taskChains;
+                          let taskChain of formTaskChains.controls;
                           let chainIndex = index
                         "
                         #myGroup
@@ -109,12 +116,16 @@
                                 'fa-chevron-up': !myGroup?.isOpen
                               }"
                             ></i>
-                            {{ taskChain.name || '-' }}
+                            {{ taskChain.value.name || '-' }}
                           </span>
                           <div class="d-flex gap-2 align-items-center">
                             <button
-                              *ngIf="taskChain.status !== ETaskChainType.CLOSED"
-                              (click)="handleCloseChain($event, taskChain)"
+                              *ngIf="
+                                taskChain.value.status !== ETaskChainType.CLOSED
+                              "
+                              (click)="
+                                handleCloseChain($event, taskChain.value)
+                              "
                               type="button"
                               class="btn btn button-medium button-sub-primary secondary-color d-flex align-items-center"
                             >
@@ -126,7 +137,9 @@
                               />
                             </button>
                             <button
-                              *ngIf="taskChain.status === ETaskChainType.CLOSED"
+                              *ngIf="
+                                taskChain.value.status === ETaskChainType.CLOSED
+                              "
                               type="button"
                               class="btn btn button-medium d-flex align-items-center"
                             >
@@ -138,7 +151,9 @@
                               />
                             </button>
                             <button
-                              (click)="handleDeleteChain($event, taskChain)"
+                              (click)="
+                                handleDeleteChain($event, taskChain.value)
+                              "
                               type="button"
                               class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
                             >
@@ -172,172 +187,184 @@
                                 </tr>
                               </thead>
                               <tbody>
+                                <!--                                <tr>-->
+                                <!--                                  {{-->
+                                <!--                                    formTaskChains-->
+                                <!--                                      .at(chainIndex)-->
+                                <!--                                      .get('taskChainResults')?.value | json-->
+                                <!--                                  }}-->
+                                <!--                                </tr>-->
                                 <tr
                                   class="text-center"
-                                  *ngIf="!taskChain.taskChainResults.length"
+                                  *ngIf="
+                                    !taskChain.value.taskChainResults.length
+                                  "
                                 >
                                   <td colspan="12">
                                     <div>Không có dữ liệu</div>
                                   </td>
                                 </tr>
-                                <tr
-                                  *ngFor="
-                                    let taskChainResult of taskChain.taskChainResults;
-                                    index as i
-                                  "
-                                >
-                                  <td class="column-timer">
-                                    <div
-                                      class="timer"
-                                      [popover]="popTemplate"
-                                      placement="right"
-                                      [outsideClick]="true"
-                                    >
-                                      -
-                                    </div>
-                                    <ng-template #popTemplate>
+                                <ng-container formArrayName="taskChainResults">
+                                  <tr
+                                    *ngFor="
+                                      let taskChainResult of taskChain.value
+                                        .taskChainResults;
+                                      let taskChainResultIndex = index
+                                    "
+                                  >
+                                    <td class="column-timer">
                                       <div
-                                        class="popover-timer align-items-center"
-                                        style="width: 350px"
+                                        class="timer"
+                                        [popover]="popTemplate"
+                                        placement="right"
+                                        [outsideClick]="true"
                                       >
-                                        <label
-                                          class="form-control-label d-flex align-items-center gap-2 mb-2"
-                                        >
-                                          <i class="fa-solid fa-clock"></i>
-                                          <div class="fw-500">
-                                            Thời gian hẹn giờ
-                                          </div>
-                                        </label>
-                                        <div class="d-flex gap-2">
-                                          <input
-                                            mask="000"
-                                            [allowNegativeNumbers]="false"
-                                            name="between_from"
-                                            class="form-control text-right"
-                                            placeholder="Ngày (0-999)"
-                                          />
-                                          <input
-                                            mask="Hh"
-                                            name="between_from"
-                                            class="form-control text-right"
-                                            placeholder="Giờ (0-23)"
-                                          />
-                                          <input
-                                            mask="m0"
-                                            name="between_from"
-                                            class="form-control text-right"
-                                            placeholder="Phút (0-59)"
-                                          />
-                                        </div>
+                                        -
                                       </div>
-                                    </ng-template>
-                                  </td>
-                                  <td class="columns-action-main">
-                                    {{ taskChainResult.action?.name || '-' }}
-                                  </td>
-                                  <td class="column-take-action">
-                                    <div>
-                                      <ng-container
-                                        [ngSwitch]="
-                                          taskChainResult?.action?.type
-                                        "
-                                      >
-                                        <ng-container
-                                          *ngSwitchCase="EActionType.CALL"
+                                      <ng-template #popTemplate>
+                                        <div
+                                          class="popover-timer align-items-center"
+                                          style="width: 350px"
                                         >
-                                          <div>
-                                            Gọi điện
-                                            <i
-                                              class="fa-solid fa-phone-volume ms-2 cursor-pointer"
-                                              style="color: #53b27f"
-                                            ></i>
+                                          <label
+                                            class="form-control-label d-flex align-items-center gap-2 mb-2"
+                                          >
+                                            <i class="fa-solid fa-clock"></i>
+                                            <div class="fw-500">
+                                              Thời gian hẹn giờ
+                                            </div>
+                                          </label>
+                                          <div class="d-flex gap-2">
+                                            <input
+                                              mask="000"
+                                              [allowNegativeNumbers]="false"
+                                              name="between_from"
+                                              class="form-control text-right"
+                                              placeholder="Ngày (0-999)"
+                                            />
+                                            <input
+                                              mask="Hh"
+                                              name="between_from"
+                                              class="form-control text-right"
+                                              placeholder="Giờ (0-23)"
+                                            />
+                                            <input
+                                              mask="m0"
+                                              name="between_from"
+                                              class="form-control text-right"
+                                              placeholder="Phút (0-59)"
+                                            />
                                           </div>
-                                        </ng-container>
+                                        </div>
+                                      </ng-template>
+                                    </td>
+                                    <td class="columns-action-main">
+                                      {{ taskChainResult.action?.name || '-' }}
+                                    </td>
+                                    <td class="column-take-action">
+                                      <div>
                                         <ng-container
-                                          *ngSwitchCase="
-                                            EActionType.SEND_BLOCK_AUTOMATION
+                                          [ngSwitch]="
+                                            taskChainResult?.action?.type
                                           "
                                         >
-                                          <div>
-                                            Gửi Block Automation
-                                            <i
-                                              class="fa-solid fa-robot ms-2 cursor-pointer"
-                                              style="color: #53b27f"
-                                            ></i>
-                                          </div>
+                                          <ng-container
+                                            *ngSwitchCase="EActionType.CALL"
+                                          >
+                                            <div>
+                                              Gọi điện
+                                              <i
+                                                class="fa-solid fa-phone-volume ms-2 cursor-pointer"
+                                                style="color: #53b27f"
+                                              ></i>
+                                            </div>
+                                          </ng-container>
+                                          <ng-container
+                                            *ngSwitchCase="
+                                              EActionType.SEND_BLOCK_AUTOMATION
+                                            "
+                                          >
+                                            <div>
+                                              Gửi Block Automation
+                                              <i
+                                                class="fa-solid fa-robot ms-2 cursor-pointer"
+                                                style="color: #53b27f"
+                                              ></i>
+                                            </div>
+                                          </ng-container>
+                                          <ng-container
+                                            *ngSwitchCase="EActionType.OTHER"
+                                          >
+                                            <div>Khác</div>
+                                          </ng-container>
+                                          <ng-container *ngSwitchDefault>
+                                            <div>-</div>
+                                          </ng-container>
                                         </ng-container>
-                                        <ng-container
-                                          *ngSwitchCase="EActionType.OTHER"
+                                      </div>
+                                    </td>
+                                    <td class="column-result">
+                                      <div>
+                                        <ng-select
+                                          [placeholder]="'Chọn kết quả'"
+                                          [searchable]="true"
+                                          [items]="taskChainResult.results"
+                                          class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                                          bindLabel="result.name"
+                                          bindValue="result.id"
+                                          appendTo=".modal-update-task"
+                                        ></ng-select>
+                                        <ng-select
+                                          [placeholder]="'Chọn nguyên nhân'"
+                                          [searchable]="true"
+                                          [items]="
+                                            taskChainResult.action.reasons || []
+                                          "
+                                          class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                                          bindLabel="name"
+                                          bindValue="id"
+                                          appendTo=".modal-update-task"
+                                        ></ng-select>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <div>-</div>
+                                    </td>
+                                    <td class="columns-desc">
+                                      <div>
+                                        <app-textarea
+                                          inputClass="bg-white border-0"
+                                          placeholder="Nhập ghi chú..."
+                                          [value]="taskChainResult.note || ''"
+                                        ></app-textarea>
+                                      </div>
+                                    </td>
+                                    <td class="columns-action">
+                                      <div class="d-flex">
+                                        <!--                                    <span-->
+                                        <!--                                      (click)="-->
+                                        <!--                                        handleUpdateActionInChain(-->
+                                        <!--                                          taskChainResult,-->
+                                        <!--                                          taskChain-->
+                                        <!--                                        )-->
+                                        <!--                                      "-->
+                                        <!--                                      class="d-flex align-items-center btn-action-table"-->
+                                        <!--                                    >-->
+                                        <!--                                      <img-->
+                                        <!--                                        src="./assets/images/icon/grey-save.svg"-->
+                                        <!--                                        alt=""-->
+                                        <!--                                      />-->
+                                        <!--                                    </span>-->
+                                        <button
+                                          type="button"
+                                          class="btn button-medium button-fill secondary-color"
                                         >
-                                          <div>Khác</div>
-                                        </ng-container>
-                                        <ng-container *ngSwitchDefault>
-                                          <div>-</div>
-                                        </ng-container>
-                                      </ng-container>
-                                    </div>
-                                  </td>
-                                  <td class="column-result">
-                                    <div>
-                                      <ng-select
-                                        [placeholder]="'Chọn kết quả'"
-                                        [searchable]="true"
-                                        [items]="taskChainResult.results"
-                                        class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                                        bindLabel="result.name"
-                                        bindValue="result.id"
-                                        appendTo=".modal-update-task"
-                                      ></ng-select>
-                                      <ng-select
-                                        [placeholder]="'Chọn nguyên nhân'"
-                                        [searchable]="true"
-                                        [items]="
-                                          taskChainResult.action.reasons || []
-                                        "
-                                        class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                                        bindLabel="name"
-                                        bindValue="id"
-                                        appendTo=".modal-update-task"
-                                      ></ng-select>
-                                    </div>
-                                  </td>
-                                  <td>
-                                    <div>-</div>
-                                  </td>
-                                  <td class="columns-desc">
-                                    <div>
-                                      <app-textarea
-                                        inputClass="bg-white border-0"
-                                        placeholder="Nhập ghi chú..."
-                                        [value]="taskChainResult.note || ''"
-                                      ></app-textarea>
-                                    </div>
-                                  </td>
-                                  <td class="columns-action">
-                                    <div class="d-flex">
-                                      <!--                                    <span-->
-                                      <!--                                      (click)="-->
-                                      <!--                                        handleUpdateActionInChain(-->
-                                      <!--                                          taskChainResult,-->
-                                      <!--                                          taskChain-->
-                                      <!--                                        )-->
-                                      <!--                                      "-->
-                                      <!--                                      class="d-flex align-items-center btn-action-table"-->
-                                      <!--                                    >-->
-                                      <!--                                      <img-->
-                                      <!--                                        src="./assets/images/icon/grey-save.svg"-->
-                                      <!--                                        alt=""-->
-                                      <!--                                      />-->
-                                      <!--                                    </span>-->
-                                      <button
-                                        type="button"
-                                        class="btn button-medium button-fill secondary-color"
-                                      >
-                                        Lưu
-                                      </button>
-                                    </div>
-                                  </td>
-                                </tr>
+                                          Lưu
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </ng-container>
                               </tbody>
                             </table>
                           </div>
@@ -407,7 +434,6 @@
                       <div class="col-6">
                         <label class="form-control-label" for="leadDeal.name">
                           Tên liên hệ (Deal/Lead)
-                          <span class="required">*</span>
                         </label>
                         <input
                           class="form-control"

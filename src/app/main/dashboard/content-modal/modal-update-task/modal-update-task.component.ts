@@ -43,6 +43,7 @@ import {uniqBy} from 'lodash';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
+import {calculateTime} from '@app/utils/common';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -67,7 +68,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     name: ['Task mới', [Validators.required]],
     leadDeal: this.fb.group({
       type: 'LEAD',
-      name: [null, [Validators.required, Validators.maxLength(255)]],
+      name: [null],
       gender: 'other',
       phone: null,
       email: null,
@@ -89,6 +90,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             id: null,
             status: null,
             deadlineDate: null,
+            deadlineDay: null,
+            deadlineHour: null,
+            deadlineMinute: null,
             action: this.fb.group({
               id: null,
               name: null,
@@ -271,10 +275,27 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         taskChainResults: this.fb.array([]),
       });
       taskChain.taskChainResults?.forEach((taskChainResult) => {
+        let deadlineDay = 0;
+        let deadlineHour = 0;
+        let deadlineMinute = 0;
+        if (true) {
+          const subDate = calculateTime(
+            '2024-12-31T23:59:59.999Z',
+            new Date(),
+            'metrics',
+          ) as {days?: number; hours?: number; minutes?: number};
+          deadlineDay = subDate.days || 0;
+          deadlineHour = subDate.hours || 0;
+          deadlineMinute = subDate.minutes || 0;
+        }
         const taskChainResultForm = this.fb.group({
           id: taskChainResult?.id,
           status: taskChainResult?.status,
-          deadlineDate: taskChainResult?.deadlineDate,
+          // deadlineDate: taskChainResult?.deadlineDate,
+          deadlineDate: '2024-12-31T23:59:59.999Z',
+          deadlineDay: deadlineDay,
+          deadlineHour: deadlineHour,
+          deadlineMinute: deadlineMinute,
           action: this.fb.group({
             id: taskChainResult.action.id,
             name: taskChainResult.action.name,
