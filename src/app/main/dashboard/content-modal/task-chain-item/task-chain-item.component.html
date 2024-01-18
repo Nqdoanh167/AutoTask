@@ -10,13 +10,13 @@
             <th class="columns-action-main">Hành động</th>
             <th class="column-take-action">Thực hiện hành động</th>
             <th class="column-result">Kết quả & Nguyên nhân</th>
-            <th>Bước tiếp theo</th>
+            <th class="column-next-step">Bước tiếp theo</th>
             <th class="columns-desc">Ghi chú</th>
             <th class="columns-action"></th>
           </tr>
         </thead>
         <tbody>
-          <tr class="text-center" *ngIf="!f['taskChainResults'].value.length">
+          <tr class="text-center" *ngIf="!f['taskChainResults'].value?.length">
             <td colspan="12">
               <div>Không có dữ liệu</div>
             </td>
@@ -31,12 +31,41 @@
               <tr [formGroupName]="taskChainResultIndex">
                 <td class="column-timer">
                   <div
-                    class="timer"
+                    class="timer fw-500"
                     [popover]="popTemplate"
                     placement="right"
                     [outsideClick]="true"
+                    *ngIf="taskChainResult.value?.deadlineDate"
+                    [ngClass]="{
+                      'text-danger': taskChainResult.value?.isOverDeadline
+                    }"
                   >
-                    -
+                    {{
+                      taskChainResult.value?.isOverDeadline
+                        ? 'Quá hạn:'
+                        : 'Còn:'
+                    }}
+                    {{
+                      taskChainResult.value?.deadlineDay !== undefined &&
+                      taskChainResult.value?.deadlineDay !== null &&
+                      taskChainResult.value?.deadlineDay !== 0
+                        ? +taskChainResult.value?.deadlineDay + ' ngày'
+                        : ''
+                    }}
+                    {{
+                      taskChainResult.value?.deadlineHour !== undefined &&
+                      taskChainResult.value?.deadlineHour !== null &&
+                      taskChainResult.value?.deadlineHour !== 0
+                        ? +taskChainResult.value?.deadlineHour + ' giờ'
+                        : ''
+                    }}
+                    {{
+                      taskChainResult.value?.deadlineMinute !== undefined &&
+                      taskChainResult.value?.deadlineMinute !== null &&
+                      taskChainResult.value?.deadlineMinute !== 0
+                        ? +taskChainResult.value?.deadlineMinute + ' phút'
+                        : ''
+                    }}
                   </div>
                   <ng-template #popTemplate>
                     <div
@@ -135,7 +164,7 @@
                     ></ng-select>
                   </div>
                 </td>
-                <td>
+                <td class="column-next-step">
                   <div>-</div>
                 </td>
                 <td class="columns-desc">
@@ -144,6 +173,7 @@
                       inputClass="bg-white border-0"
                       placeholder="Nhập ghi chú..."
                       [value]="taskChainResult.value.note || ''"
+                      (valueChange)="taskChainResult.patchValue({note: $event})"
                     ></app-textarea>
                   </div>
                 </td>

@@ -19,6 +19,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   private destroy$ = new Subject();
   protected readonly EActionType = EActionType;
+  protected readonly today = new Date();
 
   constructor(private rootFormGroup: FormGroupDirective) {}
 

@@ -44,6 +44,7 @@ import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/up
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {calculateTime} from '@app/utils/common';
+import moment from 'moment';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -246,24 +247,27 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         let deadlineDay = 0;
         let deadlineHour = 0;
         let deadlineMinute = 0;
+        let isOverDeadline = false;
         if (true) {
           const subDate = calculateTime(
-            '2024-12-31T23:59:59.999Z',
+            '2023-12-31T23:59:59.999Z',
             new Date(),
             'metrics',
           ) as {days?: number; hours?: number; minutes?: number};
           deadlineDay = subDate.days || 0;
           deadlineHour = subDate.hours || 0;
           deadlineMinute = subDate.minutes || 0;
+          isOverDeadline = moment().isAfter('2023-12-31T23:59:59.999Z');
         }
         const taskChainResultForm = this.fb.group({
           id: taskChainResult?.id,
           status: taskChainResult?.status,
           // deadlineDate: taskChainResult?.deadlineDate,
-          deadlineDate: '2024-12-31T23:59:59.999Z',
+          deadlineDate: '2023-12-31T23:59:59.999Z',
           deadlineDay: deadlineDay,
           deadlineHour: deadlineHour,
           deadlineMinute: deadlineMinute,
+          isOverDeadline: isOverDeadline,
           action: this.fb.group({
             id: taskChainResult?.action?.id,
             name: taskChainResult?.action?.name,
