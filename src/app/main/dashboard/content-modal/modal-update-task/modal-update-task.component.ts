@@ -218,6 +218,12 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     return <FormArray>this.updateForm.get('taskChains');
   }
 
+  formTaskChainResults(taskChainIndex: number) {
+    return (<FormArray>this.updateForm.get('taskChains')).controls[
+      taskChainIndex
+    ].get('taskChainResults') as FormArray;
+  }
+
   get formLeadDeal() {
     return <FormGroup>this.updateForm.get('leadDeal');
   }
