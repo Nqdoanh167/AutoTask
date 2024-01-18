@@ -273,7 +273,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                     if (!nextAction.moveToActionId) return false;
                     break;
                   case ENextStepType.ADD_CHAIN:
-                    if (!nextAction.addNewChainId) return false;
+                    if (!nextAction.addNewChainActId) return false;
                     break;
                   case ENextStepType.CALL_BLOCK_AUTOMATION:
                     if (!nextAction.callToBlockId) return false;
@@ -308,7 +308,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   onSaveChainAct() {
-    if (!this.detailChain?.id) return;
+    if (!this.validateBeforeSubmit() || !this.detailChain?.id) return;
     const bodyUpdateResults = this.detailChain?.actionResults?.map(
       (actResult, index) => {
         return {
@@ -744,10 +744,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   handleChangeNextAction(nextAction: IChainNextAction) {
-    nextAction.addNewChain = {
-      chainId: undefined,
-      chainActResultId: undefined,
-    };
+    nextAction.addNewChain = undefined;
     nextAction.callBlockAutomation = {
       blockId: undefined,
     };
