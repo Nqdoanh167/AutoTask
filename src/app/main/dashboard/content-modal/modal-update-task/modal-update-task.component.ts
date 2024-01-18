@@ -81,48 +81,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       province: null,
       provinceCode: null,
     }),
-    taskChains: this.fb.array([
-      this.fb.group({
-        id: null,
-        name: null,
-        taskChainResults: this.fb.array([
-          this.fb.group({
-            id: null,
-            status: null,
-            deadlineDate: null,
-            deadlineDay: null,
-            deadlineHour: null,
-            deadlineMinute: null,
-            action: this.fb.group({
-              id: null,
-              name: null,
-            }),
-            resultIndex: null,
-            reasonIndex: null,
-            note: null,
-            result: null,
-            results: this.fb.array([
-              this.fb.group({
-                nextActions: this.fb.array([
-                  this.fb.group({
-                    addNewChain: null,
-                    callBlockAutomation: null,
-                    delayType: null,
-                    moveToAction: null,
-                    nextAction: null,
-                    type: null,
-                  }),
-                ]),
-                result: this.fb.group({
-                  id: null,
-                  name: null,
-                }),
-              }),
-            ]),
-          }),
-        ]),
-      }),
-    ]),
+    taskChains: this.fb.array([]),
     products: this.fb.array([]),
     counselorId: null,
   });
@@ -272,7 +231,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   patchForm(dataSource: ITask) {
-    this.updateForm.patchValue({...dataSource} as any);
+    this.updateForm.patchValue({
+      ...dataSource,
+      counselorId: dataSource?.counselor?.id,
+    } as any);
     this.formTaskChains.clear();
     dataSource.taskChains?.forEach((taskChain) => {
       const taskChainForm = this.fb.group({
@@ -303,8 +265,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           deadlineHour: deadlineHour,
           deadlineMinute: deadlineMinute,
           action: this.fb.group({
-            id: taskChainResult.action.id,
-            name: taskChainResult.action.name,
+            id: taskChainResult?.action?.id,
+            name: taskChainResult?.action?.name,
+            type: taskChainResult?.action?.type,
           }),
           resultIndex: null,
           reasonIndex: null,

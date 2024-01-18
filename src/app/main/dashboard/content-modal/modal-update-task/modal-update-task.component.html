@@ -91,7 +91,12 @@
                         *ngIf="!sourceData?.taskChains?.length"
                         class="text-center mt-3 mb-3"
                       >
-                        Không có dữ liệu chuỗi hành động
+                        <div *ngIf="!!sourceData?.id">
+                          Không có dữ liệu chuỗi hành động
+                        </div>
+                        <div *ngIf="!sourceData?.id">
+                          Vui lòng tạo Task để thêm chuỗi hành động
+                        </div>
                       </div>
                       <accordion-group
                         [formGroupName]="chainIndex"

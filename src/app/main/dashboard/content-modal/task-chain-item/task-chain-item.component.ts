@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -13,7 +13,7 @@ import {EActionType} from '@app/types/flow';
   templateUrl: './task-chain-item.component.html',
   styleUrls: ['./task-chain-item.component.scss'],
 })
-export class TaskChainItemComponent {
+export class TaskChainItemComponent implements OnDestroy, OnInit {
   @Input() formItem!: FormGroup | any;
   @Input() submitted: boolean = false;
 
@@ -31,6 +31,8 @@ export class TaskChainItemComponent {
   }
 
   ngOnInit(): void {}
-  ngOnChanges(): void {}
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
 }
