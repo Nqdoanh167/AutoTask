@@ -16,708 +16,725 @@
         />
       </ng-container>
       <ng-container modalBody>
-        <tabset class="custom-tab-basic non-border" #staticTabs>
-          <tab #tabInfo="tab">
-            <ng-template tabHeading>
-              <div class="title-tab">
-                <span>Thông tin</span>
-              </div>
-            </ng-template>
-            <div class="mt-3 content-tab custom-scrollbar">
-              <div class="group-content mt-2">
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="headline">Chuỗi hành động hiện tại</span>
-                  <div class="d-flex align-items-center">
-                    <div class="fw-500 me-2">NV phụ trách:</div>
-                    <ng-select
-                      [style.width]="'200px'"
-                      [clearable]="false"
-                      formControlName="counselorId"
-                      [searchable]="true"
-                      [placeholder]="'Chọn nhân viên...'"
-                      [items]="listBizUsers"
-                      [ngClass]="{
-                        'is-invalid': submitted && f['counselorId'].errors
-                      }"
-                      appearance="outline"
-                      class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                      id="userIds"
-                      bindValue="id"
-                      bindLabel="name"
-                      appendTo=".modal-update-task"
-                    >
-                      <ng-template ng-option-tmp ng-label-tmp let-item="item">
-                        <div class="d-flex align-items-center">
-                          <div>
-                            <img
-                              class="avatar me-2"
-                              src="{{ item.picture }}"
-                              fallback="assets/images/avatar.svg"
-                              alt=""
-                            />
-                          </div>
-                          <div>
-                            {{ item.name }}
-                          </div>
-                        </div>
-                      </ng-template>
-                    </ng-select>
-                  </div>
+        <div class="content-wrapper position-relative">
+          <button
+            *ngIf="sourceData?.id"
+            (click)="
+              $event.preventDefault(); $event.stopPropagation(); getDetailTask()
+            "
+            class="btn button-medium button-outline button-header d-flex align-items-center"
+            type="button"
+            [disabled]="loading.getDetail"
+          >
+            Làm mới
+            <i *ngIf="!loading.getDetail" class="fa-solid fa-rotate ms-2"></i>
+            <i
+              *ngIf="loading.getDetail"
+              class="fas fa-spinner fa-spin ms-2"
+            ></i>
+          </button>
+          <tabset class="custom-tab-basic non-border" #staticTabs>
+            <tab #tabInfo="tab">
+              <ng-template tabHeading>
+                <div class="title-tab">
+                  <span>Thông tin</span>
                 </div>
-                <div class="list-chain mt-2">
-                  <accordion class="accordion-white" [isAnimated]="true">
-                    <div
-                      *ngIf="!sourceData?.taskChains?.length"
-                      class="text-center mt-3 mb-3"
-                    >
-                      Không có dữ liệu chuỗi hành động
-                    </div>
-                    <accordion-group
-                      [isOpen]="taskChain.status !== ETaskChainType.CLOSED"
-                      *ngFor="
-                        let taskChain of sourceData?.taskChains;
-                        let chainIndex = index
-                      "
-                      #myGroup
-                    >
-                      <div
-                        accordion-heading
-                        class="header-item d-flex justify-content-between align-items-center"
+              </ng-template>
+              <div class="mt-3 content-tab custom-scrollbar">
+                <div class="group-content mt-2">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <span class="headline">Chuỗi hành động hiện tại</span>
+                    <div class="d-flex align-items-center">
+                      <div class="fw-500 me-2">NV phụ trách:</div>
+                      <ng-select
+                        [style.width]="'200px'"
+                        [clearable]="false"
+                        formControlName="counselorId"
+                        [searchable]="true"
+                        [placeholder]="'Chọn nhân viên...'"
+                        [items]="listBizUsers"
+                        [ngClass]="{
+                          'is-invalid': submitted && f['counselorId'].errors
+                        }"
+                        appearance="outline"
+                        class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                        id="userIds"
+                        bindValue="id"
+                        bindLabel="name"
+                        appendTo=".modal-update-task"
                       >
-                        <span class="fw-500">
-                          <i
-                            class="me-2 fas"
-                            [ngClass]="{
-                              'fa-chevron-down': myGroup?.isOpen,
-                              'fa-chevron-up': !myGroup?.isOpen
-                            }"
-                          ></i>
-                          {{ taskChain.name || '-' }}
-                        </span>
-                        <div class="d-flex gap-2 align-items-center">
-                          <button
-                            (click)="
-                              $event.preventDefault();
-                              $event.stopPropagation();
-                              getDetailTask()
-                            "
-                            class="btn button-medium button-outline"
-                            type="button"
-                          >
-                            Làm mới
-                          </button>
-                          <button
-                            *ngIf="taskChain.status !== ETaskChainType.CLOSED"
-                            (click)="handleCloseChain($event, taskChain)"
-                            type="button"
-                            class="btn btn button-medium button-sub-primary secondary-color d-flex align-items-center"
-                          >
-                            Khóa chuỗi
-                            <img
-                              class="ms-1"
-                              src="./assets/images/icon/blue-unlock.svg"
-                              alt=""
-                            />
-                          </button>
-                          <button
-                            *ngIf="taskChain.status === ETaskChainType.CLOSED"
-                            type="button"
-                            class="btn btn button-medium d-flex align-items-center"
-                          >
-                            Đã khóa
-                            <img
-                              class="ms-1"
-                              src="./assets/images/icon/grey-lock.svg"
-                              alt=""
-                            />
-                          </button>
-                          <button
-                            (click)="handleDeleteChain($event, taskChain)"
-                            type="button"
-                            class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
-                          >
-                            Xóa
-                            <img
-                              class="ms-1"
-                              src="./assets/images/icon/red-x.svg"
-                              alt=""
-                            />
-                          </button>
-                        </div>
+                        <ng-template ng-option-tmp ng-label-tmp let-item="item">
+                          <div class="d-flex align-items-center">
+                            <div>
+                              <img
+                                class="avatar me-2"
+                                src="{{ item.picture }}"
+                                fallback="assets/images/avatar.svg"
+                                alt=""
+                              />
+                            </div>
+                            <div>
+                              {{ item.name }}
+                            </div>
+                          </div>
+                        </ng-template>
+                      </ng-select>
+                    </div>
+                  </div>
+                  <div class="list-chain mt-2">
+                    <accordion class="accordion-white" [isAnimated]="true">
+                      <div
+                        *ngIf="!sourceData?.taskChains?.length"
+                        class="text-center mt-3 mb-3"
+                      >
+                        Không có dữ liệu chuỗi hành động
                       </div>
-                      <div class="detail-item">
+                      <accordion-group
+                        [isOpen]="taskChain.status !== ETaskChainType.CLOSED"
+                        *ngFor="
+                          let taskChain of sourceData?.taskChains;
+                          let chainIndex = index
+                        "
+                        #myGroup
+                      >
                         <div
-                          class="table-responsive thin-table tableFixHead custom-scrollbar table-borderless"
+                          accordion-heading
+                          class="header-item d-flex justify-content-between align-items-center"
                         >
-                          <table class="table">
-                            <thead>
-                              <tr>
-                                <th class="column-timer">Hẹn giờ</th>
-                                <th class="columns-action-main">Hành động</th>
-                                <th class="column-take-action">
-                                  Thực hiện hành động
-                                </th>
-                                <th class="column-result">
-                                  Kết quả & Nguyên nhân
-                                </th>
-                                <th>Bước tiếp theo</th>
-                                <th class="columns-desc">Ghi chú</th>
-                                <th class="columns-action"></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr
-                                class="text-center"
-                                *ngIf="!taskChain.taskChainResults.length"
-                              >
-                                <td colspan="12">
-                                  <div>Không có dữ liệu</div>
-                                </td>
-                              </tr>
-                              <tr
-                                *ngFor="
-                                  let taskChainResult of taskChain.taskChainResults;
-                                  index as i
-                                "
-                              >
-                                <td class="column-timer">
-                                  <div
-                                    class="timer"
-                                    [popover]="popTemplate"
-                                    placement="right"
-                                    [outsideClick]="true"
-                                  >
-                                    -
-                                  </div>
-                                  <ng-template #popTemplate>
+                          <span class="fw-500">
+                            <i
+                              class="me-2 fas"
+                              [ngClass]="{
+                                'fa-chevron-down': myGroup?.isOpen,
+                                'fa-chevron-up': !myGroup?.isOpen
+                              }"
+                            ></i>
+                            {{ taskChain.name || '-' }}
+                          </span>
+                          <div class="d-flex gap-2 align-items-center">
+                            <button
+                              *ngIf="taskChain.status !== ETaskChainType.CLOSED"
+                              (click)="handleCloseChain($event, taskChain)"
+                              type="button"
+                              class="btn btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                            >
+                              Khóa chuỗi
+                              <img
+                                class="ms-1"
+                                src="./assets/images/icon/blue-unlock.svg"
+                                alt=""
+                              />
+                            </button>
+                            <button
+                              *ngIf="taskChain.status === ETaskChainType.CLOSED"
+                              type="button"
+                              class="btn btn button-medium d-flex align-items-center"
+                            >
+                              Đã khóa
+                              <img
+                                class="ms-1"
+                                src="./assets/images/icon/grey-lock.svg"
+                                alt=""
+                              />
+                            </button>
+                            <button
+                              (click)="handleDeleteChain($event, taskChain)"
+                              type="button"
+                              class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
+                            >
+                              Xóa
+                              <img
+                                class="ms-1"
+                                src="./assets/images/icon/red-x.svg"
+                                alt=""
+                              />
+                            </button>
+                          </div>
+                        </div>
+                        <div class="detail-item">
+                          <div
+                            class="table-responsive thin-table tableFixHead custom-scrollbar table-borderless"
+                          >
+                            <table class="table">
+                              <thead>
+                                <tr>
+                                  <th class="column-timer">Hẹn giờ</th>
+                                  <th class="columns-action-main">Hành động</th>
+                                  <th class="column-take-action">
+                                    Thực hiện hành động
+                                  </th>
+                                  <th class="column-result">
+                                    Kết quả & Nguyên nhân
+                                  </th>
+                                  <th>Bước tiếp theo</th>
+                                  <th class="columns-desc">Ghi chú</th>
+                                  <th class="columns-action"></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr
+                                  class="text-center"
+                                  *ngIf="!taskChain.taskChainResults.length"
+                                >
+                                  <td colspan="12">
+                                    <div>Không có dữ liệu</div>
+                                  </td>
+                                </tr>
+                                <tr
+                                  *ngFor="
+                                    let taskChainResult of taskChain.taskChainResults;
+                                    index as i
+                                  "
+                                >
+                                  <td class="column-timer">
                                     <div
-                                      class="popover-timer align-items-center"
-                                      style="width: 350px"
+                                      class="timer"
+                                      [popover]="popTemplate"
+                                      placement="right"
+                                      [outsideClick]="true"
                                     >
-                                      <label
-                                        class="form-control-label d-flex align-items-center gap-2 mb-2"
-                                      >
-                                        <i class="fa-solid fa-clock"></i>
-                                        <div class="fw-500">
-                                          Thời gian hẹn giờ
-                                        </div>
-                                      </label>
-                                      <div class="d-flex gap-2">
-                                        <input
-                                          mask="000"
-                                          [allowNegativeNumbers]="false"
-                                          name="between_from"
-                                          class="form-control text-right"
-                                          placeholder="Ngày (0-999)"
-                                        />
-                                        <input
-                                          mask="Hh"
-                                          name="between_from"
-                                          class="form-control text-right"
-                                          placeholder="Giờ (0-23)"
-                                        />
-                                        <input
-                                          mask="m0"
-                                          name="between_from"
-                                          class="form-control text-right"
-                                          placeholder="Phút (0-59)"
-                                        />
-                                      </div>
+                                      -
                                     </div>
-                                  </ng-template>
-                                </td>
-                                <td class="columns-action-main">
-                                  {{ taskChainResult.action?.name || '-' }}
-                                </td>
-                                <td class="column-take-action">
-                                  <div>
-                                    <ng-container
-                                      [ngSwitch]="taskChainResult?.action?.type"
-                                    >
-                                      <ng-container
-                                        *ngSwitchCase="EActionType.CALL"
+                                    <ng-template #popTemplate>
+                                      <div
+                                        class="popover-timer align-items-center"
+                                        style="width: 350px"
                                       >
-                                        <div>
-                                          Gọi điện
-                                          <i
-                                            class="fa-solid fa-phone-volume ms-2 cursor-pointer"
-                                            style="color: #53b27f"
-                                          ></i>
+                                        <label
+                                          class="form-control-label d-flex align-items-center gap-2 mb-2"
+                                        >
+                                          <i class="fa-solid fa-clock"></i>
+                                          <div class="fw-500">
+                                            Thời gian hẹn giờ
+                                          </div>
+                                        </label>
+                                        <div class="d-flex gap-2">
+                                          <input
+                                            mask="000"
+                                            [allowNegativeNumbers]="false"
+                                            name="between_from"
+                                            class="form-control text-right"
+                                            placeholder="Ngày (0-999)"
+                                          />
+                                          <input
+                                            mask="Hh"
+                                            name="between_from"
+                                            class="form-control text-right"
+                                            placeholder="Giờ (0-23)"
+                                          />
+                                          <input
+                                            mask="m0"
+                                            name="between_from"
+                                            class="form-control text-right"
+                                            placeholder="Phút (0-59)"
+                                          />
                                         </div>
-                                      </ng-container>
+                                      </div>
+                                    </ng-template>
+                                  </td>
+                                  <td class="columns-action-main">
+                                    {{ taskChainResult.action?.name || '-' }}
+                                  </td>
+                                  <td class="column-take-action">
+                                    <div>
                                       <ng-container
-                                        *ngSwitchCase="
-                                          EActionType.SEND_BLOCK_AUTOMATION
+                                        [ngSwitch]="
+                                          taskChainResult?.action?.type
                                         "
                                       >
-                                        <div>
-                                          Gửi Block Automation
-                                          <i
-                                            class="fa-solid fa-robot ms-2 cursor-pointer"
-                                            style="color: #53b27f"
-                                          ></i>
-                                        </div>
+                                        <ng-container
+                                          *ngSwitchCase="EActionType.CALL"
+                                        >
+                                          <div>
+                                            Gọi điện
+                                            <i
+                                              class="fa-solid fa-phone-volume ms-2 cursor-pointer"
+                                              style="color: #53b27f"
+                                            ></i>
+                                          </div>
+                                        </ng-container>
+                                        <ng-container
+                                          *ngSwitchCase="
+                                            EActionType.SEND_BLOCK_AUTOMATION
+                                          "
+                                        >
+                                          <div>
+                                            Gửi Block Automation
+                                            <i
+                                              class="fa-solid fa-robot ms-2 cursor-pointer"
+                                              style="color: #53b27f"
+                                            ></i>
+                                          </div>
+                                        </ng-container>
+                                        <ng-container
+                                          *ngSwitchCase="EActionType.OTHER"
+                                        >
+                                          <div>Khác</div>
+                                        </ng-container>
+                                        <ng-container *ngSwitchDefault>
+                                          <div>-</div>
+                                        </ng-container>
                                       </ng-container>
-                                      <ng-container
-                                        *ngSwitchCase="EActionType.OTHER"
+                                    </div>
+                                  </td>
+                                  <td class="column-result">
+                                    <div>
+                                      <ng-select
+                                        [placeholder]="'Chọn kết quả'"
+                                        [searchable]="true"
+                                        [items]="taskChainResult.results"
+                                        class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                                        bindLabel="result.name"
+                                        bindValue="result.id"
+                                        appendTo=".modal-update-task"
+                                      ></ng-select>
+                                      <ng-select
+                                        [placeholder]="'Chọn nguyên nhân'"
+                                        [searchable]="true"
+                                        [items]="
+                                          taskChainResult.action.reasons || []
+                                        "
+                                        class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                                        bindLabel="name"
+                                        bindValue="id"
+                                        appendTo=".modal-update-task"
+                                      ></ng-select>
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <div>-</div>
+                                  </td>
+                                  <td class="columns-desc">
+                                    <div>
+                                      <app-textarea
+                                        inputClass="bg-white border-0"
+                                        placeholder="Nhập ghi chú..."
+                                        [value]="taskChainResult.note || ''"
+                                      ></app-textarea>
+                                    </div>
+                                  </td>
+                                  <td class="columns-action">
+                                    <div class="d-flex">
+                                      <!--                                    <span-->
+                                      <!--                                      (click)="-->
+                                      <!--                                        handleUpdateActionInChain(-->
+                                      <!--                                          taskChainResult,-->
+                                      <!--                                          taskChain-->
+                                      <!--                                        )-->
+                                      <!--                                      "-->
+                                      <!--                                      class="d-flex align-items-center btn-action-table"-->
+                                      <!--                                    >-->
+                                      <!--                                      <img-->
+                                      <!--                                        src="./assets/images/icon/grey-save.svg"-->
+                                      <!--                                        alt=""-->
+                                      <!--                                      />-->
+                                      <!--                                    </span>-->
+                                      <button
+                                        type="button"
+                                        class="btn button-medium button-fill secondary-color"
                                       >
-                                        <div>Khác</div>
-                                      </ng-container>
-                                      <ng-container *ngSwitchDefault>
-                                        <div>-</div>
-                                      </ng-container>
-                                    </ng-container>
-                                  </div>
-                                </td>
-                                <td class="column-result">
-                                  <div>
-                                    <ng-select
-                                      [placeholder]="'Chọn kết quả'"
-                                      [searchable]="true"
-                                      [items]="taskChainResult.results"
-                                      class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                                      bindLabel="result.name"
-                                      bindValue="result.id"
-                                      appendTo=".modal-update-task"
-                                    ></ng-select>
-                                    <ng-select
-                                      [placeholder]="'Chọn nguyên nhân'"
-                                      [searchable]="true"
-                                      [items]="
-                                        taskChainResult.action.reasons || []
-                                      "
-                                      class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                                      bindLabel="name"
-                                      bindValue="id"
-                                      appendTo=".modal-update-task"
-                                    ></ng-select>
-                                  </div>
-                                </td>
-                                <td>
-                                  <div>-</div>
-                                </td>
-                                <td class="columns-desc">
-                                  <div>
-                                    <app-textarea
-                                      inputClass="bg-white border-0"
-                                      placeholder="Nhập ghi chú..."
-                                      [value]="taskChainResult.note || ''"
-                                    ></app-textarea>
-                                  </div>
-                                </td>
-                                <td class="columns-action">
-                                  <div class="d-flex">
-                                    <!--                                    <span-->
-                                    <!--                                      (click)="-->
-                                    <!--                                        handleUpdateActionInChain(-->
-                                    <!--                                          taskChainResult,-->
-                                    <!--                                          taskChain-->
-                                    <!--                                        )-->
-                                    <!--                                      "-->
-                                    <!--                                      class="d-flex align-items-center btn-action-table"-->
-                                    <!--                                    >-->
-                                    <!--                                      <img-->
-                                    <!--                                        src="./assets/images/icon/grey-save.svg"-->
-                                    <!--                                        alt=""-->
-                                    <!--                                      />-->
-                                    <!--                                    </span>-->
-                                    <button
-                                      type="button"
-                                      class="btn button-medium button-fill secondary-color"
-                                    >
-                                      Lưu
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
+                                        Lưu
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
-                      </div>
-                    </accordion-group>
-                  </accordion>
-                  <div *ngIf="!!sourceData?.id" class="mt-2">
-                    <button
-                      (click)="handleAddTaskChain()"
-                      type="button"
-                      class="btn button-medium text-link"
-                    >
-                      <i class="fa-solid fa-plus me-1"></i>
-                      Thêm chuỗi hành động
-                    </button>
+                      </accordion-group>
+                    </accordion>
+                    <div *ngIf="!!sourceData?.id" class="mt-2">
+                      <button
+                        (click)="handleAddTaskChain()"
+                        type="button"
+                        class="btn button-medium text-link"
+                      >
+                        <i class="fa-solid fa-plus me-1"></i>
+                        Thêm chuỗi hành động
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div formGroupName="leadDeal" class="group-content mt-2">
-                <div class="headline">Thông tin của liên hệ</div>
-                <div class="information mt-2 overflow-x-hidden">
-                  <div class="d-flex align-items-center gap-4">
-                    <div class="basic-radio">
-                      <input
-                        formControlName="type"
-                        type="radio"
-                        name="type"
-                        class="check"
-                        id="lead"
-                        [value]="'LEAD'"
-                      />
-                      <label for="lead">
-                        <div class="container">
-                          <div class="cRadioBtn">
-                            <div class="overlay"></div>
-                            <div class="drops xsDrop"></div>
-                            <div class="drops mdDrop"></div>
-                            <div class="drops lgDrop"></div>
+                <div formGroupName="leadDeal" class="group-content mt-2">
+                  <div class="headline">Thông tin của liên hệ</div>
+                  <div class="information mt-2 overflow-x-hidden">
+                    <div class="d-flex align-items-center gap-4">
+                      <div class="basic-radio">
+                        <input
+                          formControlName="type"
+                          type="radio"
+                          name="type"
+                          class="check"
+                          id="lead"
+                          [value]="'LEAD'"
+                        />
+                        <label for="lead">
+                          <div class="container">
+                            <div class="cRadioBtn">
+                              <div class="overlay"></div>
+                              <div class="drops xsDrop"></div>
+                              <div class="drops mdDrop"></div>
+                              <div class="drops lgDrop"></div>
+                            </div>
                           </div>
-                        </div>
-                        <span>Khách hàng tiềm năng (Lead)</span>
-                      </label>
-                    </div>
-                    <div class="basic-radio">
-                      <input
-                        formControlName="type"
-                        [value]="'DEAL'"
-                        type="radio"
-                        name="type"
-                        class="check"
-                        id="deal"
-                      />
-                      <label for="deal">
-                        <div class="container">
-                          <div class="cRadioBtn">
-                            <div class="overlay"></div>
-                            <div class="drops xsDrop"></div>
-                            <div class="drops mdDrop"></div>
-                            <div class="drops lgDrop"></div>
+                          <span>Khách hàng tiềm năng (Lead)</span>
+                        </label>
+                      </div>
+                      <div class="basic-radio">
+                        <input
+                          formControlName="type"
+                          [value]="'DEAL'"
+                          type="radio"
+                          name="type"
+                          class="check"
+                          id="deal"
+                        />
+                        <label for="deal">
+                          <div class="container">
+                            <div class="cRadioBtn">
+                              <div class="overlay"></div>
+                              <div class="drops xsDrop"></div>
+                              <div class="drops mdDrop"></div>
+                              <div class="drops lgDrop"></div>
+                            </div>
                           </div>
-                        </div>
-                        <span>Khách hàng từng mua (Deal)</span>
-                      </label>
-                    </div>
-                  </div>
-                  <div style="padding-left: 1px" class="row mt-2">
-                    <div class="col-6">
-                      <label class="form-control-label" for="leadDeal.name">
-                        Tên liên hệ (Deal/Lead)
-                        <span class="required">*</span>
-                      </label>
-                      <input
-                        class="form-control"
-                        [ngClass]="{
-                          'is-invalid': submitted && fLead['name'].errors
-                        }"
-                        [placeholder]="'Nhập Tên...'"
-                        formControlName="name"
-                        id="leadDeal.name"
-                        type="text"
-                      />
-                      <div
-                        *ngIf="submitted && fLead['name'].errors"
-                        class="invalid-feedback"
-                      >
-                        <div *ngIf="fLead['name'].errors?.['required']">
-                          Tên không được bỏ trống
-                        </div>
-                        <div *ngIf="fLead['name'].errors?.['maxlength']">
-                          Tên không hợp lệ
-                        </div>
+                          <span>Khách hàng từng mua (Deal)</span>
+                        </label>
                       </div>
                     </div>
-                    <div class="col-6">
-                      <label class="form-control-label" for="leadDeal.gender">
-                        Giới tính
-                      </label>
-                      <div
-                        id="leadDeal.gender"
-                        class="d-flex align-items-center gap-4 input-medium"
-                      >
-                        <div class="basic-radio">
-                          <input
-                            formControlName="gender"
-                            type="radio"
-                            name="gender"
-                            class="check"
-                            id="male"
-                            [value]="'male'"
-                          />
-                          <label for="male">
-                            <div class="container">
-                              <div class="cRadioBtn">
-                                <div class="overlay"></div>
-                                <div class="drops xsDrop"></div>
-                                <div class="drops mdDrop"></div>
-                                <div class="drops lgDrop"></div>
-                              </div>
-                            </div>
-                            <span>Nam</span>
-                          </label>
-                        </div>
-                        <div class="basic-radio">
-                          <input
-                            formControlName="gender"
-                            [value]="'female'"
-                            type="radio"
-                            name="gender"
-                            class="check"
-                            id="female"
-                          />
-                          <label for="female">
-                            <div class="container">
-                              <div class="cRadioBtn">
-                                <div class="overlay"></div>
-                                <div class="drops xsDrop"></div>
-                                <div class="drops mdDrop"></div>
-                                <div class="drops lgDrop"></div>
-                              </div>
-                            </div>
-                            <span>Nữ</span>
-                          </label>
-                        </div>
-                        <div class="basic-radio">
-                          <input
-                            formControlName="gender"
-                            [value]="'other'"
-                            type="radio"
-                            name="gender"
-                            class="check"
-                            id="lead.other"
-                          />
-                          <label for="lead.other">
-                            <div class="container">
-                              <div class="cRadioBtn">
-                                <div class="overlay"></div>
-                                <div class="drops xsDrop"></div>
-                                <div class="drops mdDrop"></div>
-                                <div class="drops lgDrop"></div>
-                              </div>
-                            </div>
-                            <span>Khác</span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col-6">
-                      <label class="form-control-label" for="leadDeal.phone">
-                        Số điện thoại
-                      </label>
-                      <input
-                        class="form-control"
-                        [ngClass]="{
-                          'is-invalid': submitted && fLead['phone'].errors
-                        }"
-                        [placeholder]="'Nhập Số điện thoại...'"
-                        formControlName="phone"
-                        id="leadDeal.phone"
-                        type="text"
-                      />
-                    </div>
-                    <div class="col-6">
-                      <label class="form-control-label" for="leadDeal.email">
-                        Email
-                      </label>
-                      <input
-                        class="form-control"
-                        [ngClass]="{
-                          'is-invalid': submitted && fLead['email'].errors
-                        }"
-                        [placeholder]="'Nhập Email...'"
-                        formControlName="email"
-                        id="leadDeal.email"
-                        type="text"
-                      />
-                    </div>
-                  </div>
-                  <div class="mt-2">
-                    <label class="form-control-label" for="leadDeal.address">
-                      Địa chỉ
-                    </label>
-                    <div id="leadDeal.address" class="row">
-                      <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                        <ng-select
-                          [clearable]="false"
-                          [ngClass]="{
-                            'is-invalid':
-                              submitted && fLead['provinceCode'].errors
-                          }"
-                          [placeholder]="'Chọn Tỉnh/Thành phố'"
-                          appearance="outline"
-                          formControlName="provinceCode"
-                          id="province"
-                          labelForId="province"
-                          (change)="handleChangeLocation($event, 'province')"
-                          appendTo=".modal-update-action"
-                        >
-                          <ng-container
-                            *ngIf="listProvince.length > 0; else selectNoData"
-                          >
-                            <ng-option
-                              *ngFor="let item of listProvince; index as i"
-                              [value]="item?.provinceCode"
-                            >
-                              {{ item?.province }}
-                            </ng-option>
-                          </ng-container>
-                        </ng-select>
-                      </div>
-                      <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                        <ng-select
-                          [clearable]="false"
-                          [ngClass]="{
-                            'input-disabled': !fLead['provinceCode'].value
-                          }"
-                          [disabled]="!fLead['provinceCode'].value"
-                          [readonly]="!fLead['provinceCode'].value"
-                          [placeholder]="'Chọn Quận/Huyện'"
-                          appearance="outline"
-                          formControlName="districtCode"
-                          id="district"
-                          labelForId="district"
-                          (change)="handleChangeLocation($event, 'district')"
-                          appendTo=".modal-update-action"
-                        >
-                          <ng-container
-                            *ngIf="listDistrict.length > 0; else selectNoData"
-                          >
-                            <ng-option
-                              *ngFor="let item of listDistrict; index as i"
-                              [value]="item?.districtCode"
-                            >
-                              {{ item?.district }}
-                            </ng-option>
-                          </ng-container>
-                        </ng-select>
-                      </div>
-                      <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                        <ng-select
-                          [clearable]="false"
-                          [ngClass]="{
-                            'input-disabled': !fLead['districtCode'].value
-                          }"
-                          [disabled]="!fLead['districtCode'].value"
-                          [readonly]="!fLead['districtCode'].value"
-                          [placeholder]="'Chọn Phường/Xã'"
-                          class="input-medium"
-                          appearance="outline"
-                          formControlName="wardCode"
-                          id="ward"
-                          labelForId="ward"
-                          (change)="handleChangeLocation($event, 'ward')"
-                          appendTo=".modal-update-action"
-                        >
-                          <ng-container
-                            *ngIf="listWard.length > 0; else selectNoData"
-                          >
-                            <ng-option
-                              *ngFor="let item of listWard; index as i"
-                              [value]="item?.wardCode"
-                            >
-                              {{ item?.ward }}
-                            </ng-option>
-                          </ng-container>
-                        </ng-select>
-                      </div>
-                      <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                    <div style="padding-left: 1px" class="row mt-2">
+                      <div class="col-6">
+                        <label class="form-control-label" for="leadDeal.name">
+                          Tên liên hệ (Deal/Lead)
+                          <span class="required">*</span>
+                        </label>
                         <input
                           class="form-control"
                           [ngClass]="{
-                            'is-invalid': submitted && fLead['street'].errors
+                            'is-invalid': submitted && fLead['name'].errors
                           }"
-                          [placeholder]="
-                            'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'
-                          "
-                          formControlName="street"
-                          id="street"
+                          [placeholder]="'Nhập Tên...'"
+                          formControlName="name"
+                          id="leadDeal.name"
+                          type="text"
+                        />
+                        <div
+                          *ngIf="submitted && fLead['name'].errors"
+                          class="invalid-feedback"
+                        >
+                          <div *ngIf="fLead['name'].errors?.['required']">
+                            Tên không được bỏ trống
+                          </div>
+                          <div *ngIf="fLead['name'].errors?.['maxlength']">
+                            Tên không hợp lệ
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <label class="form-control-label" for="leadDeal.gender">
+                          Giới tính
+                        </label>
+                        <div
+                          id="leadDeal.gender"
+                          class="d-flex align-items-center gap-4 input-medium"
+                        >
+                          <div class="basic-radio">
+                            <input
+                              formControlName="gender"
+                              type="radio"
+                              name="gender"
+                              class="check"
+                              id="male"
+                              [value]="'male'"
+                            />
+                            <label for="male">
+                              <div class="container">
+                                <div class="cRadioBtn">
+                                  <div class="overlay"></div>
+                                  <div class="drops xsDrop"></div>
+                                  <div class="drops mdDrop"></div>
+                                  <div class="drops lgDrop"></div>
+                                </div>
+                              </div>
+                              <span>Nam</span>
+                            </label>
+                          </div>
+                          <div class="basic-radio">
+                            <input
+                              formControlName="gender"
+                              [value]="'female'"
+                              type="radio"
+                              name="gender"
+                              class="check"
+                              id="female"
+                            />
+                            <label for="female">
+                              <div class="container">
+                                <div class="cRadioBtn">
+                                  <div class="overlay"></div>
+                                  <div class="drops xsDrop"></div>
+                                  <div class="drops mdDrop"></div>
+                                  <div class="drops lgDrop"></div>
+                                </div>
+                              </div>
+                              <span>Nữ</span>
+                            </label>
+                          </div>
+                          <div class="basic-radio">
+                            <input
+                              formControlName="gender"
+                              [value]="'other'"
+                              type="radio"
+                              name="gender"
+                              class="check"
+                              id="lead.other"
+                            />
+                            <label for="lead.other">
+                              <div class="container">
+                                <div class="cRadioBtn">
+                                  <div class="overlay"></div>
+                                  <div class="drops xsDrop"></div>
+                                  <div class="drops mdDrop"></div>
+                                  <div class="drops lgDrop"></div>
+                                </div>
+                              </div>
+                              <span>Khác</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-6">
+                        <label class="form-control-label" for="leadDeal.phone">
+                          Số điện thoại
+                        </label>
+                        <input
+                          class="form-control"
+                          [ngClass]="{
+                            'is-invalid': submitted && fLead['phone'].errors
+                          }"
+                          [placeholder]="'Nhập Số điện thoại...'"
+                          formControlName="phone"
+                          id="leadDeal.phone"
+                          type="text"
+                        />
+                      </div>
+                      <div class="col-6">
+                        <label class="form-control-label" for="leadDeal.email">
+                          Email
+                        </label>
+                        <input
+                          class="form-control"
+                          [ngClass]="{
+                            'is-invalid': submitted && fLead['email'].errors
+                          }"
+                          [placeholder]="'Nhập Email...'"
+                          formControlName="email"
+                          id="leadDeal.email"
                           type="text"
                         />
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="group-content mt-2">
-                <div class="headline">Sản phẩm quan tâm</div>
-                <div class="list-product overflow-x-hidden">
-                  <label class="form-control-label">Loại sản phẩm</label>
-                  <ng-container formArrayName="products">
-                    <div
-                      *ngFor="let item of formProducts.controls; let i = index"
-                      [formGroupName]="i"
-                      class="row mb-2"
-                    >
-                      <div class="col-3">
-                        <ng-select
-                          [placeholder]="'Chọn Loại sản phẩm'"
-                          [searchable]="false"
-                          appearance="outline"
-                          id="productType"
-                          appendTo=".modal"
-                          formControlName="type"
-                          [clearable]="false"
-                        >
-                          <ng-container>
-                            <ng-option
-                              *ngFor="let item of productTypes; index as i"
-                              [value]="item.value"
+                    <div class="mt-2">
+                      <label class="form-control-label" for="leadDeal.address">
+                        Địa chỉ
+                      </label>
+                      <div id="leadDeal.address" class="row">
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                          <ng-select
+                            [clearable]="false"
+                            [ngClass]="{
+                              'is-invalid':
+                                submitted && fLead['provinceCode'].errors
+                            }"
+                            [placeholder]="'Chọn Tỉnh/Thành phố'"
+                            appearance="outline"
+                            formControlName="provinceCode"
+                            id="province"
+                            labelForId="province"
+                            (change)="handleChangeLocation($event, 'province')"
+                            appendTo=".modal-update-action"
+                          >
+                            <ng-container
+                              *ngIf="listProvince.length > 0; else selectNoData"
                             >
-                              {{ item.label }}
-                            </ng-option>
-                          </ng-container>
-                        </ng-select>
-                      </div>
-                      <div class="col">
-                        <div class="row">
-                          <div class="col">
-                            <ng-select
-                              [placeholder]="'Chọn Sản phẩm'"
-                              [searchable]="false"
-                              appearance="outline"
-                              appendTo=".modal"
+                              <ng-option
+                                *ngFor="let item of listProvince; index as i"
+                                [value]="item?.provinceCode"
+                              >
+                                {{ item?.province }}
+                              </ng-option>
+                            </ng-container>
+                          </ng-select>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                          <ng-select
+                            [clearable]="false"
+                            [ngClass]="{
+                              'input-disabled': !fLead['provinceCode'].value
+                            }"
+                            [disabled]="!fLead['provinceCode'].value"
+                            [readonly]="!fLead['provinceCode'].value"
+                            [placeholder]="'Chọn Quận/Huyện'"
+                            appearance="outline"
+                            formControlName="districtCode"
+                            id="district"
+                            labelForId="district"
+                            (change)="handleChangeLocation($event, 'district')"
+                            appendTo=".modal-update-action"
+                          >
+                            <ng-container
+                              *ngIf="listDistrict.length > 0; else selectNoData"
                             >
-                              <ng-container>
-                                <ng-option
-                                  *ngFor="let item of productTypes; index as i"
-                                  [value]="item.value"
-                                >
-                                  {{ item.label }}
-                                </ng-option>
-                              </ng-container>
-                            </ng-select>
-                          </div>
+                              <ng-option
+                                *ngFor="let item of listDistrict; index as i"
+                                [value]="item?.districtCode"
+                              >
+                                {{ item?.district }}
+                              </ng-option>
+                            </ng-container>
+                          </ng-select>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                          <ng-select
+                            [clearable]="false"
+                            [ngClass]="{
+                              'input-disabled': !fLead['districtCode'].value
+                            }"
+                            [disabled]="!fLead['districtCode'].value"
+                            [readonly]="!fLead['districtCode'].value"
+                            [placeholder]="'Chọn Phường/Xã'"
+                            class="input-medium"
+                            appearance="outline"
+                            formControlName="wardCode"
+                            id="ward"
+                            labelForId="ward"
+                            (change)="handleChangeLocation($event, 'ward')"
+                            appendTo=".modal-update-action"
+                          >
+                            <ng-container
+                              *ngIf="listWard.length > 0; else selectNoData"
+                            >
+                              <ng-option
+                                *ngFor="let item of listWard; index as i"
+                                [value]="item?.wardCode"
+                              >
+                                {{ item?.ward }}
+                              </ng-option>
+                            </ng-container>
+                          </ng-select>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                          <input
+                            class="form-control"
+                            [ngClass]="{
+                              'is-invalid': submitted && fLead['street'].errors
+                            }"
+                            [placeholder]="
+                              'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'
+                            "
+                            formControlName="street"
+                            id="street"
+                            type="text"
+                          />
                         </div>
                       </div>
                     </div>
-                    <div
-                      class="text-center mt-2 mb-2"
-                      *ngIf="!formProducts.value.length"
-                    >
-                      Không có dữ liệu
+                  </div>
+                </div>
+                <div class="group-content mt-2">
+                  <div class="headline">Sản phẩm quan tâm</div>
+                  <div class="list-product overflow-x-hidden">
+                    <label class="form-control-label">Loại sản phẩm</label>
+                    <ng-container formArrayName="products">
+                      <div
+                        *ngFor="
+                          let item of formProducts.controls;
+                          let i = index
+                        "
+                        [formGroupName]="i"
+                        class="row mb-2"
+                      >
+                        <div class="col-3">
+                          <ng-select
+                            [placeholder]="'Chọn Loại sản phẩm'"
+                            [searchable]="false"
+                            appearance="outline"
+                            id="productType"
+                            appendTo=".modal"
+                            formControlName="type"
+                            [clearable]="false"
+                          >
+                            <ng-container>
+                              <ng-option
+                                *ngFor="let item of productTypes; index as i"
+                                [value]="item.value"
+                              >
+                                {{ item.label }}
+                              </ng-option>
+                            </ng-container>
+                          </ng-select>
+                        </div>
+                        <div class="col">
+                          <div class="row">
+                            <div class="col">
+                              <ng-select
+                                [placeholder]="'Chọn Sản phẩm'"
+                                [searchable]="false"
+                                appearance="outline"
+                                appendTo=".modal"
+                              >
+                                <ng-container>
+                                  <ng-option
+                                    *ngFor="
+                                      let item of productTypes;
+                                      index as i
+                                    "
+                                    [value]="item.value"
+                                  >
+                                    {{ item.label }}
+                                  </ng-option>
+                                </ng-container>
+                              </ng-select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        class="text-center mt-2 mb-2"
+                        *ngIf="!formProducts.value.length"
+                      >
+                        Không có dữ liệu
+                      </div>
+                    </ng-container>
+                    <div class="mt-2">
+                      <button
+                        type="button"
+                        (click)="handleAddInterestedProduct()"
+                        class="btn button-medium text-link"
+                      >
+                        <i class="fa-solid fa-plus me-1"></i>
+                        Thêm sản phẩm quan tâm
+                      </button>
                     </div>
-                  </ng-container>
-                  <div class="mt-2">
-                    <button
-                      type="button"
-                      (click)="handleAddInterestedProduct()"
-                      class="btn button-medium text-link"
-                    >
-                      <i class="fa-solid fa-plus me-1"></i>
-                      Thêm sản phẩm quan tâm
-                    </button>
                   </div>
                 </div>
               </div>
-            </div>
-          </tab>
-          <!--          <tab #tabHistories="tab">-->
-          <!--            <ng-template tabHeading>-->
-          <!--              <div class="title-tab">-->
-          <!--                <span>Lịch sử hành động</span>-->
-          <!--              </div>-->
-          <!--            </ng-template>-->
-          <!--            <div class="mt-3 content-tab custom-scrollbar">123</div>-->
-          <!--          </tab>-->
-        </tabset>
+            </tab>
+            <!--          <tab #tabHistories="tab">-->
+            <!--            <ng-template tabHeading>-->
+            <!--              <div class="title-tab">-->
+            <!--                <span>Lịch sử hành động</span>-->
+            <!--              </div>-->
+            <!--            </ng-template>-->
+            <!--            <div class="mt-3 content-tab custom-scrollbar">123</div>-->
+            <!--          </tab>-->
+          </tabset>
+        </div>
       </ng-container>
     </app-custom-modal>
   </form>

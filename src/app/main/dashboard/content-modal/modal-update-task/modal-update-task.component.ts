@@ -155,6 +155,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   public loading = {
     submit: false,
     data: false,
+    getDetail: false,
   };
   public productTypes = [
     {
@@ -241,9 +242,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   getDetailTask() {
     if (!this.sourceData?.id) return;
+    this.loading.getDetail = true;
     this.autoTaskService.task
       .getOne(this.sourceData.id)
-      .pipe()
+      .pipe(finalize(() => (this.loading.getDetail = false)))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
