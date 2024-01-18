@@ -26,6 +26,20 @@
   border-radius: 50%;
 }
 
+.column-timer {
+  .timer {
+    border: 1px solid #e0e4ef;
+    border-radius: 4px;
+    background-color: #ffffff;
+    margin: 2px 0;
+    height: 51px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
 .columns-desc {
   max-width: 150px;
   div {

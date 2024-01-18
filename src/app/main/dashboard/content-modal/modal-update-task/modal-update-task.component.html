@@ -170,7 +170,46 @@
                                 "
                               >
                                 <td class="column-timer">
-                                  <div>-</div>
+                                  <div
+                                    class="timer"
+                                    [popover]="popTemplate"
+                                    placement="right"
+                                    [outsideClick]="true"
+                                  >
+                                    -
+                                  </div>
+                                  <ng-template #popTemplate>
+                                    <div
+                                      class="popover-timer align-items-center"
+                                      style="width: 300px"
+                                    >
+                                      <label
+                                        class="form-control-label d-flex align-items-center gap-2 mb-2"
+                                      >
+                                        <i class="fa-solid fa-clock"></i>
+                                        <div class="fw-500">
+                                          Thời gian hẹn giờ
+                                        </div>
+                                      </label>
+                                      <div class="d-flex gap-2">
+                                        <input
+                                          name="between_from"
+                                          class="form-control text-right"
+                                          placeholder="Ngày"
+                                        />
+                                        <input
+                                          name="between_from"
+                                          class="form-control text-right"
+                                          placeholder="Giờ (0-23)"
+                                        />
+                                        <input
+                                          name="between_from"
+                                          class="form-control text-right"
+                                          placeholder="Phút (0-60)"
+                                        />
+                                      </div>
+                                    </div>
+                                  </ng-template>
                                 </td>
                                 <td class="columns-action-main">
                                   {{ taskChainResult.action?.name || '-' }}

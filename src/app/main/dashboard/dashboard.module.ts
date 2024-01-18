@@ -16,6 +16,9 @@ import {AccordionModule} from 'ngx-bootstrap/accordion';
 import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {NgxMaskDirective} from 'ngx-mask';
 
 @NgModule({
   declarations: [
@@ -39,6 +42,9 @@ import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/up
     AccordionModule,
     CustomButtonLoadingComponent,
     ModalModule,
+    BsDropdownModule,
+    PopoverModule,
+    NgxMaskDirective,
   ],
 })
 export class DashboardModule {}

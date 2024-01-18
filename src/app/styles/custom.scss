@@ -1071,6 +1071,15 @@ i {
   }
 }
 
+.popover {
+  background-color: white;
+  color: $neutral-500;
+}
+
+.popover > .arrow:after {
+  border-right-color: white;
+}
+
 // COMMON STYLE
 //.modal-open .modal {
 //  background: #00000077;
