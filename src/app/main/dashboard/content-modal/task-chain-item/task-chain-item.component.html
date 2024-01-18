@@ -32,9 +32,7 @@
                 <td class="column-timer">
                   <div
                     class="timer fw-500"
-                    [popover]="
-                      !taskChainResult.value?.isOverDeadline ? popTemplate : ''
-                    "
+                    [popover]="popTemplate"
                     placement="right"
                     [outsideClick]="true"
                     *ngIf="taskChainResult.value?.deadlineDate"
@@ -47,27 +45,28 @@
                         ? 'Quá hạn:'
                         : 'Còn:'
                     }}
-                    {{
-                      taskChainResult.value?.deadlineDay !== undefined &&
-                      taskChainResult.value?.deadlineDay !== null &&
-                      taskChainResult.value?.deadlineDay !== 0
-                        ? +taskChainResult.value?.deadlineDay + ' ngày'
-                        : ''
-                    }}
-                    {{
-                      taskChainResult.value?.deadlineHour !== undefined &&
-                      taskChainResult.value?.deadlineHour !== null &&
-                      taskChainResult.value?.deadlineHour !== 0
-                        ? +taskChainResult.value?.deadlineHour + ' giờ'
-                        : ''
-                    }}
-                    {{
-                      taskChainResult.value?.deadlineMinute !== undefined &&
-                      taskChainResult.value?.deadlineMinute !== null &&
-                      taskChainResult.value?.deadlineMinute !== 0
-                        ? +taskChainResult.value?.deadlineMinute + ' phút'
-                        : ''
-                    }}
+                    {{ renderDeadline(taskChainResult.value?.deadlineDate) }}
+                    <!--                    {{-->
+                    <!--                      taskChainResult.value?.deadlineDay !== undefined &&-->
+                    <!--                      taskChainResult.value?.deadlineDay !== null &&-->
+                    <!--                      taskChainResult.value?.deadlineDay !== 0-->
+                    <!--                        ? +taskChainResult.value?.deadlineDay + ' ngày'-->
+                    <!--                        : ''-->
+                    <!--                    }}-->
+                    <!--                    {{-->
+                    <!--                      taskChainResult.value?.deadlineHour !== undefined &&-->
+                    <!--                      taskChainResult.value?.deadlineHour !== null &&-->
+                    <!--                      taskChainResult.value?.deadlineHour !== 0-->
+                    <!--                        ? +taskChainResult.value?.deadlineHour + ' giờ'-->
+                    <!--                        : ''-->
+                    <!--                    }}-->
+                    <!--                    {{-->
+                    <!--                      taskChainResult.value?.deadlineMinute !== undefined &&-->
+                    <!--                      taskChainResult.value?.deadlineMinute !== null &&-->
+                    <!--                      taskChainResult.value?.deadlineMinute !== 0-->
+                    <!--                        ? +taskChainResult.value?.deadlineMinute + ' phút'-->
+                    <!--                        : ''-->
+                    <!--                    }}-->
                   </div>
                   <ng-template #popTemplate>
                     <div

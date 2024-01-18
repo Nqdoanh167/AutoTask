@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import {Subject} from 'rxjs';
 import {EActionType} from '@app/types/flow';
+import {calculateTime} from '@app/utils/common';
 
 @Component({
   selector: 'app-task-chain-item',
@@ -32,6 +33,10 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {}
+
+  renderDeadline(value: Date) {
+    return calculateTime(value, new Date()) as string;
+  }
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();

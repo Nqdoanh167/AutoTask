@@ -26,15 +26,15 @@ export const calculateTime = (
 
   // Calculate the number of minutes
   const remainingMinutes = minutes % 60;
-  string = `${remainingMinutes}m`;
+  string = `${remainingMinutes} phút`;
 
   // Calculate the number of hours
   const hours = Math.floor((minutes % 1440) / 60);
-  string = hours ? `${hours}h, ${remainingMinutes}m` : string;
+  string = hours ? `${hours} giờ ${remainingMinutes} phút` : string;
 
   // Calculate the number of days
   const days = Math.floor(minutes / 1440);
-  string = days ? `${days}d, ${hours}h` : string;
+  string = days ? `${days} ngày ${hours} giờ ${remainingMinutes} phút` : string;
 
   if (typeReturn === 'metrics') {
     return {

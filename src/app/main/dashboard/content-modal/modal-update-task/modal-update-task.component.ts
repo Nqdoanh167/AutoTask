@@ -254,10 +254,12 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             new Date(),
             'metrics',
           ) as {days?: number; hours?: number; minutes?: number};
-          deadlineDay = subDate.days || 0;
-          deadlineHour = subDate.hours || 0;
-          deadlineMinute = subDate.minutes || 0;
           isOverDeadline = moment().isAfter('2024-12-31T23:59:59.999Z');
+          if (!isOverDeadline) {
+            deadlineDay = subDate.days || 0;
+            deadlineHour = subDate.hours || 0;
+            deadlineMinute = subDate.minutes || 0;
+          }
         }
         const taskChainResultForm = this.fb.group({
           id: taskChainResult?.id,
