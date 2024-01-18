@@ -381,7 +381,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             if (res.status === 200) {
               this.commonService.handleResSuccess('create');
               this.updateSuccess.emit();
-              this.hideModal();
+              this.sourceData = res.data;
+              this.patchForm(res.data);
+              // this.hideModal();
             } else {
               this.commonService.handleResErr(res);
             }
@@ -553,6 +555,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.getDetailTask();
+            this.updateSuccess.emit();
             this.addTaskChainModalRef?.hide();
           } else {
             this.commonService.handleResErr(res);
