@@ -1,0 +1,67 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.input__title {
+  width: 500px;
+}
+
+.list-chain {
+  .chain-item {
+    border: 1px dashed #dadee5;
+    padding: vars.$padding-m;
+    border-radius: vars.$radius-s;
+  }
+  .chain-item + .chain-item {
+    margin-top: 10px;
+  }
+}
+.content-tab {
+  max-height: 640px;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.column-timer {
+  .timer {
+    border: 1px solid #e0e4ef;
+    border-radius: 4px;
+    background-color: #ffffff;
+    margin: 2px 0;
+    height: 51px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.columns-desc {
+  max-width: 150px;
+  div {
+  }
+}
+
+.columns-action {
+  width: 20px;
+}
+
+.column-result {
+  width: 20%;
+}
+
+.column-take-action {
+  width: 15%;
+}
+
+.button-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #dcdcdc;
+}

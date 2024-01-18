@@ -20,12 +20,14 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {NgxMaskDirective} from 'ngx-mask';
 import {TextAreaComponent} from '@share/input/textarea/textarea.component';
+import { TaskChainItemComponent } from './content-modal/task-chain-item/task-chain-item.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
     ModalUpdateTaskComponent,
     UpdateActionInTaskChainComponent,
+    TaskChainItemComponent,
   ],
   imports: [
     CommonModule,
