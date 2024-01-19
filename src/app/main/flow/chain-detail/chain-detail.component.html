@@ -608,16 +608,16 @@
                                 [placeholder]="'Chọn Hành động'"
                                 [searchable]="false"
                                 [items]="
-                                  listActionInChain
-                                    | filterData: [item.action?.id] : ['id']
+                                  detailChain?.actionResults || []
+                                    | filterData: [item.id] : ['id']
                                 "
                                 [clearable]="false"
                                 class="dropdown-auto-width"
                                 id="block-{{ nextActionIndex }}-{{
                                   resultIndex
                                 }}"
-                                bindLabel="name"
-                                bindValue="id"
+                                bindLabel="action.name"
+                                bindValue="action.id"
                                 appendTo="body"
                               ></ng-select>
                             </div>

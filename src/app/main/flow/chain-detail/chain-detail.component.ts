@@ -73,7 +73,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       icon: './assets/images/icon/save.svg',
     },
   ];
-  public listActionInChain: IAction[] = [];
 
   public introductionModalRef?: BsModalRef;
   public addNextActionModalRef?: BsModalRef;
@@ -165,10 +164,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     return this.addNextActionForm.controls;
   }
 
-  getListActionIdInChain() {
-    return this.listActionInChain.map((action) => action.id) || [];
-  }
-
   ngOnInit() {
     this.getResult();
     this.getAction();
@@ -195,9 +190,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               ...res.data,
               actionResults: res.data?.actionResults
                 ?.map((actResult) => {
-                  if (actResult.action) {
-                    this.listActionInChain.push(actResult.action);
-                  }
                   return {
                     ...actResult,
                     actionId: actResult?.action?.id,
@@ -408,10 +400,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     }
   }
 
-  handleChangeAction(selectedAction: IAction, index: number) {
-    //   replace action in list action in chain at index by selectedAction
-    this.listActionInChain[index] = selectedAction;
-  }
+  handleChangeAction(selectedAction: IAction, index: number) {}
 
   newNextAction() {
     return {
