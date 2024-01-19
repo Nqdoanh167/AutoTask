@@ -72,11 +72,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     )) as FormArray;
   }
 
-  ngOnInit(): void {
-    console.log('actionChains', this.actionChains);
-  }
-
-  ngOnChanges(changes: any): void {}
+  ngOnInit(): void {}
 
   renderDeadline(value: Date) {
     return calculateTime(value, new Date()) as string;
@@ -124,7 +120,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       } catch (e) {
         console.log(e);
       }
-      console.log(this.formItem.value);
     } else {
       this.formTaskChainResults().at(taskChainResultIndex).patchValue({
         resultIndex: undefined,
@@ -208,14 +203,22 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         string += '-';
         break;
     }
-    // if (nextStep.childNextAction?.moveToAction?.chainActResultId) {
-    //   console.log(this.formItem.value.id);
-    //   console.log(this.actionChains);
-    //   const actionChain = this.actionChains.find(
-    //     (actionChain) => actionChain.id === this.formItem.value.id,
-    //   );
-    //   string += `: ${actionChain?.name}`;
-    // }
+    if (nextStep.childNextAction?.delayType) {
+      switch (nextStep.childNextAction?.delayType) {
+        case EDelayType.DAY:
+          string += ` (sau ${nextStep.childNextAction?.delayValue} ngày)`;
+          break;
+        case EDelayType.HOUR:
+          string += ` (sau ${nextStep.childNextAction?.delayValue} giờ)`;
+          break;
+        case EDelayType.MINUTE:
+          string += ` (sau ${nextStep.childNextAction?.delayValue} phút)`;
+          break;
+        default:
+          string += '';
+          break;
+      }
+    }
     return string;
   }
 
@@ -223,6 +226,4 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
-  protected readonly EDelayType = EDelayType;
 }

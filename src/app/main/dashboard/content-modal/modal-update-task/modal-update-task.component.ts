@@ -345,6 +345,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
               addNewChain: nextAction.addNewChain,
               callBlockAutomation: nextAction.callBlockAutomation,
               delayType: nextAction.delayType,
+              delayValue: nextAction.delayValue,
               moveToAction: nextAction.moveToAction,
               nextAction: nextAction.nextAction,
               type: nextAction.type,
@@ -371,7 +372,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
               addNewChain: nextAction?.childNextAction?.addNewChain,
               nextAction: nextAction?.childNextAction?.nextAction,
               type: nextAction?.childNextAction?.type,
-              delayTpe: nextAction?.childNextAction?.delayType,
+              delayValue: nextAction?.childNextAction?.delayValue,
             }),
           });
           (<FormArray>taskChainResultForm.controls.nextActions).push(
