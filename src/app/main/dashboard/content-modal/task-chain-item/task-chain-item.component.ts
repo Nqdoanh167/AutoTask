@@ -7,7 +7,7 @@ import {
   FormGroupDirective,
 } from '@angular/forms';
 import {Subject} from 'rxjs';
-import {EActionType, IChainResult, ITaskChainResult} from '@app/types/flow';
+import {EActionType, IChainResult} from '@app/types/flow';
 import {calculateTime} from '@app/utils/common';
 
 @Component({

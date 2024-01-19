@@ -16,7 +16,6 @@ import {
   IChainAct,
   ITask,
   ITaskChain,
-  ITaskChainResult,
   ITaskDto,
 } from '@app/types/flow';
 import {finalize, Subject, takeUntil} from 'rxjs';
@@ -40,7 +39,6 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
 import {uniqBy} from 'lodash';
-import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {calculateTime} from '@app/utils/common';
