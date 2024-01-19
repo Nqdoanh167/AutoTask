@@ -178,12 +178,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     return <FormArray>this.updateForm.get('taskChains');
   }
 
-  formTaskChainResults(taskChainIndex: number) {
-    return (<FormArray>this.updateForm.get('taskChains')).controls[
-      taskChainIndex
-    ].get('taskChainResults') as FormArray;
-  }
-
   get formLeadDeal() {
     return <FormGroup>this.updateForm.get('leadDeal');
   }
@@ -394,29 +388,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     if (this.updateForm.valid) {
       this.handleUpdate();
     }
-  }
-
-  handleUpdateActionInChain(value: ITaskChainResult, taskChain: ITaskChain) {
-    this.isOpenBackDrop = true;
-    this.updateChainModalRef = this.modalService.show(
-      UpdateActionInTaskChainComponent,
-      {
-        initialState: {
-          taskChainId: taskChain.id,
-          action: value.action.name,
-          sourceData: value,
-          reasons: value.action.reasons,
-          results: value.results?.map((result) => result.result) as any,
-        },
-        class: 'modal-dialog-centered',
-      },
-    );
-    this.updateChainModalRef?.onHide?.pipe().subscribe(() => {
-      this.isOpenBackDrop = false;
-    });
-    this.updateChainModalRef?.content?.updateSuccess.pipe().subscribe(() => {
-      this.getDetailTask();
-    });
   }
 
   getProvince() {

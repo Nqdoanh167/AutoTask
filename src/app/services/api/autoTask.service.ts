@@ -22,6 +22,7 @@ import {
   ITaskDto,
   IPickResultForActionDto,
   IManyUpsertChainActResultDto,
+  IUpdateTaskResultDto,
 } from '@app/types/flow';
 
 @Injectable({
@@ -38,6 +39,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     chainActionResult: 'chain-act-result',
     task: 'task',
     taskChain: 'task-chain',
+    taskChainResult: 'task-chain-result',
   };
   private defaultParams: any = {};
   constructor(
@@ -217,6 +219,14 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     pickResult: (id: string, body: IPickResultForActionDto) =>
       this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.taskChain, id, 'pick-result']),
+        body,
+      ),
+  };
+
+  taskChainResult = {
+    update: (id: string, body: IUpdateTaskResultDto) =>
+      this.httpClient.patch<EntityResult<ITask>>(
+        this.createUrl([this.api.taskChainResult, id]),
         body,
       ),
   };

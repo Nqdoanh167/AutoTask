@@ -285,3 +285,11 @@ export interface IPickResultForActionDto {
   reasonIndex?: number;
   note: string;
 }
+
+export interface IUpdateTaskResultDto {
+  deadlineDate?: Date;
+  note?: string;
+  resultIndex: number;
+  reasonIndex?: number;
+  nextActions?: IChainNextAction[];
+}
