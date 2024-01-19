@@ -12,6 +12,8 @@ import {
   EActionType,
   ETaskChainType,
   ETypeProduct,
+  IAction,
+  IActResult,
   IAddTaskChainDto,
   IChainAct,
   ITask,
@@ -43,6 +45,8 @@ import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.co
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {calculateTime} from '@app/utils/common';
 import moment from 'moment';
+import {IBlockAutomation} from '@app/types/automation';
+import {AutomationService} from '@app/services/api/automation.service';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -52,7 +56,6 @@ import moment from 'moment';
 export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   @ViewChild('templateAddTaskChain') templateAddTaskChain!: TemplateRef<any>;
   public addTaskChainModalRef?: BsModalRef;
-  public updateChainModalRef?: BsModalRef;
 
   @Input() sourceData?: ITask;
   @Output() updateSuccess = new EventEmitter();
@@ -89,12 +92,44 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     addChainActIds: [null, [Validators.required]],
   });
 
+  public results: ICommonDataLazy<IActResult, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
+  public actions: ICommonDataLazy<IAction, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+  public blocks: ICommonDataLazy<IBlockAutomation, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
   public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
     rows: [],
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 20,
+      limit: 100,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -153,6 +188,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly authService: AuthService,
     private readonly modalService: BsModalService,
     private readonly modalConfirmService: ModalConfirmService,
+    private readonly automationService: AutomationService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -201,6 +237,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       this.handleAddInterestedProduct();
     }
     this.getActionChain();
+    this.getResult();
+    this.getAction();
+    this.getBlock();
   }
 
   getDetailTask() {
@@ -370,6 +409,88 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
         error: (err) => {
           this.actionChains.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getResult() {
+    this.results.loading = true;
+    this.autoTaskService.actionResult
+      .get(this.results.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.results.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.results.rows = uniqBy(
+              this.results.rows.concat(res.data),
+              'id',
+            );
+            this.results.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.results.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.results.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getAction() {
+    this.actions.loading = true;
+    this.autoTaskService.action
+      .get(this.actions.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.actions.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.actions.rows = uniqBy(
+              this.actions.rows.concat(res.data),
+              'id',
+            );
+            this.actions.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.actions.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.actions.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getBlock() {
+    this.blocks.loading = true;
+    this.automationService.block
+      .getMany({})
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.blocks.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.blocks.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
           this.commonService.handleErr(err);
         },
       });

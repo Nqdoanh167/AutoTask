@@ -60,6 +60,29 @@
   width: 15%;
 }
 
+.column-next-step {
+  .next-step-item {
+    padding: 5px 0;
+    &:hover {
+      .button-edit-next-step {
+        visibility: visible;
+      }
+    }
+    .button-edit-next-step {
+      cursor: pointer;
+      visibility: hidden;
+    }
+  }
+  &:hover {
+    .button-add-step-action {
+      visibility: visible;
+    }
+  }
+  .button-add-step-action {
+    visibility: hidden;
+  }
+}
+
 .button-header {
   position: absolute;
   top: 0;

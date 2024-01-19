@@ -170,38 +170,73 @@
                           .controls
                       "
                     >
-                      <div>
-                        <ng-container
-                          [ngSwitch]="
-                            nextStep.value?.childNextAction?.nextAction
-                          "
+                      <div
+                        class="next-step-item d-flex gap-2 align-items-center"
+                      >
+                        <span>{{ renderNextStepData(nextStep.value) }}</span>
+                        <span
+                          [popover]="popTemplateUpdateNextStep"
+                          placement="right"
+                          [outsideClick]="true"
+                          class="d-flex align-items-center button-edit-next-step"
                         >
-                          <span
-                            *ngSwitchCase="
-                              ENextStepType.CONTINUE_TO_NEXT_ACTION
-                            "
-                          >
-                            Hành động tiếp theo trong chuỗi
-                          </span>
-                          <span *ngSwitchCase="ENextStepType.CREATE_ORDER">
-                            Tạo đơn hàng
-                          </span>
-                          <span
-                            *ngSwitchCase="ENextStepType.CALL_BLOCK_AUTOMATION"
-                          >
-                            Gọi Automation Block
-                          </span>
-                          <span *ngSwitchCase="ENextStepType.CLOSE_CHAIN">
-                            Đóng chuỗi
-                          </span>
-                          <span *ngSwitchCase="ENextStepType.ADD_CHAIN">
-                            Thêm chuỗi mới
-                          </span>
-                          <span *ngSwitchDefault></span>
-                        </ng-container>
+                          <img src="./assets/images/icon/edit.svg" alt="" />
+                        </span>
                       </div>
                     </ng-container>
+                    <div
+                      [style.width]="'150px'"
+                      class="d-flex align-items-center gap-2 button-add-step-action text-link"
+                      [popover]="popTemplateUpdateNextStep"
+                      placement="right"
+                    >
+                      <i class="fa-solid fa-plus me-1"></i>
+                      <span>Thêm hành động</span>
+                    </div>
                   </div>
+                  <ng-template #popTemplateUpdateNextStep>
+                    <div
+                      class="popover-update-next-step align-items-center"
+                      style="width: 350px"
+                    >
+                      <label
+                        class="form-control-label d-flex align-items-center gap-2 mb-2"
+                      >
+                        <div class="fw-500">Hành động</div>
+                      </label>
+                      <div class="d-flex gap-2">
+                        <input
+                          mask="000"
+                          [allowNegativeNumbers]="false"
+                          name="between_from"
+                          class="form-control text-right"
+                          placeholder="Ngày (0-999)"
+                          formControlName="deadlineDay"
+                        />
+                        <ng-select
+                          [placeholder]="'Chọn loại'"
+                          [clearable]="false"
+                          [searchable]="false"
+                          class="dropdown-auto-width"
+                          appendTo=".popover-update-next-step"
+                        >
+                          <ng-option [value]="EDelayType.NOW">
+                            Ngay lập tức
+                          </ng-option>
+                          <ng-option [value]="EDelayType.MINUTE">
+                            Phút
+                          </ng-option>
+                          <ng-option [value]="EDelayType.HOUR">Giờ</ng-option>
+                          <ng-option [value]="EDelayType.DAY">Ngày</ng-option>
+                        </ng-select>
+                        <input
+                          name="between_from"
+                          class="form-control text-right"
+                          placeholder="Nhập giá trị"
+                        />
+                      </div>
+                    </div>
+                  </ng-template>
                 </td>
                 <td class="columns-desc">
                   <div>
@@ -218,7 +253,12 @@
                     <button
                       type="button"
                       class="btn button-medium button-fill secondary-color"
-                      (click)="handleSaveTaskChainResult(taskChainResultIndex)"
+                      (click)="
+                        handleSaveTaskChainResult(
+                          taskChainResultIndex,
+                          taskChainResult.value
+                        )
+                      "
                     >
                       Lưu
                     </button>
