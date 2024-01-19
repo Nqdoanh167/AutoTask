@@ -648,6 +648,7 @@
           Hủy
         </button>
         <custom-button-loading
+          [isLoading]="loading.addTaskChain"
           (action)="onAddTaskChain()"
           [type]="'button'"
           [textButton]="'Lưu'"

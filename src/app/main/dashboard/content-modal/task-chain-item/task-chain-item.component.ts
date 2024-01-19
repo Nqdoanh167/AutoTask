@@ -7,7 +7,12 @@ import {
   FormGroupDirective,
 } from '@angular/forms';
 import {Subject} from 'rxjs';
-import {EActionType, IChainResult} from '@app/types/flow';
+import {
+  EActionType,
+  EStatusTaskChainResult,
+  ETaskChainResultType,
+  IChainResult,
+} from '@app/types/flow';
 import {calculateTime} from '@app/utils/common';
 
 @Component({
@@ -47,6 +52,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     value: IChainResult,
   ) {
     if (value) {
+      console.log(value);
       const results = this.formTaskChainResults()
         .at(taskChainResultIndex)
         .get('results')?.value;
@@ -58,21 +64,34 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       this.formTaskChainResults().at(taskChainResultIndex).patchValue({
         resultIndex,
       });
-      // value.nextActions?.forEach((nextAction) => {
-      //   const nextActionForm = this.fb.group({
-      //     addNewChain: nextAction.addNewChain,
-      //     callBlockAutomation: nextAction.callBlockAutomation,
-      //     delayType: nextAction.delayType,
-      //     moveToAction: nextAction.moveToAction,
-      //     nextAction: nextAction.nextAction,
-      //     type: nextAction.type,
-      //   });
-      //   (<FormArray>this.formItem.controls.nextActions).push(nextActionForm);
-      // });
+      try {
+        value.nextActions?.forEach((nextAction) => {
+          const delayDate = new Date();
+          const executedDate = new Date();
+          const action = {};
+          const nextActionForm = this.fb.group({
+            action: action,
+            deadlineDate: delayDate,
+            status: EStatusTaskChainResult.UNDONE,
+            executedDate: executedDate,
+          });
+          (<FormArray>(
+            this.formTaskChainResults()
+              .at(taskChainResultIndex)
+              .get('nextActions')
+          )).push(nextActionForm);
+        });
+      } catch (e) {
+        console.log(e);
+      }
+      console.log(this.formItem.value);
     } else {
       this.formTaskChainResults().at(taskChainResultIndex).patchValue({
         resultIndex: undefined,
       });
+      (<FormArray>(
+        this.formTaskChainResults().at(taskChainResultIndex).get('nextActions')
+      )).clear();
     }
   }
   handleChangeTaskChainReason(

@@ -228,6 +228,8 @@ export interface ITaskChainResult {
   reason: IActReason;
   reasonIndex: number;
   executeAction: any;
+  nextActionIds: string[];
+  nextActions: ITaskChainResult[];
   note: string;
   backgroundProcessingActions: any;
   results: IChainResult[];
@@ -292,4 +294,9 @@ export interface IUpdateTaskResultDto {
   resultIndex: number;
   reasonIndex?: number;
   nextActions?: IChainNextAction[];
+}
+
+export enum EStatusTaskChainResult {
+  DONE = 'DONE',
+  UNDONE = 'UNDONE',
 }

@@ -118,6 +118,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     submit: false,
     data: false,
     getDetail: false,
+    addTaskChain: false,
   };
   public productTypes = [
     {
@@ -240,13 +241,13 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         let deadlineHour = 0;
         let deadlineMinute = 0;
         let isOverDeadline = false;
-        if (true) {
+        if (taskChainResult.deadlineDate) {
           const subDate = calculateTime(
-            '2024-12-31T23:59:59.999Z',
+            taskChainResult.deadlineDate,
             new Date(),
             'metrics',
           ) as {days?: number; hours?: number; minutes?: number};
-          isOverDeadline = moment().isAfter('2024-12-31T23:59:59.999Z');
+          isOverDeadline = moment().isAfter(taskChainResult.deadlineDate);
           if (!isOverDeadline) {
             deadlineDay = subDate.days || 0;
             deadlineHour = subDate.hours || 0;
@@ -257,7 +258,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           id: taskChainResult?.id,
           status: taskChainResult?.status,
           // deadlineDate: taskChainResult?.deadlineDate,
-          deadlineDate: '2024-12-31T23:59:59.999Z',
+          deadlineDate: taskChainResult.deadlineDate,
           deadlineDay: deadlineDay,
           deadlineHour: deadlineHour,
           deadlineMinute: deadlineMinute,
@@ -280,6 +281,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             name: taskChainResult?.reason?.name,
           }),
           results: this.fb.array([]),
+          nextActions: this.fb.array([]),
         });
         taskChainResult?.action?.reasons?.forEach((reason) => {
           const reasonForm = this.fb.group({
@@ -315,6 +317,18 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         (<FormArray>taskChainForm.controls.taskChainResults).push(
           taskChainResultForm,
         );
+
+        taskChainResult.nextActions?.forEach((nextAction) => {
+          const nextActionForm = this.fb.group({
+            action: nextAction.action,
+            deadlineDate: nextAction.deadlineDate,
+            status: nextAction.status,
+            executedDate: nextAction.executedDate,
+          });
+          (<FormArray>taskChainResultForm.controls.nextActions).push(
+            nextActionForm,
+          );
+        });
       });
       (<FormArray>this.updateForm.controls.taskChains).push(taskChainForm);
     });
@@ -531,9 +545,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       addChainActIds: (this.addTaskChainForm.value?.addChainActIds ||
         []) as unknown as string[],
     } as unknown as IAddTaskChainDto;
+    this.loading.addTaskChain = true;
     this.autoTaskService.task
       .updateTaskChain(this.sourceData.id!, body)
-      .pipe()
+      .pipe(finalize(() => (this.loading.addTaskChain = false)))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -612,7 +627,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   onDeleteChain(value: ITaskChain) {
     this.autoTaskService.taskChain
-      .closeChain(value.id)
+      .delete(value.id)
       .pipe()
       .subscribe({
         next: (res) => {
