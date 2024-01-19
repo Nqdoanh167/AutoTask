@@ -22,6 +22,7 @@ import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/
 export class CustomModalComponent implements OnInit, OnDestroy {
   @Input() isLoading: boolean = false;
   @Input() isSubmitting: boolean = false;
+  @Input() textOk: string = 'Lưu';
   @Output() hideModal = new EventEmitter<Event>();
   @Output() submitModal = new EventEmitter<Event>();
 

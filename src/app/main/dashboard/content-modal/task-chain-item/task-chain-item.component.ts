@@ -170,15 +170,53 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResult: ITaskChainResult,
   ) {
     if (!taskChainResult.id) return;
-    console.log(this.formTaskChainResults().at(taskChainResultIndex).value);
     const {note, resultIndex, reasonIndex, nextActions} =
       this.formTaskChainResults().at(taskChainResultIndex).value;
+    const modifiedNextActions = nextActions.map((nextAction: any) => {
+      if (nextAction?.childNextAction) {
+        console.log('nextAction?.childNextAction', nextAction?.childNextAction);
+        const modify = {
+          callBlockAutomation: nextAction?.childNextAction?.callBlockAutomation
+            ? nextAction?.childNextAction?.callBlockAutomation
+            : null,
+          moveToAction: nextAction?.childNextAction?.moveToAction
+            ? nextAction?.childNextAction?.moveToAction
+            : null,
+          addNewChain: nextAction?.childNextAction?.addNewChain
+            ? nextAction?.childNextAction?.addNewChain
+            : null,
+          nextAction: nextAction?.childNextAction?.nextAction,
+        };
+        return {
+          ...nextAction,
+          ...nextAction.childNextAction,
+          ...modify,
+        };
+      }
+      const modify = {
+        callBlockAutomation: nextAction.callToBlockId
+          ? {
+              blockId: nextAction.callToBlockId,
+            }
+          : null,
+        moveToAction: nextAction.moveToActionId
+          ? {
+              chainActResultId: nextAction.moveToActionId,
+            }
+          : null,
+      };
+      return {
+        ...nextAction,
+        ...modify,
+      };
+    });
     const body = {
       note,
-      resultIndex: resultIndex ? resultIndex : null,
-      reasonIndex: reasonIndex ? reasonIndex : null,
-      nextActions,
+      resultIndex: resultIndex || resultIndex === 0 ? resultIndex : null,
+      reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
+      nextActions: modifiedNextActions,
     };
+    console.log(body);
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
       .update(taskChainResult.id, body)
@@ -216,6 +254,27 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       default:
         string += '-';
         break;
+    }
+    if (nextStep.childNextAction.callBlockAutomation?.blockId) {
+      const block = this.blocks.find(
+        (block) =>
+          block.id === nextStep.childNextAction.callBlockAutomation?.blockId,
+      );
+      string += `: <b>${block?.name}</b>`;
+    }
+    if (nextStep.childNextAction?.moveToAction?.chainActResult) {
+      string +=
+        ': ' +
+        `<b>${
+          nextStep.childNextAction?.moveToAction?.chainActResult?.action
+            ?.name || ''
+        }</b>`;
+    }
+    if (
+      nextStep.childNextAction?.addNewChain?.chain &&
+      nextStep.childNextAction?.addNewChain?.chainActResult
+    ) {
+      string += `: <b>${nextStep.childNextAction?.addNewChain?.chainActResult?.action?.name} (${nextStep.childNextAction?.addNewChain?.chain?.name})</b>`;
     }
     if (nextStep.childNextAction?.delayType) {
       switch (nextStep.childNextAction?.delayType) {

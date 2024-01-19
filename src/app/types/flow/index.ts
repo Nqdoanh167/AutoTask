@@ -94,10 +94,16 @@ export interface IChainNextAction {
   nextAction?: ENextStepType;
   moveToAction?: {
     chainActResultId: undefined;
+    chainActResult?: IChainActResult;
   };
   addNewChain?: {
     chainId?: string;
     chainActResultId?: string;
+    chain?: {
+      name: string;
+      id: string;
+    };
+    chainActResult?: IChainActResult;
   };
   callBlockAutomation?: {
     blockId?: string;

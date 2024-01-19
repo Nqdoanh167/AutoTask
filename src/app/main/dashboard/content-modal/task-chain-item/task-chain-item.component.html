@@ -176,7 +176,9 @@
                       <div
                         class="next-step-item d-flex gap-2 align-items-center"
                       >
-                        <span>{{ renderNextStepData(nextStep.value) }}</span>
+                        <span
+                          [innerHTML]="renderNextStepData(nextStep.value)"
+                        ></span>
                         <span
                           (click)="
                             handleUpdateNextStep(taskChainResultIndex, nextStep)
@@ -196,49 +198,6 @@
                       <span>Thêm hành động</span>
                     </div>
                   </div>
-                  <!--                  <ng-template #popTemplateUpdateNextStep>-->
-                  <!--                    <div-->
-                  <!--                      class="popover-update-next-step align-items-center"-->
-                  <!--                      style="width: 350px"-->
-                  <!--                    >-->
-                  <!--                      <label-->
-                  <!--                        class="form-control-label d-flex align-items-center gap-2 mb-2"-->
-                  <!--                      >-->
-                  <!--                        <div class="fw-500">Hành động</div>-->
-                  <!--                      </label>-->
-                  <!--                      <div class="d-flex gap-2">-->
-                  <!--                        <input-->
-                  <!--                          mask="000"-->
-                  <!--                          [allowNegativeNumbers]="false"-->
-                  <!--                          name="between_from"-->
-                  <!--                          class="form-control text-right"-->
-                  <!--                          placeholder="Ngày (0-999)"-->
-                  <!--                          formControlName="deadlineDay"-->
-                  <!--                        />-->
-                  <!--                        <ng-select-->
-                  <!--                          [placeholder]="'Chọn loại'"-->
-                  <!--                          [clearable]="false"-->
-                  <!--                          [searchable]="false"-->
-                  <!--                          class="dropdown-auto-width"-->
-                  <!--                          appendTo=".popover-update-next-step"-->
-                  <!--                        >-->
-                  <!--                          <ng-option [value]="EDelayType.NOW">-->
-                  <!--                            Ngay lập tức-->
-                  <!--                          </ng-option>-->
-                  <!--                          <ng-option [value]="EDelayType.MINUTE">-->
-                  <!--                            Phút-->
-                  <!--                          </ng-option>-->
-                  <!--                          <ng-option [value]="EDelayType.HOUR">Giờ</ng-option>-->
-                  <!--                          <ng-option [value]="EDelayType.DAY">Ngày</ng-option>-->
-                  <!--                        </ng-select>-->
-                  <!--                        <input-->
-                  <!--                          name="between_from"-->
-                  <!--                          class="form-control text-right"-->
-                  <!--                          placeholder="Nhập giá trị"-->
-                  <!--                        />-->
-                  <!--                      </div>-->
-                  <!--                    </div>-->
-                  <!--                  </ng-template>-->
                 </td>
                 <td class="columns-desc">
                   <div>

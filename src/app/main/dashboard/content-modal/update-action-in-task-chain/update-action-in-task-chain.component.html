@@ -3,6 +3,7 @@
     <app-custom-modal
       [isSubmitting]="loading.submit"
       (submitModal)="onSubmit()"
+      [textOk]="'Xác nhận'"
     >
       <ng-container modalTitle>
         {{ sourceData ? 'Chỉnh sửa' : 'Thêm' }} hành động
