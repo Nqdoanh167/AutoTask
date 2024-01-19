@@ -9,39 +9,24 @@
       </ng-container>
       <ng-container modalBody>
         <div class="mb-2">
-          <label class="form-control-label" for="name">
-            Tên hành động
-            <span class="required">*</span>
-          </label>
-          <input
-            class="form-control"
-            [placeholder]="'Nhập tên Hành động...'"
-            [(ngModel)]="action"
-            [ngModelOptions]="{standalone: true}"
-            [readonly]="true"
-            id="name"
-            type="text"
-          />
-        </div>
-        <div class="mb-2">
-          <label class="form-control-label" for="result">
-            Kết quả
+          <label class="form-control-label" for="actionType">
+            Loại hành động
             <span class="required">*</span>
           </label>
           <ng-select
             [ngClass]="{
               'is-invalid': submitted && f['resultId'].errors
             }"
-            [placeholder]="'Chọn kết quả'"
+            [placeholder]="'Chọn hành động'"
             [searchable]="true"
-            [items]="results"
+            [items]="nextStepTypes"
             class="dropdown-auto-width"
             appearance="outline"
-            formControlName="resultId"
-            id="result"
+            formControlName="nextAction"
+            id="actionType"
             appendTo=".modal-update-action"
-            bindLabel="name"
-            bindValue="id"
+            bindLabel="label"
+            bindValue="value"
           ></ng-select>
           <div
             *ngIf="submitted && f['resultId'].errors"
@@ -52,32 +37,91 @@
             </div>
           </div>
         </div>
-        <div class="mb-2">
-          <label class="form-control-label" for="reasons">Nguyên nhân</label>
-          <ng-select
-            [ngClass]="{
-              'is-invalid': submitted && f['reasonId'].errors
-            }"
-            [placeholder]="'Chọn nguyên nhân'"
-            [searchable]="true"
-            [items]="reasons"
-            class="dropdown-auto-width"
-            appearance="outline"
-            formControlName="reasonId"
-            id="reasons"
-            appendTo=".modal-update-action"
-            bindLabel="name"
-            bindValue="id"
-          ></ng-select>
-        </div>
-        <div class="mb-2">
-          <label class="form-control-label" for="note">Ghi chú</label>
-          <textarea
-            formControlName="note"
-            id="note"
-            placeholder="Nhập ghi chú..."
-            rows="5"
-          ></textarea>
+        <div
+          *ngIf="
+            f['nextAction'].value &&
+            [
+              ENextStepType.CALL_BLOCK_AUTOMATION,
+              ENextStepType.CONTINUE_TO_NEXT_ACTION,
+              ENextStepType.ADD_CHAIN
+            ].includes(f['nextAction'].value)
+          "
+          class="mb-2"
+        >
+          <div
+            *ngIf="
+              f['nextAction'].value === ENextStepType.CALL_BLOCK_AUTOMATION
+            "
+          >
+            <label class="form-control-label" for="actionType">
+              Automation Block
+              <span class="required">*</span>
+            </label>
+            <ng-select
+              [placeholder]="'Chọn Block'"
+              [searchable]="true"
+              [items]="blocks"
+              [loading]="loadingData.blocks"
+              [clearable]="false"
+              class="dropdown-auto-width"
+              bindLabel="name"
+              bindValue="id"
+              appendTo=".modal-update-action"
+            ></ng-select>
+          </div>
+          <div *ngIf="f['nextAction'].value === ENextStepType.ADD_CHAIN">
+            <label class="form-control-label" for="actionType">
+              Hành động từ chuỗi khác
+              <span class="required">*</span>
+            </label>
+            <ng-select
+              [placeholder]="'Chọn HĐ từ chuỗi khác'"
+              [searchable]="true"
+              [items]="actionChains"
+              [loading]="loadingData.actionChains"
+              [clearable]="false"
+              class="dropdown-auto-width"
+              bindLabel="name"
+              bindValue="id"
+              groupBy="actionResults"
+              appendTo=".modal-update-action"
+            >
+              <ng-template ng-optgroup-tmp let-item="item">
+                {{ item?.name || '-' }}
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item">
+                {{ item?.action?.name || '-' }}
+              </ng-template>
+              <ng-template ng-label-tmp let-item="item">
+                {{ item?.action?.name || '-' }}&nbsp;
+                <span class="fw-500">
+                  (
+                  {{ item?.chainAct?.name || '-' }}
+                  )
+                </span>
+              </ng-template>
+            </ng-select>
+          </div>
+          <div
+            *ngIf="
+              f['nextAction'].value === ENextStepType.CONTINUE_TO_NEXT_ACTION
+            "
+          >
+            <label class="form-control-label" for="actionType">
+              Hành động trong chuỗi
+              <span class="required">*</span>
+            </label>
+            <ng-select
+              [placeholder]="'Chọn Hành động'"
+              [searchable]="false"
+              [items]="[]"
+              [clearable]="false"
+              class="dropdown-auto-width"
+              bindLabel="action.name"
+              bindValue="id"
+              appendTo=".modal-update-action"
+            ></ng-select>
+          </div>
         </div>
       </ng-container>
     </app-custom-modal>

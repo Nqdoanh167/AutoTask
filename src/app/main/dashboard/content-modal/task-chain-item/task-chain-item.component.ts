@@ -29,7 +29,6 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 
 @Component({
   selector: 'app-task-chain-item',

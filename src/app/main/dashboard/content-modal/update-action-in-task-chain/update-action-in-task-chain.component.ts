@@ -7,8 +7,10 @@ import {
   Output,
 } from '@angular/core';
 import {
+  ENextStepType,
   IActReason,
   IActResult,
+  IChainAct,
   IPickResultForActionDto,
   ITask,
   ITaskChainResult,
@@ -20,6 +22,8 @@ import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
+import {ConfigurationService} from '@app/services/api/configuration.service';
+import {IBlockAutomation} from '@app/types/automation';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -30,15 +34,22 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   @Input() taskChainId?: string;
   @Input() action?: string;
   @Input() sourceData?: any;
-  @Input() reasons: IActReason[] = [];
   @Input() results: IActResult[] = [];
+  @Input() blocks: IBlockAutomation[] = [];
+  @Input() actionChains: IChainAct[] = [];
+  @Input() loadingData = {
+    results: false,
+    blocks: false,
+    actionChains: false,
+  };
+
   @Output() updateSuccess = new EventEmitter();
+
+  public nextStepTypes = this.configurationService.nextStepTypes;
   public submitted = false;
   public updateForm = this.fb.group({
     name: ['Task mới', [Validators.required]],
-    reasonId: null,
-    resultId: [null, [Validators.required]],
-    note: null,
+    nextAction: [null, [Validators.required]],
   });
 
   private destroy$ = new Subject();
@@ -54,6 +65,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     private readonly commonService: CommonService,
     private readonly authService: AuthService,
     private readonly modalService: BsModalService,
+    private readonly configurationService: ConfigurationService,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
@@ -61,6 +73,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+    console.log(this.sourceData);
     if (this.sourceData) {
       this.updateForm.patchValue({
         ...(this.sourceData as any),
@@ -70,37 +83,6 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   handleUpdate() {
     this.loading.submit = true;
-    const {note, reasonId, resultId} = this.updateForm.value;
-    const resultIndex = this.results?.findIndex(
-      (result) => result.id === (resultId as any),
-    );
-    const reasonIndex = this.reasons?.findIndex(
-      (reason) => reason.id === (reasonId as any),
-    );
-    if (resultIndex <= -1) return;
-    const body = {
-      note,
-      resultIndex,
-      reasonIndex: reasonIndex >= 0 ? reasonIndex : null,
-    } as unknown as IPickResultForActionDto;
-    this.autoTaskService.taskChain
-      .pickResult(this.taskChainId!, body)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.loading.submit = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.commonService.handleResSuccess('update');
-            this.updateSuccess.emit();
-            this.hideModal();
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => this.commonService.handleErr(err),
-      });
   }
 
   onSubmit(): void {
@@ -118,4 +100,6 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
+
+  protected readonly ENextStepType = ENextStepType;
 }

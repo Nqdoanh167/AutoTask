@@ -21,6 +21,7 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {NgxMaskDirective} from 'ngx-mask';
 import {TextAreaComponent} from '@share/input/textarea/textarea.component';
 import { TaskChainItemComponent } from './content-modal/task-chain-item/task-chain-item.component';
+import {FilterDataModule} from "@share/pipe/filter-data/filter-data.module";
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { TaskChainItemComponent } from './content-modal/task-chain-item/task-cha
     PopoverModule,
     NgxMaskDirective,
     TextAreaComponent,
+    FilterDataModule,
   ],
 })
 export class DashboardModule {}

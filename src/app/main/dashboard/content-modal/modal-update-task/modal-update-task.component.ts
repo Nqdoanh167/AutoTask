@@ -783,6 +783,14 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       {
         initialState: {
           sourceData: value,
+          results: this.results.rows,
+          blocks: this.blocks.rows,
+          actionChains: this.actionChains.rows,
+          loadingData: {
+            results: this.results.loading,
+            blocks: this.blocks.loading,
+            actionChains: this.actionChains.loading,
+          },
         },
         class: 'modal-dialog-centered modal-update-next-step',
       },
