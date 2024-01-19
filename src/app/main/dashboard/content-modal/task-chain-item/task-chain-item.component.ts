@@ -9,6 +9,7 @@ import {
 import {Subject} from 'rxjs';
 import {
   EActionType,
+  ENextStepType,
   EStatusTaskChainResult,
   ETaskChainResultType,
   IChainResult,
@@ -26,6 +27,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   private destroy$ = new Subject();
   protected readonly EActionType = EActionType;
+  protected readonly ENextStepType = ENextStepType;
   protected readonly today = new Date();
 
   constructor(
@@ -41,6 +43,15 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     return (<FormArray>this.formItem.get('taskChainResults')) as FormArray;
   }
 
+  formNextSteps(taskChainResultIndex: number) {
+    return (<FormArray>(
+      this.formItem
+        .get('taskChainResults')
+        .at(taskChainResultIndex)
+        .get('nextActions')
+    )) as FormArray;
+  }
+
   ngOnInit(): void {}
 
   renderDeadline(value: Date) {
@@ -52,7 +63,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     value: IChainResult,
   ) {
     if (value) {
-      console.log(value);
       const results = this.formTaskChainResults()
         .at(taskChainResultIndex)
         .get('results')?.value;
@@ -65,6 +75,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         resultIndex,
       });
       try {
+        (<FormArray>(
+          this.formTaskChainResults()
+            .at(taskChainResultIndex)
+            .get('nextActions')
+        )).clear();
         value.nextActions?.forEach((nextAction) => {
           const delayDate = new Date();
           const executedDate = new Date();
@@ -74,6 +89,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
             deadlineDate: delayDate,
             status: EStatusTaskChainResult.UNDONE,
             executedDate: executedDate,
+            childNextAction: nextAction,
           });
           (<FormArray>(
             this.formTaskChainResults()

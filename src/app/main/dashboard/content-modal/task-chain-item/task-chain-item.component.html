@@ -163,7 +163,45 @@
                   </div>
                 </td>
                 <td class="column-next-step">
-                  <div>-</div>
+                  <div>
+                    <ng-container
+                      *ngFor="
+                        let nextStep of formNextSteps(taskChainResultIndex)
+                          .controls
+                      "
+                    >
+                      <div>
+                        <ng-container
+                          [ngSwitch]="
+                            nextStep.value?.childNextAction?.nextAction
+                          "
+                        >
+                          <span
+                            *ngSwitchCase="
+                              ENextStepType.CONTINUE_TO_NEXT_ACTION
+                            "
+                          >
+                            Hành động tiếp theo trong chuỗi
+                          </span>
+                          <span *ngSwitchCase="ENextStepType.CREATE_ORDER">
+                            Tạo đơn hàng
+                          </span>
+                          <span
+                            *ngSwitchCase="ENextStepType.CALL_BLOCK_AUTOMATION"
+                          >
+                            Gọi Automation Block
+                          </span>
+                          <span *ngSwitchCase="ENextStepType.CLOSE_CHAIN">
+                            Đóng chuỗi
+                          </span>
+                          <span *ngSwitchCase="ENextStepType.ADD_CHAIN">
+                            Thêm chuỗi mới
+                          </span>
+                          <span *ngSwitchDefault></span>
+                        </ng-container>
+                      </div>
+                    </ng-container>
+                  </div>
                 </td>
                 <td class="columns-desc">
                   <div>

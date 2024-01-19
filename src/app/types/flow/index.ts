@@ -233,6 +233,7 @@ export interface ITaskChainResult {
   note: string;
   backgroundProcessingActions: any;
   results: IChainResult[];
+  childNextAction: IChainNextAction;
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;

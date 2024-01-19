@@ -324,6 +324,16 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             deadlineDate: nextAction.deadlineDate,
             status: nextAction.status,
             executedDate: nextAction.executedDate,
+            childNextAction: this.fb.group({
+              delayType: nextAction?.childNextAction?.delayType,
+              moveToAction: nextAction?.childNextAction?.moveToAction,
+              callBlockAutomation:
+                nextAction?.childNextAction?.callBlockAutomation,
+              addNewChain: nextAction?.childNextAction?.addNewChain,
+              nextAction: nextAction?.childNextAction?.nextAction,
+              type: nextAction?.childNextAction?.type,
+              delayTpe: nextAction?.childNextAction?.delayType,
+            }),
           });
           (<FormArray>taskChainResultForm.controls.nextActions).push(
             nextActionForm,
