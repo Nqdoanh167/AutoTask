@@ -4,7 +4,9 @@
       [isSubmitting]="loading.submit"
       (submitModal)="onSubmit()"
     >
-      <ng-container modalTitle>Chỉnh sửa hành động</ng-container>
+      <ng-container modalTitle>
+        {{ sourceData ? 'Chỉnh sửa' : 'Thêm' }} hành động
+      </ng-container>
       <ng-container modalBody>
         <div class="mb-2">
           <label class="form-control-label" for="name">

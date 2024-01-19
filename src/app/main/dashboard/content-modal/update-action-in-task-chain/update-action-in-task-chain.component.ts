@@ -29,7 +29,7 @@ import {AuthService} from '@app/services/api/auth.service';
 export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   @Input() taskChainId?: string;
   @Input() action?: string;
-  @Input() sourceData?: ITaskChainResult;
+  @Input() sourceData?: any;
   @Input() reasons: IActReason[] = [];
   @Input() results: IActResult[] = [];
   @Output() updateSuccess = new EventEmitter();

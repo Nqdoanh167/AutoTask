@@ -1,4 +1,11 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -21,6 +28,8 @@ import {calculateTime} from '@app/utils/common';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IBlockAutomation} from '@app/types/automation';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 
 @Component({
   selector: 'app-task-chain-item',
@@ -39,6 +48,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     actionChains: false,
   };
 
+  @Output() updateNextStepEvent = new EventEmitter<{
+    taskChainResultIndex: number;
+    value?: any;
+  }>();
+
   public loading = {
     submit: false,
   };
@@ -53,6 +67,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     private readonly fb: FormBuilder,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
+    private readonly modalService: BsModalService,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
@@ -220,6 +235,10 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       }
     }
     return string;
+  }
+
+  handleUpdateNextStep(taskChainResultIndex: number, value?: any) {
+    this.updateNextStepEvent.emit({taskChainResultIndex, value});
   }
 
   ngOnDestroy(): void {

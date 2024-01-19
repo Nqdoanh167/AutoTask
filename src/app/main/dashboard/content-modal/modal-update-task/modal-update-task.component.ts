@@ -47,6 +47,7 @@ import {calculateTime} from '@app/utils/common';
 import moment from 'moment';
 import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
+import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -773,6 +774,22 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           this.commonService.handleErr(err);
         },
       });
+  }
+
+  handleUpdateNextStep(value: {taskChainResultIndex: number; value?: any}) {
+    this.isOpenBackDrop = true;
+    const modalUpdateNextStep = this.modalService.show(
+      UpdateActionInTaskChainComponent,
+      {
+        initialState: {
+          sourceData: value,
+        },
+        class: 'modal-dialog-centered modal-update-next-step',
+      },
+    );
+    modalUpdateNextStep.onHide
+      ?.pipe()
+      .subscribe(() => (this.isOpenBackDrop = false));
   }
 
   ngOnDestroy(): void {

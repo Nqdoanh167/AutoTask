@@ -169,7 +169,8 @@
                     <ng-container
                       *ngFor="
                         let nextStep of formNextSteps(taskChainResultIndex)
-                          .controls
+                          .controls;
+                        let nextStepIndex = index
                       "
                     >
                       <div
@@ -177,6 +178,9 @@
                       >
                         <span>{{ renderNextStepData(nextStep.value) }}</span>
                         <span
+                          (click)="
+                            handleUpdateNextStep(taskChainResultIndex, nextStep)
+                          "
                           class="d-flex align-items-center button-edit-next-step"
                         >
                           <img src="./assets/images/icon/edit.svg" alt="" />
@@ -186,6 +190,7 @@
                     <div
                       [style.width]="'150px'"
                       class="d-flex align-items-center gap-2 button-add-step-action text-link"
+                      (click)="handleUpdateNextStep(taskChainResultIndex)"
                     >
                       <i class="fa-solid fa-plus me-1"></i>
                       <span>Thêm hành động</span>
