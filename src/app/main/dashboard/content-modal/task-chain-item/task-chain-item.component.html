@@ -124,24 +124,42 @@
                 </td>
                 <td class="column-result">
                   <div>
-                    <ng-select
-                      [placeholder]="'Chọn kết quả'"
-                      [searchable]="true"
-                      [items]="taskChainResult.value.results"
-                      class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                      bindLabel="result.name"
-                      bindValue="result.id"
-                      appendTo=".modal-update-task"
-                    ></ng-select>
-                    <ng-select
-                      [placeholder]="'Chọn nguyên nhân'"
-                      [searchable]="true"
-                      [items]="taskChainResult.value.action.reasons || []"
-                      class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                      bindLabel="name"
-                      bindValue="id"
-                      appendTo=".modal-update-task"
-                    ></ng-select>
+                    <div formGroupName="result">
+                      <ng-select
+                        [placeholder]="'Chọn kết quả'"
+                        [searchable]="true"
+                        [items]="taskChainResult.value?.results || []"
+                        formControlName="id"
+                        (change)="
+                          handleChangeTaskChainResult(
+                            taskChainResultIndex,
+                            $event
+                          )
+                        "
+                        class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                        bindLabel="result.name"
+                        bindValue="result.id"
+                        appendTo=".modal-update-task"
+                      ></ng-select>
+                    </div>
+                    <div formGroupName="reason">
+                      <ng-select
+                        [placeholder]="'Chọn nguyên nhân'"
+                        [searchable]="true"
+                        [items]="taskChainResult.value?.action?.reasons || []"
+                        (change)="
+                          handleChangeTaskChainReason(
+                            taskChainResultIndex,
+                            $event
+                          )
+                        "
+                        formControlName="id"
+                        class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                        bindLabel="name"
+                        bindValue="id"
+                        appendTo=".modal-update-task"
+                      ></ng-select>
+                    </div>
                   </div>
                 </td>
                 <td class="column-next-step">
@@ -162,6 +180,7 @@
                     <button
                       type="button"
                       class="btn button-medium button-fill secondary-color"
+                      (click)="handleSaveTaskChainResult(taskChainResultIndex)"
                     >
                       Lưu
                     </button>

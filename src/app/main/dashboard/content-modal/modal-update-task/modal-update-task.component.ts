@@ -268,13 +268,31 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             id: taskChainResult?.action?.id,
             name: taskChainResult?.action?.name,
             type: taskChainResult?.action?.type,
+            reasons: this.fb.array([]),
           }),
           resultIndex: null,
           reasonIndex: null,
           note: taskChainResult.note,
-          result: taskChainResult.result,
+          result: this.fb.group({
+            id: taskChainResult?.result?.id,
+            name: taskChainResult?.result?.name,
+          }),
+          reason: this.fb.group({
+            id: taskChainResult?.reason?.id,
+            name: taskChainResult?.reason?.name,
+          }),
           results: this.fb.array([]),
         });
+        taskChainResult?.action?.reasons?.forEach((reason) => {
+          const reasonForm = this.fb.group({
+            id: reason.id,
+            name: reason.name,
+          });
+          (<FormArray>(
+            (<FormGroup>taskChainResultForm.controls.action).controls['reasons']
+          )).push(reasonForm);
+        });
+
         taskChainResult.results?.forEach((result) => {
           const resultForm = this.fb.group({
             result: this.fb.group({
