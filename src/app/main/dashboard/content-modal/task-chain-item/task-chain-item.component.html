@@ -6,7 +6,7 @@
       <table class="table">
         <thead>
           <tr>
-            <th class="column-timer">Hẹn giờ</th>
+            <th class="column-timer">Hẹn giờ/Thời gian thực hiện</th>
             <th class="columns-action-main">Hành động</th>
             <th class="column-take-action">Thực hiện hành động</th>
             <th class="column-result">Kết quả & Nguyên nhân</th>
@@ -33,6 +33,12 @@
             >
               <tr [formGroupName]="taskChainResultIndex">
                 <td class="column-timer">
+                  <div *ngIf="taskChainResult.value?.executedDate">
+                    {{
+                      taskChainResult.value?.executedDate
+                        | date: 'dd/MM/yyyy HH:mm'
+                    }}
+                  </div>
                   <div
                     class="timer fw-500"
                     [popover]="
@@ -43,7 +49,10 @@
                     "
                     placement="right"
                     [outsideClick]="true"
-                    *ngIf="taskChainResult.value?.deadlineDate"
+                    *ngIf="
+                      !taskChainResult.value?.executedDate &&
+                      taskChainResult.value?.deadlineDate
+                    "
                     [ngClass]="{
                       'text-danger':
                         taskChainResult.value?.typeOverDeadline === 'over'
@@ -80,6 +89,7 @@
                       </label>
                       <div class="d-flex gap-2">
                         <input
+                          (input)="handleChangeDeadline(taskChainResultIndex)"
                           mask="000"
                           [allowNegativeNumbers]="false"
                           name="between_from"
@@ -88,6 +98,7 @@
                           formControlName="deadlineDay"
                         />
                         <input
+                          (input)="handleChangeDeadline(taskChainResultIndex)"
                           mask="Hh"
                           name="between_from"
                           class="form-control text-right"
@@ -95,6 +106,7 @@
                           formControlName="deadlineHour"
                         />
                         <input
+                          (input)="handleChangeDeadline(taskChainResultIndex)"
                           mask="m0"
                           name="between_from"
                           class="form-control text-right"
@@ -146,7 +158,7 @@
                   <div
                     *ngIf="
                       f['status'].value !== ETaskChainType.CLOSED &&
-                      !taskChainResult.value?.result.name
+                      !taskChainResult.value.executedDate
                     "
                   >
                     <div formGroupName="result">
@@ -188,7 +200,7 @@
                   </div>
                   <div
                     *ngIf="
-                      taskChainResult.value?.result.name ||
+                      taskChainResult.value.executedDate ||
                       f['status'].value === ETaskChainType.CLOSED
                     "
                     class="d-flex flex-column gap-2 data-result-reason"

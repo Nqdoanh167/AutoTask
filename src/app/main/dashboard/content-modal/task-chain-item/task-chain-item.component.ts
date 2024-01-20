@@ -56,6 +56,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   public loading = {
     submit: false,
   };
+  protected readonly ETaskChainType = ETaskChainType;
 
   private destroy$ = new Subject();
   protected readonly EActionType = EActionType;
@@ -109,6 +110,13 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         return result.result?.id === value.result?.id;
       });
 
+      this.formTaskChainResults()
+        .at(taskChainResultIndex)
+        .get('result')
+        ?.patchValue({
+          name: value.result?.name,
+        });
+
       this.formTaskChainResults().at(taskChainResultIndex).patchValue({
         resultIndex,
       });
@@ -155,6 +163,13 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       const reasons =
         this.formTaskChainResults().at(taskChainResultIndex)?.value?.action
           ?.reasons || [];
+
+      this.formTaskChainResults()
+        .at(taskChainResultIndex)
+        .get('reason')
+        ?.patchValue({
+          name: value?.name,
+        });
 
       const reasonIndex = reasons.findIndex((reason: any) => {
         return reason?.id === value?.id;
@@ -220,7 +235,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
       nextActions: modifiedNextActions,
     };
-    console.log(body);
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
       .update(taskChainResult.id, body)
@@ -229,6 +243,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.commonService.handleResSuccess('update');
+            this.formTaskChainResults().at(taskChainResultIndex).patchValue({
+              executedDate: new Date(),
+            });
           } else {
             this.commonService.handleResErr(res);
           }
@@ -303,10 +320,14 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     this.updateNextStepEvent.emit({taskChainResultIndex, value});
   }
 
+  handleChangeDeadline(taskChainResultIndex: number) {
+    const {deadlineDay, deadlineHour, deadlineMinute} =
+      this.formTaskChainResults().at(taskChainResultIndex).value;
+    console.log(deadlineDay, deadlineHour, deadlineMinute);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
-  protected readonly ETaskChainType = ETaskChainType;
 }

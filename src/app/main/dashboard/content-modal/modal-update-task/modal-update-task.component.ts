@@ -681,6 +681,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     );
     this.addTaskChainModalRef?.onHide?.pipe().subscribe(() => {
       this.isOpenBackDrop = false;
+      this.submittedModal.addTaskChain = false;
       this.addTaskChainForm.patchValue({
         addChainActIds: null,
       });
