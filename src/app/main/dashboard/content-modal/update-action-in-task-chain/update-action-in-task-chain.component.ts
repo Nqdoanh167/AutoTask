@@ -42,7 +42,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     actionChains: false,
   };
 
-  @Output() updateSuccess = new EventEmitter();
+  @Output() updateSuccess = new EventEmitter<any>();
 
   public nextStepTypes = this.configurationService.nextStepTypes;
   public submitted = false;
@@ -102,11 +102,13 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   handleUpdate() {
     this.loading.submit = true;
+    this.updateSuccess.emit(this.updateForm.value);
+    this.hideModal();
   }
 
   onSubmit(): void {
     this.submitted = true;
-    if (this.updateForm.valid && !!this.taskChainId) {
+    if (this.updateForm.valid) {
       this.handleUpdate();
     }
   }

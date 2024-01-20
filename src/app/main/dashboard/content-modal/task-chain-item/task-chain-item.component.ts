@@ -51,6 +51,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   @Output() updateNextStepEvent = new EventEmitter<{
     taskChainResultIndex: number;
+    nextStepIndex?: number;
     value?: any;
   }>();
 
@@ -89,7 +90,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     )) as FormArray;
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.rootFormGroup.valueChanges?.subscribe((value) => {
+      console.log(value);
+    });
+  }
 
   handleChangeTaskChainResult(
     taskChainResultIndex: number,
@@ -311,8 +316,12 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     return string;
   }
 
-  handleUpdateNextStep(taskChainResultIndex: number, value?: any) {
-    this.updateNextStepEvent.emit({taskChainResultIndex, value});
+  handleUpdateNextStep(
+    taskChainResultIndex: number,
+    nextStepIndex?: number,
+    value?: any,
+  ) {
+    this.updateNextStepEvent.emit({taskChainResultIndex, nextStepIndex, value});
   }
 
   renderDeadline(value: Date, executedDate?: Date) {

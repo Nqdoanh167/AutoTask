@@ -183,7 +183,11 @@
                             actionChains: actionChains.loading
                           }"
                           (updateNextStepEvent)="
-                            handleUpdateNextStep($event, taskChain.value)
+                            handleUpdateNextStep(
+                              $event,
+                              taskChain.value,
+                              chainIndex
+                            )
                           "
                         ></app-task-chain-item>
                       </accordion-group>

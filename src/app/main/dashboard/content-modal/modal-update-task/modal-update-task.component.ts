@@ -215,6 +215,20 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     return <FormArray>this.updateForm.get('taskChains');
   }
 
+  formTaskChainResults(chainIndex: number) {
+    return (<FormArray>(
+      this.formTaskChains.at(chainIndex).get('taskChainResults')
+    )) as FormArray;
+  }
+
+  formNextSteps(chainIndex: number, taskChainResultIndex: number) {
+    return (<FormArray>(
+      this.formTaskChainResults(chainIndex)
+        .at(taskChainResultIndex)
+        .get('nextActions')
+    )) as FormArray;
+  }
+
   get formLeadDeal() {
     return <FormGroup>this.updateForm.get('leadDeal');
   }
@@ -805,9 +819,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   handleUpdateNextStep(
     value: {
       taskChainResultIndex: number;
+      nextStepIndex?: number;
       value?: ITaskChainResult;
     },
     taskChain: any,
+    chainIndex: number,
   ) {
     this.isOpenBackDrop = true;
     const actionData = value?.value?.childNextAction;
@@ -849,7 +865,37 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     modalUpdateNextStep.onHide
       ?.pipe()
       .subscribe(() => (this.isOpenBackDrop = false));
-    modalUpdateNextStep.content?.updateSuccess.pipe().subscribe(() => {});
+    modalUpdateNextStep.content?.updateSuccess
+      .pipe()
+      .subscribe((dataStepForm) => {
+        try {
+          if (value) {
+            const formSteps = this.formNextSteps(
+              chainIndex,
+              value.taskChainResultIndex,
+            );
+            if (value.nextStepIndex !== undefined && value.nextStepIndex >= 0) {
+              formSteps.at(value.nextStepIndex!).patchValue({
+                ...dataStepForm,
+                childNextAction: {
+                  ...dataStepForm,
+                },
+              });
+            } else {
+              formSteps.push(
+                this.fb.group({
+                  ...dataStepForm,
+                  childNextAction: {
+                    ...dataStepForm,
+                  },
+                }),
+              );
+            }
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      });
   }
 
   ngOnDestroy(): void {
