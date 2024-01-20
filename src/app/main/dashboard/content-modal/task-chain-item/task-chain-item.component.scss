@@ -54,6 +54,11 @@
 
 .column-result {
   width: 20%;
+  .data-result-reason {
+    .reason {
+      font-style: italic;
+    }
+  }
 }
 
 .column-take-action {
@@ -81,6 +86,15 @@
   .button-add-step-action {
     visibility: hidden;
     padding: 5px 0;
+  }
+
+  &.dontEdit {
+    .button-add-step-action {
+      display: none !important;
+    }
+    .button-edit-next-step {
+      display: none !important;
+    }
   }
 }
 

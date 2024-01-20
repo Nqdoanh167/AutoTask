@@ -302,6 +302,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           status: taskChainResult?.status,
           // deadlineDate: taskChainResult?.deadlineDate,
           deadlineDate: taskChainResult.deadlineDate,
+          executedDate: taskChainResult.executedDate,
           deadlineDay: deadlineDay,
           deadlineHour: deadlineHour,
           deadlineMinute: deadlineMinute,

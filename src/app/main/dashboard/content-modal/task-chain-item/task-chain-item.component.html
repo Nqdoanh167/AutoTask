@@ -32,7 +32,9 @@
                 <td class="column-timer">
                   <div
                     class="timer fw-500"
-                    [popover]="popTemplate"
+                    [popover]="
+                      !taskChainResult.value?.result?.id ? popTemplate : ''
+                    "
                     placement="right"
                     [outsideClick]="true"
                     *ngIf="taskChainResult.value?.deadlineDate"
@@ -125,7 +127,7 @@
                   </div>
                 </td>
                 <td class="column-result">
-                  <div>
+                  <div *ngIf="!taskChainResult.value?.result.id">
                     <div formGroupName="result">
                       <ng-select
                         [placeholder]="'Chọn kết quả'"
@@ -163,8 +165,22 @@
                       ></ng-select>
                     </div>
                   </div>
+                  <div
+                    *ngIf="taskChainResult.value?.result.id"
+                    class="d-flex flex-column gap-2 data-result-reason"
+                  >
+                    <div class="result">
+                      {{ taskChainResult.value?.result.name }}
+                    </div>
+                    <div class="reason">
+                      {{ taskChainResult.value?.reason.name }}
+                    </div>
+                  </div>
                 </td>
-                <td class="column-next-step">
+                <td
+                  class="column-next-step"
+                  [class.dontEdit]="taskChainResult.value?.result.id"
+                >
                   <div>
                     <ng-container
                       *ngFor="
