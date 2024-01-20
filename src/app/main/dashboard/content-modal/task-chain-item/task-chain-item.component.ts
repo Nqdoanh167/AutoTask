@@ -19,6 +19,7 @@ import {
   EDelayType,
   ENextStepType,
   EStatusTaskChainResult,
+  ETaskChainType,
   IActResult,
   IChainAct,
   IChainResult,
@@ -303,4 +304,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
+
+  protected readonly ETaskChainType = ETaskChainType;
 }

@@ -274,6 +274,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       const taskChainForm = this.fb.group({
         id: taskChain.id,
         name: taskChain.name,
+        status: taskChain.status,
         taskChainResults: this.fb.array([]),
       });
       taskChain.taskChainResults?.forEach((taskChainResult) => {

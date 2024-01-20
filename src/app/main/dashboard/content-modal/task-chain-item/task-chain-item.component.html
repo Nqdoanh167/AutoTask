@@ -12,7 +12,10 @@
             <th class="column-result">Kết quả & Nguyên nhân</th>
             <th class="column-next-step">Bước tiếp theo</th>
             <th class="columns-desc">Ghi chú</th>
-            <th class="columns-action"></th>
+            <th
+              *ngIf="f['status'].value !== ETaskChainType.CLOSED"
+              class="columns-action"
+            ></th>
           </tr>
         </thead>
         <tbody>
@@ -33,7 +36,10 @@
                   <div
                     class="timer fw-500"
                     [popover]="
-                      !taskChainResult.value?.result?.id ? popTemplate : ''
+                      f['status'].value !== ETaskChainType.CLOSED &&
+                      !taskChainResult.value?.result?.id
+                        ? popTemplate
+                        : ''
                     "
                     placement="right"
                     [outsideClick]="true"
@@ -127,7 +133,12 @@
                   </div>
                 </td>
                 <td class="column-result">
-                  <div *ngIf="!taskChainResult.value?.result.id">
+                  <div
+                    *ngIf="
+                      f['status'].value !== ETaskChainType.CLOSED &&
+                      !taskChainResult.value?.result.name
+                    "
+                  >
                     <div formGroupName="result">
                       <ng-select
                         [placeholder]="'Chọn kết quả'"
@@ -166,11 +177,14 @@
                     </div>
                   </div>
                   <div
-                    *ngIf="taskChainResult.value?.result.id"
+                    *ngIf="
+                      taskChainResult.value?.result.name ||
+                      f['status'].value === ETaskChainType.CLOSED
+                    "
                     class="d-flex flex-column gap-2 data-result-reason"
                   >
                     <div class="result">
-                      {{ taskChainResult.value?.result.name }}
+                      {{ taskChainResult.value?.result.name || '-' }}
                     </div>
                     <div class="reason">
                       {{ taskChainResult.value?.reason.name }}
@@ -179,7 +193,7 @@
                 </td>
                 <td
                   class="column-next-step"
-                  [class.dontEdit]="taskChainResult.value?.result.id"
+                  [class.dontEdit]="taskChainResult.value?.result.name"
                 >
                   <div>
                     <ng-container
@@ -225,7 +239,10 @@
                     ></app-textarea>
                   </div>
                 </td>
-                <td class="columns-action">
+                <td
+                  *ngIf="f['status'].value !== ETaskChainType.CLOSED"
+                  class="columns-action"
+                >
                   <div class="d-flex">
                     <button
                       type="button"
