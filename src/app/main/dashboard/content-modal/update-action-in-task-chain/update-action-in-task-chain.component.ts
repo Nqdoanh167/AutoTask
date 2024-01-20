@@ -7,6 +7,7 @@ import {
   Output,
 } from '@angular/core';
 import {
+  EDelayType,
   ENextStepType,
   IActResult,
   IChainAct,
@@ -58,7 +59,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       chainActResultId: null,
       chainId: null,
     }),
-    delayType: null,
+    delayType: [null, [Validators.required]],
     delayValue: null,
   });
   public actionResults: IChainActResult[] = [];
@@ -69,6 +70,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     data: false,
   };
   protected readonly ENextStepType = ENextStepType;
+  protected readonly EDelayType = EDelayType;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -111,6 +113,27 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   hideModal(): void {
     this.modalRef.hide();
+  }
+
+  handleChangeTypeAction() {
+    this.updateForm.patchValue({
+      moveToAction: {
+        chainActResultId: null,
+      },
+      callBlockAutomation: {
+        blockId: null,
+      },
+      addNewChain: {
+        chainActResultId: null,
+        chainId: null,
+      },
+    });
+  }
+
+  handleChangeDelayType() {
+    this.updateForm.patchValue({
+      delayValue: null,
+    });
   }
 
   ngOnDestroy(): void {

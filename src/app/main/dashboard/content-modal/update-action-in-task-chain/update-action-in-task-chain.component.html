@@ -21,6 +21,7 @@
             [placeholder]="'Chọn hành động'"
             [searchable]="true"
             [items]="nextStepTypes"
+            (change)="handleChangeTypeAction()"
             class="dropdown-auto-width"
             appearance="outline"
             formControlName="nextAction"
@@ -132,6 +133,46 @@
               ></ng-select>
             </ng-container>
           </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="actionType">
+            Độ trễ
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            (change)="handleChangeDelayType()"
+            [ngClass]="{
+              'is-invalid': submitted && f['delayType'].errors
+            }"
+            [placeholder]="'Chọn loại'"
+            [clearable]="false"
+            [searchable]="false"
+            formControlName="delayType"
+            class="dropdown-auto-width"
+            appendTo=".modal-update-action"
+          >
+            <ng-option [value]="EDelayType.NOW">Ngay lập tức</ng-option>
+            <ng-option [value]="EDelayType.MINUTE">Phút</ng-option>
+            <ng-option [value]="EDelayType.HOUR">Giờ</ng-option>
+            <ng-option [value]="EDelayType.DAY">Ngày</ng-option>
+          </ng-select>
+        </div>
+        <div
+          class="mb-2"
+          *ngIf="![undefined, EDelayType.NOW].includes(f['delayType'].value)"
+        >
+          <input
+            [ngClass]="{
+              'is-invalid':
+                submitted &&
+                (f['delayType'].value === undefined ||
+                  f['delayType'].value === null ||
+                  !f['delayValue'].value)
+            }"
+            class="input-medium"
+            type="number"
+            formControlName="delayValue"
+          />
         </div>
       </ng-container>
     </app-custom-modal>

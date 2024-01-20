@@ -849,6 +849,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     modalUpdateNextStep.onHide
       ?.pipe()
       .subscribe(() => (this.isOpenBackDrop = false));
+    modalUpdateNextStep.content?.updateSuccess.pipe().subscribe(() => {});
   }
 
   ngOnDestroy(): void {
