@@ -8,17 +8,12 @@ import {
 } from '@angular/core';
 import {
   ENextStepType,
-  IActReason,
   IActResult,
   IChainAct,
   IChainActResult,
   IChainNextAction,
-  IPickResultForActionDto,
-  ITask,
-  ITaskChainResult,
-  ITaskDto,
 } from '@app/types/flow';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {Subject} from 'rxjs';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
@@ -91,7 +86,6 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   ngOnInit() {
     if (this.sourceData) {
-      const {addNewChain, moveToAction, callBlockAutomation} = this.sourceData;
       this.updateForm.patchValue({
         ...(this.sourceData as any),
       });
