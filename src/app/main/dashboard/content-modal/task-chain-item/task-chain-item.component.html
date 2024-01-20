@@ -215,7 +215,10 @@
                 </td>
                 <td
                   class="column-next-step"
-                  [class.dontEdit]="taskChainResult.value?.result.name"
+                  [class.dontEdit]="
+                    taskChainResult.value.executedDate ||
+                    f['status'].value === ETaskChainType.CLOSED
+                  "
                 >
                   <div>
                     <ng-container
