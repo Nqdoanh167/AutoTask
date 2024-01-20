@@ -92,7 +92,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.rootFormGroup.valueChanges?.subscribe((value) => {
-      console.log(value);
+      // console.log(value);
     });
   }
 
