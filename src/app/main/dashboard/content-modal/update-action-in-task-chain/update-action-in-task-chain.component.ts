@@ -80,6 +80,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   };
   protected readonly ENextStepType = ENextStepType;
   protected readonly EDelayType = EDelayType;
+  protected readonly EChainNextActType = EChainNextActType;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -162,6 +163,4 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
-  protected readonly EChainNextActType = EChainNextActType;
 }
