@@ -11,6 +11,7 @@ import {
   IActReason,
   IActResult,
   IChainAct,
+  IChainActResult,
   IChainNextAction,
   IPickResultForActionDto,
   ITask,
@@ -38,6 +39,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   @Input() results: IActResult[] = [];
   @Input() blocks: IBlockAutomation[] = [];
   @Input() actionChains: IChainAct[] = [];
+  @Input() chainActId?: string;
   @Input() loadingData = {
     results: false,
     blocks: false,
@@ -57,18 +59,21 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     callBlockAutomation: this.fb.group({
       blockId: null,
     }),
-    addNewChain: null,
+    addNewChain: this.fb.group({
+      chainActResultId: null,
+      chainId: null,
+    }),
     delayType: null,
     delayValue: null,
-    addNewChainId: null,
-    addNewChainActId: null,
   });
+  public actionResults: IChainActResult[] = [];
 
   private destroy$ = new Subject();
   public loading = {
     submit: false,
     data: false,
   };
+  protected readonly ENextStepType = ENextStepType;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -85,16 +90,17 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
-    console.log(this.sourceData);
     if (this.sourceData) {
       const {addNewChain, moveToAction, callBlockAutomation} = this.sourceData;
       this.updateForm.patchValue({
         ...(this.sourceData as any),
-        callToBlockId: callBlockAutomation?.blockId,
-        moveToActionId: moveToAction?.chainActResultId,
-        addNewChainId: addNewChain?.chainId,
-        addNewChainActId: addNewChain?.chainActResultId,
       });
+    }
+    if (this.chainActId) {
+      const chainAct = this.actionChains.find(
+        (chain) => chain.id === this.chainActId,
+      );
+      this.actionResults = chainAct?.actionResults || [];
     }
   }
 
@@ -117,6 +123,4 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
-  protected readonly ENextStepType = ENextStepType;
 }

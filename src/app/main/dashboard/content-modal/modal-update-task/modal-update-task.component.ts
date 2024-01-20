@@ -276,6 +276,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         id: taskChain.id,
         name: taskChain.name,
         status: taskChain.status,
+        chainActId: taskChain.chainActId,
         taskChainResults: this.fb.array([]),
       });
       taskChain.taskChainResults?.forEach((taskChainResult) => {
@@ -801,12 +802,16 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
   }
 
-  handleUpdateNextStep(value: {
-    taskChainResultIndex: number;
-    value?: ITaskChainResult;
-  }) {
+  handleUpdateNextStep(
+    value: {
+      taskChainResultIndex: number;
+      value?: ITaskChainResult;
+    },
+    taskChain: any,
+  ) {
     this.isOpenBackDrop = true;
     const actionData = value?.value?.childNextAction;
+    const chainActId = taskChain.chainActId;
     const modalUpdateNextStep = this.modalService.show(
       UpdateActionInTaskChainComponent,
       {
@@ -814,7 +819,24 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           sourceData: actionData,
           results: this.results.rows,
           blocks: this.blocks.rows,
-          actionChains: this.actionChains.rows,
+          actionChains: this.actionChains.rows.map((chain) => {
+            return {
+              ...chain,
+              actionResults: chain.actionResults?.map((actResult) => {
+                return {
+                  ...actResult,
+                  chainAct: {
+                    id: chain.id,
+                    name: chain.name,
+                  },
+                  action: {
+                    ...actResult.action,
+                  },
+                };
+              }),
+            };
+          }) as unknown as IChainAct[],
+          chainActId,
           loadingData: {
             results: this.results.loading,
             blocks: this.blocks.loading,

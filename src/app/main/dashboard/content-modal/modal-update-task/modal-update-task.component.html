@@ -182,7 +182,9 @@
                             blocks: blocks.loading,
                             actionChains: actionChains.loading
                           }"
-                          (updateNextStepEvent)="handleUpdateNextStep($event)"
+                          (updateNextStepEvent)="
+                            handleUpdateNextStep($event, taskChain.value)
+                          "
                         ></app-task-chain-item>
                       </accordion-group>
                     </accordion>
