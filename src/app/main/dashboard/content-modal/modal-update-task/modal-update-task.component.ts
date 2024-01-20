@@ -282,12 +282,15 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         let deadlineMinute = 0;
         let isOverDeadline = false;
         if (taskChainResult.deadlineDate) {
+          const executedDate = taskChainResult.executedDate || new Date();
           const subDate = calculateTime(
             taskChainResult.deadlineDate,
-            new Date(),
+            executedDate,
             'metrics',
           ) as {days?: number; hours?: number; minutes?: number};
-          isOverDeadline = moment().isAfter(taskChainResult.deadlineDate);
+          isOverDeadline = moment(executedDate).isAfter(
+            taskChainResult.deadlineDate,
+          );
           if (!isOverDeadline) {
             deadlineDay = subDate.days || 0;
             deadlineHour = subDate.hours || 0;
