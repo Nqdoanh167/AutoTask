@@ -58,17 +58,20 @@
               Automation Block
               <span class="required">*</span>
             </label>
-            <ng-select
-              [placeholder]="'Chọn Block'"
-              [searchable]="true"
-              [items]="blocks"
-              [loading]="loadingData.blocks"
-              [clearable]="false"
-              class="dropdown-auto-width"
-              bindLabel="name"
-              bindValue="id"
-              appendTo=".modal-update-action"
-            ></ng-select>
+            <ng-container formGroupName="callBlockAutomation">
+              <ng-select
+                formControlName="blockId"
+                [placeholder]="'Chọn Block'"
+                [searchable]="true"
+                [items]="blocks"
+                [loading]="loadingData.blocks"
+                [clearable]="false"
+                class="dropdown-auto-width"
+                bindLabel="name"
+                bindValue="id"
+                appendTo=".modal-update-action"
+              ></ng-select>
+            </ng-container>
           </div>
           <div *ngIf="f['nextAction'].value === ENextStepType.ADD_CHAIN">
             <label class="form-control-label" for="actionType">
@@ -112,16 +115,19 @@
               Hành động trong chuỗi
               <span class="required">*</span>
             </label>
-            <ng-select
-              [placeholder]="'Chọn Hành động'"
-              [searchable]="false"
-              [items]="[]"
-              [clearable]="false"
-              class="dropdown-auto-width"
-              bindLabel="action.name"
-              bindValue="id"
-              appendTo=".modal-update-action"
-            ></ng-select>
+            <ng-container formGroupName="moveToAction">
+              <ng-select
+                formControlName="chainActResultId"
+                [placeholder]="'Chọn Hành động'"
+                [searchable]="false"
+                [items]="[]"
+                [clearable]="false"
+                class="dropdown-auto-width"
+                bindLabel="action.name"
+                bindValue="id"
+                appendTo=".modal-update-action"
+              ></ng-select>
+            </ng-container>
           </div>
         </div>
       </ng-container>

@@ -18,6 +18,7 @@ import {
   IChainAct,
   ITask,
   ITaskChain,
+  ITaskChainResult,
   ITaskDto,
 } from '@app/types/flow';
 import {finalize, Subject, takeUntil} from 'rxjs';
@@ -800,13 +801,17 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
   }
 
-  handleUpdateNextStep(value: {taskChainResultIndex: number; value?: any}) {
+  handleUpdateNextStep(value: {
+    taskChainResultIndex: number;
+    value?: ITaskChainResult;
+  }) {
     this.isOpenBackDrop = true;
+    const actionData = value?.value?.childNextAction;
     const modalUpdateNextStep = this.modalService.show(
       UpdateActionInTaskChainComponent,
       {
         initialState: {
-          sourceData: value,
+          sourceData: actionData,
           results: this.results.rows,
           blocks: this.blocks.rows,
           actionChains: this.actionChains.rows,

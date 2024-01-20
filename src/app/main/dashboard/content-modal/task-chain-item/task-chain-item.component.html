@@ -236,7 +236,10 @@
                         ></span>
                         <span
                           (click)="
-                            handleUpdateNextStep(taskChainResultIndex, nextStep)
+                            handleUpdateNextStep(
+                              taskChainResultIndex,
+                              nextStep.value
+                            )
                           "
                           class="d-flex align-items-center button-edit-next-step"
                         >

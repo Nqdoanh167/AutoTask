@@ -11,6 +11,7 @@ import {
   IActReason,
   IActResult,
   IChainAct,
+  IChainNextAction,
   IPickResultForActionDto,
   ITask,
   ITaskChainResult,
@@ -33,7 +34,7 @@ import {IBlockAutomation} from '@app/types/automation';
 export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   @Input() taskChainId?: string;
   @Input() action?: string;
-  @Input() sourceData?: any;
+  @Input() sourceData?: IChainNextAction;
   @Input() results: IActResult[] = [];
   @Input() blocks: IBlockAutomation[] = [];
   @Input() actionChains: IChainAct[] = [];
@@ -48,8 +49,19 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   public nextStepTypes = this.configurationService.nextStepTypes;
   public submitted = false;
   public updateForm = this.fb.group({
-    name: ['Task mới', [Validators.required]],
     nextAction: [null, [Validators.required]],
+    type: null,
+    moveToAction: this.fb.group({
+      chainActResultId: null,
+    }),
+    callBlockAutomation: this.fb.group({
+      blockId: null,
+    }),
+    addNewChain: null,
+    delayType: null,
+    delayValue: null,
+    addNewChainId: null,
+    addNewChainActId: null,
   });
 
   private destroy$ = new Subject();
@@ -75,8 +87,13 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   ngOnInit() {
     console.log(this.sourceData);
     if (this.sourceData) {
+      const {addNewChain, moveToAction, callBlockAutomation} = this.sourceData;
       this.updateForm.patchValue({
         ...(this.sourceData as any),
+        callToBlockId: callBlockAutomation?.blockId,
+        moveToActionId: moveToAction?.chainActResultId,
+        addNewChainId: addNewChain?.chainId,
+        addNewChainActId: addNewChain?.chainActResultId,
       });
     }
   }
