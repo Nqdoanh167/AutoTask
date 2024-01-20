@@ -23,6 +23,7 @@ import {
   IPickResultForActionDto,
   IManyUpsertChainActResultDto,
   IUpdateTaskResultDto,
+  ITaskChainResult,
 } from '@app/types/flow';
 
 @Injectable({
@@ -230,7 +231,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   taskChainResult = {
     update: (id: string, body: IUpdateTaskResultDto) =>
-      this.httpClient.patch<EntityResult<ITask>>(
+      this.httpClient.patch<EntityResult<ITaskChainResult>>(
         this.createUrl([this.api.taskChainResult, id]),
         body,
       ),

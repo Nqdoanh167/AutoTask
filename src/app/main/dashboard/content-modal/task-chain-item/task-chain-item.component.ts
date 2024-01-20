@@ -102,25 +102,25 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     value: IChainResult,
   ) {
     if (value) {
-      const results = this.formTaskChainResults()
-        .at(taskChainResultIndex)
-        .get('results')?.value;
+      try {
+        const results = this.formTaskChainResults()
+          .at(taskChainResultIndex)
+          .get('results')?.value;
 
-      const resultIndex = results.findIndex((result: IChainResult) => {
-        return result.result?.id === value.result?.id;
-      });
-
-      this.formTaskChainResults()
-        .at(taskChainResultIndex)
-        .get('result')
-        ?.patchValue({
-          name: value.result?.name,
+        const resultIndex = results.findIndex((result: IChainResult) => {
+          return result.result?.id === value.result?.id;
         });
 
-      this.formTaskChainResults().at(taskChainResultIndex).patchValue({
-        resultIndex,
-      });
-      try {
+        this.formTaskChainResults()
+          .at(taskChainResultIndex)
+          .get('result')
+          ?.patchValue({
+            name: value.result?.name,
+          });
+
+        this.formTaskChainResults().at(taskChainResultIndex).patchValue({
+          resultIndex,
+        });
         (<FormArray>(
           this.formTaskChainResults()
             .at(taskChainResultIndex)
@@ -193,7 +193,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       this.formTaskChainResults().at(taskChainResultIndex).value;
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
-        console.log('nextAction?.childNextAction', nextAction?.childNextAction);
         const modify = {
           callBlockAutomation: nextAction?.childNextAction?.callBlockAutomation
             ? nextAction?.childNextAction?.callBlockAutomation
@@ -243,9 +242,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.commonService.handleResSuccess('update');
-            this.formTaskChainResults().at(taskChainResultIndex).patchValue({
-              executedDate: new Date(),
-            });
+            if (res.data.executedDate) {
+              this.formTaskChainResults().at(taskChainResultIndex).patchValue({
+                executedDate: res.data.executedDate,
+              });
+            }
           } else {
             this.commonService.handleResErr(res);
           }

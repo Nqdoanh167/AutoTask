@@ -306,6 +306,12 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             deadlineMinute = subDate.minutes || 0;
           }
         }
+        const resultIndex = taskChainResult.results?.findIndex(
+          (result) => result.result?.id === taskChainResult.result?.id,
+        );
+        const reasonIndex = taskChainResult.action?.reasons?.findIndex(
+          (reason) => reason?.id === taskChainResult?.reason?.id,
+        );
         const taskChainResultForm = this.fb.group({
           id: taskChainResult?.id,
           status: taskChainResult?.status,
@@ -322,8 +328,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             type: taskChainResult?.action?.type,
             reasons: this.fb.array([]),
           }),
-          resultIndex: null,
-          reasonIndex: null,
+          resultIndex: resultIndex >= 0 ? resultIndex : null,
+          reasonIndex:
+            reasonIndex !== undefined && reasonIndex >= 0 ? reasonIndex : null,
           note: taskChainResult.note,
           result: this.fb.group({
             id: taskChainResult?.result?.id,
