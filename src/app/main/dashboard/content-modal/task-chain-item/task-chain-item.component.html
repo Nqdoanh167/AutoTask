@@ -85,7 +85,7 @@
                         class="form-control-label d-flex align-items-center gap-2 mb-2"
                       >
                         <i class="fa-solid fa-clock"></i>
-                        <div class="fw-500">Thời gian hẹn giờ</div>
+                        <div class="fw-500">Chỉnh sửa thời gian hẹn giờ</div>
                       </label>
                       <div class="d-flex gap-2">
                         <input
@@ -249,6 +249,7 @@
                       </div>
                     </ng-container>
                     <div
+                      *ngIf="taskChainResult.value?.result?.id"
                       [style.width]="'150px'"
                       class="d-flex align-items-center gap-2 button-add-step-action text-link"
                       (click)="handleUpdateNextStep(taskChainResultIndex)"

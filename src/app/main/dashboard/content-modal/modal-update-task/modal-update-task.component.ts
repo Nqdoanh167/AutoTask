@@ -896,6 +896,17 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           console.log(e);
         }
       });
+    modalUpdateNextStep.content?.deleteEvent.pipe().subscribe(() => {
+      if (value) {
+        const formSteps = this.formNextSteps(
+          chainIndex,
+          value.taskChainResultIndex,
+        );
+        if (value.nextStepIndex !== undefined && value.nextStepIndex >= 0) {
+          formSteps.removeAt(value.nextStepIndex!);
+        }
+      }
+    });
   }
 
   ngOnDestroy(): void {

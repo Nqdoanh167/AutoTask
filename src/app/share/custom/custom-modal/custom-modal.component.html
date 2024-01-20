@@ -17,7 +17,7 @@
       <ng-content select="[modalBody]"></ng-content>
     </div>
     <div class="modal-footer">
-      <div #modalFooter>
+      <div class="w-100" #modalFooter>
         <ng-content select="[modalFooter]"></ng-content>
       </div>
       <div class="d-flex gap-2" *ngIf="!modalFooter.children.length">

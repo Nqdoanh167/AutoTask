@@ -49,6 +49,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   };
 
   @Output() updateSuccess = new EventEmitter<any>();
+  @Output() deleteEvent = new EventEmitter<any>();
 
   public nextStepTypes = this.configurationService.nextStepTypes;
   public submitted = false;
@@ -131,11 +132,17 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     this.submitted = true;
     if (this.updateForm.valid) {
       this.handleUpdate();
+      this.hideModal();
     }
   }
 
   hideModal(): void {
     this.modalRef.hide();
+  }
+
+  onDelete() {
+    this.deleteEvent.emit();
+    this.hideModal();
   }
 
   handleChangeTypeAction() {
