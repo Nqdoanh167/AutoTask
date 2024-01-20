@@ -7,6 +7,7 @@ import {
   Output,
 } from '@angular/core';
 import {
+  EChainNextActType,
   EDelayType,
   ENextStepType,
   IActResult,
@@ -48,7 +49,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   public submitted = false;
   public updateForm = this.fb.group({
     nextAction: [null, [Validators.required]],
-    type: null,
+    type: [null, [Validators.required]],
     moveToAction: this.fb.group({
       chainActResultId: null,
     }),
@@ -142,4 +143,6 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
+
+  protected readonly EChainNextActType = EChainNextActType;
 }

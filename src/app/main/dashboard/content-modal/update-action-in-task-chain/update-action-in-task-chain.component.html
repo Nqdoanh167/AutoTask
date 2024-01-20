@@ -135,11 +135,12 @@
           </div>
         </div>
         <div class="mb-2">
-          <label class="form-control-label" for="actionType">
+          <label class="form-control-label" for="delayType">
             Độ trễ
             <span class="required">*</span>
           </label>
           <ng-select
+            id="delayType"
             (change)="handleChangeDelayType()"
             [ngClass]="{
               'is-invalid': submitted && f['delayType'].errors
@@ -159,7 +160,9 @@
         </div>
         <div
           class="mb-2"
-          *ngIf="![undefined, EDelayType.NOW].includes(f['delayType'].value)"
+          *ngIf="
+            ![undefined, EDelayType.NOW, null].includes(f['delayType'].value)
+          "
         >
           <input
             [ngClass]="{
@@ -173,6 +176,27 @@
             type="number"
             formControlName="delayValue"
           />
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="type">
+            Loại
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['type'].errors
+            }"
+            [placeholder]="'Chọn loại'"
+            [clearable]="false"
+            formControlName="type"
+            class="dropdown-auto-width"
+            id="type"
+            appendTo="body"
+            formControlName="delayValue"
+          >
+            <ng-option [value]="EChainNextActType.AUTO">Tự động</ng-option>
+            <ng-option [value]="EChainNextActType.MANUAL">Thủ công</ng-option>
+          </ng-select>
         </div>
       </ng-container>
     </app-custom-modal>
