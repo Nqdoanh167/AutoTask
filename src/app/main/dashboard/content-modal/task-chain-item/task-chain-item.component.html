@@ -45,16 +45,26 @@
                     [outsideClick]="true"
                     *ngIf="taskChainResult.value?.deadlineDate"
                     [ngClass]="{
-                      'text-danger': taskChainResult.value?.isOverDeadline
+                      'text-danger':
+                        taskChainResult.value?.typeOverDeadline === 'over'
                     }"
                   >
-                    {{
-                      taskChainResult.value?.isOverDeadline
-                        ? 'Quá hạn:'
-                        : 'Còn:'
-                    }}
-                    <div>
-                      {{ renderDeadline(taskChainResult.value?.deadlineDate) }}
+                    <ng-container
+                      [ngSwitch]="taskChainResult.value?.typeOverDeadline"
+                    >
+                      <span *ngSwitchCase="'over'">Quá:</span>
+                      <span *ngSwitchCase="'notOver'">Còn:</span>
+                      <span *ngSwitchCase="'now'">Ngay lập tức</span>
+                    </ng-container>
+                    <div
+                      *ngIf="taskChainResult.value?.typeOverDeadline !== 'now'"
+                    >
+                      {{
+                        renderDeadline(
+                          taskChainResult.value?.deadlineDate,
+                          taskChainResult.value?.executedDate
+                        )
+                      }}
                     </div>
                   </div>
                   <ng-template #popTemplate>

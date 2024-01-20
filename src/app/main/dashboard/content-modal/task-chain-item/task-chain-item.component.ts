@@ -89,7 +89,10 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   ngOnInit(): void {}
 
-  renderDeadline(value: Date) {
+  renderDeadline(value: Date, executedDate?: Date) {
+    if (executedDate) {
+      return calculateTime(value, executedDate) as string;
+    }
     return calculateTime(value, new Date()) as string;
   }
 

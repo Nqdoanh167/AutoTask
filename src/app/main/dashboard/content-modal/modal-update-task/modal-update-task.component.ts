@@ -281,7 +281,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         let deadlineDay = 0;
         let deadlineHour = 0;
         let deadlineMinute = 0;
-        let isOverDeadline = false;
+        let typeOverDeadline = 'notOver';
         if (taskChainResult.deadlineDate) {
           const executedDate = taskChainResult.executedDate || new Date();
           const subDate = calculateTime(
@@ -289,10 +289,18 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             executedDate,
             'metrics',
           ) as {days?: number; hours?: number; minutes?: number};
-          isOverDeadline = moment(executedDate).isAfter(
-            taskChainResult.deadlineDate,
-          );
-          if (!isOverDeadline) {
+          if (
+            subDate.days === 0 &&
+            subDate.hours === 0 &&
+            subDate.minutes === 0
+          ) {
+            typeOverDeadline = 'now';
+          } else if (
+            moment(executedDate).isAfter(taskChainResult.deadlineDate)
+          ) {
+            typeOverDeadline = 'over';
+          }
+          if (!typeOverDeadline) {
             deadlineDay = subDate.days || 0;
             deadlineHour = subDate.hours || 0;
             deadlineMinute = subDate.minutes || 0;
@@ -307,7 +315,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           deadlineDay: deadlineDay,
           deadlineHour: deadlineHour,
           deadlineMinute: deadlineMinute,
-          isOverDeadline: isOverDeadline,
+          typeOverDeadline: typeOverDeadline,
           action: this.fb.group({
             id: taskChainResult?.action?.id,
             name: taskChainResult?.action?.name,
@@ -671,9 +679,12 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         class: 'modal-dialog-centered modal-add-chain',
       },
     );
-    this.addTaskChainModalRef?.onHide
-      ?.pipe()
-      .subscribe(() => (this.isOpenBackDrop = false));
+    this.addTaskChainModalRef?.onHide?.pipe().subscribe(() => {
+      this.isOpenBackDrop = false;
+      this.addTaskChainForm.patchValue({
+        addChainActIds: null,
+      });
+    });
   }
 
   onAddTaskChain() {
