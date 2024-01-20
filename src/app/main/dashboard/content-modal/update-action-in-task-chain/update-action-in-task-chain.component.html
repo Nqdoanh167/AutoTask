@@ -16,7 +16,7 @@
           </label>
           <ng-select
             [ngClass]="{
-              'is-invalid': submitted && f['resultId'].errors
+              'is-invalid': submitted && f['nextAction'].errors
             }"
             [placeholder]="'Chọn hành động'"
             [searchable]="true"
@@ -31,11 +31,11 @@
             bindValue="value"
           ></ng-select>
           <div
-            *ngIf="submitted && f['resultId'].errors"
+            *ngIf="submitted && f['nextAction'].errors"
             class="invalid-feedback"
           >
-            <div *ngIf="f['resultId'].errors?.['required']">
-              Kết quả không được bỏ trống
+            <div *ngIf="f['nextAction'].errors?.['required']">
+              Loại hành động không được bỏ trống
             </div>
           </div>
         </div>
@@ -191,8 +191,7 @@
             formControlName="type"
             class="dropdown-auto-width"
             id="type"
-            appendTo="body"
-            formControlName="delayValue"
+            appendTo=".modal-update-action"
           >
             <ng-option [value]="EChainNextActType.AUTO">Tự động</ng-option>
             <ng-option [value]="EChainNextActType.MANUAL">Thủ công</ng-option>

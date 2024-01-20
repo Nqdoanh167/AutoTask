@@ -16,7 +16,12 @@ import {
   IChainNextAction,
 } from '@app/types/flow';
 import {Subject} from 'rxjs';
-import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
@@ -47,22 +52,25 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   public nextStepTypes = this.configurationService.nextStepTypes;
   public submitted = false;
-  public updateForm = this.fb.group({
-    nextAction: [null, [Validators.required]],
-    type: [null, [Validators.required]],
-    moveToAction: this.fb.group({
-      chainActResultId: null,
-    }),
-    callBlockAutomation: this.fb.group({
-      blockId: null,
-    }),
-    addNewChain: this.fb.group({
-      chainActResultId: null,
-      chainId: null,
-    }),
-    delayType: [null, [Validators.required]],
-    delayValue: null,
-  });
+  public updateForm = this.fb.group(
+    {
+      nextAction: [null, [Validators.required]],
+      type: [null, [Validators.required]],
+      moveToAction: this.fb.group({
+        chainActResultId: null,
+      }),
+      callBlockAutomation: this.fb.group({
+        blockId: null,
+      }),
+      addNewChain: this.fb.group({
+        chainActResultId: null,
+        chainId: null,
+      }),
+      delayType: [null, [Validators.required]],
+      delayValue: null,
+    },
+    {validators: [this.allOrNoneRequired]},
+  );
   public actionResults: IChainActResult[] = [];
 
   private destroy$ = new Subject();
@@ -85,6 +93,17 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   get f(): {[key: string]: AbstractControl} {
     return this.updateForm.controls;
+  }
+
+  allOrNoneRequired(form: FormGroup) {
+    const type = form.get('delayType');
+    const value = form.get('delayValue');
+    if (type?.value !== EDelayType.NOW && !value?.value) {
+      value?.setErrors({required: true});
+    } else {
+      value?.setErrors(null);
+    }
+    return null;
   }
 
   ngOnInit() {
