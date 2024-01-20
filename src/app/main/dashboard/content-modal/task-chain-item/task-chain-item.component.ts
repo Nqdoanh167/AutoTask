@@ -30,6 +30,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {BsModalService} from 'ngx-bootstrap/modal';
+import moment from 'moment/moment';
 
 @Component({
   selector: 'app-task-chain-item',
@@ -89,13 +90,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {}
-
-  renderDeadline(value: Date, executedDate?: Date) {
-    if (executedDate) {
-      return calculateTime(value, executedDate) as string;
-    }
-    return calculateTime(value, new Date()) as string;
-  }
 
   handleChangeTaskChainResult(
     taskChainResultIndex: number,
@@ -321,10 +315,37 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     this.updateNextStepEvent.emit({taskChainResultIndex, value});
   }
 
+  renderDeadline(value: Date, executedDate?: Date) {
+    if (executedDate) {
+      return calculateTime(value, executedDate) as string;
+    }
+    return calculateTime(value, new Date()) as string;
+  }
+
   handleChangeDeadline(taskChainResultIndex: number) {
-    const {deadlineDay, deadlineHour, deadlineMinute} =
+    const {deadlineDay, deadlineHour, deadlineMinute, deadlineDate} =
       this.formTaskChainResults().at(taskChainResultIndex).value;
-    console.log(deadlineDay, deadlineHour, deadlineMinute);
+    console.log({deadlineDay, deadlineHour, deadlineMinute, deadlineDate});
+    // create newDeadlineDate equal deadlineDate plush deadlineDay, deadlineHour, deadlineMinute
+    const newDeadlineDate = new Date();
+    let typeOverDeadline = 'notOver';
+    newDeadlineDate.setDate(newDeadlineDate.getDate() + deadlineDay);
+    newDeadlineDate.setHours(newDeadlineDate.getHours() + deadlineHour);
+    newDeadlineDate.setMinutes(newDeadlineDate.getMinutes() + deadlineMinute);
+    const subDate = calculateTime(newDeadlineDate, deadlineDate, 'metrics') as {
+      days?: number;
+      hours?: number;
+      minutes?: number;
+    };
+    if (subDate.days === 0 && subDate.hours === 0 && subDate.minutes === 0) {
+      typeOverDeadline = 'now';
+    } else if (moment(deadlineDate).isAfter(newDeadlineDate)) {
+      typeOverDeadline = 'over';
+    }
+    console.log(newDeadlineDate);
+    // this.formTaskChainResults()
+    //   .at(taskChainResultIndex)
+    //   .patchValue({typeOverDeadline});
   }
 
   ngOnDestroy(): void {
