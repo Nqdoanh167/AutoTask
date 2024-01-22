@@ -288,8 +288,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               }
             }
           }
-        } else {
-          return true;
         }
       }
       return true;
@@ -461,6 +459,22 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     }
   }
 
+  clearRemovedActionInChainResult(removeChainActionId: string | undefined) {
+    this.detailChain?.actionResults?.map((actResult) => {
+      actResult.results?.map((result) => {
+        result.nextActions?.map((nextAction) => {
+          if (
+            nextAction.moveToActionId === removeChainActionId ||
+            nextAction.addNewChainId === removeChainActionId
+          ) {
+            nextAction.moveToActionId = undefined;
+            nextAction.addNewChainId = undefined;
+          }
+        });
+      });
+    });
+  }
+
   handleRemoveAction(currentIndex: number, chainActResult: IChainActResult) {
     if (!this.detailChain?.id || !chainActResult.id) return;
     this.autoTaskService.chainAction
@@ -468,6 +482,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
+            this.clearRemovedActionInChainResult(
+              this.detailChain?.actionResults[currentIndex]?.id,
+            );
             this.detailChain?.actionResults.splice(currentIndex, 1);
           } else {
             this.commonService.handleResErr(res);
