@@ -344,6 +344,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             name: taskChainResult?.action?.name,
             type: taskChainResult?.action?.type,
             reasons: this.fb.array([]),
+            callBlockAutomation: this.fb.group({
+              blockId: taskChainResult?.action?.callBlockAutomation?.blockId,
+            }),
           }),
           resultIndex: resultIndex >= 0 ? resultIndex : null,
           reasonIndex:

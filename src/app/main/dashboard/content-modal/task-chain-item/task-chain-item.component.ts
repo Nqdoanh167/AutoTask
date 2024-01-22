@@ -199,7 +199,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResult: ITaskChainResult,
   ) {
     if (!taskChainResult.id) return;
-    const {note, resultIndex, reasonIndex, nextActions, deadlineDate} =
+    const {note, resultIndex, reasonIndex, nextActions, deadlineDate, action} =
       this.formTaskChainResults().at(taskChainResultIndex).value;
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
@@ -244,6 +244,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
       nextActions: modifiedNextActions,
       deadlineDate: deadlineDate,
+      callBlockAutomation: action.callBlockAutomation
+        ? action.callBlockAutomation
+        : null,
     };
     this.loading.submit = true;
     this.autoTaskService.taskChainResult

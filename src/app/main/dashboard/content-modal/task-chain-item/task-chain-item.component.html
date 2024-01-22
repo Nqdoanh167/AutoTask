@@ -121,7 +121,7 @@
                   {{ taskChainResult.value.action?.name || '-' }}
                 </td>
                 <td class="column-take-action">
-                  <div>
+                  <div formGroupName="action">
                     <ng-container
                       [ngSwitch]="taskChainResult?.value.action?.type"
                     >
@@ -143,6 +143,27 @@
                             class="fa-solid fa-robot ms-2 cursor-pointer"
                             style="color: #53b27f"
                           ></i>
+                        </div>
+                        <div
+                          *ngIf="
+                            f['status'].value !== ETaskChainType.CLOSED &&
+                            !taskChainResult.value.executedDate
+                          "
+                          class="mt-2"
+                          formGroupName="callBlockAutomation"
+                        >
+                          <ng-select
+                            formControlName="blockId"
+                            [placeholder]="'Chọn Block'"
+                            [searchable]="true"
+                            [items]="blocks"
+                            [loading]="loadingData.blocks"
+                            [clearable]="false"
+                            class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                            bindLabel="name"
+                            bindValue="id"
+                            appendTo=".modal-update-task"
+                          ></ng-select>
                         </div>
                       </ng-container>
                       <ng-container *ngSwitchCase="EActionType.OTHER">

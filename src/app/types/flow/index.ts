@@ -56,6 +56,9 @@ export interface IAction {
   reasonIds: string[];
   results?: IActResult[];
   reasons?: IActReason[];
+  callBlockAutomation?: {
+    blockId?: string;
+  };
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;
