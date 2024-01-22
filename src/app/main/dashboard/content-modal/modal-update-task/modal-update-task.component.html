@@ -182,6 +182,9 @@
                             blocks: blocks.loading,
                             actionChains: actionChains.loading
                           }"
+                          [staticDataChainItem]="
+                            sourceData?.taskChains?.[chainIndex]
+                          "
                           (updateNextStepEvent)="
                             handleUpdateNextStep(
                               $event,

@@ -42,8 +42,11 @@
                   <div
                     class="timer fw-500"
                     [popover]="
-                      f['status'].value !== ETaskChainType.CLOSED &&
-                      !taskChainResult.value?.result?.id
+                      handleCheckIsAllowEdit(
+                        'timer',
+                        taskChainResult.value,
+                        taskChainResultIndex
+                      )
                         ? popTemplate
                         : ''
                     "
@@ -153,6 +156,13 @@
                           formGroupName="callBlockAutomation"
                         >
                           <ng-select
+                            [readonly]="
+                              !handleCheckIsAllowEdit(
+                                'block',
+                                taskChainResult.value,
+                                taskChainResultIndex
+                              )
+                            "
                             formControlName="blockId"
                             [placeholder]="'Chọn Block'"
                             [searchable]="true"
@@ -178,8 +188,11 @@
                 <td class="column-result">
                   <div
                     *ngIf="
-                      f['status'].value !== ETaskChainType.CLOSED &&
-                      !taskChainResult.value.executedDate
+                      handleCheckIsAllowEdit(
+                        'result',
+                        taskChainResult.value,
+                        taskChainResultIndex
+                      )
                     "
                   >
                     <div formGroupName="result">

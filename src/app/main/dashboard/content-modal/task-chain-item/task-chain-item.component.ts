@@ -24,6 +24,7 @@ import {
   IActResult,
   IChainAct,
   IChainResult,
+  ITaskChain,
   ITaskChainResult,
 } from '@app/types/flow';
 import {calculateTime} from '@app/utils/common';
@@ -49,6 +50,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     blocks: false,
     actionChains: false,
   };
+  @Input() staticDataChainItem?: ITaskChain;
 
   @Output() updateNextStepEvent = new EventEmitter<{
     taskChainResultIndex: number;
@@ -369,6 +371,39 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     this.formTaskChainResults()
       .at(taskChainResultIndex)
       .patchValue({typeOverDeadline, deadlineDate: newDeadlineDate});
+  }
+
+  handleCheckIsAllowEdit(
+    type: 'result' | 'timer' | 'block',
+    taskChainResult: ITaskChainResult,
+    taskChainResultIndex: number,
+  ) {
+    const staticTaskChain =
+      this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex];
+    if (type === 'result') {
+      return (
+        staticTaskChain?.action?.callBlockAutomation?.blockId ===
+          taskChainResult?.action?.callBlockAutomation?.blockId &&
+        staticTaskChain?.deadlineDate === taskChainResult?.deadlineDate &&
+        this.f['status'].value !== ETaskChainType.CLOSED &&
+        !taskChainResult.executedDate
+      );
+    }
+    if (type === 'timer') {
+      return (
+        this.f['status'].value !== ETaskChainType.CLOSED &&
+        !taskChainResult?.result?.id &&
+        !taskChainResult.executedDate
+      );
+    }
+    if (type === 'block') {
+      return (
+        this.f['status'].value !== ETaskChainType.CLOSED &&
+        !taskChainResult?.result?.id &&
+        !taskChainResult.executedDate
+      );
+    }
+    return true;
   }
 
   ngOnDestroy(): void {
