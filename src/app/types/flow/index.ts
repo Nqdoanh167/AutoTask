@@ -87,6 +87,7 @@ export enum EDelayType {
 
 export interface IChainNextAction {
   id?: string;
+  status?: ETaskChainResultType;
   type?: EChainNextActType;
   delayType?: EDelayType;
   ordering?: number;

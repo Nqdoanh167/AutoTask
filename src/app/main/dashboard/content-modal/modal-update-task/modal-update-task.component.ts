@@ -387,6 +387,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
               moveToAction: nextAction.moveToAction,
               nextAction: nextAction.nextAction,
               type: nextAction.type,
+              status: nextAction.status,
             });
             (<FormArray>resultForm.controls.nextActions).push(nextActionForm);
           });

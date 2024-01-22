@@ -231,6 +231,26 @@
                       <div
                         class="next-step-item d-flex gap-2 align-items-center"
                       >
+                        <ng-container [ngSwitch]="nextStep.value.status">
+                          <img
+                            *ngSwitchCase="ETaskChainResultType.COMPLETED"
+                            width="10"
+                            height="10"
+                            alt=""
+                            src="assets/images/icon/check.svg"
+                          />
+                          <img
+                            *ngSwitchCase="ETaskChainResultType.CANCELED"
+                            width="10"
+                            height="10"
+                            alt=""
+                            src="assets/images/icon/not-check.svg"
+                          />
+                          <div
+                            *ngSwitchDefault
+                            style="width: 10px; height: 10px"
+                          ></div>
+                        </ng-container>
                         <span
                           [innerHTML]="renderNextStepData(nextStep.value)"
                         ></span>

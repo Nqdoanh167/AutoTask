@@ -19,6 +19,7 @@ import {
   EDelayType,
   ENextStepType,
   EStatusTaskChainResult,
+  ETaskChainResultType,
   ETaskChainType,
   IActResult,
   IChainAct,
@@ -66,6 +67,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   protected readonly EActionType = EActionType;
   protected readonly ENextStepType = ENextStepType;
   protected readonly today = new Date();
+  protected readonly ETaskChainResultType = ETaskChainResultType;
 
   constructor(
     private rootFormGroup: FormGroupDirective,
