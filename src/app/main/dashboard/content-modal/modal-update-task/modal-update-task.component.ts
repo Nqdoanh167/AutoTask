@@ -238,6 +238,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+    this.getDetailTask();
     this.getProvince();
     if (this.sourceData) {
       this.patchForm(this.sourceData);

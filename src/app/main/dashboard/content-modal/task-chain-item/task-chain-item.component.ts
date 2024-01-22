@@ -54,6 +54,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     nextStepIndex?: number;
     value?: any;
   }>();
+  @Output() updateTaskChainEvent = new EventEmitter();
 
   public loading = {
     submit: false,
@@ -246,6 +247,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
                 executedDate: res.data.executedDate,
               });
             }
+            this.updateTaskChainEvent.emit();
           } else {
             this.commonService.handleResErr(res);
           }
