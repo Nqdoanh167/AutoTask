@@ -133,6 +133,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       page: 1,
       limit: 100,
       sort: '-createdAt',
+      filter: JSON.stringify({isActive: true}),
     },
     isAllowLoadMore: false,
   };
