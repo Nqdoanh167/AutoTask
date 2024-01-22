@@ -282,6 +282,7 @@
                 <td class="columns-desc">
                   <div>
                     <app-textarea
+                      [readonly]="f['status'].value === ETaskChainType.CLOSED"
                       inputClass="bg-white border-0"
                       placeholder="Nhập ghi chú..."
                       [value]="taskChainResult.value.note || ''"
