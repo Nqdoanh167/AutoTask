@@ -218,9 +218,10 @@ export enum ETaskChainType {
 }
 
 export enum ETaskChainResultType {
-  CURRENT = 'CURRENT',
+  ACTIVE = 'ACTIVE',
   BACKGROUND_PROCESSING = 'BACKGROUND_PROCESSING',
   COMPLETED = 'COMPLETED',
+  CANCELED = 'CANCELED',
 }
 
 export interface ITaskChainResult {

@@ -55,6 +55,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     value?: any;
   }>();
   @Output() updateTaskChainEvent = new EventEmitter();
+  @Output() cancelUpdateTaskChainEvent = new EventEmitter();
 
   public loading = {
     submit: false,
@@ -184,12 +185,19 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     }
   }
 
+  handleCancelSave(
+    taskChainResultIndex: number,
+    taskChainResult: ITaskChainResult,
+  ) {
+    this.cancelUpdateTaskChainEvent.emit();
+  }
+
   handleSaveTaskChainResult(
     taskChainResultIndex: number,
     taskChainResult: ITaskChainResult,
   ) {
     if (!taskChainResult.id) return;
-    const {note, resultIndex, reasonIndex, nextActions} =
+    const {note, resultIndex, reasonIndex, nextActions, deadlineDate} =
       this.formTaskChainResults().at(taskChainResultIndex).value;
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
@@ -233,6 +241,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       resultIndex: resultIndex || resultIndex === 0 ? resultIndex : null,
       reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
       nextActions: modifiedNextActions,
+      deadlineDate: deadlineDate,
     };
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
@@ -336,7 +345,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   handleChangeDeadline(taskChainResultIndex: number) {
     const {deadlineDay, deadlineHour, deadlineMinute, deadlineDate} =
       this.formTaskChainResults().at(taskChainResultIndex).value;
-    console.log({deadlineDay, deadlineHour, deadlineMinute, deadlineDate});
     // create newDeadlineDate equal deadlineDate plush deadlineDay, deadlineHour, deadlineMinute
     const newDeadlineDate = new Date();
     let typeOverDeadline = 'notOver';
@@ -350,13 +358,12 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     };
     if (subDate.days === 0 && subDate.hours === 0 && subDate.minutes === 0) {
       typeOverDeadline = 'now';
-    } else if (moment(deadlineDate).isAfter(newDeadlineDate)) {
+    } else if (moment().isAfter(newDeadlineDate)) {
       typeOverDeadline = 'over';
     }
-    console.log(newDeadlineDate);
-    // this.formTaskChainResults()
-    //   .at(taskChainResultIndex)
-    //   .patchValue({typeOverDeadline});
+    this.formTaskChainResults()
+      .at(taskChainResultIndex)
+      .patchValue({typeOverDeadline, deadlineDate: newDeadlineDate});
   }
 
   ngOnDestroy(): void {

@@ -273,7 +273,7 @@
                   *ngIf="f['status'].value !== ETaskChainType.CLOSED"
                   class="columns-action"
                 >
-                  <div class="d-flex">
+                  <div class="d-flex flex-column">
                     <button
                       type="button"
                       class="btn button-medium button-fill secondary-color"
@@ -285,6 +285,18 @@
                       "
                     >
                       Lưu
+                    </button>
+                    <button
+                      type="button"
+                      class="btn button-medium button-outline mt-2"
+                      (click)="
+                        handleCancelSave(
+                          taskChainResultIndex,
+                          taskChainResult.value
+                        )
+                      "
+                    >
+                      Hủy
                     </button>
                   </div>
                 </td>

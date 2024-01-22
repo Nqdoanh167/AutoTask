@@ -280,7 +280,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
   }
 
-  patchForm(dataSource: ITask) {
+  patchForm(dataSource?: ITask) {
+    if (!dataSource) return;
     this.updateForm.patchValue({
       ...dataSource,
       counselorId: dataSource?.counselor?.id,
@@ -317,7 +318,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           ) {
             typeOverDeadline = 'over';
           }
-          if (!typeOverDeadline) {
+          if (typeOverDeadline !== 'over') {
             deadlineDay = subDate.days || 0;
             deadlineHour = subDate.hours || 0;
             deadlineMinute = subDate.minutes || 0;
@@ -332,7 +333,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         const taskChainResultForm = this.fb.group({
           id: taskChainResult?.id,
           status: taskChainResult?.status,
-          // deadlineDate: taskChainResult?.deadlineDate,
           deadlineDate: taskChainResult.deadlineDate,
           executedDate: taskChainResult.executedDate,
           deadlineDay: deadlineDay,
