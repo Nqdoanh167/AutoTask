@@ -607,19 +607,22 @@
                                 [(ngModel)]="nextAction.moveToActionId"
                                 [placeholder]="'Chọn Hành động'"
                                 [searchable]="false"
-                                [items]="
-                                  detailChain?.actionResults || []
-                                    | filterData: [item.id] : ['id']
-                                "
                                 [clearable]="false"
                                 class="dropdown-auto-width"
                                 id="block-{{ nextActionIndex }}-{{
                                   resultIndex
                                 }}"
-                                bindLabel="action.name"
-                                bindValue="id"
                                 appendTo="body"
-                              ></ng-select>
+                              >
+                                <ng-option
+                                  *ngFor="
+                                    let option of filterActionResults(item.id)
+                                  "
+                                  [value]="option.id"
+                                >
+                                  {{ option.id | json }}
+                                </ng-option>
+                              </ng-select>
                             </div>
                           </div>
                           <div class="col-2">

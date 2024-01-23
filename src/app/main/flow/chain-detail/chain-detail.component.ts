@@ -27,7 +27,7 @@ import {
 } from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import {uniqBy} from 'lodash';
+import {cloneDeep, uniqBy} from 'lodash';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -162,6 +162,14 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
   get f(): {[key: string]: AbstractControl} {
     return this.addNextActionForm.controls;
+  }
+
+  filterActionResults(id?: string) {
+    return (
+      this.detailChain?.actionResults?.filter(
+        (actResult) => actResult.id !== id,
+      ) || []
+    );
   }
 
   ngOnInit() {
@@ -339,10 +347,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     this.configButtons[this.configButtons.length - 1].loading = true;
     forkJoin([
       this.autoTaskService.chainActResult.upsertMany(bodyUpdateResults),
-      this.autoTaskService.chainAction.update(
-        this.detailChain.id!,
-        bodyDetailChain,
-      ),
+      // this.autoTaskService.chainAction.update(
+      //   this.detailChain.id!,
+      //   bodyDetailChain,
+      // ),
     ])
       .pipe(
         finalize(() => {
@@ -353,14 +361,21 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       )
       .subscribe({
         next: (res) => {
-          const responseResult = res[0];
-          const responseDetail = res[1];
+          // const responseResult = res[0];
+          const responseDetail = res[0];
 
-          if (responseResult.status === 200 && responseDetail.status === 200) {
+          // if (responseResult.status === 200 && responseDetail.status === 200) {
+          //   this.commonService.handleResSuccess('update');
+          // } else if (responseResult.status !== 200) {
+          //   this.commonService.handleResErr(responseResult);
+          // } else
+          //   if (responseDetail.status !== 200) {
+          //   this.commonService.handleResErr(responseDetail);
+          // }
+
+          if (responseDetail.status === 200) {
             this.commonService.handleResSuccess('update');
-          } else if (responseResult.status !== 200) {
-            this.commonService.handleResErr(responseResult);
-          } else if (responseDetail.status !== 200) {
+          } else {
             this.commonService.handleResErr(responseDetail);
           }
         },
@@ -398,7 +413,35 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     }
   }
 
-  handleChangeAction(selectedAction: IAction, index: number) {}
+  handleChangeAction(selectedAction: IAction, index: number) {
+    if (this.detailChain) {
+      const actionIds: any[] = this.detailChain.actionResults
+        .map((act) => {
+          return act.action?.id;
+        })
+        .filter((id) => !!id);
+      actionIds.push(selectedAction.id);
+      const body = {
+        actionIds,
+      } as unknown as IUpdateChainActDto;
+      this.autoTaskService.chainAction
+        .update(this.detailChain.id, body)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.detailChain!.actionResults[index] = {
+                ...this.detailChain!.actionResults[index],
+                id: res.data.actionResults[index].id,
+                action: cloneDeep(selectedAction),
+              };
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+        });
+    }
+  }
 
   newNextAction() {
     return {
