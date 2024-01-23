@@ -234,8 +234,11 @@
                   </div>
                   <div
                     *ngIf="
-                      taskChainResult.value.executedDate ||
-                      f['status'].value === ETaskChainType.CLOSED
+                      !handleCheckIsAllowEdit(
+                        'result',
+                        taskChainResult.value,
+                        taskChainResultIndex
+                      )
                     "
                     class="d-flex flex-column gap-2 data-result-reason"
                   >

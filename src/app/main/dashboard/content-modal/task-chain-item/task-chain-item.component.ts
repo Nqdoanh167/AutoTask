@@ -382,8 +382,10 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex];
     if (type === 'result') {
       return (
-        staticTaskChain?.action?.callBlockAutomation?.blockId ===
-          taskChainResult?.action?.callBlockAutomation?.blockId &&
+        ((!staticTaskChain?.action?.callBlockAutomation?.blockId &&
+          !staticTaskChain?.action?.callBlockAutomation?.blockId) ||
+          staticTaskChain?.action?.callBlockAutomation?.blockId ===
+            taskChainResult?.action?.callBlockAutomation?.blockId) &&
         staticTaskChain?.deadlineDate === taskChainResult?.deadlineDate &&
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult.executedDate
