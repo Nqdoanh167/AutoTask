@@ -620,7 +620,7 @@
                                   "
                                   [value]="option.id"
                                 >
-                                  {{ option.id | json }}
+                                  {{ option.action?.name || '-' }}
                                 </ng-option>
                               </ng-select>
                             </div>
