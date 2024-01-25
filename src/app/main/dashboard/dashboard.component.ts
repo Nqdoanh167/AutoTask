@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {finalize, interval, Subject, takeUntil} from 'rxjs';
 import {
   ETypeButton,
   ETypeFilter,
@@ -12,9 +12,11 @@ import {CommonService} from '@app/services/common/common.service';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {sortBy, sortIcon} from '@app/utils/common';
+import {calculateTime, sortBy, sortIcon} from '@app/utils/common';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
 import {ITask} from '@app/types/flow';
+import moment from 'moment/moment';
+import {cloneDeep} from 'lodash';
 
 @Component({
   selector: 'app-task',
@@ -64,6 +66,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   };
   private sortProperty: string = 'createdAt';
   private sortOrder = 1;
+  public dataSource$ = interval(10000)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.dataSource.rows = this.runTimer();
+    });
   constructor(
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
@@ -73,7 +80,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getDataSource();
-    // this.handleUpdate();
+  }
+
+  runTimer() {
+    return cloneDeep(this.dataSource.rows);
+  }
+
+  calculateTimeLeft(date: Date) {
+    let data = {
+      timeLeft: '',
+      typeOverDeadline: 'notOver',
+    };
+    const subDate = calculateTime(date, new Date(), 'metrics') as {
+      days?: number;
+      hours?: number;
+      minutes?: number;
+    };
+    if (subDate.days === 0 && subDate.hours === 0 && subDate.minutes === 0) {
+      data.typeOverDeadline = 'now';
+    } else if (moment().isAfter(date)) {
+      data.typeOverDeadline = 'over';
+      data.timeLeft = calculateTime(new Date(), date) as string;
+    }
+    if (data.typeOverDeadline !== 'over') {
+      data.timeLeft = calculateTime(date, new Date()) as string;
+    }
+    return data;
   }
 
   getDataSource(isReset?: boolean) {

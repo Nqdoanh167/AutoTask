@@ -30,6 +30,13 @@
           .completed {
             color: vars.$secondary-500;
           }
+          .over {
+            color: vars.$red-500;
+          }
+          .notOver,
+          .now {
+            color: vars.$green-500;
+          }
         }
       }
     }

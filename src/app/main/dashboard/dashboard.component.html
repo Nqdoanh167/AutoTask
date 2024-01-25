@@ -73,17 +73,56 @@
                           >
                             <span>#{{ resultIndex + 1 }}</span>
                             <span>
+                              -
                               <span
-                                *ngIf="taskChainResult?.status === 'COMPLETED'"
+                                *ngIf="!!taskChainResult?.executedDate"
                                 class="completed"
                               >
                                 Đã thực hiện
                               </span>
                               <span
-                                *ngIf="taskChainResult?.status !== 'COMPLETED'"
-                                class="processing"
+                                *ngIf="
+                                  !taskChainResult?.executedDate &&
+                                  taskChainResult.deadlineDate
+                                "
                               >
-                                Chưa có kết quả
+                                <ng-container
+                                  [ngTemplateOutlet]="timeLeft"
+                                  [ngTemplateOutletContext]="{
+                                    dataTimeLeft: calculateTimeLeft(
+                                      taskChainResult.deadlineDate
+                                    )
+                                  }"
+                                ></ng-container>
+                                <ng-template
+                                  #timeLeft
+                                  let-dataTimeLeft="dataTimeLeft"
+                                >
+                                  <span
+                                    class="{{ dataTimeLeft.typeOverDeadline }}"
+                                  >
+                                    <ng-container
+                                      [ngSwitch]="dataTimeLeft.typeOverDeadline"
+                                    >
+                                      <span *ngSwitchCase="'over'">
+                                        Trễ lịch:&nbsp;
+                                      </span>
+                                      <span *ngSwitchCase="'notOver'">
+                                        Còn:&nbsp;
+                                      </span>
+                                      <span *ngSwitchCase="'now'">
+                                        Ngay lập tức
+                                      </span>
+                                    </ng-container>
+                                    <span
+                                      *ngIf="
+                                        dataTimeLeft.typeOverDeadline !== 'now'
+                                      "
+                                    >
+                                      {{ dataTimeLeft.timeLeft }}
+                                    </span>
+                                  </span>
+                                </ng-template>
                               </span>
                               -
                             </span>
