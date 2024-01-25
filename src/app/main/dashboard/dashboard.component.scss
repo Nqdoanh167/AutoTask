@@ -1,5 +1,12 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
 .dashboard-site {
   padding: 16px;
+}
+
+.table-responsive {
+  @include mixins.calculateSize('max-height', '100vh', '210px');
 }
 
 .avatar {
@@ -7,4 +14,24 @@
   height: 30px;
   object-fit: cover;
   border-radius: 50%;
+}
+
+.column-action-chain {
+  .list-chain {
+    .chain-item {
+      border: 1px solid vars.$secondary-500;
+      padding: 8px;
+      border-radius: vars.$radius-l;
+      .list-act {
+        .list-act-item {
+          .processing {
+            color: vars.$orange-500;
+          }
+          .completed {
+            color: vars.$secondary-500;
+          }
+        }
+      }
+    }
+  }
 }

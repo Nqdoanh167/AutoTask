@@ -17,9 +17,8 @@
                   <span class="icon-sort" [innerHTML]="sortIcon('name')"></span>
                   Task
                 </th>
-                <th>Chuỗi hành động hiện tại</th>
-                <th>Hành động cần làm kế tiếp</th>
-                <th>Lead/Deal</th>
+                <th class="column-action-chain">Hành động - Kết quả</th>
+                <th>Khách hàng</th>
                 <th>Sản phẩm quan tâm</th>
                 <th>Nhân viên phụ trách</th>
                 <th>Ngày tạo</th>
@@ -52,8 +51,57 @@
                     {{ item.name || '-' }}
                   </div>
                 </td>
-                <td>-</td>
-                <td>-</td>
+                <td class="column-action-chain">
+                  <div class="list-chain d-flex flex-column gap-2">
+                    <ng-container *ngIf="item.taskChains.length">
+                      <div
+                        *ngFor="let taskChain of item.taskChains"
+                        class="chain-item"
+                      >
+                        <div>
+                          <span class="fw-500">
+                            {{ taskChain.name || '-' }}
+                          </span>
+                        </div>
+                        <div class="list-act">
+                          <div
+                            *ngFor="
+                              let taskChainResult of taskChain.taskChainResults;
+                              let resultIndex = index
+                            "
+                            class="list-act-item"
+                          >
+                            <span>#{{ resultIndex + 1 }}</span>
+                            <span>
+                              <span
+                                *ngIf="taskChainResult?.status === 'COMPLETED'"
+                                class="completed"
+                              >
+                                Đã thực hiện
+                              </span>
+                              <span
+                                *ngIf="taskChainResult?.status !== 'COMPLETED'"
+                                class="processing"
+                              >
+                                Chưa có kết quả
+                              </span>
+                              -
+                            </span>
+                            <span>
+                              {{ taskChainResult?.action?.name || '-' }}
+                            </span>
+                            <span *ngIf="!!taskChainResult.result?.name">
+                              - {{ taskChainResult.result?.name || '-' }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-container>
+                    <ng-container *ngIf="!item.taskChains.length">
+                      -
+                    </ng-container>
+                  </div>
+                </td>
                 <td>
                   <div class="d-flex flex-column" *ngIf="item.leadDeal">
                     <span class="fw-500">{{ item.leadDeal?.name || '-' }}</span>
