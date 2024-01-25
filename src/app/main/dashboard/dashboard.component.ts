@@ -253,6 +253,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.dataSource$.unsubscribe();
     this.destroy$.next(true);
     this.destroy$.complete();
   }
