@@ -144,17 +144,48 @@ export interface Branch {
   createdAt: Date;
   updatedAt: Date;
 }
-export interface Biz {
+
+export interface BizDomain {
   id: string;
-  alias: string;
-  location?: string;
+  name: string;
+  disabled: boolean;
+  bizId: string;
+  ssl: string;
+  verify: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IBranch {
+  id: string;
+  name: string;
+  address: string;
+  desc: string;
+  isActive: boolean;
+  phone: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type BizModuleAlias =
+  | 'main'
+  | 'automation'
+  | 'customer'
+  | 'data-table'
+  | 'coupons'
+  | 'image-design'
+  | string;
+
+export interface Biz {
+  branches: IBranch[];
+  id: string;
+  alias: BizModuleAlias;
   author?: {
     id: string;
     name: string;
     email: string;
     picture: string;
   };
-  branches: Branch[];
   name: string;
   email?: string;
   picture?: string;
@@ -167,13 +198,14 @@ export interface Biz {
     symbol: string;
     thousandSeparator: string;
   };
+
+  domains: BizDomain[];
   module: BizModule;
   modules: BizModule[];
   quickModules: string[];
   groups: BizGroup[];
   roles: BizRole[];
   user: User;
-  staff: any;
   users: User[];
   timezone: string;
   createdAt?: Date;
@@ -197,6 +229,7 @@ export interface BizModule {
   weight: number;
   createdAt: Date;
   updatedAt: Date;
+  groupIds: string[];
 }
 export interface BizGroup {
   id: string;

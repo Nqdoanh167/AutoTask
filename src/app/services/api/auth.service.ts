@@ -4,7 +4,14 @@ import {BaseApiService} from './base.service';
 import {BehaviorSubject} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
 import {BizService} from './biz.service';
-import {Biz, BizModule, Branch, ERole, User} from 'src/app/types/viewmodels';
+import {
+  Biz,
+  BizModule,
+  Branch,
+  ERole,
+  IBranch,
+  User,
+} from 'src/app/types/viewmodels';
 import {environment} from 'src/environments/environment';
 
 @Injectable({
@@ -23,7 +30,7 @@ export class AuthService {
     .pipe(distinctUntilChanged());
 
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
-  public branches = new BehaviorSubject<Branch[]>([]);
+  public branches = new BehaviorSubject<IBranch[]>([]);
   public modules = new BehaviorSubject<BizModule[]>([]);
   public isLoggedIn = this.isLoggedInSubject
     .asObservable()
