@@ -192,7 +192,9 @@
                               chainIndex
                             )
                           "
-                          (updateTaskChainEvent)="getDetailTask()"
+                          (updateTaskChainEvent)="
+                            getDetailTask(); updateSuccess.emit()
+                          "
                           (cancelUpdateTaskChainEvent)="patchForm(sourceData)"
                         ></app-task-chain-item>
                       </accordion-group>
