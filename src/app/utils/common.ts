@@ -30,11 +30,24 @@ export const calculateTime = (
 
   // Calculate the number of hours
   const hours = Math.floor((minutes % 1440) / 60);
-  string = hours ? `${hours} giờ ${remainingMinutes} phút` : string;
+  string = hours
+    ? remainingMinutes
+      ? `${hours} giờ ${remainingMinutes} phút`
+      : `${hours} giờ`
+    : string;
 
   // Calculate the number of days
   const days = Math.floor(minutes / 1440);
-  string = days ? `${days} ngày ${hours} giờ ${remainingMinutes} phút` : string;
+  // assign variable string combine days, hours, minutes, if one of them is not 0
+  string = days
+    ? hours
+      ? remainingMinutes
+        ? `${days} ngày ${hours} giờ ${remainingMinutes} phút`
+        : `${days} ngày ${hours} giờ`
+      : remainingMinutes
+        ? `${days} ngày ${remainingMinutes} phút`
+        : `${days} ngày`
+    : string;
 
   if (typeReturn === 'metrics') {
     return {
