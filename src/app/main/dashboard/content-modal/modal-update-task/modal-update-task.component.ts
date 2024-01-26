@@ -32,6 +32,7 @@ import {
 } from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
+  CourseEvent,
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
@@ -53,6 +54,7 @@ import {AutomationService} from '@app/services/api/automation.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {environment} from '../../../../../environments/environment';
 import {ProductService} from '@app/services/api/product.service';
+import {CourseEventService} from '@app/services/api/courseEvent.service';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -165,6 +167,17 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     isAllowLoadMore: false,
   };
 
+  public courseEvents: ICommonDataLazy<CourseEvent, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
   public isOpenBackDrop: boolean = false;
 
   private destroy$ = new Subject();
@@ -211,6 +224,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly automationService: AutomationService,
     private readonly productService: ProductService,
+    private readonly courseEventService: CourseEventService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
