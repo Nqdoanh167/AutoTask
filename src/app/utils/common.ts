@@ -26,14 +26,14 @@ export const calculateTime = (
 
   // Calculate the number of minutes
   const remainingMinutes = minutes % 60;
-  string = `${remainingMinutes} m`;
+  string = `${remainingMinutes}m`;
 
   // Calculate the number of hours
   const hours = Math.floor((minutes % 1440) / 60);
   string = hours
     ? remainingMinutes
-      ? `${hours} h ${remainingMinutes} m`
-      : `${hours} h`
+      ? `${hours}h ${remainingMinutes}m`
+      : `${hours}h`
     : string;
 
   // Calculate the number of days
@@ -42,11 +42,11 @@ export const calculateTime = (
   string = days
     ? hours
       ? remainingMinutes
-        ? `${days} d ${hours} h ${remainingMinutes} m`
-        : `${days} d ${hours} h`
+        ? `${days}d ${hours}h ${remainingMinutes}m`
+        : `${days}d ${hours}h`
       : remainingMinutes
-        ? `${days} d ${remainingMinutes} m`
-        : `${days} d`
+        ? `${days}d ${remainingMinutes}m`
+        : `${days}d`
     : string;
 
   if (typeReturn === 'metrics') {

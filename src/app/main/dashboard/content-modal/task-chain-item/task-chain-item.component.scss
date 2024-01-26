@@ -28,6 +28,10 @@
 
 .column-timer {
   width: 10%;
+  .done-time {
+    color: vars.$green-500;
+    font-weight: 500;
+  }
   .timer {
     border: 1px solid #e0e4ef;
     border-radius: 4px;
@@ -35,9 +39,9 @@
     margin: 2px 0;
     display: flex;
     padding: 5px 10px;
-    flex-direction: column;
-    justify-content: center;
-    color: vars.$green-500;
+    gap: 5px;
+    align-items: center;
+    color: vars.$secondary-500;
   }
 }
 

@@ -33,7 +33,10 @@
             >
               <tr [formGroupName]="taskChainResultIndex">
                 <td class="column-timer">
-                  <div *ngIf="taskChainResult.value?.executedDate">
+                  <div
+                    class="done-time"
+                    *ngIf="taskChainResult.value?.executedDate"
+                  >
                     {{
                       taskChainResult.value?.executedDate
                         | date: 'dd/MM/yyyy HH:mm'
@@ -67,11 +70,21 @@
                     <ng-container
                       [ngSwitch]="taskChainResult.value?.typeOverDeadline"
                     >
-                      <span *ngSwitchCase="'over'">Trễ lịch:</span>
-                      <span *ngSwitchCase="'notOver'">Còn:</span>
+                      <span *ngSwitchCase="'over'">
+                        <i
+                          class="fa-solid fa-triangle-exclamation"
+                          style="color: #ef6a6a"
+                        ></i>
+                      </span>
+                      <span *ngSwitchCase="'notOver'">
+                        <i
+                          class="fa-solid fa-stopwatch"
+                          style="color: #4277ff"
+                        ></i>
+                      </span>
                       <span *ngSwitchCase="'now'">Ngay lập tức</span>
                     </ng-container>
-                    <div
+                    <span
                       *ngIf="taskChainResult.value?.typeOverDeadline !== 'now'"
                     >
                       {{
@@ -80,7 +93,7 @@
                           taskChainResult.value?.executedDate
                         )
                       }}
-                    </div>
+                    </span>
                   </div>
                   <ng-template #popTemplate>
                     <div
