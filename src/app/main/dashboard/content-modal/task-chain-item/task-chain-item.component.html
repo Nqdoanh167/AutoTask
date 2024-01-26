@@ -42,6 +42,9 @@
                   <div
                     class="timer fw-500"
                     [popover]="
+                      !!staticDataChainItem?.taskChainResults?.[
+                        taskChainResultIndex
+                      ]?.['isEdit'] &&
                       handleCheckIsAllowEdit(
                         'timer',
                         taskChainResult.value,
@@ -64,7 +67,7 @@
                     <ng-container
                       [ngSwitch]="taskChainResult.value?.typeOverDeadline"
                     >
-                      <span *ngSwitchCase="'over'">Quá:</span>
+                      <span *ngSwitchCase="'over'">Trễ lịch:</span>
                       <span *ngSwitchCase="'notOver'">Còn:</span>
                       <span *ngSwitchCase="'now'">Ngay lập tức</span>
                     </ng-container>
@@ -129,24 +132,24 @@
                       [ngSwitch]="taskChainResult?.value.action?.type"
                     >
                       <ng-container *ngSwitchCase="EActionType.CALL">
-                        <div>
+                        <button
+                          type="button"
+                          class="btn button-medium button-sub-primary secondary-color"
+                        >
                           Gọi điện
-                          <i
-                            class="fa-solid fa-phone-volume ms-2 cursor-pointer"
-                            style="color: #53b27f"
-                          ></i>
-                        </div>
+                          <i class="fa-solid fa-phone ms-2"></i>
+                        </button>
                       </ng-container>
                       <ng-container
                         *ngSwitchCase="EActionType.SEND_BLOCK_AUTOMATION"
                       >
-                        <div>
+                        <button
+                          type="button"
+                          class="btn button-medium button-sub-primary secondary-color"
+                        >
                           Gửi Block Automation
-                          <i
-                            class="fa-solid fa-robot ms-2 cursor-pointer"
-                            style="color: #53b27f"
-                          ></i>
-                        </div>
+                          <i class="fa-solid fa-robot ms-2 cursor-pointer"></i>
+                        </button>
                         <div
                           *ngIf="
                             f['status'].value !== ETaskChainType.CLOSED &&
@@ -155,25 +158,30 @@
                           class="mt-2"
                           formGroupName="callBlockAutomation"
                         >
-                          <ng-select
-                            [readonly]="
-                              !handleCheckIsAllowEdit(
-                                'block',
-                                taskChainResult.value,
-                                taskChainResultIndex
-                              )
-                            "
-                            formControlName="blockId"
-                            [placeholder]="'Chọn Block'"
-                            [searchable]="true"
-                            [items]="blocks"
-                            [loading]="loadingData.blocks"
-                            [clearable]="false"
-                            class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
-                            bindLabel="name"
-                            bindValue="id"
-                            appendTo=".modal-update-task"
-                          ></ng-select>
+                          <ng-container>
+                            <ng-select
+                              [readonly]="
+                                !staticDataChainItem?.taskChainResults?.[
+                                  taskChainResultIndex
+                                ]?.['isEdit'] ||
+                                !handleCheckIsAllowEdit(
+                                  'block',
+                                  taskChainResult.value,
+                                  taskChainResultIndex
+                                )
+                              "
+                              formControlName="blockId"
+                              [placeholder]="'Chọn Block'"
+                              [searchable]="true"
+                              [items]="blocks"
+                              [loading]="loadingData.blocks"
+                              [clearable]="false"
+                              class="ng-select-custom dropdown-auto-width input-medium"
+                              bindLabel="name"
+                              bindValue="id"
+                              appendTo=".modal-update-task"
+                            ></ng-select>
+                          </ng-container>
                         </div>
                       </ng-container>
                       <ng-container *ngSwitchCase="EActionType.OTHER">
@@ -188,6 +196,9 @@
                 <td class="column-result">
                   <div
                     *ngIf="
+                      !!staticDataChainItem?.taskChainResults?.[
+                        taskChainResultIndex
+                      ]?.['isEdit'] &&
                       handleCheckIsAllowEdit(
                         'result',
                         taskChainResult.value,
@@ -207,13 +218,13 @@
                             $event
                           )
                         "
-                        class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                        class="ng-select-custom dropdown-auto-width input-medium"
                         bindLabel="result.name"
                         bindValue="result.id"
                         appendTo=".modal-update-task"
                       ></ng-select>
                     </div>
-                    <div formGroupName="reason">
+                    <div class="mt-2" formGroupName="reason">
                       <ng-select
                         [placeholder]="'Chọn nguyên nhân'"
                         [searchable]="true"
@@ -225,7 +236,7 @@
                           )
                         "
                         formControlName="id"
-                        class="ng-select-custom dropdown-auto-width bg-white borderless input-medium"
+                        class="ng-select-custom dropdown-auto-width input-medium"
                         bindLabel="name"
                         bindValue="id"
                         appendTo=".modal-update-task"
@@ -317,21 +328,63 @@
                   </div>
                 </td>
                 <td class="columns-desc">
-                  <div>
+                  <div
+                    *ngIf="
+                      staticDataChainItem?.taskChainResults?.[
+                        taskChainResultIndex
+                      ]?.['isEdit']
+                    "
+                  >
                     <app-textarea
                       [readonly]="f['status'].value === ETaskChainType.CLOSED"
-                      inputClass="bg-white border-0"
+                      inputClass="border-0"
                       placeholder="Nhập ghi chú..."
                       [value]="taskChainResult.value.note || ''"
                       (valueChange)="taskChainResult.patchValue({note: $event})"
                     ></app-textarea>
+                  </div>
+                  <div
+                    *ngIf="
+                      !staticDataChainItem?.taskChainResults?.[
+                        taskChainResultIndex
+                      ]?.['isEdit']
+                    "
+                  >
+                    {{ taskChainResult.value?.note || '-' }}
                   </div>
                 </td>
                 <td
                   *ngIf="f['status'].value !== ETaskChainType.CLOSED"
                   class="columns-action"
                 >
-                  <div class="d-flex flex-column">
+                  <div
+                    *ngIf="
+                      !staticDataChainItem?.taskChainResults?.[
+                        taskChainResultIndex
+                      ]?.['isEdit']
+                    "
+                  >
+                    <button
+                      style="width: 56px"
+                      type="button"
+                      (click)="
+                        staticDataChainItem!.taskChainResults[
+                          taskChainResultIndex
+                        ]['isEdit'] = true
+                      "
+                      class="btn d-flex align-items-center btn-action-table"
+                    >
+                      <img src="./assets/images/icon/edit.svg" alt="" />
+                    </button>
+                  </div>
+                  <div
+                    *ngIf="
+                      staticDataChainItem?.taskChainResults?.[
+                        taskChainResultIndex
+                      ]?.['isEdit']
+                    "
+                    class="d-flex flex-column"
+                  >
                     <button
                       type="button"
                       class="btn button-medium button-fill secondary-color"

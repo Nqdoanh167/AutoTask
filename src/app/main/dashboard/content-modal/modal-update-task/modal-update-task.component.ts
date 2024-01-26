@@ -399,6 +399,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           }),
           results: this.fb.array([]),
           nextActions: this.fb.array([]),
+          isEdit: false,
         });
         taskChainResult?.action?.reasons?.forEach((reason) => {
           const reasonForm = this.fb.group({

@@ -100,6 +100,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     this.rootFormGroup.valueChanges?.subscribe((value) => {
       // console.log(value);
     });
+    this.staticDataChainItem?.taskChainResults?.forEach((taskChainResult) => {
+      taskChainResult['isEdit'] = false;
+    });
   }
 
   handleChangeTaskChainResult(
