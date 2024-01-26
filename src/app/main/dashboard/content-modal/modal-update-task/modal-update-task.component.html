@@ -558,7 +558,7 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                     <ng-container formArrayName="products">
                       <div
                         *ngFor="
-                          let item of formProducts.controls;
+                          let productType of formProducts.controls;
                           let i = index
                         "
                         [formGroupName]="i"
@@ -587,24 +587,66 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                         <div class="col">
                           <div class="row">
                             <div class="col">
-                              <ng-select
-                                [placeholder]="'Chọn Sản phẩm'"
-                                [searchable]="false"
-                                appearance="outline"
-                                appendTo=".modal"
-                              >
-                                <ng-container>
-                                  <ng-option
-                                    *ngFor="
-                                      let item of productTypes;
-                                      index as i
-                                    "
-                                    [value]="item.value"
+                              <ng-container [ngSwitch]="productType.value.type">
+                                <ng-container *ngSwitchCase="0">
+                                  <ng-select
+                                    [placeholder]="'Chọn Sản phẩm'"
+                                    [searchable]="false"
+                                    [multiple]="true"
+                                    [closeOnSelect]="false"
+                                    class="dropdown-auto-width custom-input-multiple"
+                                    appearance="outline"
+                                    appendTo=".modal"
                                   >
-                                    {{ item.label }}
-                                  </ng-option>
+                                    <ng-container>
+                                      <ng-option
+                                        *ngFor="
+                                          let item of products.rows;
+                                          index as i
+                                        "
+                                        [value]="item.id"
+                                      >
+                                        <div class="d-flex align-items-center">
+                                          <img
+                                            class="image-product-radius me-2"
+                                            [src]="
+                                              item.picture ||
+                                              'assets/images/default-product.png'
+                                            "
+                                            fallback="assets/images/no-photo.jpeg"
+                                            [alt]="item.name"
+                                            width="20"
+                                            height="20"
+                                          />
+                                          <div class="label">
+                                            {{ item.name }}
+                                          </div>
+                                        </div>
+                                      </ng-option>
+                                    </ng-container>
+                                  </ng-select>
                                 </ng-container>
-                              </ng-select>
+                                <ng-container *ngSwitchDefault>
+                                  <ng-select
+                                    [placeholder]="'Chọn Sản phẩm'"
+                                    [searchable]="false"
+                                    appearance="outline"
+                                    appendTo=".modal"
+                                  >
+                                    <ng-container>
+                                      <ng-option
+                                        *ngFor="
+                                          let item of productTypes;
+                                          index as i
+                                        "
+                                        [value]="item.value"
+                                      >
+                                        {{ item.label }}
+                                      </ng-option>
+                                    </ng-container>
+                                  </ng-select>
+                                </ng-container>
+                              </ng-container>
                             </div>
                           </div>
                         </div>

@@ -2,9 +2,10 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {Category, EntityResult, Group, Product} from 'src/app/types/viewmodels';
-import {BehaviorSubject, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
+import {Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
+
 declare const FB: any;
 
 @Injectable({

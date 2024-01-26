@@ -16,6 +16,7 @@ import {
   IActResult,
   IAddTaskChainDto,
   IChainAct,
+  IProductDto,
   ITask,
   ITaskChain,
   ITaskChainResult,
@@ -34,6 +35,7 @@ import {
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
+  Product,
   User,
 } from '@app/types/viewmodels';
 import {ApiLocationService} from '@app/services/api/location';
@@ -50,6 +52,7 @@ import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {environment} from '../../../../../environments/environment';
+import {ProductService} from '@app/services/api/product.service';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -150,10 +153,21 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     },
     total: 0,
   };
+
+  public products: ICommonDataLazy<Product, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
   public isOpenBackDrop: boolean = false;
 
   private destroy$ = new Subject();
-  protected readonly ETypeProduct = ETypeProduct;
   public loading = {
     submit: false,
     data: false,
@@ -196,6 +210,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly modalService: BsModalService,
     private readonly modalConfirmService: ModalConfirmService,
     private readonly automationService: AutomationService,
+    private readonly productService: ProductService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -244,6 +259,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+    this.getListProduct(true);
     this.getDetailTask();
     this.getProvince();
     if (this.sourceData) {
@@ -634,6 +650,48 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       },
       error: (err) => this.commonService.handleErr(err),
     });
+  }
+
+  getListProduct(isInit: boolean = false, isSearching: boolean = false) {
+    this.products.loading = true;
+    let oldData: any = [];
+    const ids: string[] = [];
+    const query = {
+      ...this.products.paramsQuery,
+      ...(isInit && ids.length && {ids: ids}),
+    };
+    if (isSearching) {
+      oldData = [...this.products.rows];
+      this.products.rows = [];
+    }
+
+    this.productService.product
+      .get(query)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.products.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            let newData: Product[] = [];
+            if (isSearching) {
+              newData = [...res.data, ...oldData];
+            } else {
+              newData = [...this.products.rows, ...res.data];
+            }
+            this.products.rows = uniqBy(newData, 'id');
+            this.products.isAllowLoadMore = true;
+          } else {
+            this.products.isAllowLoadMore = false;
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.products.isAllowLoadMore = false;
+          this.commonService.handleResErr(err);
+        },
+      });
   }
 
   getProvince() {
