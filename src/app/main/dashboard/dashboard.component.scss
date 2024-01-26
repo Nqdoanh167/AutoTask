@@ -28,14 +28,14 @@
             color: vars.$orange-500;
           }
           .completed {
-            color: vars.$secondary-500;
+            color: vars.$green-500;
           }
           .over {
             color: vars.$red-500;
           }
           .notOver,
           .now {
-            color: vars.$green-500;
+            color: vars.$secondary-500;
           }
         }
       }
