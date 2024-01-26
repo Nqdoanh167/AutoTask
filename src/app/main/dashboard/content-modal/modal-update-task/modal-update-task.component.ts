@@ -160,6 +160,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     getDetail: false,
     addTaskChain: false,
     createOrder: false,
+    deleteTask: false,
   };
   public productTypes = [
     {
@@ -597,6 +598,42 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     if (this.updateForm.valid) {
       this.handleUpdate();
     }
+  }
+
+  handleDeleteTask() {
+    const title = 'Xóa Task';
+    const description = `Bạn sắp xóa task <b>${
+      this.sourceData?.name || ''
+    }</b>, hành động này không thể hoàn tác.`;
+    const okText = 'Xóa';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'warning',
+      modalType: 'advance',
+      context: this.sourceData,
+    };
+
+    this.modalConfirmService.openModal(modalContent, 'deleteTask');
+  }
+
+  onDeleteTask(value: ITask) {
+    if (!value?.id) return;
+    this.loading.deleteTask = true;
+    this.autoTaskService.task.delete(value.id).subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.commonService.handleResSuccess('delete');
+          this.updateSuccess.emit();
+          this.hideModal();
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+      error: (err) => this.commonService.handleErr(err),
+    });
   }
 
   getProvince() {
