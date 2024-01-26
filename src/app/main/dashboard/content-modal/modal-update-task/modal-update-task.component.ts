@@ -49,6 +49,7 @@ import moment from 'moment';
 import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
+import {environment} from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -65,6 +66,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   public submittedModal = {
     addTaskChain: false,
   };
+  private currentBiz = '';
   protected readonly ETaskChainType = ETaskChainType;
   protected readonly EActionType = EActionType;
   public submitted = false;
@@ -198,6 +200,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         this.listBizUsers = biz.users;
+        this.currentBiz = biz.alias || '';
       });
   }
 
@@ -916,7 +919,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     });
   }
 
-  handleViewCreatedOrder() {}
+  handleViewCreatedOrder() {
+    let url = `${environment.urlDomain}/${this.currentBiz}/sale-center`;
+    window.open(url, '_blank');
+  }
 
   handleCreateTaskOrder() {
     if (!this.sourceData?.id) return;
