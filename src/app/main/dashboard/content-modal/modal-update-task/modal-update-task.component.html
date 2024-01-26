@@ -554,7 +554,117 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                     </div>
                   </div>
                   <div class="list-product overflow-x-hidden mt-2">
-                    <label class="form-control-label">Loại sản phẩm</label>
+                    <div class="d-flex justify-content-between">
+                      <label class="form-control-label">Loại sản phẩm</label>
+                      <div class="d-flex gap-3">
+                        <div class="">
+                          <label class="basic-checkbox">
+                            Sản phẩm
+                            <input
+                              (click)="
+                                handleChangeTypeProduct(
+                                  $event,
+                                  ETypeProduct.PRODUCT
+                                )
+                              "
+                              checked="{{
+                                activeProductTypes.includes(
+                                  ETypeProduct.PRODUCT
+                                )
+                                  ? 'checked'
+                                  : null
+                              }}"
+                              type="checkbox"
+                            />
+                            <span class="checkmark"></span>
+                          </label>
+                        </div>
+                        <div>
+                          <label class="basic-checkbox">
+                            Combo
+                            <input
+                              (click)="
+                                handleChangeTypeProduct(
+                                  $event,
+                                  ETypeProduct.COMBO
+                                )
+                              "
+                              checked="{{
+                                activeProductTypes.includes(ETypeProduct.COMBO)
+                                  ? 'checked'
+                                  : null
+                              }}"
+                              type="checkbox"
+                            />
+                            <span class="checkmark"></span>
+                          </label>
+                        </div>
+                        <div>
+                          <label class="basic-checkbox">
+                            Khóa học - Sự kiện
+                            <input
+                              (click)="
+                                handleChangeTypeProduct(
+                                  $event,
+                                  ETypeProduct.COURSE
+                                )
+                              "
+                              checked="{{
+                                activeProductTypes.includes(ETypeProduct.COURSE)
+                                  ? 'checked'
+                                  : null
+                              }}"
+                              type="checkbox"
+                            />
+                            <span class="checkmark"></span>
+                          </label>
+                        </div>
+                        <div>
+                          <label class="basic-checkbox">
+                            Dịch vụ
+                            <input
+                              (click)="
+                                handleChangeTypeProduct(
+                                  $event,
+                                  ETypeProduct.SERVICE
+                                )
+                              "
+                              checked="{{
+                                activeProductTypes.includes(
+                                  ETypeProduct.SERVICE
+                                )
+                                  ? 'checked'
+                                  : null
+                              }}"
+                              type="checkbox"
+                            />
+                            <span class="checkmark"></span>
+                          </label>
+                        </div>
+                        <div>
+                          <label class="basic-checkbox">
+                            Thẻ trả trước
+                            <input
+                              (click)="
+                                handleChangeTypeProduct(
+                                  $event,
+                                  ETypeProduct.SIM_CARD
+                                )
+                              "
+                              checked="{{
+                                activeProductTypes.includes(
+                                  ETypeProduct.SIM_CARD
+                                )
+                                  ? 'checked'
+                                  : null
+                              }}"
+                              type="checkbox"
+                            />
+                            <span class="checkmark"></span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
                     <ng-container formArrayName="products">
                       <div
                         *ngFor="

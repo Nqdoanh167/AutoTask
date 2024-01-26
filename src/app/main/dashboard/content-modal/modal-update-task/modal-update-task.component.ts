@@ -16,7 +16,6 @@ import {
   IActResult,
   IAddTaskChainDto,
   IChainAct,
-  IProductDto,
   ITask,
   ITaskChain,
   ITaskChainResult,
@@ -71,6 +70,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   public submittedModal = {
     addTaskChain: false,
   };
+  protected readonly ETypeProduct = ETypeProduct;
   private currentBiz = '';
   protected readonly ETaskChainType = ETaskChainType;
   protected readonly EActionType = EActionType;
@@ -208,6 +208,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     },
   ];
 
+  public activeProductTypes = [ETypeProduct.PRODUCT];
   public listProvince: IProvince[] = [];
   public listDistrict: IDistrict[] = [];
   public listWard: IWard[] = [];
@@ -1097,6 +1098,26 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         this.commonService.handleErr(err);
       },
     });
+  }
+
+  handleChangeTypeProduct($event: any, productType: ETypeProduct) {
+    const arrayTo = this.updateForm.value?.products;
+    const indexFormTo = arrayTo?.findIndex(
+      (el: any) => el.type === productType,
+    );
+    const isCheck = !this.activeProductTypes.includes(productType);
+    if (isCheck) {
+      this.activeProductTypes.push(productType);
+    } else {
+      if (this.activeProductTypes.length <= 1) {
+        $event.preventDefault();
+        return;
+      } else {
+        this.activeProductTypes = this.activeProductTypes?.filter(
+          (el) => el !== productType,
+        );
+      }
+    }
   }
 
   ngOnDestroy(): void {

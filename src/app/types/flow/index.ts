@@ -204,6 +204,7 @@ export enum ETypeProduct {
   COURSE,
   SERVICE,
   SIM_CARD,
+  COMBO,
 }
 
 export interface IProductDto {
