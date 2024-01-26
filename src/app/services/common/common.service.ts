@@ -70,9 +70,13 @@ export class CommonService implements OnDestroy {
   }
 
   handleResSuccess(
-    action: 'get' | 'update' | 'delete' | 'create' | 'clone',
-    alias?: string,
+    action?: 'get' | 'update' | 'delete' | 'create' | 'clone',
+    text?: string,
   ) {
+    if (text) {
+      this.toastr.success(text);
+      return;
+    }
     switch (action) {
       case 'get':
         this.toastr.success('Lấy dữ liệu thành công!');

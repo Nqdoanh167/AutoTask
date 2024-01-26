@@ -273,6 +273,7 @@ export interface ITask {
   name: string;
   leadDeal?: ILeadDealDto;
   products: IProductDto[];
+  orderIds: string[];
   counselor: AccountPublic;
   taskChainIds: string[];
   taskChains: ITaskChain[];

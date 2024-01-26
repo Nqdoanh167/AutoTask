@@ -212,52 +212,15 @@
                   </div>
                 </div>
                 <div formGroupName="leadDeal" class="group-content mt-2">
-                  <div class="headline">Thông tin của liên hệ</div>
+                  <div class="headline">
+                    Thông tin khách hàng
+                    <i
+                      class="fa-regular fa-circle-question ms-1"
+                      tooltip="Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới"
+                      placement="right"
+                    ></i>
+                  </div>
                   <div class="information mt-2 overflow-x-hidden">
-                    <div class="d-flex align-items-center gap-4">
-                      <div class="basic-radio">
-                        <input
-                          formControlName="type"
-                          type="radio"
-                          name="type"
-                          class="check"
-                          id="lead"
-                          [value]="'LEAD'"
-                        />
-                        <label for="lead">
-                          <div class="container">
-                            <div class="cRadioBtn">
-                              <div class="overlay"></div>
-                              <div class="drops xsDrop"></div>
-                              <div class="drops mdDrop"></div>
-                              <div class="drops lgDrop"></div>
-                            </div>
-                          </div>
-                          <span>Khách hàng tiềm năng (Lead)</span>
-                        </label>
-                      </div>
-                      <div class="basic-radio">
-                        <input
-                          formControlName="type"
-                          [value]="'DEAL'"
-                          type="radio"
-                          name="type"
-                          class="check"
-                          id="deal"
-                        />
-                        <label for="deal">
-                          <div class="container">
-                            <div class="cRadioBtn">
-                              <div class="overlay"></div>
-                              <div class="drops xsDrop"></div>
-                              <div class="drops mdDrop"></div>
-                              <div class="drops lgDrop"></div>
-                            </div>
-                          </div>
-                          <span>Khách hàng từng mua (Deal)</span>
-                        </label>
-                      </div>
-                    </div>
                     <div style="padding-left: 1px" class="row mt-2">
                       <div class="col-6">
                         <label class="form-control-label" for="leadDeal.name">
@@ -285,7 +248,40 @@
                           </div>
                         </div>
                       </div>
-                      <div class="col-6">
+                      <div class="col-6"></div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-3">
+                        <label class="form-control-label" for="leadDeal.phone">
+                          Số điện thoại
+                        </label>
+                        <input
+                          class="form-control"
+                          [ngClass]="{
+                            'is-invalid': submitted && fLead['phone'].errors
+                          }"
+                          [placeholder]="'Nhập Số điện thoại...'"
+                          formControlName="phone"
+                          id="leadDeal.phone"
+                          type="text"
+                        />
+                      </div>
+                      <div class="col-3">
+                        <label class="form-control-label" for="leadDeal.email">
+                          Email
+                        </label>
+                        <input
+                          class="form-control"
+                          [ngClass]="{
+                            'is-invalid': submitted && fLead['email'].errors
+                          }"
+                          [placeholder]="'Nhập Email...'"
+                          formControlName="email"
+                          id="leadDeal.email"
+                          type="text"
+                        />
+                      </div>
+                      <div class="col-3">
                         <label class="form-control-label" for="leadDeal.gender">
                           Giới tính
                         </label>
@@ -358,37 +354,62 @@
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="row mt-2">
-                      <div class="col-6">
-                        <label class="form-control-label" for="leadDeal.phone">
-                          Số điện thoại
+                      <div class="col-3">
+                        <label class="form-control-label" for="leadDeal.gender">
+                          Loại khách hàng
+                          <i
+                            class="fa-regular fa-circle-question ms-1"
+                            tooltip="Lead: Khách hàng tiềm năng, có khả năng sẽ mua hàng của doanh nghiệp sau khi được chăm sóc
+Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua hàng (thường đã được chăm sóc hoặc lên hợp đồng)"
+                            placement="right"
+                          ></i>
                         </label>
-                        <input
-                          class="form-control"
-                          [ngClass]="{
-                            'is-invalid': submitted && fLead['phone'].errors
-                          }"
-                          [placeholder]="'Nhập Số điện thoại...'"
-                          formControlName="phone"
-                          id="leadDeal.phone"
-                          type="text"
-                        />
-                      </div>
-                      <div class="col-6">
-                        <label class="form-control-label" for="leadDeal.email">
-                          Email
-                        </label>
-                        <input
-                          class="form-control"
-                          [ngClass]="{
-                            'is-invalid': submitted && fLead['email'].errors
-                          }"
-                          [placeholder]="'Nhập Email...'"
-                          formControlName="email"
-                          id="leadDeal.email"
-                          type="text"
-                        />
+                        <div
+                          class="d-flex align-items-center gap-4 input-medium"
+                        >
+                          <div class="basic-radio">
+                            <input
+                              formControlName="type"
+                              type="radio"
+                              name="type"
+                              class="check"
+                              id="lead"
+                              [value]="'LEAD'"
+                            />
+                            <label for="lead">
+                              <div class="container">
+                                <div class="cRadioBtn">
+                                  <div class="overlay"></div>
+                                  <div class="drops xsDrop"></div>
+                                  <div class="drops mdDrop"></div>
+                                  <div class="drops lgDrop"></div>
+                                </div>
+                              </div>
+                              <span>Lead</span>
+                            </label>
+                          </div>
+                          <div class="basic-radio">
+                            <input
+                              formControlName="type"
+                              [value]="'DEAL'"
+                              type="radio"
+                              name="type"
+                              class="check"
+                              id="deal"
+                            />
+                            <label for="deal">
+                              <div class="container">
+                                <div class="cRadioBtn">
+                                  <div class="overlay"></div>
+                                  <div class="drops xsDrop"></div>
+                                  <div class="drops mdDrop"></div>
+                                  <div class="drops lgDrop"></div>
+                                </div>
+                              </div>
+                              <span>Deal</span>
+                            </label>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div class="mt-2">
@@ -498,9 +519,44 @@
                     </div>
                   </div>
                 </div>
-                <div class="group-content mt-2">
-                  <div class="headline">Sản phẩm quan tâm</div>
-                  <div class="list-product overflow-x-hidden">
+                <div class="group-content mt-3">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <div class="headline">
+                      Sản phẩm quan tâm
+                      <i
+                        class="fa-regular fa-circle-question ms-1"
+                        tooltip="Nhưng sản phẩm và dịch vụ mà khách quan tâm có thể được tạo thành đơn hàng bằng cách sử dụng nút Tạo đơn hàng cho Task ở kế bên."
+                        placement="right"
+                      ></i>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button
+                        *ngIf="
+                          !!sourceData?.id &&
+                          sourceData?.orderIds &&
+                          sourceData!.orderIds.length
+                        "
+                        (click)="handleViewCreatedOrder()"
+                        class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                        type="button"
+                      >
+                        <i class="fa-solid fa-cart-shopping me-2"></i>
+                        Xem đơn hàng đã tạo
+                      </button>
+                      <button
+                        *ngIf="!!sourceData?.id"
+                        (click)="handleCreateTaskOrder()"
+                        class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                        type="button"
+                      >
+                        <i class="fa-solid fa-plus me-2"></i>
+                        Tạo đơn hàng cho Task
+                      </button>
+                    </div>
+                  </div>
+                  <div class="list-product overflow-x-hidden mt-2">
                     <label class="form-control-label">Loại sản phẩm</label>
                     <ng-container formArrayName="products">
                       <div

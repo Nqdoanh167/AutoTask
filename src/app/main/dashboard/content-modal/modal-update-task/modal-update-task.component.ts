@@ -157,6 +157,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     data: false,
     getDetail: false,
     addTaskChain: false,
+    createOrder: false,
   };
   public productTypes = [
     {
@@ -912,6 +913,30 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           formSteps.removeAt(value.nextStepIndex!);
         }
       }
+    });
+  }
+
+  handleViewCreatedOrder() {}
+
+  handleCreateTaskOrder() {
+    if (!this.sourceData?.id) return;
+    this.loading.createOrder = true;
+    this.autoTaskService.task.createOrder(this.sourceData?.id!).subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.commonService.handleResSuccess(
+            undefined,
+            'Tạo đơn hàng thành công',
+          );
+          this.updateSuccess.emit();
+          this.getDetailTask();
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+      error: (err) => {
+        this.commonService.handleErr(err);
+      },
     });
   }
 

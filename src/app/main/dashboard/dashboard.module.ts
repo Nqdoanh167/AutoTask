@@ -20,8 +20,9 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {NgxMaskDirective} from 'ngx-mask';
 import {TextAreaComponent} from '@share/input/textarea/textarea.component';
-import { TaskChainItemComponent } from './content-modal/task-chain-item/task-chain-item.component';
-import {FilterDataModule} from "@share/pipe/filter-data/filter-data.module";
+import {TaskChainItemComponent} from './content-modal/task-chain-item/task-chain-item.component';
+import {FilterDataModule} from '@share/pipe/filter-data/filter-data.module';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
 
 @NgModule({
   declarations: [
@@ -51,6 +52,7 @@ import {FilterDataModule} from "@share/pipe/filter-data/filter-data.module";
     NgxMaskDirective,
     TextAreaComponent,
     FilterDataModule,
+    TooltipModule,
   ],
 })
 export class DashboardModule {}
