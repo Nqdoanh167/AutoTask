@@ -274,6 +274,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   ngOnInit() {
     this.getListProduct(true);
+    this.getListCourseEvent(true);
     this.getDetailTask();
     this.getProvince();
     if (this.sourceData) {
@@ -703,6 +704,48 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
         error: (err) => {
           this.products.isAllowLoadMore = false;
+          this.commonService.handleResErr(err);
+        },
+      });
+  }
+
+  getListCourseEvent(isInit: boolean = false, isSearching: boolean = false) {
+    this.courseEvents.loading = true;
+    let oldData: any = [];
+    const ids: string[] = [];
+    const query = {
+      ...this.courseEvents.paramsQuery,
+      ...(isInit && ids.length && {ids: ids}),
+    };
+    if (isSearching) {
+      oldData = [...this.courseEvents.rows];
+      this.courseEvents.rows = [];
+    }
+
+    this.courseEventService.courseEvent
+      .get(query)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.courseEvents.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            let newData: CourseEvent[] = [];
+            if (isSearching) {
+              newData = [...res.data, ...oldData];
+            } else {
+              newData = [...this.courseEvents.rows, ...res.data];
+            }
+            this.courseEvents.rows = uniqBy(newData, 'id');
+            this.courseEvents.isAllowLoadMore = true;
+          } else {
+            this.courseEvents.isAllowLoadMore = false;
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.courseEvents.isAllowLoadMore = false;
           this.commonService.handleResErr(err);
         },
       });

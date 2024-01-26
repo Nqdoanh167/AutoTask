@@ -626,6 +626,33 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                                     </ng-container>
                                   </ng-select>
                                 </ng-container>
+                                <ng-container *ngSwitchCase="1">
+                                  <ng-select
+                                    [placeholder]="'Chọn Khoá học - Sự kiện'"
+                                    [searchable]="false"
+                                    [multiple]="true"
+                                    [closeOnSelect]="false"
+                                    class="dropdown-auto-width custom-input-multiple"
+                                    appearance="outline"
+                                    appendTo=".modal"
+                                  >
+                                    <ng-container>
+                                      <ng-option
+                                        *ngFor="
+                                          let item of courseEvents.rows;
+                                          index as i
+                                        "
+                                        [value]="item.id"
+                                      >
+                                        <div class="d-flex align-items-center">
+                                          <div class="label">
+                                            {{ item.name }}
+                                          </div>
+                                        </div>
+                                      </ng-option>
+                                    </ng-container>
+                                  </ng-select>
+                                </ng-container>
                                 <ng-container *ngSwitchDefault>
                                   <ng-select
                                     [placeholder]="'Chọn Sản phẩm'"
