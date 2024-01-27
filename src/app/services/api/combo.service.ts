@@ -1,7 +1,7 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, BeautyService, Combo} from 'src/app/types/viewmodels';
+import {Combo, EntityResult} from 'src/app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';

@@ -744,10 +744,7 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                           >
                             <ng-container>
                               <ng-option
-                                *ngFor="
-                                  let item of courseEvents.rows;
-                                  index as i
-                                "
+                                *ngFor="let item of combos.rows; index as i"
                                 [value]="item.id"
                               >
                                 <div class="d-flex align-items-center">

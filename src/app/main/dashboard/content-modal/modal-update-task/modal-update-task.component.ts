@@ -31,6 +31,7 @@ import {
 } from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
+  Combo,
   CourseEvent,
   ICommonDataLazy,
   ICommonDataSource,
@@ -54,6 +55,7 @@ import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/up
 import {environment} from '../../../../../environments/environment';
 import {ProductService} from '@app/services/api/product.service';
 import {CourseEventService} from '@app/services/api/courseEvent.service';
+import {ComboService} from '@app/services/api/combo.service';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -166,6 +168,16 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+  public combos: ICommonDataLazy<Combo, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
 
   public courseEvents: ICommonDataLazy<CourseEvent, IQueryBase> = {
     rows: [],
@@ -226,6 +238,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly automationService: AutomationService,
     private readonly productService: ProductService,
     private readonly courseEventService: CourseEventService,
+    private readonly comboService: ComboService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -276,6 +289,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   ngOnInit() {
     this.getListProduct(true);
     this.getListCourseEvent(true);
+    this.getListCombo(true);
     this.getDetailTask();
     this.getProvince();
     if (this.sourceData) {
@@ -705,6 +719,47 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
         error: (err) => {
           this.products.isAllowLoadMore = false;
+          this.commonService.handleResErr(err);
+        },
+      });
+  }
+  getListCombo(isInit: boolean = false, isSearching: boolean = false) {
+    this.combos.loading = true;
+    let oldData: any = [];
+    const ids: string[] = [];
+    const query = {
+      ...this.combos.paramsQuery,
+      ...(isInit && ids.length && {ids: ids}),
+    };
+    if (isSearching) {
+      oldData = [...this.combos.rows];
+      this.combos.rows = [];
+    }
+
+    this.comboService.combo
+      .get(query)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.combos.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            let newData: Combo[] = [];
+            if (isSearching) {
+              newData = [...res.data, ...oldData];
+            } else {
+              newData = [...this.combos.rows, ...res.data];
+            }
+            this.combos.rows = uniqBy(newData, 'id');
+            this.combos.isAllowLoadMore = true;
+          } else {
+            this.combos.isAllowLoadMore = false;
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.combos.isAllowLoadMore = false;
           this.commonService.handleResErr(err);
         },
       });
