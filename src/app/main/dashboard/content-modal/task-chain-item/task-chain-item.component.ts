@@ -355,13 +355,20 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   handleChangeDeadline(taskChainResultIndex: number) {
     const {deadlineDay, deadlineHour, deadlineMinute, deadlineDate} =
       this.formTaskChainResults().at(taskChainResultIndex).value;
+    const staticDeadline =
+      this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
+        .deadlineDate;
     // create newDeadlineDate equal deadlineDate plush deadlineDay, deadlineHour, deadlineMinute
     const newDeadlineDate = new Date();
     let typeOverDeadline = 'notOver';
     newDeadlineDate.setDate(newDeadlineDate.getDate() + deadlineDay);
     newDeadlineDate.setHours(newDeadlineDate.getHours() + deadlineHour);
     newDeadlineDate.setMinutes(newDeadlineDate.getMinutes() + deadlineMinute);
-    const subDate = calculateTime(newDeadlineDate, deadlineDate, 'metrics') as {
+    const subDate = calculateTime(
+      newDeadlineDate,
+      staticDeadline,
+      'metrics',
+    ) as {
       days?: number;
       hours?: number;
       minutes?: number;
