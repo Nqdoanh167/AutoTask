@@ -78,7 +78,7 @@
                                 *ngIf="!!taskChainResult?.executedDate"
                                 class="completed"
                               >
-                                Đã thực hiện
+                                <i class="fa-solid fa-check"></i>
                               </span>
                               <span
                                 *ngIf="
@@ -105,10 +105,16 @@
                                       [ngSwitch]="dataTimeLeft.typeOverDeadline"
                                     >
                                       <span *ngSwitchCase="'over'">
-                                        Trễ lịch:&nbsp;
+                                        <i
+                                          class="fa-solid fa-triangle-exclamation"
+                                          style="color: #ef6a6a"
+                                        ></i>
                                       </span>
                                       <span *ngSwitchCase="'notOver'">
-                                        Còn:&nbsp;
+                                        <i
+                                          class="fa-solid fa-stopwatch"
+                                          style="color: #4277ff"
+                                        ></i>
                                       </span>
                                       <span *ngSwitchCase="'now'">
                                         Ngay lập tức

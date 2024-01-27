@@ -14,7 +14,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {calculateTime, sortBy, sortIcon} from '@app/utils/common';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
-import {ITask} from '@app/types/flow';
+import {ETaskChainResultType, ITask} from '@app/types/flow';
 import moment from 'moment/moment';
 import {cloneDeep} from 'lodash';
 
@@ -257,4 +257,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
+
+  protected readonly ETaskChainResultType = ETaskChainResultType;
 }
