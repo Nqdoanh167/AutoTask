@@ -31,11 +31,13 @@ import {
 } from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
+  BeautyService,
   Combo,
   CourseEvent,
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
+  PrepaidCard,
   Product,
   User,
 } from '@app/types/viewmodels';
@@ -56,6 +58,8 @@ import {environment} from '../../../../../environments/environment';
 import {ProductService} from '@app/services/api/product.service';
 import {CourseEventService} from '@app/services/api/courseEvent.service';
 import {ComboService} from '@app/services/api/combo.service';
+import {BeautyServiceService} from '@app/services/api/beautyService.service';
+import {PrepaidCardService} from '@app/services/api/prepaidCard.service';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -168,6 +172,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+
   public combos: ICommonDataLazy<Combo, IQueryBase> = {
     rows: [],
     loading: false,
@@ -190,9 +195,32 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     isAllowLoadMore: false,
   };
 
+  public beautyServices: ICommonDataLazy<BeautyService, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
+  public prepaidCards: ICommonDataLazy<PrepaidCard, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
   public isOpenBackDrop: boolean = false;
 
   private destroy$ = new Subject();
+
   public loading = {
     submit: false,
     data: false,
@@ -201,24 +229,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     createOrder: false,
     deleteTask: false,
   };
-  public productTypes = [
-    {
-      label: 'Sản phẩm',
-      value: ETypeProduct.PRODUCT,
-    },
-    {
-      label: 'Khóa học/Sự kiện',
-      value: ETypeProduct.COURSE,
-    },
-    {
-      label: 'Dịch vụ',
-      value: ETypeProduct.SERVICE,
-    },
-    {
-      label: 'Sim thẻ',
-      value: ETypeProduct.SIM_CARD,
-    },
-  ];
 
   public activeProductTypes = [ETypeProduct.PRODUCT];
   public listProvince: IProvince[] = [];
@@ -239,6 +249,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly productService: ProductService,
     private readonly courseEventService: CourseEventService,
     private readonly comboService: ComboService,
+    private readonly beautyServiceService: BeautyServiceService,
+    private readonly prepaidCardService: PrepaidCardService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -290,6 +302,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.getListProduct(true);
     this.getListCourseEvent(true);
     this.getListCombo(true);
+    this.getListBeautyService(true);
+    this.getListPrepaidCard(true);
     this.getDetailTask();
     this.getProvince();
     if (this.sourceData) {
@@ -760,6 +774,89 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
         error: (err) => {
           this.combos.isAllowLoadMore = false;
+          this.commonService.handleResErr(err);
+        },
+      });
+  }
+  getListBeautyService(isInit: boolean = false, isSearching: boolean = false) {
+    this.beautyServices.loading = true;
+    let oldData: any = [];
+    const ids: string[] = [];
+    const query = {
+      ...this.beautyServices.paramsQuery,
+      ...(isInit && ids.length && {ids: ids}),
+    };
+    if (isSearching) {
+      oldData = [...this.beautyServices.rows];
+      this.beautyServices.rows = [];
+    }
+
+    this.beautyServiceService.service
+      .get(query)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.beautyServices.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            let newData: BeautyService[] = [];
+            if (isSearching) {
+              newData = [...res.data, ...oldData];
+            } else {
+              newData = [...this.beautyServices.rows, ...res.data];
+            }
+            this.beautyServices.rows = uniqBy(newData, 'id');
+            this.beautyServices.isAllowLoadMore = true;
+          } else {
+            this.beautyServices.isAllowLoadMore = false;
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.combos.isAllowLoadMore = false;
+          this.commonService.handleResErr(err);
+        },
+      });
+  }
+
+  getListPrepaidCard(isInit: boolean = false, isSearching: boolean = false) {
+    this.prepaidCards.loading = true;
+    let oldData: any = [];
+    const ids: string[] = [];
+    const query = {
+      ...this.prepaidCards.paramsQuery,
+      ...(isInit && ids.length && {ids: ids}),
+    };
+    if (isSearching) {
+      oldData = [...this.prepaidCards.rows];
+      this.prepaidCards.rows = [];
+    }
+
+    this.prepaidCardService.card
+      .get(query)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.prepaidCards.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            let newData: PrepaidCard[] = [];
+            if (isSearching) {
+              newData = [...res.data, ...oldData];
+            } else {
+              newData = [...this.prepaidCards.rows, ...res.data];
+            }
+            this.prepaidCards.rows = uniqBy(newData, 'id');
+            this.beautyServices.isAllowLoadMore = true;
+          } else {
+            this.prepaidCards.isAllowLoadMore = false;
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.prepaidCards.isAllowLoadMore = false;
           this.commonService.handleResErr(err);
         },
       });

@@ -621,7 +621,7 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                         </div>
                         <div>
                           <label class="basic-checkbox">
-                            Dịch vụ
+                            Dịch vụ - Làm đẹp
                             <input
                               (click)="
                                 handleChangeTypeProduct(
@@ -811,13 +811,13 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                             type="text"
                             placeholder="Ex: foo.bar"
                             class="form-control"
-                            value="Dịch vụ"
+                            value="Dịch vụ - Làm đẹp"
                             disabled
                           />
                         </div>
                         <div class="col">
                           <ng-select
-                            [placeholder]="'Chọn Dịch vụ'"
+                            [placeholder]="'Chọn Dịch vụ - Làm đẹp'"
                             [searchable]="false"
                             [multiple]="true"
                             [closeOnSelect]="false"
@@ -828,7 +828,7 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                             <ng-container>
                               <ng-option
                                 *ngFor="
-                                  let item of courseEvents.rows;
+                                  let item of beautyServices.rows;
                                   index as i
                                 "
                                 [value]="item.id"
@@ -872,7 +872,7 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                             <ng-container>
                               <ng-option
                                 *ngFor="
-                                  let item of courseEvents.rows;
+                                  let item of prepaidCards.rows;
                                   index as i
                                 "
                                 [value]="item.id"
