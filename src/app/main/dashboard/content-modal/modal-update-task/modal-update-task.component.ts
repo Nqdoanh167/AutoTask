@@ -35,7 +35,6 @@ import {
   User,
 } from '@app/types/viewmodels';
 import {ApiLocationService} from '@app/services/api/location';
-import {IDistrict, IProvince, IWard} from '@app/types/location';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
@@ -160,10 +159,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     createOrder: false,
     deleteTask: false,
   };
-
-  public listProvince: IProvince[] = [];
-  public listDistrict: IDistrict[] = [];
-  public listWard: IWard[] = [];
   public listBizUsers: User[] = [];
 
   constructor(
@@ -187,10 +182,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   get f(): {[key: string]: AbstractControl} {
     return this.updateForm.controls;
-  }
-
-  get fLead(): {[key: string]: AbstractControl} {
-    return this.updateForm.controls.leadDeal.controls;
   }
 
   get formTaskChains() {
@@ -221,17 +212,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   ngOnInit() {
     this.getDetailTask();
-    this.getProvince();
     if (this.sourceData) {
       this.patchForm(this.sourceData);
-      this.sourceData?.leadDeal?.provinceCode &&
-        this.getDistrict(this.sourceData?.leadDeal?.provinceCode);
-      this.sourceData?.leadDeal?.districtCode &&
-        this.sourceData?.leadDeal?.provinceCode &&
-        this.getWard(
-          this.sourceData?.leadDeal?.provinceCode,
-          this.sourceData?.leadDeal?.districtCode,
-        );
     } else {
     }
     this.getActionChain();
@@ -609,98 +591,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       },
       error: (err) => this.commonService.handleErr(err),
     });
-  }
-
-  getProvince() {
-    this.apiLocationService
-      .getProvince({
-        location: 'VN',
-      })
-      .subscribe({
-        next: (res) => {
-          this.listProvince = res.data;
-        },
-      });
-  }
-
-  getDistrict(provinceCode: string) {
-    this.apiLocationService
-      .getDistrict({
-        provinceCode,
-        location: 'VN',
-      })
-      .subscribe({
-        next: (res) => {
-          this.listDistrict = res.data;
-        },
-      });
-  }
-
-  getWard(provinceCode: string, districtCode: string) {
-    this.apiLocationService
-      .getWard({
-        provinceCode,
-        districtCode,
-        location: 'VN',
-      })
-      .subscribe({
-        next: (res) => {
-          this.listWard = res.data;
-        },
-      });
-  }
-
-  handleChangeLocation(value: string, type: 'province' | 'district' | 'ward') {
-    switch (type) {
-      case 'province':
-        this.formLeadDeal.patchValue({
-          district: null,
-          districtCode: null,
-          ward: null,
-          wardCode: null,
-        });
-        if (!value) {
-          this.formLeadDeal.patchValue({
-            province: null,
-            provinceCode: null,
-          });
-          return;
-        }
-        this.formLeadDeal.patchValue({
-          province: this.listProvince.find((el) => el.provinceCode === value)
-            ?.province,
-        });
-        this.getDistrict(value);
-        break;
-      case 'district':
-        this.formLeadDeal.patchValue({
-          ward: null,
-          wardCode: null,
-        });
-        if (!value) {
-          this.formLeadDeal.patchValue({
-            district: null,
-            districtCode: null,
-            ward: null,
-            wardCode: null,
-          });
-          return;
-        }
-        this.formLeadDeal.patchValue({
-          district: this.listDistrict.find((el) => el.districtCode === value)
-            ?.district,
-        });
-        this.getWard(this.formLeadDeal.value.provinceCode, value);
-        break;
-      case 'ward':
-        if (!value) return;
-        this.formLeadDeal.patchValue({
-          ward: this.listWard.find((el) => el.wardCode === value)?.ward,
-        });
-        break;
-      default:
-        return;
-    }
   }
 
   hideModal(): void {

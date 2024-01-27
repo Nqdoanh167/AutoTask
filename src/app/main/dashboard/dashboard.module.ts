@@ -24,6 +24,7 @@ import {TaskChainItemComponent} from './content-modal/task-chain-item/task-chain
 import {FilterDataModule} from '@share/pipe/filter-data/filter-data.module';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {InterestedProductsComponent} from './content-modal/interested-products/interested-products.component';
+import {CustomerInfoComponent} from './content-modal/customer-info/customer-info.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import {InterestedProductsComponent} from './content-modal/interested-products/i
     UpdateActionInTaskChainComponent,
     TaskChainItemComponent,
     InterestedProductsComponent,
+    CustomerInfoComponent,
   ],
   imports: [
     CommonModule,
