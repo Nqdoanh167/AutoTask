@@ -553,342 +553,346 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                       </button>
                     </div>
                   </div>
-                  <div class="list-product overflow-x-hidden mt-2">
-                    <div class="d-flex justify-content-between mt-2">
-                      <label class="form-control-label">Loại sản phẩm</label>
-                      <div class="d-flex gap-3 me-2">
-                        <div class="">
-                          <label class="basic-checkbox">
-                            Sản phẩm
-                            <input
-                              (click)="
-                                handleChangeTypeProduct(
-                                  $event,
-                                  ETypeProduct.PRODUCT
-                                )
-                              "
-                              checked="{{
-                                activeProductTypes.includes(
-                                  ETypeProduct.PRODUCT
-                                )
-                                  ? 'checked'
-                                  : null
-                              }}"
-                              type="checkbox"
-                            />
-                            <span class="checkmark"></span>
-                          </label>
-                        </div>
-                        <div>
-                          <label class="basic-checkbox">
-                            Combo
-                            <input
-                              (click)="
-                                handleChangeTypeProduct(
-                                  $event,
-                                  ETypeProduct.COMBO
-                                )
-                              "
-                              checked="{{
-                                activeProductTypes.includes(ETypeProduct.COMBO)
-                                  ? 'checked'
-                                  : null
-                              }}"
-                              type="checkbox"
-                            />
-                            <span class="checkmark"></span>
-                          </label>
-                        </div>
-                        <div>
-                          <label class="basic-checkbox">
-                            Khóa học - Sự kiện
-                            <input
-                              (click)="
-                                handleChangeTypeProduct(
-                                  $event,
-                                  ETypeProduct.COURSE
-                                )
-                              "
-                              checked="{{
-                                activeProductTypes.includes(ETypeProduct.COURSE)
-                                  ? 'checked'
-                                  : null
-                              }}"
-                              type="checkbox"
-                            />
-                            <span class="checkmark"></span>
-                          </label>
-                        </div>
-                        <div>
-                          <label class="basic-checkbox">
-                            Dịch vụ - Làm đẹp
-                            <input
-                              (click)="
-                                handleChangeTypeProduct(
-                                  $event,
-                                  ETypeProduct.SERVICE
-                                )
-                              "
-                              checked="{{
-                                activeProductTypes.includes(
-                                  ETypeProduct.SERVICE
-                                )
-                                  ? 'checked'
-                                  : null
-                              }}"
-                              type="checkbox"
-                            />
-                            <span class="checkmark"></span>
-                          </label>
-                        </div>
-                        <div>
-                          <label class="basic-checkbox">
-                            Thẻ trả trước
-                            <input
-                              (click)="
-                                handleChangeTypeProduct(
-                                  $event,
-                                  ETypeProduct.SIM_CARD
-                                )
-                              "
-                              checked="{{
-                                activeProductTypes.includes(
-                                  ETypeProduct.SIM_CARD
-                                )
-                                  ? 'checked'
-                                  : null
-                              }}"
-                              type="checkbox"
-                            />
-                            <span class="checkmark"></span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                    <ng-container formArrayName="products">
-                      <div
-                        *ngIf="
-                          activeProductTypes.includes(ETypeProduct.PRODUCT)
-                        "
-                        [formGroupName]="0"
-                        class="row mb-2"
-                      >
-                        <div class="col-3">
-                          <input
-                            type="text"
-                            placeholder="Ex: foo.bar"
-                            class="form-control"
-                            value="Sản phẩm"
-                            disabled
-                          />
-                        </div>
-                        <div class="col-9">
-                          <ng-select
-                            [placeholder]="'Chọn Sản phẩm'"
-                            [searchable]="false"
-                            [multiple]="true"
-                            [closeOnSelect]="false"
-                            class="dropdown-auto-width custom-input-multiple"
-                            appearance="outline"
-                            appendTo=".modal"
-                          >
-                            <ng-container>
-                              <ng-option
-                                *ngFor="let item of products.rows; index as i"
-                                [value]="item.id"
-                              >
-                                <div class="d-flex align-items-center">
-                                  <img
-                                    class="image-product-radius me-2"
-                                    [src]="
-                                      item.picture ||
-                                      'assets/images/default-product.png'
-                                    "
-                                    fallback="assets/images/no-photo.jpeg"
-                                    [alt]="item.name"
-                                    width="20"
-                                    height="20"
-                                  />
-                                  <div class="label">
-                                    {{ item.name }}
-                                  </div>
-                                </div>
-                              </ng-option>
-                            </ng-container>
-                          </ng-select>
-                        </div>
-                      </div>
-                      <div
-                        *ngIf="activeProductTypes.includes(ETypeProduct.COMBO)"
-                        [formGroupName]="1"
-                        class="row mb-2"
-                      >
-                        <div class="col-3">
-                          <input
-                            type="text"
-                            placeholder="Ex: foo.bar"
-                            class="form-control"
-                            value="Combo"
-                            disabled
-                          />
-                        </div>
-                        <div class="col">
-                          <ng-select
-                            [placeholder]="'Chọn Combo'"
-                            [searchable]="false"
-                            [multiple]="true"
-                            [closeOnSelect]="false"
-                            class="dropdown-auto-width custom-input-multiple"
-                            appearance="outline"
-                            appendTo=".modal"
-                          >
-                            <ng-container>
-                              <ng-option
-                                *ngFor="let item of combos.rows; index as i"
-                                [value]="item.id"
-                              >
-                                <div class="d-flex align-items-center">
-                                  <div class="label">
-                                    {{ item.name }}
-                                  </div>
-                                </div>
-                              </ng-option>
-                            </ng-container>
-                          </ng-select>
-                        </div>
-                      </div>
-                      <div
-                        *ngIf="activeProductTypes.includes(ETypeProduct.COURSE)"
-                        [formGroupName]="2"
-                        class="row mb-2"
-                      >
-                        <div class="col-3">
-                          <input
-                            type="text"
-                            placeholder="Ex: foo.bar"
-                            class="form-control"
-                            value="Khóa học - Sự kiện"
-                            disabled
-                          />
-                        </div>
-                        <div class="col">
-                          <ng-select
-                            [placeholder]="'Chọn Khóa học - Sự kiện'"
-                            [searchable]="false"
-                            [multiple]="true"
-                            [closeOnSelect]="false"
-                            class="dropdown-auto-width custom-input-multiple"
-                            appearance="outline"
-                            appendTo=".modal"
-                          >
-                            <ng-container>
-                              <ng-option
-                                *ngFor="
-                                  let item of courseEvents.rows;
-                                  index as i
-                                "
-                                [value]="item.id"
-                              >
-                                <div class="d-flex align-items-center">
-                                  <div class="label">
-                                    {{ item.name }}
-                                  </div>
-                                </div>
-                              </ng-option>
-                            </ng-container>
-                          </ng-select>
-                        </div>
-                      </div>
-                      <div
-                        *ngIf="
-                          activeProductTypes.includes(ETypeProduct.SERVICE)
-                        "
-                        [formGroupName]="3"
-                        class="row mb-2"
-                      >
-                        <div class="col-3">
-                          <input
-                            type="text"
-                            placeholder="Ex: foo.bar"
-                            class="form-control"
-                            value="Dịch vụ - Làm đẹp"
-                            disabled
-                          />
-                        </div>
-                        <div class="col">
-                          <ng-select
-                            [placeholder]="'Chọn Dịch vụ - Làm đẹp'"
-                            [searchable]="false"
-                            [multiple]="true"
-                            [closeOnSelect]="false"
-                            class="dropdown-auto-width custom-input-multiple"
-                            appearance="outline"
-                            appendTo=".modal"
-                          >
-                            <ng-container>
-                              <ng-option
-                                *ngFor="
-                                  let item of beautyServices.rows;
-                                  index as i
-                                "
-                                [value]="item.id"
-                              >
-                                <div class="d-flex align-items-center">
-                                  <div class="label">
-                                    {{ item.name }}
-                                  </div>
-                                </div>
-                              </ng-option>
-                            </ng-container>
-                          </ng-select>
-                        </div>
-                      </div>
-                      <div
-                        *ngIf="
-                          activeProductTypes.includes(ETypeProduct.SIM_CARD)
-                        "
-                        [formGroupName]="4"
-                        class="row mb-2"
-                      >
-                        <div class="col-3">
-                          <input
-                            type="text"
-                            placeholder="Ex: foo.bar"
-                            class="form-control"
-                            value="Thẻ trả trước"
-                            disabled
-                          />
-                        </div>
-                        <div class="col">
-                          <ng-select
-                            [placeholder]="'Chọn Thẻ trả trước'"
-                            [searchable]="false"
-                            [multiple]="true"
-                            [closeOnSelect]="false"
-                            class="dropdown-auto-width custom-input-multiple"
-                            appearance="outline"
-                            appendTo=".modal"
-                          >
-                            <ng-container>
-                              <ng-option
-                                *ngFor="
-                                  let item of prepaidCards.rows;
-                                  index as i
-                                "
-                                [value]="item.id"
-                              >
-                                <div class="d-flex align-items-center">
-                                  <div class="label">
-                                    {{ item.name }}
-                                  </div>
-                                </div>
-                              </ng-option>
-                            </ng-container>
-                          </ng-select>
-                        </div>
-                      </div>
-                    </ng-container>
-                  </div>
+                  <app-interested-products
+                    formGroupName="products"
+                  ></app-interested-products>
+
+                  <!--                  <div class="list-product overflow-x-hidden mt-2">-->
+                  <!--                    <div class="d-flex justify-content-between mt-2">-->
+                  <!--                      <label class="form-control-label">Loại sản phẩm</label>-->
+                  <!--                      <div class="d-flex gap-3 me-2">-->
+                  <!--                        <div class="">-->
+                  <!--                          <label class="basic-checkbox">-->
+                  <!--                            Sản phẩm-->
+                  <!--                            <input-->
+                  <!--                              (click)="-->
+                  <!--                                handleChangeTypeProduct(-->
+                  <!--                                  $event,-->
+                  <!--                                  ETypeProduct.PRODUCT-->
+                  <!--                                )-->
+                  <!--                              "-->
+                  <!--                              checked="{{-->
+                  <!--                                activeProductTypes.includes(-->
+                  <!--                                  ETypeProduct.PRODUCT-->
+                  <!--                                )-->
+                  <!--                                  ? 'checked'-->
+                  <!--                                  : null-->
+                  <!--                              }}"-->
+                  <!--                              type="checkbox"-->
+                  <!--                            />-->
+                  <!--                            <span class="checkmark"></span>-->
+                  <!--                          </label>-->
+                  <!--                        </div>-->
+                  <!--                        <div>-->
+                  <!--                          <label class="basic-checkbox">-->
+                  <!--                            Combo-->
+                  <!--                            <input-->
+                  <!--                              (click)="-->
+                  <!--                                handleChangeTypeProduct(-->
+                  <!--                                  $event,-->
+                  <!--                                  ETypeProduct.COMBO-->
+                  <!--                                )-->
+                  <!--                              "-->
+                  <!--                              checked="{{-->
+                  <!--                                activeProductTypes.includes(ETypeProduct.COMBO)-->
+                  <!--                                  ? 'checked'-->
+                  <!--                                  : null-->
+                  <!--                              }}"-->
+                  <!--                              type="checkbox"-->
+                  <!--                            />-->
+                  <!--                            <span class="checkmark"></span>-->
+                  <!--                          </label>-->
+                  <!--                        </div>-->
+                  <!--                        <div>-->
+                  <!--                          <label class="basic-checkbox">-->
+                  <!--                            Khóa học - Sự kiện-->
+                  <!--                            <input-->
+                  <!--                              (click)="-->
+                  <!--                                handleChangeTypeProduct(-->
+                  <!--                                  $event,-->
+                  <!--                                  ETypeProduct.COURSE-->
+                  <!--                                )-->
+                  <!--                              "-->
+                  <!--                              checked="{{-->
+                  <!--                                activeProductTypes.includes(ETypeProduct.COURSE)-->
+                  <!--                                  ? 'checked'-->
+                  <!--                                  : null-->
+                  <!--                              }}"-->
+                  <!--                              type="checkbox"-->
+                  <!--                            />-->
+                  <!--                            <span class="checkmark"></span>-->
+                  <!--                          </label>-->
+                  <!--                        </div>-->
+                  <!--                        <div>-->
+                  <!--                          <label class="basic-checkbox">-->
+                  <!--                            Dịch vụ - Làm đẹp-->
+                  <!--                            <input-->
+                  <!--                              (click)="-->
+                  <!--                                handleChangeTypeProduct(-->
+                  <!--                                  $event,-->
+                  <!--                                  ETypeProduct.SERVICE-->
+                  <!--                                )-->
+                  <!--                              "-->
+                  <!--                              checked="{{-->
+                  <!--                                activeProductTypes.includes(-->
+                  <!--                                  ETypeProduct.SERVICE-->
+                  <!--                                )-->
+                  <!--                                  ? 'checked'-->
+                  <!--                                  : null-->
+                  <!--                              }}"-->
+                  <!--                              type="checkbox"-->
+                  <!--                            />-->
+                  <!--                            <span class="checkmark"></span>-->
+                  <!--                          </label>-->
+                  <!--                        </div>-->
+                  <!--                        <div>-->
+                  <!--                          <label class="basic-checkbox">-->
+                  <!--                            Thẻ trả trước-->
+                  <!--                            <input-->
+                  <!--                              (click)="-->
+                  <!--                                handleChangeTypeProduct(-->
+                  <!--                                  $event,-->
+                  <!--                                  ETypeProduct.SIM_CARD-->
+                  <!--                                )-->
+                  <!--                              "-->
+                  <!--                              checked="{{-->
+                  <!--                                activeProductTypes.includes(-->
+                  <!--                                  ETypeProduct.SIM_CARD-->
+                  <!--                                )-->
+                  <!--                                  ? 'checked'-->
+                  <!--                                  : null-->
+                  <!--                              }}"-->
+                  <!--                              type="checkbox"-->
+                  <!--                            />-->
+                  <!--                            <span class="checkmark"></span>-->
+                  <!--                          </label>-->
+                  <!--                        </div>-->
+                  <!--                      </div>-->
+                  <!--                    </div>-->
+                  <!--                    <ng-container formArrayName="products">-->
+                  <!--                      <div-->
+                  <!--                        *ngIf="-->
+                  <!--                          activeProductTypes.includes(ETypeProduct.PRODUCT)-->
+                  <!--                        "-->
+                  <!--                        [formGroupName]="0"-->
+                  <!--                        class="row mb-2"-->
+                  <!--                      >-->
+                  <!--                        <div class="col-3">-->
+                  <!--                          <input-->
+                  <!--                            type="text"-->
+                  <!--                            placeholder="Ex: foo.bar"-->
+                  <!--                            class="form-control"-->
+                  <!--                            value="Sản phẩm"-->
+                  <!--                            disabled-->
+                  <!--                          />-->
+                  <!--                        </div>-->
+                  <!--                        <div class="col-9">-->
+                  <!--                          <ng-select-->
+                  <!--                            [placeholder]="'Chọn Sản phẩm'"-->
+                  <!--                            [searchable]="false"-->
+                  <!--                            [multiple]="true"-->
+                  <!--                            [closeOnSelect]="false"-->
+                  <!--                            class="dropdown-auto-width custom-input-multiple"-->
+                  <!--                            appearance="outline"-->
+                  <!--                            appendTo=".modal"-->
+                  <!--                          >-->
+                  <!--                            <ng-container>-->
+                  <!--                              <ng-option-->
+                  <!--                                *ngFor="let item of products.rows; index as i"-->
+                  <!--                                [value]="item.id"-->
+                  <!--                              >-->
+                  <!--                                <div class="d-flex align-items-center">-->
+                  <!--                                  <img-->
+                  <!--                                    class="image-product-radius me-2"-->
+                  <!--                                    [src]="-->
+                  <!--                                      item.picture ||-->
+                  <!--                                      'assets/images/default-product.png'-->
+                  <!--                                    "-->
+                  <!--                                    fallback="assets/images/no-photo.jpeg"-->
+                  <!--                                    [alt]="item.name"-->
+                  <!--                                    width="20"-->
+                  <!--                                    height="20"-->
+                  <!--                                  />-->
+                  <!--                                  <div class="label">-->
+                  <!--                                    {{ item.name }}-->
+                  <!--                                  </div>-->
+                  <!--                                </div>-->
+                  <!--                              </ng-option>-->
+                  <!--                            </ng-container>-->
+                  <!--                          </ng-select>-->
+                  <!--                        </div>-->
+                  <!--                      </div>-->
+                  <!--                      <div-->
+                  <!--                        *ngIf="activeProductTypes.includes(ETypeProduct.COMBO)"-->
+                  <!--                        [formGroupName]="1"-->
+                  <!--                        class="row mb-2"-->
+                  <!--                      >-->
+                  <!--                        <div class="col-3">-->
+                  <!--                          <input-->
+                  <!--                            type="text"-->
+                  <!--                            placeholder="Ex: foo.bar"-->
+                  <!--                            class="form-control"-->
+                  <!--                            value="Combo"-->
+                  <!--                            disabled-->
+                  <!--                          />-->
+                  <!--                        </div>-->
+                  <!--                        <div class="col">-->
+                  <!--                          <ng-select-->
+                  <!--                            [placeholder]="'Chọn Combo'"-->
+                  <!--                            [searchable]="false"-->
+                  <!--                            [multiple]="true"-->
+                  <!--                            [closeOnSelect]="false"-->
+                  <!--                            class="dropdown-auto-width custom-input-multiple"-->
+                  <!--                            appearance="outline"-->
+                  <!--                            appendTo=".modal"-->
+                  <!--                          >-->
+                  <!--                            <ng-container>-->
+                  <!--                              <ng-option-->
+                  <!--                                *ngFor="let item of combos.rows; index as i"-->
+                  <!--                                [value]="item.id"-->
+                  <!--                              >-->
+                  <!--                                <div class="d-flex align-items-center">-->
+                  <!--                                  <div class="label">-->
+                  <!--                                    {{ item.name }}-->
+                  <!--                                  </div>-->
+                  <!--                                </div>-->
+                  <!--                              </ng-option>-->
+                  <!--                            </ng-container>-->
+                  <!--                          </ng-select>-->
+                  <!--                        </div>-->
+                  <!--                      </div>-->
+                  <!--                      <div-->
+                  <!--                        *ngIf="activeProductTypes.includes(ETypeProduct.COURSE)"-->
+                  <!--                        [formGroupName]="2"-->
+                  <!--                        class="row mb-2"-->
+                  <!--                      >-->
+                  <!--                        <div class="col-3">-->
+                  <!--                          <input-->
+                  <!--                            type="text"-->
+                  <!--                            placeholder="Ex: foo.bar"-->
+                  <!--                            class="form-control"-->
+                  <!--                            value="Khóa học - Sự kiện"-->
+                  <!--                            disabled-->
+                  <!--                          />-->
+                  <!--                        </div>-->
+                  <!--                        <div class="col">-->
+                  <!--                          <ng-select-->
+                  <!--                            [placeholder]="'Chọn Khóa học - Sự kiện'"-->
+                  <!--                            [searchable]="false"-->
+                  <!--                            [multiple]="true"-->
+                  <!--                            [closeOnSelect]="false"-->
+                  <!--                            class="dropdown-auto-width custom-input-multiple"-->
+                  <!--                            appearance="outline"-->
+                  <!--                            appendTo=".modal"-->
+                  <!--                          >-->
+                  <!--                            <ng-container>-->
+                  <!--                              <ng-option-->
+                  <!--                                *ngFor="-->
+                  <!--                                  let item of courseEvents.rows;-->
+                  <!--                                  index as i-->
+                  <!--                                "-->
+                  <!--                                [value]="item.id"-->
+                  <!--                              >-->
+                  <!--                                <div class="d-flex align-items-center">-->
+                  <!--                                  <div class="label">-->
+                  <!--                                    {{ item.name }}-->
+                  <!--                                  </div>-->
+                  <!--                                </div>-->
+                  <!--                              </ng-option>-->
+                  <!--                            </ng-container>-->
+                  <!--                          </ng-select>-->
+                  <!--                        </div>-->
+                  <!--                      </div>-->
+                  <!--                      <div-->
+                  <!--                        *ngIf="-->
+                  <!--                          activeProductTypes.includes(ETypeProduct.SERVICE)-->
+                  <!--                        "-->
+                  <!--                        [formGroupName]="3"-->
+                  <!--                        class="row mb-2"-->
+                  <!--                      >-->
+                  <!--                        <div class="col-3">-->
+                  <!--                          <input-->
+                  <!--                            type="text"-->
+                  <!--                            placeholder="Ex: foo.bar"-->
+                  <!--                            class="form-control"-->
+                  <!--                            value="Dịch vụ - Làm đẹp"-->
+                  <!--                            disabled-->
+                  <!--                          />-->
+                  <!--                        </div>-->
+                  <!--                        <div class="col">-->
+                  <!--                          <ng-select-->
+                  <!--                            [placeholder]="'Chọn Dịch vụ - Làm đẹp'"-->
+                  <!--                            [searchable]="false"-->
+                  <!--                            [multiple]="true"-->
+                  <!--                            [closeOnSelect]="false"-->
+                  <!--                            class="dropdown-auto-width custom-input-multiple"-->
+                  <!--                            appearance="outline"-->
+                  <!--                            appendTo=".modal"-->
+                  <!--                          >-->
+                  <!--                            <ng-container>-->
+                  <!--                              <ng-option-->
+                  <!--                                *ngFor="-->
+                  <!--                                  let item of beautyServices.rows;-->
+                  <!--                                  index as i-->
+                  <!--                                "-->
+                  <!--                                [value]="item.id"-->
+                  <!--                              >-->
+                  <!--                                <div class="d-flex align-items-center">-->
+                  <!--                                  <div class="label">-->
+                  <!--                                    {{ item.name }}-->
+                  <!--                                  </div>-->
+                  <!--                                </div>-->
+                  <!--                              </ng-option>-->
+                  <!--                            </ng-container>-->
+                  <!--                          </ng-select>-->
+                  <!--                        </div>-->
+                  <!--                      </div>-->
+                  <!--                      <div-->
+                  <!--                        *ngIf="-->
+                  <!--                          activeProductTypes.includes(ETypeProduct.SIM_CARD)-->
+                  <!--                        "-->
+                  <!--                        [formGroupName]="4"-->
+                  <!--                        class="row mb-2"-->
+                  <!--                      >-->
+                  <!--                        <div class="col-3">-->
+                  <!--                          <input-->
+                  <!--                            type="text"-->
+                  <!--                            placeholder="Ex: foo.bar"-->
+                  <!--                            class="form-control"-->
+                  <!--                            value="Thẻ trả trước"-->
+                  <!--                            disabled-->
+                  <!--                          />-->
+                  <!--                        </div>-->
+                  <!--                        <div class="col">-->
+                  <!--                          <ng-select-->
+                  <!--                            [placeholder]="'Chọn Thẻ trả trước'"-->
+                  <!--                            [searchable]="false"-->
+                  <!--                            [multiple]="true"-->
+                  <!--                            [closeOnSelect]="false"-->
+                  <!--                            class="dropdown-auto-width custom-input-multiple"-->
+                  <!--                            appearance="outline"-->
+                  <!--                            appendTo=".modal"-->
+                  <!--                          >-->
+                  <!--                            <ng-container>-->
+                  <!--                              <ng-option-->
+                  <!--                                *ngFor="-->
+                  <!--                                  let item of prepaidCards.rows;-->
+                  <!--                                  index as i-->
+                  <!--                                "-->
+                  <!--                                [value]="item.id"-->
+                  <!--                              >-->
+                  <!--                                <div class="d-flex align-items-center">-->
+                  <!--                                  <div class="label">-->
+                  <!--                                    {{ item.name }}-->
+                  <!--                                  </div>-->
+                  <!--                                </div>-->
+                  <!--                              </ng-option>-->
+                  <!--                            </ng-container>-->
+                  <!--                          </ng-select>-->
+                  <!--                        </div>-->
+                  <!--                      </div>-->
+                  <!--                    </ng-container>-->
+                  <!--                  </div>-->
                 </div>
               </div>
             </tab>

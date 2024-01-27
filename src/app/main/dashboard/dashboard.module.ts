@@ -23,6 +23,7 @@ import {TextAreaComponent} from '@share/input/textarea/textarea.component';
 import {TaskChainItemComponent} from './content-modal/task-chain-item/task-chain-item.component';
 import {FilterDataModule} from '@share/pipe/filter-data/filter-data.module';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {InterestedProductsComponent} from './content-modal/interested-products/interested-products.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import {TooltipModule} from 'ngx-bootstrap/tooltip';
     ModalUpdateTaskComponent,
     UpdateActionInTaskChainComponent,
     TaskChainItemComponent,
+    InterestedProductsComponent,
   ],
   imports: [
     CommonModule,

@@ -299,11 +299,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
-    this.getListProduct(true);
-    this.getListCourseEvent(true);
-    this.getListCombo(true);
-    this.getListBeautyService(true);
-    this.getListPrepaidCard(true);
+    // this.getListProduct(true);
+    // this.getListCourseEvent(true);
+    // this.getListCombo(true);
+    // this.getListBeautyService(true);
+    // this.getListPrepaidCard(true);
     this.getDetailTask();
     this.getProvince();
     if (this.sourceData) {
@@ -490,7 +490,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
       (<FormArray>this.updateForm.controls.taskChains).push(taskChainForm);
     });
-    console.log(this.updateForm.value);
   }
 
   getActionChain() {
