@@ -34,7 +34,6 @@ import {
   IQueryBase,
   User,
 } from '@app/types/viewmodels';
-import {ApiLocationService} from '@app/services/api/location';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
@@ -164,7 +163,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
-    private readonly apiLocationService: ApiLocationService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly authService: AuthService,
