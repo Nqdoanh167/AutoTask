@@ -289,7 +289,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           this.sourceData?.leadDeal?.districtCode,
         );
     } else {
-      this.handleAddInterestedProduct();
     }
     this.getActionChain();
     this.getResult();
@@ -843,15 +842,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       default:
         return;
     }
-  }
-
-  handleAddInterestedProduct() {
-    this.formProducts.push(
-      this.fb.group({
-        name: null,
-        type: ETypeProduct.PRODUCT,
-      }),
-    );
   }
 
   hideModal(): void {

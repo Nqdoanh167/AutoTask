@@ -554,9 +554,9 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                     </div>
                   </div>
                   <div class="list-product overflow-x-hidden mt-2">
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between mt-2">
                       <label class="form-control-label">Loại sản phẩm</label>
-                      <div class="d-flex gap-3">
+                      <div class="d-flex gap-3 me-2">
                         <div class="">
                           <label class="basic-checkbox">
                             Sản phẩm
@@ -667,144 +667,230 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                     </div>
                     <ng-container formArrayName="products">
                       <div
-                        *ngFor="
-                          let productType of formProducts.controls;
-                          let i = index
+                        *ngIf="
+                          activeProductTypes.includes(ETypeProduct.PRODUCT)
                         "
-                        [formGroupName]="i"
+                        [formGroupName]="0"
                         class="row mb-2"
                       >
                         <div class="col-3">
+                          <input
+                            type="text"
+                            placeholder="Ex: foo.bar"
+                            class="form-control"
+                            value="Sản phẩm"
+                            disabled
+                          />
+                        </div>
+                        <div class="col-9">
                           <ng-select
-                            [placeholder]="'Chọn Loại sản phẩm'"
+                            [placeholder]="'Chọn Sản phẩm'"
                             [searchable]="false"
+                            [multiple]="true"
+                            [closeOnSelect]="false"
+                            class="dropdown-auto-width custom-input-multiple"
                             appearance="outline"
-                            id="productType"
                             appendTo=".modal"
-                            formControlName="type"
-                            [clearable]="false"
                           >
                             <ng-container>
                               <ng-option
-                                *ngFor="let item of productTypes; index as i"
-                                [value]="item.value"
+                                *ngFor="let item of products.rows; index as i"
+                                [value]="item.id"
                               >
-                                {{ item.label }}
+                                <div class="d-flex align-items-center">
+                                  <img
+                                    class="image-product-radius me-2"
+                                    [src]="
+                                      item.picture ||
+                                      'assets/images/default-product.png'
+                                    "
+                                    fallback="assets/images/no-photo.jpeg"
+                                    [alt]="item.name"
+                                    width="20"
+                                    height="20"
+                                  />
+                                  <div class="label">
+                                    {{ item.name }}
+                                  </div>
+                                </div>
                               </ng-option>
                             </ng-container>
                           </ng-select>
                         </div>
+                      </div>
+                      <div
+                        *ngIf="activeProductTypes.includes(ETypeProduct.COMBO)"
+                        [formGroupName]="1"
+                        class="row mb-2"
+                      >
+                        <div class="col-3">
+                          <input
+                            type="text"
+                            placeholder="Ex: foo.bar"
+                            class="form-control"
+                            value="Combo"
+                            disabled
+                          />
+                        </div>
                         <div class="col">
-                          <div class="row">
-                            <div class="col">
-                              <ng-container [ngSwitch]="productType.value.type">
-                                <ng-container *ngSwitchCase="0">
-                                  <ng-select
-                                    [placeholder]="'Chọn Sản phẩm'"
-                                    [searchable]="false"
-                                    [multiple]="true"
-                                    [closeOnSelect]="false"
-                                    class="dropdown-auto-width custom-input-multiple"
-                                    appearance="outline"
-                                    appendTo=".modal"
-                                  >
-                                    <ng-container>
-                                      <ng-option
-                                        *ngFor="
-                                          let item of products.rows;
-                                          index as i
-                                        "
-                                        [value]="item.id"
-                                      >
-                                        <div class="d-flex align-items-center">
-                                          <img
-                                            class="image-product-radius me-2"
-                                            [src]="
-                                              item.picture ||
-                                              'assets/images/default-product.png'
-                                            "
-                                            fallback="assets/images/no-photo.jpeg"
-                                            [alt]="item.name"
-                                            width="20"
-                                            height="20"
-                                          />
-                                          <div class="label">
-                                            {{ item.name }}
-                                          </div>
-                                        </div>
-                                      </ng-option>
-                                    </ng-container>
-                                  </ng-select>
-                                </ng-container>
-                                <ng-container *ngSwitchCase="1">
-                                  <ng-select
-                                    [placeholder]="'Chọn Khoá học - Sự kiện'"
-                                    [searchable]="false"
-                                    [multiple]="true"
-                                    [closeOnSelect]="false"
-                                    class="dropdown-auto-width custom-input-multiple"
-                                    appearance="outline"
-                                    appendTo=".modal"
-                                  >
-                                    <ng-container>
-                                      <ng-option
-                                        *ngFor="
-                                          let item of courseEvents.rows;
-                                          index as i
-                                        "
-                                        [value]="item.id"
-                                      >
-                                        <div class="d-flex align-items-center">
-                                          <div class="label">
-                                            {{ item.name }}
-                                          </div>
-                                        </div>
-                                      </ng-option>
-                                    </ng-container>
-                                  </ng-select>
-                                </ng-container>
-                                <ng-container *ngSwitchDefault>
-                                  <ng-select
-                                    [placeholder]="'Chọn Sản phẩm'"
-                                    [searchable]="false"
-                                    appearance="outline"
-                                    appendTo=".modal"
-                                  >
-                                    <ng-container>
-                                      <ng-option
-                                        *ngFor="
-                                          let item of productTypes;
-                                          index as i
-                                        "
-                                        [value]="item.value"
-                                      >
-                                        {{ item.label }}
-                                      </ng-option>
-                                    </ng-container>
-                                  </ng-select>
-                                </ng-container>
-                              </ng-container>
-                            </div>
-                          </div>
+                          <ng-select
+                            [placeholder]="'Chọn Combo'"
+                            [searchable]="false"
+                            [multiple]="true"
+                            [closeOnSelect]="false"
+                            class="dropdown-auto-width custom-input-multiple"
+                            appearance="outline"
+                            appendTo=".modal"
+                          >
+                            <ng-container>
+                              <ng-option
+                                *ngFor="
+                                  let item of courseEvents.rows;
+                                  index as i
+                                "
+                                [value]="item.id"
+                              >
+                                <div class="d-flex align-items-center">
+                                  <div class="label">
+                                    {{ item.name }}
+                                  </div>
+                                </div>
+                              </ng-option>
+                            </ng-container>
+                          </ng-select>
                         </div>
                       </div>
                       <div
-                        class="text-center mt-2 mb-2"
-                        *ngIf="!formProducts.value.length"
+                        *ngIf="activeProductTypes.includes(ETypeProduct.COURSE)"
+                        [formGroupName]="2"
+                        class="row mb-2"
                       >
-                        Không có dữ liệu
+                        <div class="col-3">
+                          <input
+                            type="text"
+                            placeholder="Ex: foo.bar"
+                            class="form-control"
+                            value="Khóa học - Sự kiện"
+                            disabled
+                          />
+                        </div>
+                        <div class="col">
+                          <ng-select
+                            [placeholder]="'Chọn Khóa học - Sự kiện'"
+                            [searchable]="false"
+                            [multiple]="true"
+                            [closeOnSelect]="false"
+                            class="dropdown-auto-width custom-input-multiple"
+                            appearance="outline"
+                            appendTo=".modal"
+                          >
+                            <ng-container>
+                              <ng-option
+                                *ngFor="
+                                  let item of courseEvents.rows;
+                                  index as i
+                                "
+                                [value]="item.id"
+                              >
+                                <div class="d-flex align-items-center">
+                                  <div class="label">
+                                    {{ item.name }}
+                                  </div>
+                                </div>
+                              </ng-option>
+                            </ng-container>
+                          </ng-select>
+                        </div>
+                      </div>
+                      <div
+                        *ngIf="
+                          activeProductTypes.includes(ETypeProduct.SERVICE)
+                        "
+                        [formGroupName]="3"
+                        class="row mb-2"
+                      >
+                        <div class="col-3">
+                          <input
+                            type="text"
+                            placeholder="Ex: foo.bar"
+                            class="form-control"
+                            value="Dịch vụ"
+                            disabled
+                          />
+                        </div>
+                        <div class="col">
+                          <ng-select
+                            [placeholder]="'Chọn Dịch vụ'"
+                            [searchable]="false"
+                            [multiple]="true"
+                            [closeOnSelect]="false"
+                            class="dropdown-auto-width custom-input-multiple"
+                            appearance="outline"
+                            appendTo=".modal"
+                          >
+                            <ng-container>
+                              <ng-option
+                                *ngFor="
+                                  let item of courseEvents.rows;
+                                  index as i
+                                "
+                                [value]="item.id"
+                              >
+                                <div class="d-flex align-items-center">
+                                  <div class="label">
+                                    {{ item.name }}
+                                  </div>
+                                </div>
+                              </ng-option>
+                            </ng-container>
+                          </ng-select>
+                        </div>
+                      </div>
+                      <div
+                        *ngIf="
+                          activeProductTypes.includes(ETypeProduct.SIM_CARD)
+                        "
+                        [formGroupName]="4"
+                        class="row mb-2"
+                      >
+                        <div class="col-3">
+                          <input
+                            type="text"
+                            placeholder="Ex: foo.bar"
+                            class="form-control"
+                            value="Thẻ trả trước"
+                            disabled
+                          />
+                        </div>
+                        <div class="col">
+                          <ng-select
+                            [placeholder]="'Chọn Thẻ trả trước'"
+                            [searchable]="false"
+                            [multiple]="true"
+                            [closeOnSelect]="false"
+                            class="dropdown-auto-width custom-input-multiple"
+                            appearance="outline"
+                            appendTo=".modal"
+                          >
+                            <ng-container>
+                              <ng-option
+                                *ngFor="
+                                  let item of courseEvents.rows;
+                                  index as i
+                                "
+                                [value]="item.id"
+                              >
+                                <div class="d-flex align-items-center">
+                                  <div class="label">
+                                    {{ item.name }}
+                                  </div>
+                                </div>
+                              </ng-option>
+                            </ng-container>
+                          </ng-select>
+                        </div>
                       </div>
                     </ng-container>
-                    <div class="mt-2">
-                      <button
-                        type="button"
-                        (click)="handleAddInterestedProduct()"
-                        class="btn button-medium text-link"
-                      >
-                        <i class="fa-solid fa-plus me-1"></i>
-                        Thêm sản phẩm quan tâm
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
