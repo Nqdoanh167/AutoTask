@@ -1,6 +1,13 @@
-import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {
+  ControlContainer,
   FormArray,
   FormBuilder,
   FormGroup,
@@ -28,8 +35,10 @@ import {CommonService} from '@app/services/common/common.service';
   selector: 'app-interested-products',
   templateUrl: './interested-products.component.html',
   styleUrls: ['./interested-products.component.scss'],
+  viewProviders: [{provide: ControlContainer, useExisting: FormGroupDirective}],
 })
 export class InterestedProductsComponent implements OnInit, OnDestroy {
+  @Input() formGroup!: FormGroup | any;
   private destroy$ = new Subject();
 
   public form!: FormArray;
@@ -102,10 +111,15 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     private readonly comboService: ComboService,
     private readonly beautyServiceService: BeautyServiceService,
     private readonly prepaidCardService: PrepaidCardService,
+    private controlContainer: ControlContainer,
   ) {
-    console.log(this.rootFormGroup);
+    this.formParent = <FormGroup>this.controlContainer.control;
     // this.formParent = this.rootFormGroup.control as FormGroup;
     // this.form = this.rootFormGroup.control.get('products') as FormArray;
+  }
+
+  get formProducts() {
+    return <FormArray>this.formGroup.get('products');
   }
 
   ngOnInit(): void {
@@ -117,7 +131,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   }
 
   handleChangeTypeProduct($event: any, productType: ETypeProduct) {
-    const arrayTo = this.form.value;
+    const arrayTo = this.formGroup.value?.products;
     const indexFormTo = arrayTo?.findIndex(
       (el: any) => el.type === productType,
     );
