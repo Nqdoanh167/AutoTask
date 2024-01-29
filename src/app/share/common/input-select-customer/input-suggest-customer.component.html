@@ -1,0 +1,44 @@
+<div class="input-suggest-customer">
+  <input
+    class="form-control input-main {{ className }}"
+    (input)="onSearch($event)"
+    (blur)="trigger.name = false"
+    (focus)="trigger.name = true"
+    [placeholder]="placeholder"
+    [(ngModel)]="value"
+    id="{{ inputId }}"
+    type="text"
+  />
+  <ng-select
+    class="suggest-select"
+    (change)="handleChooseCustomer($event)"
+    (blur)="handleBlur($event)"
+    [items]="customers.rows"
+    bindLabel="name"
+    bindValue="id"
+    [clearable]="false"
+    [isOpen]="trigger.name && customers.rows.length > 0"
+    [closeOnSelect]="true"
+    [placeholder]="'Nhập Tên...'"
+    appendTo=".modal"
+  >
+    <ng-template ng-option-tmp let-item="item">
+      <div
+        class="person-info d-flex justify-content-between align-items-center"
+      >
+        <div class="d-flex justify-content-between align-items-center">
+          <img
+            class="avatar"
+            alt=""
+            fallback="assets/images/avatar.svg"
+            src="{{ item?.picture }}"
+          />
+          <div class="d-flex flex-column mx-3">
+            <span class="account-name fw-500">{{ item?.name }}</span>
+            <span class="account-phone">{{ item?.phone }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ng-select>
+</div>

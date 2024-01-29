@@ -25,6 +25,7 @@ import {FilterDataModule} from '@share/pipe/filter-data/filter-data.module';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {InterestedProductsComponent} from './content-modal/interested-products/interested-products.component';
 import {CustomerInfoComponent} from './content-modal/customer-info/customer-info.component';
+import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import {CustomerInfoComponent} from './content-modal/customer-info/customer-info
     TextAreaComponent,
     FilterDataModule,
     TooltipModule,
+    InputSuggestCustomerComponent,
   ],
 })
 export class DashboardModule {}

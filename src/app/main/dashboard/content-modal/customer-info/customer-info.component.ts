@@ -1,22 +1,9 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  finalize,
-  Subject,
-  takeUntil,
-} from 'rxjs';
+import {Subject} from 'rxjs';
 import {AbstractControl, FormGroup} from '@angular/forms';
 import {ApiLocationService} from '@app/services/api/location';
 import {IDistrict, IProvince, IWard} from '@app/types/location';
-import {
-  Combo,
-  Customer,
-  ICommonDataLazy,
-  IQueryBase,
-} from '@app/types/viewmodels';
-import {CustomerService} from '@app/services/api/customer.service';
-import {uniqBy} from 'lodash';
+import {Customer} from '@app/types/viewmodels';
 import {CommonService} from '@app/services/common/common.service';
 
 @Component({
@@ -36,23 +23,11 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
   public trigger = {
     name: false,
   };
-  protected input$ = new Subject<string>();
 
   public selectedCustomer: Customer | null = null;
-  public customers: ICommonDataLazy<Customer, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 20,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
 
   constructor(
     private readonly apiLocationService: ApiLocationService,
-    private readonly customerService: CustomerService,
     private readonly commonService: CommonService,
   ) {}
 
@@ -68,57 +43,6 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     if (this.f['districtCode'].value) {
       this.getWard(this.f['provinceCode'].value, this.f['districtCode'].value);
     }
-    this.input$
-      .pipe(debounceTime(400), distinctUntilChanged())
-      .subscribe((data) => {
-        this.customers.paramsQuery = {
-          ...this.customers.paramsQuery,
-          q: data,
-        };
-        this.getListCustomer(true, true);
-      });
-  }
-
-  getListCustomer(isInit: boolean = false, isSearching: boolean = false) {
-    this.customers.loading = true;
-    let oldData: any = [];
-    const ids: string[] = [];
-    const query = {
-      ...this.customers.paramsQuery,
-      ...(isInit && ids.length && {ids: ids}),
-    };
-    if (isSearching) {
-      oldData = [...this.customers.rows];
-      this.customers.rows = [];
-    }
-
-    this.customerService.customer
-      .get(query)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.customers.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res && res.status === 200) {
-            let newData: Customer[] = [];
-            if (isSearching) {
-              newData = [...res.data, ...oldData];
-            } else {
-              newData = [...this.customers.rows, ...res.data];
-            }
-            this.customers.rows = uniqBy(newData, 'id');
-            this.customers.isAllowLoadMore = true;
-          } else {
-            this.customers.isAllowLoadMore = false;
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.customers.isAllowLoadMore = false;
-          this.commonService.handleResErr(err);
-        },
-      });
   }
 
   getProvince() {
@@ -213,18 +137,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     }
   }
 
-  handleBlur($event: any) {
-    let value = $event?.target?.value;
-    console.log('=>(customer-info.component.ts:133) value', value);
-    // if (!value) return;
-    // const currentValue = this.formItem.value.values;
-    // this.formItem.patchValue({
-    //   values: [...currentValue, value],
-    // });
-    // this.selectMultiple!.searchTerm = '';
-  }
-
-  handleChooseCustomer(customer: any) {
+  handleChooseCustomer(customer?: Customer) {
+    if (!customer) return;
     this.trigger.name = false;
     this.selectedCustomer = customer;
     this.formGroup.patchValue({
@@ -241,12 +155,6 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       address: customer.address,
     });
   }
-
-  onSearch(event?: any) {
-    this.trigger.name = true;
-    this.input$.next(event?.target?.value);
-  }
-
   handleClearSelectedCustomer() {
     this.selectedCustomer = null;
     this.formGroup.patchValue({
@@ -263,6 +171,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       address: null,
     });
   }
+
+  onChangeInputSuggestCustomer(value: any) {}
 
   ngOnDestroy(): void {
     this.destroy$.next(true);

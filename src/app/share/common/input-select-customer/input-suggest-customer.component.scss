@@ -1,0 +1,26 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.input-suggest-customer {
+  position: relative;
+  .input-main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1050; // to above ng-select
+  }
+}
+
+.avatar {
+  @include mixins.imageCircle(20px);
+}
+.avatar-selected {
+  @include mixins.imageCircle(30px);
+}
+
+.person-info {
+  .account-phone {
+    font-size: 12px;
+    color: vars.$neutral-300;
+  }
+}
