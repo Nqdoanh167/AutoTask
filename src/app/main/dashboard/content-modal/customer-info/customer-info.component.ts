@@ -43,6 +43,9 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     if (this.f['districtCode'].value) {
       this.getWard(this.f['provinceCode'].value, this.f['districtCode'].value);
     }
+    if (this.formGroup.value?.id) {
+      this.selectedCustomer = {...this.formGroup.value};
+    }
   }
 
   getProvince() {
@@ -53,6 +56,9 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       .subscribe({
         next: (res) => {
           this.listProvince = res.data;
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
         },
       });
   }
@@ -67,6 +73,9 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
         next: (res) => {
           this.listDistrict = res.data;
         },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
       });
   }
 
@@ -80,6 +89,9 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       .subscribe({
         next: (res) => {
           this.listWard = res.data;
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
         },
       });
   }
