@@ -33,9 +33,71 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       type: ETypeFilter.SELECT,
+      name: 'actionStatus',
+      placeholder: 'Trạng thái hành động',
+      options: [
+        {
+          label: 'Hành động đã trễ',
+          value: '-createdAt',
+        },
+        {
+          label: 'Hành động hẹn giờ',
+          value: 'createdAt',
+        },
+        {
+          label: 'Hành động hòan thành',
+          value: 'createdAt',
+        },
+        {
+          label: 'Chuỗi đã hoàn thành',
+          value: 'createdAt',
+        },
+      ],
+      bindLabel: 'label',
+      bindValue: 'value',
+      clearable: true,
+    },
+    {
+      type: ETypeFilter.SELECT,
       name: 'chain',
       placeholder: 'Chuỗi',
       options: [],
+      bindLabel: 'label',
+      bindValue: 'value',
+      clearable: true,
+    },
+    {
+      type: ETypeFilter.SELECT,
+      name: 'action',
+      placeholder: 'Hành động',
+      options: [],
+      bindLabel: 'label',
+      bindValue: 'value',
+      clearable: true,
+    },
+    {
+      type: ETypeFilter.SELECT,
+      name: 'result',
+      placeholder: 'Kết quả',
+      options: [],
+      bindLabel: 'label',
+      bindValue: 'value',
+      clearable: true,
+    },
+    {
+      type: ETypeFilter.SELECT,
+      name: 'sort',
+      placeholder: 'Sắp xếp',
+      options: [
+        {
+          label: 'Thời gian gần nhất',
+          value: '-createdAt',
+        },
+        {
+          label: 'Thời gian xa nhất',
+          value: 'createdAt',
+        },
+      ],
       bindLabel: 'label',
       bindValue: 'value',
       clearable: true,
