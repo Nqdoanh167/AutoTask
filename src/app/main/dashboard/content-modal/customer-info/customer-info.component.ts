@@ -37,15 +37,15 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.getProvince();
-    if (this.f['provinceCode'].value) {
-      this.getDistrict(this.f['provinceCode'].value);
-    }
-    if (this.f['districtCode'].value) {
-      this.getWard(this.f['provinceCode'].value, this.f['districtCode'].value);
-    }
     this.formGroup.valueChanges.subscribe((value) => {
       if (value?.id) {
         this.selectedCustomer = {...value};
+        if (value?.provinceCode) {
+          this.getDistrict(value?.provinceCode);
+        }
+        if (value?.districtCode) {
+          this.getWard(value?.provinceCode, value?.districtCode);
+        }
       } else {
         this.selectedCustomer = null;
       }
