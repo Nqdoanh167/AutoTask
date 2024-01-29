@@ -84,7 +84,13 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       provinceCode: null,
     }),
     taskChains: this.fb.array([]),
-    products: this.fb.array([]),
+    cart: this.fb.group({
+      products: null,
+      courseEvents: null,
+      beautyServices: null,
+      prepaidCards: null,
+      combos: null,
+    }),
     counselorId: null,
   });
 

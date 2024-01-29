@@ -80,10 +80,9 @@
         </div>
       </div>
     </div>
-    <ng-container formArrayName="products">
+    <ng-container formGroupName="cart">
       <div
         *ngIf="activeProductTypes.includes(ETypeProduct.PRODUCT)"
-        [formGroupName]="0"
         class="row mb-2"
       >
         <div class="col-3">
@@ -97,40 +96,39 @@
         </div>
         <div class="col-9">
           <ng-select
+            formControlName="products"
+            (change)="handleChangeProducts($event, 'products')"
             [placeholder]="'Chọn Sản phẩm'"
             [searchable]="false"
             [multiple]="true"
             [closeOnSelect]="false"
+            [items]="products.rows"
+            bindLabel="name"
+            [compareWith]="compareFunction"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-container>
-              <ng-option
-                *ngFor="let item of products.rows; index as i"
-                [value]="item.id"
-              >
-                <div class="d-flex align-items-center">
-                  <img
-                    class="image-product-radius me-2"
-                    [src]="item.picture || 'assets/images/default-product.png'"
-                    fallback="assets/images/no-photo.jpeg"
-                    [alt]="item.name"
-                    width="20"
-                    height="20"
-                  />
-                  <div class="label">
-                    {{ item.name }}
-                  </div>
+            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <img
+                  class="image-product-radius me-2"
+                  [src]="item.picture || 'assets/images/default-product.png'"
+                  fallback="assets/images/no-photo.jpeg"
+                  [alt]="item.name"
+                  width="20"
+                  height="20"
+                />
+                <div class="label">
+                  {{ item.name }}
                 </div>
-              </ng-option>
-            </ng-container>
+              </div>
+            </ng-template>
           </ng-select>
         </div>
       </div>
       <div
         *ngIf="activeProductTypes.includes(ETypeProduct.COMBO)"
-        [formGroupName]="1"
         class="row mb-2"
       >
         <div class="col-3">
@@ -144,32 +142,30 @@
         </div>
         <div class="col">
           <ng-select
+            formControlName="combos"
             [placeholder]="'Chọn Combo'"
             [searchable]="false"
             [multiple]="true"
             [closeOnSelect]="false"
+            [items]="combos.rows"
+            [compareWith]="compareFunction"
+            bindLabel="name"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-container>
-              <ng-option
-                *ngFor="let item of combos.rows; index as i"
-                [value]="item.id"
-              >
-                <div class="d-flex align-items-center">
-                  <div class="label">
-                    {{ item.name }}
-                  </div>
+            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
                 </div>
-              </ng-option>
-            </ng-container>
+              </div>
+            </ng-template>
           </ng-select>
         </div>
       </div>
       <div
         *ngIf="activeProductTypes.includes(ETypeProduct.COURSE)"
-        [formGroupName]="2"
         class="row mb-2"
       >
         <div class="col-3">
@@ -183,32 +179,30 @@
         </div>
         <div class="col">
           <ng-select
+            formControlName="courseEvents"
             [placeholder]="'Chọn Khóa học - Sự kiện'"
             [searchable]="false"
             [multiple]="true"
             [closeOnSelect]="false"
+            [items]="courseEvents.rows"
+            [compareWith]="compareFunction"
+            bindLabel="name"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-container>
-              <ng-option
-                *ngFor="let item of courseEvents.rows; index as i"
-                [value]="item.id"
-              >
-                <div class="d-flex align-items-center">
-                  <div class="label">
-                    {{ item.name }}
-                  </div>
+            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
                 </div>
-              </ng-option>
-            </ng-container>
+              </div>
+            </ng-template>
           </ng-select>
         </div>
       </div>
       <div
         *ngIf="activeProductTypes.includes(ETypeProduct.SERVICE)"
-        [formGroupName]="3"
         class="row mb-2"
       >
         <div class="col-3">
@@ -222,32 +216,31 @@
         </div>
         <div class="col">
           <ng-select
+            formControlName="beautyServices"
             [placeholder]="'Chọn Dịch vụ - Làm đẹp'"
             [searchable]="false"
             [multiple]="true"
             [closeOnSelect]="false"
+            [items]="beautyServices.rows"
+            [compareWith]="compareFunction"
+            bindLabel="name"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-container>
-              <ng-option
-                *ngFor="let item of beautyServices.rows; index as i"
-                [value]="item.id"
-              >
-                <div class="d-flex align-items-center">
-                  <div class="label">
-                    {{ item.name }}
-                  </div>
+            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
                 </div>
-              </ng-option>
-            </ng-container>
+              </div>
+            </ng-template>
+            <ng-container></ng-container>
           </ng-select>
         </div>
       </div>
       <div
         *ngIf="activeProductTypes.includes(ETypeProduct.SIM_CARD)"
-        [formGroupName]="4"
         class="row mb-2"
       >
         <div class="col-3">
@@ -261,26 +254,25 @@
         </div>
         <div class="col">
           <ng-select
+            formControlName="prepaidCards"
             [placeholder]="'Chọn Thẻ trả trước'"
             [searchable]="false"
             [multiple]="true"
             [closeOnSelect]="false"
+            [items]="prepaidCards.rows"
+            [compareWith]="compareFunction"
+            bindLabel="name"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-container>
-              <ng-option
-                *ngFor="let item of prepaidCards.rows; index as i"
-                [value]="item.id"
-              >
-                <div class="d-flex align-items-center">
-                  <div class="label">
-                    {{ item.name }}
-                  </div>
+            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
                 </div>
-              </ng-option>
-            </ng-container>
+              </div>
+            </ng-template>
           </ng-select>
         </div>
       </div>

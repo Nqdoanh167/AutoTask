@@ -21,7 +21,7 @@ import {CourseEventService} from '@app/services/api/courseEvent.service';
 import {ComboService} from '@app/services/api/combo.service';
 import {BeautyServiceService} from '@app/services/api/beautyService.service';
 import {PrepaidCardService} from '@app/services/api/prepaidCard.service';
-import {uniqBy} from 'lodash';
+import {pick, uniq, uniqBy} from 'lodash';
 import {CommonService} from '@app/services/common/common.service';
 
 @Component({
@@ -109,8 +109,8 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     private readonly prepaidCardService: PrepaidCardService,
   ) {}
 
-  get formProducts() {
-    return <FormArray>this.formGroup.get('products');
+  formCard() {
+    return this.formGroup.get('cart');
   }
 
   ngOnInit(): void {
@@ -120,6 +120,40 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     this.getListCombo(true);
     this.getListBeautyService(true);
     this.getListPrepaidCard(true);
+    this.formGroup.get('cart').valueChanges.subscribe((value: any) => {
+      const {products, combos, courseEvents, beautyServices, prepaidCards} =
+        value;
+      if (products.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.PRODUCT,
+        ]);
+      }
+      if (combos.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.COMBO,
+        ]);
+      }
+      if (courseEvents.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.COURSE,
+        ]);
+      }
+      if (beautyServices.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.SERVICE,
+        ]);
+      }
+      if (prepaidCards.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.SIM_CARD,
+        ]);
+      }
+    });
   }
 
   handleChangeTypeProduct($event: any, productType: ETypeProduct) {
@@ -138,6 +172,25 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
         this.activeProductTypes = this.activeProductTypes?.filter(
           (el) => el !== productType,
         );
+        switch (productType) {
+          case ETypeProduct.PRODUCT:
+            this.formCard().get('products').setValue([]);
+            break;
+          case ETypeProduct.COMBO:
+            this.formCard().get('combos').setValue([]);
+            break;
+          case ETypeProduct.COURSE:
+            this.formCard().get('courseEvents').setValue([]);
+            break;
+          case ETypeProduct.SERVICE:
+            this.formCard().get('beautyServices').setValue([]);
+            break;
+          case ETypeProduct.SIM_CARD:
+            this.formCard().get('prepaidCards').setValue([]);
+            break;
+          default:
+            break;
+        }
       }
     }
   }
@@ -164,11 +217,21 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
-            let newData: Product[] = [];
+            let newData: any[] = [];
             if (isSearching) {
-              newData = [...res.data, ...oldData];
+              newData = [
+                ...res.data?.map((product) =>
+                  pick(product, ['id', 'name', 'picture']),
+                ),
+                ...oldData,
+              ];
             } else {
-              newData = [...this.products.rows, ...res.data];
+              newData = [
+                ...this.products.rows,
+                ...res.data?.map((product) =>
+                  pick(product, ['id', 'name', 'picture']),
+                ),
+              ];
             }
             this.products.rows = uniqBy(newData, 'id');
             this.products.isAllowLoadMore = true;
@@ -348,6 +411,20 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
           this.commonService.handleResErr(err);
         },
       });
+  }
+
+  handleChangeProducts(
+    event: any,
+    key:
+      | 'products'
+      | 'combos'
+      | 'courseEvents'
+      | 'beautyServices'
+      | 'prepaidCards',
+  ) {}
+
+  compareFunction(item: any, selected: any) {
+    return item.id === selected.id;
   }
 
   ngOnDestroy() {
