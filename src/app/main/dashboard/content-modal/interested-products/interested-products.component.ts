@@ -1,15 +1,8 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {
   ControlContainer,
   FormArray,
-  FormBuilder,
   FormGroup,
   FormGroupDirective,
 } from '@angular/forms';
@@ -35,7 +28,12 @@ import {CommonService} from '@app/services/common/common.service';
   selector: 'app-interested-products',
   templateUrl: './interested-products.component.html',
   styleUrls: ['./interested-products.component.scss'],
-  viewProviders: [{provide: ControlContainer, useExisting: FormGroupDirective}],
+  viewProviders: [
+    {
+      provide: ControlContainer,
+      useExisting: FormGroupDirective,
+    },
+  ],
 })
 export class InterestedProductsComponent implements OnInit, OnDestroy {
   @Input() formGroup!: FormGroup | any;
@@ -102,27 +100,21 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   };
 
   constructor(
-    private fb: FormBuilder,
     private rootFormGroup: FormGroupDirective,
-    private readonly detectChange: ChangeDetectorRef,
     private readonly commonService: CommonService,
     private readonly productService: ProductService,
     private readonly courseEventService: CourseEventService,
     private readonly comboService: ComboService,
     private readonly beautyServiceService: BeautyServiceService,
     private readonly prepaidCardService: PrepaidCardService,
-    private controlContainer: ControlContainer,
-  ) {
-    this.formParent = <FormGroup>this.controlContainer.control;
-    // this.formParent = this.rootFormGroup.control as FormGroup;
-    // this.form = this.rootFormGroup.control.get('products') as FormArray;
-  }
+  ) {}
 
   get formProducts() {
     return <FormArray>this.formGroup.get('products');
   }
 
   ngOnInit(): void {
+    this.formParent = this.rootFormGroup.control as FormGroup;
     this.getListProduct(true);
     this.getListCourseEvent(true);
     this.getListCombo(true);
