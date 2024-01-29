@@ -68,6 +68,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   public updateForm = this.fb.group({
     name: ['Task mới', [Validators.required]],
     leadDeal: this.fb.group({
+      id: null,
       type: 'LEAD',
       name: [null],
       gender: 'other',

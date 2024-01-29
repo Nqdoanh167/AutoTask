@@ -228,6 +228,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     this.trigger.name = false;
     this.selectedCustomer = customer;
     this.formGroup.patchValue({
+      id: customer.id,
       name: customer.name,
       phone: customer.phone,
       email: customer.email,
@@ -249,6 +250,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
   handleClearSelectedCustomer() {
     this.selectedCustomer = null;
     this.formGroup.patchValue({
+      id: null,
       name: null,
       phone: null,
       email: null,
