@@ -246,6 +246,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     if (!dataSource) return;
     this.updateForm.patchValue({
       ...dataSource,
+      leadDeal: {
+        ...dataSource?.leadDeal,
+        id: dataSource?.leadDeal?.id,
+      },
       counselorId: dataSource?.counselor?.id,
     } as any);
     this.formTaskChains.clear();

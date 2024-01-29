@@ -43,9 +43,13 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     if (this.f['districtCode'].value) {
       this.getWard(this.f['provinceCode'].value, this.f['districtCode'].value);
     }
-    if (this.formGroup.value?.id) {
-      this.selectedCustomer = {...this.formGroup.value};
-    }
+    this.formGroup.valueChanges.subscribe((value) => {
+      if (value?.id) {
+        this.selectedCustomer = {...value};
+      } else {
+        this.selectedCustomer = null;
+      }
+    });
   }
 
   getProvince() {
