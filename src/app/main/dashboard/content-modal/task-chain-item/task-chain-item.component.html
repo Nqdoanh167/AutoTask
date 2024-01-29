@@ -148,6 +148,9 @@
                         <button
                           type="button"
                           class="btn button-medium button-sub-primary secondary-color"
+                          [disabled]="
+                            f['status'].value === ETaskChainType.CLOSED
+                          "
                         >
                           Gọi điện
                           <i class="fa-solid fa-phone ms-2"></i>
@@ -159,6 +162,9 @@
                         <button
                           type="button"
                           class="btn button-medium button-sub-primary secondary-color"
+                          [disabled]="
+                            f['status'].value === ETaskChainType.CLOSED
+                          "
                         >
                           Gửi Block Automation
                           <i class="fa-solid fa-robot ms-2 cursor-pointer"></i>
