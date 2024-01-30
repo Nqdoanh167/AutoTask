@@ -43,60 +43,64 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'actionStatus',
+      name: 'actionStates',
       placeholder: 'Trạng thái hành động',
       options: [
         {
           label: 'Hành động đã trễ',
-          value: '-createdAt',
+          value: 'OVERDUE',
         },
         {
           label: 'Hành động hẹn giờ',
-          value: 'createdAt',
+          value: 'DUE_SOON',
         },
         {
           label: 'Hành động hòan thành',
-          value: 'createdAt',
+          value: 'EXECUTED',
         },
         {
           label: 'Chuỗi đã hoàn thành',
-          value: 'createdAt',
+          value: 'HIDE_FULL_EXECUTED ',
         },
       ],
       bindLabel: 'label',
       bindValue: 'value',
       clearable: true,
+      multiple: true,
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'actionChain',
+      name: 'taskChainIds',
       placeholder: 'Chuỗi',
       options: [],
-      bindLabel: 'label',
-      bindValue: 'value',
+      bindLabel: 'name',
+      bindValue: 'id',
       clearable: true,
       searchable: true,
+      multiple: true,
       onSearch: (event: any) => this.handleSearchActChain(event),
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'action',
+      name: 'actionIds',
       placeholder: 'Hành động',
       options: [],
-      bindLabel: 'label',
-      bindValue: 'value',
+      bindLabel: 'name',
+      bindValue: 'id',
       clearable: true,
       searchable: true,
+      multiple: true,
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'result',
+      name: 'resultIds',
       placeholder: 'Kết quả',
       options: [],
-      bindLabel: 'label',
-      bindValue: 'value',
+      bindLabel: 'name',
+      bindValue: 'id',
       clearable: true,
       searchable: true,
+      multiple: true,
     },
     {
       type: ETypeFilter.SELECT,
@@ -262,12 +266,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.actionChains.rows.concat(res.data),
               'id',
             );
-            this.configFilters[2].options = this.actionChains.rows?.map(
-              (item) => ({
-                value: item.id,
-                label: item.name,
-              }),
-            );
+            this.configFilters[2].options = this.actionChains.rows;
             this.actionChains.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -298,10 +297,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.results.rows.concat(res.data),
               'id',
             );
-            this.configFilters[4].options = this.results.rows?.map((item) => ({
-              value: item.id,
-              label: item.name,
-            }));
+            this.configFilters[4].options = this.results.rows;
             this.results.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -332,10 +328,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.actions.rows.concat(res.data),
               'id',
             );
-            this.configFilters[3].options = this.actions.rows?.map((item) => ({
-              value: item.id,
-              label: item.name,
-            }));
+            this.configFilters[3].options = this.actions.rows;
             this.actions.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -437,12 +430,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getDataSource(true);
   }
 
-  onSelectFilter(data: {value?: string; name: string}) {
+  onSelectFilter(data: {value?: string | string[]; name: string}) {
     try {
       const {value, name} = data;
       const filter = this.dataSource.paramsQuery?.filter || '{}';
       let obj = JSON.parse(filter);
-      if (value || Number(value) === 0) {
+      if (Array.isArray(value) && value.length > 0) {
+        obj[name] = value;
+      } else if (
+        typeof value === 'string' &&
+        (!!value || Number(value) === 0)
+      ) {
         obj[name] = value;
       } else {
         delete obj[name];
@@ -455,19 +453,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   handleLoadMoreData(key: 'action' | 'result' | 'actionChain' | string) {
-    if (key === 'action') {
+    if (key === 'actionIds') {
       if (this.actions.isAllowLoadMore) {
         this.actions.paramsQuery!.page! += 1;
         this.getAction();
       }
     }
-    if (key === 'actionChain') {
+    if (key === 'taskChainIds') {
       if (this.actionChains.isAllowLoadMore) {
         this.actionChains.paramsQuery!.page! += 1;
         this.getActionChain();
       }
     }
-    if (key === 'result') {
+    if (key === 'resultIds') {
       if (this.results.isAllowLoadMore) {
         this.results.paramsQuery!.page! += 1;
         this.getResult();
