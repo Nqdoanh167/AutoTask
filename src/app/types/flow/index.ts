@@ -1,4 +1,12 @@
-import {AccountPublic, Customer} from '@app/types/viewmodels';
+import {
+  AccountPublic,
+  BeautyService,
+  Combo,
+  CourseEvent,
+  Customer,
+  PrepaidCard,
+  Product,
+} from '@app/types/viewmodels';
 
 export enum ETabConfigData {
   ACTION = 'action',
@@ -273,7 +281,13 @@ export interface ITask {
   id: string;
   name: string;
   leadDeal?: ILeadDealDto;
-  products: IProductDto[];
+  cart: {
+    products: Product[];
+    beautyServices: BeautyService[];
+    combos: Combo[];
+    prepaidCards: PrepaidCard[];
+    courseEvents: CourseEvent[];
+  };
   orderIds: string[];
   counselor: AccountPublic;
   taskChainIds: string[];

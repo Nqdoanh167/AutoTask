@@ -159,7 +159,84 @@
                     </span>
                   </div>
                 </td>
-                <td>-</td>
+                <td class="column-interested-product">
+                  <div class="list-product">
+                    <ng-container *ngFor="let product of item.cart?.products">
+                      <ng-container
+                        [ngTemplateOutlet]="templateProductItem"
+                        [ngTemplateOutletContext]="{
+                          product: product,
+                          type: 'Sản phẩm'
+                        }"
+                      ></ng-container>
+                    </ng-container>
+                    <ng-container *ngFor="let product of item.cart?.combos">
+                      <ng-container
+                        [ngTemplateOutlet]="templateProductItem"
+                        [ngTemplateOutletContext]="{
+                          product: product,
+                          type: 'Combo'
+                        }"
+                      ></ng-container>
+                    </ng-container>
+                    <ng-container
+                      *ngFor="let product of item.cart?.courseEvents"
+                    >
+                      <ng-container
+                        [ngTemplateOutlet]="templateProductItem"
+                        [ngTemplateOutletContext]="{
+                          product: product,
+                          type: 'Khóa học - Sự kiện'
+                        }"
+                      ></ng-container>
+                    </ng-container>
+                    <ng-container
+                      *ngFor="let product of item.cart?.beautyServices"
+                    >
+                      <ng-container
+                        [ngTemplateOutlet]="templateProductItem"
+                        [ngTemplateOutletContext]="{
+                          product: product,
+                          type: 'Dịch vụ làm đẹp'
+                        }"
+                      ></ng-container>
+                    </ng-container>
+                    <ng-container
+                      *ngFor="let product of item.cart?.prepaidCards"
+                    >
+                      <ng-container
+                        [ngTemplateOutlet]="templateProductItem"
+                        [ngTemplateOutletContext]="{
+                          product: product,
+                          type: 'Thẻ trả trước'
+                        }"
+                      ></ng-container>
+                    </ng-container>
+                    <ng-template
+                      #templateProductItem
+                      let-product="product"
+                      let-type="type"
+                    >
+                      <div
+                        tooltip="{{ type }}"
+                        placement="top"
+                        class="product-item d-flex align-items-center"
+                      >
+                        <img
+                          src="{{
+                            product?.picture ||
+                              'assets/images/default-product.png'
+                          }}"
+                          fallback="assets/images/avatar.svg"
+                          class="product-item-image me-2"
+                        />
+                        <div class="product-item-name">
+                          {{ product.name || '-' }}
+                        </div>
+                      </div>
+                    </ng-template>
+                  </div>
+                </td>
                 <td>
                   <div class="d-flex" *ngIf="item.counselor">
                     <img

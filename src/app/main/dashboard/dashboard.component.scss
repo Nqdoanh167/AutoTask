@@ -42,3 +42,23 @@
     }
   }
 }
+
+.column-interested-product {
+  width: 15%;
+  .list-product {
+    .product-item {
+      .product-item-image {
+        width: 22px;
+        height: 22px;
+        border-radius: vars.$radius-s;
+        object-fit: cover;
+      }
+      .product-item-name {
+        @include mixins.limit-text-row(1);
+      }
+      & + .product-item {
+        margin-top: 5px;
+      }
+    }
+  }
+}
