@@ -439,6 +439,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let obj = JSON.parse(filter);
         if (Array.isArray(value) && value.length > 0) {
           obj[name] = value;
+          if (name === 'taskChainIds') {
+            const selectedChains = this.actionChains.rows.filter((chain) =>
+              value.includes(chain.id),
+            );
+            const actions = selectedChains?.reduce((acc: any[], chain) => {
+              return uniqBy(
+                [
+                  ...acc,
+                  ...chain?.actionResults?.map((chainActResult) => {
+                    return chainActResult.action;
+                  }),
+                ],
+                'id',
+              );
+            }, []);
+            this.configFilters[3].options = actions?.filter(
+              (actions) => !!actions,
+            );
+          }
         } else if (
           typeof value === 'string' &&
           (!!value || Number(value) === 0)
@@ -446,6 +465,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
           obj[name] = value;
         } else {
           delete obj[name];
+          if (name === 'taskChainIds') {
+            this.configFilters[3].options = this.actions.rows;
+          }
         }
         this.dataSource.paramsQuery.filter = JSON.stringify(obj);
       } else {
