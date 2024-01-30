@@ -27,6 +27,7 @@ import {
 } from '@app/types/flow';
 import moment from 'moment/moment';
 import {cloneDeep, uniqBy} from 'lodash';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-task',
@@ -102,6 +103,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearable: true,
       searchable: true,
       multiple: true,
+    },
+    {
+      type: ETypeFilter.SELECT,
+      name: 'counselorId',
+      placeholder: 'Nv Phụ trách',
+      options: [],
+      bindLabel: 'label',
+      bindValue: 'value',
+      clearable: true,
+      searchable: true,
     },
     {
       type: ETypeFilter.SELECT,
@@ -192,7 +203,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private readonly commonService: CommonService,
     private readonly modalConfirmService: ModalConfirmService,
     private readonly autoTaskService: AutoTaskService,
-  ) {}
+    private readonly authService: AuthService,
+  ) {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        if (biz) {
+          this.configFilters[5].options = biz?.users?.map((user) => ({
+            label: user.name,
+            value: user.id,
+          }));
+        }
+      });
+  }
 
   ngOnInit() {
     this.getDataSource();
