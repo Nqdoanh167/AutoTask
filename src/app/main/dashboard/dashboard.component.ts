@@ -56,11 +56,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
           value: 'DUE_SOON',
         },
         {
-          label: 'Hành động hòan thành',
+          label: 'Hành động hoàn thành',
           value: 'EXECUTED',
         },
         {
-          label: 'Chuỗi đã hoàn thành',
+          label: 'Ẩn chuỗi đã hoàn thành',
           value: 'HIDE_FULL_EXECUTED ',
         },
       ],
@@ -72,7 +72,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'taskChainIds',
+      name: 'chainActIds',
       placeholder: 'Chuỗi',
       options: [],
       bindLabel: 'name',
@@ -462,7 +462,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let obj = JSON.parse(filter);
         if (Array.isArray(value) && value.length > 0) {
           obj[name] = value;
-          if (name === 'taskChainIds') {
+          if (name === 'chainActIds') {
             const selectedChains = this.actionChains.rows.filter((chain) =>
               value.includes(chain.id),
             );
@@ -488,7 +488,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           obj[name] = value;
         } else {
           delete obj[name];
-          if (name === 'taskChainIds') {
+          if (name === 'chainActIds') {
             this.configFilters[3].options = this.actions.rows;
           }
         }
@@ -513,7 +513,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.getAction();
       }
     }
-    if (key === 'taskChainIds') {
+    if (key === 'chainActIds') {
       if (this.actionChains.isAllowLoadMore) {
         this.actionChains.paramsQuery!.page! += 1;
         this.getActionChain();
