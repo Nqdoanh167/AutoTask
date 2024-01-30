@@ -15,6 +15,7 @@
           [className]="'input-medium'"
           [selectData]="filter"
           (selectEvent)="onSelectValue($event, filter.name)"
+          (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"
         ></custom-select-search>
       </ng-container>
     </ng-container>

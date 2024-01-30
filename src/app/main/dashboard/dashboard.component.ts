@@ -6,7 +6,11 @@ import {
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {ICommonDataSource} from '@app/types/viewmodels';
+import {
+  ICommonDataLazy,
+  ICommonDataSource,
+  IQueryBase,
+} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {CommonService} from '@app/services/common/common.service';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
@@ -14,9 +18,15 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {calculateTime, sortBy, sortIcon} from '@app/utils/common';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
-import {ETaskChainResultType, ITask} from '@app/types/flow';
+import {
+  ETaskChainResultType,
+  IAction,
+  IActResult,
+  IChainAct,
+  ITask,
+} from '@app/types/flow';
 import moment from 'moment/moment';
-import {cloneDeep} from 'lodash';
+import {cloneDeep, uniqBy} from 'lodash';
 
 @Component({
   selector: 'app-task',
@@ -59,12 +69,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'chain',
+      name: 'actionChain',
       placeholder: 'Chuỗi',
       options: [],
       bindLabel: 'label',
       bindValue: 'value',
       clearable: true,
+      searchable: true,
+      onSearch: (event: any) => this.handleSearchActChain(event),
     },
     {
       type: ETypeFilter.SELECT,
@@ -74,6 +86,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       bindLabel: 'label',
       bindValue: 'value',
       clearable: true,
+      searchable: true,
     },
     {
       type: ETypeFilter.SELECT,
@@ -83,6 +96,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       bindLabel: 'label',
       bindValue: 'value',
       clearable: true,
+      searchable: true,
     },
     {
       type: ETypeFilter.SELECT,
@@ -126,6 +140,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     total: 0,
   };
+
+  public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+      filter: JSON.stringify({isActive: true}),
+    },
+    isAllowLoadMore: false,
+  };
+
+  public results: ICommonDataLazy<IActResult, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
+  public actions: ICommonDataLazy<IAction, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
   private sortProperty: string = 'createdAt';
   private sortOrder = 1;
   public dataSource$ = interval(10000)
@@ -142,7 +191,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getDataSource();
+    this.getActionChain();
+    this.getResult();
+    this.getAction();
   }
+
+  handleSearchActChain(event: any) {}
 
   runTimer() {
     return cloneDeep(this.dataSource.rows);
@@ -189,6 +243,110 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.dataSource.rows = res.data;
             this.dataSource.total = res.total;
           }
+        },
+      });
+  }
+
+  getActionChain() {
+    this.actionChains.loading = true;
+    this.autoTaskService.chainAction
+      .get(this.actionChains.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.actionChains.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.actionChains.rows = uniqBy(
+              this.actionChains.rows.concat(res.data),
+              'id',
+            );
+            this.configFilters[2].options = this.actionChains.rows?.map(
+              (item) => ({
+                value: item.id,
+                label: item.name,
+              }),
+            );
+            this.actionChains.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.actionChains.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.actionChains.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getResult() {
+    this.results.loading = true;
+    this.autoTaskService.actionResult
+      .get(this.results.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.results.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.results.rows = uniqBy(
+              this.results.rows.concat(res.data),
+              'id',
+            );
+            this.configFilters[4].options = this.results.rows?.map((item) => ({
+              value: item.id,
+              label: item.name,
+            }));
+            this.results.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.results.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.results.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getAction() {
+    this.actions.loading = true;
+    this.autoTaskService.action
+      .get(this.actions.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.actions.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.actions.rows = uniqBy(
+              this.actions.rows.concat(res.data),
+              'id',
+            );
+            this.configFilters[3].options = this.actions.rows?.map((item) => ({
+              value: item.id,
+              label: item.name,
+            }));
+            this.actions.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.actions.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.actions.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
         },
       });
   }
@@ -296,6 +454,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  handleLoadMoreData(key: 'action' | 'result' | 'actionChain' | string) {
+    if (key === 'action') {
+      if (this.actions.isAllowLoadMore) {
+        this.actions.paramsQuery!.page! += 1;
+        this.getAction();
+      }
+    }
+    if (key === 'actionChain') {
+      if (this.actionChains.isAllowLoadMore) {
+        this.actionChains.paramsQuery!.page! += 1;
+        this.getActionChain();
+      }
+    }
+    if (key === 'result') {
+      if (this.results.isAllowLoadMore) {
+        this.results.paramsQuery!.page! += 1;
+        this.getResult();
+      }
+    }
+  }
+
   sortBy(property: string): void {
     const {sortProperty, sortOrder, sortQuery} = sortBy(
       this.sortOrder,
@@ -319,6 +498,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
-  protected readonly ETaskChainResultType = ETaskChainResultType;
 }

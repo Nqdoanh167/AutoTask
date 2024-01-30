@@ -21,6 +21,7 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
         [class.custom-input-multiple]="selectData.multiple"
         [multiple]="selectData.multiple || false"
         (search)="onSearchOption()"
+        (scrollToEnd)="onSearchOption()"
         [closeOnSelect]="!selectData.multiple"
         [clearable]="!!selectData.clearable"
       >
@@ -61,6 +62,7 @@ export class CustomSelectSearchComponent implements OnInit {
     bindValue: 'id',
   };
   @Output() selectEvent = new EventEmitter<string>();
+  @Output() scrollToEndEvent = new EventEmitter();
 
   constructor() {}
 

@@ -23,6 +23,7 @@ export interface IFilterTopTable {
   isCreatable?: boolean;
   className?: string;
   clearable?: boolean;
+  onSearch?: (event: any) => void;
 }
 
 export type NameButton = 'reload' | 'add_new' | 'save' | string;
