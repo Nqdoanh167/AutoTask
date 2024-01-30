@@ -22,6 +22,7 @@ export interface IFilterTopTable {
   bindValue?: string;
   isCreatable?: boolean;
   className?: string;
+  minWidth?: string;
   clearable?: boolean;
   onSearch?: (event: any) => void;
 }

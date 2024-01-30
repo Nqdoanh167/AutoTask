@@ -67,6 +67,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       bindValue: 'value',
       clearable: true,
       multiple: true,
+      minWidth: '200px',
     },
     {
       type: ETypeFilter.SELECT,

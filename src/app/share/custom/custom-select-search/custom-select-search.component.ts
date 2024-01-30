@@ -11,6 +11,7 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
       class="custom-select-search {{ selectData.className }} {{ className }}"
     >
       <ng-select
+        [ngStyle]="{minWidth: minWidth}"
         (change)="handleChangeValue($event)"
         [(ngModel)]="dataSelect"
         appearance="outline"
@@ -50,6 +51,7 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
 export class CustomSelectSearchComponent implements OnInit {
   public dataSelect: any = undefined;
   @Input() className?: string;
+  @Input() minWidth?: string;
   @Input() selectData: IFilterTopTable = {
     type: ETypeFilter.SELECT,
     name: '',
