@@ -132,7 +132,6 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     this.submitted = true;
     if (this.updateForm.valid) {
       this.handleUpdate();
-      this.hideModal();
     }
   }
 
