@@ -59,13 +59,16 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       type: [null, [Validators.required]],
       moveToAction: this.fb.group({
         chainActResultId: null,
+        chainActResult: null,
       }),
       callBlockAutomation: this.fb.group({
         blockId: null,
       }),
       addNewChain: this.fb.group({
         chainActResultId: null,
+        chainActResult: null,
         chainId: null,
+        chain: null,
       }),
       delayType: [null, [Validators.required]],
       delayValue: null,
@@ -148,13 +151,16 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     this.updateForm.patchValue({
       moveToAction: {
         chainActResultId: null,
+        chainActResult: null,
       },
       callBlockAutomation: {
         blockId: null,
       },
       addNewChain: {
         chainActResultId: null,
+        chainActResult: null,
         chainId: null,
+        chain: null,
       },
     });
   }
@@ -162,6 +168,29 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   handleChangeDelayType() {
     this.updateForm.patchValue({
       delayValue: null,
+    });
+  }
+
+  handleChangeNextActionInChain(chainActResult: IChainActResult) {
+    this.updateForm.patchValue({
+      moveToAction: {
+        chainActResultId: chainActResult.id,
+        chainActResult: chainActResult,
+      },
+    });
+  }
+
+  handleChangeNextActionInNewChain(chainAct: IChainActResult) {
+    const selectedChain = this.actionChains.find(
+      (actionChain) => actionChain.id === chainAct.chainActId,
+    );
+    this.updateForm.patchValue({
+      addNewChain: {
+        chainActResultId: chainAct.id,
+        chainId: selectedChain?.id,
+        chainActResult: chainAct,
+        chain: selectedChain,
+      },
     });
   }
 

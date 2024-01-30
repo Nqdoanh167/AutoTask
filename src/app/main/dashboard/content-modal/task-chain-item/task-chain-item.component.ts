@@ -285,7 +285,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         string += 'Tạo đơn hàng';
         break;
       case ENextStepType.ADD_CHAIN:
-        string += 'Thêm chuỗi mới';
+        string += 'Thêm HĐ từ chuỗi khác';
         break;
       case ENextStepType.CONTINUE_TO_NEXT_ACTION:
         string += 'HĐ tiếp trong chuỗi';
