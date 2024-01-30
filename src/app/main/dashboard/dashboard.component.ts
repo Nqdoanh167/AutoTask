@@ -110,11 +110,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       options: [
         {
           label: 'Thời gian gần nhất',
-          value: '-createdAt',
+          value: 'deadlineDate',
         },
         {
           label: 'Thời gian xa nhất',
-          value: 'createdAt',
+          value: '-deadlineDate',
         },
       ],
       bindLabel: 'label',
@@ -434,19 +434,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onSelectFilter(data: {value?: string | string[]; name: string}) {
     try {
       const {value, name} = data;
-      const filter = this.dataSource.paramsQuery?.filter || '{}';
-      let obj = JSON.parse(filter);
-      if (Array.isArray(value) && value.length > 0) {
-        obj[name] = value;
-      } else if (
-        typeof value === 'string' &&
-        (!!value || Number(value) === 0)
-      ) {
-        obj[name] = value;
+      if (name !== 'sort') {
+        const filter = this.dataSource.paramsQuery?.filter || '{}';
+        let obj = JSON.parse(filter);
+        if (Array.isArray(value) && value.length > 0) {
+          obj[name] = value;
+        } else if (
+          typeof value === 'string' &&
+          (!!value || Number(value) === 0)
+        ) {
+          obj[name] = value;
+        } else {
+          delete obj[name];
+        }
+        this.dataSource.paramsQuery.filter = JSON.stringify(obj);
       } else {
-        delete obj[name];
+        if (value) {
+          this.dataSource.paramsQuery.sort = value;
+        } else {
+          delete this.dataSource.paramsQuery.sort;
+        }
       }
-      this.dataSource.paramsQuery.filter = JSON.stringify(obj);
       this.getDataSource(true);
     } catch (e) {
       console.log(e);
