@@ -328,3 +328,10 @@ export enum EStatusTaskChainResult {
   DONE = 'DONE',
   UNDONE = 'UNDONE',
 }
+
+export enum EActionStates {
+  OVERDUE = 'OVERDUE',
+  DUE_SOON = 'DUE_SOON',
+  EXECUTED = 'EXECUTED',
+  HIDE_FULL_EXECUTED = 'HIDE_FULL_EXECUTED',
+}

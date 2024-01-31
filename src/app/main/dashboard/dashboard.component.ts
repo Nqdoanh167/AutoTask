@@ -19,6 +19,7 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {calculateTime, sortBy, sortIcon} from '@app/utils/common';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
 import {
+  EActionStates,
   ETaskChainResultType,
   IAction,
   IActResult,
@@ -49,19 +50,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
       options: [
         {
           label: 'Hành động đã trễ',
-          value: 'OVERDUE',
+          value: EActionStates.OVERDUE,
         },
         {
           label: 'Hành động hẹn giờ',
-          value: 'DUE_SOON',
+          value: EActionStates.DUE_SOON,
         },
         {
           label: 'Hành động hoàn thành',
-          value: 'EXECUTED',
+          value: EActionStates.EXECUTED,
         },
         {
-          label: 'Ẩn chuỗi đã hoàn thành',
-          value: 'HIDE_FULL_EXECUTED ',
+          label: 'Ẩn chuỗi đã đóng',
+          value: EActionStates.HIDE_FULL_EXECUTED,
         },
       ],
       bindLabel: 'label',
