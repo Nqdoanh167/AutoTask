@@ -427,6 +427,10 @@
                           result['nextActions'].length !== 1
                       }"
                     ></div>
+                    <div
+                      *ngIf="!result['nextActions'].length"
+                      [style.height]="'36px'"
+                    ></div>
                     <div class="padding-button-temp"></div>
                   </div>
                 </td>
@@ -724,6 +728,10 @@
                         </div>
                       </div>
                     </div>
+                    <div
+                      *ngIf="!result['nextActions'].length"
+                      [style.height]="'36px'"
+                    ></div>
                     <div>
                       <button
                         *ngIf="item.results.length"
@@ -821,6 +829,10 @@
                         <!--                        </div>-->
                       </div>
                     </div>
+                    <div
+                      *ngIf="!result['nextActions'].length"
+                      [style.height]="'36px'"
+                    ></div>
                     <div
                       [class.mt-2]="result['nextActions'].length"
                       class="padding-button-temp"
