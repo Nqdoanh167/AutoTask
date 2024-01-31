@@ -51,6 +51,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       page: 1,
       limit: 100,
       sort: '-createdAt',
+      isParent: false,
     },
     isAllowLoadMore: false,
   };
