@@ -7,6 +7,7 @@
   height: calc(100vh - 170px);
 }
 .table {
+  min-width: 1631px;
   &:hover {
     .thinRow {
       visibility: visible;
@@ -303,4 +304,7 @@
     outline: none;
     background-color: unset;
   }
+}
+
+@media (min-width: 1199.98px) and (max-width: 1630px) {
 }
