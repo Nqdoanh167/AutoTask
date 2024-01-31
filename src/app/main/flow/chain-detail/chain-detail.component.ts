@@ -261,39 +261,36 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       }
       if (!actionResults?.length) return true;
       for (const actionResult of actionResults) {
-        if (actionResult?.results?.length) {
-          for (const result of actionResult.results) {
-            const {resultId, nextActions} = result;
-            if (!resultId) {
-              return false;
-            } else if (nextActions?.length) {
-              for (const nextAction of nextActions) {
-                switch (nextAction.nextAction) {
-                  case ENextStepType.CONTINUE_TO_NEXT_ACTION:
-                    if (!nextAction.moveToActionId) return false;
-                    break;
-                  case ENextStepType.ADD_CHAIN:
-                    if (!nextAction.addNewChainActId) return false;
-                    break;
-                  case ENextStepType.CALL_BLOCK_AUTOMATION:
-                    if (!nextAction.callToBlockId) return false;
-                    break;
-                  default:
-                    break;
-                }
-                if (nextAction.delayType === EDelayType.NOW) {
-                  if (!nextAction.nextAction || nextAction.type === undefined) {
-                    return false;
-                  }
-                } else if (
-                  !nextAction.nextAction ||
-                  nextAction.type === undefined ||
-                  nextAction.delayType === undefined ||
-                  nextAction.delayValue === undefined
-                ) {
-                  return false;
-                }
+        if (!actionResult?.results?.length) continue;
+        for (const result of actionResult.results) {
+          const {resultId, nextActions} = result;
+          if (!resultId) return false;
+          if (!nextActions?.length) continue;
+          for (const nextAction of nextActions) {
+            switch (nextAction.nextAction) {
+              case ENextStepType.CONTINUE_TO_NEXT_ACTION:
+                if (!nextAction.moveToActionId) return false;
+                break;
+              case ENextStepType.ADD_CHAIN:
+                if (!nextAction.addNewChainActId) return false;
+                break;
+              case ENextStepType.CALL_BLOCK_AUTOMATION:
+                if (!nextAction.callToBlockId) return false;
+                break;
+              default:
+                break;
+            }
+            if (nextAction.delayType === EDelayType.NOW) {
+              if (!nextAction.nextAction || nextAction.type === undefined) {
+                return false;
               }
+            } else if (
+              !nextAction.nextAction ||
+              nextAction.type === undefined ||
+              nextAction.delayType === undefined ||
+              nextAction.delayValue === undefined
+            ) {
+              return false;
             }
           }
         }
