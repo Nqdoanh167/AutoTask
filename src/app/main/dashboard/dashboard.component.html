@@ -251,6 +251,7 @@
                       <span>{{ item.counselor?.email || '-' }}</span>
                     </div>
                   </div>
+                  <div *ngIf="!item.counselor">-</div>
                 </td>
                 <td>
                   {{ item.createdAt | timeView }}
