@@ -512,51 +512,62 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleUpdate() {
-    this.loading.submit = true;
-    const body = {
-      ...this.updateForm.value,
-    } as unknown as ITaskDto;
-    if (this.sourceData?.id) {
-      this.autoTaskService.task
-        .update(this.sourceData.id, body)
-        .pipe(
-          takeUntil(this.destroy$),
-          finalize(() => (this.loading.submit = false)),
-        )
-        .subscribe({
-          next: (res) => {
-            if (res.status === 200) {
-              this.commonService.handleResSuccess('update');
-              this.updateSuccess.emit();
-              this.hideModal();
-            } else {
-              this.commonService.handleResErr(res);
-            }
-          },
-          error: (err) => this.commonService.handleErr(err),
-        });
-    } else {
-      this.autoTaskService.task
-        .create(body)
-        .pipe(
-          takeUntil(this.destroy$),
-          finalize(() => (this.loading.submit = false)),
-        )
-        .subscribe({
-          next: (res) => {
-            if (res.status === 200) {
-              this.commonService.handleResSuccess('create');
-              this.updateSuccess.emit();
-              this.sourceData = res.data;
-              this.patchForm(res.data);
-              // this.hideModal();
-            } else {
-              this.commonService.handleResErr(res);
-            }
-          },
-          error: (err) => this.commonService.handleErr(err),
-        });
-    }
+    return new Promise((resolve, reject) => {
+      this.loading.submit = true;
+      const body = {
+        ...this.updateForm.value,
+      } as unknown as ITaskDto;
+      if (this.sourceData?.id) {
+        this.autoTaskService.task
+          .update(this.sourceData.id, body)
+          .pipe(
+            takeUntil(this.destroy$),
+            finalize(() => (this.loading.submit = false)),
+          )
+          .subscribe({
+            next: (res) => {
+              if (res.status === 200) {
+                this.commonService.handleResSuccess('update');
+                this.updateSuccess.emit();
+                resolve(res.data);
+              } else {
+                reject(res);
+                this.commonService.handleResErr(res);
+              }
+            },
+            error: (err) => {
+              reject(err);
+              this.commonService.handleErr(err);
+            },
+          });
+      } else {
+        this.autoTaskService.task
+          .create(body)
+          .pipe(
+            takeUntil(this.destroy$),
+            finalize(() => (this.loading.submit = false)),
+          )
+          .subscribe({
+            next: (res) => {
+              if (res.status === 200) {
+                this.commonService.handleResSuccess('create');
+                this.updateSuccess.emit();
+                this.sourceData = res.data;
+                this.patchForm(res.data);
+                resolve(res.data);
+                // this.hideModal();
+              } else {
+                reject(res);
+                this.commonService.handleResErr(res);
+              }
+            },
+            error: (err) => {
+              reject(err);
+              this.commonService.handleErr(err);
+            },
+          });
+      }
+    });
   }
 
   onSubmit(): void {
@@ -826,8 +837,17 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     window.open(url, '_blank');
   }
 
-  handleCreateTaskOrder() {
+  async handleCreateTaskOrder() {
     if (!this.sourceData?.id) return;
+    try {
+      this.submitted = true;
+      if (this.updateForm.valid) {
+        await this.handleUpdate();
+      }
+    } catch (e) {
+      console.log(e);
+      return;
+    }
     this.loading.createOrder = true;
     this.autoTaskService.task.createOrder(this.sourceData?.id!).subscribe({
       next: (res) => {

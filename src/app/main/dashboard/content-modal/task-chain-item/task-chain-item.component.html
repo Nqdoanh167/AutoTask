@@ -64,7 +64,11 @@
                     "
                     [ngClass]="{
                       'text-danger':
-                        taskChainResult.value?.typeOverDeadline === 'over'
+                        taskChainResult.value?.typeOverDeadline === 'over',
+                      editable:
+                        !!staticDataChainItem?.taskChainResults?.[
+                          taskChainResultIndex
+                        ]?.['isEdit']
                     }"
                   >
                     <ng-container

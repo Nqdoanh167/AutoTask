@@ -33,15 +33,17 @@
     font-weight: 500;
   }
   .timer {
-    border: 1px solid #e0e4ef;
     border-radius: 4px;
     background-color: #ffffff;
     margin: 2px 0;
     display: flex;
-    padding: 5px 10px;
     gap: 5px;
     align-items: center;
     color: vars.$secondary-500;
+    &.editable {
+      border: 1px solid #e0e4ef;
+      padding: 5px 10px;
+    }
   }
 }
 
