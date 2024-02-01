@@ -338,17 +338,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         };
       },
     ) as unknown as IManyUpsertChainActResultDto;
-    const bodyDetailChain = {
-      fistActionDelay: this.fistActionDelay,
-    } as unknown as IUpdateChainActDto;
     this.loading.submit = true;
     this.configButtons[this.configButtons.length - 1].loading = true;
     forkJoin([
       this.autoTaskService.chainActResult.upsertMany(bodyUpdateResults),
-      // this.autoTaskService.chainAction.update(
-      //   this.detailChain.id!,
-      //   bodyDetailChain,
-      // ),
+      this.onRemoveAction() as any,
     ])
       .pipe(
         finalize(() => {
@@ -359,22 +353,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       )
       .subscribe({
         next: (res) => {
-          // const responseResult = res[0];
           const responseDetail = res[0];
-
-          // if (responseResult.status === 200 && responseDetail.status === 200) {
-          //   this.commonService.handleResSuccess('update');
-          // } else if (responseResult.status !== 200) {
-          //   this.commonService.handleResErr(responseResult);
-          // } else
-          //   if (responseDetail.status !== 200) {
-          //   this.commonService.handleResErr(responseDetail);
-          // }
-
-          if (responseDetail.status === 200) {
+          if (responseDetail?.status === 200) {
             this.commonService.handleResSuccess('update');
           } else {
-            this.commonService.handleResErr(responseDetail);
+            this.commonService.handleResErr(responseDetail as any);
           }
         },
         error: (err) => this.commonService.handleErr(err),
@@ -549,26 +532,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   handleRemoveAction(currentIndex: number, chainActResult: IChainActResult) {
     if (!this.detailChain?.id) return;
     if (chainActResult.id) {
-      // this.autoTaskService.chainAction
-      //   .deleteChainAct(this.detailChain?.id, chainActResult.id!)
-      //   .subscribe({
-      //     next: (res) => {
-      //       if (res.status === 200) {
-      //         this.detailChain?.actionResults.splice(currentIndex, 1);
-      //         this.clearRemovedActionInChainResult(
-      //           this.detailChain?.actionResults[currentIndex]?.id,
-      //         );
-      //       } else {
-      //         this.commonService.handleResErr(res);
-      //       }
-      //     },
-      //     error: (err) => this.commonService.handleErr(err),
-      //   });
       this.removedChainActResultIds.push(chainActResult.id!);
       this.detailChain?.actionResults.splice(currentIndex, 1);
-      this.clearRemovedActionInChainResult(
-        this.detailChain?.actionResults[currentIndex]?.id,
-      );
+      this.clearRemovedActionInChainResult(chainActResult.id);
     } else {
       this.detailChain?.actionResults.splice(currentIndex, 1);
     }
