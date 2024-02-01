@@ -27,7 +27,9 @@
     "module": "es2020",
     "lib": ["es2020", "dom"],
     "checkJs": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["@hgiasac/stringee-types"],
+    "allowJs": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -39,5 +41,11 @@
         "optionalChainNotNullable": "suppress"
       }
     }
-  }
+  },
+  "include": ["src/**/*",
+    "stringee.d.ts"
+  ],
+  "files": [
+    "stringee.d.ts"
+  ]
 }

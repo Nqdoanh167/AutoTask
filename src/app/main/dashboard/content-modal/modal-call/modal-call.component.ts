@@ -7,7 +7,7 @@ import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {Platform} from '@app/types/sms-ott-call';
-import placeholder from 'lodash/fp/placeholder';
+import {StringeeClient} from 'stringee';
 
 @Component({
   selector: 'app-modal-call',
@@ -45,6 +45,15 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     paramsQuery: {},
     isAllowLoadMore: false,
   };
+
+  public tokenClient = {
+    token: '',
+    loading: false,
+  };
+
+  public stringeeClient: any;
+  public call: any;
+  public authenticatedWithUserId: any;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -91,12 +100,38 @@ export class ModalCallComponent implements OnInit, OnDestroy {
       });
   }
 
+  getTokenClient() {
+    const {platform} = this.form.value;
+    if (!platform) return;
+    this.tokenClient.loading = true;
+    this.smsOttCallService.platform
+      .getTokenClient(platform, 'stringee')
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.tokenClient.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.tokenClient.token = res.data.token;
+            this.getPhones();
+            this.connectStringee();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
   getPhones() {
     const {platform} = this.form.value;
     if (!platform) return;
     this.phones.loading = true;
     this.smsOttCallService.platform
-      .getPhones(platform)
+      .getPhones(platform, 'stringee')
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.phones.loading = false)),
@@ -116,7 +151,50 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   }
 
   handleChangePlatform() {
-    this.getPhones();
+    this.getTokenClient();
+  }
+
+  settingClientEvents() {
+    this.stringeeClient.on('connect', () => {
+      console.log('connected to StringeeServer');
+    });
+
+    this.stringeeClient.on('authen', (res: any) => {
+      console.log('on authen: ', res);
+      if (res.r === 0) {
+        this.authenticatedWithUserId = res.userId;
+      } else {
+        console.log('authen error: ', res);
+      }
+    });
+
+    this.stringeeClient.on('disconnect', () => {
+      console.log('disconnected');
+    });
+
+    this.stringeeClient.on('requestnewtoken', () => {
+      console.log(`request new token;
+            please get new access_token from YourServer
+            and call client.connect(new_access_token)`);
+      // please get new access_token from YourServer and call:
+      // client.connect(new_access_token);
+    });
+
+    this.stringeeClient.on('otherdeviceauthen', (data: any) => {
+      console.log('otherdeviceauthen: ', data);
+    });
+  }
+
+  loginStringee() {
+    this.stringeeClient = new StringeeClient();
+    console.log(this.stringeeClient);
+    console.log(this.tokenClient.token);
+    this.settingClientEvents();
+    this.stringeeClient.connect(this.tokenClient.token);
+  }
+
+  connectStringee() {
+    this.loginStringee();
   }
 
   handleCall() {}
@@ -132,6 +210,4 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
-  protected readonly placeholder = placeholder;
 }

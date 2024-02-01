@@ -48,7 +48,9 @@
               "jquery",
               "bezier-easing"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/stringee-chat-js-sdk/stringee_sdk.min.js"
+            ]
           },
           "configurations": {
             "production": {
