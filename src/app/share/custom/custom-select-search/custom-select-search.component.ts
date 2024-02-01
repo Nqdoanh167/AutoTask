@@ -25,6 +25,7 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
         (scrollToEnd)="onSearchOption()"
         [closeOnSelect]="!selectData.multiple"
         [clearable]="!!selectData.clearable"
+        [clearSearchOnAdd]="true"
       >
         <ng-template *ngIf="selectData.isCreatable" ng-header-tmp>
           <div (click)="onCreateOption()" class="cursor-point">
