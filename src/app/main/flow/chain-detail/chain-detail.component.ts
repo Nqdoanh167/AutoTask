@@ -523,6 +523,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
+              this.detailChain?.actionResults.splice(currentIndex, 1);
               this.clearRemovedActionInChainResult(
                 this.detailChain?.actionResults[currentIndex]?.id,
               );
