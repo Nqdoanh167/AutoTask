@@ -154,6 +154,9 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
   handleChangePlatform() {
     this.getTokenClient();
+    this.form.patchValue({
+      phone: null,
+    });
   }
 
   settingClientEvents() {
@@ -251,7 +254,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
       let call = new StringeeCall(
         this.stringeeClient,
         '842473030023',
-        '0858882646',
+        '0394291984',
         false,
       );
       this.settingCallEvent(call);
