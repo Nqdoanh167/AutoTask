@@ -7,7 +7,7 @@ import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {Platform} from '@app/types/sms-ott-call';
-import {StringeeClient} from 'stringee';
+import {StringeeClient, StringeeCall} from 'stringee';
 
 @Component({
   selector: 'app-modal-call',
@@ -188,7 +188,6 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   loginStringee() {
     this.stringeeClient = new StringeeClient();
     console.log(this.stringeeClient);
-    console.log(this.tokenClient.token);
     this.settingClientEvents();
     this.stringeeClient.connect(this.tokenClient.token);
   }
@@ -197,7 +196,77 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     this.loginStringee();
   }
 
-  handleCall() {}
+  settingCallEvent(call1: any) {
+    call1.on('error', (info: any) => {
+      console.log('on error: ' + JSON.stringify(info));
+    });
+
+    call1.on('addlocalstream', (stream: any) => {
+      console.log('on addlocalstream', stream);
+    });
+
+    call1.on('addremotestream', (stream: any) => {
+      console.log('on addremotestream', stream);
+      // reset srcObject to work around minor bugs in Chrome and Edge.
+    });
+
+    call1.on('signalingstate', (state: any) => {
+      console.log('signalingstate', state);
+
+      if (state.code == 6) {
+        // call ended
+      }
+
+      if (state.code == 5) {
+        // busy here
+      }
+
+      const reason = state.reason;
+      console.log(reason);
+    });
+
+    call1.on('mediastate', (state: any) => {
+      console.log('mediastate ', state);
+    });
+
+    call1.on('info', (info: any) => {
+      console.log('on info', info);
+    });
+
+    call1.on('otherdevice', (data: any) => {
+      console.log('on otherdevice:' + JSON.stringify(data));
+
+      if (
+        (data.type === 'CALL_STATE' && data.code >= 200) ||
+        data.type === 'CALL_END'
+      ) {
+      }
+    });
+  }
+
+  handleCall() {
+    try {
+      let call = new StringeeCall(
+        this.stringeeClient,
+        '842473030023',
+        '0858882646',
+        false,
+      );
+      this.settingCallEvent(call);
+      call.makeCall((res: any) => {
+        console.log('make call callback: ', res);
+        if (res.r !== 0) {
+        } else {
+          // call type
+          if (res.toType === 'internal') {
+          } else {
+          }
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   onSubmit(): void {
     this.submitted = true;
