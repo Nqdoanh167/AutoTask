@@ -135,6 +135,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   private chainId?: string;
 
   private currentBiz = '';
+  private removedChainActResultIds: string[] = [];
   private destroy$ = new Subject();
   constructor(
     private readonly router: Router,
@@ -432,6 +433,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                 id: res.data.actionResults[index].id,
                 action: cloneDeep(selectedAction),
               };
+              this.removedChainActResultIds.filter((id) => {
+                id !== res.data.actionResults[index].id;
+              });
             } else {
               this.commonService.handleResErr(res);
             }
@@ -515,24 +519,56 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     });
   }
 
+  onRemoveAction() {
+    if (!this.detailChain?.id) return;
+    return new Promise((resolve, reject) => {
+      this.removedChainActResultIds.forEach((id) => {
+        this.autoTaskService.chainAction
+          .deleteChainAct(this.detailChain!.id, id!)
+          .subscribe({
+            next: (res) => {
+              if (res.status === 200) {
+                this.removedChainActResultIds =
+                  this.removedChainActResultIds.filter(
+                    (id) => id !== res.data.id,
+                  );
+              } else {
+                this.commonService.handleResErr(res);
+              }
+            },
+            error: (err) => {
+              this.commonService.handleErr(err);
+              reject(false);
+            },
+          });
+      });
+      resolve(true);
+    });
+  }
+
   handleRemoveAction(currentIndex: number, chainActResult: IChainActResult) {
     if (!this.detailChain?.id) return;
     if (chainActResult.id) {
-      this.autoTaskService.chainAction
-        .deleteChainAct(this.detailChain?.id, chainActResult.id!)
-        .subscribe({
-          next: (res) => {
-            if (res.status === 200) {
-              this.detailChain?.actionResults.splice(currentIndex, 1);
-              this.clearRemovedActionInChainResult(
-                this.detailChain?.actionResults[currentIndex]?.id,
-              );
-            } else {
-              this.commonService.handleResErr(res);
-            }
-          },
-          error: (err) => this.commonService.handleErr(err),
-        });
+      // this.autoTaskService.chainAction
+      //   .deleteChainAct(this.detailChain?.id, chainActResult.id!)
+      //   .subscribe({
+      //     next: (res) => {
+      //       if (res.status === 200) {
+      //         this.detailChain?.actionResults.splice(currentIndex, 1);
+      //         this.clearRemovedActionInChainResult(
+      //           this.detailChain?.actionResults[currentIndex]?.id,
+      //         );
+      //       } else {
+      //         this.commonService.handleResErr(res);
+      //       }
+      //     },
+      //     error: (err) => this.commonService.handleErr(err),
+      //   });
+      this.removedChainActResultIds.push(chainActResult.id!);
+      this.detailChain?.actionResults.splice(currentIndex, 1);
+      this.clearRemovedActionInChainResult(
+        this.detailChain?.actionResults[currentIndex]?.id,
+      );
     } else {
       this.detailChain?.actionResults.splice(currentIndex, 1);
     }
