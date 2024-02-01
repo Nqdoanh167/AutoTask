@@ -34,12 +34,6 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    // Called once, before the instance is destroyed.
-    // Add 'implements OnDestroy' to the class.
-    this.destroy.next(true);
-    this.destroy.complete();
-  }
   platform = {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<Platform[]>>(
@@ -48,5 +42,17 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
+    getPhones: (id: string) =>
+      this.httpClient.get<EntityResult<any[]>>(
+        this.createUrl([this.api.platform, id, 'phones']),
+        {
+          params: {},
+        },
+      ),
   };
+
+  ngOnDestroy(): void {
+    this.destroy.next(true);
+    this.destroy.complete();
+  }
 }

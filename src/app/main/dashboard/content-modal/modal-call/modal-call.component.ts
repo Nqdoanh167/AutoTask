@@ -7,6 +7,7 @@ import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {Platform} from '@app/types/sms-ott-call';
+import placeholder from 'lodash/fp/placeholder';
 
 @Component({
   selector: 'app-modal-call',
@@ -90,9 +91,33 @@ export class ModalCallComponent implements OnInit, OnDestroy {
       });
   }
 
-  getPhones() {}
+  getPhones() {
+    const {platform} = this.form.value;
+    if (!platform) return;
+    this.phones.loading = true;
+    this.smsOttCallService.platform
+      .getPhones(platform)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.phones.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.phones.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
 
-  handleChangePlatform() {}
+  handleChangePlatform() {
+    this.getPhones();
+  }
 
   handleCall() {}
 
@@ -103,11 +128,10 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     }
   }
 
-  hideModal(): void {
-    this.modalRef.hide();
-  }
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
+
+  protected readonly placeholder = placeholder;
 }
