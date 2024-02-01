@@ -70,7 +70,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     leadDeal: this.fb.group({
       id: null,
       type: 'LEAD',
-      name: [null],
+      name: [null, [Validators.required]],
       gender: 'other',
       phone: null,
       email: null,

@@ -12,6 +12,7 @@
           [placeholder]="'Nhập Tên...'"
           (valueChange)="onChangeInputSuggestCustomer($event)"
           (selectCustomer)="handleChooseCustomer($event)"
+          [className]="submitted && f['name'].errors ? 'is-invalid' : ''"
         ></app-input-suggest-customer>
         <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
           <div *ngIf="f['name'].errors?.['required']">
