@@ -42,7 +42,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   public form!: FormArray;
   public formParent!: FormGroup;
   protected readonly ETypeProduct = ETypeProduct;
-  public activeProductTypes = [ETypeProduct.PRODUCT];
+  public activeProductTypes: ETypeProduct[] = [];
 
   public products: ICommonDataLazy<Product, IQueryBase> = {
     rows: [],
@@ -166,32 +166,27 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     if (isCheck) {
       this.activeProductTypes.push(productType);
     } else {
-      if (this.activeProductTypes.length <= 1) {
-        $event.preventDefault();
-        return;
-      } else {
-        this.activeProductTypes = this.activeProductTypes?.filter(
-          (el) => el !== productType,
-        );
-        switch (productType) {
-          case ETypeProduct.PRODUCT:
-            this.formCard().get('products').setValue([]);
-            break;
-          case ETypeProduct.COMBO:
-            this.formCard().get('combos').setValue([]);
-            break;
-          case ETypeProduct.COURSE:
-            this.formCard().get('courseEvents').setValue([]);
-            break;
-          case ETypeProduct.SERVICE:
-            this.formCard().get('beautyServices').setValue([]);
-            break;
-          case ETypeProduct.SIM_CARD:
-            this.formCard().get('prepaidCards').setValue([]);
-            break;
-          default:
-            break;
-        }
+      this.activeProductTypes = this.activeProductTypes?.filter(
+        (el) => el !== productType,
+      );
+      switch (productType) {
+        case ETypeProduct.PRODUCT:
+          this.formCard().get('products').setValue([]);
+          break;
+        case ETypeProduct.COMBO:
+          this.formCard().get('combos').setValue([]);
+          break;
+        case ETypeProduct.COURSE:
+          this.formCard().get('courseEvents').setValue([]);
+          break;
+        case ETypeProduct.SERVICE:
+          this.formCard().get('beautyServices').setValue([]);
+          break;
+        case ETypeProduct.SIM_CARD:
+          this.formCard().get('prepaidCards').setValue([]);
+          break;
+        default:
+          break;
       }
     }
   }

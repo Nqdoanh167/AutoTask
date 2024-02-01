@@ -67,12 +67,12 @@ export class AuthService {
             this.refToken = res.refToken || null;
             this.isLoggedInSubject.next(true);
           } else {
-            // window.location.href = parsedURL.origin;
+            window.location.href = parsedURL.origin;
           }
         },
         error: (error) => {
           if (environment.production) {
-            // window.location.href = '/';
+            window.location.href = '/';
           } else {
             this.loginInDev();
           }
@@ -80,7 +80,7 @@ export class AuthService {
       });
     } else {
       if (environment.production) {
-        // window.location.href = '/';
+        window.location.href = '/';
       } else {
         this.loginInDev();
       }

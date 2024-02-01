@@ -842,9 +842,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     if (!this.sourceData?.id) return;
     try {
       this.submitted = true;
-      if (this.updateForm.valid) {
-        await this.handleUpdate();
-      }
+      if (this.updateForm.invalid) return;
+      await this.handleUpdate();
     } catch (e) {
       console.log(e);
       return;
