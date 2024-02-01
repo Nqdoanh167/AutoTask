@@ -150,6 +150,7 @@
                     >
                       <ng-container *ngSwitchCase="EActionType.CALL">
                         <button
+                          (click)="handleCall()"
                           type="button"
                           class="btn button-medium button-sub-primary secondary-color"
                           [disabled]="

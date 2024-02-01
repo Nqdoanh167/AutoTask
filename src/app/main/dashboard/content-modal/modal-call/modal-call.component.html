@@ -1,0 +1,68 @@
+<div class="modal-call">
+  <form [formGroup]="form">
+    <app-custom-modal
+      [isSubmitting]="loading.submit"
+      (submitModal)="onSubmit()"
+      [textOk]="'Gọi'"
+    >
+      <ng-container modalTitle>Gọi điện</ng-container>
+      <ng-container modalBody>
+        <div class="mb-2">
+          <label class="form-control-label" for="platform">
+            Platform
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['platform'].errors
+            }"
+            [placeholder]="'Chọn Platform'"
+            [searchable]="true"
+            [items]="callPlatforms.rows"
+            (change)="handleChangePlatform()"
+            appearance="outline"
+            formControlName="platform"
+            id="platform"
+            appendTo=".modal-call"
+            bindLabel="name"
+            bindValue="id"
+          ></ng-select>
+          <div
+            *ngIf="submitted && f['platform'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="f['platform'].errors?.['required']">
+              Platform không được bỏ trống
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="phone">
+            Số điện thoại
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['phone'].errors
+            }"
+            [placeholder]="'Chọn Số điện thoại'"
+            [searchable]="true"
+            [items]="phones.rows"
+            class="dropdown-auto-width"
+            appearance="outline"
+            formControlName="phone"
+            id="phone"
+            appendTo=".modal-call"
+            bindLabel="name"
+            bindValue="id"
+          ></ng-select>
+          <div *ngIf="submitted && f['phone'].errors" class="invalid-feedback">
+            <div *ngIf="f['phone'].errors?.['required']">
+              Số điện thoại không được bỏ trống
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </app-custom-modal>
+  </form>
+</div>

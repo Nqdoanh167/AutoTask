@@ -26,6 +26,7 @@ import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {InterestedProductsComponent} from './content-modal/interested-products/interested-products.component';
 import {CustomerInfoComponent} from './content-modal/customer-info/customer-info.component';
 import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
+import {ModalCallComponent} from './content-modal/modal-call/modal-call.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import {InputSuggestCustomerComponent} from '@share/common/input-select-customer
     TaskChainItemComponent,
     InterestedProductsComponent,
     CustomerInfoComponent,
+    ModalCallComponent,
   ],
   imports: [
     CommonModule,

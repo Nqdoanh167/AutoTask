@@ -46,6 +46,7 @@ import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {environment} from '../../../../../environments/environment';
+import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal-call.component';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -866,6 +867,14 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         this.commonService.handleErr(err);
       },
     });
+  }
+
+  handleCall() {
+    this.isOpenBackDrop = true;
+    const modalCall = this.modalService.show(ModalCallComponent, {
+      class: 'modal-dialog-centered',
+    });
+    modalCall.onHide?.pipe().subscribe(() => (this.isOpenBackDrop = false));
   }
 
   ngOnDestroy(): void {

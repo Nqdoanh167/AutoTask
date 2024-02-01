@@ -59,6 +59,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }>();
   @Output() updateTaskChainEvent = new EventEmitter();
   @Output() cancelUpdateTaskChainEvent = new EventEmitter();
+  @Output() callEvent = new EventEmitter();
 
   public loading = {
     submit: false,
@@ -416,6 +417,10 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     return true;
+  }
+
+  handleCall() {
+    this.callEvent.emit();
   }
 
   ngOnDestroy(): void {
