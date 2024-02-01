@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
@@ -15,6 +15,8 @@ import {StringeeClient, StringeeCall} from 'stringee';
   styleUrls: ['./modal-call.component.scss'],
 })
 export class ModalCallComponent implements OnInit, OnDestroy {
+  @Input() customerPhone: string = '';
+
   private destroy$ = new Subject();
   public loading = {
     submit: false,

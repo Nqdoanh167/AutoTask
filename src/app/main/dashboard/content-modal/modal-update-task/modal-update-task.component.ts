@@ -47,6 +47,7 @@ import {AutomationService} from '@app/services/api/automation.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {environment} from '../../../../../environments/environment';
 import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal-call.component';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -177,6 +178,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly modalService: BsModalService,
     private readonly modalConfirmService: ModalConfirmService,
     private readonly automationService: AutomationService,
+    private toastr: ToastrService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -869,9 +871,17 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleCall() {
+    const {phone} = this.formLeadDeal.value;
+    if (!phone) {
+      this.toastr.warning('Không có số điện thoại của khách hàng');
+      return;
+    }
     this.isOpenBackDrop = true;
     const modalCall = this.modalService.show(ModalCallComponent, {
       class: 'modal-dialog-centered',
+      initialState: {
+        customerPhone: phone,
+      },
     });
     modalCall.onHide?.pipe().subscribe(() => (this.isOpenBackDrop = false));
   }
