@@ -46,7 +46,8 @@
               "moment/moment",
               "moment",
               "jquery",
-              "bezier-easing"
+              "bezier-easing",
+              "stringee"
             ],
             "scripts": [
               "node_modules/stringee-chat-js-sdk/stringee_sdk.min.js"
