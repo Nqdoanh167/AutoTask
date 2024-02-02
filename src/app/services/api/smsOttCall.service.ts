@@ -53,7 +53,7 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
       this.httpClient.get<EntityResult<{token: string}>>(
         this.createUrl([this.api.platform, id, platform, 'token-client']),
         {
-          params: {},
+          params: this.createParams({moduleAlias: 'auto-task'}),
         },
       ),
   };
