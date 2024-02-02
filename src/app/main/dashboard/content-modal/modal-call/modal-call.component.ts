@@ -79,6 +79,48 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     this.getCallPlatform();
   }
 
+  hideModal(): void {
+    this.modalRef.hide();
+  }
+
+  getPhones() {
+    const {platform} = this.form.value;
+    if (!platform) return;
+    this.phones.loading = true;
+    this.smsOttCallService.platform
+      .getPhones(platform, 'stringee')
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.phones.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.phones.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  handleChangePlatform(value: Platform) {
+    this.form.patchValue({
+      phone: null,
+    });
+    switch (value.platform) {
+      case 'stringee':
+        this.getTokenClient();
+        break;
+
+      default:
+        return;
+    }
+  }
+
   getCallPlatform() {
     this.callPlatforms.loading = true;
     this.smsOttCallService.platform
@@ -109,6 +151,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
       });
   }
 
+  // STRINGEEE CONFIGURATION
   getTokenClient() {
     const {platform} = this.form.value;
     if (!platform) return;
@@ -133,37 +176,6 @@ export class ModalCallComponent implements OnInit, OnDestroy {
           this.commonService.handleErr(err);
         },
       });
-  }
-
-  getPhones() {
-    const {platform} = this.form.value;
-    if (!platform) return;
-    this.phones.loading = true;
-    this.smsOttCallService.platform
-      .getPhones(platform, 'stringee')
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.phones.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.phones.rows = res.data;
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  handleChangePlatform() {
-    this.getTokenClient();
-    this.form.patchValue({
-      phone: null,
-    });
   }
 
   settingClientEvents() {
@@ -366,9 +378,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     });
   }
 
-  hideModal(): void {
-    this.modalRef.hide();
-  }
+  // END STRINGEEE CONFIGURATION
 
   ngOnDestroy(): void {
     this.destroy$.next(true);
