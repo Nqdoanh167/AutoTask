@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {finalize, interval, Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {uniqBy} from 'lodash';
@@ -7,7 +7,7 @@ import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {Platform} from '@app/types/sms-ott-call';
-import {StringeeClient, StringeeCall} from 'stringee';
+import {StringeeCall, StringeeClient} from 'stringee';
 
 @Component({
   selector: 'app-modal-call',
