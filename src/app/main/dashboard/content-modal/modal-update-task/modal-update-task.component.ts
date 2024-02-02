@@ -752,12 +752,15 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     chainIndex: number,
   ) {
     this.isOpenBackDrop = true;
+    const actionOfChain =
+      taskChain?.taskChainResults?.[value.taskChainResultIndex]?.action;
     const actionData = value?.value?.childNextAction;
     const chainActId = taskChain.chainActId;
     const modalUpdateNextStep = this.modalService.show(
       UpdateActionInTaskChainComponent,
       {
         initialState: {
+          actionOfChain,
           sourceData: actionData,
           results: this.results.rows,
           blocks: this.blocks.rows,

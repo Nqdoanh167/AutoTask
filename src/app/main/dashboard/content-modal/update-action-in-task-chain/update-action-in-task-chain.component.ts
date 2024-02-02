@@ -10,6 +10,7 @@ import {
   EChainNextActType,
   EDelayType,
   ENextStepType,
+  IAction,
   IActResult,
   IChainAct,
   IChainActResult,
@@ -35,6 +36,7 @@ import {IBlockAutomation} from '@app/types/automation';
   styleUrls: ['./update-action-in-task-chain.component.scss'],
 })
 export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
+  @Input() actionOfChain?: IAction;
   @Input() taskChainId?: string;
   @Input() action?: string;
   @Input() sourceData?: IChainNextAction;
@@ -121,7 +123,10 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       const chainAct = this.actionChains.find(
         (chain) => chain.id === this.chainActId,
       );
-      this.actionResults = chainAct?.actionResults || [];
+      this.actionResults =
+        chainAct?.actionResults?.filter(
+          (actionResult) => actionResult.action?.id !== this.actionOfChain?.id,
+        ) || [];
     }
   }
 
