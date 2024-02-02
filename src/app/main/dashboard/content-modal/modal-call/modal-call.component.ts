@@ -333,10 +333,14 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
   handleCall() {
     try {
+      const {platform, phone, toPhone} = this.form.value;
+      if (!platform || !phone || !toPhone) return;
+      const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
+      const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
       this.call = new StringeeCall(
         this.stringeeClient,
-        '842473030023',
-        '84366369782',
+        modifiedPhone,
+        modifiedToPhone,
         false,
       );
       this.settingCallEvents(this.call);
