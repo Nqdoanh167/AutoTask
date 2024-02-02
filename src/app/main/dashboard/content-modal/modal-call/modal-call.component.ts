@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {finalize, interval, Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {uniqBy} from 'lodash';
@@ -59,6 +59,10 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   public authenticatedWithUserId: any;
   public callStatus: 'connected' | 'none' = 'none';
 
+  public time: number = 0;
+  public displayCallTime: any;
+  public interval: any;
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
@@ -81,6 +85,26 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
   hideModal(): void {
     this.modalRef.hide();
+  }
+
+  startTimer() {
+    this.interval = setInterval(() => {
+      if (this.time === 0) {
+        this.time++;
+      } else {
+        this.time++;
+      }
+      this.displayCallTime = this.transform(this.time);
+    }, 1000);
+  }
+  transform(value: number): string {
+    const minutes: number = Math.floor(value / 60);
+    return minutes + ':' + (value - minutes * 60);
+  }
+  clearTime() {
+    this.time = 0;
+    this.displayCallTime = null;
+    clearInterval(this.interval);
   }
 
   getPhones() {
@@ -266,11 +290,13 @@ export class ModalCallComponent implements OnInit, OnDestroy {
         const incomingCallDiv = document.getElementById('incomingCallDiv');
         incomingCallDiv!.style.display = 'none';
         this.callStopped();
+        this.clearTime();
       }
 
       if (state.code == 5) {
         // busy here
         this.callStopped();
+        this.clearTime();
       }
 
       const reason = state.reason;
@@ -295,6 +321,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
       ) {
         const incomingCallDiv = document.getElementById('incomingCallDiv');
         incomingCallDiv!.style.display = 'none';
+        this.clearTime();
       }
     });
   }
@@ -314,6 +341,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
           const callStatus = document.getElementById('callStatus');
           callStatus!.innerHTML = res.message;
           this.callStatus = 'connected';
+          this.startTimer();
         } else {
           // call type
           const callType = document.getElementById('callType');
@@ -337,6 +365,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       callStatus!.innerHTML = 'Call ended';
+      this.clearTime();
     }, 1500);
   }
 

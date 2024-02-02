@@ -1,6 +1,6 @@
 <div class="modal-call">
   <form [formGroup]="form">
-    <app-custom-modal>
+    <app-custom-modal (hideModal)="handleHangup()">
       <ng-container modalTitle>Gọi điện</ng-container>
       <ng-container modalBody>
         <div class="mb-2">
@@ -99,6 +99,12 @@
             <p>
               Loại cuộc gọi:
               <span id="callType" style="color: red">...</span>
+            </p>
+            <p>
+              Thời gian cuộc gọi:
+              <span *ngIf="displayCallTime" id="callTIme" class="fw-500">
+                {{ displayCallTime }} giây
+              </span>
             </p>
           </div>
         </div>
