@@ -1,10 +1,18 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import {Subject} from 'rxjs';
 import {AbstractControl, FormGroup} from '@angular/forms';
 import {ApiLocationService} from '@app/services/api/location';
 import {IDistrict, IProvince, IWard} from '@app/types/location';
 import {Customer} from '@app/types/viewmodels';
 import {CommonService} from '@app/services/common/common.service';
+import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
 
 @Component({
   selector: 'app-customer-info',
@@ -12,6 +20,9 @@ import {CommonService} from '@app/services/common/common.service';
   styleUrls: ['./customer-info.component.scss'],
 })
 export class CustomerInfoComponent implements OnDestroy, OnInit {
+  @ViewChildren(InputSuggestCustomerComponent)
+  inputSuggestCustomers!: QueryList<InputSuggestCustomerComponent>;
+
   @Input() formGroup!: FormGroup;
   @Input() submitted: boolean = false;
 
@@ -172,6 +183,9 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     });
   }
   handleClearSelectedCustomer() {
+    this.inputSuggestCustomers?.forEach((el) => {
+      el.selectedCustomer = undefined;
+    });
     this.selectedCustomer = null;
     this.formGroup.patchValue({
       id: null,

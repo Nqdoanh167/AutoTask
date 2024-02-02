@@ -77,6 +77,7 @@ export class InputSuggestCustomerComponent
     },
     isAllowLoadMore: false,
   };
+  public selectedCustomer: Customer | undefined = undefined;
 
   // for FormControl
   onChange = (value: string) => {};
