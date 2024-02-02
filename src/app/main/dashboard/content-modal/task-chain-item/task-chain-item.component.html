@@ -172,6 +172,9 @@
                           type="button"
                           class="btn button-medium button-sub-primary secondary-color"
                           [disabled]="
+                            !!staticDataChainItem?.taskChainResults?.[
+                              taskChainResultIndex
+                            ]?.['isEdit'] ||
                             !handleCheckIsAllowEdit(
                               'actionButton',
                               taskChainResult.value,
