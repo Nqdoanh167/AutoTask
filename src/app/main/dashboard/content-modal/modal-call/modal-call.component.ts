@@ -279,11 +279,16 @@ export class ModalCallComponent implements OnInit, OnDestroy {
       ) as HTMLVideoElement;
       remoteVideo.srcObject = null;
       remoteVideo.srcObject = stream;
+      this.callStatus = 'connected';
       // reset srcObject to work around minor bugs in Chrome and Edge.
     });
 
     call1.on('signalingstate', (state: any) => {
       console.log('signalingstate', state);
+
+      if (state.code == 3) {
+        this.startTimer();
+      }
 
       if (state.code == 6) {
         // call ended
@@ -328,20 +333,19 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
   handleCall() {
     try {
-      let call = new StringeeCall(
+      this.call = new StringeeCall(
         this.stringeeClient,
         '842473030023',
         '84366369782',
         false,
       );
-      this.settingCallEvents(call);
-      call.makeCall((res: any) => {
+      this.settingCallEvents(this.call);
+      this.call.makeCall((res: any) => {
         console.log('make call callback: ', res);
         if (res.r !== 0) {
           const callStatus = document.getElementById('callStatus');
           callStatus!.innerHTML = res.message;
-          this.callStatus = 'connected';
-          this.startTimer();
+          this.callStatus = 'none';
         } else {
           // call type
           const callType = document.getElementById('callType');
@@ -350,7 +354,6 @@ export class ModalCallComponent implements OnInit, OnDestroy {
           } else {
             callType!.innerHTML = 'App-to-Phone call';
           }
-          this.callStatus = 'none';
         }
       });
     } catch (e) {
@@ -366,6 +369,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       callStatus!.innerHTML = 'Call ended';
       this.clearTime();
+      this.callStatus = 'none';
     }, 1500);
   }
 
@@ -394,17 +398,21 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   }
 
   handleHangup() {
-    this.call.hangup((res: any) => {
+    try {
       const remoteVideo = document.getElementById(
         'remoteVideo',
       ) as HTMLVideoElement;
-      console.log('hangupBtn', remoteVideo);
       remoteVideo.srcObject = null;
       this.callStopped();
-      this.call.hangup((res: any) => {
+
+      this.call?.hangup((res: any) => {
         console.log('hangup res', res);
+        this.clearTime();
+        this.callStatus = 'none';
       });
-    });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   // END STRINGEEE CONFIGURATION

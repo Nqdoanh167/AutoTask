@@ -132,9 +132,7 @@
         >
           Kết thúc
         </button>
-        <ng-container
-          [style.display]="callStatus === 'none' ? 'block' : 'connected'"
-        >
+        <div [style.display]="callStatus === 'none' ? 'block' : 'none'">
           <custom-button-loading
             [isLoading]="loading.submit"
             [isDisabled]="loading.submit"
@@ -143,7 +141,7 @@
             [textButton]="'Gọi'"
             [className]="'button-submit-modal'"
           ></custom-button-loading>
-        </ng-container>
+        </div>
       </div>
     </app-custom-modal>
   </form>
