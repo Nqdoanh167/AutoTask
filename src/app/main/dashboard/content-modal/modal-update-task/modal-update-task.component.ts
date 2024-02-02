@@ -882,6 +882,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       initialState: {
         customerPhone: phone,
       },
+      ignoreBackdropClick: true,
+      keyboard: false,
     });
     modalCall.onHide?.pipe().subscribe(() => (this.isOpenBackDrop = false));
   }

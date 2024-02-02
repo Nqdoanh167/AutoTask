@@ -1,10 +1,6 @@
 <div class="modal-call">
   <form [formGroup]="form">
-    <app-custom-modal
-      [isSubmitting]="loading.submit"
-      (submitModal)="onSubmit()"
-      [textOk]="'Gọi'"
-    >
+    <app-custom-modal>
       <ng-container modalTitle>Gọi điện</ng-container>
       <ng-container modalBody>
         <div class="mb-2">
@@ -64,7 +60,81 @@
             </div>
           </div>
         </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="toPhone">
+            Gọi đến
+            <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="toPhone"
+            id="toPhone"
+            [ngClass]="{
+              'is-invalid': submitted && f['toPhone'].errors
+            }"
+          />
+          <div
+            *ngIf="submitted && f['toPhone'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="f['toPhone'].errors?.['required']">
+              Số điện thoại không được bỏ trống
+            </div>
+          </div>
+        </div>
+        <div class="mb-5">
+          <div id="incomingCallDiv">
+            Incoming call from:
+            <span id="incomingCallFrom"></span>
+            <button (click)="handleAnswer()" id="answerBtn">Trả lời</button>
+            <button (click)="handleReject()" id="rejectBtn">Từ chối</button>
+          </div>
+          <div>
+            <br />
+            Call status:
+            <span id="callStatus" style="color: red">Not started</span>
+            | Call type:
+            <span id="callType" style="color: red">...</span>
+          </div>
+        </div>
+        <div style="display: none" class="mb-5">
+          <video id="remoteVideo" playsinline autoplay></video>
+        </div>
       </ng-container>
+      <div
+        modalFooter
+        class="d-flex justify-content-end align-items-center gap-2"
+      >
+        <button
+          (click)="handleHangup(); hideModal()"
+          class="btn button-default-modal"
+          type="button"
+        >
+          Hủy
+        </button>
+        <button
+          (click)="handleHangup()"
+          class="btn button-default-modal"
+          type="button"
+          id="hangupBtn"
+          [style.display]="callStatus === 'connected' ? 'block' : 'none'"
+        >
+          Kết thúc
+        </button>
+        <ng-container
+          [style.display]="callStatus === 'none' ? 'block' : 'connected'"
+        >
+          <custom-button-loading
+            [isLoading]="loading.submit"
+            [isDisabled]="loading.submit"
+            (action)="onSubmit()"
+            [type]="'button'"
+            [textButton]="'Gọi'"
+            [className]="'button-submit-modal'"
+          ></custom-button-loading>
+        </ng-container>
+      </div>
     </app-custom-modal>
   </form>
 </div>
