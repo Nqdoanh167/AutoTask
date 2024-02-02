@@ -84,7 +84,7 @@
           </div>
         </div>
         <div class="mb-5">
-          <div id="incomingCallDiv">
+          <div id="incomingCallDiv" [style.display]="'none'">
             Incoming call from:
             <span id="incomingCallFrom"></span>
             <button (click)="handleAnswer()" id="answerBtn">Trả lời</button>
@@ -92,10 +92,14 @@
           </div>
           <div>
             <br />
-            Call status:
-            <span id="callStatus" style="color: red">Not started</span>
-            | Call type:
-            <span id="callType" style="color: red">...</span>
+            <p>
+              Trạng thái cuộc gọi:
+              <span id="callStatus" style="color: red">Not started</span>
+            </p>
+            <p>
+              Loại cuộc gọi:
+              <span id="callType" style="color: red">...</span>
+            </p>
           </div>
         </div>
         <div style="display: none" class="mb-5">
