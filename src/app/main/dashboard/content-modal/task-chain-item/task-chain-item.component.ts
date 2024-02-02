@@ -385,7 +385,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   handleCheckIsAllowEdit(
-    type: 'result' | 'timer' | 'block',
+    type: 'result' | 'timer' | 'block' | 'actionButton',
     taskChainResult: ITaskChainResult,
     taskChainResultIndex: number,
   ) {
@@ -410,6 +410,13 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'block') {
+      return (
+        this.f['status'].value !== ETaskChainType.CLOSED &&
+        !taskChainResult?.result?.id &&
+        !taskChainResult.executedDate
+      );
+    }
+    if (type === 'actionButton') {
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&

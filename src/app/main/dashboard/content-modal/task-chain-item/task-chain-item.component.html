@@ -154,7 +154,11 @@
                           type="button"
                           class="btn button-medium button-sub-primary secondary-color"
                           [disabled]="
-                            f['status'].value === ETaskChainType.CLOSED
+                            !handleCheckIsAllowEdit(
+                              'actionButton',
+                              taskChainResult.value,
+                              taskChainResultIndex
+                            )
                           "
                         >
                           Gọi điện
@@ -168,7 +172,11 @@
                           type="button"
                           class="btn button-medium button-sub-primary secondary-color"
                           [disabled]="
-                            f['status'].value === ETaskChainType.CLOSED
+                            !handleCheckIsAllowEdit(
+                              'actionButton',
+                              taskChainResult.value,
+                              taskChainResultIndex
+                            )
                           "
                         >
                           Gửi Block Automation
