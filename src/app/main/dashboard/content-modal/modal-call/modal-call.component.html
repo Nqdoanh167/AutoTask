@@ -42,6 +42,8 @@
             [ngClass]="{
               'is-invalid': submitted && f['phone'].errors
             }"
+            [readonly]="!f['platform'].value"
+            [disabled]="!f['platform'].value"
             [placeholder]="'Chọn Số điện thoại'"
             [searchable]="true"
             [items]="phones.rows"

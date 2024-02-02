@@ -163,6 +163,12 @@ export class ModalCallComponent implements OnInit, OnDestroy {
             this.callPlatforms.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
+            if (res.data.length) {
+              this.form.patchValue({
+                platform: res.data[0].id,
+              } as any);
+              this.getPhones();
+            }
           } else {
             this.commonService.handleResErr(res);
             this.callPlatforms.isAllowLoadMore = false;
