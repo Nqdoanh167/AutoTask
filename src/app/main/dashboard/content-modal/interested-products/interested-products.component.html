@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between mt-2">
       <label class="form-control-label">Loại sản phẩm</label>
       <div class="d-flex gap-3 me-2">
-        <div class="">
+        <div *ngIf="permitModules.includes('products')">
           <label class="basic-checkbox">
             Sản phẩm
             <input
@@ -18,7 +18,7 @@
             <span class="checkmark"></span>
           </label>
         </div>
-        <div>
+        <div *ngIf="permitModules.includes('combos')">
           <label class="basic-checkbox">
             Combo
             <input
@@ -33,7 +33,7 @@
             <span class="checkmark"></span>
           </label>
         </div>
-        <div>
+        <div *ngIf="permitModules.includes('course-event')">
           <label class="basic-checkbox">
             Khóa học - Sự kiện
             <input
@@ -48,7 +48,7 @@
             <span class="checkmark"></span>
           </label>
         </div>
-        <div>
+        <div *ngIf="permitModules.includes('beauty-service')">
           <label class="basic-checkbox">
             Dịch vụ - Làm đẹp
             <input
@@ -63,7 +63,7 @@
             <span class="checkmark"></span>
           </label>
         </div>
-        <div>
+        <div *ngIf="permitModules.includes('prepaid-card')">
           <label class="basic-checkbox">
             Thẻ trả trước
             <input

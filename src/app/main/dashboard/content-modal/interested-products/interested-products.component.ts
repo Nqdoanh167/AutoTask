@@ -23,6 +23,7 @@ import {BeautyServiceService} from '@app/services/api/beautyService.service';
 import {PrepaidCardService} from '@app/services/api/prepaidCard.service';
 import {pick, uniq, uniqBy} from 'lodash';
 import {CommonService} from '@app/services/common/common.service';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-interested-products',
@@ -99,6 +100,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     },
     isAllowLoadMore: false,
   };
+  public permitModules: string[] = [];
 
   constructor(
     private rootFormGroup: FormGroupDirective,
@@ -108,7 +110,13 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     private readonly comboService: ComboService,
     private readonly beautyServiceService: BeautyServiceService,
     private readonly prepaidCardService: PrepaidCardService,
-  ) {}
+    private readonly authService: AuthService,
+  ) {
+    this.authService.currentBiz.subscribe((biz) => {
+      this.permitModules = biz?.modules?.map((el) => el.alias) || [];
+      console.log(this.permitModules);
+    });
+  }
 
   formCard() {
     return this.formGroup.get('cart');
