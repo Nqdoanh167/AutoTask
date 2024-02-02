@@ -114,7 +114,6 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   ) {
     this.authService.currentBiz.subscribe((biz) => {
       this.permitModules = biz?.modules?.map((el) => el.alias) || [];
-      console.log(this.permitModules);
     });
   }
 
