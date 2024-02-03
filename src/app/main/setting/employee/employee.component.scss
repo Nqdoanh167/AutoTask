@@ -10,11 +10,11 @@
     width: 2%;
   }
 
-  .column-employee {
-    width: 20%;
+  .column-status {
+    width: 3%;
   }
 
-  .column-group {
+  .column-employee {
     width: 20%;
   }
 
@@ -22,7 +22,12 @@
     width: 10%;
   }
 
+  .column-group {
+    width: 30%;
+  }
+
   .column-branch {
+    width: 30%;
     .badge {
       background-color: vars.$secondary-500 !important;
       color: vars.$white !important;

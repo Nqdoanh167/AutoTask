@@ -82,7 +82,18 @@
                     </span>
                   </div>
                 </td>
-                <td>-</td>
+                <td class="column-status">
+                  <div>
+                    <img
+                      src="assets/images/icon/{{
+                        item.isActive ? 'check.svg' : 'not-check.svg'
+                      }}"
+                      width="10"
+                      height="10"
+                      alt=""
+                    />
+                  </div>
+                </td>
                 <td class="columns-action">
                   <div class="d-flex">
                     <span
