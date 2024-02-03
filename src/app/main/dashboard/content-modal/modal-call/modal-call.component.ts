@@ -168,7 +168,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
               this.form.patchValue({
                 platform: res.data[0].id,
               } as any);
-              this.getPhones(res.data[0].platform);
+              this.handleChangePlatform(res.data[0]);
             }
           } else {
             this.commonService.handleResErr(res);
