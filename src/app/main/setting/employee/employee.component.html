@@ -1,0 +1,61 @@
+<div class="setting-employee-site">
+  <div class="card">
+    <div class="card-body">
+      <div class="list-data">
+        <app-filter-top-table
+          [configFilters]="configFilters"
+          [configButtons]="configButtons"
+          (clickButtonEvent)="handleAction($event)"
+          (searchEvent)="onSearch($event)"
+        ></app-filter-top-table>
+        <div class="table-responsive tableFixHead custom-scrollbar">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th class="column-employee">Nhân viên</th>
+                <th class="column-group">Nhóm</th>
+                <th class="column-role">Quyền</th>
+                <th class="column-branch">Chi nhánh</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="text-center"
+                *ngIf="!dataSource.rows.length && !dataSource.loading"
+              >
+                <td colspan="12">
+                  <div>Không có dữ liệu</div>
+                </td>
+              </tr>
+              <tr class="text-center" *ngIf="dataSource.loading">
+                <td colspan="12">
+                  <div class="spinner-grow text-primary" role="status">
+                    <span class="visually-hidden">Loading</span>
+                  </div>
+                  <div>Loading</div>
+                </td>
+              </tr>
+              <tr *ngFor="let item of dataSource.rows; index as i">
+                <td>{{ item.name || '-' }}</td>
+                <td>-</td>
+                <td>-</td>
+                <td class="columns-action">
+                  <div class="d-flex">
+                    <span
+                      (click)="handleUpdate(item)"
+                      class="d-flex align-items-center btn-action-table"
+                    >
+                      <img src="./assets/images/icon/edit.svg" alt="" />
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

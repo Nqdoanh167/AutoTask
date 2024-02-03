@@ -1,8 +1,10 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {NotfoundComponent} from '../../notfound/notfound.component';
+import {NotfoundComponent} from '@app/notfound/notfound.component';
 import {SettingComponent} from './setting.component';
 import {PermissionComponent} from './permission/permission.component';
+import {EmployeeComponent} from '@main/setting/employee/employee.component';
+import {BranchComponent} from '@main/setting/branch/branch.component';
 
 const routes: Routes = [
   {
@@ -11,12 +13,20 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'permission',
+        redirectTo: 'employee',
         pathMatch: 'full',
+      },
+      {
+        path: 'employee',
+        component: EmployeeComponent,
       },
       {
         path: 'permission',
         component: PermissionComponent,
+      },
+      {
+        path: 'branch',
+        component: BranchComponent,
       },
     ],
   },

@@ -49,18 +49,19 @@
                         formControlName="counselorId"
                         [searchable]="true"
                         [placeholder]="'Chọn nhân viên...'"
-                        [items]="listBizUsers"
                         [ngClass]="{
                           'is-invalid': submitted && f['counselorId'].errors
                         }"
                         appearance="outline"
                         class="ng-select-custom dropdown-auto-width input-medium"
                         id="userIds"
-                        bindValue="id"
-                        bindLabel="name"
                         appendTo=".modal-update-task"
                       >
-                        <ng-template ng-option-tmp ng-label-tmp let-item="item">
+                        <ng-option
+                          *ngFor="let item of listBizUsers"
+                          [value]="item.id"
+                          [disabled]="!item.isActive"
+                        >
                           <div class="d-flex align-items-center">
                             <div>
                               <img
@@ -74,7 +75,7 @@
                               {{ item.name }}
                             </div>
                           </div>
-                        </ng-template>
+                        </ng-option>
                       </ng-select>
                     </div>
                   </div>

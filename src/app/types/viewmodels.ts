@@ -132,6 +132,7 @@ export interface User {
   groups?: BizGroup[];
   roleIds?: string[];
   roles?: BizRole[];
+  isActive: boolean;
   createdAt?: Date;
 }
 export interface Branch {
