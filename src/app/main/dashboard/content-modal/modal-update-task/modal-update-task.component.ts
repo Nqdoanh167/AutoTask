@@ -639,8 +639,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   onAddTaskChain() {
-    if (!this.sourceData?.id) return;
     this.submittedModal.addTaskChain = true;
+    if (!this.sourceData?.id || this.addTaskChainForm.invalid) return;
     const body = {
       addChainActIds: (this.addTaskChainForm.value?.addChainActIds ||
         []) as unknown as string[],
