@@ -12,24 +12,25 @@
           <table class="table">
             <thead>
               <tr>
-                <th>#</th>
+                <th class="column-index">#</th>
                 <th class="column-employee">Nhân viên</th>
                 <th class="column-group">Nhóm</th>
                 <th class="column-role">Quyền</th>
                 <th class="column-branch">Chi nhánh</th>
+                <th class="column-status">Trạng thái</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               <tr
                 class="text-center"
-                *ngIf="!dataSource.rows.length && !dataSource.loading"
+                *ngIf="!listBizUsers.length && !loading.data"
               >
                 <td colspan="12">
                   <div>Không có dữ liệu</div>
                 </td>
               </tr>
-              <tr class="text-center" *ngIf="dataSource.loading">
+              <tr class="text-center" *ngIf="loading.data">
                 <td colspan="12">
                   <div class="spinner-grow text-primary" role="status">
                     <span class="visually-hidden">Loading</span>
@@ -37,9 +38,50 @@
                   <div>Loading</div>
                 </td>
               </tr>
-              <tr *ngFor="let item of dataSource.rows; index as i">
-                <td>{{ item.name || '-' }}</td>
-                <td>-</td>
+              <tr *ngFor="let item of listBizUsers; index as i">
+                <td class="column-index">{{ i + 1 }}</td>
+                <td class="column-employee">
+                  <div class="d-flex align-items-center">
+                    <div>
+                      <img
+                        class="avatar me-2"
+                        src="{{ item.picture }}"
+                        fallback="assets/images/avatar.svg"
+                        alt=""
+                      />
+                    </div>
+                    <div class="d-flex flex-column">
+                      <span>
+                        <span class="fw-500">{{ item.name || '-' }}&nbsp;</span>
+                        <span class="callout-regular">({{ item.role }})</span>
+                      </span>
+                      <span class="callout-regular">
+                        {{ item.email || '-' }}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td class="column-group">
+                  <div class="list-badge d-flex flex-wrap gap-1">
+                    <span *ngFor="let group of item.groups" class="badge">
+                      {{ group.name || '-' }}
+                    </span>
+                  </div>
+                </td>
+                <td class="column-role">
+                  <div class="list-badge d-flex flex-wrap gap-1">
+                    <span *ngFor="let role of item.roles" class="badge">
+                      {{ role.name || '-' }}
+                    </span>
+                  </div>
+                </td>
+                <td class="column-branch">
+                  <div class="list-badge d-flex flex-wrap gap-1">
+                    <span *ngFor="let branch of item.branches" class="badge">
+                      {{ branch.name || '-' }}
+                    </span>
+                  </div>
+                </td>
                 <td>-</td>
                 <td class="columns-action">
                   <div class="d-flex">

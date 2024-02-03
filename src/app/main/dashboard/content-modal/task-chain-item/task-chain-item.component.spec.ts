@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { TaskChainItemComponent } from './task-chain-item.component';
+import {TaskChainItemComponent} from './task-chain-item.component';
 
 describe('TaskChainItemComponent', () => {
   let component: TaskChainItemComponent;
@@ -8,7 +8,7 @@ describe('TaskChainItemComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TaskChainItemComponent]
+      declarations: [TaskChainItemComponent],
     });
     fixture = TestBed.createComponent(TaskChainItemComponent);
     component = fixture.componentInstance;

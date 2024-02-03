@@ -1,18 +1,20 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {
   ETypeButton,
   ETypeFilter,
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {ICommonDataSource} from '@app/types/viewmodels';
+import {User} from '@app/types/viewmodels';
+import {Subject, takeUntil} from 'rxjs';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-employee',
   templateUrl: './employee.component.html',
   styleUrls: ['./employee.component.scss'],
 })
-export class EmployeeComponent {
+export class EmployeeComponent implements OnDestroy, OnInit {
   public configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
@@ -33,18 +35,23 @@ export class EmployeeComponent {
     },
   ];
 
-  public dataSource: ICommonDataSource<any, any> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 20,
-      sort: '-createdAt',
-    },
-    total: 0,
+  public listBizUsers: User[] = [];
+  public loading = {
+    data: false,
   };
 
-  constructor() {}
+  private currentBiz = '';
+  private destroy$ = new Subject();
+  constructor(private readonly authService: AuthService) {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.listBizUsers = biz.users;
+        this.currentBiz = biz.alias || '';
+      });
+  }
+
+  ngOnInit() {}
 
   getDataSource(isReset?: boolean) {}
   handleAction(name: string) {
@@ -68,5 +75,10 @@ export class EmployeeComponent {
     //   modalUpdate?.content?.updateSuccess
     //       .pipe()
     //       .subscribe(() => this.getDataSource());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 }

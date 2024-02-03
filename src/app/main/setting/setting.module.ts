@@ -7,6 +7,7 @@ import {EmployeeComponent} from './employee/employee.component';
 import {BranchComponent} from './branch/branch.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {PipeTimeViewModule} from '@share/pipe/timeView.module';
+import {FallbackImageModule} from '@share/directive/fallback-image/fallback-image.module';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import {PipeTimeViewModule} from '@share/pipe/timeView.module';
     SettingRoutingModule,
     FilterTopTableComponent,
     PipeTimeViewModule,
+    FallbackImageModule,
   ],
 })
 export class SettingModule {}

@@ -42,10 +42,6 @@
       }
     }
   },
-  "include": ["src/**/*",
-    "stringee.d.ts"
-  ],
-  "files": [
-    "stringee.d.ts"
-  ]
+  "include": ["src/**/*", "stringee.d.ts"],
+  "files": ["stringee.d.ts"]
 }

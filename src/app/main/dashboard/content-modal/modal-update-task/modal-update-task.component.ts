@@ -179,7 +179,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly modalService: BsModalService,
     private readonly modalConfirmService: ModalConfirmService,
     private readonly automationService: AutomationService,
-    private toastr: ToastrService,
+    private readonly toastr: ToastrService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))

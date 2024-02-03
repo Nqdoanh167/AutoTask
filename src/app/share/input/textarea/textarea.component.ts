@@ -4,6 +4,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
@@ -33,7 +34,7 @@ import {CommonModule} from '@angular/common';
   ],
 })
 export class TextAreaComponent
-  implements OnInit, ControlValueAccessor, OnChanges
+  implements OnInit, ControlValueAccessor, OnChanges, OnDestroy
 {
   @Input() minHeight: number = 20;
   @Input() maxHeight: number = 150;
@@ -48,7 +49,7 @@ export class TextAreaComponent
   @Output() valueChange: EventEmitter<string> = new EventEmitter();
   @Output() keyupSpace: EventEmitter<KeyboardEvent> = new EventEmitter();
   @Output() keydownEnter: EventEmitter<KeyboardEvent> = new EventEmitter();
-  @Output() onPaste: EventEmitter<ClipboardEvent> = new EventEmitter();
+  @Output() pasteEvent: EventEmitter<ClipboardEvent> = new EventEmitter();
   // for FormControl
   onChange = (value: string) => {};
   touched: boolean = false;
@@ -90,7 +91,7 @@ export class TextAreaComponent
     this.destroy.complete();
   }
   onPasteEvent(event: ClipboardEvent) {
-    this.onPaste.emit(event);
+    this.pasteEvent.emit(event);
   }
   onInputKeyUp(event: any) {
     if (event.code === 'Space') {
