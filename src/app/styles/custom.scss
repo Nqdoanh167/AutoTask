@@ -392,6 +392,25 @@ ng-select.custom-input-multiple {
       }
     }
   }
+  &.disabled {
+    .ng-select-container {
+      .ng-value-container {
+        .ng-value {
+          .ng-value-icon {
+            display: none !important;
+          }
+          &:hover {
+            .ng-value-icon {
+              display: none !important;
+            }
+          }
+        }
+      }
+      .ng-arrow-wrapper {
+        display: none;
+      }
+    }
+  }
 }
 
 ng-select.custom-input-tag {

@@ -6,11 +6,13 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {Subject} from 'rxjs';
+import {Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormBuilder} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
 import {User} from '@app/types/viewmodels';
+import {environment} from '../../../../../environments/environment';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-modal-employee-info',
@@ -34,13 +36,21 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
     submit: false,
     data: false,
   };
+  public currentBiz = '';
   private destroy$ = new Subject();
   constructor(
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
     private readonly modalRef: BsModalRef,
     private readonly fb: FormBuilder,
-  ) {}
+    private readonly authService: AuthService,
+  ) {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.currentBiz = biz.alias || '';
+      });
+  }
 
   get f(): {[key: string]: AbstractControl} {
     return this.updateForm.controls;
@@ -69,6 +79,11 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
 
   compareFunction(item: any, selected: any) {
     return item.id === selected.id;
+  }
+
+  viewSetting(key: 'groups' | 'roles' | 'branches') {
+    const url = `${environment.urlDomain}/${this.currentBiz}/settings/${key}`;
+    window.open(url, '_blank');
   }
 
   ngOnDestroy() {
