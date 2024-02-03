@@ -73,6 +73,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       id: null,
       type: 'LEAD',
       name: [null, [Validators.required]],
+      picture: null,
       gender: 'other',
       phone: null,
       email: null,

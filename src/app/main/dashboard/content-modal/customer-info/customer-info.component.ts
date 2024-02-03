@@ -167,10 +167,10 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
   handleChooseCustomer(customer?: Customer) {
     if (!customer) return;
     this.trigger.name = false;
-    this.selectedCustomer = customer;
     this.formGroup.patchValue({
       id: customer.id,
       name: customer.name,
+      picture: customer.picture,
       phone: customer.phone,
       email: customer.email,
       province: customer.province,
@@ -181,6 +181,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       wardCode: customer.wardCode,
       address: customer.address,
     });
+    this.selectedCustomer = customer;
   }
   handleClearSelectedCustomer() {
     this.inputSuggestCustomers?.forEach((el) => {
