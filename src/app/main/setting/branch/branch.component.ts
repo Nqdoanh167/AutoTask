@@ -25,11 +25,6 @@ export class BranchComponent implements OnDestroy, OnInit {
   ];
   public configButtons: IFilterTopButton[] = [
     {
-      name: 'reload',
-      type: ETypeButton.DEFAULT,
-      icon: './assets/images/icon/reload.svg',
-    },
-    {
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm chi nhánh',
@@ -41,6 +36,7 @@ export class BranchComponent implements OnDestroy, OnInit {
   };
 
   public dataSource: IBranch[] = [];
+  public listFilteredBranches: IBranch[] = [];
 
   private currentBiz = '';
   private destroy$ = new Subject();
@@ -49,18 +45,14 @@ export class BranchComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         this.dataSource = biz.branches;
+        this.listFilteredBranches = biz.branches;
         this.currentBiz = biz.alias || '';
       });
   }
 
   ngOnInit() {}
 
-  getDataSource(isReset?: boolean) {}
-
   handleAction(name: string) {
-    if (name === 'reload') {
-      this.getDataSource(true);
-    }
     if (name === 'add_new') {
       const url = `${environment.urlDomain}/${this.currentBiz}/settings/branches`;
       window.open(url, '_blank');
@@ -72,6 +64,12 @@ export class BranchComponent implements OnDestroy, OnInit {
     const keyword = removeCharacter(term)
       .toLocaleLowerCase()
       .replace(/[ ]+/, ' ');
+    this.listFilteredBranches = this.dataSource.filter(
+      (user) =>
+        !keyword ||
+        (user.name &&
+          removeCharacter(user.name).toLocaleLowerCase().indexOf(keyword) > -1),
+    );
   }
 
   ngOnDestroy(): void {
