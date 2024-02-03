@@ -153,7 +153,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     paramsQuery: {
       page: 1,
       limit: 20,
-      sort: '-createdAt',
     },
     total: 0,
   };
