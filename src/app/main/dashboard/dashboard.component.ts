@@ -256,7 +256,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   getDataSource(isReset?: boolean) {
     let params = {...this.dataSource.paramsQuery};
     if (isReset) {
-      params.limit = 20;
       params.page = 1;
     }
     this.dataSource.loading = true;
