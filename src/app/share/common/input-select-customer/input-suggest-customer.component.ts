@@ -105,14 +105,12 @@ export class InputSuggestCustomerComponent
 
   getListCustomer(isInit: boolean = false, isSearching: boolean = false) {
     this.customers.loading = true;
-    let oldData: any = [];
     const ids: string[] = [];
     const query = {
       ...this.customers.paramsQuery,
       ...(isInit && ids.length && {ids: ids}),
     };
     if (isSearching) {
-      oldData = [...this.customers.rows];
       this.customers.rows = [];
     }
 
@@ -127,7 +125,7 @@ export class InputSuggestCustomerComponent
           if (res && res.status === 200) {
             let newData: Customer[] = [];
             if (isSearching) {
-              newData = [...res.data, ...oldData];
+              newData = [...res.data];
             } else {
               newData = [...this.customers.rows, ...res.data];
             }
