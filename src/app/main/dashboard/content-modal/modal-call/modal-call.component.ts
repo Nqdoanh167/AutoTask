@@ -107,12 +107,12 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     clearInterval(this.interval);
   }
 
-  getPhones() {
+  getPhones(platformAlias: string) {
     const {platform} = this.form.value;
     if (!platform) return;
     this.phones.loading = true;
     this.smsOttCallService.platform
-      .getPhones(platform, 'stringee')
+      .getPhones(platform, platformAlias)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.phones.loading = false)),
@@ -143,6 +143,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
       default:
         return;
     }
+    this.getPhones(value.platform);
   }
 
   getCallPlatform() {
@@ -167,7 +168,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
               this.form.patchValue({
                 platform: res.data[0].id,
               } as any);
-              this.getPhones();
+              this.getPhones(res.data[0].platform);
             }
           } else {
             this.commonService.handleResErr(res);
@@ -196,7 +197,6 @@ export class ModalCallComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res.status === 200) {
             this.tokenClient.token = res.data.token;
-            this.getPhones();
             this.connectStringee();
           } else {
             this.commonService.handleResErr(res);
