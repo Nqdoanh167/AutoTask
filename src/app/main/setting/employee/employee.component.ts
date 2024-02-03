@@ -8,6 +8,8 @@ import {
 import {User} from '@app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
+import {environment} from '../../../../environments/environment';
+import {removeCharacter} from '@app/utils/common';
 
 @Component({
   selector: 'app-employee',
@@ -36,6 +38,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
   ];
 
   public listBizUsers: User[] = [];
+  public listFilteredBizUsers: User[] = [];
   public loading = {
     data: false,
   };
@@ -47,6 +50,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         this.listBizUsers = biz.users;
+        this.listFilteredBizUsers = biz.users;
         this.currentBiz = biz.alias || '';
       });
   }
@@ -59,11 +63,22 @@ export class EmployeeComponent implements OnDestroy, OnInit {
       this.getDataSource(true);
     }
     if (name === 'add_new') {
+      const url = `${environment.urlDomain}/${this.currentBiz}/settings/staff`;
+      window.open(url, '_blank');
     }
   }
 
   onSearch(value: {term: string; name: string}) {
     const {term} = value;
+    const keyword = removeCharacter(term)
+      .toLocaleLowerCase()
+      .replace(/[ ]+/, ' ');
+    this.listFilteredBizUsers = this.listBizUsers.filter(
+      (user) =>
+        !keyword ||
+        (user.name &&
+          removeCharacter(user.name).toLocaleLowerCase().indexOf(keyword) > -1),
+    );
   }
 
   handleUpdate(value?: any) {

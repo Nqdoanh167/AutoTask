@@ -24,7 +24,7 @@
             <tbody>
               <tr
                 class="text-center"
-                *ngIf="!listBizUsers.length && !loading.data"
+                *ngIf="!listFilteredBizUsers.length && !loading.data"
               >
                 <td colspan="12">
                   <div>Không có dữ liệu</div>
@@ -38,7 +38,7 @@
                   <div>Loading</div>
                 </td>
               </tr>
-              <tr *ngFor="let item of listBizUsers; index as i">
+              <tr *ngFor="let item of listFilteredBizUsers; index as i">
                 <td class="column-index">{{ i + 1 }}</td>
                 <td class="column-employee">
                   <div class="d-flex align-items-center">
