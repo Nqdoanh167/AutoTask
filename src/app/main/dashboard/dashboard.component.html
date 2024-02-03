@@ -54,20 +54,20 @@
                 </td>
                 <td class="column-action-chain">
                   <div class="list-chain d-flex flex-column gap-2">
-                    <ng-container *ngIf="item.taskChains.length">
+                    <ng-container *ngIf="item?.taskChains?.length">
                       <div
-                        *ngFor="let taskChain of item.taskChains"
+                        *ngFor="let taskChain of item?.taskChains"
                         class="chain-item"
                       >
                         <div>
                           <span class="fw-500">
-                            {{ taskChain.name || '-' }}
+                            {{ taskChain?.name || '-' }}
                           </span>
                         </div>
                         <div class="list-act">
                           <div
                             *ngFor="
-                              let taskChainResult of taskChain.taskChainResults;
+                              let taskChainResult of taskChain?.taskChainResults;
                               let resultIndex = index
                             "
                             class="list-act-item"
@@ -84,7 +84,7 @@
                               <span
                                 *ngIf="
                                   !taskChainResult?.executedDate &&
-                                  taskChainResult.deadlineDate
+                                  taskChainResult?.deadlineDate
                                 "
                               >
                                 <ng-container
@@ -100,10 +100,12 @@
                                   let-dataTimeLeft="dataTimeLeft"
                                 >
                                   <span
-                                    class="{{ dataTimeLeft.typeOverDeadline }}"
+                                    class="{{ dataTimeLeft?.typeOverDeadline }}"
                                   >
                                     <ng-container
-                                      [ngSwitch]="dataTimeLeft.typeOverDeadline"
+                                      [ngSwitch]="
+                                        dataTimeLeft?.typeOverDeadline
+                                      "
                                     >
                                       <span *ngSwitchCase="'over'">
                                         <i
@@ -137,13 +139,13 @@
                               {{ taskChainResult?.action?.name || '-' }}
                             </span>
                             <span *ngIf="!!taskChainResult.result?.name">
-                              - {{ taskChainResult.result?.name || '-' }}
+                              - {{ taskChainResult?.result?.name || '-' }}
                             </span>
                           </div>
                         </div>
                       </div>
                     </ng-container>
-                    <ng-container *ngIf="!item.taskChains.length">
+                    <ng-container *ngIf="!item?.taskChains?.length">
                       -
                     </ng-container>
                   </div>
