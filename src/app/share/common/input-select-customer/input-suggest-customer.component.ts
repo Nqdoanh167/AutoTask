@@ -138,7 +138,7 @@ export class InputSuggestCustomerComponent
         },
         error: (err) => {
           this.customers.isAllowLoadMore = false;
-          this.commonService.handleResErr(err);
+          this.commonService.handleErr(err);
         },
       });
   }

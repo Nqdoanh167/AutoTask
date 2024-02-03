@@ -11,6 +11,7 @@
     type="text"
   />
   <ng-select
+    [virtualScroll]="true"
     [(ngModel)]="selectedCustomer"
     class="suggest-select"
     (change)="handleChooseCustomer($event)"
