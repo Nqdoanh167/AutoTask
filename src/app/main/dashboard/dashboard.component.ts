@@ -16,11 +16,10 @@ import {CommonService} from '@app/services/common/common.service';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {calculateTime, sortBy, sortIcon} from '@app/utils/common';
+import {calculateTime} from '@app/utils/common';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
 import {
   EActionStates,
-  ETaskChainResultType,
   IAction,
   IActResult,
   IChainAct,
@@ -191,8 +190,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     isAllowLoadMore: false,
   };
 
-  private sortProperty: string = 'createdAt';
-  private sortOrder = 1;
   public dataSource$ = interval(10000)
     .pipe(takeUntil(this.destroy$))
     .subscribe(() => {
@@ -524,24 +521,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.getResult();
       }
     }
-  }
-
-  sortBy(property: string): void {
-    const {sortProperty, sortOrder, sortQuery} = sortBy(
-      this.sortOrder,
-      this.sortProperty,
-      property,
-    );
-    [this.sortProperty, this.sortOrder] = [sortProperty, sortOrder];
-    this.dataSource.paramsQuery = {
-      ...this.dataSource.paramsQuery,
-      sort: sortQuery ? sortQuery : undefined,
-    };
-    this.getDataSource(true);
-  }
-
-  sortIcon(property: string) {
-    return sortIcon(property, this.sortProperty, this.sortOrder);
   }
 
   ngOnDestroy(): void {

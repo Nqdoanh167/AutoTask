@@ -8,6 +8,10 @@ import {BranchComponent} from './branch/branch.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {FallbackImageModule} from '@share/directive/fallback-image/fallback-image.module';
+import {ModalEmployeeInfoComponent} from './components/modal-employee-info/modal-employee-info.component';
+import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {NgSelectModule} from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [
@@ -15,6 +19,7 @@ import {FallbackImageModule} from '@share/directive/fallback-image/fallback-imag
     PermissionComponent,
     EmployeeComponent,
     BranchComponent,
+    ModalEmployeeInfoComponent,
   ],
   imports: [
     CommonModule,
@@ -22,6 +27,10 @@ import {FallbackImageModule} from '@share/directive/fallback-image/fallback-imag
     FilterTopTableComponent,
     PipeTimeViewModule,
     FallbackImageModule,
+    CustomModalComponent,
+    FormsModule,
+    NgSelectModule,
+    ReactiveFormsModule,
   ],
 })
 export class SettingModule {}

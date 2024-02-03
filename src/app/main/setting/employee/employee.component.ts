@@ -10,6 +10,8 @@ import {Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {environment} from '../../../../environments/environment';
 import {removeCharacter} from '@app/utils/common';
+import {ModalEmployeeInfoComponent} from '@main/setting/components/modal-employee-info/modal-employee-info.component';
+import {BsModalService} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-employee',
@@ -45,7 +47,10 @@ export class EmployeeComponent implements OnDestroy, OnInit {
 
   private currentBiz = '';
   private destroy$ = new Subject();
-  constructor(private readonly authService: AuthService) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly modalService: BsModalService,
+  ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
@@ -81,15 +86,16 @@ export class EmployeeComponent implements OnDestroy, OnInit {
     );
   }
 
-  handleUpdate(value?: any) {
-    //   const modalUpdate = this.modalService.show(ModalUpdateActionComponent, {
-    //     initialState: {
-    //       sourceData: value,
-    //     },
-    //   });
-    //   modalUpdate?.content?.updateSuccess
-    //       .pipe()
-    //       .subscribe(() => this.getDataSource());
+  handleUpdate(value?: User) {
+    const modalUpdate = this.modalService.show(ModalEmployeeInfoComponent, {
+      initialState: {
+        sourceData: value,
+      },
+      class: 'modal-dialog-centered modal-lg',
+    });
+    modalUpdate?.content?.updateSuccess
+      .pipe()
+      .subscribe(() => this.getDataSource());
   }
 
   ngOnDestroy(): void {

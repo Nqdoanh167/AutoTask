@@ -11,8 +11,6 @@ import {
   AbstractControl,
   FormBuilder,
   FormGroup,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
@@ -20,19 +18,8 @@ import {ToastrService} from 'ngx-toastr';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import {
-  EActionType,
-  IAction,
-  IActReason,
-  IActResult,
-  IBodyAction,
-  IBodyResultReason,
-} from '@app/types/flow';
-import {
-  ICommonDataLazy,
-  ICommonDataSource,
-  IQueryBase,
-} from '@app/types/viewmodels';
+import {EActionType, IAction, IActReason, IBodyAction} from '@app/types/flow';
+import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {uniqBy} from 'lodash';
 import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
