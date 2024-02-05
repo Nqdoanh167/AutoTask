@@ -1,5 +1,6 @@
 
 function omicallInit(dataConfig) {
+    omiSDK.unregister()
     const { domain, sipUser, password} = dataConfig;
     let config = {
         theme: 'default',
@@ -41,6 +42,8 @@ function omicallInit(dataConfig) {
             ended: (data) => {
                 // Sự kiện xảy ra khi cuộc gọi kết thúc
                 console.log('ended:', data);
+                const footerModalCall = document.getElementById('footer-modal-call');
+                footerModalCall.style.visibility = 'visible';
             },
             holdChanged: (status) => {
                 // Sự kiện xảy ra khi trạng thái giữ cuộc gọi thay đổi
@@ -67,5 +70,7 @@ function omicallInit(dataConfig) {
 }
 
 function omicallMakeCall(phoneNumber, hotline) {
+    const footerModalCall = document.getElementById('footer-modal-call');
+    footerModalCall.style.visibility = 'hidden';
     omiSDK.makeCall(phoneNumber, hotline);
 }

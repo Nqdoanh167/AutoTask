@@ -144,12 +144,13 @@ export class ModalCallComponent implements OnInit, OnDestroy {
           },
         });
     } else if (platformAlias === 'omicall') {
+      this.omicallExtensions.loading = true;
       this.omicallExtensions.rows = [];
       this.smsOttCallService.platform
         .getOmicallExtension(platformId, platformAlias)
         .pipe(
           takeUntil(this.destroy$),
-          finalize(() => (this.phones.loading = false)),
+          finalize(() => (this.omicallExtensions.loading = false)),
         )
         .subscribe({
           next: (res) => {
