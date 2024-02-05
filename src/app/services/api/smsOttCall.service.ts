@@ -6,6 +6,7 @@ import {Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {Platform} from '@app/types/sms-ott-call';
+import {OmiExtension} from '@app/types/omicall';
 
 @Injectable({
   providedIn: 'root',
@@ -45,6 +46,13 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
     getPhones: (id: string, platform: string) =>
       this.httpClient.get<EntityResult<any[]>>(
         this.createUrl([this.api.platform, id, platform, 'phones']),
+        {
+          params: {},
+        },
+      ),
+    getOmicallExtension: (id: string, platform: string) =>
+      this.httpClient.get<EntityResult<OmiExtension[]>>(
+        this.createUrl([this.api.platform, id, platform, 'extensions']),
         {
           params: {},
         },

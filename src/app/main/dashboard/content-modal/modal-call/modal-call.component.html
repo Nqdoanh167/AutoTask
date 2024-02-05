@@ -33,7 +33,7 @@
             </div>
           </div>
         </div>
-        <div class="mb-2">
+        <div *ngIf="f['platform'].value === 'stringee'" class="mb-2">
           <label class="form-control-label" for="phone">
             Số điện thoại
             <span class="required">*</span>
@@ -56,6 +56,45 @@
             bindLabel="name"
             bindValue="id"
           ></ng-select>
+          <div *ngIf="submitted && f['phone'].errors" class="invalid-feedback">
+            <div *ngIf="f['phone'].errors?.['required']">
+              Số điện thoại không được bỏ trống
+            </div>
+          </div>
+        </div>
+        <div *ngIf="f['platform'].value === 'omicall'" class="mb-2">
+          <label class="form-control-label" for="omicallPhone">
+            Số điện thoại
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['phone'].errors
+            }"
+            [readonly]="!f['platformId'].value"
+            [disabled]="!f['platformId'].value"
+            [placeholder]="'Chọn Số điện thoại'"
+            [searchable]="true"
+            (change)="handleChangeOmicallExtension($event)"
+            [items]="omicallExtensions.rows"
+            [loading]="omicallExtensions.loading"
+            class="dropdown-auto-width"
+            appearance="outline"
+            formControlName="phone"
+            id="omicallPhone"
+            appendTo=".modal-call"
+            bindLabel="phone"
+            bindValue="phone"
+          >
+            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.phone }}&nbsp;
+                  <span class="fw-500">({{ item.sipUser }})</span>
+                </div>
+              </div>
+            </ng-template>
+          </ng-select>
           <div *ngIf="submitted && f['phone'].errors" class="invalid-feedback">
             <div *ngIf="f['phone'].errors?.['required']">
               Số điện thoại không được bỏ trống

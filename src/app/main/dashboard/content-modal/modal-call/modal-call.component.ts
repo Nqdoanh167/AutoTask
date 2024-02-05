@@ -8,8 +8,10 @@ import {CommonService} from '@app/services/common/common.service';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {Platform} from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
+import {OmiExtension} from '@app/types/omicall';
 
-declare function helloWorld(): void;
+declare function omicallInit(dataConfig: OmiExtension): void;
+declare function omicallMakeCall(phoneNumber: string, hotline: string): void;
 
 @Component({
   selector: 'app-modal-call',
@@ -26,6 +28,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   };
   public form = this.fb.group({
     platformId: [null, [Validators.required]],
+    platform: [null, [Validators.required]],
     phone: [null, [Validators.required]],
     toPhone: [null, [Validators.required]],
   });
@@ -45,6 +48,13 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   };
 
   public phones: ICommonDataLazy<Platform, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {},
+    isAllowLoadMore: false,
+  };
+
+  public omicallExtensions: ICommonDataLazy<OmiExtension, IQueryBase> = {
     rows: [],
     loading: false,
     paramsQuery: {},
@@ -77,7 +87,6 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    helloWorld();
     if (this.customerPhone) {
       this.form.patchValue({
         toPhone: this.customerPhone,
@@ -112,39 +121,64 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
   getPhones(platformAlias: string) {
     const {platformId} = this.form.value;
-    if (!platformId) return;
+    if (!platformId || !platformAlias) return;
     this.phones.loading = true;
-    this.smsOttCallService.platform
-      .getPhones(platformId, platformAlias)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.phones.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.phones.rows = res.data;
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
+    if (platformAlias === 'stringee') {
+      this.phones.rows = [];
+      this.smsOttCallService.platform
+        .getPhones(platformId, platformAlias)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => (this.phones.loading = false)),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.phones.rows = res.data;
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => {
+            this.commonService.handleErr(err);
+          },
+        });
+    } else if (platformAlias === 'omicall') {
+      this.omicallExtensions.rows = [];
+      this.smsOttCallService.platform
+        .getOmicallExtension(platformId, platformAlias)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => (this.phones.loading = false)),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.omicallExtensions.rows = res.data;
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => {
+            this.commonService.handleErr(err);
+          },
+        });
+    }
   }
 
   handleChangePlatform(value: Platform) {
     this.form.patchValue({
       phone: null,
-    });
+      platform: value.platform,
+    } as any);
     switch (value.platform) {
       case 'stringee':
         this.getTokenClient();
         break;
-
+      case 'omicall':
+        break;
       default:
-        return;
+        break;
     }
     this.getPhones(value.platform);
   }
@@ -341,9 +375,8 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
   handleCall() {
     try {
-      const {platformId, phone, toPhone} = this.form.value;
-      console.log('=>(modal-call.component.ts:343) platform', platformId);
-      if (!platformId || !phone || !toPhone) return;
+      const {platformId, platform, phone, toPhone} = this.form.value;
+      if (!platformId || !phone || !toPhone || !platform) return;
       const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
       const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
       this.call = new StringeeCall(
@@ -352,23 +385,32 @@ export class ModalCallComponent implements OnInit, OnDestroy {
         modifiedToPhone,
         false,
       );
-      this.settingCallEvents(this.call);
-      this.call.makeCall((res: any) => {
-        console.log('make call callback: ', res);
-        if (res.r !== 0) {
-          const callStatus = document.getElementById('callStatus');
-          callStatus!.innerHTML = res.message;
-          this.callStatus = 'none';
-        } else {
-          // call type
-          const callType = document.getElementById('callType');
-          if (res.toType === 'internal') {
-            callType!.innerHTML = 'App-to-App call';
-          } else {
-            callType!.innerHTML = 'App-to-Phone call';
-          }
-        }
-      });
+      switch (platform) {
+        case 'stringee':
+          this.settingCallEvents(this.call);
+          this.call.makeCall((res: any) => {
+            console.log('make call callback: ', res);
+            if (res.r !== 0) {
+              const callStatus = document.getElementById('callStatus');
+              callStatus!.innerHTML = res.message;
+              this.callStatus = 'none';
+            } else {
+              // call type
+              const callType = document.getElementById('callType');
+              if (res.toType === 'internal') {
+                callType!.innerHTML = 'App-to-App call';
+              } else {
+                callType!.innerHTML = 'App-to-Phone call';
+              }
+            }
+          });
+          break;
+        case 'omicall':
+          omicallMakeCall(this.customerPhone, phone);
+          break;
+        default:
+          return;
+      }
     } catch (e) {
       console.log(e);
     }
@@ -429,6 +471,12 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   }
 
   // END STRINGEEE CONFIGURATION
+
+  // OMICALL
+  handleChangeOmicallExtension(dataConfig: OmiExtension) {
+    console.log(dataConfig);
+    omicallInit(dataConfig);
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next(true);

@@ -1,20 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Ví dụ về một số config có thể dùng khi init SDK
 
-    // Cách khác để khai báo các SDK events:
-    // omiSDK.on('register', (data) => {
-    //   // Sự kiện xảy ra khi trạng thái kết nối tổng đài thay đổi
-    //   console.log('register2:', data);
-    // });
-    // omiSDK.on('connecting', (data) => {
-    //   // Sự kiện xảy ra khi trạng thái kết nối tổng đài thay đổi
-    //   console.log('connecting2:', data);
-    // });
-    // // Cách khác để huỷ khai báo các SDK events:
-    // omiSDK.off('register');
-});
-
-setTimeout(() => {
+function omicallInit(dataConfig) {
+    const { domain, sipUser, password} = dataConfig;
     let config = {
         theme: 'default',
         callbacks: {
@@ -73,18 +59,13 @@ setTimeout(() => {
     };
     omiSDK.init(config, () => {
         omiSDK.register({
-            domain: 'cuongtv1906',
-            username: '100', // tương đương trường "sip_user" trong thông tin số nội bộ
-            password: 'baliAauHje',
+            domain,
+            username: sipUser, // tương đương trường "sip_user" trong thông tin số nội bộ
+            password,
         });
     });
-}, 1000);
-
-function helloWorld() {
-    console.log('Hello world');
-    alert('Hello world');
 }
 
-// setTimeout(() => {
-//     omiSDK.makeCall('0366369782');
-// }, 5000);
+function omicallMakeCall(phoneNumber, hotline) {
+    omiSDK.makeCall(phoneNumber, hotline);
+}
