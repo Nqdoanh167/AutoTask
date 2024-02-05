@@ -125,7 +125,7 @@
             </div>
           </div>
         </div>
-        <div class="mb-5">
+        <div *ngIf="f['platform'].value === 'stringee'" class="mb-5">
           <div id="incomingCallDiv" [style.display]="'none'">
             Incoming call from:
             <span id="incomingCallFrom"></span>
