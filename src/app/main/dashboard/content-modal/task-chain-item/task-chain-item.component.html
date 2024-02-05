@@ -169,6 +169,7 @@
                         *ngSwitchCase="EActionType.SEND_BLOCK_AUTOMATION"
                       >
                         <button
+                          (click)="handleSendBlock(taskChainResult.value)"
                           type="button"
                           class="btn button-medium button-sub-primary secondary-color"
                           [disabled]="
@@ -179,11 +180,21 @@
                               'actionButton',
                               taskChainResult.value,
                               taskChainResultIndex
-                            )
+                            ) ||
+                            loading.sendBlock
                           "
                         >
                           Gửi Block Automation
-                          <i class="fa-solid fa-robot ms-2 cursor-pointer"></i>
+                          <i
+                            *ngIf="!loading.sendBlock"
+                            class="fa-solid fa-robot ms-2 cursor-pointer"
+                          ></i>
+                          <span
+                            *ngIf="loading.sendBlock"
+                            class="spinner-border spinner-border-sm ms-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
                         </button>
                         <div
                           *ngIf="

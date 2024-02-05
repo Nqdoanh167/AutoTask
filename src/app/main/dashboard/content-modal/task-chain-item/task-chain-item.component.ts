@@ -63,6 +63,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   public loading = {
     submit: false,
+    sendBlock: false,
   };
   protected readonly ETaskChainType = ETaskChainType;
 
@@ -428,6 +429,25 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   handleCall() {
     this.callEvent.emit();
+  }
+
+  handleSendBlock(taskChainResult: ITaskChainResult) {
+    if (!taskChainResult.id) return;
+    this.loading.sendBlock = true;
+    this.autoTaskService.taskChainResult
+      .sendBlock(taskChainResult.id)
+      .pipe(finalize(() => (this.loading.sendBlock = false)))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+            this.updateTaskChainEvent.emit();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
   }
 
   ngOnDestroy(): void {

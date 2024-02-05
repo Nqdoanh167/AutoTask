@@ -240,6 +240,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.taskChainResult, id]),
         body,
       ),
+    sendBlock: (id: string) =>
+      this.httpClient.post<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'send-block']),
+        {},
+      ),
   };
 
   chainActResult = {
