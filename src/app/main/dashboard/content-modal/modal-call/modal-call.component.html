@@ -10,7 +10,7 @@
           </label>
           <ng-select
             [ngClass]="{
-              'is-invalid': submitted && f['platform'].errors
+              'is-invalid': submitted && f['platformId'].errors
             }"
             [placeholder]="'Chọn Platform'"
             [searchable]="true"
@@ -18,17 +18,17 @@
             (change)="handleChangePlatform($event)"
             [loading]="callPlatforms.loading"
             appearance="outline"
-            formControlName="platform"
+            formControlName="platformId"
             id="platform"
             appendTo=".modal-call"
             bindLabel="name"
             bindValue="id"
           ></ng-select>
           <div
-            *ngIf="submitted && f['platform'].errors"
+            *ngIf="submitted && f['platformId'].errors"
             class="invalid-feedback"
           >
-            <div *ngIf="f['platform'].errors?.['required']">
+            <div *ngIf="f['platformId'].errors?.['required']">
               Platform không được bỏ trống
             </div>
           </div>
@@ -42,8 +42,8 @@
             [ngClass]="{
               'is-invalid': submitted && f['phone'].errors
             }"
-            [readonly]="!f['platform'].value"
-            [disabled]="!f['platform'].value"
+            [readonly]="!f['platformId'].value"
+            [disabled]="!f['platformId'].value"
             [placeholder]="'Chọn Số điện thoại'"
             [searchable]="true"
             [items]="phones.rows"
@@ -137,6 +137,7 @@
         </button>
         <div [style.display]="callStatus === 'none' ? 'block' : 'none'">
           <custom-button-loading
+            [id]="'button-call'"
             [isLoading]="loading.submit"
             [isDisabled]="loading.submit"
             (action)="onSubmit()"

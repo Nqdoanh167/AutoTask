@@ -26,6 +26,11 @@
 
   <body>
     <app-root></app-root>
+    <script
+      omi-sdk
+      type="text/javascript"
+      src="https://cdn.omicrm.com/sdk/2.0.0/sdk.min.js"
+    ></script>
     <script src="/demo/auto-task/assets/js/ckeditor/ckeditor.js"></script>
     <script src="/demo/auto-task/assets/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -71,5 +76,89 @@
         fjs.parentNode.insertBefore(js, fjs);
       })(document, 'script', 'smax-chat-js-sdk');
     </script>
+    <script src="assets/js/omicall/index.js"></script>
+    <!--    <script>-->
+    <!--          document.addEventListener('DOMContentLoaded', () => {-->
+    <!--            // Ví dụ về một số config có thể dùng khi init SDK-->
+    <!--            let config = {-->
+    <!--              theme: 'default',-->
+    <!--              callbacks: {-->
+    <!--                register: (data) => {-->
+    <!--                  // Sự kiện xảy ra khi trạng thái kết nối tổng đài thay đổi-->
+    <!--                  console.log('register:', data);-->
+    <!--                },-->
+    <!--                connecting: (data) => {-->
+    <!--                  // Sự kiện xảy ra khi bắt đầu thực hiện cuộc gọi ra-->
+    <!--                  console.log('connecting:', data);-->
+    <!--                },-->
+    <!--                invite: (data) => {-->
+    <!--                  // Sự kiện xảy ra khi có cuộc gọi tới-->
+    <!--                  console.log('invite:', data);-->
+    <!--                },-->
+    <!--                inviteRejected: (data) => {-->
+    <!--                  // Sự kiện xảy ra khi có cuộc gọi tới, nhưng bị tự động từ chối-->
+    <!--                  // trong khi đang diễn ra một cuộc gọi khác-->
+    <!--                  console.log('inviteRejected:', data);-->
+    <!--                },-->
+    <!--                ringing: (data) => {-->
+    <!--                  // Sự kiện xảy ra khi cuộc gọi ra bắt đầu đổ chuông-->
+    <!--                  console.log('ringing:', data);-->
+    <!--                },-->
+    <!--                accepted: (data) => {-->
+    <!--                  // Sự kiện xảy ra khi cuộc gọi vừa được chấp nhận-->
+    <!--                  console.log('accepted:', data);-->
+    <!--                },-->
+    <!--                incall: (data) => {-->
+    <!--                  // Sự kiện xảy ra mỗi 1 giây sau khi cuộc gọi đã được chấp nhận-->
+    <!--                  console.log('incall:', data);-->
+    <!--                },-->
+    <!--                acceptedByOther: (data) => {-->
+    <!--                  // Sự kiện dùng để kiểm tra xem cuộc gọi bị kết thúc-->
+    <!--                  // đã được chấp nhận ở thiết bị khác hay không-->
+    <!--                  console.log('acceptedByOther:', data);-->
+    <!--                },-->
+    <!--                ended: (data) => {-->
+    <!--                  // Sự kiện xảy ra khi cuộc gọi kết thúc-->
+    <!--                  console.log('ended:', data);-->
+    <!--                },-->
+    <!--                holdChanged: (status) => {-->
+    <!--                  // Sự kiện xảy ra khi trạng thái giữ cuộc gọi thay đổi-->
+    <!--                  console.log('on hold:', status);-->
+    <!--                },-->
+    <!--                saveCallInfo: (data) => {-->
+    <!--                  // let { callId, note, ...formData } = data;-->
+    <!--                  // Sự kiện xảy ra khi cuộc gọi đã có đổ chuông hoặc cuộc gọi tới, khi user có nhập note input mặc định hoặc form input custom-->
+    <!--                  console.log('on save call info:', data);-->
+    <!--                },-->
+    <!--                infoLastCall: (data) => {-->
+    <!--                  // Sự kiện xảy ra khi có bật options.showInfoLastCall và SDK có get được data cho số điện thoại đang gọi-->
+    <!--                  console.log('on found info last call:', data);-->
+    <!--                },-->
+    <!--              },-->
+    <!--            };-->
+    <!--            omiSDK.init(config, () => {-->
+    <!--              omiSDK.register({-->
+    <!--                domain: 'cuongtv1906',-->
+    <!--                username: '100', // tương đương trường "sip_user" trong thông tin số nội bộ-->
+    <!--                password: 'baliAauHje',-->
+    <!--              });-->
+    <!--            });-->
+    <!--            // Cách khác để khai báo các SDK events:-->
+    <!--            // omiSDK.on('register', (data) => {-->
+    <!--            //   // Sự kiện xảy ra khi trạng thái kết nối tổng đài thay đổi-->
+    <!--            //   console.log('register2:', data);-->
+    <!--            // });-->
+    <!--            // omiSDK.on('connecting', (data) => {-->
+    <!--            //   // Sự kiện xảy ra khi trạng thái kết nối tổng đài thay đổi-->
+    <!--            //   console.log('connecting2:', data);-->
+    <!--            // });-->
+    <!--            // // Cách khác để huỷ khai báo các SDK events:-->
+    <!--            // omiSDK.off('register');-->
+    <!--          });-->
+
+    <!--          setTimeout(() => {-->
+    <!--            omiSDK.makeCall('0366369782');-->
+    <!--          }, 5000);-->
+    <!--    </script>-->
   </body>
 </html>

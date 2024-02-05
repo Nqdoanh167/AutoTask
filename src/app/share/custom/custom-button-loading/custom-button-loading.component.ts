@@ -10,6 +10,7 @@ import {CommonModule} from '@angular/common';
       class="d-flex align-items-center input-size-sm {{ className }}"
       [ngClass]="{loading: isLoading}"
       [disabled]="isDisabled"
+      [id]="id"
     >
       <span
         *ngIf="isLoading"
@@ -30,6 +31,7 @@ export class CustomButtonLoadingComponent implements OnInit {
   @Input() type = 'button';
   @Input() textButton = 'Save';
   @Input() className?: string;
+  @Input() id?: string;
   @Output() action = new EventEmitter<Event>();
 
   constructor() {}

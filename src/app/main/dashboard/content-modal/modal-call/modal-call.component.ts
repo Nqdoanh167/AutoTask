@@ -9,6 +9,8 @@ import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {Platform} from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
 
+declare function helloWorld(): void;
+
 @Component({
   selector: 'app-modal-call',
   templateUrl: './modal-call.component.html',
@@ -23,7 +25,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     data: false,
   };
   public form = this.fb.group({
-    platform: [null, [Validators.required]],
+    platformId: [null, [Validators.required]],
     phone: [null, [Validators.required]],
     toPhone: [null, [Validators.required]],
   });
@@ -75,6 +77,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    helloWorld();
     if (this.customerPhone) {
       this.form.patchValue({
         toPhone: this.customerPhone,
@@ -108,11 +111,11 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   }
 
   getPhones(platformAlias: string) {
-    const {platform} = this.form.value;
-    if (!platform) return;
+    const {platformId} = this.form.value;
+    if (!platformId) return;
     this.phones.loading = true;
     this.smsOttCallService.platform
-      .getPhones(platform, platformAlias)
+      .getPhones(platformId, platformAlias)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.phones.loading = false)),
@@ -166,7 +169,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
               : false;
             if (res.data.length) {
               this.form.patchValue({
-                platform: res.data[0].id,
+                platformId: res.data[0].id,
               } as any);
               this.handleChangePlatform(res.data[0]);
             }
@@ -184,11 +187,11 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
   // STRINGEEE CONFIGURATION
   getTokenClient() {
-    const {platform} = this.form.value;
-    if (!platform) return;
+    const {platformId} = this.form.value;
+    if (!platformId) return;
     this.tokenClient.loading = true;
     this.smsOttCallService.platform
-      .getTokenClient(platform, 'stringee')
+      .getTokenClient(platformId, 'stringee')
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.tokenClient.loading = false)),
@@ -260,7 +263,6 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
   loginStringee() {
     this.stringeeClient = new StringeeClient();
-    console.log(this.stringeeClient);
     this.settingClientEvents();
     this.stringeeClient.connect(this.tokenClient.token);
   }
@@ -339,8 +341,9 @@ export class ModalCallComponent implements OnInit, OnDestroy {
 
   handleCall() {
     try {
-      const {platform, phone, toPhone} = this.form.value;
-      if (!platform || !phone || !toPhone) return;
+      const {platformId, phone, toPhone} = this.form.value;
+      console.log('=>(modal-call.component.ts:343) platform', platformId);
+      if (!platformId || !phone || !toPhone) return;
       const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
       const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
       this.call = new StringeeCall(

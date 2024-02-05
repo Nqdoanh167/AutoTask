@@ -50,7 +50,8 @@
               "stringee"
             ],
             "scripts": [
-              "node_modules/stringee-chat-js-sdk/stringee_sdk.min.js"
+              "node_modules/stringee-chat-js-sdk/stringee_sdk.min.js",
+              "src/assets/js/omicall/index.js"
             ]
           },
           "configurations": {

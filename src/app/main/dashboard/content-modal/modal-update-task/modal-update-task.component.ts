@@ -875,21 +875,25 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleCall() {
-    const {phone} = this.formLeadDeal.value;
-    if (!phone) {
-      this.toastr.warning('Không có số điện thoại của khách hàng');
-      return;
+    try {
+      const {phone} = this.formLeadDeal.value;
+      if (!phone) {
+        this.toastr.warning('Không có số điện thoại của khách hàng');
+        return;
+      }
+      this.isOpenBackDrop = true;
+      const modalCall = this.modalService.show(ModalCallComponent, {
+        class: 'modal-dialog-centered',
+        initialState: {
+          customerPhone: phone,
+        },
+        ignoreBackdropClick: true,
+        keyboard: false,
+      });
+      modalCall.onHide?.pipe().subscribe(() => (this.isOpenBackDrop = false));
+    } catch (e) {
+      console.log(e);
     }
-    this.isOpenBackDrop = true;
-    const modalCall = this.modalService.show(ModalCallComponent, {
-      class: 'modal-dialog-centered',
-      initialState: {
-        customerPhone: phone,
-      },
-      ignoreBackdropClick: true,
-      keyboard: false,
-    });
-    modalCall.onHide?.pipe().subscribe(() => (this.isOpenBackDrop = false));
   }
 
   ngOnDestroy(): void {
