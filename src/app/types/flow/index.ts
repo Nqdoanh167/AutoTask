@@ -174,6 +174,7 @@ export interface IUpdateChainActDto {
   name: string;
   isActive: boolean;
   actionIds: string[];
+  fistActionDelay: IFistActionDelayDto;
 }
 
 export interface IBodyChainResult {

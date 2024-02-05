@@ -17,6 +17,7 @@ import {
   ENextStepType,
   IAction,
   IActResult,
+  IBodyChainResult,
   IChainAct,
   IChainActResult,
   IChainNextAction,
@@ -28,7 +29,7 @@ import {
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {cloneDeep, uniqBy} from 'lodash';
-import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
+import {EntityResult, ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ConfigurationService} from '@app/services/api/configuration.service';
@@ -338,10 +339,14 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         };
       },
     ) as unknown as IManyUpsertChainActResultDto;
+    const bodyDelay = {
+      fistActionDelay: this.fistActionDelay,
+    } as IUpdateChainActDto;
     this.loading.submit = true;
     this.configButtons[this.configButtons.length - 1].loading = true;
     forkJoin([
       this.autoTaskService.chainActResult.upsertMany(bodyUpdateResults),
+      this.autoTaskService.chainAction.update(this.detailChain?.id, bodyDelay),
       this.onRemoveAction() as any,
     ])
       .pipe(
@@ -352,9 +357,13 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         }),
       )
       .subscribe({
-        next: (res) => {
+        next: (res: EntityResult<any>[]) => {
           const responseDetail = res[0];
-          if (responseDetail?.status === 200) {
+          const responseUpdate = res[1];
+          if (
+            responseDetail?.status === 200 &&
+            responseUpdate?.status === 200
+          ) {
             this.commonService.handleResSuccess('update');
           } else {
             this.commonService.handleResErr(responseDetail as any);
