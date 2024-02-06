@@ -17,7 +17,6 @@ import {
   ENextStepType,
   IAction,
   IActResult,
-  IBodyChainResult,
   IChainAct,
   IChainActResult,
   IChainNextAction,
@@ -403,14 +402,22 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     }
   }
 
+  getActionIds() {
+    return (
+      this.detailChain?.actionResults
+        ?.map((actResult) => {
+          return actResult.action?.id;
+        })
+        .filter((id) => !!id) || []
+    );
+  }
+
   handleChangeAction(selectedAction: IAction, index: number) {
     if (this.detailChain) {
-      const actionIds: any[] = this.detailChain.actionResults
-        .map((act) => {
-          return act.action?.id;
-        })
-        .filter((id) => !!id);
-      actionIds.push(selectedAction.id);
+      const actionIds: any[] = this.getActionIds();
+      if (!actionIds.includes(selectedAction.id)) {
+        actionIds.push(selectedAction.id);
+      }
       const body = {
         actionIds,
       } as unknown as IUpdateChainActDto;

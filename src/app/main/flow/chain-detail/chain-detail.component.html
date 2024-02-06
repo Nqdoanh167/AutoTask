@@ -154,7 +154,6 @@
                       [style.width]="'95%'"
                       [placeholder]="'Chọn hành động'"
                       [searchable]="false"
-                      [items]="actions.rows"
                       (open)="!actions.rows.length && getAction()"
                       [loading]="actions.loading"
                       (scrollToEnd)="handleLoadMore('action')"
@@ -166,10 +165,16 @@
                       [clearable]="false"
                       class="dropdown-auto-width"
                       id="actions-{{ i }}"
-                      bindLabel="name"
-                      bindValue="id"
                       appendTo="body"
-                    ></ng-select>
+                    >
+                      <ng-option
+                        *ngFor="let action of actions.rows"
+                        [value]="action.id"
+                        [disabled]="getActionIds().includes(action.id)"
+                      >
+                        {{ action.name }}
+                      </ng-option>
+                    </ng-select>
                     <div
                       style="width: 30px"
                       class="button-more-option d-flex justify-content-center align-items-center"

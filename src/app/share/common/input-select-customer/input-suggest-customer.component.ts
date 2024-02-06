@@ -5,10 +5,12 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  TemplateRef,
+  ViewChild,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FallbackImageModule} from '@share/directive/fallback-image/fallback-image.module';
-import {NgSelectModule} from '@ng-select/ng-select';
+import {NgSelectComponent, NgSelectModule} from '@ng-select/ng-select';
 import {
   ControlValueAccessor,
   FormsModule,
@@ -50,6 +52,8 @@ import {uniqBy} from 'lodash';
 export class InputSuggestCustomerComponent
   implements OnDestroy, OnInit, ControlValueAccessor
 {
+  @ViewChild(NgSelectComponent) select!: NgSelectComponent;
+
   @Input() submitted: boolean = false;
   @Input() value: string | undefined = undefined;
   @Input() inputId: string = '';
@@ -93,7 +97,7 @@ export class InputSuggestCustomerComponent
 
   ngOnInit() {
     this.input$
-      .pipe(debounceTime(400), distinctUntilChanged())
+      .pipe(debounceTime(600), distinctUntilChanged())
       .subscribe((data) => {
         this.customers.paramsQuery = {
           ...this.customers.paramsQuery,
@@ -111,6 +115,7 @@ export class InputSuggestCustomerComponent
       ...(isInit && ids.length && {ids: ids}),
     };
     if (isSearching) {
+      this.customers.paramsQuery.page = 1;
       this.customers.rows = [];
     }
 
