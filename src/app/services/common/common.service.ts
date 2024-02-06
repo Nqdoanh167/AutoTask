@@ -18,7 +18,7 @@ export class CommonService implements OnDestroy {
     private router: Router,
   ) {}
 
-  handleResErr<T>(response: EntityResult<T>, alias?: string) {
+  handleResErr<T>(response?: EntityResult<T>, alias?: string) {
     if (!response) {
       this.toastr.error('Đã có lỗi xảy ra!');
       return;

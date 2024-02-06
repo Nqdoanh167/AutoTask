@@ -303,7 +303,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     }
   }
 
-  onSaveChainAct() {
+  async onSaveChainAct() {
     if (!this.validateBeforeSubmit() || !this.detailChain?.id) return;
     const bodyUpdateResults = this.detailChain?.actionResults?.map(
       (actResult, index) => {
@@ -343,10 +343,16 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     } as IUpdateChainActDto;
     this.loading.submit = true;
     this.configButtons[this.configButtons.length - 1].loading = true;
+    try {
+      await this.onRemoveAction();
+    } catch (e) {
+      this.loading.submit = false;
+      this.commonService.handleResErr();
+      return;
+    }
     forkJoin([
       this.autoTaskService.chainActResult.upsertMany(bodyUpdateResults),
       this.autoTaskService.chainAction.update(this.detailChain?.id, bodyDelay),
-      this.onRemoveAction() as any,
     ])
       .pipe(
         finalize(() => {
@@ -404,20 +410,21 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
   getActionIds() {
     return (
-      this.detailChain?.actionResults
-        ?.map((actResult) => {
-          return actResult.action?.id;
-        })
-        .filter((id) => !!id) || []
+      this.detailChain?.actionResults?.map((actResult) => {
+        return actResult.action?.id;
+      }) || []
     );
   }
 
-  handleChangeAction(selectedAction: IAction, index: number) {
+  handleChangeAction(selectedActionId: string, index: number) {
     if (this.detailChain) {
       const actionIds: any[] = this.getActionIds();
-      if (!actionIds.includes(selectedAction.id)) {
-        actionIds.push(selectedAction.id);
-      }
+      // replace index of actionIds with selectedActionId
+      actionIds[index] = selectedActionId;
+
+      const selectedAction = this.actions.rows.find(
+        (action) => action.id === selectedActionId,
+      );
       const body = {
         actionIds,
       } as unknown as IUpdateChainActDto;
