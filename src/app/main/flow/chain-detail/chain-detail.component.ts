@@ -416,7 +416,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     );
   }
 
-  handleChangeAction(selectedActionId: string, index: number) {
+  handleChangeAction(
+    selectedActionId: string,
+    index: number,
+    chainActResult: IChainActResult,
+  ) {
     if (this.detailChain) {
       const actionIds: any[] = this.getActionIds();
       // replace index of actionIds with selectedActionId
@@ -442,6 +446,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               this.removedChainActResultIds.filter((id) => {
                 id !== res.data.actionResults[index].id;
               });
+              this.clearRemovedActionInChainResult(chainActResult.id);
             } else {
               this.commonService.handleResErr(res);
             }

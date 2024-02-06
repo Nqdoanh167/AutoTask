@@ -157,7 +157,7 @@
                       (open)="!actions.rows.length && getAction()"
                       [loading]="actions.loading"
                       (scrollToEnd)="handleLoadMore('action')"
-                      (change)="handleChangeAction($event, i)"
+                      (change)="handleChangeAction($event, i, item)"
                       [(ngModel)]="item.actionId"
                       [ngClass]="{
                         'is-invalid': submitted && !item.actionId
