@@ -29,6 +29,7 @@ import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {IBlockAutomation} from '@app/types/automation';
+import {removeCharacter} from '@app/utils/common';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -197,6 +198,15 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
         chain: selectedChain,
       },
     });
+  }
+
+  customSearchFn(term: string, item: any) {
+    term = removeCharacter(term).toLocaleLowerCase().replace(/[ ]+/, ' ');
+    return (
+      removeCharacter(item?.action?.name)
+        .toLocaleLowerCase()
+        .indexOf(term) > -1
+    );
   }
 
   ngOnDestroy(): void {

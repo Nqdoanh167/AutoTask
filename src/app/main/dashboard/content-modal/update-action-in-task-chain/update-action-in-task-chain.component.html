@@ -80,6 +80,7 @@
                 formControlName="chainActResultId"
                 [placeholder]="'Chọn HĐ từ chuỗi khác'"
                 [searchable]="true"
+                [searchFn]="customSearchFn"
                 [items]="actionChains"
                 (change)="handleChangeNextActionInNewChain($event)"
                 [loading]="loadingData.actionChains"
