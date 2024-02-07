@@ -133,7 +133,19 @@
                               -
                             </span>
                             <span>
-                              {{ taskChainResult?.action?.name || '-' }}
+                              <ng-container
+                                [ngSwitch]="taskChainResult?.action?.name"
+                              >
+                                <span *ngSwitchCase="'Call block automation'">
+                                  Gọi Block Automation
+                                </span>
+                                <span *ngSwitchCase="'Close chain'">
+                                  Đóng chuỗi
+                                </span>
+                                <span *ngSwitchDefault>
+                                  {{ taskChainResult?.action?.name }}
+                                </span>
+                              </ng-container>
                             </span>
                             <span *ngIf="!!taskChainResult.result?.name">
                               - {{ taskChainResult?.result?.name || '-' }}
