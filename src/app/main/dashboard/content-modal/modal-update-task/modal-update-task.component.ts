@@ -184,6 +184,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
+        this.updateForm.patchValue({
+          counselorId: biz.user?.id,
+        } as any);
         this.listBizUsers = biz.users;
         this.currentBiz = biz.alias || '';
       });
