@@ -129,37 +129,41 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     this.getListBeautyService(true);
     this.getListPrepaidCard(true);
     this.formGroup.get('cart').valueChanges.subscribe((value: any) => {
-      const {products, combos, courseEvents, beautyServices, prepaidCards} =
-        value;
-      if (products.length) {
-        this.activeProductTypes = uniq([
-          ...this.activeProductTypes,
-          ETypeProduct.PRODUCT,
-        ]);
-      }
-      if (combos.length) {
-        this.activeProductTypes = uniq([
-          ...this.activeProductTypes,
-          ETypeProduct.COMBO,
-        ]);
-      }
-      if (courseEvents.length) {
-        this.activeProductTypes = uniq([
-          ...this.activeProductTypes,
-          ETypeProduct.COURSE,
-        ]);
-      }
-      if (beautyServices.length) {
-        this.activeProductTypes = uniq([
-          ...this.activeProductTypes,
-          ETypeProduct.SERVICE,
-        ]);
-      }
-      if (prepaidCards.length) {
-        this.activeProductTypes = uniq([
-          ...this.activeProductTypes,
-          ETypeProduct.SIM_CARD,
-        ]);
+      try {
+        const {products, combos, courseEvents, beautyServices, prepaidCards} =
+          value;
+        if (products?.length) {
+          this.activeProductTypes = uniq([
+            ...this.activeProductTypes,
+            ETypeProduct.PRODUCT,
+          ]);
+        }
+        if (combos?.length) {
+          this.activeProductTypes = uniq([
+            ...this.activeProductTypes,
+            ETypeProduct.COMBO,
+          ]);
+        }
+        if (courseEvents?.length) {
+          this.activeProductTypes = uniq([
+            ...this.activeProductTypes,
+            ETypeProduct.COURSE,
+          ]);
+        }
+        if (beautyServices?.length) {
+          this.activeProductTypes = uniq([
+            ...this.activeProductTypes,
+            ETypeProduct.SERVICE,
+          ]);
+        }
+        if (prepaidCards?.length) {
+          this.activeProductTypes = uniq([
+            ...this.activeProductTypes,
+            ETypeProduct.SIM_CARD,
+          ]);
+        }
+      } catch (e) {
+        console.log(e);
       }
     });
   }
