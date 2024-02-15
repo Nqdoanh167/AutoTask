@@ -111,6 +111,16 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   private textSearchProduct = new BehaviorSubject<string | undefined>(
     undefined,
   );
+  private textSearchCourseEvent = new BehaviorSubject<string | undefined>(
+    undefined,
+  );
+  private textSearchCombo = new BehaviorSubject<string | undefined>(undefined);
+  private textSearchBeautyService = new BehaviorSubject<string | undefined>(
+    undefined,
+  );
+  private textSearchPrepaidCard = new BehaviorSubject<string | undefined>(
+    undefined,
+  );
 
   constructor(
     private rootFormGroup: FormGroupDirective,
@@ -179,11 +189,37 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     this.textSearchProduct
       .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
       .subscribe((data) => {
-        console.log(data);
         this.products.paramsQuery.q = data || '';
         this.products.paramsQuery.page = 1;
         this.getListProduct(undefined, true);
-        // this.getCoupons();
+      });
+    this.textSearchCourseEvent
+      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .subscribe((data) => {
+        this.courseEvents.paramsQuery.q = data || '';
+        this.courseEvents.paramsQuery.page = 1;
+        this.getListCourseEvent(undefined, true);
+      });
+    this.textSearchCombo
+      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .subscribe((data) => {
+        this.combos.paramsQuery.q = data || '';
+        this.combos.paramsQuery.page = 1;
+        this.getListCombo(undefined, true);
+      });
+    this.textSearchBeautyService
+      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .subscribe((data) => {
+        this.beautyServices.paramsQuery.q = data || '';
+        this.beautyServices.paramsQuery.page = 1;
+        this.getListBeautyService(undefined, true);
+      });
+    this.textSearchPrepaidCard
+      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .subscribe((data) => {
+        this.prepaidCards.paramsQuery.q = data || '';
+        this.prepaidCards.paramsQuery.page = 1;
+        this.getListPrepaidCard(undefined, true);
       });
   }
 
@@ -444,8 +480,26 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     return item.id === selected.id;
   }
 
-  handleSearchProduct($event: {term: string; items: any[]}) {
-    this.textSearchProduct.next($event.term.trim());
+  handleSearchValue($event: {term: string; items: any[]}, type: ETypeProduct) {
+    switch (type) {
+      case ETypeProduct.PRODUCT:
+        this.textSearchProduct.next($event.term.trim());
+        break;
+      case ETypeProduct.COMBO:
+        this.textSearchCombo.next($event.term.trim());
+        break;
+      case ETypeProduct.COURSE:
+        this.textSearchCourseEvent.next($event.term.trim());
+        break;
+      case ETypeProduct.SERVICE:
+        this.textSearchBeautyService.next($event.term.trim());
+        break;
+      case ETypeProduct.SIM_CARD:
+        this.textSearchPrepaidCard.next($event.term.trim());
+        break;
+      default:
+        break;
+    }
   }
 
   ngOnDestroy() {

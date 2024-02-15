@@ -100,7 +100,7 @@
             (change)="handleChangeProducts($event, 'products')"
             [placeholder]="'Chọn Sản phẩm'"
             [searchable]="true"
-            (search)="handleSearchProduct($event)"
+            (search)="handleSearchValue($event, ETypeProduct.PRODUCT)"
             [clearSearchOnAdd]="true"
             [multiple]="true"
             [closeOnSelect]="false"
@@ -109,6 +109,7 @@
             [compareWith]="compareFunction"
             [virtualScroll]="true"
             [clearable]="true"
+            [loading]="products.loading"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
@@ -129,10 +130,10 @@
               </div>
             </ng-template>
             <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
               <div class="d-flex align-items-center">
-                <span class="ng-value-icon" (click)="clear(item)">×</span>
                 <img
-                  class="image-product-radius mx-2"
+                  class="image-product-radius me-2"
                   [src]="item.picture || 'assets/images/default-product.png'"
                   fallback="assets/images/no-photo.jpeg"
                   [alt]="item.name"
@@ -164,17 +165,29 @@
           <ng-select
             formControlName="combos"
             [placeholder]="'Chọn Combo'"
-            [searchable]="false"
+            [searchable]="true"
+            (search)="handleSearchValue($event, ETypeProduct.COMBO)"
             [multiple]="true"
             [closeOnSelect]="false"
             [items]="combos.rows"
             [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [clearable]="true"
+            [loading]="combos.loading"
             bindLabel="name"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
               <div class="d-flex align-items-center">
                 <div class="label">
                   {{ item.name }}
@@ -201,17 +214,29 @@
           <ng-select
             formControlName="courseEvents"
             [placeholder]="'Chọn Khóa học - Sự kiện'"
-            [searchable]="false"
+            [searchable]="true"
+            (search)="handleSearchValue($event, ETypeProduct.COURSE)"
             [multiple]="true"
             [closeOnSelect]="false"
             [items]="courseEvents.rows"
             [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [clearable]="true"
+            [loading]="courseEvents.loading"
             bindLabel="name"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
               <div class="d-flex align-items-center">
                 <div class="label">
                   {{ item.name }}
@@ -238,17 +263,29 @@
           <ng-select
             formControlName="beautyServices"
             [placeholder]="'Chọn Dịch vụ - Làm đẹp'"
-            [searchable]="false"
+            [searchable]="true"
+            (search)="handleSearchValue($event, ETypeProduct.SERVICE)"
             [multiple]="true"
             [closeOnSelect]="false"
             [items]="beautyServices.rows"
             [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [clearable]="true"
+            [loading]="beautyServices.loading"
             bindLabel="name"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
               <div class="d-flex align-items-center">
                 <div class="label">
                   {{ item.name }}
@@ -276,17 +313,28 @@
           <ng-select
             formControlName="prepaidCards"
             [placeholder]="'Chọn Thẻ trả trước'"
-            [searchable]="false"
+            [searchable]="true"
+            (search)="handleSearchValue($event, ETypeProduct.SIM_CARD)"
             [multiple]="true"
             [closeOnSelect]="false"
             [items]="prepaidCards.rows"
             [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [loading]="prepaidCards.loading"
             bindLabel="name"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
               <div class="d-flex align-items-center">
                 <div class="label">
                   {{ item.name }}
