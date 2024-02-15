@@ -99,20 +99,40 @@
             formControlName="products"
             (change)="handleChangeProducts($event, 'products')"
             [placeholder]="'Chọn Sản phẩm'"
-            [searchable]="false"
+            [searchable]="true"
+            (search)="handleSearchProduct($event)"
+            [clearSearchOnAdd]="true"
             [multiple]="true"
             [closeOnSelect]="false"
             [items]="products.rows"
             bindLabel="name"
             [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [clearable]="true"
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
           >
-            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+            <ng-template ng-option-tmp let-item="item">
               <div class="d-flex align-items-center">
                 <img
                   class="image-product-radius me-2"
+                  [src]="item.picture || 'assets/images/default-product.png'"
+                  fallback="assets/images/no-photo.jpeg"
+                  [alt]="item.name"
+                  width="20"
+                  height="20"
+                />
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <div class="d-flex align-items-center">
+                <span class="ng-value-icon" (click)="clear(item)">×</span>
+                <img
+                  class="image-product-radius mx-2"
                   [src]="item.picture || 'assets/images/default-product.png'"
                   fallback="assets/images/no-photo.jpeg"
                   [alt]="item.name"

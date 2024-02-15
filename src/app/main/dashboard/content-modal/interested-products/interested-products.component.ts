@@ -1,5 +1,12 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {
+  BehaviorSubject,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 import {
   ControlContainer,
   FormArray,
@@ -101,6 +108,9 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     isAllowLoadMore: false,
   };
   public permitModules: string[] = [];
+  private textSearchProduct = new BehaviorSubject<string | undefined>(
+    undefined,
+  );
 
   constructor(
     private rootFormGroup: FormGroupDirective,
@@ -166,6 +176,15 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
         console.log(e);
       }
     });
+    this.textSearchProduct
+      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .subscribe((data) => {
+        console.log(data);
+        this.products.paramsQuery.q = data || '';
+        this.products.paramsQuery.page = 1;
+        this.getListProduct(undefined, true);
+        // this.getCoupons();
+      });
   }
 
   handleChangeTypeProduct($event: any, productType: ETypeProduct) {
@@ -225,21 +244,12 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res && res.status === 200) {
             let newData: any[] = [];
-            if (isSearching) {
-              newData = [
-                ...res.data?.map((product) =>
-                  pick(product, ['id', 'name', 'picture']),
-                ),
-                ...oldData,
-              ];
-            } else {
-              newData = [
-                ...this.products.rows,
-                ...res.data?.map((product) =>
-                  pick(product, ['id', 'name', 'picture']),
-                ),
-              ];
-            }
+            newData = [
+              ...this.products.rows,
+              ...res.data?.map((product) =>
+                pick(product, ['id', 'name', 'picture']),
+              ),
+            ];
             this.products.rows = uniqBy(newData, 'id');
             this.products.isAllowLoadMore = true;
           } else {
@@ -430,8 +440,12 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       | 'prepaidCards',
   ) {}
 
-  compareFunction(item: any, selected: any) {
+  compareFunction(item: Product, selected: any) {
     return item.id === selected.id;
+  }
+
+  handleSearchProduct($event: {term: string; items: any[]}) {
+    this.textSearchProduct.next($event.term.trim());
   }
 
   ngOnDestroy() {
