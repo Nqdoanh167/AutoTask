@@ -757,25 +757,35 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
   }
 
-  handleDeleteChain(event: any, taskChain: ITaskChain) {
+  handleDeleteChain(event: any, taskChain: ITaskChain, chainIndex: number) {
+    console.log('=>(modal-update-task.component.ts:761) taskChain', taskChain);
     event.preventDefault();
     event.stopPropagation();
-    const title = 'Xóa chuỗi';
-    const description = `Bạn sắp xóa chuỗi <b>${
-      taskChain.name || ''
-    }</b>, hành động này không thể hoàn tác.`;
-    const okText = 'Xác nhận';
+    if (this.sourceData?.id) {
+      const title = 'Xóa chuỗi';
+      const description = `Bạn sắp xóa chuỗi <b>${
+        taskChain.name || ''
+      }</b>, hành động này không thể hoàn tác.`;
+      const okText = 'Xác nhận';
 
-    const modalContent: IModalConfirmContent = {
-      title,
-      description,
-      okText,
-      type: 'warning',
-      modalType: 'advance',
-      context: taskChain,
-    };
-
-    this.modalConfirmService.openModal(modalContent, 'deleteChain');
+      const modalContent: IModalConfirmContent = {
+        title,
+        description,
+        okText,
+        type: 'warning',
+        modalType: 'advance',
+        context: taskChain,
+      };
+      this.modalConfirmService.openModal(modalContent, 'deleteChain');
+    } else {
+      const addChainActIds = this.updateForm.value?.addChainActIds || [];
+      this.formTaskChains.removeAt(chainIndex);
+      this.updateForm.patchValue({
+        addChainActIds: addChainActIds.filter(
+          (id: string) => id !== taskChain.chainActId,
+        ),
+      } as any);
+    }
   }
 
   onDeleteChain(value: ITaskChain) {

@@ -154,7 +154,11 @@
                             </button>
                             <button
                               (click)="
-                                handleDeleteChain($event, taskChain.value)
+                                handleDeleteChain(
+                                  $event,
+                                  taskChain.value,
+                                  chainIndex
+                                )
                               "
                               type="button"
                               class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
