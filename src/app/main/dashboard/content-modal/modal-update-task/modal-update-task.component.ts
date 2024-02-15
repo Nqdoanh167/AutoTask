@@ -758,7 +758,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleDeleteChain(event: any, taskChain: ITaskChain, chainIndex: number) {
-    console.log('=>(modal-update-task.component.ts:761) taskChain', taskChain);
     event.preventDefault();
     event.stopPropagation();
     if (this.sourceData?.id) {
