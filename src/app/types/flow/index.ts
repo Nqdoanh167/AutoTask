@@ -304,6 +304,7 @@ export interface ITaskDto {
   leadDeal: ILeadDealDto;
   products: IProductDto[];
   counselorId: string;
+  addChainActIds?: string[];
 }
 
 export interface IAddTaskChainDto {
