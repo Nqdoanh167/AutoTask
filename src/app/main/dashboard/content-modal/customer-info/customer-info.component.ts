@@ -180,6 +180,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       ward: customer.ward,
       wardCode: customer.wardCode,
       address: customer.address,
+      gender: customer.gender,
+      street: customer.street,
     });
     this.selectedCustomer = customer;
   }
@@ -204,6 +206,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       ward: null,
       wardCode: null,
       address: null,
+      gender: null,
+      street: null,
     });
   }
 

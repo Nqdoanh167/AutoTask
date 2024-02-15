@@ -108,44 +108,48 @@ export class InputSuggestCustomerComponent
   }
 
   getListCustomer(isInit: boolean = false, isSearching: boolean = false) {
-    this.customers.loading = true;
-    const ids: string[] = [];
-    const query = {
-      ...this.customers.paramsQuery,
-      ...(isInit && ids.length && {ids: ids}),
-    };
-    if (isSearching) {
-      this.customers.paramsQuery.page = 1;
-      this.customers.rows = [];
-    }
+    try {
+      this.customers.loading = true;
+      const ids: string[] = [];
+      const query = {
+        ...this.customers.paramsQuery,
+        ...(isInit && ids.length && {ids: ids}),
+      };
+      if (isSearching) {
+        this.customers.paramsQuery.page = 1;
+        this.customers.rows = [];
+      }
 
-    this.customerService.customer
-      .get(query)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.customers.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res && res.status === 200) {
-            let newData: Customer[] = [];
-            if (isSearching) {
-              newData = [...res.data];
+      this.customerService.customer
+        .get(query)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => (this.customers.loading = false)),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res && res.status === 200) {
+              let newData: Customer[] = [];
+              if (isSearching) {
+                newData = [...res.data];
+              } else {
+                newData = [...this.customers.rows, ...res.data];
+              }
+              this.customers.rows = uniqBy(newData, 'id');
+              this.customers.isAllowLoadMore = true;
             } else {
-              newData = [...this.customers.rows, ...res.data];
+              this.customers.isAllowLoadMore = false;
+              this.commonService.handleResErr(res);
             }
-            this.customers.rows = uniqBy(newData, 'id');
-            this.customers.isAllowLoadMore = true;
-          } else {
+          },
+          error: (err) => {
             this.customers.isAllowLoadMore = false;
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.customers.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
+            this.commonService.handleErr(err);
+          },
+        });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   handleBlur($event: any) {}
