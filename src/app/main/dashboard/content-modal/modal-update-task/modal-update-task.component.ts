@@ -95,6 +95,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       combos: null,
     }),
     counselorId: null,
+    addChainActIds: null,
   });
 
   public addTaskChainForm = this.fb.group({
@@ -523,8 +524,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       this.loading.submit = true;
       const body = {
         ...this.updateForm.value,
-      } as unknown as ITaskDto;
+      } as unknown as ITaskDto as any;
       if (this.sourceData?.id) {
+        delete body.addChainActIds;
         this.autoTaskService.task
           .update(this.sourceData.id, body)
           .pipe(
@@ -537,9 +539,22 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
                 this.commonService.handleResSuccess('update');
                 this.updateSuccess.emit();
                 resolve(res.data);
+                this.getDetailTask();
               } else {
                 reject(res);
-                this.commonService.handleResErr(res);
+                if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
+                  (res.data as any as Array<any>)?.map((err: any) => {
+                    if (err?.response?.subStatus === 'CUSTOMER.ADD_LIMIT') {
+                      this.toastr.error(
+                        'Số lượng Khách hàng đã đạt giới hạn của gói cước. Không thể tạo thêm bản ghi mới.',
+                      );
+                    } else {
+                      this.commonService.handleResErr(res);
+                    }
+                  });
+                } else {
+                  this.commonService.handleResErr(res);
+                }
               }
             },
             error: (err) => {
@@ -548,6 +563,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             },
           });
       } else {
+        delete body.taskChains;
         this.autoTaskService.task
           .create(body)
           .pipe(
@@ -562,10 +578,23 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
                 this.sourceData = res.data;
                 this.patchForm(res.data);
                 resolve(res.data);
+                this.getDetailTask();
                 // this.hideModal();
               } else {
                 reject(res);
-                this.commonService.handleResErr(res);
+                if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
+                  (res.data as any as Array<any>)?.map((err: any) => {
+                    if (err?.response?.subStatus === 'CUSTOMER.ADD_LIMIT') {
+                      this.toastr.error(
+                        'Số lượng Khách hàng đã đạt giới hạn của gói cước. Không thể tạo thêm bản ghi mới.',
+                      );
+                    } else {
+                      this.commonService.handleResErr(res);
+                    }
+                  });
+                } else {
+                  this.commonService.handleResErr(res);
+                }
               }
             },
             error: (err) => {
@@ -643,29 +672,50 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   onAddTaskChain() {
     this.submittedModal.addTaskChain = true;
-    if (!this.sourceData?.id || this.addTaskChainForm.invalid) return;
-    const body = {
-      addChainActIds: (this.addTaskChainForm.value?.addChainActIds ||
-        []) as unknown as string[],
-    } as unknown as IAddTaskChainDto;
-    this.loading.addTaskChain = true;
-    this.autoTaskService.task
-      .updateTaskChain(this.sourceData.id!, body)
-      .pipe(finalize(() => (this.loading.addTaskChain = false)))
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.getDetailTask();
-            this.updateSuccess.emit();
-            this.addTaskChainModalRef?.hide();
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
+    if (this.addTaskChainForm.invalid) return;
+    if (this.sourceData?.id) {
+      const body = {
+        addChainActIds: (this.addTaskChainForm.value?.addChainActIds ||
+          []) as unknown as string[],
+      } as unknown as IAddTaskChainDto;
+      this.loading.addTaskChain = true;
+      this.autoTaskService.task
+        .updateTaskChain(this.sourceData.id!, body)
+        .pipe(finalize(() => (this.loading.addTaskChain = false)))
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.getDetailTask();
+              this.updateSuccess.emit();
+              this.addTaskChainModalRef?.hide();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => {
+            this.commonService.handleErr(err);
+          },
+        });
+    } else {
+      const newAddChainActIds =
+        this.addTaskChainForm.value?.addChainActIds || [];
+      const oldAddChainActIds = this.updateForm.value?.addChainActIds || [];
+      this.updateForm.patchValue({
+        addChainActIds: [...oldAddChainActIds, ...newAddChainActIds],
+      } as any);
+      newAddChainActIds.forEach((chainActId) => {
+        const taskChainForm = this.fb.group({
+          chainActId: chainActId,
+          status: 'open',
+          taskChainResults: this.fb.array([]),
+          name:
+            this.actionChains.rows.find((chain) => chain.id === chainActId)
+              ?.name || '-',
+        });
+        this.formTaskChains.push(taskChainForm);
       });
+      this.addTaskChainModalRef?.hide();
+    }
   }
 
   handleCloseChain(event: any, taskChain: ITaskChain) {

@@ -70,7 +70,7 @@ export interface GetResult<T> {
 export interface EntityResult<T> {
   status: number;
   statusText: string;
-  subStatus: number;
+  subStatus: string;
   subStatusText: string;
   message: string;
   refToken?: string;
