@@ -48,6 +48,7 @@ import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/up
 import {environment} from '../../../../../environments/environment';
 import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal-call.component';
 import {ToastrService} from 'ngx-toastr';
+import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -57,6 +58,9 @@ import {ToastrService} from 'ngx-toastr';
 export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   @ViewChild('templateAddTaskChain') templateAddTaskChain!: TemplateRef<any>;
   public addTaskChainModalRef?: BsModalRef;
+
+  @ViewChild(CustomerInfoComponent)
+  customerInfoComponent!: CustomerInfoComponent;
 
   @Input() sourceData?: ITask;
   @Output() updateSuccess = new EventEmitter();
@@ -235,7 +239,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.getBlock();
   }
 
-  getDetailTask() {
+  getDetailTask(isRefresh = false) {
     if (!this.sourceData?.id) return;
     this.loading.getDetail = true;
     this.autoTaskService.task
@@ -246,6 +250,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           if (res.status === 200) {
             this.sourceData = res.data;
             this.patchForm(res.data);
+            if (isRefresh) {
+              this.customerInfoComponent.handleClearSelectValue();
+            }
           } else {
             this.commonService.handleResErr(res);
           }

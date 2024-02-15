@@ -16,7 +16,7 @@
         <div class="content-wrapper position-relative">
           <button
             *ngIf="sourceData?.id"
-            (click)="getDetailTask()"
+            (click)="getDetailTask(true)"
             class="btn button-medium button-outline button-header d-flex align-items-center"
             type="button"
             [disabled]="loading.getDetail"

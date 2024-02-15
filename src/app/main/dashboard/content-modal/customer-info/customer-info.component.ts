@@ -183,10 +183,14 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     });
     this.selectedCustomer = customer;
   }
-  handleClearSelectedCustomer() {
+
+  handleClearSelectValue() {
     this.inputSuggestCustomers?.forEach((el) => {
       el.selectedCustomer = undefined;
     });
+  }
+  handleClearSelectedCustomer() {
+    this.handleClearSelectValue();
     this.selectedCustomer = null;
     this.formGroup.patchValue({
       id: null,
