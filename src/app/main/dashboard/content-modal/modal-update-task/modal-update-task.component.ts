@@ -909,7 +909,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleViewCreatedOrder() {
-    let url = `${environment.urlDomain}/${this.currentBiz}/sale-center`;
+    let url = `${environment.urlDomain}/${this.currentBiz}/sale-center?sourceId=${this.sourceData?.id}`;
     window.open(url, '_blank');
   }
 
