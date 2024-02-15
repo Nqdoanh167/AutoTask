@@ -5,7 +5,6 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  TemplateRef,
   ViewChild,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
@@ -27,7 +26,6 @@ import {
 import {Customer, ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {CustomerService} from '@app/services/api/customer.service';
 import {CommonService} from '@app/services/common/common.service';
-import {uniqBy} from 'lodash';
 
 @Component({
   selector: 'app-input-suggest-customer',
@@ -129,21 +127,13 @@ export class InputSuggestCustomerComponent
         .subscribe({
           next: (res) => {
             if (res && res.status === 200) {
-              let newData: Customer[] = [];
-              if (isSearching) {
-                newData = [...res.data];
-              } else {
-                newData = [...this.customers.rows, ...res.data];
-              }
-              this.customers.rows = uniqBy(newData, 'id');
-              this.customers.isAllowLoadMore = true;
+              this.customers.rows = res.data;
+              console.log(this.select);
             } else {
-              this.customers.isAllowLoadMore = false;
               this.commonService.handleResErr(res);
             }
           },
           error: (err) => {
-            this.customers.isAllowLoadMore = false;
             this.commonService.handleErr(err);
           },
         });
@@ -165,6 +155,10 @@ export class InputSuggestCustomerComponent
     this.valueChange.next(value);
     this.onChange(value);
     this.input$.next(value);
+  }
+
+  trackByFn(item: Customer) {
+    return item.id;
   }
   ngOnDestroy(): void {
     this.destroy$.next(true);

@@ -16,6 +16,7 @@
     (change)="handleChooseCustomer($event)"
     (blur)="handleBlur($event)"
     [items]="customers.rows"
+    [trackByFn]="trackByFn"
     bindLabel="name"
     bindValue="id"
     [clearable]="false"
