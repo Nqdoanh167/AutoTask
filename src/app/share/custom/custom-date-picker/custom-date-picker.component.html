@@ -1,0 +1,38 @@
+<div class="custom-date-picker" [ngClass]="className">
+  <ng-container *ngIf="typePicker === 'range'">
+    <input
+      type="text"
+      bsDaterangepicker
+      #dpr="bsDaterangepicker"
+      [bsConfig]="bsConfig"
+      [bsValue]="bsRangeValue"
+      (bsValueChange)="handleChangeDate($event)"
+      [placeholder]="placeholder"
+    />
+    <img
+      (click)="dpr.show()"
+      [attr.aria-expanded]="dpr.isOpen"
+      src="./assets/images/icon/date.svg"
+      alt="icon"
+      class="icon"
+    />
+  </ng-container>
+  <ng-container *ngIf="typePicker === 'single'">
+    <input
+      type="text"
+      bsDatepicker
+      #dpr="bsDatepicker"
+      [bsConfig]="bsConfig"
+      [bsValue]="bsValue"
+      (bsValueChange)="handleChangeDate($event)"
+      [placeholder]="placeholder"
+    />
+    <img
+      (click)="dpr.show()"
+      [attr.aria-expanded]="dpr.isOpen"
+      src="./assets/images/icon/date.svg"
+      alt="icon"
+      class="icon"
+    />
+  </ng-container>
+</div>

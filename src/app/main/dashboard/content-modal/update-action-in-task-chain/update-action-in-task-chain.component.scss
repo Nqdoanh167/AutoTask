@@ -1,0 +1,27 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.input__title {
+  width: 500px;
+}
+
+.list-chain {
+  .chain-item {
+    border: 1px dashed #dadee5;
+    padding: vars.$padding-m;
+    border-radius: vars.$radius-s;
+  }
+  .chain-item + .chain-item {
+    margin-top: 10px;
+  }
+}
+.content-tab {
+  max-height: 640px;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+}

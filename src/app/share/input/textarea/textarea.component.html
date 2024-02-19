@@ -1,0 +1,14 @@
+<textarea
+  class="form-control {{ inputClass }}"
+  (paste)="onPasteEvent($event)"
+  [readonly]="readonly"
+  [placeholder]="placeholder"
+  #textArea
+  [(ngModel)]="value"
+  [maxlength]="maxLength"
+  (ngModelChange)="resizeTextArea()"
+  (blur)="onChangeValue()"
+  [class.border-danger]="require && !value"
+  (keyup)="onInputKeyUp($event)"
+  (keydown.enter)="onKeyDownEnter($event)"
+></textarea>

@@ -1,0 +1,73 @@
+<div class="modal-update-action">
+  <app-custom-modal [isSubmitting]="loading.submit" (submitModal)="onSubmit()">
+    <ng-container modalTitle>
+      {{ sourceData?.id ? 'Chỉnh sửa' : 'Thêm mới' }} Kết quả
+    </ng-container>
+    <ng-container modalBody>
+      <form [formGroup]="updateForm">
+        <div class="mb-2">
+          <label class="form-control-label" for="name">
+            Kết quả
+            <span class="required">*</span>
+          </label>
+          <input
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && f['name'].errors}"
+            [placeholder]="'Nhập Kết quả...'"
+            formControlName="name"
+            id="name"
+            type="text"
+          />
+          <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
+            <div *ngIf="f['name'].errors?.['required']">
+              Kết quả không được bỏ trống
+            </div>
+            <div *ngIf="f['name'].errors?.['maxlength']">
+              Kết quả không hợp lệ
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="actionType">
+            Loại
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['type'].errors
+            }"
+            [placeholder]="'Chọn loại'"
+            [searchable]="false"
+            appearance="outline"
+            formControlName="type"
+            id="actionType"
+            labelForId="actionType"
+            appendTo=".modal"
+          >
+            <ng-container>
+              <ng-option
+                *ngFor="let item of resultTypes; index as i"
+                [value]="item.value"
+              >
+                {{ item.label }}
+              </ng-option>
+            </ng-container>
+          </ng-select>
+          <div *ngIf="submitted && f['type'].errors" class="invalid-feedback">
+            <div *ngIf="f['type'].errors?.['required']">
+              Loại không được bỏ trống
+            </div>
+          </div>
+        </div>
+      </form>
+    </ng-container>
+  </app-custom-modal>
+</div>
+
+<ng-template #loadingTemp>
+  <div class="w-100 text-center">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading</span>
+    </div>
+  </div>
+</ng-template>

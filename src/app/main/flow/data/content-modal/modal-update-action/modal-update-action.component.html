@@ -1,0 +1,142 @@
+<div class="modal-update-action">
+  <app-custom-modal [isSubmitting]="loading.submit" (submitModal)="onSubmit()">
+    <ng-container modalTitle>
+      {{ sourceData?.id ? 'Chỉnh sửa' : 'Thêm mới' }} Hành động
+    </ng-container>
+    <ng-container modalBody>
+      <form [formGroup]="updateForm">
+        <div class="mb-2">
+          <label class="form-control-label" for="name">
+            Tên hành động
+            <span class="required">*</span>
+          </label>
+          <input
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && f['name'].errors}"
+            [placeholder]="'Nhập tên Hành động...'"
+            formControlName="name"
+            id="name"
+            type="text"
+          />
+          <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
+            <div *ngIf="f['name'].errors?.['required']">
+              Tên hành động không được bỏ trống
+            </div>
+            <div *ngIf="f['name'].errors?.['maxlength']">
+              Tên hành động không hợp lệ
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="actionType">
+            Loại
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['type'].errors
+            }"
+            [placeholder]="'Chọn loại hành động'"
+            [searchable]="false"
+            (change)="handleChangeType()"
+            appearance="outline"
+            formControlName="type"
+            id="actionType"
+            appendTo=".modal"
+          >
+            <ng-container>
+              <ng-option
+                *ngFor="let item of actionTypes; index as i"
+                [value]="item.value"
+              >
+                {{ item.label }}
+              </ng-option>
+            </ng-container>
+          </ng-select>
+          <div *ngIf="submitted && f['type'].errors" class="invalid-feedback">
+            <div *ngIf="f['type'].errors?.['required']">
+              Loại hành động không được bỏ trống
+            </div>
+          </div>
+        </div>
+        <div
+          *ngIf="f['type'].value === EActionType.SEND_BLOCK_AUTOMATION"
+          formGroupName="callBlockAutomation"
+          class="mb-2"
+        >
+          <label class="form-control-label" for="callBlockAutomation.blockId">
+            Block Automation
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid':
+                submitted && !f['callBlockAutomation'].value?.blockId
+            }"
+            [placeholder]="'Chọn Block'"
+            [searchable]="true"
+            [items]="blocks.rows"
+            [loading]="blocks.loading"
+            class="dropdown-auto-width"
+            appearance="outline"
+            formControlName="blockId"
+            id="callBlockAutomation.blockId"
+            bindLabel="name"
+            bindValue="id"
+            appendTo=".modal"
+          >
+            <ng-container>
+              <ng-option
+                *ngFor="let item of actionTypes; index as i"
+                [value]="item.value"
+              >
+                {{ item.label }}
+              </ng-option>
+            </ng-container>
+          </ng-select>
+          <div
+            *ngIf="submitted && !f['callBlockAutomation'].value?.blockId"
+            class="invalid-feedback"
+          >
+            <div *ngIf="!f['callBlockAutomation'].value?.blockId">
+              Block không được bỏ trống
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-control-label" for="reasons">
+            Nguyên nhân dẫn đến kết quả
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && f['reasonIds'].errors
+            }"
+            [placeholder]="'Chọn nguyên nhân'"
+            [searchable]="false"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [items]="reasons.rows"
+            (open)="getReason()"
+            [loading]="reasons.loading"
+            (scrollToEnd)="handleLoadMore('reason')"
+            class="dropdown-auto-width custom-input-multiple"
+            appearance="outline"
+            formControlName="reasonIds"
+            id="reasons"
+            appendTo=".modal"
+            bindLabel="name"
+            bindValue="id"
+          ></ng-select>
+        </div>
+      </form>
+    </ng-container>
+  </app-custom-modal>
+</div>
+
+<ng-template #loadingTemp>
+  <div class="w-100 text-center">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Đang tải</span>
+    </div>
+  </div>
+</ng-template>

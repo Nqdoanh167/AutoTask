@@ -1,0 +1,349 @@
+<form (keydown.enter)="$event.preventDefault()" [formGroup]="formGroup">
+  <div class="list-product overflow-x-hidden mt-2">
+    <div class="d-flex justify-content-between mt-2">
+      <label class="form-control-label">Loại sản phẩm</label>
+      <div class="d-flex gap-3 me-2">
+        <div *ngIf="permitModules.includes('products')">
+          <label class="basic-checkbox">
+            Sản phẩm
+            <input
+              (click)="handleChangeTypeProduct($event, ETypeProduct.PRODUCT)"
+              checked="{{
+                activeProductTypes.includes(ETypeProduct.PRODUCT)
+                  ? 'checked'
+                  : null
+              }}"
+              type="checkbox"
+            />
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <div *ngIf="permitModules.includes('combos')">
+          <label class="basic-checkbox">
+            Combo
+            <input
+              (click)="handleChangeTypeProduct($event, ETypeProduct.COMBO)"
+              checked="{{
+                activeProductTypes.includes(ETypeProduct.COMBO)
+                  ? 'checked'
+                  : null
+              }}"
+              type="checkbox"
+            />
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <div *ngIf="permitModules.includes('course-event')">
+          <label class="basic-checkbox">
+            Khóa học - Sự kiện
+            <input
+              (click)="handleChangeTypeProduct($event, ETypeProduct.COURSE)"
+              checked="{{
+                activeProductTypes.includes(ETypeProduct.COURSE)
+                  ? 'checked'
+                  : null
+              }}"
+              type="checkbox"
+            />
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <div *ngIf="permitModules.includes('beauty-service')">
+          <label class="basic-checkbox">
+            Dịch vụ - Làm đẹp
+            <input
+              (click)="handleChangeTypeProduct($event, ETypeProduct.SERVICE)"
+              checked="{{
+                activeProductTypes.includes(ETypeProduct.SERVICE)
+                  ? 'checked'
+                  : null
+              }}"
+              type="checkbox"
+            />
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <div *ngIf="permitModules.includes('prepaid-card')">
+          <label class="basic-checkbox">
+            Thẻ trả trước
+            <input
+              (click)="handleChangeTypeProduct($event, ETypeProduct.SIM_CARD)"
+              checked="{{
+                activeProductTypes.includes(ETypeProduct.SIM_CARD)
+                  ? 'checked'
+                  : null
+              }}"
+              type="checkbox"
+            />
+            <span class="checkmark"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <ng-container formGroupName="cart">
+      <div
+        *ngIf="activeProductTypes.includes(ETypeProduct.PRODUCT)"
+        class="row mb-2"
+      >
+        <div class="col-3">
+          <input
+            type="text"
+            placeholder="Ex: foo.bar"
+            class="form-control"
+            value="Sản phẩm"
+            disabled
+          />
+        </div>
+        <div class="col-9">
+          <ng-select
+            formControlName="products"
+            (change)="handleChangeProducts($event, 'products')"
+            [placeholder]="'Chọn Sản phẩm'"
+            [searchable]="true"
+            (search)="handleSearchValue($event, ETypeProduct.PRODUCT)"
+            [clearSearchOnAdd]="true"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [items]="products.rows"
+            bindLabel="name"
+            [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [clearable]="true"
+            [loading]="products.loading"
+            class="dropdown-auto-width custom-input-multiple"
+            appearance="outline"
+            appendTo=".modal"
+          >
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <img
+                  class="image-product-radius me-2"
+                  [src]="item.picture || 'assets/images/default-product.png'"
+                  fallback="assets/images/no-photo.jpeg"
+                  [alt]="item.name"
+                  width="20"
+                  height="20"
+                />
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
+              <div class="d-flex align-items-center">
+                <img
+                  class="image-product-radius me-2"
+                  [src]="item.picture || 'assets/images/default-product.png'"
+                  fallback="assets/images/no-photo.jpeg"
+                  [alt]="item.name"
+                  width="20"
+                  height="20"
+                />
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+      <div
+        *ngIf="activeProductTypes.includes(ETypeProduct.COMBO)"
+        class="row mb-2"
+      >
+        <div class="col-3">
+          <input
+            type="text"
+            placeholder="Ex: foo.bar"
+            class="form-control"
+            value="Combo"
+            disabled
+          />
+        </div>
+        <div class="col">
+          <ng-select
+            formControlName="combos"
+            [placeholder]="'Chọn Combo'"
+            [searchable]="true"
+            (search)="handleSearchValue($event, ETypeProduct.COMBO)"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [items]="combos.rows"
+            [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [clearable]="true"
+            [loading]="combos.loading"
+            bindLabel="name"
+            class="dropdown-auto-width custom-input-multiple"
+            appearance="outline"
+            appendTo=".modal"
+          >
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+      <div
+        *ngIf="activeProductTypes.includes(ETypeProduct.COURSE)"
+        class="row mb-2"
+      >
+        <div class="col-3">
+          <input
+            type="text"
+            placeholder="Ex: foo.bar"
+            class="form-control"
+            value="Khóa học - Sự kiện"
+            disabled
+          />
+        </div>
+        <div class="col">
+          <ng-select
+            formControlName="courseEvents"
+            [placeholder]="'Chọn Khóa học - Sự kiện'"
+            [searchable]="true"
+            (search)="handleSearchValue($event, ETypeProduct.COURSE)"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [items]="courseEvents.rows"
+            [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [clearable]="true"
+            [loading]="courseEvents.loading"
+            bindLabel="name"
+            class="dropdown-auto-width custom-input-multiple"
+            appearance="outline"
+            appendTo=".modal"
+          >
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+      <div
+        *ngIf="activeProductTypes.includes(ETypeProduct.SERVICE)"
+        class="row mb-2"
+      >
+        <div class="col-3">
+          <input
+            type="text"
+            placeholder="Ex: foo.bar"
+            class="form-control"
+            value="Dịch vụ - Làm đẹp"
+            disabled
+          />
+        </div>
+        <div class="col">
+          <ng-select
+            formControlName="beautyServices"
+            [placeholder]="'Chọn Dịch vụ - Làm đẹp'"
+            [searchable]="true"
+            (search)="handleSearchValue($event, ETypeProduct.SERVICE)"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [items]="beautyServices.rows"
+            [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [clearable]="true"
+            [loading]="beautyServices.loading"
+            bindLabel="name"
+            class="dropdown-auto-width custom-input-multiple"
+            appearance="outline"
+            appendTo=".modal"
+          >
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-container></ng-container>
+          </ng-select>
+        </div>
+      </div>
+      <div
+        *ngIf="activeProductTypes.includes(ETypeProduct.SIM_CARD)"
+        class="row mb-2"
+      >
+        <div class="col-3">
+          <input
+            type="text"
+            placeholder="Ex: foo.bar"
+            class="form-control"
+            value="Thẻ trả trước"
+            disabled
+          />
+        </div>
+        <div class="col">
+          <ng-select
+            formControlName="prepaidCards"
+            [placeholder]="'Chọn Thẻ trả trước'"
+            [searchable]="true"
+            (search)="handleSearchValue($event, ETypeProduct.SIM_CARD)"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [items]="prepaidCards.rows"
+            [compareWith]="compareFunction"
+            [virtualScroll]="true"
+            [loading]="prepaidCards.loading"
+            bindLabel="name"
+            class="dropdown-auto-width custom-input-multiple"
+            appearance="outline"
+            appendTo=".modal"
+          >
+            <ng-template ng-option-tmp let-item="item">
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon me-2" (click)="clear(item)">×</span>
+              <div class="d-flex align-items-center">
+                <div class="label">
+                  {{ item.name }}
+                </div>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</form>

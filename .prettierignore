@@ -1,0 +1,11 @@
+node_modules
+yarn.lock
+package-lock.json
+public
+docs
+assets
+angular.json
+build.sh
+karma.conf.js
+dist
+.angular
