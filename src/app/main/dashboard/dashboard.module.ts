@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DashboardComponent} from './dashboard.component';
-import {TaskRoutingModule} from './task-routing.module';
+import {DashboardRoutingModule} from './dashboard-routing.module';
 import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-pagination.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
@@ -40,7 +40,7 @@ import {ModalCallComponent} from './content-modal/modal-call/modal-call.componen
   ],
   imports: [
     CommonModule,
-    TaskRoutingModule,
+    DashboardRoutingModule,
     CustomPaginationComponent,
     FilterTopTableComponent,
     ModalConfirmComponent,

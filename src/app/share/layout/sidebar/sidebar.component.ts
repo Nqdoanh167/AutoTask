@@ -26,6 +26,13 @@ export class SidebarComponent implements OnInit {
       isActive: false,
     },
     {
+      link: '/source',
+      name: 'Nguồn dữ liệu',
+      icon: './assets/images/module/source.svg',
+      iconActive: './assets/images/module/source-active.svg',
+      isActive: false,
+    },
+    {
       link: '/setting',
       name: 'Cài đặt',
       icon: './assets/images/module/setting.svg',
