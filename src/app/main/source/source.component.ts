@@ -1,11 +1,12 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ETypeButton, IFilterTopButton} from '@app/types/common';
-import {Subject} from 'rxjs';
+import {Subject, takeUntil} from 'rxjs';
 import {ICommonDataSource} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
+import {UpdateSourceComponent} from '@main/source/content-modal/update-source/update-source.component';
 
 @Component({
   selector: 'app-source',
@@ -47,7 +48,25 @@ export class SourceComponent implements OnInit, OnDestroy {
 
   getDataSource(isReset: boolean = false) {}
 
-  handleUpdate(data?: any) {}
+  handleUpdate(data?: any) {
+    const modalUpdateNextStep = this.modalService.show(UpdateSourceComponent, {
+      initialState: {
+        sourceData: data,
+      },
+      class: 'modal-dialog-centered',
+    });
+    modalUpdateNextStep.onHide?.pipe().subscribe(() => {});
+    modalUpdateNextStep.content?.updateSuccess
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.getDataSource();
+      });
+    modalUpdateNextStep.content?.deleteEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.getDataSource();
+      });
+  }
 
   onSearch(value: {term: string; name: string}) {
     const {term} = value;

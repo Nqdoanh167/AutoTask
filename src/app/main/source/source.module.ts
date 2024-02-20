@@ -9,6 +9,10 @@ import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.c
 import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {UpdateSourceComponent} from './content-modal/update-source/update-source.component';
+import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
+import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {NgSelectModule} from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [SourceComponent, UpdateSourceComponent],
@@ -21,6 +25,11 @@ import {UpdateSourceComponent} from './content-modal/update-source/update-source
     ModalConfirmComponent,
     PipeTimeViewModule,
     TooltipModule,
+    CustomButtonLoadingComponent,
+    CustomModalComponent,
+    FormsModule,
+    NgSelectModule,
+    ReactiveFormsModule,
   ],
 })
 export class SourceModule {}

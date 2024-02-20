@@ -1,1 +1,42 @@
-<p>update-source works!</p>
+<div class="modal-update-action">
+  <form [formGroup]="updateForm">
+    <app-custom-modal>
+      <ng-container modalTitle>
+        {{ sourceData ? 'Chỉnh sửa' : 'Thêm' }} nguồn dữ liệu
+      </ng-container>
+      <ng-container modalBody>
+        <div>123</div>
+      </ng-container>
+      <div
+        modalFooter
+        class="d-flex justify-content-between align-items-center"
+      >
+        <div>
+          <button
+            *ngIf="sourceData"
+            (click)="onDelete()"
+            class="btn button-delete-modal"
+            type="button"
+          >
+            Xóa
+          </button>
+        </div>
+        <div class="d-flex gap-2">
+          <button
+            (click)="hideModal()"
+            class="btn button-default-modal"
+            type="button"
+          >
+            Hủy
+          </button>
+          <custom-button-loading
+            (action)="onSubmit()"
+            [type]="'button'"
+            [textButton]="'Xác nhận'"
+            [className]="'button-submit-modal'"
+          ></custom-button-loading>
+        </div>
+      </div>
+    </app-custom-modal>
+  </form>
+</div>
