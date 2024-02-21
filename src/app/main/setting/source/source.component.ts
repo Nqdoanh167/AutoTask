@@ -84,7 +84,7 @@ export class SourceComponent implements OnInit, OnDestroy {
       initialState: {
         sourceData: data,
       },
-      class: 'modal-dialog-centered',
+      class: 'modal-dialog-centered modal-custom-size-l',
     });
     modalUpdateNextStep.onHide?.pipe().subscribe(() => {});
     modalUpdateNextStep.content?.updateSuccess
