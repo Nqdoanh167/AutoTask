@@ -31,10 +31,10 @@ import {
 import {AuthService} from '@app/services/api/auth.service';
 import {MainService} from '@app/services/api/main.service';
 import {ToastrService} from 'ngx-toastr';
-import {SettingService} from '@app/services/api/setting.service';
 import {CommonService} from '@app/services/common/common.service';
 import {pick, uniqBy} from 'lodash';
 import {ProductService} from '@app/services/api/product.service';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
 
 @Component({
   selector: 'app-update-source',
@@ -97,7 +97,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     private readonly authService: AuthService,
     private readonly mainService: MainService,
     private readonly toastr: ToastrService,
-    private readonly settingService: SettingService,
+    private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly productService: ProductService,
   ) {
@@ -222,7 +222,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       ...this.updateForm.value,
     } as unknown as ISourceDto;
     if (this.sourceData?.id) {
-      this.settingService.source
+      this.autoTaskService.source
         .update(this.sourceData.id, body)
         .pipe(
           takeUntil(this.destroy$),
@@ -241,7 +241,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
           error: (err) => this.commonService.handleErr(err),
         });
     } else {
-      this.settingService.source
+      this.autoTaskService.source
         .create(body)
         .pipe(
           takeUntil(this.destroy$),

@@ -13,8 +13,8 @@ import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
 import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
 import {EDataSourceType, ISource} from '@app/types/setting';
-import {SettingService} from '@app/services/api/setting.service';
 import {sortBy, sortIcon} from '@app/utils/common';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
 
 @Component({
   selector: 'app-source',
@@ -81,7 +81,7 @@ export class SourceComponent implements OnInit, OnDestroy {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
-    private readonly settingService: SettingService,
+    private readonly autoTaskService: AutoTaskService,
   ) {}
 
   ngOnInit() {
@@ -95,7 +95,7 @@ export class SourceComponent implements OnInit, OnDestroy {
       params.page = 1;
     }
     this.dataSource.loading = true;
-    this.settingService.source
+    this.autoTaskService.source
       .get(params)
       .pipe(
         takeUntil(this.destroy$),
@@ -164,7 +164,7 @@ export class SourceComponent implements OnInit, OnDestroy {
   }
 
   onDelete(value: ISource) {
-    this.settingService.source
+    this.autoTaskService.source
       .delete(value.id)
       .pipe()
       .subscribe({

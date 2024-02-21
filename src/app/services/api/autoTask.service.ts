@@ -25,6 +25,7 @@ import {
   IUpdateChainActDto,
   IUpdateTaskResultDto,
 } from '@app/types/flow';
+import {ISource, ISourceDto} from '@app/types/setting';
 
 @Injectable({
   providedIn: 'root',
@@ -41,6 +42,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     task: 'task',
     taskChain: 'task-chain',
     taskChainResult: 'task-chain-result',
+    source: 'source',
   };
   private defaultParams: any = {};
   constructor(
@@ -262,6 +264,30 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.put<EntityResult<IChainResult>>(
         this.createUrl([this.api.chainActionResult, 'upsert-many']),
         body,
+      ),
+  };
+
+  source = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<ISource[]>>(
+        this.createUrl([this.api.source]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: ISourceDto) =>
+      this.httpClient.post<EntityResult<ISource>>(
+        this.createUrl([this.api.source]),
+        body,
+      ),
+    update: (id: string, body: ISourceDto) =>
+      this.httpClient.patch<EntityResult<ISource>>(
+        this.createUrl([this.api.source, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.source, id]),
       ),
   };
 

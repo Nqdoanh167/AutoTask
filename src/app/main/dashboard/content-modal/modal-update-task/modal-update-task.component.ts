@@ -50,7 +50,6 @@ import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
 import {ISource} from '@app/types/setting';
-import {SettingService} from '@app/services/api/setting.service';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -199,7 +198,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly automationService: AutomationService,
     private readonly toastr: ToastrService,
-    private readonly settingService: SettingService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -462,7 +460,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   getSource() {
     this.sources.loading = true;
-    this.settingService.source
+    this.autoTaskService.source
       .get(this.sources.paramsQuery)
       .pipe(
         takeUntil(this.destroy$),
