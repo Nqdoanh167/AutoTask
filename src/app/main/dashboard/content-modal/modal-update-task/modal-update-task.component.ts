@@ -49,6 +49,8 @@ import {environment} from '../../../../../environments/environment';
 import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal-call.component';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
+import {ISource} from '@app/types/setting';
+import {SettingService} from '@app/services/api/setting.service';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -99,6 +101,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       combos: null,
     }),
     counselorId: null,
+    sourceId: null,
     addChainActIds: null,
   });
 
@@ -107,6 +110,17 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   });
 
   public results: ICommonDataLazy<IActResult, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
+  public sources: ICommonDataLazy<ISource, IQueryBase> = {
     rows: [],
     loading: false,
     paramsQuery: {
@@ -185,6 +199,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly automationService: AutomationService,
     private readonly toastr: ToastrService,
+    private readonly settingService: SettingService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -237,6 +252,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.getResult();
     this.getAction();
     this.getBlock();
+    this.getSource();
   }
 
   getDetailTask(isRefresh = false) {
@@ -439,6 +455,36 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
         error: (err) => {
           this.actionChains.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getSource() {
+    this.sources.loading = true;
+    this.settingService.source
+      .get(this.sources.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.sources.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.sources.rows = uniqBy(
+              this.sources.rows.concat(res.data),
+              'id',
+            );
+            this.sources.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.sources.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.sources.isAllowLoadMore = false;
           this.commonService.handleErr(err);
         },
       });

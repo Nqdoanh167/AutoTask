@@ -49,30 +49,21 @@
                         [searchable]="true"
                         [placeholder]="'Chọn nguồn...'"
                         [ngClass]="{
-                          'is-invalid': submitted && f['counselorId'].errors
+                          'is-invalid': submitted && f['sourceId'].errors
                         }"
+                        formControlName="sourceId"
                         appearance="outline"
                         class="ng-select-custom dropdown-auto-width input-medium me-2"
                         id="sourceId"
                         appendTo=".modal-update-task"
                       >
                         <ng-option
-                          *ngFor="let item of listBizUsers"
+                          *ngFor="let item of sources.rows"
                           [value]="item.id"
                           [disabled]="!item.isActive"
                         >
-                          <div class="d-flex align-items-center">
-                            <div>
-                              <img
-                                class="avatar me-2"
-                                src="{{ item.picture }}"
-                                fallback="assets/images/avatar.svg"
-                                alt=""
-                              />
-                            </div>
-                            <div>
-                              {{ item.name }}
-                            </div>
+                          <div>
+                            {{ item.name }}
                           </div>
                         </ng-option>
                       </ng-select>
