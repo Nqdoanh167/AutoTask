@@ -51,11 +51,12 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 ## Getting Started
 
-1. Clone this project
-2. Create your own branch from `develop` branch by run `git checkout -b your-branch-name`
-3. Run `npm install`
-4. Run `npm start`
-5. Open `http://localhost:4200/` in your browser
+1. Clone this project `git clone https://gitlab.com/smaxai/smaxapp_action/fe.git`
+2. Switch to the repo folder `cd smaxapp_action/fe`
+3. Create your own branch from `develop` branch by run `git checkout -b your-branch-name`
+4. Run `npm install` to install all dependencies
+5. Run `npm start` to start the project
+6. Open `http://localhost:4200/` in your browser
 
 ## Development rules
 
@@ -80,3 +81,44 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 3. Func Name must be a Camel case (`calculateNumber`)
 4. Folder Name must be a Kebab case (`main-site`)
 5. Constant Variable must be an Upper case (`CONST`)
+
+## Folder structure
+
+```
+src
+|____app
+|    |____admin
+|    |____main
+|    |    |____dashboard
+|    |    |____flow
+|    |    |____setting
+|    |____notfound
+|    |____services
+|    |    |____api
+|    |    |____common
+|    |____share
+|    |    |____breadcrumb
+|    |    |____common
+|    |    |____directive
+|    |    |____icon
+|    |    |____input
+|    |    |____layout
+|    |    |____modal
+|    |    |____pipe
+|    |____styles
+|    |____types
+|    |____utils
+|    |____variable
+|
+|____assets
+|    |____fontawesome
+|    |    |____css
+|    |    |____webfonts
+|    |____images
+|    |____js
+|    |____plugins
+|      
+|____environments
+|    |____environment.prod.ts
+|    |____environment.ts
+```
