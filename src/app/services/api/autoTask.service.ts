@@ -1,7 +1,7 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {BeautyService, Customer, EntityResult} from 'src/app/types/viewmodels';
+import {EntityResult} from 'src/app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
@@ -11,19 +11,19 @@ import {
   IActResult,
   IAddTaskChainDto,
   IBodyAction,
-  IUpdateChainActDto,
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
-  IManyUpdateChainActResultDto,
   IChainAct,
   IChainResult,
-  ITask,
-  ITaskDto,
-  IPickResultForActionDto,
+  IManyUpdateChainActResultDto,
   IManyUpsertChainActResultDto,
-  IUpdateTaskResultDto,
+  IPickResultForActionDto,
+  ITask,
   ITaskChainResult,
+  ITaskDto,
+  IUpdateChainActDto,
+  IUpdateTaskResultDto,
 } from '@app/types/flow';
 
 @Injectable({

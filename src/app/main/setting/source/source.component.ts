@@ -5,14 +5,15 @@ import {
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {ICommonDataSource} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
 import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
-import {EDataSourceType} from '@app/types/setting';
+import {EDataSourceType, ISource} from '@app/types/setting';
+import {SettingService} from '@app/services/api/setting.service';
 
 @Component({
   selector: 'app-source',
@@ -60,7 +61,7 @@ export class SourceComponent implements OnInit, OnDestroy {
     },
   ];
 
-  public dataSource: ICommonDataSource<any, any> = {
+  public dataSource: ICommonDataSource<ISource, any> = {
     rows: [],
     loading: false,
     paramsQuery: {
@@ -73,11 +74,35 @@ export class SourceComponent implements OnInit, OnDestroy {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
+    private readonly settingService: SettingService,
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getDataSource();
+  }
 
-  getDataSource(isReset: boolean = false) {}
+  getDataSource(isReset: boolean = false) {
+    let params = {...this.dataSource.paramsQuery};
+    if (isReset) {
+      params.limit = 20;
+      params.page = 1;
+    }
+    this.dataSource.loading = true;
+    this.settingService.source
+      .get(params)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.dataSource.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.dataSource.rows = res.data;
+            this.dataSource.total = res.total;
+          }
+        },
+      });
+  }
 
   handleUpdate(data?: any) {
     const modalUpdateNextStep = this.modalService.show(UpdateSourceComponent, {
@@ -105,6 +130,23 @@ export class SourceComponent implements OnInit, OnDestroy {
     this.getDataSource(true);
   }
 
+  onSelectFilter(data: {value?: string; name: string}) {
+    try {
+      const {value, name} = data;
+      const filter = this.dataSource.paramsQuery?.filter || '{}';
+      let obj = JSON.parse(filter);
+      if (value || Number(value) === 0) {
+        obj[name] = value;
+      } else {
+        delete obj[name];
+      }
+      this.dataSource.paramsQuery.filter = JSON.stringify(obj);
+      this.getDataSource(true);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   handleAction(name: string) {
     if (name === 'reload') {
       this.getDataSource(true);
@@ -114,24 +156,24 @@ export class SourceComponent implements OnInit, OnDestroy {
     }
   }
 
-  onDelete(value: any) {
-    // this.autoTaskService.task
-    //     .delete(value.id)
-    //     .pipe()
-    //     .subscribe({
-    //       next: (res) => {
-    //         if (res.status === 200) {
-    //           this.commonService.handleResSuccess('delete');
-    //           this.getDataSource();
-    //         } else {
-    //           this.commonService.handleResErr(res);
-    //         }
-    //       },
-    //       error: (err) => this.commonService.handleErr(err),
-    //     });
+  onDelete(value: ISource) {
+    this.settingService.source
+      .delete(value.id)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('delete');
+            this.getDataSource();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
   }
 
-  handleDelete(value: any) {
+  handleDelete(value: ISource) {
     const title = 'Xóa nguồn dữ liệu';
     const description = `Bạn sắp xóa nguồn dữ liệu <b>${
       value.name || ''
@@ -171,4 +213,6 @@ export class SourceComponent implements OnInit, OnDestroy {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
+
+  protected readonly EDataSourceType = EDataSourceType;
 }
