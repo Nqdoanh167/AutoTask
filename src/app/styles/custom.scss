@@ -18,6 +18,12 @@ textarea {
   border-radius: 6px;
 }
 
+.input-group {
+  .form-control {
+    width: auto !important;
+  }
+}
+
 .input-disabled {
   cursor: not-allowed;
   opacity: 0.6 !important;

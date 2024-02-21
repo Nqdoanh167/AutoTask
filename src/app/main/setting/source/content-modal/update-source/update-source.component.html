@@ -246,30 +246,58 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
               <label class="form-control-label">
                 API URL (Content TypeL application/json)
               </label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="url"
-                placeholder="Nhập API URL"
-              />
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="url"
+                  placeholder="Nhập API URL"
+                />
+                <span
+                  class="input-group-text cursor-pointer"
+                  id="basic-addon2"
+                  tooltip="Sao chép"
+                  (click)="copyText(f['api'].value.url)"
+                >
+                  <i class="far fa-copy"></i>
+                </span>
+              </div>
             </div>
             <div class="mb-2">
               <label class="form-control-label">API Request Header</label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="headers"
-                placeholder="Nhập API Request Header"
-              />
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="headers"
+                  placeholder="Nhập API Request Header"
+                />
+                <span
+                  class="input-group-text cursor-pointer"
+                  tooltip="Sao chép"
+                  (click)="copyText(f['api'].value.headers)"
+                >
+                  <i class="far fa-copy"></i>
+                </span>
+              </div>
             </div>
             <div class="mb-2">
               <label class="form-control-label">JSON BODY</label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="body"
-                placeholder="Nhập JSON BODY"
-              />
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="body"
+                  placeholder="Nhập JSON BODY"
+                />
+                <span
+                  class="input-group-text cursor-pointer"
+                  tooltip="Sao chép"
+                  (click)="copyText(f['api'].value.body)"
+                >
+                  <i class="far fa-copy"></i>
+                </span>
+              </div>
             </div>
           </div>
         </div>

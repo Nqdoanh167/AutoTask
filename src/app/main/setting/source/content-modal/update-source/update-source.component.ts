@@ -17,6 +17,8 @@ import {EDataSourceType} from '@app/types/setting';
 import {User} from '@app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
+import {MainService} from '@app/services/api/main.service';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-update-source',
@@ -41,7 +43,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     api: this.fb.group({
       url: null,
       method: null,
-      headers: this.fb.array([]),
+      headers: null,
       body: null,
     }),
   });
@@ -60,6 +62,8 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
     private readonly authService: AuthService,
+    private readonly mainService: MainService,
+    private readonly toastr: ToastrService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -110,6 +114,13 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   handleRemoveParameter(index: number) {
     this.formParameters().removeAt(index);
   }
+
+  copyText(text: string) {
+    console.log(text);
+    this.mainService.copyText(text);
+    this.toastr.success('Sao chép thành công');
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();
