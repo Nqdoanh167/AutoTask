@@ -186,11 +186,11 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
                 <label class="form-control-label">Nhân viên phụ trách</label>
                 <ng-select
                   [clearable]="false"
-                  formControlName="counselor"
+                  formControlName="counselorId"
                   [searchable]="true"
                   [placeholder]="'Chọn nhân viên...'"
                   [ngClass]="{
-                    'is-invalid': submitted && f['counselor'].errors
+                    'is-invalid': submitted && f['counselorId'].errors
                   }"
                   appearance="outline"
                   class="ng-select-custom dropdown-auto-width input-medium mw-100"
