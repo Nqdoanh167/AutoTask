@@ -1,11 +1,11 @@
-<ng-container *transloco="let tc; read: 'common'">
+<ng-container>
   <div>
     <div
       [ngClass]="{'is-invalid': error.fromTo}"
       class="input-range-number d-flex w-100 px-2"
     >
       <div class="input-number d-flex align-items-center w-45">
-        <div>{{ tc('message.from') }}:</div>
+        <div>Từ:</div>
         <app-input-mask
           id="from"
           [isQuantity]="true"
@@ -18,7 +18,7 @@
         <i class="fa-solid fa-arrow-right-long px-2"></i>
       </div>
       <div class="input-number d-flex align-items-center w-45">
-        <div>{{ tc('message.to') }}:</div>
+        <div>Đến:</div>
         <app-input-mask
           id="to"
           [isQuantity]="true"
@@ -29,7 +29,7 @@
       </div>
     </div>
     <div *ngIf="error.fromTo" class="non-form-invalid-feedback">
-      <div>{{ tc('validateMessage.fromTo') }}</div>
+      <div>Từ phải nhỏ hơn đến</div>
     </div>
   </div>
 </ng-container>
