@@ -116,7 +116,6 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   }
 
   copyText(text: string) {
-    console.log(text);
     this.mainService.copyText(text);
     this.toastr.success('Sao chép thành công');
   }
