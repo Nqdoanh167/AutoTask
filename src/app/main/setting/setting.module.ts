@@ -17,6 +17,7 @@ import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-
 import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
 import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/
     CustomPaginationComponent,
     ModalConfirmComponent,
     CustomButtonLoadingComponent,
+    TooltipModule,
   ],
 })
 export class SettingModule {}

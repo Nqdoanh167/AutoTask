@@ -6,8 +6,17 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  Validators,
+} from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
+import {EDataSourceType} from '@app/types/setting';
+import {User} from '@app/types/viewmodels';
+import {Subject, takeUntil} from 'rxjs';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-update-source',
@@ -19,18 +28,55 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   @Output() updateSuccess = new EventEmitter<any>();
   @Output() deleteEvent = new EventEmitter<any>();
 
+  private destroy$ = new Subject();
+
   public submitted = false;
   public updateForm = this.fb.group({
     name: [null, [Validators.required]],
-    type: null,
+    type: EDataSourceType.MANUAL,
+    isActive: true,
+    parameters: this.fb.array([]),
+    counselor: null,
+    products: null,
+    api: this.fb.group({
+      url: null,
+      method: null,
+      headers: this.fb.array([]),
+      body: null,
+    }),
   });
+  public listType = [
+    {
+      label: 'Thủ công',
+      value: EDataSourceType.MANUAL,
+    },
+    {
+      label: 'API',
+      value: EDataSourceType.API,
+    },
+  ];
+  public listBizUsers: User[] = [];
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
-  ) {}
+    private readonly authService: AuthService,
+  ) {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.updateForm.patchValue({
+          counselorId: biz.user?.id,
+        } as any);
+        this.listBizUsers = biz.users;
+      });
+  }
 
   get f(): {[key: string]: AbstractControl} {
     return this.updateForm.controls;
+  }
+
+  formParameters() {
+    return (<FormArray>this.updateForm.get('parameters')) as FormArray;
   }
 
   onDelete() {
@@ -51,6 +97,21 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     }
   }
 
-  ngOnInit(): void {}
-  ngOnDestroy() {}
+  ngOnInit(): void {
+    if (this.formParameters().length === 0) {
+      this.handleAddParameter();
+    }
+  }
+
+  handleAddParameter() {
+    this.formParameters().push(this.fb.group({key: null, value: null}));
+  }
+
+  handleRemoveParameter(index: number) {
+    this.formParameters().removeAt(index);
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
 }
