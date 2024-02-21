@@ -42,12 +42,10 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     parameters: this.fb.array([]),
     counselor: null,
     products: null,
-    api: this.fb.group({
-      url: null,
-      method: null,
-      headers: null,
-      body: null,
-    }),
+    token: null,
+    apiPath: null,
+    apiHeaders: null,
+    apiBody: null,
   });
   public listType = [
     {
@@ -64,6 +62,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     submit: false,
     data: false,
   };
+  protected readonly EDataSourceType = EDataSourceType;
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
@@ -105,6 +104,18 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     if (!this.sourceData?.id && this.formParameters().length === 0) {
       this.handleAddParameter();
     }
+  }
+
+  handleChangeType() {
+    this.updateForm.patchValue({
+      token: null,
+      apiPath: null,
+      apiHeaders: null,
+      apiBody: null,
+      parameters: [],
+      counselor: null,
+      products: null,
+    });
   }
 
   onDelete() {

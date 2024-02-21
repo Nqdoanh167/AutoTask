@@ -13,12 +13,24 @@
                 <span class="required">*</span>
               </label>
               <input
+                [ngClass]="{'is-invalid': submitted && f['name'].errors}"
                 type="text"
                 class="form-control"
                 id="name"
                 formControlName="name"
                 placeholder="Nhập tên nguồn dữ liệu"
               />
+              <div
+                *ngIf="submitted && f['name'].errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f['name'].errors?.['required']">
+                  Tên nguồn dữ liệu không được bỏ trống
+                </div>
+                <div *ngIf="f['name'].errors?.['maxlength']">
+                  Tên nguồn dữ liệu không hợp lệ
+                </div>
+              </div>
             </div>
             <div class="col">
               <label for="type" class="form-control-label">Loại kết nối</label>
@@ -26,10 +38,12 @@
                 id="type"
                 [items]="listType"
                 [clearable]="false"
+                (change)="handleChangeType()"
                 bindLabel="label"
                 bindValue="value"
                 formControlName="type"
                 placeholder="Chọn loại kết nối"
+                appendTo=".modal-update-source"
               >
                 <ng-template ng-label-tmp let-item="item">
                   {{ item.label }}
@@ -54,7 +68,9 @@
                 ></label>
               </div>
             </div>
-            <div class="col-12">
+          </div>
+          <ng-container *ngIf="f['type'].value === EDataSourceType.API">
+            <div class="mt-2">
               <label for="parameters" class="form-control-label">Tham số</label>
               <div id="parameters" formArrayName="parameters">
                 <div
@@ -136,170 +152,170 @@
                 <span>Thêm tham số</span>
               </div>
             </div>
-          </div>
-          <div class="my-3 state-warning">
-            <div class="fw-500">Lưu ý: Về tham số</div>
-            <ul>
-              <li>
-                <span class="fw-500">• Tên sản phẩm</span>
-                : Sẽ tự động nhận là sản phẩn ảo khi tạo đơn!
-              </li>
-              <li>
-                <span class="fw-500">• Mã sản phẩm</span>
-                : Tự động đồng bộ với danh sách sản phẩm của shop và lấy giá
-                theo sản phẩm! Trường hợp không tìm thấy mã sản phẩm => Tự động
-                tạo mã thành tên sản phẩm ảo.
-              </li>
-              <li>
-                <span class="fw-500">• Danh sách sản phẩm</span>
-                : Hỗ trợ cho trường hợp tạo đơn có nhiều hơn 1 sản phẩm. Các
-                thông tin của mỗi sản phẩm được cố định như Ví dụ bên dưới.
-              </li>
-            </ul>
-          </div>
-          <div class="">
-            <div class="subhead mb-2">
-              Thông tin mặc định khi tạo Task tự động qua API
-              <i
-                class="fa-regular fa-circle-question ms-1"
-                tooltip="Nếu Task được tự động tạo qua API thì thông tin bên dưới sẽ tự được điền vào task.
+            <div class="my-3 state-warning">
+              <div class="fw-500">Lưu ý: Về tham số</div>
+              <ul>
+                <li>
+                  <span class="fw-500">• Tên sản phẩm</span>
+                  : Sẽ tự động nhận là sản phẩn ảo khi tạo đơn!
+                </li>
+                <li>
+                  <span class="fw-500">• Mã sản phẩm</span>
+                  : Tự động đồng bộ với danh sách sản phẩm của shop và lấy giá
+                  theo sản phẩm! Trường hợp không tìm thấy mã sản phẩm => Tự
+                  động tạo mã thành tên sản phẩm ảo.
+                </li>
+                <li>
+                  <span class="fw-500">• Danh sách sản phẩm</span>
+                  : Hỗ trợ cho trường hợp tạo đơn có nhiều hơn 1 sản phẩm. Các
+                  thông tin của mỗi sản phẩm được cố định như Ví dụ bên dưới.
+                </li>
+              </ul>
+            </div>
+            <div class="">
+              <div class="subhead mb-2">
+                Thông tin mặc định khi tạo Task tự động qua API
+                <i
+                  class="fa-regular fa-circle-question ms-1"
+                  tooltip="Nếu Task được tự động tạo qua API thì thông tin bên dưới sẽ tự được điền vào task.
 Trong trường hợp dữ liệu từ tham số và thông tin mặc định bên dưới xảy ra xung đột, hệ thông sẽ ưu tiên sử dụng dữ liệu tham số."
-                placement="auto"
-              ></i>
-            </div>
-            <div class="mb-2">
-              <label class="form-control-label">Nhân viên phụ trách</label>
-              <ng-select
-                [clearable]="false"
-                formControlName="counselor"
-                [searchable]="true"
-                [placeholder]="'Chọn nhân viên...'"
-                [ngClass]="{
-                  'is-invalid': submitted && f['counselor'].errors
-                }"
-                appearance="outline"
-                class="ng-select-custom dropdown-auto-width input-medium mw-100"
-                id="userIds"
-                appendTo=".modal-update-source"
-              >
-                <ng-option
-                  *ngFor="let item of listBizUsers"
-                  [value]="item.id"
-                  [disabled]="!item.isActive"
+                  placement="auto"
+                ></i>
+              </div>
+              <div class="mb-2">
+                <label class="form-control-label">Nhân viên phụ trách</label>
+                <ng-select
+                  [clearable]="false"
+                  formControlName="counselor"
+                  [searchable]="true"
+                  [placeholder]="'Chọn nhân viên...'"
+                  [ngClass]="{
+                    'is-invalid': submitted && f['counselor'].errors
+                  }"
+                  appearance="outline"
+                  class="ng-select-custom dropdown-auto-width input-medium mw-100"
+                  id="userIds"
+                  appendTo=".modal-update-source"
                 >
-                  <div class="d-flex align-items-center">
-                    <div>
-                      <img
-                        class="avatar me-2"
-                        src="{{ item.picture }}"
-                        fallback="assets/images/avatar.svg"
-                        alt=""
-                      />
+                  <ng-option
+                    *ngFor="let item of listBizUsers"
+                    [value]="item.id"
+                    [disabled]="!item.isActive"
+                  >
+                    <div class="d-flex align-items-center">
+                      <div>
+                        <img
+                          class="avatar me-2"
+                          src="{{ item.picture }}"
+                          fallback="assets/images/avatar.svg"
+                          alt=""
+                        />
+                      </div>
+                      <div>
+                        {{ item.name }}
+                      </div>
                     </div>
-                    <div>
-                      {{ item.name }}
-                    </div>
-                  </div>
-                </ng-option>
-              </ng-select>
-            </div>
-            <div class="mb-2">
-              <label class="form-control-label">Sản phẩm quan tâm</label>
-              <ng-select
-                [clearable]="false"
-                formControlName="counselor"
-                [searchable]="true"
-                [placeholder]="'Chọn sản phẩm...'"
-                [ngClass]="{
-                  'is-invalid': submitted && f['counselor'].errors
-                }"
-                appearance="outline"
-                class="ng-select-custom dropdown-auto-width input-medium mw-100"
-                id="interestedProduct"
-                appendTo=".modal-update-source"
-              >
-                <ng-option
-                  *ngFor="let item of listBizUsers"
-                  [value]="item.id"
-                  [disabled]="!item.isActive"
+                  </ng-option>
+                </ng-select>
+              </div>
+              <div class="mb-2">
+                <label class="form-control-label">Sản phẩm quan tâm</label>
+                <ng-select
+                  [clearable]="false"
+                  formControlName="counselor"
+                  [searchable]="true"
+                  [placeholder]="'Chọn sản phẩm...'"
+                  [ngClass]="{
+                    'is-invalid': submitted && f['counselor'].errors
+                  }"
+                  appearance="outline"
+                  class="ng-select-custom dropdown-auto-width input-medium mw-100"
+                  id="interestedProduct"
+                  appendTo=".modal-update-source"
                 >
-                  <div class="d-flex align-items-center">
-                    <div>
-                      <img
-                        class="avatar me-2"
-                        src="{{ item.picture }}"
-                        fallback="assets/images/avatar.svg"
-                        alt=""
-                      />
+                  <ng-option
+                    *ngFor="let item of listBizUsers"
+                    [value]="item.id"
+                    [disabled]="!item.isActive"
+                  >
+                    <div class="d-flex align-items-center">
+                      <div>
+                        <img
+                          class="avatar me-2"
+                          src="{{ item.picture }}"
+                          fallback="assets/images/avatar.svg"
+                          alt=""
+                        />
+                      </div>
+                      <div>
+                        {{ item.name }}
+                      </div>
                     </div>
-                    <div>
-                      {{ item.name }}
-                    </div>
-                  </div>
-                </ng-option>
-              </ng-select>
-            </div>
-          </div>
-          <div class="" formGroupName="api">
-            <div class="subhead mb-2">Thông tin API</div>
-            <div class="mb-2">
-              <label class="form-control-label">
-                API URL (Content TypeL application/json)
-              </label>
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  formControlName="url"
-                  placeholder="Nhập API URL"
-                />
-                <span
-                  class="input-group-text cursor-pointer"
-                  id="basic-addon2"
-                  tooltip="Sao chép"
-                  (click)="copyText(f['api'].value.url)"
-                >
-                  <i class="far fa-copy"></i>
-                </span>
+                  </ng-option>
+                </ng-select>
               </div>
             </div>
-            <div class="mb-2">
-              <label class="form-control-label">API Request Header</label>
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  formControlName="headers"
-                  placeholder="Nhập API Request Header"
-                />
-                <span
-                  class="input-group-text cursor-pointer"
-                  tooltip="Sao chép"
-                  (click)="copyText(f['api'].value.headers)"
-                >
-                  <i class="far fa-copy"></i>
-                </span>
+            <div class="">
+              <div class="subhead mb-2">Thông tin API</div>
+              <div class="mb-2">
+                <label class="form-control-label">
+                  API URL (Content TypeL application/json)
+                </label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="apiPath"
+                    placeholder="Nhập API URL"
+                  />
+                  <span
+                    class="input-group-text cursor-pointer"
+                    id="basic-addon2"
+                    tooltip="Sao chép"
+                    (click)="copyText(f['apiPath'].value)"
+                  >
+                    <i class="far fa-copy"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-control-label">API Request Header</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="apiHeaders"
+                    placeholder="Nhập API Request Header"
+                  />
+                  <span
+                    class="input-group-text cursor-pointer"
+                    tooltip="Sao chép"
+                    (click)="copyText(f['apiHeaders'].value)"
+                  >
+                    <i class="far fa-copy"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-control-label">JSON BODY</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="apiBody"
+                    placeholder="Nhập JSON BODY"
+                  />
+                  <span
+                    class="input-group-text cursor-pointer"
+                    tooltip="Sao chép"
+                    (click)="copyText(f['apiBody'].value)"
+                  >
+                    <i class="far fa-copy"></i>
+                  </span>
+                </div>
               </div>
             </div>
-            <div class="mb-2">
-              <label class="form-control-label">JSON BODY</label>
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  formControlName="body"
-                  placeholder="Nhập JSON BODY"
-                />
-                <span
-                  class="input-group-text cursor-pointer"
-                  tooltip="Sao chép"
-                  (click)="copyText(f['api'].value.body)"
-                >
-                  <i class="far fa-copy"></i>
-                </span>
-              </div>
-            </div>
-          </div>
+          </ng-container>
         </div>
       </ng-container>
       <div
