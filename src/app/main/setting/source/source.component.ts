@@ -14,6 +14,7 @@ import {CommonService} from '@app/services/common/common.service';
 import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
 import {EDataSourceType, ISource} from '@app/types/setting';
 import {SettingService} from '@app/services/api/setting.service';
+import {sortBy, sortIcon} from '@app/utils/common';
 
 @Component({
   selector: 'app-source',
@@ -69,10 +70,13 @@ export class SourceComponent implements OnInit, OnDestroy {
     paramsQuery: {
       page: 1,
       limit: 20,
+      sort: '-createdAt',
     },
     total: 0,
   };
   protected modalUpdateSource?: BsModalRef;
+  private sortProperty: string = 'createdAt';
+  private sortOrder = 1;
   constructor(
     private readonly modalConfirmService: ModalConfirmService,
     private readonly modalService: BsModalService,
@@ -212,6 +216,24 @@ export class SourceComponent implements OnInit, OnDestroy {
       };
     }
     this.getDataSource();
+  }
+
+  sortBy(property: string): void {
+    const {sortProperty, sortOrder, sortQuery} = sortBy(
+      this.sortOrder,
+      this.sortProperty,
+      property,
+    );
+    [this.sortProperty, this.sortOrder] = [sortProperty, sortOrder];
+    this.dataSource.paramsQuery = {
+      ...this.dataSource.paramsQuery,
+      sort: sortQuery ? sortQuery : undefined,
+    };
+    this.getDataSource(true);
+  }
+
+  sortIcon(property: string) {
+    return sortIcon(property, this.sortProperty, this.sortOrder);
   }
 
   ngOnDestroy(): void {

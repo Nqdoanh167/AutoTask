@@ -13,11 +13,35 @@
           <table class="table">
             <thead>
               <tr>
-                <th class="column-name">Tên nguồn</th>
-                <th class="">Loại kết nối</th>
-                <th class="">Số lần gọi API</th>
-                <th class="">Trạng thái</th>
-                <th>Ngày tạo</th>
+                <th (click)="sortBy('name')" class="column-name th-allow-sort">
+                  <span class="icon-sort" [innerHTML]="sortIcon('name')"></span>
+                  Tên nguồn
+                </th>
+                <th (click)="sortBy('type')" class="th-allow-sort">
+                  <span class="icon-sort" [innerHTML]="sortIcon('type')"></span>
+                  Loại kết nối
+                </th>
+                <th (click)="sortBy('count')" class="th-allow-sort">
+                  <span
+                    class="icon-sort"
+                    [innerHTML]="sortIcon('count')"
+                  ></span>
+                  Số lần gọi API
+                </th>
+                <th (click)="sortBy('status')" class="th-allow-sort">
+                  <span
+                    class="icon-sort"
+                    [innerHTML]="sortIcon('status')"
+                  ></span>
+                  Trạng thái
+                </th>
+                <th (click)="sortBy('createdAt')" class="th-allow-sort">
+                  <span
+                    class="icon-sort"
+                    [innerHTML]="sortIcon('createdAt')"
+                  ></span>
+                  Ngày tạo
+                </th>
                 <th class="column-action">Thao tác</th>
               </tr>
             </thead>
