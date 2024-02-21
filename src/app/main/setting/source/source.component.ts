@@ -9,7 +9,7 @@ import {finalize, Subject, takeUntil} from 'rxjs';
 import {ICommonDataSource} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
-import {BsModalService} from 'ngx-bootstrap/modal';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
 import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
 import {EDataSourceType, ISource} from '@app/types/setting';
@@ -22,6 +22,8 @@ import {SettingService} from '@app/services/api/setting.service';
 })
 export class SourceComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject();
+
+  protected readonly EDataSourceType = EDataSourceType;
   public configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
@@ -70,6 +72,7 @@ export class SourceComponent implements OnInit, OnDestroy {
     },
     total: 0,
   };
+  protected modalUpdateSource?: BsModalRef;
   constructor(
     private readonly modalConfirmService: ModalConfirmService,
     private readonly modalService: BsModalService,
@@ -105,22 +108,22 @@ export class SourceComponent implements OnInit, OnDestroy {
   }
 
   handleUpdate(data?: any) {
-    const modalUpdateNextStep = this.modalService.show(UpdateSourceComponent, {
+    this.modalUpdateSource = this.modalService.show(UpdateSourceComponent, {
       initialState: {
         sourceData: data,
       },
       class: 'modal-dialog-centered modal-custom-size-l',
     });
-    modalUpdateNextStep.onHide?.pipe().subscribe(() => {});
-    modalUpdateNextStep.content?.updateSuccess
+    this.modalUpdateSource.onHide?.pipe().subscribe(() => {});
+    this.modalUpdateSource.content?.updateSuccess
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.getDataSource();
       });
-    modalUpdateNextStep.content?.deleteEvent
+    this.modalUpdateSource.content?.deleteEvent
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.getDataSource();
+      .subscribe((data: ISource) => {
+        this.handleDelete(data);
       });
   }
 
@@ -164,6 +167,9 @@ export class SourceComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res.status === 200) {
             this.commonService.handleResSuccess('delete');
+            if (this.modalUpdateSource) {
+              this.modalUpdateSource.hide();
+            }
             this.getDataSource();
           } else {
             this.commonService.handleResErr(res);
@@ -188,7 +194,6 @@ export class SourceComponent implements OnInit, OnDestroy {
       modalType: 'advance',
       context: value,
     };
-
     this.modalConfirmService.openModal(modalContent, 'delete');
   }
 
@@ -213,6 +218,4 @@ export class SourceComponent implements OnInit, OnDestroy {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
-  protected readonly EDataSourceType = EDataSourceType;
 }

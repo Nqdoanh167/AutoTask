@@ -13,12 +13,14 @@ import {
   Validators,
 } from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
-import {EDataSourceType} from '@app/types/setting';
+import {EDataSourceType, ISourceDto} from '@app/types/setting';
 import {User} from '@app/types/viewmodels';
-import {Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {MainService} from '@app/services/api/main.service';
 import {ToastrService} from 'ngx-toastr';
+import {SettingService} from '@app/services/api/setting.service';
+import {CommonService} from '@app/services/common/common.service';
 
 @Component({
   selector: 'app-update-source',
@@ -58,19 +60,22 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     },
   ];
   public listBizUsers: User[] = [];
+  public loading = {
+    submit: false,
+    data: false,
+  };
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
     private readonly authService: AuthService,
     private readonly mainService: MainService,
     private readonly toastr: ToastrService,
+    private readonly settingService: SettingService,
+    private readonly commonService: CommonService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
-        this.updateForm.patchValue({
-          counselorId: biz.user?.id,
-        } as any);
         this.listBizUsers = biz.users;
       });
   }
@@ -83,27 +88,83 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     return (<FormArray>this.updateForm.get('parameters')) as FormArray;
   }
 
+  ngOnInit(): void {
+    if (this.sourceData) {
+      this.updateForm.patchValue(this.sourceData);
+      if (this.sourceData.parameters) {
+        this.sourceData?.parameters?.forEach((param: any) => {
+          this.formParameters().push(
+            this.fb.group({
+              key: param.key,
+              value: param.value,
+            }),
+          );
+        });
+      }
+    }
+    if (!this.sourceData?.id && this.formParameters().length === 0) {
+      this.handleAddParameter();
+    }
+  }
+
   onDelete() {
-    this.deleteEvent.emit();
-    this.hideModal();
+    this.deleteEvent.emit(this.sourceData);
   }
 
   hideModal(): void {
     this.modalRef.hide();
   }
 
-  handleUpdate() {}
+  handleUpdate() {
+    this.loading.submit = true;
+    const body = {
+      ...this.updateForm.value,
+    } as unknown as ISourceDto;
+    if (this.sourceData?.id) {
+      this.settingService.source
+        .update(this.sourceData.id, body)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => (this.loading.submit = false)),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess('update');
+              this.updateSuccess.emit();
+              this.hideModal();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => this.commonService.handleErr(err),
+        });
+    } else {
+      this.settingService.source
+        .create(body)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => (this.loading.submit = false)),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess('create');
+              this.updateSuccess.emit();
+              this.hideModal();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => this.commonService.handleErr(err),
+        });
+    }
+  }
 
   onSubmit(): void {
     this.submitted = true;
     if (this.updateForm.valid) {
       this.handleUpdate();
-    }
-  }
-
-  ngOnInit(): void {
-    if (this.formParameters().length === 0) {
-      this.handleAddParameter();
     }
   }
 

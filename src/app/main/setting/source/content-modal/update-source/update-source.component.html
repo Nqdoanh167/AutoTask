@@ -325,6 +325,7 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
             Hủy
           </button>
           <custom-button-loading
+            [isLoading]="loading.submit"
             (action)="onSubmit()"
             [type]="'button'"
             [textButton]="'Xác nhận'"

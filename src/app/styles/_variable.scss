@@ -587,6 +587,7 @@ $pagination-height: 56;
   display: flex;
   align-items: center;
   .modal-content {
+    border-radius: 16px;
     border: none !important;
   }
 }
