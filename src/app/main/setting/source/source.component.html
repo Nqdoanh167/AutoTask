@@ -3,6 +3,7 @@
     <div class="card-body">
       <div class="content-site">
         <app-filter-top-table
+          [configFilters]="configFilters"
           [configButtons]="configButtons"
           (clickButtonEvent)="handleAction($event)"
           (searchEvent)="onSearch($event)"
@@ -13,6 +14,8 @@
               <tr>
                 <th class="column-name">Tên nguồn</th>
                 <th class="">Loại kết nối</th>
+                <th class="">Số lần gọi API</th>
+                <th class="">Trạng thái</th>
                 <th>Ngày tạo</th>
                 <th>Thao tác</th>
               </tr>
@@ -43,6 +46,8 @@
                     {{ item.name || '-' }}
                   </div>
                 </td>
+                <td class="">-</td>
+                <td class="">-</td>
                 <td class="">-</td>
                 <td>
                   {{ item.createdAt | timeView }}

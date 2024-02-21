@@ -1,12 +1,18 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ETypeButton, IFilterTopButton} from '@app/types/common';
+import {
+  ETypeButton,
+  ETypeFilter,
+  IFilterTopButton,
+  IFilterTopTable,
+} from '@app/types/common';
 import {Subject, takeUntil} from 'rxjs';
 import {ICommonDataSource} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
-import {UpdateSourceComponent} from '@main/source/content-modal/update-source/update-source.component';
+import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
+import {EDataSourceType} from '@app/types/setting';
 
 @Component({
   selector: 'app-source',
@@ -15,6 +21,31 @@ import {UpdateSourceComponent} from '@main/source/content-modal/update-source/up
 })
 export class SourceComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject();
+  public configFilters: IFilterTopTable[] = [
+    {
+      type: ETypeFilter.SEARCH,
+      placeholder: 'Tìm kiếm...',
+    },
+    {
+      type: ETypeFilter.SELECT,
+      name: 'type',
+      placeholder: 'Loại',
+      options: [
+        {
+          label: 'Thủ công',
+          value: EDataSourceType.MANUAL,
+        },
+        {
+          label: 'API',
+          value: EDataSourceType.API,
+        },
+      ],
+      bindLabel: 'label',
+      bindValue: 'value',
+      clearable: true,
+      multiple: false,
+    },
+  ];
   public configButtons: IFilterTopButton[] = [
     {
       name: 'reload',

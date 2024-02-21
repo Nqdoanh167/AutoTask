@@ -26,11 +26,6 @@ const routes: Routes = [
           import('./flow/flow.module').then((m) => m.FlowModule),
       },
       {
-        path: 'source',
-        loadChildren: () =>
-          import('./source/source.module').then((m) => m.SourceModule),
-      },
-      {
         path: 'setting',
         loadChildren: () =>
           import('./setting/setting.module').then((m) => m.SettingModule),
