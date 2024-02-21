@@ -221,47 +221,71 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
               <div class="mb-2">
                 <label class="form-control-label">Sản phẩm quan tâm</label>
                 <ng-select
-                  [clearable]="false"
-                  formControlName="counselor"
+                  formControlName="products"
+                  [placeholder]="'Chọn Sản phẩm'"
                   [searchable]="true"
-                  [placeholder]="'Chọn sản phẩm...'"
-                  [ngClass]="{
-                    'is-invalid': submitted && f['counselor'].errors
-                  }"
+                  (search)="handleSearchValue($event, 'products')"
+                  [clearSearchOnAdd]="true"
+                  [multiple]="true"
+                  [closeOnSelect]="false"
+                  [items]="products.rows"
+                  bindLabel="name"
+                  [compareWith]="compareFunction"
+                  [virtualScroll]="true"
+                  [clearable]="true"
+                  [loading]="products.loading"
+                  class="dropdown-auto-width custom-input-multiple-round"
                   appearance="outline"
-                  class="ng-select-custom dropdown-auto-width input-medium mw-100"
-                  id="interestedProduct"
-                  appendTo=".modal-update-source"
+                  appendTo=".modal"
                 >
-                  <ng-option
-                    *ngFor="let item of listBizUsers"
-                    [value]="item.id"
-                    [disabled]="!item.isActive"
-                  >
+                  <ng-template ng-option-tmp let-item="item">
                     <div class="d-flex align-items-center">
-                      <div>
-                        <img
-                          class="avatar me-2"
-                          src="{{ item.picture }}"
-                          fallback="assets/images/avatar.svg"
-                          alt=""
-                        />
-                      </div>
-                      <div>
+                      <img
+                        class="image-product-radius me-2"
+                        [src]="
+                          item.picture || 'assets/images/default-product.png'
+                        "
+                        fallback="assets/images/no-photo.jpeg"
+                        [alt]="item.name"
+                        width="20"
+                        height="20"
+                      />
+                      <div class="label">
                         {{ item.name }}
                       </div>
                     </div>
-                  </ng-option>
+                  </ng-template>
+                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                    <span class="ng-value-icon me-2" (click)="clear(item)">
+                      ×
+                    </span>
+                    <div class="d-flex align-items-center">
+                      <img
+                        class="image-product-radius me-2"
+                        [src]="
+                          item.picture || 'assets/images/default-product.png'
+                        "
+                        fallback="assets/images/no-photo.jpeg"
+                        [alt]="item.name"
+                        width="20"
+                        height="20"
+                      />
+                      <div class="label">
+                        {{ item.name }}
+                      </div>
+                    </div>
+                  </ng-template>
                 </ng-select>
               </div>
             </div>
-            <div class="">
+            <div class="mt-3">
               <div class="subhead mb-2">Thông tin API</div>
               <div class="mb-2">
                 <label class="form-control-label">
                   API URL (Content TypeL application/json)
                 </label>
                 <div class="input-group">
+                  <span class="input-group-text" id="basic-addon1">POST</span>
                   <input
                     type="text"
                     class="form-control"

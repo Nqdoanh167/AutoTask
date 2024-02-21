@@ -420,6 +420,64 @@ ng-select.custom-input-multiple {
   }
 }
 
+ng-select.custom-input-multiple-round {
+  .ng-select-container {
+    .ng-value-container {
+      .ng-value {
+        display: flex;
+        align-items: center;
+        background-color: #fff !important;
+        border: none !important;
+        border-radius: 100px !important;
+        padding: 1px 8px !important;
+        overflow: hidden;
+        .label {
+          max-width: 200px;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2; /* number of lines to show */
+          line-clamp: 2;
+          -webkit-box-orient: vertical;
+        }
+        .ng-value-icon {
+          padding: 0 5px !important;
+          border: none !important;
+          background-color: $neutral-400;
+          color: $white;
+          border-radius: 50%;
+          width: 12px;
+          height: 12px;
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
+          &:hover {
+            background-color: $neutral-400 !important;
+          }
+        }
+      }
+    }
+  }
+  &.disabled {
+    .ng-select-container {
+      .ng-value-container {
+        .ng-value {
+          .ng-value-icon {
+            display: none !important;
+          }
+          &:hover {
+            .ng-value-icon {
+              display: none !important;
+            }
+          }
+        }
+      }
+      .ng-arrow-wrapper {
+        display: none;
+      }
+    }
+  }
+}
+
 ng-select.custom-input-tag {
   .ng-select-container {
     .ng-value-container {

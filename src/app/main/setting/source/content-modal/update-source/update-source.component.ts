@@ -14,13 +14,27 @@ import {
 } from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {EDataSourceType, ISourceDto} from '@app/types/setting';
-import {User} from '@app/types/viewmodels';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {
+  ICommonDataLazy,
+  IQueryBase,
+  Product,
+  User,
+} from '@app/types/viewmodels';
+import {
+  BehaviorSubject,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {MainService} from '@app/services/api/main.service';
 import {ToastrService} from 'ngx-toastr';
 import {SettingService} from '@app/services/api/setting.service';
 import {CommonService} from '@app/services/common/common.service';
+import {pick, uniqBy} from 'lodash';
+import {ProductService} from '@app/services/api/product.service';
 
 @Component({
   selector: 'app-update-source',
@@ -33,6 +47,9 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   @Output() deleteEvent = new EventEmitter<any>();
 
   private destroy$ = new Subject();
+  private textSearchProduct = new BehaviorSubject<string | undefined>(
+    undefined,
+  );
 
   public submitted = false;
   public updateForm = this.fb.group({
@@ -47,6 +64,17 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     apiHeaders: null,
     apiBody: null,
   });
+  public products: ICommonDataLazy<Product, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+      isParent: false,
+    },
+    isAllowLoadMore: false,
+  };
   public listType = [
     {
       label: 'Thủ công',
@@ -71,6 +99,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     private readonly toastr: ToastrService,
     private readonly settingService: SettingService,
     private readonly commonService: CommonService,
+    private readonly productService: ProductService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -104,6 +133,14 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     if (!this.sourceData?.id && this.formParameters().length === 0) {
       this.handleAddParameter();
     }
+    this.getListProduct(true);
+    this.textSearchProduct
+      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .subscribe((data) => {
+        this.products.paramsQuery.q = data || '';
+        this.products.paramsQuery.page = 1;
+        this.getListProduct(undefined, true);
+      });
   }
 
   handleChangeType() {
@@ -118,8 +155,61 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     });
   }
 
+  handleSearchValue($event: {term: string; items: any[]}, key: string) {
+    switch (key) {
+      case 'products':
+        this.textSearchProduct.next($event.term.trim());
+        break;
+      default:
+        break;
+    }
+  }
+
   onDelete() {
     this.deleteEvent.emit(this.sourceData);
+  }
+
+  getListProduct(isInit: boolean = false, isSearching: boolean = false) {
+    this.products.loading = true;
+    let oldData: any = [];
+    const ids: string[] = [];
+    const query = {
+      ...this.products.paramsQuery,
+      ...(isInit && ids.length && {ids: ids}),
+    };
+    if (isSearching) {
+      oldData = [...this.products.rows];
+      this.products.rows = [];
+    }
+
+    this.productService.product
+      .get(query)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.products.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            let newData: any[] = [];
+            newData = [
+              ...this.products.rows,
+              ...res.data?.map((product) =>
+                pick(product, ['id', 'name', 'picture']),
+              ),
+            ];
+            this.products.rows = uniqBy(newData, 'id');
+            this.products.isAllowLoadMore = true;
+          } else {
+            this.products.isAllowLoadMore = false;
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.products.isAllowLoadMore = false;
+          this.commonService.handleResErr(err);
+        },
+      });
   }
 
   hideModal(): void {
@@ -190,6 +280,10 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   copyText(text: string) {
     this.mainService.copyText(text);
     this.toastr.success('Sao chép thành công');
+  }
+
+  compareFunction(item: Product, selected: any) {
+    return item.id === selected.id;
   }
 
   ngOnDestroy(): void {
