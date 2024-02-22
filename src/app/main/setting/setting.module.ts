@@ -18,6 +18,7 @@ import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.c
 import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
 import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import {TooltipModule} from 'ngx-bootstrap/tooltip';
     ModalConfirmComponent,
     CustomButtonLoadingComponent,
     TooltipModule,
+    ConvertTypeModule,
   ],
 })
 export class SettingModule {}

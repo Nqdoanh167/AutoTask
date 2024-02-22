@@ -331,6 +331,16 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     this.toastr.success('Sao chép thành công');
   }
 
+  copyApiHeaders() {
+    const token = this.updateForm.get('apiHeaders')?.value?.token;
+    this.copyText(`{"authorization": "Bear ${token}"}`);
+  }
+
+  copyApiBody() {
+    const apiBody = this.updateForm.get('apiBody')?.value;
+    this.copyText(JSON.stringify(apiBody));
+  }
+
   compareFunction(item: Product, selected: Product) {
     return item.id === selected.id;
   }
