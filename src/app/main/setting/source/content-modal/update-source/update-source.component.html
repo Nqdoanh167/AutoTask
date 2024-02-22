@@ -96,16 +96,17 @@
                         <ng-select
                           class="w-90"
                           id="argument-in"
-                          [items]="listSourceArgKey"
                           [clearable]="false"
-                          bindLabel="label"
-                          bindValue="value"
                           formControlName="argKey"
                           placeholder="Tham số"
                         >
-                          <ng-template ng-label-tmp let-item="item">
-                            {{ item.label }}
-                          </ng-template>
+                          <ng-option
+                            *ngFor="let option of listSourceArgKey"
+                            [value]="option.value"
+                            [disabled]="checkExistArgKey(option.value)"
+                          >
+                            {{ option.label }}
+                          </ng-option>
                         </ng-select>
                         <div class="ps-3">
                           <i class="fa-solid fa-arrow-right-arrow-left"></i>
@@ -139,6 +140,9 @@
                 </ng-container>
               </div>
               <div
+                *ngIf="
+                  formArguments().controls.length < listSourceArgKey.length
+                "
                 [style.width]="'150px'"
                 class="d-flex align-items-center gap-2 button-add-step-action text-link mt-3"
                 (click)="handleAddArgument()"
@@ -213,65 +217,67 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
                   </ng-option>
                 </ng-select>
               </div>
-              <div class="mb-2">
-                <label class="form-control-label">Sản phẩm quan tâm</label>
-                <ng-select
-                  formControlName="products"
-                  [placeholder]="'Chọn Sản phẩm'"
-                  [searchable]="true"
-                  (search)="handleSearchValue($event, 'products')"
-                  [clearSearchOnAdd]="true"
-                  [multiple]="true"
-                  [closeOnSelect]="false"
-                  [items]="products.rows"
-                  bindLabel="name"
-                  [compareWith]="compareFunction"
-                  [virtualScroll]="true"
-                  [clearable]="true"
-                  [loading]="products.loading"
-                  class="dropdown-auto-width custom-input-multiple-round"
-                  appearance="outline"
-                  appendTo=".modal"
-                >
-                  <ng-template ng-option-tmp let-item="item">
-                    <div class="d-flex align-items-center">
-                      <img
-                        class="image-product-radius me-2"
-                        [src]="
-                          item.picture || 'assets/images/default-product.png'
-                        "
-                        fallback="assets/images/no-photo.jpeg"
-                        [alt]="item.name"
-                        width="20"
-                        height="20"
-                      />
-                      <div class="label">
-                        {{ item.name }}
+              <ng-container formGroupName="cart">
+                <div class="mb-2">
+                  <label class="form-control-label">Sản phẩm quan tâm</label>
+                  <ng-select
+                    formControlName="products"
+                    [placeholder]="'Chọn Sản phẩm'"
+                    [searchable]="true"
+                    (search)="handleSearchValue($event, 'products')"
+                    [clearSearchOnAdd]="true"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                    [items]="products.rows"
+                    bindLabel="name"
+                    [compareWith]="compareFunction"
+                    [virtualScroll]="true"
+                    [clearable]="true"
+                    [loading]="products.loading"
+                    class="dropdown-auto-width custom-input-multiple-round"
+                    appearance="outline"
+                    appendTo=".modal"
+                  >
+                    <ng-template ng-option-tmp let-item="item">
+                      <div class="d-flex align-items-center">
+                        <img
+                          class="image-product-radius me-2"
+                          [src]="
+                            item.picture || 'assets/images/default-product.png'
+                          "
+                          fallback="assets/images/no-photo.jpeg"
+                          [alt]="item.name"
+                          width="20"
+                          height="20"
+                        />
+                        <div class="label">
+                          {{ item.name }}
+                        </div>
                       </div>
-                    </div>
-                  </ng-template>
-                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                    <span class="ng-value-icon me-2" (click)="clear(item)">
-                      ×
-                    </span>
-                    <div class="d-flex align-items-center">
-                      <img
-                        class="image-product-radius me-2"
-                        [src]="
-                          item.picture || 'assets/images/default-product.png'
-                        "
-                        fallback="assets/images/no-photo.jpeg"
-                        [alt]="item.name"
-                        width="20"
-                        height="20"
-                      />
-                      <div class="label">
-                        {{ item.name }}
+                    </ng-template>
+                    <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                      <span class="ng-value-icon me-2" (click)="clear(item)">
+                        ×
+                      </span>
+                      <div class="d-flex align-items-center">
+                        <img
+                          class="image-product-radius me-2"
+                          [src]="
+                            item.picture || 'assets/images/default-product.png'
+                          "
+                          fallback="assets/images/no-photo.jpeg"
+                          [alt]="item.name"
+                          width="20"
+                          height="20"
+                        />
+                        <div class="label">
+                          {{ item.name }}
+                        </div>
                       </div>
-                    </div>
-                  </ng-template>
-                </ng-select>
-              </div>
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </ng-container>
             </div>
             <div *ngIf="sourceData?.id" class="mt-3">
               <div class="subhead mb-2">Thông tin API</div>

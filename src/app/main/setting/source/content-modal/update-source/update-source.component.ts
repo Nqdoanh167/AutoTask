@@ -64,7 +64,13 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     arguments: this.fb.array([]),
     exeCount: null,
     counselorId: null,
-    products: null,
+    cart: this.fb.group({
+      products: null,
+      courseEvents: null,
+      beautyServices: null,
+      prepaidCards: null,
+      combos: null,
+    }),
     apiEndpoint: this.fb.group({
       path: null,
       method: null,
@@ -148,9 +154,18 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     return (<FormArray>this.updateForm.get('arguments')) as FormArray;
   }
 
+  checkExistArgKey(argKey: string) {
+    return this.formArguments().controls.some(
+      (control) => control?.get('argKey')?.value === argKey,
+    );
+  }
+
   ngOnInit(): void {
     if (this.sourceData) {
-      this.updateForm.patchValue(this.sourceData);
+      this.updateForm.patchValue({
+        ...this.sourceData,
+        counselorId: this.sourceData?.counselor?.id,
+      });
       if (this.sourceData.arguments) {
         this.sourceData?.arguments?.forEach((argument: ISourceArgsDto) => {
           this.formArguments().push(
@@ -179,7 +194,13 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     this.updateForm.patchValue({
       arguments: [],
       counselorId: null,
-      products: null,
+      cart: {
+        products: null,
+        courseEvents: null,
+        beautyServices: null,
+        prepaidCards: null,
+        combos: null,
+      },
     });
   }
 
