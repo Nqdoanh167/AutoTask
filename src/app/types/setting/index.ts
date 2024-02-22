@@ -1,5 +1,5 @@
 import {AccountPublic} from '@app/types/viewmodels';
-import {IProductDto, ITaskCartDto} from '@app/types/flow';
+import {ITaskCartDto} from '@app/types/flow';
 
 export enum EDataSourceType {
   MANUAL = 'MANUAL',
@@ -18,6 +18,8 @@ export enum ESourceArgKey {
   PROVINCE_CODE = 'provinceCode',
   COUNSELOR_ID = 'counselorId',
   ADD_CHAIN_ACT_IDS = 'addChainActIds',
+  PRODUCT_NAME = 'product.name',
+  PRODUCT_ID = 'product.id',
 }
 
 export interface ISourceArgsDto {
