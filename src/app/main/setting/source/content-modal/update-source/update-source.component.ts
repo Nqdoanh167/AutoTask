@@ -331,7 +331,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     this.toastr.success('Sao chép thành công');
   }
 
-  compareFunction(item: Product, selected: any) {
+  compareFunction(item: Product, selected: Product) {
     return item.id === selected.id;
   }
 
