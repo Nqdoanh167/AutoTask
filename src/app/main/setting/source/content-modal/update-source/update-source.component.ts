@@ -40,6 +40,7 @@ import {CommonService} from '@app/services/common/common.service';
 import {pick, uniqBy} from 'lodash';
 import {ProductService} from '@app/services/api/product.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {removeCharacter} from '@app/utils/common';
 
 @Component({
   selector: 'app-update-source',
@@ -142,7 +143,13 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
-        this.listBizUsers = biz.users;
+        this.listBizUsers =
+          biz.users?.map((user) => {
+            return {
+              ...user,
+              disabled: !user.isActive,
+            };
+          }) || [];
       });
   }
 
@@ -351,6 +358,15 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
 
   compareFunction(item: Product, selected: Product) {
     return item.id === selected.id;
+  }
+
+  customSearchFn(term: string, item: User) {
+    term = removeCharacter(term).toLocaleLowerCase().replace(/[ ]+/, ' ');
+    return (
+      removeCharacter(item?.name)
+        .toLocaleLowerCase()
+        .indexOf(term) > -1
+    );
   }
 
   handleLoadMore(key: 'products') {

@@ -194,16 +194,15 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
                   [ngClass]="{
                     'is-invalid': submitted && f['counselorId'].errors
                   }"
+                  [items]="listBizUsers"
+                  [searchFn]="customSearchFn"
+                  bindValue="id"
                   appearance="outline"
                   class="ng-select-custom dropdown-auto-width input-medium mw-100"
                   id="userIds"
                   appendTo=".modal-update-source"
                 >
-                  <ng-option
-                    *ngFor="let item of listBizUsers"
-                    [value]="item.id"
-                    [disabled]="!item.isActive"
-                  >
+                  <ng-template ng-label-tmp ng-option-tmp let-item="item">
                     <div class="d-flex align-items-center">
                       <div>
                         <img
@@ -217,7 +216,7 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
                         {{ item.name }}
                       </div>
                     </div>
-                  </ng-option>
+                  </ng-template>
                 </ng-select>
               </div>
               <ng-container formGroupName="cart">
