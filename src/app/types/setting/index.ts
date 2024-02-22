@@ -12,6 +12,12 @@ export enum ESourceArgKey {
   PHONE = 'phone',
   EMAIL = 'email',
   ADDRESS = 'address',
+  STREET = 'street',
+  WARD_CODE = 'wardCode',
+  DISTRICT_CODE = 'districtCode',
+  PROVINCE_CODE = 'provinceCode',
+  COUNSELOR_ID = 'counselorId',
+  ADD_CHAIN_ACT_IDS = 'addChainActIds',
 }
 
 export interface ISourceArgsDto {

@@ -109,7 +109,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   };
   public listSourceArgKey = [
     {
-      label: 'Tên',
+      label: 'Họ tên khách hàng',
       value: ESourceArgKey.NAME,
     },
     {
@@ -125,8 +125,32 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       value: ESourceArgKey.EMAIL,
     },
     {
-      label: 'Địa chỉ',
+      label: 'Địa chỉ (Số nhà/Đường/Phố)',
       value: ESourceArgKey.ADDRESS,
+    },
+    {
+      label: 'Đường',
+      value: ESourceArgKey.STREET,
+    },
+    {
+      label: 'Tỉnh/Thành phố',
+      value: ESourceArgKey.PROVINCE_CODE,
+    },
+    {
+      label: 'Quận/Huyện',
+      value: ESourceArgKey.DISTRICT_CODE,
+    },
+    {
+      label: 'Phường/Xã',
+      value: ESourceArgKey.WARD_CODE,
+    },
+    {
+      label: 'Nhân viên phụ trách ',
+      value: ESourceArgKey.COUNSELOR_ID,
+    },
+    {
+      label: 'Chuỗi hành động',
+      value: ESourceArgKey.ADD_CHAIN_ACT_IDS,
     },
   ];
   protected readonly EDataSourceType = EDataSourceType;
