@@ -353,6 +353,13 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     return item.id === selected.id;
   }
 
+  handleLoadMore(key: 'products') {
+    if (key === 'products' && this.products.isAllowLoadMore) {
+      this.products!.paramsQuery!.page! += 1;
+      this.getListProduct();
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();

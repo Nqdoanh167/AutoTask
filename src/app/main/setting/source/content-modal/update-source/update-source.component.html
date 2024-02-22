@@ -227,6 +227,7 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
                     formControlName="products"
                     [placeholder]="'Chọn Sản phẩm'"
                     [searchable]="true"
+                    (scrollToEnd)="handleLoadMore('products')"
                     (search)="handleSearchValue($event, 'products')"
                     [clearSearchOnAdd]="true"
                     [multiple]="true"
