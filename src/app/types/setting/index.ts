@@ -64,3 +64,28 @@ export interface IUpdateSourceDto {
   counselorId: string;
   cart: ITaskCartDto;
 }
+
+export enum EScreens {
+  DASHBOARD = 'dashboard',
+}
+
+export interface IViewModeDto {
+  id?: string;
+  name?: string;
+  options?: any;
+  isDefault?: boolean;
+  isActive?: boolean;
+  hasChanged?: boolean;
+  isEdit?: boolean;
+}
+
+export interface IView {
+  screen: EScreens;
+  ownerId: string;
+  modes: IViewModeDto[];
+  bizId: string;
+  createdBy: AccountPublic;
+  updatedBy: AccountPublic;
+}
+
+export interface IViewDto extends Pick<IView, 'screen' | 'modes'> {}

@@ -1,0 +1,227 @@
+<div *ngIf="tabs.length" class="header-filter d-flex align-items-center mb-2">
+  <div class="list-button-header left button-previous">
+    <div class="list-button-header d-flex align-items-center">
+      <button
+        type="button"
+        class="button-scroll-tab"
+        (click)="handleScrollTab('prev')"
+      >
+        <i class="fa-solid fa-caret-left"></i>
+      </button>
+    </div>
+  </div>
+  <div class="content-tab-filter">
+    <tabset class="custom-tab-basic tab-filter-data" #staticTabs>
+      <tab
+        *ngFor="
+          let tabz of tabs;
+          let last = last;
+          let index = index;
+          trackBy: trackByMethod
+        "
+        [active]="tabz.isActive"
+        (selectTab)="tabz.isActive = true; handleChangeActive(tabz, index)"
+        (deselect)="tabz.isActive = false"
+        class="tab-custom"
+        id="view-mode-id-{{ tabz.id }}"
+      >
+        <ng-template tabHeading>
+          <div
+            tooltip="{{ tabz.name && tabz.name.length >= 20 ? tabz.name : '' }}"
+            [delay]="500"
+            placement="bottom"
+            container="body"
+            containerClass="custom-tooltip-tab-filter"
+            class="tab-name fw-500"
+            *ngIf="!tabz.isEdit"
+          >
+            {{ tabz.name }}
+          </div>
+          <div *ngIf="tabz.isEdit">
+            <input
+              (keydown)="handleKeyDown($event, tabz)"
+              (blur)="handleUpdateTab(tabz)"
+              [(ngModel)]="tabz.name"
+              class="input-edit-tab"
+              [placeholder]="'Nhập..'"
+              [id]="'input-edit-tab-' + index"
+            />
+          </div>
+          <div *ngIf="!tabz.isEdit" class="ms-1" container="body" dropdown>
+            <div
+              id="button-alignment"
+              aria-controls="dropdown-alignment"
+              dropdownToggle
+              class="button-edit-tab justify-content-center align-items-center"
+            >
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </div>
+            <ul
+              id="dropdown-alignment"
+              *dropdownMenu
+              class="dropdown-menu"
+              role="menu"
+              aria-labelledby="button-alignment"
+            >
+              <li role="menuitem">
+                <div
+                  (click)="handleEditTab(tabz, $event, index)"
+                  class="dropdown-item d-flex align-items-center gap-2"
+                >
+                  <img src="./assets/images/icon/edit.svg" alt="" />
+                  Đổi tên chế độ xem
+                </div>
+              </li>
+              <li role="menuitem">
+                <div
+                  (click)="handleCloneTab(tabz, $event)"
+                  class="dropdown-item d-flex align-items-center gap-2"
+                >
+                  <img src="./assets/images/icon/copy.svg" alt="" />
+                  Sao chép chế độ xem
+                </div>
+              </li>
+              <li *ngIf="tabs.length > 1" role="menuitem">
+                <div
+                  (click)="handleDeleteViewMode(tabz)"
+                  class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                >
+                  <img src="./assets/images/icon/remove.svg" alt="" />
+                  Xóa chế độ xem
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div
+            *ngIf="tabz.isActive"
+            class="control-change"
+            [ngClass]="{show: tabz.hasChanged, hide: !tabz.hasChanged}"
+          >
+            <div>Đã chỉnh sửa</div>
+            <ng-container *ngIf="loading">
+              <i class="fas fa-spinner fa-spin mx-3"></i>
+            </ng-container>
+            <ng-container *ngIf="!loading">
+              <i
+                class="fa-solid fa-check mx-3"
+                (click)="handleSave(tabz, true)"
+              ></i>
+              <i
+                class="fa-solid fa-times"
+                (click)="handleSave(tabz, false)"
+              ></i>
+            </ng-container>
+          </div>
+          <div *ngIf="last" class="spacing"></div>
+        </ng-template>
+      </tab>
+    </tabset>
+  </div>
+  <div class="list-button-header left button-next">
+    <div class="list-button-header d-flex align-items-center">
+      <button
+        type="button"
+        class="button-scroll-tab"
+        (click)="handleScrollTab('next')"
+      >
+        <i class="fa-solid fa-caret-right"></i>
+      </button>
+    </div>
+  </div>
+  <div class="list-button-header d-flex align-items-center">
+    <div class="d-flex me-2">
+      <button
+        type="button"
+        class="button-all-view fw-500"
+        (click)="handleOpenPopover($event)"
+        [popover]="!loading ? popTemplate : ''"
+        [outsideClick]="true"
+        [placement]="'bottom right'"
+        containerClass="custom-popover-tab"
+      >
+        Tất cả chế độ xem
+      </button>
+      <div class="separate"></div>
+      <button
+        type="button"
+        class="button-scroll-tab button-add-tab"
+        (click)="!loading && addNewTab()"
+      >
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        <i *ngIf="!loading" class="fa-solid fa-plus"></i>
+      </button>
+      <ng-template #popTemplate>
+        <div class="popover-tab">
+          <custom-input-search
+            [className]="'input-medium'"
+            [placeholder]="'Search...'"
+            (searchEvent)="onSearch($event)"
+          ></custom-input-search>
+          <div class="list-tab mt-2">
+            <div class="text-center" *ngIf="!filteredTabs.length">
+              Không có dữ liệu
+            </div>
+            <div
+              class="tab-item d-flex align-items-center"
+              *ngFor="let tabz of filteredTabs; let index = index"
+              (click)="handleChangeActive(tabz, index, true)"
+            >
+              <div class="tab-item-title">{{ tabz.name }}</div>
+              <div class="tab-item-action">
+                <div class="d-flex gap">
+                  <div class="ms-1">
+                    <div
+                      class="px-2"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </div>
+                    <ul
+                      id="dropdown-alignment2"
+                      class="dropdown-menu"
+                      role="menu"
+                    >
+                      <li role="menuitem">
+                        <div
+                          (click)="handleEditTab(tabz, $event, index)"
+                          class="dropdown-item d-flex align-items-center gap-2"
+                        >
+                          <img src="./assets/images/icon/edit.svg" alt="" />
+                          Đổi tên chế độ xem
+                        </div>
+                      </li>
+                      <li role="menuitem">
+                        <div
+                          (click)="handleCloneTab(tabz, $event)"
+                          class="dropdown-item d-flex align-items-center gap-2"
+                        >
+                          <img src="./assets/images/icon/copy.svg" alt="" />
+                          Sao chép chế độ xem
+                        </div>
+                      </li>
+                      <li *ngIf="tabs.length > 1" role="menuitem">
+                        <div
+                          (click)="handleDeleteViewMode(tabz)"
+                          class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                        >
+                          <img src="./assets/images/icon/remove.svg" alt="" />
+                          Xóa chế độ xem
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<modal-confirm
+  [key]="'deleteViewMode'"
+  (confirmEvent)="removeTabHandler($event)"
+></modal-confirm>

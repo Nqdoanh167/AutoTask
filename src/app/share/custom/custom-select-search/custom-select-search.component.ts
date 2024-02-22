@@ -1,4 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {FormsModule} from '@angular/forms';
@@ -19,7 +26,7 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
         [searchable]="selectData.searchable || false"
         [placeholder]="selectData.placeholder || ''"
         class="dropdown-auto-width"
-        [class.custom-input-multiple]="selectData.multiple"
+        [class.custom-input-multiple-round]="selectData.multiple"
         [multiple]="selectData.multiple || false"
         (search)="onSearchOption()"
         (scrollToEnd)="onSearchOption()"
@@ -49,8 +56,9 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
   standalone: true,
   imports: [CommonModule, NgSelectModule, FormsModule],
 })
-export class CustomSelectSearchComponent implements OnInit {
+export class CustomSelectSearchComponent implements OnInit, OnChanges {
   public dataSelect: any = undefined;
+  @Input() value?: string | string[];
   @Input() className?: string;
   @Input() minWidth?: string;
   @Input() selectData: IFilterTopTable = {
@@ -70,6 +78,10 @@ export class CustomSelectSearchComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {}
+
+  ngOnChanges() {
+    this.dataSelect = this.value;
+  }
 
   onSearchOption() {}
 

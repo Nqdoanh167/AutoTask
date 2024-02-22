@@ -6,7 +6,7 @@
 }
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '210px');
+  @include mixins.calculateSize('max-height', '100vh', '248px');
 }
 
 .avatar {
