@@ -360,15 +360,6 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     return item.id === selected.id;
   }
 
-  customSearchFn(term: string, item: User) {
-    term = removeCharacter(term).toLocaleLowerCase().replace(/[ ]+/, ' ');
-    return (
-      removeCharacter(item?.name)
-        .toLocaleLowerCase()
-        .indexOf(term) > -1
-    );
-  }
-
   handleLoadMore(key: 'products') {
     if (key === 'products' && this.products.isAllowLoadMore) {
       this.products!.paramsQuery!.page! += 1;
