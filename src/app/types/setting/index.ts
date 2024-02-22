@@ -1,8 +1,22 @@
 import {AccountPublic} from '@app/types/viewmodels';
+import {IProductDto, ITaskCartDto} from '@app/types/flow';
 
 export enum EDataSourceType {
   MANUAL = 'MANUAL',
   API = 'API',
+}
+
+export enum ESourceArgKey {
+  NAME = 'name',
+  PICTURE = 'picture',
+  PHONE = 'phone',
+  EMAIL = 'email',
+  ADDRESS = 'address',
+}
+
+export interface ISourceArgsDto {
+  argKey: ESourceArgKey;
+  argRef: string;
 }
 
 export interface ISource {
@@ -10,11 +24,12 @@ export interface ISource {
   name: string;
   type: EDataSourceType;
   isActive: boolean;
-  parameters: any[];
-  counselor: any;
-  products: any;
+  exeCount: number;
+  counselor: AccountPublic;
+  arguments: ISourceArgsDto[];
+  cart: ITaskCartDto;
   token: string;
-  apiPath: string;
+  apiEndpoint: string;
   apiHeaders: any;
   apiBody: any;
   bizId: string;
@@ -31,4 +46,13 @@ export interface ISourceDto {
   parameters: any[];
   counselorId: string;
   products: any;
+}
+
+export interface IUpdateSourceDto {
+  name: string;
+  type: EDataSourceType;
+  isActive: boolean;
+  arguments: ISourceArgsDto[];
+  counselorId: string;
+  cart: ITaskCartDto;
 }

@@ -112,23 +112,27 @@ export class SourceComponent implements OnInit, OnDestroy {
   }
 
   handleUpdate(data?: any) {
-    this.modalUpdateSource = this.modalService.show(UpdateSourceComponent, {
-      initialState: {
-        sourceData: data,
-      },
-      class: 'modal-dialog-centered modal-custom-size-l',
-    });
-    this.modalUpdateSource.onHide?.pipe().subscribe(() => {});
-    this.modalUpdateSource.content?.updateSuccess
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.getDataSource();
+    try {
+      this.modalUpdateSource = this.modalService.show(UpdateSourceComponent, {
+        initialState: {
+          sourceData: data,
+        },
+        class: 'modal-dialog-centered modal-custom-size-l',
       });
-    this.modalUpdateSource.content?.deleteEvent
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((data: ISource) => {
-        this.handleDelete(data);
-      });
+      this.modalUpdateSource.onHide?.pipe().subscribe(() => {});
+      this.modalUpdateSource.content?.updateSuccess
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.getDataSource();
+        });
+      this.modalUpdateSource.content?.deleteEvent
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((data: ISource) => {
+          this.handleDelete(data);
+        });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   onSearch(value: {term: string; name: string}) {

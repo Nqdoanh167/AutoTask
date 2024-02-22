@@ -71,36 +71,36 @@
           </div>
           <ng-container *ngIf="f['type'].value === EDataSourceType.API">
             <div class="mt-2">
-              <label for="parameters" class="form-control-label">Tham số</label>
-              <div id="parameters" formArrayName="parameters">
+              <label for="arguments" class="form-control-label">Tham số</label>
+              <div id="arguments" formArrayName="arguments">
                 <div
                   class="text-center p-2"
-                  *ngIf="!formParameters().controls.length"
+                  *ngIf="!formArguments().controls.length"
                 >
                   Không cấu hình tham số
                 </div>
                 <ng-container
                   *ngFor="
-                    let parameter of formParameters().controls;
-                    let parameterIndex = index;
+                    let argument of formArguments().controls;
+                    let argumentIndex = index;
                     let last = last;
                     let first = first
                   "
                 >
                   <div
-                    [formGroupName]="parameterIndex"
+                    [formGroupName]="argumentIndex"
                     class="row {{ !first && 'mt-2' }} g-0 mx-0"
                   >
                     <div class="col-6">
                       <div class="d-flex align-items-center">
                         <ng-select
                           class="w-90"
-                          id="parameter-in"
-                          [items]="listType"
+                          id="argument-in"
+                          [items]="listSourceArgKey"
                           [clearable]="false"
                           bindLabel="label"
                           bindValue="value"
-                          formControlName="key"
+                          formControlName="argKey"
                           placeholder="Tham số"
                         >
                           <ng-template ng-label-tmp let-item="item">
@@ -114,22 +114,17 @@
                     </div>
                     <div class="col-6">
                       <div class="d-flex align-items-center">
-                        <ng-select
-                          class="w-90"
-                          id="parameter-out"
-                          [items]="listType"
-                          [clearable]="false"
-                          bindLabel="label"
-                          bindValue="value"
-                          formControlName="value"
+                        <input
+                          [ngClass]="{
+                            'is-invalid': submitted && !argument.value['argRef']
+                          }"
+                          type="text"
+                          class="form-control"
+                          formControlName="argRef"
                           placeholder="Tên trường API"
-                        >
-                          <ng-template ng-label-tmp let-item="item">
-                            {{ item.label }}
-                          </ng-template>
-                        </ng-select>
+                        />
                         <div
-                          (click)="handleRemoveParameter(parameterIndex)"
+                          (click)="handleRemoveArgument(argumentIndex)"
                           class="ps-3 cursor-pointer"
                         >
                           <img
@@ -146,7 +141,7 @@
               <div
                 [style.width]="'150px'"
                 class="d-flex align-items-center gap-2 button-add-step-action text-link mt-3"
-                (click)="handleAddParameter()"
+                (click)="handleAddArgument()"
               >
                 <i class="fa-solid fa-plus me-1"></i>
                 <span>Thêm tham số</span>
@@ -278,25 +273,28 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
                 </ng-select>
               </div>
             </div>
-            <div class="mt-3">
+            <div *ngIf="sourceData?.id" class="mt-3">
               <div class="subhead mb-2">Thông tin API</div>
-              <div class="mb-2">
+              <div formGroupName="apiEndpoint" class="mb-2">
                 <label class="form-control-label">
                   API URL (Content TypeL application/json)
                 </label>
                 <div class="input-group">
-                  <span class="input-group-text" id="basic-addon1">POST</span>
+                  <span class="input-group-text" id="basic-addon1">
+                    {{ f['apiEndpoint'].value.method }}
+                  </span>
                   <input
                     type="text"
                     class="form-control"
-                    formControlName="apiPath"
+                    formControlName="path"
                     placeholder="Nhập API URL"
+                    [readonly]="true"
                   />
                   <span
                     class="input-group-text cursor-pointer"
                     id="basic-addon2"
                     tooltip="Sao chép"
-                    (click)="copyText(f['apiPath'].value)"
+                    (click)="copyText(f['apiEndpoint'].value)"
                   >
                     <i class="far fa-copy"></i>
                   </span>
@@ -308,8 +306,11 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
                   <input
                     type="text"
                     class="form-control"
-                    formControlName="apiHeaders"
+                    value="{&quot;authorization&quot;: &quot;Bearer {{
+                      updateForm.value.apiHeaders?.token
+                    }}&quot;}"
                     placeholder="Nhập API Request Header"
+                    [readonly]="true"
                   />
                   <span
                     class="input-group-text cursor-pointer"
@@ -326,8 +327,9 @@ Trong trường hợp dữ liệu từ tham số và thông tin mặc định b�
                   <input
                     type="text"
                     class="form-control"
-                    formControlName="apiBody"
+                    value="{{ updateForm.value.apiBody | json }}"
                     placeholder="Nhập JSON BODY"
+                    [readonly]="true"
                   />
                   <span
                     class="input-group-text cursor-pointer"

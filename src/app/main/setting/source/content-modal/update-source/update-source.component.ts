@@ -13,7 +13,12 @@ import {
   Validators,
 } from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
-import {EDataSourceType, ISourceDto} from '@app/types/setting';
+import {
+  EDataSourceType,
+  ESourceArgKey,
+  ISourceArgsDto,
+  IUpdateSourceDto,
+} from '@app/types/setting';
 import {
   ICommonDataLazy,
   IQueryBase,
@@ -56,12 +61,17 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     name: [null, [Validators.required]],
     type: EDataSourceType.MANUAL,
     isActive: true,
-    parameters: this.fb.array([]),
-    counselor: null,
+    arguments: this.fb.array([]),
+    exeCount: null,
+    counselorId: null,
     products: null,
-    token: null,
-    apiPath: null,
-    apiHeaders: null,
+    apiEndpoint: this.fb.group({
+      path: null,
+      method: null,
+    }),
+    apiHeaders: this.fb.group({
+      token: null,
+    }),
     apiBody: null,
   });
   public products: ICommonDataLazy<Product, IQueryBase> = {
@@ -90,6 +100,28 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     submit: false,
     data: false,
   };
+  public listSourceArgKey = [
+    {
+      label: 'Tên',
+      value: ESourceArgKey.NAME,
+    },
+    {
+      label: 'Hình ảnh',
+      value: ESourceArgKey.PICTURE,
+    },
+    {
+      label: 'Số điện thoại',
+      value: ESourceArgKey.PHONE,
+    },
+    {
+      label: 'Email',
+      value: ESourceArgKey.EMAIL,
+    },
+    {
+      label: 'Địa chỉ',
+      value: ESourceArgKey.ADDRESS,
+    },
+  ];
   protected readonly EDataSourceType = EDataSourceType;
   constructor(
     private readonly fb: FormBuilder,
@@ -112,26 +144,26 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     return this.updateForm.controls;
   }
 
-  formParameters() {
-    return (<FormArray>this.updateForm.get('parameters')) as FormArray;
+  formArguments() {
+    return (<FormArray>this.updateForm.get('arguments')) as FormArray;
   }
 
   ngOnInit(): void {
     if (this.sourceData) {
       this.updateForm.patchValue(this.sourceData);
-      if (this.sourceData.parameters) {
-        this.sourceData?.parameters?.forEach((param: any) => {
-          this.formParameters().push(
+      if (this.sourceData.arguments) {
+        this.sourceData?.arguments?.forEach((argument: ISourceArgsDto) => {
+          this.formArguments().push(
             this.fb.group({
-              key: param.key,
-              value: param.value,
+              argKey: argument.argKey,
+              argRef: argument.argRef,
             }),
           );
         });
       }
     }
-    if (!this.sourceData?.id && this.formParameters().length === 0) {
-      this.handleAddParameter();
+    if (!this.sourceData?.id && this.formArguments().length === 0) {
+      this.handleAddArgument();
     }
     this.getListProduct(true);
     this.textSearchProduct
@@ -145,12 +177,8 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
 
   handleChangeType() {
     this.updateForm.patchValue({
-      token: null,
-      apiPath: null,
-      apiHeaders: null,
-      apiBody: null,
-      parameters: [],
-      counselor: null,
+      arguments: [],
+      counselorId: null,
       products: null,
     });
   }
@@ -220,7 +248,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     this.loading.submit = true;
     const body = {
       ...this.updateForm.value,
-    } as unknown as ISourceDto;
+    } as any as IUpdateSourceDto;
     if (this.sourceData?.id) {
       this.autoTaskService.source
         .update(this.sourceData.id, body)
@@ -269,12 +297,12 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     }
   }
 
-  handleAddParameter() {
-    this.formParameters().push(this.fb.group({key: null, value: null}));
+  handleAddArgument() {
+    this.formArguments().push(this.fb.group({argKey: null, argRef: null}));
   }
 
-  handleRemoveParameter(index: number) {
-    this.formParameters().removeAt(index);
+  handleRemoveArgument(index: number) {
+    this.formArguments().removeAt(index);
   }
 
   copyText(text: string) {

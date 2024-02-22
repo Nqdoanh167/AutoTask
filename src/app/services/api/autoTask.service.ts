@@ -25,7 +25,7 @@ import {
   IUpdateChainActDto,
   IUpdateTaskResultDto,
 } from '@app/types/flow';
-import {ISource, ISourceDto} from '@app/types/setting';
+import {ISource, ISourceDto, IUpdateSourceDto} from '@app/types/setting';
 
 @Injectable({
   providedIn: 'root',
@@ -275,12 +275,12 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
-    create: (body: ISourceDto) =>
+    create: (body: IUpdateSourceDto) =>
       this.httpClient.post<EntityResult<ISource>>(
         this.createUrl([this.api.source]),
         body,
       ),
-    update: (id: string, body: ISourceDto) =>
+    update: (id: string, body: IUpdateSourceDto) =>
       this.httpClient.patch<EntityResult<ISource>>(
         this.createUrl([this.api.source, id]),
         body,

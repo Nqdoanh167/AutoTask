@@ -80,7 +80,11 @@
                 </td>
                 <td class="">
                   <div>
-                    {{ item.type === EDataSourceType.MANUAL ? 'N/A' : 0 }}
+                    {{
+                      item.type === EDataSourceType.MANUAL
+                        ? 'N/A'
+                        : (item.exeCount | number) || 0
+                    }}
                   </div>
                 </td>
                 <td class="">
