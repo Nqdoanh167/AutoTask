@@ -177,7 +177,6 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
         });
       }
     }
-    this.getListProduct(true);
     this.textSearchProduct
       .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
       .subscribe((data) => {
