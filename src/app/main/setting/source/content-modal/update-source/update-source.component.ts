@@ -170,15 +170,12 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
         this.sourceData?.arguments?.forEach((argument: ISourceArgsDto) => {
           this.formArguments().push(
             this.fb.group({
-              argKey: argument.argKey,
-              argRef: argument.argRef,
+              argKey: [argument.argKey, Validators.required],
+              argRef: [argument.argRef, Validators.required],
             }),
           );
         });
       }
-    }
-    if (!this.sourceData?.id && this.formArguments().length === 0) {
-      this.handleAddArgument();
     }
     this.getListProduct(true);
     this.textSearchProduct
@@ -191,6 +188,8 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   }
 
   handleChangeType() {
+    this.submitted = false;
+    this.formArguments().clear();
     this.updateForm.patchValue({
       arguments: [],
       counselorId: null,
@@ -202,6 +201,13 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
         combos: null,
       },
     });
+    if (
+      this.f['type'].value === EDataSourceType.API &&
+      !this.sourceData?.id &&
+      this.formArguments().length === 0
+    ) {
+      this.handleAddArgument();
+    }
   }
 
   handleSearchValue($event: {term: string; items: any[]}, key: string) {
@@ -220,14 +226,12 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
 
   getListProduct(isInit: boolean = false, isSearching: boolean = false) {
     this.products.loading = true;
-    let oldData: any = [];
     const ids: string[] = [];
     const query = {
       ...this.products.paramsQuery,
       ...(isInit && ids.length && {ids: ids}),
     };
     if (isSearching) {
-      oldData = [...this.products.rows];
       this.products.rows = [];
     }
 
@@ -319,7 +323,12 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   }
 
   handleAddArgument() {
-    this.formArguments().push(this.fb.group({argKey: null, argRef: null}));
+    this.formArguments().push(
+      this.fb.group({
+        argKey: [null, Validators.required],
+        argRef: [null, Validators.required],
+      }),
+    );
   }
 
   handleRemoveArgument(index: number) {

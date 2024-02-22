@@ -97,6 +97,9 @@
                           class="w-90"
                           id="argument-in"
                           [clearable]="false"
+                          [ngClass]="{
+                            'is-invalid': submitted && !argument.value['argKey']
+                          }"
                           formControlName="argKey"
                           placeholder="Tham số"
                         >
