@@ -81,7 +81,7 @@
                   Sao chép chế độ xem
                 </div>
               </li>
-              <li *ngIf="tabs.length > 1" role="menuitem">
+              <li *ngIf="!tabz.isDefault" role="menuitem">
                 <div
                   (click)="handleDeleteViewMode(tabz)"
                   class="dropdown-item d-flex align-items-center gap-2 text-danger"
