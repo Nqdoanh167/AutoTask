@@ -40,7 +40,6 @@ import {CommonService} from '@app/services/common/common.service';
 import {pick, uniqBy} from 'lodash';
 import {ProductService} from '@app/services/api/product.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {removeCharacter} from '@app/utils/common';
 
 @Component({
   selector: 'app-update-source',

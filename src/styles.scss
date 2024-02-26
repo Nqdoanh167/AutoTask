@@ -831,6 +831,11 @@ bs-daterangepicker-container {
     &:hover {
       background-color: $neutral-50;
     }
+    img {
+      width: 14px;
+      height: 14px;
+      object-fit: cover;
+    }
   }
 
   &.fix-scrollbar {

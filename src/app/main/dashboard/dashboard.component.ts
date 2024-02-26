@@ -1,5 +1,12 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {finalize, interval, Subject, takeUntil} from 'rxjs';
+import {
+  distinctUntilChanged,
+  filter,
+  finalize,
+  interval,
+  Subject,
+  takeUntil,
+} from 'rxjs';
 import {
   ETypeButton,
   ETypeFilter,
@@ -26,8 +33,9 @@ import {
   ITask,
 } from '@app/types/flow';
 import moment from 'moment/moment';
-import {cloneDeep, uniqBy} from 'lodash';
+import {cloneDeep, isEqual, uniqBy} from 'lodash';
 import {AuthService} from '@app/services/api/auth.service';
+import {EScreens, IViewModeDto} from '@app/types/setting';
 
 @Component({
   selector: 'app-task',
@@ -190,11 +198,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     isAllowLoadMore: false,
   };
 
+  public currentActiveViewMode?: IViewModeDto;
+
   public dataSource$ = interval(10000)
     .pipe(takeUntil(this.destroy$))
     .subscribe(() => {
       this.dataSource.rows = this.runTimer();
     });
+  protected readonly EScreens = EScreens;
   constructor(
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
@@ -215,10 +226,58 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.getDataSource();
     this.getActionChain();
     this.getResult();
     this.getAction();
+    this.handleActiveViewMode();
+  }
+
+  handleActiveViewMode() {
+    try {
+      this.autoTaskService.currentActiveViewMode
+        .pipe(
+          takeUntil(this.destroy$),
+          distinctUntilChanged(isEqual),
+          filter((currentActiveViewMode) => currentActiveViewMode),
+        )
+        .subscribe((currentActiveViewMode) => {
+          this.currentActiveViewMode = currentActiveViewMode;
+          const objFilterQuery = JSON.parse(
+            this.dataSource.paramsQuery.filter || '{}',
+          );
+          // loop configFilters and update by value of object options in currentActiveViewMode
+          this.configFilters.forEach((configFilter) => {
+            if (configFilter.type === ETypeFilter.SELECT) {
+              configFilter.value =
+                currentActiveViewMode?.options[configFilter.name!];
+              if (configFilter.name === 'sort') {
+                this.dataSource.paramsQuery.sort = currentActiveViewMode
+                  ?.options[configFilter.name!] as string;
+              } else {
+                objFilterQuery[configFilter.name!] = configFilter.value;
+              }
+            }
+          });
+          // update dataSource.paramsQuery.filter by objFilterQuery
+          this.dataSource.paramsQuery.filter = JSON.stringify(objFilterQuery);
+          this.getDataSource();
+        });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  handleViewModeChange(hasChanged: boolean) {
+    // change hasChanged of currentActiveViewMode to true and update currentActiveViewMode to dashboardViewModes by emit new value
+    const changedTab = {
+      ...this.currentActiveViewMode,
+      hasChanged: hasChanged,
+      options: {
+        ...JSON.parse(this.dataSource.paramsQuery.filter || '{}'),
+        sort: this.dataSource.paramsQuery.sort,
+      },
+    };
+    this.autoTaskService.setCurrentActiveViewMode(changedTab);
   }
 
   handleSearchActChain(event: any) {}
@@ -489,11 +548,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         }
         this.dataSource.paramsQuery.filter = JSON.stringify(obj);
+        if (!isEqual(obj, this.currentActiveViewMode?.options)) {
+          this.handleViewModeChange(true);
+          return;
+        }
       } else {
         if (value) {
           this.dataSource.paramsQuery.sort = value;
         } else {
           delete this.dataSource.paramsQuery.sort;
+        }
+        if (value !== this.currentActiveViewMode?.options?.sort) {
+          this.handleViewModeChange(true);
         }
       }
       this.getDataSource(true);

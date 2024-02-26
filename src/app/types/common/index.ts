@@ -25,6 +25,7 @@ export interface IFilterTopTable {
   minWidth?: string;
   clearable?: boolean;
   onSearch?: (event: any) => void;
+  value?: string | string[];
 }
 
 export type NameButton = 'reload' | 'add_new' | 'save' | string;
@@ -39,3 +40,13 @@ export interface IFilterTopButton {
   loading?: boolean;
   disabled?: boolean;
 }
+
+export interface ITabFilter {
+  id: number;
+  title: string;
+  active?: boolean;
+  isEdit?: boolean;
+  hasChange?: boolean;
+}
+
+export type TKeyViewModeTab = 'dashboardTask';
