@@ -926,7 +926,7 @@ span.required {
     position: absolute;
     left: 0;
     top: 0;
-    background-color: #fff;
+    background: linear-gradient(90deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
     &.hide {
       position: unset;
       display: none !important;
@@ -937,17 +937,17 @@ span.required {
     position: absolute;
     right: 180px;
     top: 0;
-    background-color: #fff;
+    width: 50px;
+    background: linear-gradient(270deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
     &.hide {
       display: none !important;
     }
   }
   .list-button-header {
-    background-color: $white;
+    //background-color: $white;
     height: 33px;
     width: 180px;
     display: flex;
-    justify-content: end;
     padding-bottom: 3px;
     border-bottom: 1px solid $neutral-100;
     .button-edit-tab {
@@ -990,7 +990,12 @@ span.required {
     .button-add-tab {
     }
     &.left {
-      width: 30px;
+      justify-content: flex-start !important;
+      width: 50px;
+    }
+    &.right {
+      width: 50px;
+      justify-content: flex-end;
     }
   }
   .content-tab-filter {
