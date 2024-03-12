@@ -64,6 +64,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   customerInfoComponent!: CustomerInfoComponent;
 
   @Input() sourceData?: ITask;
+  @Input() taskId?: string;
   @Output() updateSuccess = new EventEmitter();
 
   public submittedModal = {
@@ -244,7 +245,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.getDetailTask();
     if (this.sourceData) {
       this.patchForm(this.sourceData);
-    } else {
+    }
+    if (this.taskId) {
+      this.getDetailTask();
     }
     this.getActionChain();
     this.getResult();
@@ -254,10 +257,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   getDetailTask(isRefresh = false) {
-    if (!this.sourceData?.id) return;
+    if (!this.sourceData?.id && !this.taskId) return;
     this.loading.getDetail = true;
     this.autoTaskService.task
-      .getOne(this.sourceData.id)
+      .getOne(this.sourceData?.id ?? this.taskId!)
       .pipe(finalize(() => (this.loading.getDetail = false)))
       .subscribe({
         next: (res) => {

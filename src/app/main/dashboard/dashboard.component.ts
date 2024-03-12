@@ -36,6 +36,8 @@ import moment from 'moment/moment';
 import {cloneDeep, isEqual, uniqBy} from 'lodash';
 import {AuthService} from '@app/services/api/auth.service';
 import {EScreens, IViewModeDto} from '@app/types/setting';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-task',
@@ -212,6 +214,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly autoTaskService: AutoTaskService,
     private readonly authService: AuthService,
+    private route: ActivatedRoute,
+    private readonly toastrService: ToastrService,
+    private router: Router,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -223,6 +228,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }));
         }
       });
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((q) => {
+      if (q['id']) {
+        this.handleUpdate(undefined, q['id']);
+      }
+    });
   }
 
   ngOnInit() {
@@ -423,18 +433,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleUpdate(value?: any) {
+  handleClearQueryParams() {
+    this.router.navigate([], {
+      queryParams: {
+        id: null,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  handleUpdate(value?: any, taskId?: string) {
+    if (value) {
+      this.handleClearQueryParams();
+    }
     try {
       const modalUpdate = this.modalService.show(ModalUpdateTaskComponent, {
         initialState: {
           sourceData: value,
+          taskId,
         },
         class: 'modal-xl',
         ignoreBackdropClick: true,
         keyboard: false,
       });
-      modalUpdate?.content?.updateSuccess.pipe().subscribe(() => {
-        this.getDataSource();
+      modalUpdate?.content?.updateSuccess
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.getDataSource();
+        });
+      modalUpdate?.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.handleClearQueryParams();
       });
     } catch (e) {
       console.log(e);
