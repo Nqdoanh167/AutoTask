@@ -969,18 +969,6 @@ a {
   color: #dc3545;
 }
 
-#omi_sdk_tq0 {
-  z-index: 99999 !important;
-}
-#omi_sdk_p6q {
-  z-index: 99999 !important;
-  display: none;
-}
-
-#omi_sdk_kdm {
-  z-index: 99999 !important;
-  display: none;
-}
-#omi_sdk_qcw {
+[id^='omi_sdk_'] {
   z-index: 99999 !important;
 }
