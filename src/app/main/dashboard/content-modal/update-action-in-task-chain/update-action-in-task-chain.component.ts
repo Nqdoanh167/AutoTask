@@ -104,12 +104,37 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   }
 
   allOrNoneRequired(form: FormGroup) {
+    const nextAction = form.get('nextAction');
     const type = form.get('delayType');
     const value = form.get('delayValue');
     if (type?.value !== EDelayType.NOW && !value?.value) {
       value?.setErrors({required: true});
     } else {
       value?.setErrors(null);
+    }
+    if (nextAction?.value === ENextStepType.CONTINUE_TO_NEXT_ACTION) {
+      const moveToAction = form.get('moveToAction');
+      if (!moveToAction?.value?.chainActResultId) {
+        moveToAction?.setErrors({required: true});
+      } else {
+        moveToAction?.setErrors(null);
+      }
+    }
+    if (nextAction?.value === ENextStepType.ADD_CHAIN) {
+      const addNewChain = form.get('addNewChain');
+      if (!addNewChain?.value?.chainId) {
+        addNewChain?.setErrors({required: true});
+      } else {
+        addNewChain?.setErrors(null);
+      }
+    }
+    if (nextAction?.value === ENextStepType.CALL_BLOCK_AUTOMATION) {
+      const callBlockAutomation = form.get('callBlockAutomation');
+      if (!callBlockAutomation?.value?.blockId) {
+        callBlockAutomation?.setErrors({required: true});
+      } else {
+        callBlockAutomation?.setErrors(null);
+      }
     }
     return null;
   }
