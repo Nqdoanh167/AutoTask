@@ -532,6 +532,8 @@ body {
 
 .cdk-drag-preview {
   z-index: 10000 !important;
+  box-sizing: border-box;
+  border-radius: 6px;
 }
 
 .cdk-drag-animating {
