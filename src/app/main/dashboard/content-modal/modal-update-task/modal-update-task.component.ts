@@ -981,7 +981,16 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
           this.updateSuccess.emit();
           this.getDetailTask();
         } else {
-          this.commonService.handleResErr(res);
+          if (res.data as any) {
+            res.data?.forEach((err: any) => {
+              if (err.response) {
+                this.toastr.error(err.response.message);
+                return;
+              }
+            });
+          } else {
+            this.commonService.handleResErr(res);
+          }
         }
       },
       error: (err) => {

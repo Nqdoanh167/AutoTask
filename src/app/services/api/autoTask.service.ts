@@ -219,7 +219,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         body,
       ),
     createOrder: (id: string) =>
-      this.httpClient.post<EntityResult<ITask>>(
+      this.httpClient.post<EntityResult<any[]>>(
         this.createUrl([this.api.task, id, 'create-order']),
         {},
       ),
