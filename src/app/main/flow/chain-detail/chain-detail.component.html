@@ -811,26 +811,20 @@
                           class="col-6"
                         >
                           <input
+                            [(ngModel)]="nextAction.delayValue"
+                            class="input-medium"
                             [ngClass]="{
                               'is-invalid':
                                 submitted &&
-                                ((result.resultId &&
-                                  nextAction.delayValue === undefined) ||
+                                ((result.resultId && !nextAction.delayValue) ||
                                   !result.resultId)
                             }"
-                            class="input-medium"
-                            type="number"
-                            [(ngModel)]="nextAction.delayValue"
+                            min="1"
+                            type="text"
+                            mask="00000000"
+                            [allowNegativeNumbers]="false"
                           />
                         </div>
-                        <!--                        <div class="col-2 center-item">-->
-                        <!--                          <span-->
-                        <!--                            (click)="removeNextAction(result, nextActionIndex)"-->
-                        <!--                            class="d-flex align-items-center cursor-pointer"-->
-                        <!--                          >-->
-                        <!--                            <img src="./assets/images/icon/x.svg" alt="" />-->
-                        <!--                          </span>-->
-                        <!--                        </div>-->
                       </div>
                     </div>
                     <div

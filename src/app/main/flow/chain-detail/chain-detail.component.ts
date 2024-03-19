@@ -289,7 +289,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               !nextAction.nextAction ||
               nextAction.type === undefined ||
               nextAction.delayType === undefined ||
-              nextAction.delayValue === undefined
+              !nextAction.delayValue
             ) {
               return false;
             }
