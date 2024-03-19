@@ -379,10 +379,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   handleNavigate(path?: string) {
-    let url = `${environment.urlDomain}/${this.currentBiz}/config/data`;
+    let url = `${environment.urlDomain}/${this.currentBiz}/auto-task/config/data`;
     if (path) {
       url += path;
     }
+    console.log(url);
     window.open(url, '_blank');
   }
 
