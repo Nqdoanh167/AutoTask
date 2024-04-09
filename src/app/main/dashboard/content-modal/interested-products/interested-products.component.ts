@@ -4,6 +4,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   finalize,
+  skip,
   Subject,
   takeUntil,
 } from 'rxjs';
@@ -122,6 +123,14 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     undefined,
   );
 
+  public firstCallRemaining = {
+    product: true,
+    combo: true,
+    courseEvent: true,
+    beautyService: true,
+    prepaidCard: true,
+  };
+
   constructor(
     private rootFormGroup: FormGroupDirective,
     private readonly commonService: CommonService,
@@ -141,74 +150,96 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     return this.formGroup.get('cart');
   }
 
+  patchForm(data: any) {
+    try {
+      const {products, combos, courseEvents, beautyServices, prepaidCards} =
+        data;
+      if (products?.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.PRODUCT,
+        ]);
+      }
+      if (combos?.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.COMBO,
+        ]);
+      }
+      if (courseEvents?.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.COURSE,
+        ]);
+      }
+      if (beautyServices?.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.SERVICE,
+        ]);
+      }
+      if (prepaidCards?.length) {
+        this.activeProductTypes = uniq([
+          ...this.activeProductTypes,
+          ETypeProduct.SIM_CARD,
+        ]);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   ngOnInit(): void {
     this.formParent = this.rootFormGroup.control as FormGroup;
-    this.getListProduct(true);
-    this.getListCourseEvent(true);
-    this.getListCombo(true);
-    this.getListBeautyService(true);
-    this.getListPrepaidCard(true);
+    if (this.formGroup.get('cart').value) {
+      this.patchForm(this.formGroup.get('cart').value);
+    }
     this.formGroup.get('cart').valueChanges.subscribe((value: any) => {
-      try {
-        const {products, combos, courseEvents, beautyServices, prepaidCards} =
-          value;
-        if (products?.length) {
-          this.activeProductTypes = uniq([
-            ...this.activeProductTypes,
-            ETypeProduct.PRODUCT,
-          ]);
-        }
-        if (combos?.length) {
-          this.activeProductTypes = uniq([
-            ...this.activeProductTypes,
-            ETypeProduct.COMBO,
-          ]);
-        }
-        if (courseEvents?.length) {
-          this.activeProductTypes = uniq([
-            ...this.activeProductTypes,
-            ETypeProduct.COURSE,
-          ]);
-        }
-        if (beautyServices?.length) {
-          this.activeProductTypes = uniq([
-            ...this.activeProductTypes,
-            ETypeProduct.SERVICE,
-          ]);
-        }
-        if (prepaidCards?.length) {
-          this.activeProductTypes = uniq([
-            ...this.activeProductTypes,
-            ETypeProduct.SIM_CARD,
-          ]);
-        }
-      } catch (e) {
-        console.log(e);
-      }
+      this.patchForm(value);
     });
     this.textSearchProduct
-      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(600),
+        distinctUntilChanged(),
+        skip(1),
+      )
       .subscribe((data) => {
         this.products.paramsQuery.q = data || '';
         this.products.paramsQuery.page = 1;
         this.getListProduct(undefined, true);
       });
     this.textSearchCourseEvent
-      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(600),
+        distinctUntilChanged(),
+        skip(1),
+      )
       .subscribe((data) => {
         this.courseEvents.paramsQuery.q = data || '';
         this.courseEvents.paramsQuery.page = 1;
         this.getListCourseEvent(undefined, true);
       });
     this.textSearchCombo
-      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(600),
+        distinctUntilChanged(),
+        skip(1),
+      )
       .subscribe((data) => {
         this.combos.paramsQuery.q = data || '';
         this.combos.paramsQuery.page = 1;
         this.getListCombo(undefined, true);
       });
     this.textSearchBeautyService
-      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(600),
+        distinctUntilChanged(),
+        skip(1),
+      )
       .subscribe((data) => {
         this.beautyServices.paramsQuery.q = data || '';
         this.beautyServices.paramsQuery.page = 1;
@@ -254,6 +285,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   }
 
   getListProduct(isInit: boolean = false, isSearching: boolean = false) {
+    if (isInit) this.firstCallRemaining.product = false;
     this.products.loading = true;
     const ids: string[] = [];
     const query = {
@@ -294,6 +326,8 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       });
   }
   getListCombo(isInit: boolean = false, isSearching: boolean = false) {
+    console.trace('getListCombo');
+    if (isInit) this.firstCallRemaining.combo = false;
     this.combos.loading = true;
     let oldData: any = [];
     const ids: string[] = [];
@@ -335,6 +369,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       });
   }
   getListBeautyService(isInit: boolean = false, isSearching: boolean = false) {
+    if (isInit) this.firstCallRemaining.beautyService = false;
     this.beautyServices.loading = true;
     let oldData: any = [];
     const ids: string[] = [];
@@ -377,6 +412,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   }
 
   getListPrepaidCard(isInit: boolean = false, isSearching: boolean = false) {
+    if (isInit) this.firstCallRemaining.prepaidCard = false;
     this.prepaidCards.loading = true;
     let oldData: any = [];
     const ids: string[] = [];
@@ -419,6 +455,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   }
 
   getListCourseEvent(isInit: boolean = false, isSearching: boolean = false) {
+    if (isInit) this.firstCallRemaining.courseEvent = false;
     this.courseEvents.loading = true;
     let oldData: any = [];
     const ids: string[] = [];

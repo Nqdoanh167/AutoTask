@@ -113,6 +113,7 @@
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
+            (open)="firstCallRemaining.product && getListProduct(true)"
           >
             <ng-template ng-option-tmp let-item="item">
               <div class="d-flex align-items-center">
@@ -178,6 +179,7 @@
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
+            (open)="firstCallRemaining.combo && getListCombo(true)"
           >
             <ng-template ng-option-tmp let-item="item">
               <div class="d-flex align-items-center">
@@ -227,6 +229,7 @@
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
+            (open)="firstCallRemaining.courseEvent && getListCourseEvent(true)"
           >
             <ng-template ng-option-tmp let-item="item">
               <div class="d-flex align-items-center">
@@ -276,6 +279,9 @@
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
+            (open)="
+              firstCallRemaining.beautyService && getListBeautyService(true)
+            "
           >
             <ng-template ng-option-tmp let-item="item">
               <div class="d-flex align-items-center">
@@ -325,6 +331,7 @@
             class="dropdown-auto-width custom-input-multiple"
             appearance="outline"
             appendTo=".modal"
+            (open)="firstCallRemaining.prepaidCard && getListPrepaidCard(true)"
           >
             <ng-template ng-option-tmp let-item="item">
               <div class="d-flex align-items-center">

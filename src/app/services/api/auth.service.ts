@@ -109,7 +109,7 @@ export class AuthService {
   loginInDev() {
     const headers = new HttpHeaders().set(
       'Authorization',
-      'Basic bG9uZy5kdkB0aW5hc29mdC52bjoxMjMxMjM=',
+      'Basic ZHVvbmdsb25nLmRldkBnbWFpbC5jb206MTIzMTIz',
     );
     const res = this.httpClient.post(
       'https://dev.smax.app/api/auth',
