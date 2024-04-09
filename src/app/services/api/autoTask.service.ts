@@ -1,8 +1,8 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {BeautyService, Customer, EntityResult} from 'src/app/types/viewmodels';
-import {Subject, takeUntil} from 'rxjs';
+import {EntityResult} from 'src/app/types/viewmodels';
+import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {
@@ -11,20 +11,28 @@ import {
   IActResult,
   IAddTaskChainDto,
   IBodyAction,
-  IUpdateChainActDto,
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
-  IManyUpdateChainActResultDto,
   IChainAct,
   IChainResult,
-  ITask,
-  ITaskDto,
-  IPickResultForActionDto,
+  IManyUpdateChainActResultDto,
   IManyUpsertChainActResultDto,
-  IUpdateTaskResultDto,
+  IPickResultForActionDto,
+  ITask,
   ITaskChainResult,
+  ITaskDto,
+  IUpdateChainActDto,
+  IUpdateTaskResultDto,
 } from '@app/types/flow';
+import {
+  ISource,
+  ISourceDto,
+  IUpdateSourceDto,
+  IView,
+  IViewDto,
+  IViewModeDto,
+} from '@app/types/setting';
 
 @Injectable({
   providedIn: 'root',
@@ -41,8 +49,23 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     task: 'task',
     taskChain: 'task-chain',
     taskChainResult: 'task-chain-result',
+    source: 'source',
+    settingView: 'setting-view',
   };
   private defaultParams: any = {};
+
+  private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
+  public dashboardViewModes = this.dashboardViewModes$.asObservable();
+
+  private changedDashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
+  public changedDashboardViewModes =
+    this.changedDashboardViewModes$.asObservable();
+
+  private currentActiveViewMode$ = new BehaviorSubject<
+    IViewModeDto | undefined
+  >(undefined);
+  public currentActiveViewMode = this.currentActiveViewMode$.asObservable();
+
   constructor(
     httpClient: HttpClient,
     private authService: AuthService,
@@ -196,7 +219,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         body,
       ),
     createOrder: (id: string) =>
-      this.httpClient.post<EntityResult<ITask>>(
+      this.httpClient.post<EntityResult<any[]>>(
         this.createUrl([this.api.task, id, 'create-order']),
         {},
       ),
@@ -264,6 +287,74 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         body,
       ),
   };
+
+  source = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<ISource[]>>(
+        this.createUrl([this.api.source]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: IUpdateSourceDto) =>
+      this.httpClient.post<EntityResult<ISource>>(
+        this.createUrl([this.api.source]),
+        body,
+      ),
+    update: (id: string, body: IUpdateSourceDto) =>
+      this.httpClient.patch<EntityResult<ISource>>(
+        this.createUrl([this.api.source, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.source, id]),
+      ),
+  };
+
+  settingView = {
+    retrieve: (params = {}) =>
+      this.httpClient.get<EntityResult<IView>>(
+        this.createUrl([this.api.settingView, 'retrieve']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    update: (body: IViewDto) =>
+      this.httpClient.put<EntityResult<IView>>(
+        this.createUrl([this.api.settingView]),
+        body,
+      ),
+  };
+
+  setDashboardViewModes(viewModes: IViewModeDto[]) {
+    this.dashboardViewModes$.next(viewModes);
+  }
+
+  getDashboardViewModes() {
+    return this.dashboardViewModes$.getValue();
+  }
+
+  setChangedDashboardViewModes(viewModes: IViewModeDto[]) {
+    this.changedDashboardViewModes$.next(viewModes);
+  }
+
+  getChangedDashboardViewModes() {
+    return this.changedDashboardViewModes$.getValue();
+  }
+
+  setCurrentActiveViewMode(data: IViewModeDto) {
+    this.currentActiveViewMode$.next(data);
+    // replace the current active view mode in the list changedDashboardViewModes
+    const viewModes = this.changedDashboardViewModes$.getValue();
+    const index = viewModes.findIndex((x) => x.id === data.id);
+    viewModes[index] = data;
+    this.changedDashboardViewModes$.next(viewModes);
+  }
+
+  getCurrentActiveViewMode() {
+    return this.currentActiveViewMode$.getValue();
+  }
 
   ngOnDestroy(): void {
     this.destroy.next(true);

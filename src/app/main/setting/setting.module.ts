@@ -12,6 +12,13 @@ import {ModalEmployeeInfoComponent} from './components/modal-employee-info/modal
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgSelectModule} from '@ng-select/ng-select';
+import {SourceComponent} from './source/source.component';
+import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-pagination.component';
+import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
+import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 
 @NgModule({
   declarations: [
@@ -20,6 +27,8 @@ import {NgSelectModule} from '@ng-select/ng-select';
     EmployeeComponent,
     BranchComponent,
     ModalEmployeeInfoComponent,
+    SourceComponent,
+    UpdateSourceComponent,
   ],
   imports: [
     CommonModule,
@@ -31,6 +40,11 @@ import {NgSelectModule} from '@ng-select/ng-select';
     FormsModule,
     NgSelectModule,
     ReactiveFormsModule,
+    CustomPaginationComponent,
+    ModalConfirmComponent,
+    CustomButtonLoadingComponent,
+    TooltipModule,
+    ConvertTypeModule,
   ],
 })
 export class SettingModule {}

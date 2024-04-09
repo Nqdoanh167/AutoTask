@@ -23,6 +23,10 @@
   width: 90vw !important;
   max-width: unset !important;
 }
+.modal-custom-size-l {
+  width: 1032px !important;
+  max-width: unset !important;
+}
 .modal-xl {
   max-width: 1400px;
   padding: 0 20px;
@@ -49,6 +53,10 @@
 
 .fw-500 {
   font-weight: 500;
+}
+
+.w-90 {
+  width: 90%;
 }
 
 // table
@@ -524,6 +532,8 @@ body {
 
 .cdk-drag-preview {
   z-index: 10000 !important;
+  box-sizing: border-box;
+  border-radius: 6px;
 }
 
 .cdk-drag-animating {
@@ -783,12 +793,84 @@ bs-daterangepicker-container {
 .btn {
   white-space: nowrap;
 }
+
 .dropdown-menu {
-  background: #fcfcfc;
-  box-shadow: #0000001a 0 4px 12px;
-  border-radius: 8px;
-  margin-top: 9px;
-  border: none;
+  background: #ffffff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  border: 0;
+  padding: 0;
+
+  &-right {
+    right: 0 !important;
+    left: auto !important;
+  }
+
+  .dropdown-item {
+    font-size: 13px;
+    letter-spacing: 0;
+    text-align: left;
+    min-height: 35px;
+    padding: 8px 15px;
+    cursor: pointer;
+
+    &:active,
+    &:focus {
+      background: unset;
+      outline: none !important;
+    }
+
+    &:first-child {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+
+    &:hover {
+      background-color: $neutral-50;
+    }
+    img {
+      width: 14px;
+      height: 14px;
+      object-fit: cover;
+    }
+  }
+
+  &.fix-scrollbar {
+    padding-left: 10px !important;
+
+    &::-webkit-scrollbar-thumb {
+      border: 6px solid transparent;
+      border-radius: 10px;
+      background-color: transparent;
+      background-clip: content-box;
+      -webkit-background-clip: content-box;
+      padding: 0 !important;
+      margin: 0;
+    }
+
+    &:hover {
+      &::-webkit-scrollbar-thumb {
+        background-color: #bfc5dd;
+      }
+    }
+
+    &::-webkit-scrollbar {
+      width: 16px;
+      height: 16px;
+      background-color: white;
+      border: 0;
+      padding: 0;
+      margin: 0;
+    }
+  }
+  &-emoj {
+    z-index: 9999;
+  }
 }
 .badge-tag {
   text-align: center;
@@ -889,10 +971,6 @@ a {
   color: #dc3545;
 }
 
-#omi_sdk_tq0 {
+[id^='omi_sdk_'] {
   z-index: 99999 !important;
-}
-#omi_sdk_p6q {
-  z-index: 99999 !important;
-  display: none;
 }

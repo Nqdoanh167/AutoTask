@@ -2,21 +2,14 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {TranslocoModule} from '@ngneat/transloco';
-import {IColumnStandard, IPaginationStandard} from '@app/types/custom';
+import {IColumnStandard, IPaginationStandard} from '@app/types/viewmodels';
 
 @Component({
   selector: 'app-custom-standard-table',
   templateUrl: './custom-standard-table.component.html',
   styleUrls: ['./custom-standard-table.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    PaginationModule,
-    ReactiveFormsModule,
-    TranslocoModule,
-    FormsModule,
-  ],
+  imports: [CommonModule, PaginationModule, ReactiveFormsModule, FormsModule],
 })
 export class CustomStandardTableComponent implements OnInit {
   @Input() keyTranslate: string = '';

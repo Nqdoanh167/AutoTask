@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DashboardComponent} from './dashboard.component';
-import {TaskRoutingModule} from './task-routing.module';
+import {DashboardRoutingModule} from './dashboard-routing.module';
 import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-pagination.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
@@ -27,6 +27,8 @@ import {InterestedProductsComponent} from './content-modal/interested-products/i
 import {CustomerInfoComponent} from './content-modal/customer-info/customer-info.component';
 import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
 import {ModalCallComponent} from './content-modal/modal-call/modal-call.component';
+import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
+import {ViewModeTabComponent} from '@share/common/view-mode-tab/view-mode-tab.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +42,7 @@ import {ModalCallComponent} from './content-modal/modal-call/modal-call.componen
   ],
   imports: [
     CommonModule,
-    TaskRoutingModule,
+    DashboardRoutingModule,
     CustomPaginationComponent,
     FilterTopTableComponent,
     ModalConfirmComponent,
@@ -61,6 +63,8 @@ import {ModalCallComponent} from './content-modal/modal-call/modal-call.componen
     FilterDataModule,
     TooltipModule,
     InputSuggestCustomerComponent,
+    CustomInputSearchComponent,
+    ViewModeTabComponent,
   ],
 })
 export class DashboardModule {}

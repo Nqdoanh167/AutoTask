@@ -1,3 +1,5 @@
+@use 'src/app/styles/mixins' as mixins;
+
 $body-bg: #eef0f3;
 $font-family-sans-serif:
   'Roboto',
@@ -585,6 +587,7 @@ $pagination-height: 56;
   display: flex;
   align-items: center;
   .modal-content {
+    border-radius: 16px;
     border: none !important;
   }
 }
@@ -627,6 +630,12 @@ $pagination-height: 56;
   .modal-body {
     background-color: $white;
     padding: 16px;
+  }
+  &.limit-body-height {
+    .modal-body {
+      max-height: calc(100vh - 200px);
+      @include mixins.custom-scrollbar();
+    }
   }
   .modal-footer {
     border: none;

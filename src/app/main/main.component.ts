@@ -31,6 +31,11 @@ export class MainComponent implements OnInit {
 
   public listSettingNavItems: ISidebar[] = [
     {
+      link: '/setting/source',
+      name: 'Nguồn dữ liệu',
+      isActive: true,
+    },
+    {
       link: '/setting/employee',
       name: 'Nhân viên',
       isActive: true,

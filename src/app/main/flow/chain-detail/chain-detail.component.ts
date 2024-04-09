@@ -289,7 +289,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               !nextAction.nextAction ||
               nextAction.type === undefined ||
               nextAction.delayType === undefined ||
-              nextAction.delayValue === undefined
+              !nextAction.delayValue
             ) {
               return false;
             }
@@ -379,10 +379,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   handleNavigate(path?: string) {
-    let url = `${environment.urlDomain}/${this.currentBiz}/config/data`;
+    let url = `${environment.urlDomain}/${this.currentBiz}/auto-task/config/data`;
     if (path) {
       url += path;
     }
+    console.log(url);
     window.open(url, '_blank');
   }
 

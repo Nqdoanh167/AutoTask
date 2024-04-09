@@ -1,12 +1,11 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {TranslocoModule} from '@ngneat/transloco';
 import {InputMaskModule} from '@share/input/input-mask/input-mask.module';
 
 @Component({
   selector: 'custom-input-range-number',
   standalone: true,
-  imports: [CommonModule, TranslocoModule, InputMaskModule],
+  imports: [CommonModule, InputMaskModule],
   templateUrl: './custom-input-range-number.component.html',
   styleUrls: ['./custom-input-range-number.component.scss'],
 })

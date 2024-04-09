@@ -5,6 +5,7 @@ import {SettingComponent} from './setting.component';
 import {PermissionComponent} from './permission/permission.component';
 import {EmployeeComponent} from '@main/setting/employee/employee.component';
 import {BranchComponent} from '@main/setting/branch/branch.component';
+import {SourceComponent} from '@main/setting/source/source.component';
 
 const routes: Routes = [
   {
@@ -13,8 +14,12 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'employee',
+        redirectTo: 'source',
         pathMatch: 'full',
+      },
+      {
+        path: 'source',
+        component: SourceComponent,
       },
       {
         path: 'employee',

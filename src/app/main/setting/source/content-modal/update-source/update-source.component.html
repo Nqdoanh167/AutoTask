@@ -1,0 +1,389 @@
+<div class="modal-update-source">
+  <form [formGroup]="updateForm">
+    <app-custom-modal [className]="'limit-body-height'">
+      <ng-container modalTitle>
+        {{ sourceData ? 'Chỉnh sửa' : 'Thêm' }} nguồn dữ liệu
+      </ng-container>
+      <ng-container modalBody>
+        <div class="wrapper">
+          <div class="row gap-2">
+            <div class="col">
+              <label for="name" class="form-control-label">
+                Tên nguồn dữ liệu
+                <span class="required">*</span>
+              </label>
+              <input
+                [ngClass]="{'is-invalid': submitted && f['name'].errors}"
+                type="text"
+                class="form-control"
+                id="name"
+                formControlName="name"
+                placeholder="Nhập tên nguồn dữ liệu"
+              />
+              <div
+                *ngIf="submitted && f['name'].errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f['name'].errors?.['required']">
+                  Tên nguồn dữ liệu không được bỏ trống
+                </div>
+                <div *ngIf="f['name'].errors?.['maxlength']">
+                  Tên nguồn dữ liệu không hợp lệ
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <label for="type" class="form-control-label">Loại kết nối</label>
+              <ng-select
+                id="type"
+                [items]="listType"
+                [clearable]="false"
+                (change)="handleChangeType()"
+                bindLabel="label"
+                bindValue="value"
+                formControlName="type"
+                placeholder="Chọn loại kết nối"
+                appendTo=".modal-update-source"
+              >
+                <ng-template ng-label-tmp let-item="item">
+                  {{ item.label }}
+                </ng-template>
+              </ng-select>
+            </div>
+            <div class="col">
+              <label for="isActive" class="form-control-label">
+                Trạng thái kích hoạt
+              </label>
+              <div class="form-check form-switch mt-2">
+                <input
+                  formControlName="isActive"
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="isActive"
+                />
+                <label
+                  class="form-check-label form-control-label mb-0"
+                  for="isActive"
+                ></label>
+              </div>
+            </div>
+          </div>
+          <ng-container *ngIf="f['type'].value === EDataSourceType.API">
+            <div class="mt-2">
+              <label for="arguments" class="form-control-label">Tham số</label>
+              <div id="arguments" formArrayName="arguments">
+                <div
+                  class="text-center p-2"
+                  *ngIf="!formArguments().controls.length"
+                >
+                  Không cấu hình tham số
+                </div>
+                <ng-container
+                  *ngFor="
+                    let argument of formArguments().controls;
+                    let argumentIndex = index;
+                    let last = last;
+                    let first = first
+                  "
+                >
+                  <div
+                    [formGroupName]="argumentIndex"
+                    class="row {{ !first && 'mt-2' }} g-0 mx-0"
+                  >
+                    <div class="col-6">
+                      <div class="d-flex align-items-center">
+                        <ng-select
+                          class="w-90"
+                          id="argument-in"
+                          [clearable]="false"
+                          [ngClass]="{
+                            'is-invalid': submitted && !argument.value['argKey']
+                          }"
+                          formControlName="argKey"
+                          placeholder="Tham số"
+                        >
+                          <ng-option
+                            *ngFor="let option of listSourceArgKey"
+                            [value]="option.value"
+                            [disabled]="checkExistArgKey(option.value)"
+                          >
+                            {{ option.label }}
+                          </ng-option>
+                        </ng-select>
+                        <div class="ps-3">
+                          <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="d-flex align-items-center">
+                        <input
+                          [ngClass]="{
+                            'is-invalid': submitted && !argument.value['argRef']
+                          }"
+                          type="text"
+                          class="form-control"
+                          formControlName="argRef"
+                          placeholder="Tên trường API"
+                        />
+                        <div
+                          (click)="handleRemoveArgument(argumentIndex)"
+                          class="ps-3 cursor-pointer"
+                        >
+                          <img
+                            class=""
+                            src="./assets/images/icon/x.svg"
+                            alt=""
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+              <div
+                *ngIf="
+                  formArguments().controls.length < listSourceArgKey.length
+                "
+                [style.width]="'150px'"
+                class="d-flex align-items-center gap-2 button-add-step-action text-link mt-3"
+                (click)="handleAddArgument()"
+              >
+                <i class="fa-solid fa-plus me-1"></i>
+                <span>Thêm tham số</span>
+              </div>
+            </div>
+            <div class="my-3 state-warning">
+              <div class="fw-500">Lưu ý: Về tham số</div>
+              <ul>
+                <li>
+                  <span class="fw-500">• Tên sản phẩm</span>
+                  : Sẽ tự động nhận là sản phẩn ảo khi tạo đơn!
+                </li>
+                <li>
+                  <span class="fw-500">• Mã sản phẩm</span>
+                  : Tự động đồng bộ với danh sách sản phẩm của shop và lấy giá
+                  theo sản phẩm! Trường hợp không tìm thấy mã sản phẩm => Tự
+                  động tạo mã thành tên sản phẩm ảo.
+                </li>
+                <li>
+                  <span class="fw-500">• Danh sách sản phẩm</span>
+                  : Hỗ trợ cho trường hợp tạo đơn có nhiều hơn 1 sản phẩm. Các
+                  thông tin của mỗi sản phẩm được cố định như Ví dụ bên dưới.
+                </li>
+              </ul>
+            </div>
+            <div class="">
+              <div class="subhead mb-2">
+                Thông tin mặc định khi tạo Task tự động qua API
+                <i
+                  class="fa-regular fa-circle-question ms-1"
+                  tooltip="Nếu Task được tự động tạo qua API thì thông tin bên dưới sẽ tự được điền vào task.
+Trong trường hợp dữ liệu từ tham số và thông tin mặc định bên dưới xảy ra xung đột, hệ thông sẽ ưu tiên sử dụng dữ liệu tham số."
+                  placement="auto"
+                ></i>
+              </div>
+              <div class="mb-2">
+                <label class="form-control-label">Nhân viên phụ trách</label>
+                <ng-select
+                  [clearable]="false"
+                  formControlName="counselorId"
+                  [searchable]="true"
+                  [placeholder]="'Chọn nhân viên...'"
+                  [ngClass]="{
+                    'is-invalid': submitted && f['counselorId'].errors
+                  }"
+                  [items]="listBizUsers"
+                  bindValue="id"
+                  bindLabel="name"
+                  appearance="outline"
+                  class="ng-select-custom dropdown-auto-width input-medium mw-100"
+                  id="userIds"
+                  appendTo=".modal-update-source"
+                >
+                  <ng-template ng-label-tmp ng-option-tmp let-item="item">
+                    <div class="d-flex align-items-center">
+                      <div>
+                        <img
+                          class="avatar me-2"
+                          src="{{ item.picture }}"
+                          fallback="assets/images/avatar.svg"
+                          alt=""
+                        />
+                      </div>
+                      <div>
+                        {{ item.name }}
+                      </div>
+                    </div>
+                  </ng-template>
+                </ng-select>
+              </div>
+              <ng-container formGroupName="cart">
+                <div class="mb-2">
+                  <label class="form-control-label">Sản phẩm quan tâm</label>
+                  <ng-select
+                    formControlName="products"
+                    [placeholder]="'Chọn Sản phẩm'"
+                    [searchable]="true"
+                    (scrollToEnd)="handleLoadMore('products')"
+                    (search)="handleSearchValue($event, 'products')"
+                    [clearSearchOnAdd]="true"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                    [items]="products.rows"
+                    bindLabel="name"
+                    [compareWith]="compareFunction"
+                    [virtualScroll]="true"
+                    [clearable]="true"
+                    [loading]="products.loading"
+                    class="dropdown-auto-width custom-input-multiple-round"
+                    appearance="outline"
+                    appendTo=".modal"
+                  >
+                    <ng-template ng-option-tmp let-item="item">
+                      <div class="d-flex align-items-center">
+                        <img
+                          class="image-product-radius me-2"
+                          [src]="
+                            item.picture || 'assets/images/default-product.png'
+                          "
+                          fallback="assets/images/no-photo.jpeg"
+                          [alt]="item.name"
+                          width="20"
+                          height="20"
+                        />
+                        <div class="label">
+                          {{ item.name }}
+                        </div>
+                      </div>
+                    </ng-template>
+                    <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                      <span class="ng-value-icon me-2" (click)="clear(item)">
+                        ×
+                      </span>
+                      <div class="d-flex align-items-center">
+                        <img
+                          class="image-product-radius me-2"
+                          [src]="
+                            item.picture || 'assets/images/default-product.png'
+                          "
+                          fallback="assets/images/no-photo.jpeg"
+                          [alt]="item.name"
+                          width="20"
+                          height="20"
+                        />
+                        <div class="label">
+                          {{ item.name }}
+                        </div>
+                      </div>
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </ng-container>
+            </div>
+            <div *ngIf="sourceData?.id" class="mt-3">
+              <div class="subhead mb-2">Thông tin API</div>
+              <div formGroupName="apiEndpoint" class="mb-2">
+                <label class="form-control-label">
+                  API URL (Content TypeL application/json)
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text" id="basic-addon1">
+                    {{ f['apiEndpoint'].value.method }}
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="path"
+                    placeholder="Nhập API URL"
+                    [readonly]="true"
+                  />
+                  <span
+                    class="input-group-text cursor-pointer"
+                    id="basic-addon2"
+                    tooltip="Sao chép"
+                    (click)="copyText(f['apiEndpoint'].value.path)"
+                  >
+                    <i class="far fa-copy"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-control-label">API Request Header</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    value="{&quot;authorization&quot;: &quot;Bearer {{
+                      updateForm.value.apiHeaders?.token
+                    }}&quot;}"
+                    placeholder="Nhập API Request Header"
+                    [readonly]="true"
+                  />
+                  <span
+                    class="input-group-text cursor-pointer"
+                    tooltip="Sao chép"
+                    (click)="copyApiHeaders()"
+                  >
+                    <i class="far fa-copy"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-control-label">JSON BODY</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    value="{{ updateForm.value.apiBody | json }}"
+                    placeholder="Nhập JSON BODY"
+                    [readonly]="true"
+                  />
+                  <span
+                    class="input-group-text cursor-pointer"
+                    tooltip="Sao chép"
+                    (click)="copyApiBody()"
+                  >
+                    <i class="far fa-copy"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+      <div
+        modalFooter
+        class="d-flex justify-content-between align-items-center"
+      >
+        <div>
+          <button
+            *ngIf="sourceData"
+            (click)="onDelete()"
+            class="btn button-delete-modal"
+            type="button"
+          >
+            Xóa
+          </button>
+        </div>
+        <div class="d-flex gap-2">
+          <button
+            (click)="hideModal()"
+            class="btn button-default-modal"
+            type="button"
+          >
+            Hủy
+          </button>
+          <custom-button-loading
+            [isLoading]="loading.submit"
+            (action)="onSubmit()"
+            [type]="'button'"
+            [textButton]="'Xác nhận'"
+            [className]="'button-submit-modal'"
+          ></custom-button-loading>
+        </div>
+      </div>
+    </app-custom-modal>
+  </form>
+</div>
