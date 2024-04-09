@@ -12,7 +12,7 @@
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "check-types": "tsc --pretty --noEmit",
-    "pre-commit": "npm run lint:fix && npm run prettier:fix",
+    "pre-commit": "npm run check-types && npm run lint:fix && npm run prettier:fix",
     "test-all": "npm run check-types && npm run lint:fix && npm run prettier && npm run build ",
     "prepare": "husky install"
   },

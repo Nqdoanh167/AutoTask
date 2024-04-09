@@ -12,8 +12,9 @@
       </ng-container>
       <ng-container *ngIf="filter.type === ETypeFilter.SELECT">
         <custom-select-search
+          [value]="filter?.value"
           [minWidth]="filter?.minWidth"
-          [className]="'input-medium'"
+          [className]="''"
           [selectData]="filter"
           (selectEvent)="onSelectValue($event, filter.name)"
           (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"

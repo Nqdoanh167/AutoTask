@@ -218,8 +218,9 @@ export enum ETypeProduct {
 
 export interface IProductDto {
   id: string;
-  type: ETypeProduct;
   name: string;
+  picture: string;
+  quantity: number;
 }
 
 export interface ILeadDealDto extends Customer {
@@ -278,17 +279,19 @@ export interface ITaskChain {
   updatedAt: Date;
 }
 
+export interface ITaskCartDto {
+  products: Product[];
+  beautyServices: BeautyService[];
+  combos: Combo[];
+  prepaidCards: PrepaidCard[];
+  courseEvents: CourseEvent[];
+}
+
 export interface ITask {
   id: string;
   name: string;
   leadDeal?: ILeadDealDto;
-  cart: {
-    products: Product[];
-    beautyServices: BeautyService[];
-    combos: Combo[];
-    prepaidCards: PrepaidCard[];
-    courseEvents: CourseEvent[];
-  };
+  cart: ITaskCartDto;
   orderIds: string[];
   counselor: AccountPublic;
   taskChainIds: string[];

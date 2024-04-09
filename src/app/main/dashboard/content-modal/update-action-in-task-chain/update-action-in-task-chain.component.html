@@ -57,6 +57,9 @@
             </label>
             <ng-container formGroupName="callBlockAutomation">
               <ng-select
+                [ngClass]="{
+                  'is-invalid': submitted && f['callBlockAutomation']?.errors
+                }"
                 formControlName="blockId"
                 [placeholder]="'Chọn Block'"
                 [searchable]="true"
@@ -77,6 +80,9 @@
             </label>
             <ng-container formGroupName="addNewChain">
               <ng-select
+                [ngClass]="{
+                  'is-invalid': submitted && f['addNewChain']?.errors
+                }"
                 formControlName="chainActResultId"
                 [placeholder]="'Chọn HĐ từ chuỗi khác'"
                 [searchable]="true"
@@ -119,6 +125,9 @@
             </label>
             <ng-container formGroupName="moveToAction">
               <ng-select
+                [ngClass]="{
+                  'is-invalid': submitted && f['moveToAction']?.errors
+                }"
                 formControlName="chainActResultId"
                 [placeholder]="'Chọn Hành động'"
                 [searchable]="false"
@@ -131,6 +140,12 @@
                 appendTo=".modal-update-action"
               ></ng-select>
             </ng-container>
+            <!--            <div-->
+            <!--              *ngIf="submitted && f['moveToAction']?.errors"-->
+            <!--              class="invalid-feedback"-->
+            <!--            >-->
+            <!--              <div>Hành động không được bỏ trống</div>-->
+            <!--            </div>-->
           </div>
         </div>
         <div class="mb-2">

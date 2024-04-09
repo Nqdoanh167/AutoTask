@@ -83,7 +83,6 @@ export class MainService extends BaseApiService implements OnDestroy {
     super(httpClient);
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
       next: (res) => {
-        console.log('res', res);
         if (res) {
           this.biz = res;
           this.setApiAddress(

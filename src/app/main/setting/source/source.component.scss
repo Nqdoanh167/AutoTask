@@ -1,0 +1,22 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.source-site {
+}
+
+.table-responsive {
+  @include mixins.calculateSize('max-height', '100vh', '210px');
+  .column-name {
+    max-width: 500px;
+  }
+  .columns-action {
+    width: 100px;
+  }
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+}

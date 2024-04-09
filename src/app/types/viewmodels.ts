@@ -1441,6 +1441,27 @@ export interface IQueryBase {
   'filter'?: any;
   'sort'?: string;
   'searchFields[]'?: string[];
-
   [name: string]: any;
+}
+
+export interface IDateRange {
+  fromDate: Date;
+  toDate: Date;
+}
+
+export interface IColumnStandard<T> {
+  title: string;
+  dataIndex: string;
+  key: string;
+  width?: string;
+  sort?: boolean;
+  render?: (row: T, index: number) => string;
+}
+
+export interface IPaginationStandard {
+  page: number;
+  total: number;
+  limit: number;
+  current: number;
+  pageSize: number;
 }

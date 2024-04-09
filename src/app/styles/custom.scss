@@ -18,6 +18,12 @@ textarea {
   border-radius: 6px;
 }
 
+.input-group {
+  .form-control {
+    width: auto !important;
+  }
+}
+
 .input-disabled {
   cursor: not-allowed;
   opacity: 0.6 !important;
@@ -414,6 +420,64 @@ ng-select.custom-input-multiple {
   }
 }
 
+ng-select.custom-input-multiple-round {
+  .ng-select-container {
+    .ng-value-container {
+      .ng-value {
+        display: flex;
+        align-items: center;
+        background-color: #fff !important;
+        border: none !important;
+        border-radius: 100px !important;
+        padding: 1px 8px !important;
+        overflow: hidden;
+        .label {
+          max-width: 200px;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 2; /* number of lines to show */
+          line-clamp: 2;
+          -webkit-box-orient: vertical;
+        }
+        .ng-value-icon {
+          padding: 0 5px !important;
+          border: none !important;
+          background-color: $neutral-400;
+          color: $white;
+          border-radius: 50%;
+          width: 12px;
+          height: 12px;
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
+          &:hover {
+            background-color: $neutral-400 !important;
+          }
+        }
+      }
+    }
+  }
+  &.disabled {
+    .ng-select-container {
+      .ng-value-container {
+        .ng-value {
+          .ng-value-icon {
+            display: none !important;
+          }
+          &:hover {
+            .ng-value-icon {
+              display: none !important;
+            }
+          }
+        }
+      }
+      .ng-arrow-wrapper {
+        display: none;
+      }
+    }
+  }
+}
+
 ng-select.custom-input-tag {
   .ng-select-container {
     .ng-value-container {
@@ -524,6 +588,40 @@ ng-select.select-search-icon {
 .popover {
   white-space: nowrap;
   max-width: 100%;
+
+  &.custom-popover-tab {
+    // z-index of bs-dropdown-menu is 1040
+    z-index: 1039;
+    .popover-body {
+      width: 250px;
+      padding: 10px;
+    }
+    .popover-arrow {
+      display: none;
+    }
+    .list-tab {
+      max-height: 500px;
+      .tab-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-radius: $radius-s;
+        cursor: pointer;
+        &-title {
+          max-width: 150px;
+          @include limit-text-row(1);
+        }
+        &.active {
+          background-color: $neutral-100;
+        }
+        &:hover {
+          background-color: $neutral-100;
+        }
+      }
+      @extend .custom-scrollbar;
+    }
+  }
 }
 
 // Card body
@@ -821,9 +919,97 @@ span.required {
   }
 }
 
-.custom-tab-basic.tab-customer {
+.header-filter {
+  position: relative;
+  .button-previous {
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: linear-gradient(90deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
+    &.hide {
+      position: unset;
+      display: none !important;
+    }
+  }
+  .button-next {
+    z-index: 1;
+    position: absolute;
+    right: 180px;
+    top: 0;
+    width: 50px;
+    background: linear-gradient(270deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
+    &.hide {
+      display: none !important;
+    }
+  }
+  .list-button-header {
+    //background-color: $white;
+    height: 33px;
+    width: 180px;
+    display: flex;
+    padding-bottom: 3px;
+    border-bottom: 1px solid $neutral-100;
+    .button-edit-tab {
+      border: none;
+      background: none;
+      position: absolute;
+      display: none;
+    }
+
+    .button-all-view {
+      background-color: unset;
+      border: none;
+      padding: 5px;
+      height: 30px;
+    }
+
+    .button-scroll-tab {
+      background-color: unset;
+      border: none;
+      padding: 5px;
+      width: 30px;
+      height: 30px;
+      border-radius: $radius-s;
+
+      &:hover {
+        background-color: $neutral-100;
+      }
+
+      &.previous {
+        transform: rotate(180deg);
+      }
+    }
+    .separate {
+      width: 1px;
+      height: 20px;
+      background-color: $neutral-200;
+      transform: translateY(5px);
+      margin: 0 5px;
+    }
+    .button-add-tab {
+    }
+    &.left {
+      justify-content: flex-start !important;
+      width: 50px;
+    }
+    &.right {
+      width: 50px;
+      justify-content: flex-end;
+    }
+  }
+  .content-tab-filter {
+    width: calc(100% - 180px);
+  }
+}
+
+bs-tooltip-container.custom-tooltip-tab-filter {
+  top: 6px !important;
+}
+
+.custom-tab-basic.tab-filter-data {
   .nav-tabs {
-    width: calc(100% - 200px);
+    //height: $input-medium;
     display: flex;
     flex-wrap: nowrap;
     padding: 0;
@@ -836,20 +1022,159 @@ span.required {
 
     //border-bottom: none;
     .nav-link {
+      display: flex;
+      align-items: center;
       border: none;
       color: #afb2bd !important;
       border-radius: unset !important;
+      padding: 5px 20px;
+      height: 33px;
+      .button-edit-tab {
+        display: none;
+      }
+
+      .tab-name {
+        max-width: 150px;
+        @include limit-text-row(1);
+      }
+
+      .control-change {
+        //display: flex;
+        align-items: center;
+        margin-left: 5px;
+        background-color: $orange-500;
+        color: $white;
+        padding: 2px 10px;
+        border-radius: 12px;
+        cursor: default;
+        height: 24px;
+        overflow: hidden;
+        //width: 145px;
+        width: 0;
+        //visibility: hidden;
+        display: none;
+        div {
+          font-weight: 400;
+          font-size: 12px;
+          width: 70px;
+          @include limit-text-row(1);
+        }
+        i {
+          cursor: pointer;
+          &.fa-check:hover {
+            color: $green-500;
+          }
+          &.fa-times:hover {
+            color: $red-500;
+          }
+        }
+        &.show {
+          animation: showChange 0.2s forwards;
+          display: flex;
+        }
+        &.hide {
+          animation: hideChange 0.2s forwards;
+          display: none;
+        }
+      }
+
+      @keyframes showChange {
+        0% {
+          display: none;
+          width: 0;
+        }
+        10% {
+          display: none !important;
+          width: 15px;
+        }
+        20% {
+          display: none !important;
+          width: 30px;
+        }
+        30% {
+          display: flex !important;
+          width: 50px;
+        }
+        50% {
+          display: flex !important;
+          width: 70px;
+        }
+        60% {
+          display: flex !important;
+          width: 100px;
+        }
+        80% {
+          display: flex !important;
+          width: 120px;
+        }
+        100% {
+          display: flex !important;
+          width: 145px;
+        }
+      }
+
+      @keyframes hideChange {
+        0% {
+          display: flex;
+          width: 145px;
+        }
+        50% {
+          display: flex;
+          width: 70px;
+        }
+        80% {
+          display: flex;
+          width: 30px;
+        }
+        100% {
+          display: none;
+          width: 0;
+        }
+      }
 
       &:hover {
         border: none;
       }
 
       &.active {
+        padding: 5px 10px 5px 20px;
         background-color: unset !important;
         border: none;
         color: $neutral !important;
         border-bottom: 3px solid $neutral;
+        .button-edit-tab {
+          display: flex;
+        }
       }
+    }
+  }
+
+  .button-edit-tab {
+    align-items: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+    background-color: $white;
+    border: none;
+    i {
+      font-size: 10px;
+    }
+  }
+  .input-edit-tab {
+    width: 120px;
+    border: 1px solid #4277ff;
+    border-radius: $radius-s;
+    &:focus {
+      border-color: #4277ff !important;
+      outline: none !important;
+    }
+    &:hover {
+      border-color: #4277ff !important;
+      outline: none !important;
+    }
+    &:active {
+      border-color: #4277ff !important;
+      outline: none !important;
     }
   }
 }
@@ -1087,6 +1412,11 @@ i {
     }
     &:active {
       color: $neutral;
+    }
+    img {
+      width: 16px;
+      height: 16px;
+      object-fit: cover;
     }
   }
 }

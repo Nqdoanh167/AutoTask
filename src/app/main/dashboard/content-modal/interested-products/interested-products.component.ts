@@ -224,10 +224,6 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   }
 
   handleChangeTypeProduct($event: any, productType: ETypeProduct) {
-    const arrayTo = this.formGroup.value?.products;
-    const indexFormTo = arrayTo?.findIndex(
-      (el: any) => el.type === productType,
-    );
     const isCheck = !this.activeProductTypes.includes(productType);
     if (isCheck) {
       this.activeProductTypes.push(productType);
@@ -259,14 +255,12 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
 
   getListProduct(isInit: boolean = false, isSearching: boolean = false) {
     this.products.loading = true;
-    let oldData: any = [];
     const ids: string[] = [];
     const query = {
       ...this.products.paramsQuery,
       ...(isInit && ids.length && {ids: ids}),
     };
     if (isSearching) {
-      oldData = [...this.products.rows];
       this.products.rows = [];
     }
 
