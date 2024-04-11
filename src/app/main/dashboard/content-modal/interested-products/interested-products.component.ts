@@ -60,7 +60,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       page: 1,
       limit: 100,
       sort: '-createdAt',
-      isParent: false,
+      isProduct: true,
     },
     isAllowLoadMore: false,
   };
@@ -326,7 +326,6 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       });
   }
   getListCombo(isInit: boolean = false, isSearching: boolean = false) {
-    console.trace('getListCombo');
     if (isInit) this.firstCallRemaining.combo = false;
     this.combos.loading = true;
     let oldData: any = [];
