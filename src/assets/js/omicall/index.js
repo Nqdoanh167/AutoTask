@@ -70,7 +70,12 @@ function omicallInit(dataConfig) {
 }
 
 function omicallMakeCall(phoneNumber, hotline) {
-    const footerModalCall = document.getElementById('footer-modal-call');
-    footerModalCall.style.visibility = 'hidden';
-    omiSDK.makeCall(phoneNumber, hotline);
+    console.log('omicallMakeCall:', phoneNumber, hotline);
+    try {
+        const footerModalCall = document.getElementById('footer-modal-call');
+        footerModalCall.style.visibility = 'hidden';
+        omiSDK.makeCall(phoneNumber, hotline);
+    } catch (e) {
+        console.log(e)
+    }
 }
