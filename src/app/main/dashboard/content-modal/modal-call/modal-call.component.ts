@@ -378,16 +378,16 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     try {
       const {platformId, platform, phone, toPhone} = this.form.value;
       if (!platformId || !phone || !toPhone || !platform) return;
-      const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
-      const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
-      this.call = new StringeeCall(
-        this.stringeeClient,
-        modifiedPhone,
-        modifiedToPhone,
-        false,
-      );
       switch (platform) {
         case 'stringee':
+          const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
+          const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
+          this.call = new StringeeCall(
+            this.stringeeClient,
+            modifiedPhone,
+            modifiedToPhone,
+            false,
+          );
           this.settingCallEvents(this.call);
           this.call.makeCall((res: any) => {
             console.log('make call callback: ', res);
