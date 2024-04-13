@@ -820,10 +820,23 @@
                                   !result.resultId)
                             }"
                             min="1"
-                            type="text"
+                            type="number"
                             mask="00000000"
                             [allowNegativeNumbers]="false"
                           />
+                          <!--                          <app-input-mask-->
+                          <!--                            id="from"-->
+                          <!--                            [isQuantity]="true"-->
+                          <!--                            [value]="nextAction.delayValue || 0"-->
+                          <!--                            (changeValue)="nextAction.delayValue = $event"-->
+                          <!--                            [class]="-->
+                          <!--                              submitted &&-->
+                          <!--                              ((result.resultId && !nextAction.delayValue) ||-->
+                          <!--                                !result.resultId)-->
+                          <!--                                ? 'is-invalid'-->
+                          <!--                                : ''-->
+                          <!--                            "-->
+                          <!--                          ></app-input-mask>-->
                         </div>
                       </div>
                     </div>
