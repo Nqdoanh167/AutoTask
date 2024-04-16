@@ -633,33 +633,33 @@
                               </ng-select>
                             </div>
                           </div>
-                          <div class="col-2">
-                            <ng-select
-                              [ngClass]="{
-                                'is-invalid':
-                                  submitted &&
-                                  ((result.resultId &&
-                                    nextAction.type === undefined) ||
-                                    !result.resultId)
-                              }"
-                              [placeholder]="'Chọn loại'"
-                              (scrollToEnd)="handleLoadMore('action')"
-                              [(ngModel)]="nextAction.type"
-                              [clearable]="false"
-                              class="dropdown-auto-width"
-                              id="typeAction-{{ nextActionIndex }}-{{
-                                resultIndex
-                              }}"
-                              appendTo="body"
-                            >
-                              <ng-option [value]="EChainNextActType.AUTO">
-                                Tự động
-                              </ng-option>
-                              <ng-option [value]="EChainNextActType.MANUAL">
-                                Thủ công
-                              </ng-option>
-                            </ng-select>
-                          </div>
+                          <!--                          <div class="col-2">-->
+                          <!--                            <ng-select-->
+                          <!--                              [ngClass]="{-->
+                          <!--                                'is-invalid':-->
+                          <!--                                  submitted &&-->
+                          <!--                                  ((result.resultId &&-->
+                          <!--                                    nextAction.type === undefined) ||-->
+                          <!--                                    !result.resultId)-->
+                          <!--                              }"-->
+                          <!--                              [placeholder]="'Chọn loại'"-->
+                          <!--                              (scrollToEnd)="handleLoadMore('action')"-->
+                          <!--                              [(ngModel)]="nextAction.type"-->
+                          <!--                              [clearable]="false"-->
+                          <!--                              class="dropdown-auto-width"-->
+                          <!--                              id="typeAction-{{ nextActionIndex }}-{{-->
+                          <!--                                resultIndex-->
+                          <!--                              }}"-->
+                          <!--                              appendTo="body"-->
+                          <!--                            >-->
+                          <!--                              <ng-option [value]="EChainNextActType.AUTO">-->
+                          <!--                                Tự động-->
+                          <!--                              </ng-option>-->
+                          <!--                              <ng-option [value]="EChainNextActType.MANUAL">-->
+                          <!--                                Thủ công-->
+                          <!--                              </ng-option>-->
+                          <!--                            </ng-select>-->
+                          <!--                          </div>-->
                         </div>
                         <div
                           class="button-more-option d-flex justify-content-center align-items-center"

@@ -461,7 +461,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
   newNextAction() {
     return {
-      type: undefined,
+      type: EChainNextActType.AUTO,
       delayType: undefined,
       delayValue: undefined,
       moveToAction: {
