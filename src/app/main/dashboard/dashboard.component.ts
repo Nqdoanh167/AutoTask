@@ -38,6 +38,8 @@ import {AuthService} from '@app/services/api/auth.service';
 import {EScreens, IViewModeDto} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
+import {ModalAssignCounselorComponent} from './content-modal/multiple-action/modal-assign-counselor/modal-assign-counselor.component';
+import {environment} from 'src/environments/environment';
 
 @Component({
   selector: 'app-task',
@@ -46,7 +48,17 @@ import {ToastrService} from 'ngx-toastr';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject();
-
+  public currentBiz: string = '';
+  public multipleAction = [
+    {
+      label: 'Gán nhân viên phụ trách',
+      value: 'ASSIGN_COUNSELOR',
+    },
+    {
+      label: 'Bỏ nhân viên phụ trách',
+      value: 'REMOVE_COUNSELOR',
+    },
+  ];
   public configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
@@ -208,6 +220,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.dataSource.rows = this.runTimer();
     });
   protected readonly EScreens = EScreens;
+  public taskChecked: string[] = [];
+  public headerCheckboxState: boolean[] = [];
   constructor(
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
@@ -222,6 +236,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         if (biz) {
+          this.currentBiz = biz.alias || '';
           this.configFilters[5].options = biz?.users?.map((user) => ({
             label: user.name,
             value: user.id,
@@ -241,7 +256,64 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getAction();
     this.handleActiveViewMode();
   }
+  showModalMultipleAction(action: any) {
+    if (action.value === 'ASSIGN_COUNSELOR') {
+      const modalRef = this.modalService.show(ModalAssignCounselorComponent, {
+        class: 'modal-dialog-centered',
+      });
+      modalRef.content?.assignCounselor.subscribe((counselorId) => {
+        if (counselorId) {
+          this.toastrService.success('Gán nhân viên phụ trách thành công');
+        }
+      });
+    } else if (action.value === 'REMOVE_COUNSELOR') {
+      const title = 'Bỏ gán nhân viên phụ trách';
+      const description = `Bạn sắp xóa nhân viên phụ trách, hành động này không thể hoàn tác.`;
+      const okText = 'Đồng ý';
 
+      const modalContent: IModalConfirmContent = {
+        title,
+        description,
+        okText,
+        type: 'warning',
+        modalType: 'advance',
+      };
+
+      this.modalConfirmService.openModal(
+        modalContent,
+        'remove-assign-counselor',
+      );
+    }
+  }
+  stateChecked(item: ITask, event: any): void {
+    const checked = event.target.checked;
+    if (checked) {
+      this.taskChecked.push(item.id);
+    } else {
+      this.taskChecked = this.taskChecked.filter((id) => id !== item.id);
+    }
+
+    this.headerCheckboxState[this.dataSource.paramsQuery.page] =
+      this.dataSource.rows.every((tId) => this.taskChecked.includes(tId.id));
+  }
+  toggleAllRows(event: any): void {
+    const checked = event.target.checked;
+
+    this.headerCheckboxState[this.dataSource.paramsQuery.page] = checked;
+
+    this.dataSource.rows.forEach((row) => {
+      if (checked) {
+        if (!this.taskChecked.includes(row.id)) {
+          this.taskChecked.push(row.id);
+        }
+      } else {
+        const index = this.taskChecked.indexOf(row.id);
+        if (index > -1) {
+          this.taskChecked.splice(index, 1);
+        }
+      }
+    });
+  }
   handleActiveViewMode() {
     try {
       this.autoTaskService.currentActiveViewMode
@@ -494,7 +566,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     this.getDataSource();
   }
-
+  handleViewCreatedOrder(item: ITask) {
+    let url = `${environment.urlDomain}/${this.currentBiz}/sale-center/?sourceId=${item.id}`;
+    window.open(url, '_blank');
+  }
+  onRemoveAssignCounselor(value: any) {
+    this.toastrService.success('Bỏ gán nhân viên phụ trách thành công');
+    // this.autoTaskService.task
+    //   .update(value.id, {counselorId: null})
+    //   .pipe()
+    //   .subscribe({
+    //     next: (res) => {
+    //       if (res.status === 200) {
+    //         this.commonService.handleResSuccess('update');
+    //         this.getDataSource();
+    //       } else {
+    //         this.commonService.handleResErr(res);
+    //       }
+    //     },
+    //     error: (err) => this.commonService.handleErr(err),
+    //   });
+  }
   onDelete(value: any) {
     this.autoTaskService.task
       .delete(value.id)

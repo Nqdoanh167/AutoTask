@@ -288,6 +288,7 @@ export interface ITaskCartDto {
 }
 
 export interface ITask {
+  checked?: boolean;
   id: string;
   name: string;
   leadDeal?: ILeadDealDto;
