@@ -622,6 +622,18 @@ ng-select.select-search-icon {
       @extend .custom-scrollbar;
     }
   }
+  &.filter-advance-popover-tab {
+    .popover-body {
+      width: 450px;
+    }
+    .ng-select.ng-select-multiple
+    .ng-select-container
+    .ng-value-container
+    .ng-value {
+      white-space: pre-wrap;
+    }
+  }
+
 }
 
 // Card body

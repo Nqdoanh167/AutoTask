@@ -1,19 +1,31 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
 import {
+  EBotherAdvanceBasicFilter,
   ETypeButton,
   ETypeFilter,
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
 import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {ObjectAny} from '@app/types/viewmodels';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {Subject, filter, takeUntil} from 'rxjs';
 
 @Component({
   selector: 'app-filter-top-table',
   standalone: true,
   imports: [
     CommonModule,
+    PopoverModule,
     CustomInputSearchComponent,
     CustomSelectSearchComponent,
   ],
@@ -28,10 +40,38 @@ export class FilterTopTableComponent {
 
   @Input() configFilters: IFilterTopTable[] = [];
   @Input() configButtons: IFilterTopButton[] = [];
+  configFilterAdvance: IFilterTopTable[] = [];
+  configFilterBasic: IFilterTopTable[] = [];
+  onSearchingAdvance: string[] = [];
+  private destroy$ = new Subject();
 
   protected readonly ETypeFilter = ETypeFilter;
   protected readonly ETypeButton = ETypeButton;
-  constructor() {}
+  constructor(private readonly autoTaskService: AutoTaskService) {
+    this.autoTaskService.currentActiveViewMode
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((currentActiveViewMode) => {
+        this.onSearchingAdvance = [];
+        Object.keys(currentActiveViewMode?.options || {}).forEach(
+          (key: any) => {
+            if (this.configFilterAdvance.some((cA) => cA.name === key)) {
+              this.onSearchingAdvance.push(key);
+            }
+          },
+        );
+      });
+  }
+  ngOnInit() {
+    this.configFilterAdvance = this.configFilters.filter(
+      (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
+    );
+    this.configFilterBasic = this.configFilters.filter(
+      (item) => item.botherType !== EBotherAdvanceBasicFilter.ADVANCE,
+    );
+  }
+  handleOpenPopover(event: any) {
+    // this.filteredTabs = this.tabs;
+  }
   onSearch(term: string, name: string = 'search') {
     this.searchEvent.emit({term, name});
   }
@@ -39,8 +79,31 @@ export class FilterTopTableComponent {
   onSelectValue(value?: string, name: string = 'select') {
     this.selectEvent.emit({value, name});
   }
+  handleSearchingView(value: any, name: string) {
+    if (!value || !value?.length) {
+      this.onSearchingAdvance = this.onSearchingAdvance.filter(
+        (item) => item !== name,
+      );
+    } else {
+      this.onSearchingAdvance.indexOf(name) === -1
+        ? this.onSearchingAdvance.push(name)
+        : null;
+    }
+  }
+  onSearchAdvance(term: string, name: string = 'search') {
+    this.handleSearchingView(term, name);
+    this.searchEvent.emit({term, name});
+  }
 
+  onSelectValueAdvance(value?: string, name: string = 'select') {
+    this.handleSearchingView(value, name);
+    this.selectEvent.emit({value, name});
+  }
   onClick(name: string) {
     this.clickButtonEvent.emit(name);
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 }

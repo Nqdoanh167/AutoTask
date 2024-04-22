@@ -78,7 +78,8 @@
                 <td class="column-action-chain">
                   <div class="list-chain d-flex flex-column gap-2">
                     <ng-container *ngIf="item?.taskChains?.length">
-                      <div *ngFor="let taskChain of item?.taskChains" class="chain-item" [class.item-lock]="taskChain.status === ETaskChainType.CLOSED">
+                      <div *ngFor="let taskChain of item?.taskChains" class="chain-item"
+                        [class.item-lock]="taskChain.status === ETaskChainType.CLOSED">
                         <div class="lock" tooltipHtml="Chuỗi đã đóng">
                           <img src="./assets/images/icon/grey-lock.svg" alt="" />
                         </div>

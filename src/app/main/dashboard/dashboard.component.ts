@@ -8,6 +8,7 @@ import {
   takeUntil,
 } from 'rxjs';
 import {
+  EBotherAdvanceBasicFilter,
   ETypeButton,
   ETypeFilter,
   IFilterTopButton,
@@ -105,6 +106,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       searchable: true,
       multiple: true,
       onSearch: (event: any) => this.handleSearchActChain(event),
+      botherType: EBotherAdvanceBasicFilter.ADVANCE
+
     },
     {
       type: ETypeFilter.SELECT,
@@ -116,6 +119,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearable: true,
       searchable: true,
       multiple: true,
+      botherType: EBotherAdvanceBasicFilter.ADVANCE
+
     },
     {
       type: ETypeFilter.SELECT,
@@ -127,6 +132,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearable: true,
       searchable: true,
       multiple: true,
+      botherType: EBotherAdvanceBasicFilter.ADVANCE
+
     },
     {
       type: ETypeFilter.SELECT,
@@ -137,6 +144,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       bindValue: 'value',
       clearable: true,
       searchable: true,
+      botherType: EBotherAdvanceBasicFilter.ADVANCE
     },
     {
       type: ETypeFilter.SELECT,

@@ -2,6 +2,10 @@ export enum ETypeFilter {
   SEARCH = 'search',
   SELECT = 'select',
 }
+export enum EBotherAdvanceBasicFilter {
+  BASIC = 'basic',
+  ADVANCE = 'advance',
+}
 export enum ETypeButton {
   PRIMARY = 'primary',
   DEFAULT = 'default',
@@ -20,6 +24,7 @@ export interface IFilterTopTable {
   searchable?: boolean;
   bindLabel?: string;
   bindValue?: string;
+  botherType?: EBotherAdvanceBasicFilter;
   isCreatable?: boolean;
   className?: string;
   minWidth?: string;
