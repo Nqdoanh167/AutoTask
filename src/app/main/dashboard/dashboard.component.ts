@@ -27,6 +27,7 @@ import {calculateTime} from '@app/utils/common';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
 import {
   EActionStates,
+  ETaskChainType,
   IAction,
   IActResult,
   IChainAct,
@@ -49,6 +50,7 @@ import {environment} from 'src/environments/environment';
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject();
   public currentBiz: string = '';
+  protected readonly ETaskChainType = ETaskChainType;
   public multipleAction = [
     {
       label: 'Gán nhân viên phụ trách',
@@ -214,11 +216,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   public currentActiveViewMode?: IViewModeDto;
 
-  public dataSource$ = interval(10000)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      this.dataSource.rows = this.runTimer();
-    });
+  // public dataSource$ = interval(10000)
+  //   .pipe(takeUntil(this.destroy$))
+  //   .subscribe(() => {
+  //     this.dataSource.rows = this.runTimer();
+  //   });
   protected readonly EScreens = EScreens;
   public taskChecked: string[] = [];
   public headerCheckboxState: boolean[] = [];
@@ -710,7 +712,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.dataSource$.unsubscribe();
     this.destroy$.next(true);
     this.destroy$.complete();
   }
