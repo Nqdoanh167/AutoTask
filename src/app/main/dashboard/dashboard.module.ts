@@ -30,6 +30,7 @@ import {ModalCallComponent} from './content-modal/modal-call/modal-call.componen
 import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
 import {ViewModeTabComponent} from '@share/common/view-mode-tab/view-mode-tab.component';
 import { ModalAssignCounselorComponent } from './content-modal/multiple-action/modal-assign-counselor/modal-assign-counselor.component';
+import { OrderableTableModule } from '@app/share/orderable-table/orderable-table.module';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,7 @@ import { ModalAssignCounselorComponent } from './content-modal/multiple-action/m
   imports: [
     CommonModule,
     DashboardRoutingModule,
-    
+    OrderableTableModule,
     CustomPaginationComponent,
     FilterTopTableComponent,
     ModalConfirmComponent,

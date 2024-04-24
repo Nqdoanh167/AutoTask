@@ -1,7 +1,7 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, Customer, Segment} from 'src/app/types/viewmodels';
+import {EntityResult, Customer, Segment, CustomerTag} from 'src/app/types/viewmodels';
 import {BehaviorSubject, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
@@ -15,6 +15,7 @@ export class CustomerService extends BaseApiService implements OnDestroy {
 
   api = {
     customer: '',
+    tag: 'tag',
     segment: 'segments',
   };
   private defaultParams: any = {};
@@ -44,6 +45,15 @@ export class CustomerService extends BaseApiService implements OnDestroy {
     this.destroy.next(true);
     this.destroy.complete();
   }
+  tag = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<CustomerTag[]>>(
+        this.createUrl([this.api.tag]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+  };
   customer = {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<Customer[]>>(

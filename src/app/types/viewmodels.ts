@@ -105,7 +105,14 @@ export interface Image {
   urls?: string[];
   loading?: boolean;
 }
-
+export interface ITag {
+  id?: string;
+  name: string;
+  slug?: string;
+  bgColor?: string;
+  createdBy?: Partial<AccountPublic>;
+  updatedBy?: Partial<AccountPublic>;
+}
 export interface User {
   id: string;
   name: string;
@@ -544,8 +551,17 @@ export interface Customer {
   ward: string;
   street: string;
   address: string;
+  tags: CustomerTag[];
   createdAt: Date;
   updatedAt: Date;
+}
+export interface CustomerTag {
+  bizId?: string;
+  bgColor?: string;
+  createdAt?: string;
+  name?: string;
+  updatedAt?: string;
+  id: string;
 }
 export interface Segment {
   id: string;
@@ -779,9 +795,7 @@ export enum ETypeAppointment {
   APPOINTMENT = 'APPOINTMENT',
 }
 export interface IDataColumns {
-  columnEventGlobal: IColumns[];
-  columnRenderCode: IColumns[];
-  columnCoupon: IColumns[];
+  columnDashboard: IColumns[];
 }
 export interface IColumns {
   name: string;
@@ -1393,6 +1407,7 @@ export interface ISidebar {
 
 export enum EModule {
   TABLE = 'table',
+  DASHBOARD = 'dashboard',
   CONFIG = 'config',
   SETTING = 'setting',
 }

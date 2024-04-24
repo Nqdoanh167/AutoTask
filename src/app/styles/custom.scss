@@ -480,6 +480,8 @@ ng-select.custom-input-multiple-round {
 
 ng-select.custom-input-tag {
   .ng-select-container {
+    background: unset !important;
+    box-shadow: none !important;
     .ng-value-container {
       .ng-value {
         background-color: unset !important;
@@ -490,8 +492,6 @@ ng-select.custom-input-tag {
           &:hover {
             background-color: #dedede !important;
           }
-
-          display: none !important;
         }
 
         &:hover {
@@ -708,6 +708,21 @@ progressbar.custom-progress {
 
 // table
 .table-responsive {
+  .col-resizable th::after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    right: 0;
+    bottom: 15px;
+    width: 2px; /* Adjust the handle width as needed */
+    cursor: col-resize;
+    background: transparent;
+    z-index: 1;
+  }
+
+  .col-resizable th:hover::after {
+    background-color: #f0f0f0;
+  }
   &.thin-table {
     table {
       th {

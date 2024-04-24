@@ -3,7 +3,13 @@
     <app-custom-modal (hideModal)="hideModal()">
       <ng-container modalTitle>Gán nhân viên phụ trách</ng-container>
       <ng-container modalBody>
+        <div class="mb-3">
+          Gán nhân viên phụ trách cho tất cả những Task đã được chọn. Task đã có nhân viên đó sẽ không bị ảnh hưởng
+        </div>
         <div class="mb-2">
+          <label for="assign-counselor" class="form-control-label">
+            Nhân viên phụ trách cần gán <span class="text-danger">*</span>
+          </label>
           <ng-select [items]="biz.users" formControlName="counselorId" appearance="outline" appendTo=".modal"
             bindLabel="name" bindValue="id" placeholder="Vui lòng chọn 1 nhân viên phụ trách" [multiple]="false">
             <ng-template ng-option-tmp ng-label-tmp let-item="item">

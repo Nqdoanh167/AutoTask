@@ -6,6 +6,7 @@ import {PermissionComponent} from './permission/permission.component';
 import {EmployeeComponent} from '@main/setting/employee/employee.component';
 import {BranchComponent} from '@main/setting/branch/branch.component';
 import {SourceComponent} from '@main/setting/source/source.component';
+import { TagComponent } from './tag/tag.component';
 
 const routes: Routes = [
   {
@@ -28,6 +29,10 @@ const routes: Routes = [
       {
         path: 'permission',
         component: PermissionComponent,
+      },
+      {
+        path: 'tag',
+        component: TagComponent,
       },
       {
         path: 'branch',

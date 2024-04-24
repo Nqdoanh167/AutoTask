@@ -1,0 +1,30 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.table-responsive {
+  @include mixins.calculateSize('max-height', '100vh', '150px');
+  .columns-action {
+    width: 10%;
+  }
+  .column-index {
+    width: 2%;
+  }
+
+  .column-source {
+    width: 80%;
+  }
+
+  .form-add-tag  {
+    border: none;
+  }
+
+  .input-name {
+    flex: 3;
+  }
+  .input-color {
+    flex: 1;
+    border: none;
+    height: 40px;
+    border-radius: 6px;
+  }
+}

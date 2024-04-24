@@ -85,6 +85,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       email: null,
       address: null,
       street: null,
+      tags: null,
       ward: null,
       wardCode: null,
       district: null,
@@ -224,7 +225,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       this.formTaskChains.at(chainIndex).get('taskChainResults')
     )) as FormArray;
   }
-
+ 
   formNextSteps(chainIndex: number, taskChainResultIndex: number) {
     return (<FormArray>(
       this.formTaskChainResults(chainIndex)

@@ -15,6 +15,7 @@ import {
   IFilterTopTable,
 } from '@app/types/common';
 import {
+  IColumns,
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
@@ -42,6 +43,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {ModalAssignCounselorComponent} from './content-modal/multiple-action/modal-assign-counselor/modal-assign-counselor.component';
 import {environment} from 'src/environments/environment';
+import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
+import {listColumnsDashboardDefault} from '@app/variable';
 
 @Component({
   selector: 'app-task',
@@ -106,8 +109,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       searchable: true,
       multiple: true,
       onSearch: (event: any) => this.handleSearchActChain(event),
-      botherType: EBotherAdvanceBasicFilter.ADVANCE
-
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
       type: ETypeFilter.SELECT,
@@ -119,8 +121,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearable: true,
       searchable: true,
       multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE
-
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
       type: ETypeFilter.SELECT,
@@ -132,8 +133,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearable: true,
       searchable: true,
       multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE
-
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
       type: ETypeFilter.SELECT,
@@ -144,7 +144,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       bindValue: 'value',
       clearable: true,
       searchable: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
       type: ETypeFilter.SELECT,
@@ -232,6 +232,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   protected readonly EScreens = EScreens;
   public taskChecked: string[] = [];
   public headerCheckboxState: boolean[] = [];
+
+  private startX: number = 0;
+  private startWidth: number = 0;
+  private resizing: boolean = false;
+  private resizingColumn: HTMLElement | null = null;
+  public dataColumnsShow!: IColumns[];
+  public sort: any = {
+    updatedAt: 0,
+    createdAt: 0,
+  };
   constructor(
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
@@ -258,6 +268,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.handleUpdate(undefined, q['id']);
       }
     });
+    const typeColumn = 'columnDashboard';
+    const defaultColumn = listColumnsDashboardDefault;
+    const dataColumns = JSON.parse(localStorage.getItem(typeColumn) as string);
+    if (
+      !dataColumns ||
+      !dataColumns.length ||
+      typeof dataColumns[0] !== 'object'
+    ) {
+      localStorage.setItem(typeColumn, JSON.stringify(defaultColumn));
+    }
+    this.dataColumnsShow = dataColumns || defaultColumn;
   }
 
   ngOnInit() {
@@ -278,7 +299,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
     } else if (action.value === 'REMOVE_COUNSELOR') {
       const title = 'Bỏ gán nhân viên phụ trách';
-      const description = `Bạn sắp xóa nhân viên phụ trách, hành động này không thể hoàn tác.`;
+      const description = `Loại bỏ nhân viên phụ trách ra khỏi  tất cả những Task đã được chọn. Task không có nhân viên phụ trách sẽ không bị ảnh hưởng.`;
       const okText = 'Đồng ý';
 
       const modalContent: IModalConfirmContent = {
@@ -399,7 +420,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     return data;
   }
-
+  changeSort(type: string) {
+    if (this.sort[type] == 0) {
+      this.sort[type] = 1;
+    } else if (this.sort[type] == 1) {
+      this.sort[type] = -1;
+    } else if (this.sort[type] == -1) {
+      this.sort[type] = 0;
+    }
+    this.getDataSource();
+  }
   getDataSource(isReset?: boolean) {
     let params = {...this.dataSource.paramsQuery};
     if (isReset) {
@@ -580,6 +610,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     let url = `${environment.urlDomain}/${this.currentBiz}/sale-center/?sourceId=${item.id}`;
     window.open(url, '_blank');
   }
+  handleViewCustomer(item: ITask) {
+    let url = `${environment.urlDomain}/${this.currentBiz}/customers/${item.leadDeal?.id}`;
+    window.open(url, '_blank');
+  }
   onRemoveAssignCounselor(value: any) {
     this.toastrService.success('Bỏ gán nhân viên phụ trách thành công');
     // this.autoTaskService.task
@@ -596,6 +630,44 @@ export class DashboardComponent implements OnInit, OnDestroy {
     //     },
     //     error: (err) => this.commonService.handleErr(err),
     //   });
+  }
+  startResizing(event: MouseEvent) {
+    const header = event.currentTarget as HTMLElement;
+    this.startX = event.pageX;
+    this.startWidth = header.offsetWidth;
+    this.resizing = true;
+    this.resizingColumn = header;
+
+    document.addEventListener('mousemove', this.handleMouseMove);
+    document.addEventListener('mouseup', this.handleMouseUp);
+  }
+
+  handleMouseMove = (event: MouseEvent) => {
+    if (this.resizing && this.resizingColumn) {
+      const newWidth = this.startWidth + event.pageX - this.startX;
+      this.resizingColumn.style.width = newWidth + 'px';
+    }
+  };
+
+  handleMouseUp = () => {
+    this.resizing = false;
+    this.resizingColumn = null;
+    document.removeEventListener('mousemove', this.handleMouseMove);
+    document.removeEventListener('mouseup', this.handleMouseUp);
+  };
+  showModalOrderableTable() {
+    const modalRef = this.modalService.show(OrderableTableComponent, {
+      initialState: {
+        typeColumn: 'columnDashboard',
+      },
+      class: 'modal-opacity-4 modal-lg modal-dialog-centered modal-default',
+    });
+
+    modalRef.content?.triggerColumnChange
+      .pipe()
+      .subscribe((sequenceColumns: IColumns[]) => {
+        this.dataColumnsShow = [...sequenceColumns];
+      });
   }
   onDelete(value: any) {
     this.autoTaskService.task
