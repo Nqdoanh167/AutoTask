@@ -29,9 +29,11 @@ import {
 } from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
+  EntityPagination,
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
+  ITag,
   User,
 } from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
@@ -67,6 +69,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   @Input() taskId?: string;
   @Output() updateSuccess = new EventEmitter();
 
+  public tags: EntityPagination<ITag> = {
+    rows: [],
+    loading: false,
+  };
+  public selectTag: boolean = false;
   public submittedModal = {
     addTaskChain: false,
   };
@@ -93,6 +100,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       province: null,
       provinceCode: null,
     }),
+    tags: [null],
     taskChains: this.fb.array([]),
     cart: this.fb.group({
       products: null,
@@ -225,7 +233,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       this.formTaskChains.at(chainIndex).get('taskChainResults')
     )) as FormArray;
   }
- 
+  findTag(tagId: string) {
+    return this.tags.rows.find((tag) => tag.id === tagId);
+  }
   formNextSteps(chainIndex: number, taskChainResultIndex: number) {
     return (<FormArray>(
       this.formTaskChainResults(chainIndex)
@@ -255,8 +265,22 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.getAction();
     this.getBlock();
     this.getSource();
+    this.getTag();
   }
-
+  getTag() {
+    this.autoTaskService.tag.get().subscribe({
+      next: (res) => {
+        if (res && res.status === 200) {
+          this.tags.rows = res.data;
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+      error: (err) => {
+        this.commonService.handleErr(err);
+      },
+    });
+  }
   getDetailTask(isRefresh = false) {
     if (!this.sourceData?.id && !this.taskId) return;
     this.loading.getDetail = true;

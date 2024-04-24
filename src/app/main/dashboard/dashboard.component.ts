@@ -19,6 +19,7 @@ import {
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
+  ITag,
 } from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {CommonService} from '@app/services/common/common.service';
@@ -125,6 +126,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       type: ETypeFilter.SELECT,
+      name: 'tags',
+      placeholder: 'Tag',
+      options: [],
+      bindLabel: 'name',
+      bindValue: 'id',
+      clearable: true,
+      searchable: true,
+      multiple: true,
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
+    },
+    {
+      type: ETypeFilter.SELECT,
       name: 'resultIds',
       placeholder: 'Kết quả',
       options: [],
@@ -221,6 +234,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     isAllowLoadMore: false,
   };
+  public tags: ICommonDataLazy<ITag, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+    },
+    isAllowLoadMore: false,
+  };
 
   public currentActiveViewMode?: IViewModeDto;
 
@@ -257,7 +279,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe((biz) => {
         if (biz) {
           this.currentBiz = biz.alias || '';
-          this.configFilters[5].options = biz?.users?.map((user) => ({
+          this.configFilters[6].options = biz?.users?.map((user) => ({
             label: user.name,
             value: user.id,
           }));
@@ -285,6 +307,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getActionChain();
     this.getResult();
     this.getAction();
+    this.getTag();
     this.handleActiveViewMode();
   }
   showModalMultipleAction(action: any) {
@@ -498,7 +521,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.results.rows.concat(res.data),
               'id',
             );
-            this.configFilters[4].options = this.results.rows;
+            this.configFilters[5].options = this.results.rows;
             this.results.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -540,6 +563,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.actions.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+  getTag() {
+    this.tags.loading = true;
+    this.autoTaskService.tag
+      .get(this.tags.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.tags.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.tags.rows = uniqBy(
+              this.tags.rows.concat(res.data),
+              'id',
+            );
+            this.configFilters[4].options = this.tags.rows;
+            this.tags.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.tags.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.tags.isAllowLoadMore = false;
           this.commonService.handleErr(err);
         },
       });

@@ -4,6 +4,7 @@ import {
   Combo,
   CourseEvent,
   Customer,
+  ITag,
   PrepaidCard,
   Product,
 } from '@app/types/viewmodels';
@@ -292,6 +293,7 @@ export interface ITask {
   id: string;
   name: string;
   leadDeal?: ILeadDealDto;
+  tags?: ITag[];
   cart: ITaskCartDto;
   orderIds: string[];
   counselor: AccountPublic;

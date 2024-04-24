@@ -2,32 +2,14 @@
   <form [formGroup]="updateForm">
     <app-custom-modal>
       <ng-container modalTitle>
-        <input
-          required
-          class="input__title basic-input-title input-medium"
-          formControlName="name"
-          [placeholder]="'Nhập tên task'"
-          [ngClass]="{
+        <input required class="input__title basic-input-title input-medium" formControlName="name"
+          [placeholder]="'Nhập tên task'" [ngClass]="{
             'is-invalid': submitted && f['name'].errors
-          }"
-        />
+          }" />
       </ng-container>
       <ng-container modalBody>
         <div class="content-wrapper position-relative">
-          <button
-            *ngIf="sourceData?.id"
-            (click)="getDetailTask(true)"
-            class="btn button-medium button-outline button-header d-flex align-items-center"
-            type="button"
-            [disabled]="loading.getDetail"
-          >
-            Làm mới
-            <i *ngIf="!loading.getDetail" class="fa-solid fa-rotate ms-2"></i>
-            <i
-              *ngIf="loading.getDetail"
-              class="fas fa-spinner fa-spin ms-2"
-            ></i>
-          </button>
+
           <tabset class="custom-tab-basic non-border">
             <tab>
               <ng-template tabHeading>
@@ -37,64 +19,62 @@
               </ng-template>
               <div class="mt-3 content-tab custom-scrollbar">
                 <div class="group-content mt-2">
-                  <div
-                    class="d-flex justify-content-between align-items-center"
-                  >
-                    <span class="headline">Chuỗi hành động hiện tại</span>
+                  <div class="d-flex justify-content-between align-items-center gap-4 mb-3">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                      <div class="fw-bold me-1">TAG</div>
+                      <div *ngIf="!selectTag">
+                        <div class="tag-item me-2" *ngFor="let tagId of updateForm.value.tags"
+                          [ngClass]="{nonBack: !findTag(tagId)?.bgColor}"
+                          [ngStyle]="{background: findTag(tagId)?.bgColor}">
+                          {{ findTag(tagId)?.name }}
+                        </div>
+                        <span class="cursor-pointer ms-3">
+                          <i class="fa-solid fa-tags" (click)="selectTag = !selectTag"></i>
+                        </span>
+                      </div>
+                      <ng-select *ngIf="selectTag" class="custom-input-tag" formControlName="tags"
+                        placeholder="Chọn tag..." (blur)="selectTag = !selectTag" [items]="tags.rows" appendTo=".modal"
+                        appearance="outline" [multiple]="true" [closeOnSelect]="false" bindValue="id">
+                        <ng-template ng-option-tmp let-item="item">
+                          <div class="tag-item" [ngClass]="{nonBack: !item.bgColor}"
+                            [ngStyle]="{background: item.bgColor}">
+                            {{ item.name }}
+                          </div>
+                        </ng-template>
+                        <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                          <span class="ng-value-icon" (click)="clear(item)">×</span>
+                          <div class="tag-item" [ngClass]="{nonBack: !item.bgColor}"
+                            [ngStyle]="{background: item.bgColor}">
+                            {{ item.name }}
+                          </div>
+                        </ng-template>
+                      </ng-select>
+                    </div>
                     <div class="d-flex align-items-center">
                       <div class="fw-500 me-2">Nguồn dữ liệu:</div>
-                      <ng-select
-                        [style.width]="'200px'"
-                        [clearable]="false"
-                        [searchable]="true"
-                        [placeholder]="'Chọn nguồn...'"
-                        [ngClass]="{
+                      <ng-select [style.width]="'200px'" [clearable]="false" [searchable]="true"
+                        [placeholder]="'Chọn nguồn...'" [ngClass]="{
                           'is-invalid': submitted && f['sourceId'].errors
-                        }"
-                        formControlName="sourceId"
-                        appearance="outline"
-                        class="ng-select-custom dropdown-auto-width input-medium me-2"
-                        id="sourceId"
-                        appendTo=".modal-update-task"
-                      >
-                        <ng-option
-                          *ngFor="let item of sources.rows"
-                          [value]="item.id"
-                          [disabled]="!item.isActive"
-                        >
+                        }" formControlName="sourceId" appearance="outline"
+                        class="ng-select-custom dropdown-auto-width input-medium me-2" id="sourceId"
+                        appendTo=".modal-update-task">
+                        <ng-option *ngFor="let item of sources.rows" [value]="item.id" [disabled]="!item.isActive">
                           <div>
                             {{ item.name }}
                           </div>
                         </ng-option>
                       </ng-select>
                       <div class="fw-500 me-2">Nhân viên phụ trách:</div>
-                      <ng-select
-                        [style.width]="'200px'"
-                        [clearable]="false"
-                        formControlName="counselorId"
-                        [searchable]="true"
-                        [placeholder]="'Chọn nhân viên...'"
-                        [ngClass]="{
+                      <ng-select [style.width]="'200px'" [clearable]="false" formControlName="counselorId"
+                        [searchable]="true" [placeholder]="'Chọn nhân viên...'" [ngClass]="{
                           'is-invalid': submitted && f['counselorId'].errors
-                        }"
-                        appearance="outline"
-                        class="ng-select-custom dropdown-auto-width input-medium"
-                        id="userIds"
-                        appendTo=".modal-update-task"
-                      >
-                        <ng-option
-                          *ngFor="let item of listBizUsers"
-                          [value]="item.id"
-                          [disabled]="!item.isActive"
-                        >
+                        }" appearance="outline" class="ng-select-custom dropdown-auto-width input-medium" id="userIds"
+                        appendTo=".modal-update-task" class="me-2">
+                        <ng-option *ngFor="let item of listBizUsers" [value]="item.id" [disabled]="!item.isActive">
                           <div class="d-flex align-items-center">
                             <div>
-                              <img
-                                class="avatar me-2"
-                                src="{{ item.picture }}"
-                                fallback="assets/images/avatar.svg"
-                                alt=""
-                              />
+                              <img class="avatar me-2" src="{{ item.picture }}" fallback="assets/images/avatar.svg"
+                                alt="" />
                             </div>
                             <div>
                               {{ item.name }}
@@ -102,136 +82,88 @@
                           </div>
                         </ng-option>
                       </ng-select>
+                      <div class="action-reload">
+                        <button *ngIf="sourceData?.id" (click)="getDetailTask(true)"
+                          class="btn button-medium button-outline" type="button" [disabled]="loading.getDetail">
+                          <i *ngIf="!loading.getDetail" class="fa-solid fa-rotate"></i>
+                          <i *ngIf="loading.getDetail" class="fas fa-spinner fa-spin"></i>
+                        </button>
+                      </div>
+
                     </div>
                   </div>
                   <div class="list-chain mt-2">
-                    <accordion
-                      formArrayName="taskChains"
-                      class="accordion-white"
-                      [isAnimated]="true"
-                    >
-                      <div
-                        *ngIf="!formTaskChains.controls?.length"
-                        class="text-center mt-3 mb-3"
-                      >
+                    <span class="headline mb-2">Chuỗi hành động hiện tại</span>
+                    <accordion formArrayName="taskChains" class="accordion-white" [isAnimated]="true">
+                      <div *ngIf="!formTaskChains.controls?.length" class="text-center mt-3 mb-3">
                         <div>Không có dữ liệu chuỗi hành động</div>
                       </div>
-                      <accordion-group
-                        [formGroupName]="chainIndex"
-                        [isOpen]="
+                      <accordion-group [formGroupName]="chainIndex" [isOpen]="
                           !!sourceData?.id &&
                           taskChain.value.status !== ETaskChainType.CLOSED
-                        "
-                        [isDisabled]="!sourceData?.id"
-                        *ngFor="
+                        " [isDisabled]="!sourceData?.id" *ngFor="
                           let taskChain of formTaskChains.controls;
                           let chainIndex = index
-                        "
-                        #myGroup
-                      >
-                        <div
-                          accordion-heading
-                          class="header-item d-flex justify-content-between align-items-center"
-                        >
+                        " #myGroup>
+                        <div accordion-heading class="header-item d-flex justify-content-between align-items-center">
                           <span class="fw-500">
-                            <i
-                              *ngIf="!!sourceData?.id"
-                              class="me-2 fas"
-                              [ngClass]="{
+                            <i *ngIf="!!sourceData?.id" class="me-2 fas" [ngClass]="{
                                 'fa-chevron-down': myGroup?.isOpen,
                                 'fa-chevron-up': !myGroup?.isOpen
-                              }"
-                            ></i>
+                              }"></i>
                             {{ taskChain.value.name || '-' }}
                           </span>
                           <div class="d-flex gap-2 align-items-center">
-                            <button
-                              *ngIf="
+                            <button *ngIf="
                                 !!sourceData?.id &&
                                 taskChain.value.status !== ETaskChainType.CLOSED
-                              "
-                              (click)="
+                              " (click)="
                                 handleCloseChain($event, taskChain.value)
-                              "
-                              type="button"
-                              class="btn btn button-medium button-sub-primary secondary-color d-flex align-items-center"
-                            >
+                              " type="button"
+                              class="btn btn button-medium button-sub-primary secondary-color d-flex align-items-center">
                               Đóng chuỗi
-                              <img
-                                class="ms-1"
-                                src="./assets/images/icon/blue-unlock.svg"
-                                alt=""
-                              />
+                              <img class="ms-1" src="./assets/images/icon/blue-unlock.svg" alt="" />
                             </button>
-                            <button
-                              *ngIf="
+                            <button *ngIf="
                                 taskChain.value.status === ETaskChainType.CLOSED
-                              "
-                              type="button"
-                              class="btn btn button-medium d-flex align-items-center"
-                            >
+                              " type="button" class="btn btn button-medium d-flex align-items-center">
                               Đã đóng
-                              <img
-                                class="ms-1"
-                                src="./assets/images/icon/grey-lock.svg"
-                                alt=""
-                              />
+                              <img class="ms-1" src="./assets/images/icon/grey-lock.svg" alt="" />
                             </button>
-                            <button
-                              (click)="
+                            <button (click)="
                                 handleDeleteChain(
                                   $event,
                                   taskChain.value,
                                   chainIndex
                                 )
-                              "
-                              type="button"
-                              class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
-                            >
+                              " type="button"
+                              class="btn btn button-medium button-sub-primary red-color d-flex align-items-center">
                               Xóa
-                              <img
-                                class="ms-1"
-                                src="./assets/images/icon/red-x.svg"
-                                alt=""
-                              />
+                              <img class="ms-1" src="./assets/images/icon/red-x.svg" alt="" />
                             </button>
                           </div>
                         </div>
-                        <app-task-chain-item
-                          [submitted]="submitted"
-                          [formItem]="taskChain"
-                          [results]="results.rows"
-                          [blocks]="blocks.rows"
-                          [actionChains]="actionChains.rows"
-                          [loadingData]="{
+                        <app-task-chain-item [submitted]="submitted" [formItem]="taskChain" [results]="results.rows"
+                          [blocks]="blocks.rows" [actionChains]="actionChains.rows" [loadingData]="{
                             results: results.loading,
                             blocks: blocks.loading,
                             actionChains: actionChains.loading
-                          }"
-                          [staticDataChainItem]="
+                          }" [staticDataChainItem]="
                             sourceData?.taskChains?.[chainIndex]
-                          "
-                          (updateNextStepEvent)="
+                          " (updateNextStepEvent)="
                             handleUpdateNextStep(
                               $event,
                               taskChain.value,
                               chainIndex
                             )
-                          "
-                          (updateTaskChainEvent)="
+                          " (updateTaskChainEvent)="
                             getDetailTask(); updateSuccess.emit()
-                          "
-                          (cancelUpdateTaskChainEvent)="patchForm(sourceData)"
-                          (callEvent)="handleCall()"
-                        ></app-task-chain-item>
+                          " (cancelUpdateTaskChainEvent)="patchForm(sourceData)"
+                          (callEvent)="handleCall()"></app-task-chain-item>
                       </accordion-group>
                     </accordion>
                     <div class="mt-2">
-                      <button
-                        (click)="handleAddTaskChain()"
-                        type="button"
-                        class="btn button-medium text-link"
-                      >
+                      <button (click)="handleAddTaskChain()" type="button" class="btn button-medium text-link">
                         <i class="fa-solid fa-plus me-1"></i>
                         Thêm chuỗi hành động
                       </button>
@@ -241,57 +173,40 @@
                 <div class="group-content mt-2">
                   <div class="headline">
                     Thông tin khách hàng
-                    <i
-                      class="fa-regular fa-circle-question ms-1"
+                    <i class="fa-regular fa-circle-question ms-1"
                       tooltip="Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới"
-                      placement="right"
-                    ></i>
+                      placement="right"></i>
                   </div>
-                  <app-customer-info
-                    [submitted]="submitted"
-                    [formGroup]="formLeadDeal"
-                  ></app-customer-info>
+                  <app-customer-info [submitted]="submitted" [formGroup]="formLeadDeal"></app-customer-info>
                 </div>
                 <div class="group-content mt-3">
-                  <div
-                    class="d-flex justify-content-between align-items-center"
-                  >
+                  <div class="d-flex justify-content-between align-items-center">
                     <div class="headline">
                       Sản phẩm quan tâm
-                      <i
-                        class="fa-regular fa-circle-question ms-1"
+                      <i class="fa-regular fa-circle-question ms-1"
                         tooltip="Những sản phẩm và dịch vụ mà khách quan tâm có thể được tạo thành đơn hàng bằng cách sử dụng nút Tạo đơn hàng cho Task ở kế bên."
-                        placement="right"
-                      ></i>
+                        placement="right"></i>
                     </div>
                     <div class="d-flex gap-2">
-                      <button
-                        *ngIf="
+                      <button *ngIf="
                           !!sourceData?.id &&
                           sourceData?.orderIds &&
                           sourceData!.orderIds.length
-                        "
-                        (click)="handleViewCreatedOrder()"
+                        " (click)="handleViewCreatedOrder()"
                         class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
-                        type="button"
-                      >
+                        type="button">
                         <i class="fa-solid fa-cart-shopping me-2"></i>
                         Xem đơn hàng đã tạo
                       </button>
-                      <button
-                        *ngIf="!!sourceData?.id"
-                        (click)="handleCreateTaskOrder()"
+                      <button *ngIf="!!sourceData?.id" (click)="handleCreateTaskOrder()"
                         class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
-                        type="button"
-                      >
+                        type="button">
                         <i class="fa-solid fa-plus me-2"></i>
                         Tạo đơn hàng cho Task
                       </button>
                     </div>
                   </div>
-                  <app-interested-products
-                    [formGroup]="updateForm"
-                  ></app-interested-products>
+                  <app-interested-products [formGroup]="updateForm"></app-interested-products>
                 </div>
               </div>
             </tab>
@@ -306,36 +221,18 @@
           </tabset>
         </div>
       </ng-container>
-      <div
-        modalFooter
-        class="d-flex justify-content-between align-items-center"
-      >
+      <div modalFooter class="d-flex justify-content-between align-items-center">
         <div>
-          <button
-            *ngIf="sourceData"
-            (click)="handleDeleteTask()"
-            class="btn button-delete-modal"
-            type="button"
-          >
+          <button *ngIf="sourceData" (click)="handleDeleteTask()" class="btn button-delete-modal" type="button">
             Xóa
           </button>
         </div>
         <div class="d-flex gap-2">
-          <button
-            (click)="hideModal()"
-            class="btn button-default-modal"
-            type="button"
-          >
+          <button (click)="hideModal()" class="btn button-default-modal" type="button">
             Hủy
           </button>
-          <custom-button-loading
-            [isLoading]="loading.submit"
-            [isDisabled]="loading.submit"
-            (action)="onSubmit()"
-            [type]="'button'"
-            [textButton]="'Xác nhận'"
-            [className]="'button-submit-modal'"
-          ></custom-button-loading>
+          <custom-button-loading [isLoading]="loading.submit" [isDisabled]="loading.submit" (action)="onSubmit()"
+            [type]="'button'" [textButton]="'Xác nhận'" [className]="'button-submit-modal'"></custom-button-loading>
         </div>
       </div>
     </app-custom-modal>
@@ -346,12 +243,8 @@
   <div class="modal-default modal-add-chain-action">
     <div class="modal-header">
       <h4 class="modal-title pull-left">Thêm chuỗi hành động vào Task</h4>
-      <button
-        type="button"
-        class="btn-close close pull-right"
-        aria-label="Close"
-        (click)="addTaskChainModalRef?.hide()"
-      >
+      <button type="button" class="btn-close close pull-right" aria-label="Close"
+        (click)="addTaskChainModalRef?.hide()">
         <span aria-hidden="true" class="visually-hidden">&times;</span>
       </button>
     </div>
@@ -362,34 +255,20 @@
             Chuỗi hành động
             <span class="required">*</span>
           </label>
-          <ng-select
-            [clearable]="false"
-            [placeholder]="'Chọn Chuỗi'"
-            [multiple]="true"
-            [ngClass]="{
+          <ng-select [clearable]="false" [placeholder]="'Chọn Chuỗi'" [multiple]="true" [ngClass]="{
               'is-invalid':
                 submittedModal.addTaskChain &&
                 fAddChainModal['addChainActIds'].errors
-            }"
-            formControlName="addChainActIds"
-            class="dropdown-auto-width custom-input-multiple"
-            id="action-modal"
-            appendTo=".modal-add-chain-action"
-          >
-            <ng-option
-              [value]="option.id"
-              *ngFor="let option of actionChains.rows"
-            >
+            }" formControlName="addChainActIds" class="dropdown-auto-width custom-input-multiple" id="action-modal"
+            appendTo=".modal-add-chain-action">
+            <ng-option [value]="option.id" *ngFor="let option of actionChains.rows">
               {{ option.name }}
             </ng-option>
           </ng-select>
-          <div
-            *ngIf="
+          <div *ngIf="
               submittedModal.addTaskChain &&
               fAddChainModal['addChainActIds'].errors
-            "
-            class="invalid-feedback"
-          >
+            " class="invalid-feedback">
             <div *ngIf="fAddChainModal['addChainActIds'].errors?.['required']">
               Chuỗi không được bỏ trống
             </div>
@@ -399,29 +278,17 @@
     </div>
     <div class="modal-footer d-flex justify-content-end">
       <div class="d-flex">
-        <button
-          (click)="addTaskChainModalRef?.hide()"
-          class="btn button-default-modal mx-2"
-          type="button"
-        >
+        <button (click)="addTaskChainModalRef?.hide()" class="btn button-default-modal mx-2" type="button">
           Hủy
         </button>
-        <custom-button-loading
-          [isLoading]="loading.addTaskChain"
-          (action)="onAddTaskChain()"
-          [type]="'button'"
-          [textButton]="'Lưu'"
-          [className]="'button-fill button-submit-modal button-medium'"
-        ></custom-button-loading>
+        <custom-button-loading [isLoading]="loading.addTaskChain" (action)="onAddTaskChain()" [type]="'button'"
+          [textButton]="'Lưu'" [className]="'button-fill button-submit-modal button-medium'"></custom-button-loading>
       </div>
     </div>
   </div>
 </ng-template>
 
-<bs-modal-backdrop
-  *ngIf="isOpenBackDrop"
-  class="modal-backdrop fade in show"
-></bs-modal-backdrop>
+<bs-modal-backdrop *ngIf="isOpenBackDrop" class="modal-backdrop fade in show"></bs-modal-backdrop>
 
 <modal-confirm [key]="'closeChain'" (confirmEvent)="onCloseChain($event)">
   <div class="state-warning d-flex gap-2" childContent>

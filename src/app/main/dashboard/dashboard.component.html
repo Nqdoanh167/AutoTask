@@ -85,6 +85,14 @@
                         <div class="fw-500 cursor-pointer" (click)="handleUpdate(item)">
                           {{ item.name || '-' }}
                         </div>
+                        <div class="d-flex flex-row flex-wrap gap-1">
+                          <div *ngFor="let tag of item.tags">
+                            <span class="text-capitalize me-2 tag-item" [ngClass]="{nonBack: !tag.bgColor}"
+                              [ngStyle]="{background: tag.bgColor}">
+                              <span>{{ tag.name }}</span>
+                            </span>
+                          </div>
+                        </div>
                       </td>
                     </ng-container>
                     <ng-container *ngSwitchCase="'taskChains'">
