@@ -51,8 +51,6 @@ export class ModalAssignCounselorComponent implements OnInit, OnDestroy {
     });
   }
   onSubmit() {
-    console.log(this.form.value);
-
     if (this.form.valid) {
       this.assignCounselor.emit(this.form.value);
       this.modalRef.hide();

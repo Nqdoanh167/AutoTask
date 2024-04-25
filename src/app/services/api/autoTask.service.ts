@@ -14,6 +14,7 @@ import {
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
+  IBulkTaskDto,
   IChainAct,
   IChainResult,
   IManyUpdateChainActResultDto,
@@ -232,6 +233,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     updateTaskChain: (id: string, body: IAddTaskChainDto) =>
       this.httpClient.put<EntityResult<ITask>>(
         this.createUrl([this.api.task, id, 'update-chain']),
+        body,
+      ),
+    bulkUpdate: (body: IBulkTaskDto) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, 'bulk-update']),
         body,
       ),
     delete: (id: string) =>

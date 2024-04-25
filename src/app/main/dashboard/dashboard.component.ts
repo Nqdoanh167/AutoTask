@@ -9,6 +9,7 @@ import {
 } from 'rxjs';
 import {
   EBotherAdvanceBasicFilter,
+  ETypeBulkUpdate,
   ETypeButton,
   ETypeFilter,
   IFilterTopButton,
@@ -59,11 +60,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public multipleAction = [
     {
       label: 'Gán nhân viên phụ trách',
-      value: 'ASSIGN_COUNSELOR',
+      value: ETypeBulkUpdate.ASSIGN_COUNSELOR,
     },
     {
       label: 'Bỏ nhân viên phụ trách',
-      value: 'REMOVE_COUNSELOR',
+      value: ETypeBulkUpdate.REMOVE_COUNSELOR,
     },
   ];
   public configFilters: IFilterTopTable[] = [
@@ -311,16 +312,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.handleActiveViewMode();
   }
   showModalMultipleAction(action: any) {
-    if (action.value === 'ASSIGN_COUNSELOR') {
+    if (action.value === ETypeBulkUpdate.ASSIGN_COUNSELOR) {
       const modalRef = this.modalService.show(ModalAssignCounselorComponent, {
         class: 'modal-dialog-centered',
       });
-      modalRef.content?.assignCounselor.subscribe((counselorId) => {
-        if (counselorId) {
-          this.toastrService.success('Gán nhân viên phụ trách thành công');
+      modalRef.content?.assignCounselor.subscribe((data) => {
+        if (data) {
+          const payload = {
+            taskIds: this.taskChecked,
+            counselorId: data.counselorId,
+          };
+          this.autoTaskService.task.bulkUpdate(payload).subscribe({
+            next: (res) => {
+              if (res.status === 200) {
+                this.toastrService.success(
+                  'Gán nhân viên phụ trách thành công',
+                );
+                this.getDataSource();
+              } else {
+                this.commonService.handleResErr(res);
+              }
+            },
+            error: (err) => this.commonService.handleErr(err),
+          });
         }
       });
-    } else if (action.value === 'REMOVE_COUNSELOR') {
+    } else if (action.value === ETypeBulkUpdate.REMOVE_COUNSELOR) {
       const title = 'Bỏ gán nhân viên phụ trách';
       const description = `Loại bỏ nhân viên phụ trách ra khỏi  tất cả những Task đã được chọn. Task không có nhân viên phụ trách sẽ không bị ảnh hưởng.`;
       const okText = 'Đồng ý';
@@ -578,10 +595,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.tags.rows = uniqBy(
-              this.tags.rows.concat(res.data),
-              'id',
-            );
+            this.tags.rows = uniqBy(this.tags.rows.concat(res.data), 'id');
             this.configFilters[4].options = this.tags.rows;
             this.tags.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
@@ -668,21 +682,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
     window.open(url, '_blank');
   }
   onRemoveAssignCounselor(value: any) {
-    this.toastrService.success('Bỏ gán nhân viên phụ trách thành công');
-    // this.autoTaskService.task
-    //   .update(value.id, {counselorId: null})
-    //   .pipe()
-    //   .subscribe({
-    //     next: (res) => {
-    //       if (res.status === 200) {
-    //         this.commonService.handleResSuccess('update');
-    //         this.getDataSource();
-    //       } else {
-    //         this.commonService.handleResErr(res);
-    //       }
-    //     },
-    //     error: (err) => this.commonService.handleErr(err),
-    //   });
+    const payload = {
+      taskIds: this.taskChecked,
+      counselorId: null,
+    };
+    this.autoTaskService.task
+      .bulkUpdate(payload)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toastrService.success('Bỏ gán nhân viên phụ trách thành công');
+            this.getDataSource();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
   }
   startResizing(event: MouseEvent) {
     const header = event.currentTarget as HTMLElement;

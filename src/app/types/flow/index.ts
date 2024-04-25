@@ -312,6 +312,10 @@ export interface ITaskDto {
   counselorId: string;
   addChainActIds?: string[];
 }
+export interface IBulkTaskDto {
+  taskIds: string[];
+  counselorId: string | null;
+}
 
 export interface IAddTaskChainDto {
   addChainActIds: string[];

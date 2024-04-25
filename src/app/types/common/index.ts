@@ -2,6 +2,10 @@ export enum ETypeFilter {
   SEARCH = 'search',
   SELECT = 'select',
 }
+export enum ETypeBulkUpdate {
+  REMOVE_COUNSELOR = 'REMOVE_COUNSELOR',
+  ASSIGN_COUNSELOR = 'ASSIGN_COUNSELOR',
+}
 export enum EBotherAdvanceBasicFilter {
   BASIC = 'basic',
   ADVANCE = 'advance',
