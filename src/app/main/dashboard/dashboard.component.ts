@@ -19,6 +19,7 @@ import {
   IColumns,
   ICommonDataLazy,
   ICommonDataSource,
+  IDateRange,
   IQueryBase,
   ITag,
 } from '@app/types/viewmodels';
@@ -38,7 +39,7 @@ import {
   ITask,
 } from '@app/types/flow';
 import moment from 'moment/moment';
-import {cloneDeep, isEqual, uniqBy} from 'lodash';
+import {cloneDeep, isEmpty, isEqual, uniqBy} from 'lodash';
 import {AuthService} from '@app/services/api/auth.service';
 import {EScreens, IViewModeDto} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -177,6 +178,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
       bindLabel: 'label',
       bindValue: 'value',
       clearable: true,
+    },
+    {
+      type: ETypeFilter.DATE,
+      name: 'createdAt',
+      placeholder: 'Ngày tạo',
+      subType: 'range',
+      clearable: true,
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
+    },
+    {
+      type: ETypeFilter.DATE,
+      name: 'updatedAt',
+      placeholder: 'Ngày sửa',
+      subType: 'range',
+      clearable: true,
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
   ];
   public configButtons: IFilterTopButton[] = [
@@ -400,7 +417,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
           );
           // loop configFilters and update by value of object options in currentActiveViewMode
           this.configFilters.forEach((configFilter) => {
-            if (configFilter.type === ETypeFilter.SELECT) {
+            if (
+              configFilter.type === ETypeFilter.SELECT ||
+              configFilter.type === ETypeFilter.DATE
+            ) {
               configFilter.value =
                 currentActiveViewMode?.options[configFilter.name!];
               if (configFilter.name === 'sort') {
@@ -475,6 +495,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (isReset) {
       params.page = 1;
     }
+    Object.keys(this.sort).forEach((key) => {
+      if (this.sort[key] !== 0) {
+        let sortAll = params.sort?.split(',') || [];
+        sortAll.push(this.sort[key] === 1 ? `${key}` : `-${key}`);
+        params.sort = sortAll.join(',');
+      }
+    });
     this.dataSource.loading = true;
     this.autoTaskService.task
       .get(params)
@@ -834,6 +861,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.handleViewModeChange(true);
         }
       }
+      this.getDataSource(true);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  onPickerDateFilter(data: {value?: IDateRange | Date; name: string}) {
+    try {
+      const {value, name} = data;
+      const filter = this.dataSource.paramsQuery?.filter || '{}';
+      let obj = JSON.parse(filter);
+      const hValue = value as IDateRange;
+      if (name === name) {
+        if (hValue?.fromDate && hValue?.toDate) {
+          obj[name] = [
+            moment(hValue.fromDate).startOf('day').toISOString(),
+            moment(hValue.toDate).endOf('day').toISOString(),
+          ];
+        } else {
+          delete obj[name];
+        }
+
+        this.dataSource.paramsQuery.filter = JSON.stringify(obj);
+        if (
+          !isEqual(obj?.[name], this.currentActiveViewMode?.options?.[name])
+        ) {
+          this.handleViewModeChange(true);
+          return;
+        }
+      }
+
       this.getDataSource(true);
     } catch (e) {
       console.log(e);

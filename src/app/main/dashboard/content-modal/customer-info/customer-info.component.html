@@ -43,7 +43,7 @@
                 </div>
               </div>
               <div *ngIf="selectTag">
-                <ng-select class="custom-input-tag" formControlName="tags" [items]="tags.rows" appendTo=".modal"
+                <ng-select class="custom-input-tag" placeholder="Chọn tags..." formControlName="tags" [items]="tags.rows" appendTo=".modal"
                   (blur)="selectTag = !selectTag" appearance="outline" [multiple]="true" [closeOnSelect]="false"
                   [compareWith]="compareFunction">
                   <ng-template ng-option-tmp let-item="item">

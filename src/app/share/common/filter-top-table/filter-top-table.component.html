@@ -5,15 +5,21 @@
         <custom-input-search [className]="'input-medium'" (searchEvent)="onSearch($event, filter.name)"
           [placeholder]="filter.placeholder || 'Search...'"></custom-input-search>
       </ng-container>
+      <ng-container *ngIf="filter.type === ETypeFilter.DATE">
+        <custom-date-picker [className]="'input-medium'" [typePicker]="filter.subType"
+          (searchEvent)="onPickerDate($event, filter.name)"   [placeholder]="filter.placeholder || 'Picker Date'"
+          [showClearButton]="true"></custom-date-picker>
+      </ng-container>
       <ng-container *ngIf="filter.type === ETypeFilter.SELECT">
-        <custom-select-search [value]="filter?.value" [minWidth]="filter?.minWidth" [className]="''"
+        <custom-select-search [value]="filter?.value"  [minWidth]="filter?.minWidth" [className]="''"
           [selectData]="filter" (selectEvent)="onSelectValue($event, filter.name)"
           (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"></custom-select-search>
       </ng-container>
     </ng-container>
     <ng-container *ngIf="configFilterAdvance.length">
       <button class="btn btn-light border text-secondary" type="button" (click)="handleOpenPopover($event)"
-        [popover]="popTemplate " [outsideClick]="false" [placement]="'bottom left'" containerClass="filter-advance-popover-tab custom-popover-tab">
+        [popover]="popTemplate " [outsideClick]="false" [placement]="'bottom left'"
+        containerClass="filter-advance-popover-tab custom-popover-tab">
         <i class="fa-solid fa-sliders"></i>
         Lọc nâng cao
         <span *ngIf="onSearchingAdvance.length" class="ms-1 bg-danger px-1 rounded-circle text-white fw-normal fs-7">
@@ -27,8 +33,18 @@
                 {{filter.placeholder}}
               </div>
               <div class="col-8">
-                <custom-input-search [className]="'input-medium'" (searchEvent)="onSearchAdvance($event, filter.name)"
+                <custom-input-search [className]="''" (searchEvent)="onSearchAdvance($event, filter.name)"
                   [placeholder]="filter.placeholder || 'Search...'"></custom-input-search>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="filter.type === ETypeFilter.DATE">
+              <div class="fw-normal col-4">
+                {{filter.placeholder}}
+              </div>
+              <div class="col-8">
+                <custom-date-picker [className]="'input-medium'" [typePicker]="filter.subType" [defaultRangeValue]="filter.value"
+                  (changeDateEmmit)="onPickerDateAdvance($event, filter.name, filter.subType)" [placeholder]="filter.placeholder || 'Picker Date'"
+                  [showClearButton]="true"></custom-date-picker>
               </div>
             </ng-container>
             <ng-container *ngIf="filter.type === ETypeFilter.SELECT">

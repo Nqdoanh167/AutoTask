@@ -1,6 +1,7 @@
 export enum ETypeFilter {
   SEARCH = 'search',
   SELECT = 'select',
+  DATE = 'date',
 }
 export enum ETypeBulkUpdate {
   REMOVE_COUNSELOR = 'REMOVE_COUNSELOR',
@@ -33,8 +34,9 @@ export interface IFilterTopTable {
   className?: string;
   minWidth?: string;
   clearable?: boolean;
+  subType?: any;
   onSearch?: (event: any) => void;
-  value?: string | string[];
+  value?: string | string[] | any;
 }
 
 export type NameButton = 'reload' | 'add_new' | 'save' | string;

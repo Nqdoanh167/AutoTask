@@ -16,9 +16,11 @@ import {
 } from '@app/types/common';
 import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
 import {PopoverModule} from 'ngx-bootstrap/popover';
-import {ObjectAny} from '@app/types/viewmodels';
+import {IDateRange, ObjectAny} from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {Subject, filter, takeUntil} from 'rxjs';
+import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
+import {cloneDeep, isEmpty} from 'lodash';
 
 @Component({
   selector: 'app-filter-top-table',
@@ -28,11 +30,16 @@ import {Subject, filter, takeUntil} from 'rxjs';
     PopoverModule,
     CustomInputSearchComponent,
     CustomSelectSearchComponent,
+    CustomDatePickerComponent,
   ],
   templateUrl: './filter-top-table.component.html',
   styleUrls: ['./filter-top-table.component.scss'],
 })
 export class FilterTopTableComponent {
+  @Output() pickerDateEvent = new EventEmitter<{
+    value: IDateRange | Date;
+    name: string;
+  }>();
   @Output() searchEvent = new EventEmitter<{term: string; name: string}>();
   @Output() selectEvent = new EventEmitter<{value?: string; name: string}>();
   @Output() scrollToEndEvent = new EventEmitter<string>();
@@ -75,24 +82,46 @@ export class FilterTopTableComponent {
   onSearch(term: string, name: string = 'search') {
     this.searchEvent.emit({term, name});
   }
-
+  onPickerDate(value: any, name: string = 'date') {
+    this.pickerDateEvent.emit({value, name});
+  }
   onSelectValue(value?: string, name: string = 'select') {
     this.selectEvent.emit({value, name});
   }
   handleSearchingView(value: any, name: string) {
-    if (!value || !value?.length) {
-      this.onSearchingAdvance = this.onSearchingAdvance.filter(
-        (item) => item !== name,
-      );
-    } else {
-      this.onSearchingAdvance.indexOf(name) === -1
-        ? this.onSearchingAdvance.push(name)
-        : null;
-    }
+    // console.log(value, name);
+    // if (isEmpty(value)) {
+    //   this.onSearchingAdvance = this.onSearchingAdvance.filter(
+    //     (item) => item !== name,
+    //   );
+    // } else {
+    //   this.onSearchingAdvance.indexOf(name) === -1
+    //     ? this.onSearchingAdvance.push(name)
+    //     : null;
+    // }
+    // setTimeout(() => {
+    // console.log(this.onSearchingAdvance);
+    // }, 200);
   }
   onSearchAdvance(term: string, name: string = 'search') {
     this.handleSearchingView(term, name);
     this.searchEvent.emit({term, name});
+  }
+  onPickerDateAdvance(
+    value: IDateRange | Date,
+    name: string = 'date',
+    subType: string,
+  ) {
+    // const valueHandleView: any = cloneDeep(value);
+    // if (subType === 'range') {
+    //   if (!valueHandleView?.fromDate && !valueHandleView?.toDate) {
+    //     this.handleSearchingView(undefined, name);
+    //     this.pickerDateEvent.emit({value, name});
+    //     return;
+    //   }
+    // }
+    this.handleSearchingView(value, name);
+    this.pickerDateEvent.emit({value, name});
   }
 
   onSelectValueAdvance(value?: string, name: string = 'select') {

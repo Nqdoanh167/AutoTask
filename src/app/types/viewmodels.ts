@@ -1460,8 +1460,8 @@ export interface IQueryBase {
 }
 
 export interface IDateRange {
-  fromDate: Date;
-  toDate: Date;
+  fromDate?: Date;
+  toDate?: Date;
 }
 
 export interface IColumnStandard<T> {
