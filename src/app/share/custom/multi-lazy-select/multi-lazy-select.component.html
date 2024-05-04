@@ -1,0 +1,30 @@
+<ng-select
+  [ngClass]="{
+    'is-invalid': touched && !value
+  }"
+  class="dropdown-auto-width custom-input-multiple"
+  [searchable]="true"
+  [placeholder]="placeholder"
+  appearance="outline"
+  id="productIds"
+  labelForId="productIds"
+  [multiple]="true"
+  [clearSearchOnAdd]="true"
+  [closeOnSelect]="false"
+  [loading]="loading"
+  (scrollToEnd)="onLoadMore()"
+  [(ngModel)]="value"
+  [items]="items"
+  [virtualScroll]="true"
+  [typeahead]="input$"
+  #select
+>
+  <ng-template
+    ng-option-tmp
+    let-item="item"
+    let-index="index"
+    let-search="searchTerm"
+  >
+    <span>{{ item.name }}</span>
+  </ng-template>
+</ng-select>

@@ -1,0 +1,35 @@
+<ng-container>
+  <div>
+    <div
+      [ngClass]="{'is-invalid': error.fromTo}"
+      class="input-range-number d-flex w-100 px-2"
+    >
+      <div class="input-number d-flex align-items-center w-45">
+        <div>Từ:</div>
+        <app-input-mask
+          id="from"
+          [isQuantity]="true"
+          [value]="valueRangeNumber[0]"
+          (changeValue)="handleChangeValueRangeNumber($event, 0)"
+          (input)="handleChange($event, 0)"
+        ></app-input-mask>
+      </div>
+      <div class="icon w-15 d-flex justify-content-center align-items-center">
+        <i class="fa-solid fa-arrow-right-long px-2"></i>
+      </div>
+      <div class="input-number d-flex align-items-center w-45">
+        <div>Đến:</div>
+        <app-input-mask
+          id="to"
+          [isQuantity]="true"
+          [value]="valueRangeNumber[1]"
+          (changeValue)="handleChangeValueRangeNumber($event, 1)"
+          (input)="handleChange($event, 1)"
+        ></app-input-mask>
+      </div>
+    </div>
+    <div *ngIf="error.fromTo" class="non-form-invalid-feedback">
+      <div>Từ phải nhỏ hơn đến</div>
+    </div>
+  </div>
+</ng-container>

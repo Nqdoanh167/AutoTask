@@ -1,0 +1,184 @@
+<div class="rule-site">
+  <div class="card">
+    <div class="card-body">
+      <app-filter-top-table
+        [configFilters]="configFilters"
+        (searchEvent)="onSearch($event)"
+      ></app-filter-top-table>
+      <div class="table-responsive tableFixHead custom-scrollbar mt-3">
+        <table
+          class="table table-medium-head"
+          [class.table-none-border]="dataSource.rows.length"
+        >
+          <thead>
+            <tr>
+              <th class="columns-name">Hành động</th>
+              <th class="columns-result">Kết quả</th>
+              <th class="columns-next-action">Bước tiếp theo</th>
+            </tr>
+          </thead>
+          <tbody cdkDropList (cdkDropListDropped)="dropRow($event)">
+            <tr
+              class="text-center"
+              *ngIf="!dataSource.rows.length && !dataSource.loading"
+            >
+              <td colspan="12">
+                <div class="mt-5">Không có dữ liệu</div>
+              </td>
+            </tr>
+            <tr class="text-center" *ngIf="dataSource.loading">
+              <td colspan="12">
+                <div class="spinner-grow text-primary" role="status">
+                  <span class="visually-hidden">Loading</span>
+                </div>
+                <div>Loading</div>
+              </td>
+            </tr>
+            <ng-container *ngFor="let item of dataSource.rows; index as i">
+              <tr
+                cdkDrag
+                cdkDragLockAxis="y"
+                class="rootRow main-row"
+                [ngClass]="{
+                  isExpand: item?.isExpand,
+                  isCollapse: !item.isExpand
+                }"
+              >
+                <td class="main-row" colspan="1000">
+                  <div
+                    class="d-flex align-items-center justify-content-between title"
+                  >
+                    <div class="d-flex align-items-center">
+                      <button
+                        tooltip="Xem chi tiết"
+                        placement="top"
+                        class="btn btn-outline-none"
+                        type="button"
+                        (click)="
+                          handleExpandRow(item); item.isExpand = !item.isExpand
+                        "
+                      >
+                        <i
+                          class="fa-solid fa-chevron-right me-3 icon-expand"
+                        ></i>
+                      </button>
+                      <span class="cursor-pointer fw-500">
+                        {{ item.name || '-' }}
+                      </span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <div class="form-check form-switch mb-0">
+                        <input
+                          (change)="handleToggleAction($event, item.id)"
+                          checked="{{ item?.isActive ? 'checked' : null }}"
+                          class="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id=""
+                        />
+                      </div>
+                      <span
+                        [routerLink]="item.id"
+                        class="d-flex align-items-center btn-action-table"
+                      >
+                        <img src="./assets/images/icon/edit.svg" alt="" />
+                      </span>
+                      <span
+                        cdkDragHandle
+                        (click)="$event.preventDefault()"
+                        class="d-flex align-items-center btn-action-table"
+                      >
+                        <img src="./assets/images/icon/dragDrop.svg" alt="" />
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    class="child-item"
+                    *ngIf="item.isExpand && item.actionResults.length"
+                  >
+                    <table class="table table-none-border">
+                      <tbody>
+                        <ng-container
+                          *ngFor="
+                            let child of item.actionResults;
+                            let lastChild = last
+                          "
+                        >
+                          <tr class="item-row">
+                            <td class="columns-name">
+                              {{ child.action?.name || '-' }}
+                            </td>
+                            <td class="columns-result">
+                              <div
+                                [class.mt-2]="!firstResult"
+                                *ngFor="
+                                  let result of child.results;
+                                  let resultIndex = index;
+                                  let firstResult = first;
+                                  let lastResult = last
+                                "
+                              >
+                                <div>
+                                  {{ result.result?.name || '-' }}
+                                </div>
+                              </div>
+                            </td>
+                            <td class="columns-next-action">
+                              <div
+                                [class.mt-2]="!firstResult"
+                                *ngFor="
+                                  let result of child.results;
+                                  let resultIndex = index;
+                                  let firstResult = first;
+                                  let lastResult = last
+                                "
+                              >
+                                <div>
+                                  <span
+                                    *ngFor="
+                                      let nextAction of result['nextActions'];
+                                      let nextActionIndex = index;
+                                      let firstAction = first;
+                                      let lastAction = last
+                                    "
+                                  >
+                                    {{
+                                      nextAction.nextAction
+                                        ? renderNameType(nextAction.nextAction)
+                                        : '-'
+                                    }}
+                                    <span *ngIf="!lastAction">,&nbsp;</span>
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr *ngIf="!lastChild" class="padding-row">
+                            <td colspan="12"></td>
+                          </tr>
+                        </ng-container>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+                <!--                <div-->
+                <!--                  *cdkDragPreview-->
+                <!--                  matchSize="true"-->
+                <!--                  class="container dragdrop-placeholder"-->
+                <!--                >-->
+                <!--                  {{ item.name || '-' }}-->
+                <!--                </div>-->
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+      <custom-pagination
+        [selectedSize]="dataSource.paramsQuery!.limit!"
+        [currentPage]="dataSource.paramsQuery!.page!"
+        (changePageEvent)="pageChanged($event)"
+        [total]="dataSource.total"
+      ></custom-pagination>
+    </div>
+  </div>
+</div>

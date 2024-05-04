@@ -1,0 +1,113 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.input__title {
+  width: 500px;
+}
+
+.list-chain {
+  .chain-item {
+    border: 1px dashed #dadee5;
+    padding: vars.$padding-m;
+    border-radius: vars.$radius-s;
+  }
+  .chain-item + .chain-item {
+    margin-top: 10px;
+  }
+}
+.content-tab {
+  max-height: 640px;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.column-timer {
+  width: 10%;
+  .done-time {
+    color: vars.$green-500;
+    font-weight: 500;
+  }
+  .timer {
+    border-radius: 4px;
+    background-color: #ffffff;
+    margin: 2px 0;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    color: vars.$secondary-500;
+    &.editable {
+      border: 1px solid #e0e4ef;
+      padding: 5px 10px;
+    }
+  }
+}
+
+.columns-desc {
+  max-width: 150px;
+  width: 20%;
+  div {
+  }
+}
+
+.columns-action {
+  width: 5%;
+}
+
+.column-result {
+  width: 20%;
+  .data-result-reason {
+    .reason {
+      font-style: italic;
+    }
+  }
+}
+
+.column-take-action {
+  width: 15%;
+}
+
+.column-next-step {
+  .next-step-item {
+    padding: 5px 0;
+    &:hover {
+      .button-edit-next-step {
+        visibility: visible;
+      }
+    }
+    .button-edit-next-step {
+      cursor: pointer;
+      visibility: hidden;
+    }
+  }
+  &:hover {
+    .button-add-step-action {
+      visibility: visible;
+    }
+  }
+  .button-add-step-action {
+    visibility: hidden;
+    padding: 5px 0;
+  }
+
+  &.dontEdit {
+    .button-add-step-action {
+      display: none !important;
+    }
+    .button-edit-next-step {
+      display: none !important;
+    }
+  }
+}
+
+.button-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #dcdcdc;
+}

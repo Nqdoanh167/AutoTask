@@ -1,0 +1,342 @@
+<div class="dashboard-site">
+  <div class="card">
+    <div class="card-body">
+      <div class="content-site">
+        <app-view-mode-tab [key]="EScreens.DASHBOARD"></app-view-mode-tab>
+        <app-filter-top-table [configFilters]="configFilters" [configButtons]="configButtons"
+          (clickButtonEvent)="handleAction($event)" (searchEvent)="onSearch($event)"
+          (selectEvent)="onSelectFilter($event)"  (pickerDateEvent)="onPickerDateFilter($event)" (scrollToEndEvent)="handleLoadMoreData($event)"></app-filter-top-table>
+        <div class="table-responsive tableFixHead custom-scrollbar">
+          <table class="table col-resizable">
+            <thead>
+              <tr *ngIf="!taskChecked.length">
+                <th scope="col" style="width: 40px" class="column-checkbox">
+                  <label class="basic-checkbox standalone">
+                    <input type="checkbox" [checked]="headerCheckboxState[dataSource.paramsQuery.page]"
+                      (change)="toggleAllRows($event)" />
+                    <span class="checkmark"></span>
+                  </label>
+                </th>
+                <ng-container *ngFor="let columns of dataColumnsShow; index as i">
+                  <th (mousedown)="startResizing($event)">
+                    <i *ngIf="columns.showTooltip" class="fa fa-question-circle"
+                      [tooltipHtml]="columns.tooltip || ''"></i>
+                    {{ columns.name }}
+                    <span *ngIf="columns.fieldSort" class="caret-wrapper justify-content-center"
+                      (click)="changeSort(columns.fieldSort)">
+                      <i class="fa fa-caret-up asc" [ngClass]="{'text-primary': sort[columns.fieldSort] === 1}"></i>
+                      <i class="fa fa-caret-down desc" [ngClass]="{'text-primary': sort[columns.fieldSort] === -1}"></i>
+                    </span>
+                  </th>
+                </ng-container>
+                <th scope="col">
+                  <div class="btn button-cog-table text-center" (click)="showModalOrderableTable()">
+                    <img src="./assets/images/icon/table.svg" alt="">
+                  </div>
+                </th>
+              </tr>
+              <tr *ngIf="taskChecked.length">
+                <th scope="col" style="width: 40px" class="column-checkbox">
+                  <label class="basic-checkbox standalone">
+                    <input type="checkbox" [checked]="headerCheckboxState[dataSource.paramsQuery.page]"
+                      (change)="toggleAllRows($event)" />
+                    <span class="checkmark"></span>
+                  </label>
+                </th>
+                <th colspan="12">
+                  <div class="d-flex align-items-center gap-3"><span> Đã
+                      chọn {{taskChecked.length}} bản ghi </span>
+                    <ng-select appearance="outline" [clearable]="false" placeholder="Thao tác hàng loạt"
+                      style="width: 250px;" [items]="multipleAction" (change)="showModalMultipleAction($event)"
+                      appendto="body" class="ng-select ng-select-single">
+                    </ng-select>
+                  </div>
+                </th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="text-center" *ngIf="!dataSource.rows.length && !dataSource.loading">
+                <td colspan="12">
+                  <div>Không có dữ liệu</div>
+                </td>
+              </tr>
+              <tr class="text-center" *ngIf="dataSource.loading">
+                <td colspan="12">
+                  <div class="spinner-grow text-primary" role="status">
+                    <span class="visually-hidden">Loading</span>
+                  </div>
+                  <div>Loading</div>
+                </td>
+              </tr>
+              <tr *ngFor="let item of dataSource.rows; index as i">
+                <td>
+                  <label class="basic-checkbox">
+                    <input type="checkbox" [checked]="taskChecked.includes(item.id)"
+                      (change)="stateChecked(item, $event)" />
+                    <span class="checkmark"></span>
+                  </label>
+                </td>
+                <ng-container *ngFor="let columns of dataColumnsShow; index as i">
+                  <ng-container [ngSwitch]="columns.value">
+                    <ng-container *ngSwitchCase="'name'">
+
+                      <td>
+                        <div class="fw-500 cursor-pointer" (click)="handleUpdate(item)">
+                          {{ item.name || '-' }}
+                        </div>
+                        <div class="d-flex flex-row flex-wrap gap-1">
+                          <div *ngFor="let tag of item.tags">
+                            <span class="text-capitalize me-2 tag-item" [ngClass]="{nonBack: !tag.bgColor}"
+                              [ngStyle]="{background: tag.bgColor}">
+                              <span>{{ tag.name }}</span>
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'taskChains'">
+                      <td class="column-action-chain">
+                        <div class="list-chain d-flex flex-column gap-2">
+                          <ng-container *ngIf="item?.taskChains?.length">
+                            <div *ngFor="let taskChain of item?.taskChains" class="chain-item"
+                              [class.item-lock]="taskChain.status === ETaskChainType.CLOSED">
+                              <div class="lock" tooltipHtml="Chuỗi đã đóng">
+                                <img src="./assets/images/icon/grey-lock.svg" alt="" />
+                              </div>
+                              <div>
+                                <span class="fw-500">
+                                  {{ taskChain?.name || '-' }}
+                                </span>
+                              </div>
+                              <div class="list-act">
+                                <div *ngFor="
+                                    let taskChainResult of taskChain?.taskChainResults;
+                                    let resultIndex = index
+                                  " class="list-act-item">
+                                  <span>#{{ resultIndex + 1 }}</span>
+                                  <span>
+                                    -
+                                    <span *ngIf="!!taskChainResult?.executedDate" class="completed">
+                                      <i class="fa-solid fa-check"></i>
+                                    </span>
+                                    <span *ngIf="
+                                        !taskChainResult?.executedDate &&
+                                        taskChainResult?.deadlineDate
+                                      ">
+                                      <ng-container [ngTemplateOutlet]="timeLeft" [ngTemplateOutletContext]="{
+                                          dataTimeLeft: calculateTimeLeft(
+                                            taskChainResult.deadlineDate,
+                                            taskChain
+                                          )
+                                        }"></ng-container>
+                                      <ng-template #timeLeft let-dataTimeLeft="dataTimeLeft">
+                                        <span class="{{ dataTimeLeft?.typeOverDeadline }}">
+                                          <ng-container [ngSwitch]="
+                                              dataTimeLeft?.typeOverDeadline
+                                            ">
+                                            <span *ngSwitchCase="'over'">
+                                              <i class="fa-solid fa-triangle-exclamation" style="color: #ef6a6a"></i>
+                                            </span>
+                                            <span *ngSwitchCase="'notOver'">
+                                              <i class="fa-solid fa-stopwatch" style="color: #4277ff"></i>
+                                            </span>
+                                            <span *ngSwitchCase="'now'">
+                                              Ngay lập tức
+                                            </span>
+                                          </ng-container>
+                                          <span *ngIf="
+                                              dataTimeLeft.typeOverDeadline !== 'now'
+                                            ">
+                                            {{ dataTimeLeft.timeLeft }}
+                                          </span>
+                                        </span>
+                                      </ng-template>
+                                    </span>
+                                    -
+                                  </span>
+                                  <span>
+                                    <ng-container [ngSwitch]="taskChainResult?.action?.name">
+                                      <span *ngSwitchCase="'Call block automation'">
+                                        Gọi Block Automation
+                                      </span>
+                                      <span *ngSwitchCase="'Close chain'">
+                                        Đóng chuỗi
+                                      </span>
+                                      <span *ngSwitchDefault>
+                                        {{ taskChainResult?.action?.name }}
+                                      </span>
+                                    </ng-container>
+                                  </span>
+                                  <span *ngIf="!!taskChainResult.result?.name">
+                                    - {{ taskChainResult?.result?.name || '-' }}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </ng-container>
+                          <ng-container *ngIf="!item?.taskChains?.length">
+                            -
+                          </ng-container>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'leadDeal'">
+                      <td>
+                        <div class="d-flex flex-column" *ngIf="item.leadDeal">
+                          <span class="fw-500 text-link"  (click)="handleViewCustomer(item)">{{ item.leadDeal?.name || '-' }}</span>
+                          <span *ngIf="item.leadDeal?.phone">
+                            {{ item.leadDeal?.phone || '-' }}
+                          </span>
+                          <span *ngIf="item.leadDeal?.address">
+                            {{ item.leadDeal?.address || '-' }}
+                          </span>
+                        </div>
+                        <div class="d-flex flex-row flex-wrap gap-1">
+                          <div *ngFor="let tag of item.leadDeal?.tags">
+                            <span class="text-capitalize me-2 tag-item" [ngClass]="{nonBack: !tag.bgColor}"
+                              [ngStyle]="{background: tag.bgColor}">
+                              <span>{{ tag.name }}</span>
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'cart'">
+                      <td class="column-interested-product">
+                        <div class="list-product">
+                          <ng-container *ngFor="let product of item.cart?.products">
+                            <ng-container [ngTemplateOutlet]="templateProductItem" [ngTemplateOutletContext]="{
+                                product: product,
+                                type: 'Sản phẩm'
+                              }"></ng-container>
+                          </ng-container>
+                          <ng-container *ngFor="let product of item.cart?.combos">
+                            <ng-container [ngTemplateOutlet]="templateProductItem" [ngTemplateOutletContext]="{
+                                product: product,
+                                type: 'Combo'
+                              }"></ng-container>
+                          </ng-container>
+                          <ng-container *ngFor="let product of item.cart?.courseEvents">
+                            <ng-container [ngTemplateOutlet]="templateProductItem" [ngTemplateOutletContext]="{
+                                product: product,
+                                type: 'Khóa học - Sự kiện'
+                              }"></ng-container>
+                          </ng-container>
+                          <ng-container *ngFor="let product of item.cart?.beautyServices">
+                            <ng-container [ngTemplateOutlet]="templateProductItem" [ngTemplateOutletContext]="{
+                                product: product,
+                                type: 'Dịch vụ làm đẹp'
+                              }"></ng-container>
+                          </ng-container>
+                          <ng-container *ngFor="let product of item.cart?.prepaidCards">
+                            <ng-container [ngTemplateOutlet]="templateProductItem" [ngTemplateOutletContext]="{
+                                product: product,
+                                type: 'Thẻ trả trước'
+                              }"></ng-container>
+                          </ng-container>
+                          <ng-template #templateProductItem let-product="product" let-type="type">
+                            <div tooltip="{{ type }}" placement="top" class="product-item d-flex align-items-center">
+                              <img src="{{
+                                  product?.picture ||
+                                    'assets/images/default-product.png'
+                                }}" fallback="assets/images/avatar.svg" class="product-item-image me-2" />
+                              <div class="product-item-name">
+                                {{ product.name || '-' }}
+                              </div>
+                            </div>
+                          </ng-template>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'orderIds'">
+                      <td>
+                        <div class="d-flex flex-column" *ngIf="item.orderIds" (click)="handleViewCreatedOrder(item)">
+                          <span class="fw-500 text-nowrap text-link px-2">{{ item.orderIds?.length }} đơn hàng</span>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'counselor'">
+                      <td>
+                        <div class="d-flex" *ngIf="item.counselor">
+                          <img src="{{ item.counselor.picture }}" fallback="assets/images/avatar.svg"
+                            class="avatar me-2" />
+                          <div class="d-flex flex-column">
+                            <span class="fw-500">
+                              {{ item.counselor?.name || '-' }}
+                            </span>
+                            <span>{{ item.counselor?.email || '-' }}</span>
+                          </div>
+                        </div>
+                        <div *ngIf="!item.counselor">-</div>
+                      </td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'createdAt'">
+                      <td>
+                        {{ item.createdAt | timeView }}
+                      </td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'updatedAt'">
+                      <td>
+                        {{ item.updatedAt | timeView }}
+                      </td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'updatedBy'">
+                      <td>
+                        <div class="d-flex justify-content-start align-items-center">
+                          <img *ngIf="item.updatedBy?.picture" width="25" height="25" class="rounded-pill cover-fill"
+                            [src]="item.updatedBy?.picture" alt="">
+                          <div class="ms-2 text-secondary name">{{ item.updatedBy?.name }}</div>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'createdBy'">
+                      <td>
+                        <div class="d-flex justify-content-start align-items-center">
+                          <img *ngIf="item.createdBy?.picture" width="25" height="25" class="rounded-pill cover-fill"
+                            [src]="item.createdBy?.picture" alt="">
+                          <div class="ms-2 text-secondary name">{{ item.createdBy?.name }}</div>
+                        </div>
+                      </td>
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
+                <td class="columns-action">
+                  <div class="d-flex">
+                    <span (click)="handleUpdate(item)" class="d-flex align-items-center btn-action-table">
+                      <img src="./assets/images/icon/edit.svg" alt="" />
+                    </span>
+                    <span (click)="handleDeleteAction(item)" class="d-flex align-items-center btn-action-table">
+                      <img src="./assets/images/icon/remove.svg" alt="" />
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <custom-pagination [selectedSize]="dataSource.paramsQuery.limit" [currentPage]="dataSource.paramsQuery.page"
+          (changePageEvent)="pageChanged($event)" [total]="dataSource.total"></custom-pagination>
+
+        <modal-confirm [key]="'delete'" (confirmEvent)="onDelete($event)">
+          <div class="state-warning d-flex gap-2" childContent>
+            <div><i class="fa-regular fa-circle-question"></i></div>
+            <div>
+              Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng
+              dữ liệu của bản ghi cũng sẽ bị ảnh hưởng.
+            </div>
+          </div>
+        </modal-confirm>
+        <modal-confirm [key]="'remove-assign-counselor'" (confirmEvent)="onRemoveAssignCounselor($event)">
+          <div class="state-warning d-flex gap-2" childContent>
+            <div><i class="fa-regular fa-circle-question"></i></div>
+            <div>
+              Lưu ý: Sau khi bỏ, Task sẽ không có nhân viên phụ trách. 
+              Các hoạt động chăm sóc khách hàng có thể bị đình trệ
+            </div>
+          </div>
+        </modal-confirm>
+      </div>
+    </div>
+  </div>
+</div>

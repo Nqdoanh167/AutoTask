@@ -1,0 +1,50 @@
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {NotfoundComponent} from '@app/notfound/notfound.component';
+import {SettingComponent} from './setting.component';
+import {PermissionComponent} from './permission/permission.component';
+import {EmployeeComponent} from '@main/setting/employee/employee.component';
+import {BranchComponent} from '@main/setting/branch/branch.component';
+import {SourceComponent} from '@main/setting/source/source.component';
+import { TagComponent } from './tag/tag.component';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: SettingComponent,
+    children: [
+      {
+        path: '',
+        redirectTo: 'source',
+        pathMatch: 'full',
+      },
+      {
+        path: 'source',
+        component: SourceComponent,
+      },
+      {
+        path: 'employee',
+        component: EmployeeComponent,
+      },
+      {
+        path: 'permission',
+        component: PermissionComponent,
+      },
+      {
+        path: 'tag',
+        component: TagComponent,
+      },
+      {
+        path: 'branch',
+        component: BranchComponent,
+      },
+    ],
+  },
+  {path: '**', component: NotfoundComponent},
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
+})
+export class SettingRoutingModule {}

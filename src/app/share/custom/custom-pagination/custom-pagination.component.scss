@@ -1,0 +1,32 @@
+@use 'src/app/styles/variable' as vars;
+
+.custom-pagination {
+  .page-size {
+    background: vars.$neutral-50;
+    border: none;
+    border-radius: 6px;
+    ng-select {
+      min-width: 100px;
+    }
+  }
+}
+
+.custom-change-page {
+  button {
+    width: 40px;
+    height: 40px;
+    background: #e7e9ef;
+    border-radius: 50%;
+
+    &:hover {
+      color: vars.$white;
+      background-color: vars.$neutral-500;
+    }
+  }
+  .disabled {
+    cursor: not-allowed;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.15);
+    }
+  }
+}

@@ -1,0 +1,76 @@
+<ng-container>
+  <ng-container>
+    <div class="custom-standard-table">
+      <div class="table-responsive tableFixHead custom-scrollbar">
+        <table class="table">
+          <thead *ngIf="!!columns">
+            <tr>
+              <th *ngFor="let column of columns">
+                {{ column.title }}
+              </th>
+            </tr>
+          </thead>
+          <tbody *ngIf="!!columns && !!dataSource">
+            <tr class="text-center" *ngIf="!loading && !dataSource.length">
+              <td colspan="12">
+                <div>Không có dữ liệu</div>
+              </td>
+            </tr>
+            <tr class="text-center" *ngIf="loading">
+              <td colspan="12">
+                <div class="spinner-grow text-primary" role="status">
+                  <span class="visually-hidden">Đang tải</span>
+                </div>
+                <div>Đang tải</div>
+              </td>
+            </tr>
+            <tr *ngFor="let row of dataSource; let indexRow = index">
+              <td *ngFor="let column of columns; let indexCol = index">
+                <ng-container *ngIf="column.render; else dataIndex">
+                  <div [innerHTML]="column.render(row, indexRow)"></div>
+                </ng-container>
+                <ng-template #dataIndex>
+                  {{ getValueFromDataIndex(row, column.dataIndex) || '-' }}
+                </ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-container *ngIf="!!pagination">
+        <div class="right d-flex justify-content-between mt-3">
+          <div class="d-flex align-items-center">
+            <span class="text-secondary" style="width: auto">Hiển thị</span>
+            <select
+              class="form-select border-0 mx-2"
+              [(ngModel)]="pagination.limit"
+              style="width: 100px"
+              (change)="pageChanged({}, $event)"
+            >
+              <option [value]="10">10</option>
+              <option [value]="20">20</option>
+              <option [value]="50">50</option>
+              <option [value]="100">100</option>
+            </select>
+            <span class="text-secondary">trong tổng số</span>
+            <span class="text-secondary mx-1">{{ pagination.total || 0 }}</span>
+            <span class="text-secondary">bản ghi</span>
+          </div>
+          <pagination
+            [boundaryLinks]="true"
+            [totalItems]="pagination.total! || 0"
+            [itemsPerPage]="pagination.limit || 10"
+            [(ngModel)]="pagination.page"
+            (pageChanged)="pageChanged($event, null)"
+            [rotate]="false"
+            [maxSize]="4"
+            previousText="&lsaquo;"
+            nextText="&rsaquo;"
+            firstText="Trang đầu"
+            lastText="Trang cuối"
+          ></pagination>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+</ng-container>

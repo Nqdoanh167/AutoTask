@@ -1,0 +1,144 @@
+<div class="source-site">
+  <div class="card">
+    <div class="card-body">
+      <div class="content-site">
+        <app-filter-top-table
+          [configFilters]="configFilters"
+          [configButtons]="configButtons"
+          (clickButtonEvent)="handleAction($event)"
+          (searchEvent)="onSearch($event)"
+          (selectEvent)="onSelectFilter($event)"
+        ></app-filter-top-table>
+        <div class="table-responsive tableFixHead custom-scrollbar">
+          <table class="table">
+            <thead>
+              <tr>
+                <th (click)="sortBy('name')" class="column-name th-allow-sort">
+                  <span class="icon-sort" [innerHTML]="sortIcon('name')"></span>
+                  Tên nguồn
+                </th>
+                <th (click)="sortBy('type')" class="th-allow-sort">
+                  <span class="icon-sort" [innerHTML]="sortIcon('type')"></span>
+                  Loại kết nối
+                </th>
+                <th (click)="sortBy('count')" class="th-allow-sort">
+                  <span
+                    class="icon-sort"
+                    [innerHTML]="sortIcon('count')"
+                  ></span>
+                  Số lần gọi API
+                </th>
+                <th (click)="sortBy('status')" class="th-allow-sort">
+                  <span
+                    class="icon-sort"
+                    [innerHTML]="sortIcon('status')"
+                  ></span>
+                  Trạng thái
+                </th>
+                <th (click)="sortBy('createdAt')" class="th-allow-sort">
+                  <span
+                    class="icon-sort"
+                    [innerHTML]="sortIcon('createdAt')"
+                  ></span>
+                  Ngày tạo
+                </th>
+                <th class="column-action">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="text-center"
+                *ngIf="!dataSource.rows.length && !dataSource.loading"
+              >
+                <td colspan="12">
+                  <div>Không có dữ liệu</div>
+                </td>
+              </tr>
+              <tr class="text-center" *ngIf="dataSource.loading">
+                <td colspan="12">
+                  <div class="spinner-grow text-primary" role="status">
+                    <span class="visually-hidden">Loading</span>
+                  </div>
+                  <div>Loading</div>
+                </td>
+              </tr>
+              <tr *ngFor="let item of dataSource.rows; index as i">
+                <td class="column-name">
+                  <div
+                    class="fw-500 cursor-pointer"
+                    (click)="handleUpdate(item)"
+                  >
+                    {{ item.name || '-' }}
+                  </div>
+                </td>
+                <td class="">
+                  <div>
+                    {{
+                      item.type === EDataSourceType.MANUAL ? 'Thủ công' : 'API'
+                    }}
+                  </div>
+                </td>
+                <td class="">
+                  <div>
+                    {{
+                      item.type === EDataSourceType.MANUAL
+                        ? 'N/A'
+                        : (item.exeCount | number) || 0
+                    }}
+                  </div>
+                </td>
+                <td class="">
+                  <div>
+                    <img
+                      src="assets/images/icon/{{
+                        item.isActive ? 'check.svg' : 'not-check.svg'
+                      }}"
+                      width="10"
+                      height="10"
+                      alt=""
+                    />
+                  </div>
+                </td>
+                <td>
+                  {{ item.createdAt | timeView }}
+                </td>
+                <td class="columns-action">
+                  <div class="d-flex">
+                    <span
+                      (click)="handleUpdate(item)"
+                      class="d-flex align-items-center btn-action-table"
+                    >
+                      <img src="./assets/images/icon/edit.svg" alt="" />
+                    </span>
+                    <span
+                      (click)="handleDelete(item)"
+                      class="d-flex align-items-center btn-action-table"
+                    >
+                      <img src="./assets/images/icon/remove.svg" alt="" />
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <custom-pagination
+          [selectedSize]="dataSource.paramsQuery.limit"
+          [currentPage]="dataSource.paramsQuery.page"
+          (changePageEvent)="pageChanged($event)"
+          [total]="dataSource.total"
+        ></custom-pagination>
+
+        <modal-confirm [key]="'delete'" (confirmEvent)="onDelete($event)">
+          <div class="state-warning d-flex gap-2" childContent>
+            <div><i class="fa-regular fa-circle-question"></i></div>
+            <div>
+              Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng
+              dữ liệu của bản ghi cũng sẽ bị ảnh hưởng.
+            </div>
+          </div>
+        </modal-confirm>
+      </div>
+    </div>
+  </div>
+</div>

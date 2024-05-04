@@ -1,0 +1,19 @@
+<div class="custom-select-input-search d-flex align-items-center">
+  <i class="fa-solid fa-magnifying-glass me-2"></i>
+  <ng-select
+    class="select-search-icon"
+    appearance="outline"
+    [id]="id"
+    [labelForId]="labelForId"
+    [searchable]="true"
+    [formControlName]="formControlName"
+    [ngClass]="{'is-invalid': false}"
+    (change)="onChange($event)"
+    [placeholder]="'Search...'"
+    (search)="onSearch($event)"
+  >
+    <ng-template *ngIf="labelTemp" ng-label-tmp>
+      <ng-template *ngTemplateOutlet="labelTemp"></ng-template>
+    </ng-template>
+  </ng-select>
+</div>
