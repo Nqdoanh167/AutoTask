@@ -6,13 +6,16 @@ import {
   QueryList,
   ViewChildren,
 } from '@angular/core';
-import {Subject} from 'rxjs';
+import {Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormGroup} from '@angular/forms';
 import {ApiLocationService} from '@app/services/api/location';
 import {IDistrict, IProvince, IWard} from '@app/types/location';
-import {Customer} from '@app/types/viewmodels';
+import {Customer, CustomerTag, EntityPagination} from '@app/types/viewmodels';
 import {CommonService} from '@app/services/common/common.service';
 import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
+import {CustomerService} from '@app/services/api/customer.service';
+import {environment} from 'src/environments/environment';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-customer-info',
@@ -22,7 +25,7 @@ import {InputSuggestCustomerComponent} from '@share/common/input-select-customer
 export class CustomerInfoComponent implements OnDestroy, OnInit {
   @ViewChildren(InputSuggestCustomerComponent)
   inputSuggestCustomers!: QueryList<InputSuggestCustomerComponent>;
-
+  private currentBiz = '';
   @Input() formGroup!: FormGroup;
   @Input() submitted: boolean = false;
 
@@ -34,19 +37,31 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
   public trigger = {
     name: false,
   };
-
+  public tags: EntityPagination<CustomerTag> = {
+    rows: [],
+    loading: false,
+  };
   public selectedCustomer: Customer | null = null;
-
+  public selectTag: boolean = false;
   constructor(
     private readonly apiLocationService: ApiLocationService,
     private readonly commonService: CommonService,
-  ) {}
+    private readonly customerService: CustomerService,
+    private readonly authService: AuthService,
+  ) {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.currentBiz = biz.alias || '';
+      });
+  }
 
   get f(): {[key: string]: AbstractControl} {
     return this.formGroup.controls;
   }
 
   ngOnInit(): void {
+    this.getTag();
     this.getProvince();
     this.formGroup.valueChanges.subscribe((value) => {
       if (value?.id) {
@@ -62,7 +77,13 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       }
     });
   }
-
+  handleViewCustomer(customerId: string) {
+    let url = `${environment.urlDomain}/${this.currentBiz}/customers/${customerId}`;
+    window.open(url, '_blank');
+  }
+  compareFunction(item: CustomerTag, selected: any) {
+    return item.id === selected.id;
+  }
   getProvince() {
     this.apiLocationService
       .getProvince({
@@ -109,6 +130,20 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
           this.commonService.handleErr(err);
         },
       });
+  }
+  getTag() {
+    this.customerService.tag.get().subscribe({
+      next: (res) => {
+        if (res && res.status === 200) {
+          this.tags.rows = res.data;
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+      error: (err) => {
+        this.commonService.handleErr(err);
+      },
+    });
   }
 
   handleChangeLocation(value: string, type: 'province' | 'district' | 'ward') {
@@ -167,6 +202,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
   handleChooseCustomer(customer?: Customer) {
     if (!customer) return;
     this.trigger.name = false;
+
     this.formGroup.patchValue({
       id: customer.id,
       name: customer.name,
@@ -179,6 +215,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       districtCode: customer.districtCode,
       ward: customer.ward,
       wardCode: customer.wardCode,
+      tags: customer.tags,
       address: customer.address,
       gender: customer.gender,
       street: customer.street,
@@ -201,6 +238,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       email: null,
       province: null,
       provinceCode: null,
+      tags: null,
       district: null,
       districtCode: null,
       ward: null,

@@ -22,6 +22,20 @@
       border: 1px solid vars.$secondary-500;
       padding: 8px;
       border-radius: vars.$radius-l;
+      position: relative;
+     
+      .lock {
+        display: none;
+      }
+      &.item-lock {
+        background-color: vars.$gray-200;
+        .lock {
+          display: block;
+          position: absolute;
+          top: 2px;
+          right: 2px;
+        }
+      }
       .list-act {
         .list-act-item {
           .processing {

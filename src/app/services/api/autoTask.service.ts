@@ -1,7 +1,7 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult} from 'src/app/types/viewmodels';
+import {EntityResult, ITag} from 'src/app/types/viewmodels';
 import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
@@ -14,6 +14,7 @@ import {
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
+  IBulkTaskDto,
   IChainAct,
   IChainResult,
   IManyUpdateChainActResultDto,
@@ -49,6 +50,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     task: 'task',
     taskChain: 'task-chain',
     taskChainResult: 'task-chain-result',
+    tag: 'tag',
     source: 'source',
     settingView: 'setting-view',
   };
@@ -75,7 +77,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       next: (res) => {
         if (res) {
           this.setApiAddress(
-            environment.apiAddress,
+            environment.apiModule,
             `bizs/${res.alias}/auto-task`,
           );
         }
@@ -233,6 +235,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.task, id, 'update-chain']),
         body,
       ),
+    bulkUpdate: (body: IBulkTaskDto) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, 'bulk-update']),
+        body,
+      ),
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<null>>(
         this.createUrl([this.api.task, id]),
@@ -312,6 +319,29 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       ),
   };
 
+  tag = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<ITag[]>>(
+        this.createUrl([this.api.tag]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: ITag) =>
+      this.httpClient.post<EntityResult<ITag>>(
+        this.createUrl([this.api.tag]),
+        body,
+      ),
+    update: (id: string, body: ITag) =>
+      this.httpClient.patch<EntityResult<ITag>>(
+        this.createUrl([this.api.tag, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.tag, id]),
+      ),
+  };
   settingView = {
     retrieve: (params = {}) =>
       this.httpClient.get<EntityResult<IView>>(

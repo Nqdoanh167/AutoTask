@@ -35,12 +35,11 @@ export class CustomDatePickerComponent implements OnInit, OnChanges {
   @Input() defaultRangeValue?: Date[];
   @Input() maxDate?: string | Date | undefined;
   @Input() showClearButton?: boolean = false;
-  public bsRangeValue?: Date[];
+  public bsRangeValue?: Date[] | undefined[] = [];
   public bsValue?: Date;
   private counter = 0;
 
   constructor() {
-    this.bsRangeValue = [this.date.fromDate, this.date.toDate];
     this.bsValue = this.dateSingle;
   }
 
@@ -58,20 +57,22 @@ export class CustomDatePickerComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['defaultValue']) {
-      this.bsValue = changes['defaultValue'].currentValue
-        ? new Date(changes['defaultValue'].currentValue)
+      this.bsValue = changes['defaultValue']?.currentValue
+        ? new Date(changes['defaultValue']?.currentValue)
         : undefined;
     }
     if (changes['defaultRangeValue']) {
-      this.bsRangeValue = changes['defaultRangeValue'].currentValue
-        ? [...changes['defaultRangeValue'].currentValue]
+      this.bsRangeValue = changes['defaultRangeValue']?.currentValue
+        ? changes['defaultRangeValue']?.currentValue?.map((date: any) =>
+            date ? new Date(date) : undefined,
+          )
         : undefined;
     }
-    const maxDate = changes['maxDate'].currentValue;
+    const maxDate = changes['maxDate']?.currentValue;
     if (maxDate) {
       this.bsConfig!.maxDate =
         maxDate !== 'today'
-          ? new Date(changes['maxDate'].currentValue)
+          ? new Date(changes['maxDate']?.currentValue)
           : new Date();
     }
     if (changes['rangeChoose']) {

@@ -351,7 +351,12 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     if (executedDate) {
       return calculateTime(value, executedDate) as string;
     }
-    return calculateTime(value, new Date()) as string;
+    return calculateTime(
+      value,
+      this.staticDataChainItem?.status === ETaskChainType.CLOSED
+        ? this.staticDataChainItem?.updatedAt
+        : new Date(),
+    ) as string;
   }
 
   handleChangeDeadline(taskChainResultIndex: number) {
