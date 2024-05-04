@@ -28,7 +28,13 @@ export class MainComponent implements OnInit {
       isActive: true,
     },
   ];
-
+  public listDashboardNavItems: ISidebar[] = [
+    {
+      link: '/dashboard',
+      name: 'Quản lý Task',
+      isActive: true,
+    },
+  ];
   public listSettingNavItems: ISidebar[] = [
     {
       link: '/setting/source',
@@ -36,10 +42,16 @@ export class MainComponent implements OnInit {
       isActive: true,
     },
     {
+      link: '/setting/tag',
+      name: 'Tag',
+      isActive: true,
+    },
+    {
       link: '/setting/employee',
       name: 'Nhân viên',
       isActive: true,
     },
+   
     {
       link: '/setting/permission',
       name: 'Phân quyền',
@@ -75,6 +87,8 @@ export class MainComponent implements OnInit {
             this.listNavItems = this.listConfigNavItems;
           } else if (url.includes(`/${EModule.SETTING}`)) {
             this.listNavItems = this.listSettingNavItems;
+          } else if (url.includes(`/${EModule.DASHBOARD}`)) {
+            this.listNavItems = this.listDashboardNavItems;
           } else {
             this.listNavItems = [];
           }

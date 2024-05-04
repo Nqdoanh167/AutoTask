@@ -480,6 +480,9 @@ ng-select.custom-input-multiple-round {
 
 ng-select.custom-input-tag {
   .ng-select-container {
+    background: unset !important;
+    box-shadow: none !important;
+    width: 300px;
     .ng-value-container {
       .ng-value {
         background-color: unset !important;
@@ -490,8 +493,6 @@ ng-select.custom-input-tag {
           &:hover {
             background-color: #dedede !important;
           }
-
-          display: none !important;
         }
 
         &:hover {
@@ -622,6 +623,18 @@ ng-select.select-search-icon {
       @extend .custom-scrollbar;
     }
   }
+  &.filter-advance-popover-tab {
+    .popover-body {
+      width: 450px;
+    }
+    .ng-select.ng-select-multiple
+    .ng-select-container
+    .ng-value-container
+    .ng-value {
+      white-space: pre-wrap;
+    }
+  }
+
 }
 
 // Card body
@@ -696,6 +709,21 @@ progressbar.custom-progress {
 
 // table
 .table-responsive {
+  .col-resizable th::after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    right: 0;
+    bottom: 15px;
+    width: 2px; /* Adjust the handle width as needed */
+    cursor: col-resize;
+    background: transparent;
+    z-index: 1;
+  }
+
+  .col-resizable th:hover::after {
+    background-color: #f0f0f0;
+  }
   &.thin-table {
     table {
       th {

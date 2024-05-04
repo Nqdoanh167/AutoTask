@@ -1,6 +1,15 @@
 export enum ETypeFilter {
   SEARCH = 'search',
   SELECT = 'select',
+  DATE = 'date',
+}
+export enum ETypeBulkUpdate {
+  REMOVE_COUNSELOR = 'REMOVE_COUNSELOR',
+  ASSIGN_COUNSELOR = 'ASSIGN_COUNSELOR',
+}
+export enum EBotherAdvanceBasicFilter {
+  BASIC = 'basic',
+  ADVANCE = 'advance',
 }
 export enum ETypeButton {
   PRIMARY = 'primary',
@@ -20,12 +29,14 @@ export interface IFilterTopTable {
   searchable?: boolean;
   bindLabel?: string;
   bindValue?: string;
+  botherType?: EBotherAdvanceBasicFilter;
   isCreatable?: boolean;
   className?: string;
   minWidth?: string;
   clearable?: boolean;
+  subType?: any;
   onSearch?: (event: any) => void;
-  value?: string | string[];
+  value?: string | string[] | any;
 }
 
 export type NameButton = 'reload' | 'add_new' | 'save' | string;
