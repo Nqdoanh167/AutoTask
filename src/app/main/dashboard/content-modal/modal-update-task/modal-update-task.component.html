@@ -23,18 +23,21 @@
                     <div class="d-flex justify-content-between align-items-center gap-2">
                       <div class="fw-bold me-1">TAG</div>
                       <div *ngIf="!selectTag">
-                        <div class="tag-item me-2" *ngFor="let tagId of updateForm.value.tags"
-                          [ngClass]="{nonBack: !findTag(tagId)?.bgColor}"
-                          [ngStyle]="{background: findTag(tagId)?.bgColor}">
-                          {{ findTag(tagId)?.name }}
-                        </div>
+                        <ng-container *ngFor="let tagId of updateForm.value.tags">
+                          <div class="tag-item me-2" *ngIf="findTag(tagId)?.id"
+                            [ngClass]="{nonBack: !findTag(tagId)?.bgColor}"
+                            [ngStyle]="{background: findTag(tagId)?.bgColor}">
+                            {{ findTag(tagId)?.name }}
+                          </div>
+                        </ng-container>
                         <span class="cursor-pointer ms-3">
-                          <i class="fa-solid fa-tags" (click)="selectTag = !selectTag"></i>
+                          <i class="fa-solid fa-tags" (click)="changeSelectTag(true)"></i>
                         </span>
                       </div>
                       <ng-select *ngIf="selectTag" class="custom-input-tag" formControlName="tags"
                         placeholder="Chọn tag..." (blur)="selectTag = !selectTag" [items]="tags.rows" appendTo=".modal"
-                        appearance="outline" [multiple]="true" [closeOnSelect]="false" bindValue="id">
+                        appearance="outline" [multiple]="true" [closeOnSelect]="false" bindValue="id"
+                        #ngSelectTagTask>
                         <ng-template ng-option-tmp let-item="item">
                           <div class="tag-item" [ngClass]="{nonBack: !item.bgColor}"
                             [ngStyle]="{background: item.bgColor}">
@@ -46,6 +49,13 @@
                           <div class="tag-item" [ngClass]="{nonBack: !item.bgColor}"
                             [ngStyle]="{background: item.bgColor}">
                             {{ item.name }}
+                          </div>
+                        </ng-template>
+                        <ng-template ng-notfound-tmp let-searchTerm="searchTerm">
+                          <div class="ng-option fs-7" (click)="createNewTagAndChoose(searchTerm)">
+                            Không tìm thấy tag <span class="fw-bold">
+                              "{{searchTerm}}"
+                            </span> Tạo mới?
                           </div>
                         </ng-template>
                       </ng-select>

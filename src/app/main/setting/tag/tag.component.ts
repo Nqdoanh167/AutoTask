@@ -15,6 +15,8 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {FormBuilder} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
+import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
+import { ModalConfirmService } from '@app/share/custom/modal-confirm/modal-confirm.service';
 
 @Component({
   selector: 'app-tag',
@@ -76,6 +78,7 @@ export class TagComponent implements OnDestroy, OnInit {
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private fb: FormBuilder,
+    private readonly modalConfirmService: ModalConfirmService,
     private readonly modalService: BsModalService,
   ) {
     this.authService.currentBiz
@@ -102,10 +105,9 @@ export class TagComponent implements OnDestroy, OnInit {
         },
       });
   }
-
-  onDeleteItem(id: string | undefined) {
+  onDelete(value: any) {
     this.autoTaskService.tag
-      .delete(id as string)
+      .delete(value.id as string)
       .pipe(take(1))
       .subscribe({
         next: (res) => {
@@ -117,6 +119,25 @@ export class TagComponent implements OnDestroy, OnInit {
           }
         },
       });
+  }
+
+  onDeleteItem(value: any) {
+    const title = 'Xóa hành động';
+    const description = `Bạn sắp xóa hành động <b>${
+      value.name || ''
+    }</b>, hành động này không thể hoàn tác.`;
+    const okText = 'Xóa';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'warning',
+      modalType: 'advance',
+      context: value,
+    };
+
+    this.modalConfirmService.openModal(modalContent, 'delete');
   }
   handleAction(name: string) {
     if (name === 'reload') {

@@ -126,7 +126,8 @@
                                       ">
                                       <ng-container [ngTemplateOutlet]="timeLeft" [ngTemplateOutletContext]="{
                                           dataTimeLeft: calculateTimeLeft(
-                                            taskChainResult.deadlineDate
+                                            taskChainResult.deadlineDate,
+                                            taskChain
                                           )
                                         }"></ng-container>
                                       <ng-template #timeLeft let-dataTimeLeft="dataTimeLeft">

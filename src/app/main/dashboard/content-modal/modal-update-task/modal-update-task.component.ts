@@ -19,7 +19,7 @@ import {
   ITaskChainResult,
   ITaskDto,
 } from '@app/types/flow';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {
   AbstractControl,
   FormArray,
@@ -52,6 +52,7 @@ import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
 import {ISource} from '@app/types/setting';
+import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -62,6 +63,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   @ViewChild('templateAddTaskChain') templateAddTaskChain!: TemplateRef<any>;
   public addTaskChainModalRef?: BsModalRef;
 
+  @ViewChild('ngSelectTagTask') ngSelectTagTask!: NgSelectComponent;
+  // Call to clear
   @ViewChild(CustomerInfoComponent)
   customerInfoComponent!: CustomerInfoComponent;
 
@@ -100,7 +103,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       province: null,
       provinceCode: null,
     }),
-    tags: [null],
+    tags: null,
     taskChains: this.fb.array([]),
     cart: this.fb.group({
       products: null,
@@ -267,6 +270,41 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.getSource();
     this.getTag();
   }
+  changeSelectTag(action: boolean) {
+    this.selectTag = action;
+    if (this.sourceData?.id) {
+      this.updateForm.patchValue({
+        tags:
+          (this.tags.rows
+            .filter((tag) => this.sourceData?.tags?.includes(tag.id as any))
+            ?.map((tag) => tag.id) as any) || null,
+      });
+    }
+  }
+  createNewTagAndChoose(tagName: string) {
+    const body: ITag = {
+      name: tagName,
+      bgColor: '#000000',
+    };
+    this.autoTaskService.tag
+      .create(body)
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.getTag();
+            this.ngSelectTagTask.filter('')
+            const formTag: string[] = this.updateForm.value.tags || [];
+            formTag.push(res.data.id as any);
+            this.updateForm.patchValue({
+              tags: formTag as any,
+            });
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
+  }
   getTag() {
     this.autoTaskService.tag.get().subscribe({
       next: (res) => {
@@ -316,6 +354,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       counselorId: dataSource?.counselor?.id,
     } as any);
     this.formTaskChains.clear();
+
     dataSource.taskChains?.forEach((taskChain) => {
       const taskChainForm = this.fb.group({
         id: taskChain.id,

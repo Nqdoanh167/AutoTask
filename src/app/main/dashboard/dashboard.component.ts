@@ -22,6 +22,7 @@ import {
   IDateRange,
   IQueryBase,
   ITag,
+  Source,
 } from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {CommonService} from '@app/services/common/common.service';
@@ -37,11 +38,12 @@ import {
   IActResult,
   IChainAct,
   ITask,
+  ITaskChain,
 } from '@app/types/flow';
 import moment from 'moment/moment';
 import {cloneDeep, isEmpty, isEqual, uniqBy} from 'lodash';
 import {AuthService} from '@app/services/api/auth.service';
-import {EScreens, IViewModeDto} from '@app/types/setting';
+import {EScreens, ISource, IViewModeDto} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {ModalAssignCounselorComponent} from './content-modal/multiple-action/modal-assign-counselor/modal-assign-counselor.component';
@@ -103,14 +105,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'chainActIds',
+      name: 'chainActId',
       placeholder: 'Chuỗi',
-      options: [],
+      options: [
+        {
+          id: 'NONE',
+          name: 'Chưa gán chuỗi',
+        },
+      ],
       bindLabel: 'name',
       bindValue: 'id',
       clearable: true,
       searchable: true,
-      multiple: true,
+      multiple: false,
       onSearch: (event: any) => this.handleSearchActChain(event),
       botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
@@ -195,6 +202,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearable: true,
       botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
+    {
+      type: ETypeFilter.SELECT,
+      name: 'sourceIds',
+      placeholder: 'Nguồn tạo',
+      options: [],
+      bindLabel: 'name',
+      bindValue: 'id',
+      clearable: true,
+      searchable: true,
+      multiple: true,
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
+    },
   ];
   public configButtons: IFilterTopButton[] = [
     {
@@ -261,6 +280,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     isAllowLoadMore: false,
   };
+  public sources: ICommonDataLazy<ISource, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+    },
+    isAllowLoadMore: false,
+  };
 
   public currentActiveViewMode?: IViewModeDto;
 
@@ -297,10 +325,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe((biz) => {
         if (biz) {
           this.currentBiz = biz.alias || '';
-          this.configFilters[6].options = biz?.users?.map((user) => ({
-            label: user.name,
-            value: user.id,
-          }));
+          this.configFilters[6].options = [
+            {label: 'Chưa gán nhân viên phụ trách', value: 'NONE'},
+          ].concat(
+            biz?.users?.map((user) => ({
+              label: user.name,
+              value: user.id as any,
+            })),
+          );
         }
       });
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((q) => {
@@ -326,6 +358,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getResult();
     this.getAction();
     this.getTag();
+    this.getSource();
     this.handleActiveViewMode();
   }
   showModalMultipleAction(action: any) {
@@ -459,7 +492,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return cloneDeep(this.dataSource.rows);
   }
 
-  calculateTimeLeft(date: Date) {
+  calculateTimeLeft(date: Date, taskChain: ITaskChain) {
     let data = {
       timeLeft: '',
       typeOverDeadline: 'notOver',
@@ -469,15 +502,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
       hours?: number;
       minutes?: number;
     };
+    const isCloseTask = taskChain?.status === ETaskChainType.CLOSED;
     if (subDate.days === 0 && subDate.hours === 0 && subDate.minutes === 0) {
       data.typeOverDeadline = 'now';
     } else if (moment().isAfter(date)) {
       data.typeOverDeadline = 'over';
-      data.timeLeft = calculateTime(new Date(), date) as string;
+
+      data.timeLeft = calculateTime(
+        isCloseTask ? taskChain.updatedAt : new Date(),
+        date,
+      ) as string;
     }
     if (data.typeOverDeadline !== 'over') {
-      data.timeLeft = calculateTime(date, new Date()) as string;
+      data.timeLeft = calculateTime(
+        date,
+        isCloseTask ? taskChain.updatedAt : new Date(),
+      ) as string;
     }
+
     return data;
   }
   changeSort(type: string) {
@@ -534,7 +576,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.actionChains.rows.concat(res.data),
               'id',
             );
-            this.configFilters[2].options = this.actionChains.rows;
+            this.configFilters[2].options = [
+              ...(this.configFilters[2].options || []),
+              ...this.actionChains.rows,
+            ];
             this.actionChains.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -607,6 +652,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.actions.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+  getSource() {
+    this.sources.loading = true;
+    this.autoTaskService.source
+      .get(this.sources.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.sources.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.sources.rows = uniqBy(
+              this.sources.rows.concat(res.data),
+              'id',
+            );
+            this.configFilters[10].options = this.sources.rows;
+            this.sources.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.sources.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.sources.isAllowLoadMore = false;
           this.commonService.handleErr(err);
         },
       });
