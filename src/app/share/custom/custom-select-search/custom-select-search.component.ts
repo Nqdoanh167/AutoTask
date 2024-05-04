@@ -30,7 +30,7 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
         [multiple]="selectData.multiple || false"
         (search)="onSearchOption()"
         (scrollToEnd)="onSearchOption()"
-        [closeOnSelect]="!selectData.multiple"
+        [closeOnSelect]="false"
         [clearable]="!!selectData.clearable"
         [clearSearchOnAdd]="true"
       >

@@ -18,7 +18,7 @@
     </ng-container>
     <ng-container *ngIf="configFilterAdvance.length">
       <button class="btn btn-light border text-secondary" type="button" (click)="handleOpenPopover($event)"
-        [popover]="popTemplate " [outsideClick]="false" [placement]="'bottom left'"
+        [popover]="popTemplate " [outsideClick]="true" [placement]="'bottom left'"
         containerClass="filter-advance-popover-tab custom-popover-tab">
         <i class="fa-solid fa-sliders"></i>
         Lọc nâng cao
