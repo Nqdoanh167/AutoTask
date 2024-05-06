@@ -25,6 +25,7 @@ import {
   FormArray,
   FormBuilder,
   FormGroup,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
@@ -34,6 +35,7 @@ import {
   ICommonDataSource,
   IQueryBase,
   ITag,
+  Order,
   User,
 } from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
@@ -73,6 +75,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   @Output() updateSuccess = new EventEmitter();
 
   public tags: EntityPagination<ITag> = {
+    rows: [],
+    loading: false,
+  };
+  public orders: EntityPagination<Order> = {
     rows: [],
     loading: false,
   };
@@ -293,7 +299,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.getTag();
-            this.ngSelectTagTask.filter('')
+            this.ngSelectTagTask.filter('');
             const formTag: string[] = this.updateForm.value.tags || [];
             formTag.push(res.data.id as any);
             this.updateForm.patchValue({
@@ -319,6 +325,22 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       },
     });
   }
+  getOrderDetail(orderIds: string[]) {
+    this.autoTaskService.task
+      .retrieveOrdersByTask({orderIds: orderIds})
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            this.orders.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
   getDetailTask(isRefresh = false) {
     if (!this.sourceData?.id && !this.taskId) return;
     this.loading.getDetail = true;
@@ -329,6 +351,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.sourceData = res.data;
+            if (res.data.orderIds?.length > 0) {
+              this.getOrderDetail(res.data.orderIds);
+            }
             this.patchForm(res.data);
             if (isRefresh) {
               this.customerInfoComponent.handleClearSelectValue();
@@ -728,7 +753,26 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.submitted = true;
     if (this.updateForm.valid) {
       this.handleUpdate();
+    } else {
+      this.toastr.warning('Vui lòng điền đầy đủ thông tin');
     }
+  }
+
+  // Get form errors
+  getFormErrors(formGroup: FormGroup | FormArray): {[key: string]: any} {
+    let errors: {[key: string]: any} = {}; // Add index signature to errors object
+    Object.keys(formGroup.controls).forEach((key) => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        errors[key] = this.getFormErrors(control);
+      } else {
+        const controlErrors: ValidationErrors | null = control?.errors ?? null;
+        if (controlErrors != null) {
+          errors[key] = controlErrors;
+        }
+      }
+    });
+    return errors;
   }
 
   handleDeleteTask() {

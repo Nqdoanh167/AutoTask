@@ -1381,7 +1381,21 @@ export interface SaleReason {
   distanceTime: any;
   isSchedule: any;
 }
+export interface SaleCenterStatus {
+  code: string;
+  bgColor: string;
+  name: string;
+  txtColor: string;
+  [name: string]: any;
+}
 export interface Order {
+  status: string;
+  statusName: string;
+  dStatus: SaleCenterStatus;
+  id: string;
+  code: string;
+  createdAt: Date;
+  amount: number;
   [name: string]: any;
 }
 export interface Status {

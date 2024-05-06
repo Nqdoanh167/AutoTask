@@ -1,7 +1,7 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, ITag} from 'src/app/types/viewmodels';
+import {EntityResult, ITag, Order} from 'src/app/types/viewmodels';
 import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
@@ -207,6 +207,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<ITask[]>>(
         this.createUrl([this.api.task]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    retrieveOrdersByTask: (params = {}) =>
+      this.httpClient.get<EntityResult<Order[]>>(
+        this.createUrl([this.api.task, 'retrieve-order-by-task']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
