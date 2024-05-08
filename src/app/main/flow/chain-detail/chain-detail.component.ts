@@ -323,6 +323,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                         chainActResultId: nextAction.moveToActionId,
                       }
                     : null,
+                  delayValue: nextAction.delayValue
+                    ? Number(nextAction.delayValue)
+                    : null,
                 };
                 return {
                   ...nextAction,
@@ -458,7 +461,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
   newNextAction() {
     return {
-      type: undefined,
+      type: EChainNextActType.AUTO,
       delayType: undefined,
       delayValue: undefined,
       moveToAction: {
