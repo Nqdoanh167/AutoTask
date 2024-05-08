@@ -34,6 +34,7 @@ import { OrderableTableModule } from '@app/share/orderable-table/orderable-table
 import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
 import { OrdersComponent } from './content-modal/orders/orders.component';
 import { MycurrencyModule } from '@app/share/pipe/mycurrency.module';
+import { HistoryComponent } from './content-modal/history/history.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { MycurrencyModule } from '@app/share/pipe/mycurrency.module';
     CustomerInfoComponent,
     ModalAssignCounselorComponent,
     ModalCallComponent,
-    OrdersComponent
+    OrdersComponent,
+    HistoryComponent
   ],
   imports: [
     CommonModule,

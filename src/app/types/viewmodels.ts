@@ -1388,6 +1388,80 @@ export interface SaleCenterStatus {
   txtColor: string;
   [name: string]: any;
 }
+export interface IHistory {
+  id: string;
+  bizId: string;
+  tabKey: ETabHistoryKey;
+  taskId: string;
+  actionBy: {
+    id: string;
+    name: string;
+    email: string;
+    picture: string;
+  };
+  content: IContentHistoryTask;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface INoteContentHistoryTask {
+  key: ENoteContentHistoryTask;
+  value: string;
+}
+export enum ENoteContentHistoryTask {
+  UPLOAD_FILE = 'UPLOAD_FILE',
+  REMOVE_FILE = 'REMOVE_FILE',
+  REMOVE_NOTE = 'REMOVE_NOTE',
+  CHANGE_NOTE = 'CHANGE_NOTE',
+  ADD_NOTE = 'ADD_NOTE',
+}
+export interface IOrderProductContentHistoryTask {
+  key: EOrderProductContentHistoryTask;
+  value: string;
+}
+export enum EOrderProductContentHistoryTask {
+  CREATE_ORDER = 'CREATE_ORDER',
+
+  REMOVE_PRODUCT = 'REMOVE_PRODUCT',
+  ADD_PRODUCT = 'ADD_PRODUCT',
+  REMOVE_COMBO = 'REMOVE_COMBO',
+  ADD_COMBO = 'ADD_COMBO',
+  REMOVE_COURSE_EVENT = 'REMOVE_COURSE_EVENT',
+  ADD_COURSE_EVENT = 'ADD_COURSE_EVENT',
+  REMOVE_BEAUTIFUL_SERVICE = 'REMOVE_BEAUTIFUL_SERVICE',
+  ADD_BEAUTIFUL_SERVICE = 'ADD_BEAUTIFUL_SERVICE',
+  REMOVE_PRECARD = 'REMOVE_PRECARD',
+  ADD_PRECARD = 'ADD_PRECARD',
+}
+export interface IInformationContentHistoryTask {
+  key: EInformationContentHistoryTask;
+  value: string;
+  sub?: {
+    key: ESubInformationContentHistoryTask,
+    value: string,
+  }[];
+}
+export enum ESubInformationContentHistoryTask {
+  ACTION = 'ACTION',
+}
+export enum EInformationContentHistoryTask {
+  CREATE_TASK = 'CREATE_TASK',
+  SOURCE = 'SOURCE',
+  CUSTOMER= 'CUSTOMER',
+  COUNSELOR = 'COUNSELOR',
+
+  REMOVE_TAG = 'REMOVE_TAG',
+  ADD_TAG = 'ADD_TAG',
+
+  ADD_CHAIN = 'ADD_CHAIN',
+  LOCKED_CHAIN = 'LOCKED_CHAIN',
+  REMOVE_CHAIN = 'REMOVE_CHAIN',
+  CHANGE_CHAIN = 'CHANGE_CHAIN',
+}
+export interface IContentHistoryTask {
+  orderProduct?: IOrderProductContentHistoryTask[];
+  information?: IInformationContentHistoryTask[];
+  note?: INoteContentHistoryTask[];
+}
 export interface Order {
   status: string;
   statusName: string;
@@ -1425,7 +1499,11 @@ export enum EModule {
   CONFIG = 'config',
   SETTING = 'setting',
 }
-
+export enum ETabHistoryKey {
+  NOTE = 'note',
+  INFORMATION = 'information',
+  ORDER_PRODUCT = 'orderProduct',
+}
 export enum EFlowTab {
   RULE = 'rule',
   DATA = 'data',
