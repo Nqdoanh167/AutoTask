@@ -62,7 +62,7 @@ export class HistoryComponent implements OnDestroy, OnInit {
 
   private destroy$ = new Subject();
   public sort = {
-    updatedAt: 0,
+    createdAt: 0,
   };
   public ETabHistoryKey = ETabHistoryKey;
   public configButtons: IFilterTopButton[] = [
@@ -79,10 +79,10 @@ export class HistoryComponent implements OnDestroy, OnInit {
       name: 'tabKey',
       placeholder: 'Tab',
       options: [
-        {
-          id: ETabHistoryKey.NOTE,
-          name: 'Ghi chú',
-        },
+        // {
+        //   id: ETabHistoryKey.NOTE,
+        //   name: 'Ghi chú',
+        // },
         {
           id: ETabHistoryKey.ORDER_PRODUCT,
           name: 'Đơn hàng & Sản phẩm',
@@ -178,11 +178,32 @@ export class HistoryComponent implements OnDestroy, OnInit {
       console.log(e);
     }
   }
+  changeSort(sort: 'createdAt') {
+    switch (this.sort[sort]) {
+      case 0:
+        this.sort[sort] = 1;
+        break;
+      case 1:
+        this.sort[sort] = -1;
+        break;
+      case -1:
+        this.sort[sort] = 0;
+        break;
+      default:
+        break;
+    }
+    this.getHistory();
+  }
   getHistory() {
     this.history.paramsQuery.filter = JSON.stringify({
       ...JSON.parse(this.history.paramsQuery.filter || '{}'),
       taskId: this.taskId,
     });
+    if (this.sort.createdAt !== 0) {
+      let sortAll = this.history.paramsQuery.sort?.split(',') || [];
+      sortAll.push(this.sort.createdAt === 1 ? `createdAt` : `-createdAt`);
+      this.history.paramsQuery.sort = sortAll.join(',');
+    }
     this.autoTaskService.history.get(this.history.paramsQuery).subscribe({
       next: (res) => {
         this.history.rows = res.data;

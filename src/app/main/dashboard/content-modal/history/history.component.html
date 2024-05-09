@@ -8,9 +8,9 @@
       <thead>
         <tr>
           <th>Thời gian cập nhật
-            <span class="caret-wrapper justify-content-center">
-              <i class="fa fa-caret-up asc" [ngClass]="{'text-primary': sort.updatedAt === 1}"></i>
-              <i class="fa fa-caret-down desc" [ngClass]="{'text-primary': sort.updatedAt === -1}"></i>
+            <span class="caret-wrapper justify-content-center" (click)="changeSort('createdAt')">
+              <i class="fa fa-caret-up asc" [ngClass]="{'text-primary': sort.createdAt === 1}"></i>
+              <i class="fa fa-caret-down desc" [ngClass]="{'text-primary': sort.createdAt === -1}"></i>
             </span>
           </th>
           <th>Tab</th>
