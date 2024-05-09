@@ -59,7 +59,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   public updateForm = this.fb.group(
     {
       nextAction: [null, [Validators.required]],
-      type: [null, [Validators.required]],
+      type: [EChainNextActType.AUTO, [Validators.required]],
       moveToAction: this.fb.group({
         chainActResultId: null,
         chainActResult: null,

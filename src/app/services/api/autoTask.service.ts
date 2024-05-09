@@ -1,7 +1,7 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, ITag} from 'src/app/types/viewmodels';
+import {EntityResult, IHistory, ITag, Order} from 'src/app/types/viewmodels';
 import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
@@ -51,6 +51,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     taskChain: 'task-chain',
     taskChainResult: 'task-chain-result',
     tag: 'tag',
+    history: 'task-history',
     source: 'source',
     settingView: 'setting-view',
   };
@@ -211,6 +212,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
+    retrieveOrdersByTask: (params = {}) =>
+      this.httpClient.get<EntityResult<Order[]>>(
+        this.createUrl([this.api.task, 'retrieve-order-by-task']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     getOne: (id: string) =>
       this.httpClient.get<EntityResult<ITask>>(
         this.createUrl([this.api.task, id]),
@@ -340,6 +348,15 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<any>>(
         this.createUrl([this.api.tag, id]),
+      ),
+  };
+  history = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<IHistory[]>>(
+        this.createUrl([this.api.history]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
       ),
   };
   settingView = {
