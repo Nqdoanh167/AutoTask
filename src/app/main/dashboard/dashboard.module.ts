@@ -32,6 +32,9 @@ import {ViewModeTabComponent} from '@share/common/view-mode-tab/view-mode-tab.co
 import { ModalAssignCounselorComponent } from './content-modal/multiple-action/modal-assign-counselor/modal-assign-counselor.component';
 import { OrderableTableModule } from '@app/share/orderable-table/orderable-table.module';
 import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
+import { OrdersComponent } from './content-modal/orders/orders.component';
+import { MycurrencyModule } from '@app/share/pipe/mycurrency.module';
+import { HistoryComponent } from './content-modal/history/history.component';
 
 @NgModule({
   declarations: [
@@ -43,9 +46,12 @@ import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/
     CustomerInfoComponent,
     ModalAssignCounselorComponent,
     ModalCallComponent,
+    OrdersComponent,
+    HistoryComponent
   ],
   imports: [
     CommonModule,
+    MycurrencyModule,
     DashboardRoutingModule,
     OrderableTableModule,
     CustomPaginationComponent,

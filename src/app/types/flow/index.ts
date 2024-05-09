@@ -5,6 +5,7 @@ import {
   CourseEvent,
   Customer,
   ITag,
+  Order,
   PrepaidCard,
   Product,
 } from '@app/types/viewmodels';

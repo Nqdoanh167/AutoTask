@@ -7,7 +7,7 @@
       </ng-container>
       <ng-container *ngIf="filter.type === ETypeFilter.DATE">
         <custom-date-picker [className]="'input-medium'" [typePicker]="filter.subType"
-          (searchEvent)="onPickerDate($event, filter.name)"   [placeholder]="filter.placeholder || 'Picker Date'"
+          (changeDateEmmit)="onPickerDate($event, filter.name)"   [placeholder]="filter.placeholder || 'Picker Date'"
           [showClearButton]="true"></custom-date-picker>
       </ng-container>
       <ng-container *ngIf="filter.type === ETypeFilter.SELECT">

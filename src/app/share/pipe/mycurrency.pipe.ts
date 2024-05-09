@@ -10,7 +10,7 @@ export class MycurrencyPipe implements PipeTransform {
 
   transform(value: number): string | null {
     return value !== null && value !== undefined
-      ? value.toLocaleString('en-US', {
+      ? value.toLocaleString('it-IT', {
           style: 'currency',
           currency: 'VND',
         })

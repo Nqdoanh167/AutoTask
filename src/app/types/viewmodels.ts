@@ -1381,7 +1381,105 @@ export interface SaleReason {
   distanceTime: any;
   isSchedule: any;
 }
+export interface SaleCenterStatus {
+  code: string;
+  bgColor: string;
+  name: string;
+  txtColor: string;
+  [name: string]: any;
+}
+export interface IHistory {
+  id: string;
+  bizId: string;
+  tabKey: ETabHistoryKey;
+  taskId: string;
+  actionBy: {
+    id: string;
+    name: string;
+    email: string;
+    picture: string;
+  };
+  content: IContentHistoryTask;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface INoteContentHistoryTask {
+  key: ENoteContentHistoryTask;
+  value: string;
+}
+export enum ENoteContentHistoryTask {
+  UPLOAD_FILE = 'UPLOAD_FILE',
+  REMOVE_FILE = 'REMOVE_FILE',
+  REMOVE_NOTE = 'REMOVE_NOTE',
+  CHANGE_NOTE = 'CHANGE_NOTE',
+  ADD_NOTE = 'ADD_NOTE',
+}
+export interface IOrderProductContentHistoryTask {
+  key: EOrderProductContentHistoryTask;
+  value: string;
+}
+export enum EOrderProductContentHistoryTask {
+  CREATE_ORDER = 'CREATE_ORDER',
+  REMOVE_PRODUCTS = 'REMOVE_PRODUCTS',
+  ADD_PRODUCTS = 'ADD_PRODUCTS',
+  CHANGE_PRODUCTS = 'CHANGE_PRODUCTS',
+  REMOVE_COMBOS = 'REMOVE_COMBOS',
+  ADD_COMBOS = 'ADD_COMBOS',
+  CHANGE_COMBOS = 'CHANGE_COMBOS',
+  REMOVE_COURSEEVENTS = 'REMOVE_COURSEEVENTS',
+  ADD_COURSEEVENTS = 'ADD_COURSEEVENTS',
+  CHANGE_COURSEEVENTS = 'CHANGE_COURSEEVENTS',
+  REMOVE_BEAUTISERVICES = 'REMOVE_BEAUTISERVICES',
+  ADD_BEAUTISERVICES = 'ADD_BEAUTISERVICES',
+  CHANGE_BEAUTISERVICES = 'CHANGE_BEAUTISERVICES',
+  REMOVE_PREPAIDCARDS = 'REMOVE_PREPAIDCARDS',
+  ADD_PREPAIDCARDS = 'ADD_PREPAIDCARDS',
+  CHANGE_PREPAIDCARDS = 'CHANGE_PREPAIDCARDS',
+}
+export interface IInformationContentHistoryTask {
+  key: EInformationContentHistoryTask;
+  value: string;
+  sub?: {
+    key: ESubInformationContentHistoryTask,
+    value: string,
+  }[];
+}
+export enum ESubInformationContentHistoryTask {
+  ACTION = 'ACTION',
+}
+export enum EInformationContentHistoryTask {
+  CREATE_TASK = 'CREATE_TASK',
+  NAME_TASK = 'NAME_TASK',
+  SOURCE = 'SOURCE',
+  CHANGE_SOURCE = 'CHANGE_SOURCE',
+  CUSTOMER = 'CUSTOMER',
+  CHANGE_CUSTOMER = 'CHANGE_CUSTOMER',
+  COUNSELOR = 'COUNSELOR',
+  REMOVE_TAG = 'REMOVE_TAG',
+  ADD_TAG = 'ADD_TAG',
+  CHANGE_TAG = 'CHANGE_TAG',
+  ADD_CHAIN = 'ADD_CHAIN',
+  LOCKED_CHAIN = 'LOCKED_CHAIN',
+  REMOVE_CHAIN = 'REMOVE_CHAIN',
+  CHANGE_CHAIN = 'CHANGE_CHAIN',
+  CHANGE_ACTION = 'CHANGE_ACTION',
+  INIT_PRODUCT = 'INIT_PRODUCT',
+  SEND_BLOCK_AUTOMATION = 'SEND_BLOCK_AUTOMATION',
+  CALL_PHONE = 'CALL_PHONE',
+}
+export interface IContentHistoryTask {
+  orderProduct?: IOrderProductContentHistoryTask[];
+  information?: IInformationContentHistoryTask[];
+  note?: INoteContentHistoryTask[];
+}
 export interface Order {
+  status: string;
+  statusName: string;
+  dStatus: SaleCenterStatus;
+  id: string;
+  code: string;
+  createdAt: Date;
+  amount: number;
   [name: string]: any;
 }
 export interface Status {
@@ -1411,7 +1509,11 @@ export enum EModule {
   CONFIG = 'config',
   SETTING = 'setting',
 }
-
+export enum ETabHistoryKey {
+  NOTE = 'note',
+  INFORMATION = 'information',
+  ORDER_PRODUCT = 'orderProduct',
+}
 export enum EFlowTab {
   RULE = 'rule',
   DATA = 'data',
