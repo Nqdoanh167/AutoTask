@@ -248,7 +248,7 @@
               </ng-template>
               <div class="mt-3 content-tab custom-scrollbar">
                 <div class="group-content">
-                  <app-history></app-history>
+                    <app-history [taskId]="sourceData?.id || ''" [triggerCall]="triggerCallHistory"></app-history>
                 </div>
               </div>
             </tab>

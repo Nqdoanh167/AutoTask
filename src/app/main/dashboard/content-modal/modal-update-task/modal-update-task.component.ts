@@ -206,7 +206,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     deleteTask: false,
   };
   public listBizUsers: User[] = [];
-
+  public triggerCallHistory!: any;
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
@@ -683,6 +683,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
                 this.updateSuccess.emit();
                 resolve(res.data);
                 this.getDetailTask();
+                this.triggerCallHistory = Math.random();
               } else {
                 reject(res);
                 if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
@@ -720,6 +721,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
                 this.updateSuccess.emit();
                 this.sourceData = res.data;
                 this.patchForm(res.data);
+                this.triggerCallHistory = Math.random();
                 resolve(res.data);
                 this.getDetailTask();
                 // this.hideModal();
@@ -802,6 +804,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         if (res.status === 200) {
           this.commonService.handleResSuccess('delete');
           this.updateSuccess.emit();
+          this.triggerCallHistory = Math.random();
           this.hideModal();
         } else {
           this.commonService.handleResErr(res);
@@ -849,6 +852,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             if (res.status === 200) {
               this.getDetailTask();
               this.updateSuccess.emit();
+              this.triggerCallHistory = Math.random();
               this.addTaskChainModalRef?.hide();
             } else {
               this.commonService.handleResErr(res);
@@ -909,6 +913,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.getDetailTask();
+            this.triggerCallHistory = Math.random();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -957,6 +962,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.getDetailTask();
+            this.triggerCallHistory = Math.random();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -1086,6 +1092,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             undefined,
             'Tạo đơn hàng thành công',
           );
+          this.triggerCallHistory = Math.random();
           this.updateSuccess.emit();
           this.getDetailTask();
         } else {
@@ -1123,7 +1130,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         ignoreBackdropClick: true,
         keyboard: false,
       });
-      modalCall.onHide?.pipe().subscribe(() => (this.isOpenBackDrop = false));
+      modalCall.onHide?.pipe().subscribe(() => {
+        this.isOpenBackDrop = false;
+        this.triggerCallHistory = Math.random();
+      });
     } catch (e) {
       console.log(e);
     }

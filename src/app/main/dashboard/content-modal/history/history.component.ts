@@ -32,7 +32,12 @@ import {InputSuggestCustomerComponent} from '@share/common/input-select-customer
 import {CustomerService} from '@app/services/api/customer.service';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '@app/services/api/auth.service';
-import {ETypeFilter, IFilterTopTable} from '@app/types/common';
+import {
+  ETypeButton,
+  ETypeFilter,
+  IFilterTopButton,
+  IFilterTopTable,
+} from '@app/types/common';
 import moment from 'moment';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 
@@ -42,8 +47,8 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
   styleUrls: ['./history.component.scss'],
 })
 export class HistoryComponent implements OnDestroy, OnInit {
-  @Input() orders!: Order[];
-  @Input() loading!: boolean;
+  @Input() taskId!: string;
+  @Input() triggerCall!: any;
   public currentBiz!: Biz;
   public history: ICommonDataSource<IHistory, any> = {
     rows: [],
@@ -60,17 +65,18 @@ export class HistoryComponent implements OnDestroy, OnInit {
     updatedAt: 0,
   };
   public ETabHistoryKey = ETabHistoryKey;
-  public configFilters: IFilterTopTable[] = [
+  public configButtons: IFilterTopButton[] = [
     {
-      type: ETypeFilter.DATE,
-      name: 'createdAt',
-      placeholder: 'Ngày tạo',
-      subType: 'range',
-      clearable: true,
+      name: 'reload',
+      type: ETypeButton.DEFAULT,
+      icon: './assets/images/icon/reload.svg',
     },
+  ];
+  public configFilters: IFilterTopTable[] = [
+  
     {
       type: ETypeFilter.SELECT,
-      name: 'tab',
+      name: 'tabKey',
       placeholder: 'Tab',
       options: [
         {
@@ -103,6 +109,13 @@ export class HistoryComponent implements OnDestroy, OnInit {
       searchable: true,
       multiple: true,
     },
+    {
+      type: ETypeFilter.DATE,
+      name: 'createdAt',
+      placeholder: 'Ngày tạo',
+      subType: 'range',
+      clearable: true,
+    },
   ];
   constructor(
     private readonly authService: AuthService,
@@ -118,11 +131,27 @@ export class HistoryComponent implements OnDestroy, OnInit {
         }));
       });
   }
-  ngOnChanges(changes: SimpleChanges): void {}
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['taskId'] || changes['triggerCall']) {
+      this.getHistory();
+    }
+  }
   ngOnInit(): void {
+    // this.getHistory();
+  }
+  onSelectFilter(data: {value?: string | string[]; name: string}) {
+    const filter = this.history.paramsQuery?.filter || '{}';
+    let obj = JSON.parse(filter);
+    
+    obj[data.name] = data.value;
+    this.history.paramsQuery.filter = JSON.stringify(obj);
     this.getHistory();
   }
-  onSelectFilter(data: {value?: string | string[]; name: string}) {}
+  handleAction(name: string) {
+    if (name === 'reload') {
+      this.getHistory();
+    }
+  }
   onPickerDateFilter(data: {value?: IDateRange | Date; name: string}) {
     try {
       const {value, name} = data;
@@ -141,144 +170,16 @@ export class HistoryComponent implements OnDestroy, OnInit {
 
         this.history.paramsQuery.filter = JSON.stringify(obj);
       }
-
       this.getHistory();
     } catch (e) {
       console.log(e);
     }
   }
   getHistory() {
-    // this.history.rows = [
-    //   {
-    //     id: '1',
-    //     taskId: '1',
-    //     bizId: '123456',
-    //     tabKey: ETabHistoryKey.NOTE,
-    //     actionBy: {
-    //       id: 'user123',
-    //       name: 'John Doe',
-    //       email: 'john@example.com',
-    //       picture:
-    //         'https://fastly.picsum.photos/id/622/200/300.jpg?hmac=HR8-4uUEihkyJx4VczHLFhVvELy7KCD1jm16BABaDy8',
-    //     },
-    //     content: {
-    //       note: [
-    //         {
-    //           key: ENoteContentHistoryTask.UPLOAD_FILE,
-    //           value: 'Uploaded file document.pdf',
-    //         },
-    //       ],
-    //     },
-    //     createdAt: new Date(),
-    //     updatedAt: new Date(),
-    //   },
-    //   {
-    //     id: '2',
-    //     taskId: '1',
-
-    //     bizId: '789012',
-    //     tabKey: ETabHistoryKey.ORDER_PRODUCT,
-    //     actionBy: {
-    //       id: 'user456',
-    //       name: 'Jane Smith',
-    //       email: 'jane@example.com',
-    //       picture:
-    //         'https://fastly.picsum.photos/id/622/200/300.jpg?hmac=HR8-4uUEihkyJx4VczHLFhVvELy7KCD1jm16BABaDy8',
-    //     },
-    //     content: {
-    //       orderProduct: [
-    //         {
-    //           key: EOrderProductContentHistoryTask.ADD_PRODUCT,
-    //           value: 'Added product XYZ123 to order #456',
-    //         },
-    //       ],
-    //     },
-    //     createdAt: new Date(),
-    //     updatedAt: new Date(),
-    //   },
-    //   {
-    //     id: '3',
-    //     taskId: '1',
-
-    //     bizId: '456789',
-    //     tabKey: ETabHistoryKey.INFORMATION,
-    //     actionBy: {
-    //       id: 'user789',
-    //       name: 'Alice Johnson',
-    //       email: 'alice@example.com',
-    //       picture:
-    //         'https://fastly.picsum.photos/id/622/200/300.jpg?hmac=HR8-4uUEihkyJx4VczHLFhVvELy7KCD1jm16BABaDy8',
-    //     },
-    //     content: {
-    //       information: [
-    //         {
-    //           key: EInformationContentHistoryTask.REMOVE_TAG,
-    //           value: "Removed tag 'important' from information",
-    //         },
-    //       ],
-    //     },
-    //     createdAt: new Date(),
-    //     updatedAt: new Date(),
-    //   },
-    //   {
-    //     id: '4',
-    //     taskId: '1',
-
-    //     bizId: '234567',
-    //     tabKey: ETabHistoryKey.INFORMATION,
-    //     actionBy: {
-    //       id: 'user234',
-    //       name: 'David Brown',
-    //       email: 'david@example.com',
-    //       picture:
-    //         'https://fastly.picsum.photos/id/622/200/300.jpg?hmac=HR8-4uUEihkyJx4VczHLFhVvELy7KCD1jm16BABaDy8',
-    //     },
-    //     content: {
-    //       information: [
-    //         {
-    //           key: EInformationContentHistoryTask.CHANGE_CHAIN,
-    //           value: "Added chain 'Marketing Campaign' to information",
-    //           sub: [
-    //             {
-    //               key: ESubInformationContentHistoryTask.ACTION,
-    //               value: 'Set start date to 2024-05-01',
-    //             },
-    //           ],
-    //         },
-    //         {
-    //           key: EInformationContentHistoryTask.REMOVE_CHAIN,
-    //           value: "Added chain 'Marketing Campaign' to information",
-    //         },
-    //       ],
-    //     },
-    //     createdAt: new Date(),
-    //     updatedAt: new Date(),
-    //   },
-    //   {
-    //     id: '5',
-    //     taskId: '1',
-    //     bizId: '345678',
-    //     tabKey: ETabHistoryKey.NOTE,
-    //     actionBy: {
-    //       id: 'user345',
-    //       name: 'Emily Wilson',
-    //       email: 'emily@example.com',
-    //       picture:
-    //         'https://fastly.picsum.photos/id/622/200/300.jpg?hmac=HR8-4uUEihkyJx4VczHLFhVvELy7KCD1jm16BABaDy8',
-    //     },
-    //     content: {
-    //       note: [
-    //         {
-    //           key: ENoteContentHistoryTask.CHANGE_NOTE,
-    //           value: 'Changed note content',
-    //         },
-    //       ],
-    //     },
-    //     createdAt: new Date(),
-    //     updatedAt: new Date(),
-    //   },
-    // ];
-
+    this.history.paramsQuery.filter = JSON.stringify({
+      ...JSON.parse(this.history.paramsQuery.filter || '{}'),
+      taskId: this.taskId,
+    });
     this.autoTaskService.history.get(this.history.paramsQuery).subscribe({
       next: (res) => {
         this.history.rows = res.data;
@@ -300,26 +201,34 @@ export class HistoryComponent implements OnDestroy, OnInit {
         return '';
     }
   }
-  getActionContent(action: string) {
+  getActionContent(action?: string) {
     switch (action) {
       case EOrderProductContentHistoryTask.CREATE_ORDER:
         return `Tạo đơn hàng`;
-      case EOrderProductContentHistoryTask.ADD_PRODUCT:
+      case EOrderProductContentHistoryTask.ADD_PRODUCTS:
         return `Thêm sản phẩm`;
-      case EOrderProductContentHistoryTask.REMOVE_PRODUCT:
+      case EOrderProductContentHistoryTask.REMOVE_PRODUCTS:
         return `Xóa sản phẩm`;
-      case EOrderProductContentHistoryTask.ADD_COMBO:
+      case EOrderProductContentHistoryTask.CHANGE_PRODUCTS:
+        return `Thay đổi sản phẩm`;
+      case EOrderProductContentHistoryTask.ADD_COMBOS:
         return `Thêm combo`;
-      case EOrderProductContentHistoryTask.REMOVE_COMBO:
+      case EOrderProductContentHistoryTask.REMOVE_COMBOS:
         return `Xóa combo`;
-      case EOrderProductContentHistoryTask.ADD_BEAUTIFUL_SERVICE:
+      case EOrderProductContentHistoryTask.CHANGE_COMBOS:
+        return `Thay đổi combo`;
+      case EOrderProductContentHistoryTask.ADD_BEAUTISERVICES:
         return `Thêm dịch vụ đẹp`;
-      case EOrderProductContentHistoryTask.REMOVE_BEAUTIFUL_SERVICE:
+      case EOrderProductContentHistoryTask.REMOVE_BEAUTISERVICES:
         return `Xóa dịch vụ đẹp`;
-      case EOrderProductContentHistoryTask.ADD_COURSE_EVENT:
+      case EOrderProductContentHistoryTask.CHANGE_BEAUTISERVICES:
+        return `Thay đổi dịch vụ đẹp`;
+      case EOrderProductContentHistoryTask.ADD_COURSEEVENTS:
         return `Thêm khóa học sự kiện`;
-      case EOrderProductContentHistoryTask.REMOVE_COURSE_EVENT:
+      case EOrderProductContentHistoryTask.REMOVE_COURSEEVENTS:
         return `Xóa khóa học sự kiện`;
+      case EOrderProductContentHistoryTask.CHANGE_COURSEEVENTS:
+        return `Thay đổi khóa học sự kiện`;
       case ENoteContentHistoryTask.ADD_NOTE:
         return `Thêm ghi chú`;
       case ENoteContentHistoryTask.CHANGE_NOTE:
@@ -332,12 +241,20 @@ export class HistoryComponent implements OnDestroy, OnInit {
         return `Xóa ghi chú`;
       case EInformationContentHistoryTask.ADD_TAG:
         return `Thêm tag`;
+      case EInformationContentHistoryTask.CHANGE_TAG:
+        return `Thay đổi tag`;
       case EInformationContentHistoryTask.REMOVE_TAG:
         return `Xóa tag`;
       case EInformationContentHistoryTask.CREATE_TASK:
-        return `Tạo task`;
+        return `Khởi tạo task`;
+      case EInformationContentHistoryTask.CHANGE_CUSTOMER:
+        return `Thay đổi khách hàng`;
+      case EInformationContentHistoryTask.NAME_TASK:
+        return `Thay đổi tên task`;
       case EInformationContentHistoryTask.SOURCE:
         return `Nguồn dữ liệu`;
+      case EInformationContentHistoryTask.CHANGE_SOURCE:
+        return `Thay đổi nguồn dữ liệu`;
       case EInformationContentHistoryTask.COUNSELOR:
         return `Nhân sự phụ trách`;
       case EInformationContentHistoryTask.CUSTOMER:
@@ -348,6 +265,14 @@ export class HistoryComponent implements OnDestroy, OnInit {
         return `Xóa chuỗi hành động`;
       case EInformationContentHistoryTask.CHANGE_CHAIN:
         return `Thay đổi chuỗi hành động`;
+      case EInformationContentHistoryTask.INIT_PRODUCT:
+        return `Khởi tạo sản phẩm`;
+      case EInformationContentHistoryTask.CHANGE_ACTION:
+        return `Thay đổi hành động`;
+      case EInformationContentHistoryTask.SEND_BLOCK_AUTOMATION:
+        return `Gửi block automation`;
+      case EInformationContentHistoryTask.CALL_PHONE:
+        return `Gọi điện thoại`;
       case EInformationContentHistoryTask.LOCKED_CHAIN:
         return `Khóa chuỗi hành động`;
       case ESubInformationContentHistoryTask.ACTION:

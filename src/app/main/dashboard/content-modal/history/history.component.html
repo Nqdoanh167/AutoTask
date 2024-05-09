@@ -1,6 +1,6 @@
 <div class="histories mt-2 overflow-x-hidden">
   <div class="filter">
-    <app-filter-top-table [configFilters]="configFilters" [configButtons]="[]" (selectEvent)="onSelectFilter($event)"
+    <app-filter-top-table [configFilters]="configFilters" [configButtons]="configButtons" (clickButtonEvent)="handleAction($event)" (selectEvent)="onSelectFilter($event)"
       (pickerDateEvent)="onPickerDateFilter($event)"></app-filter-top-table>
   </div>
   <div class="table-responsive tableFixHead custom-scrollbar">
@@ -21,14 +21,6 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="text-center" *ngIf="loading">
-          <td colspan="12">
-            <div class="spinner-grow text-primary" role="status">
-              <span class="visually-hidden">Loading</span>
-            </div>
-            <div>Loading</div>
-          </td>
-        </tr>
         <tr *ngFor="let item of history.rows; index as i">
           <td>
             <div class="fw-normal">
@@ -66,8 +58,8 @@
                     <div *ngIf="contentHistory.sub?.length" class="ms-4">
                       <ul>
                         <li *ngFor="let sub of contentHistory.sub">
-                          {{ getActionContent(sub.key) }}
-                          <span class="text-link cursor-text">{{sub.value}}</span>
+                          {{ getActionContent(sub?.key) }}
+                          <span class="text-link cursor-text">{{sub?.value}}</span>
                         </li>
                       </ul>
                     </div>
@@ -79,11 +71,11 @@
           <td>
             <div class="d-flex align-items-center gap-2">
               <div>
-                <img *ngIf="item.actionBy.picture" width="30" height="30" class="rounded-pill"
-                  [src]="item.actionBy.picture" alt="avatar">
+                <img *ngIf="item.actionBy?.picture" width="30" height="30" class="rounded-pill"
+                  [src]="item.actionBy?.picture" alt="avatar">
               </div>
               <div class="fw-normal">
-                {{ item.actionBy.name }}
+                {{ item.actionBy?.name }}
               </div>
             </div>
           </td>
