@@ -125,7 +125,7 @@ export class HistoryComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         this.currentBiz = biz || '';
-        this.configFilters[2].options = biz?.users?.map((user) => ({
+        this.configFilters[1].options = biz?.users?.map((user) => ({
           label: user.name,
           value: user.id as any,
         }));
@@ -142,8 +142,11 @@ export class HistoryComponent implements OnDestroy, OnInit {
   onSelectFilter(data: {value?: string | string[]; name: string}) {
     const filter = this.history.paramsQuery?.filter || '{}';
     let obj = JSON.parse(filter);
-    
+   
     obj[data.name] = data.value;
+    if(Array.isArray(data.value) && data.value.length === 0) { 
+      delete obj[data.name];
+    }
     this.history.paramsQuery.filter = JSON.stringify(obj);
     this.getHistory();
   }

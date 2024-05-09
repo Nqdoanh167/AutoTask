@@ -3,7 +3,7 @@
     <app-filter-top-table [configFilters]="configFilters" [configButtons]="configButtons" (clickButtonEvent)="handleAction($event)" (selectEvent)="onSelectFilter($event)"
       (pickerDateEvent)="onPickerDateFilter($event)"></app-filter-top-table>
   </div>
-  <div class="table-responsive tableFixHead custom-scrollbar">
+  <div class="table-responsive tableFixHead custom-scrollbar" style="min-height: 50vh;"> 
     <table class="table">
       <thead>
         <tr>
