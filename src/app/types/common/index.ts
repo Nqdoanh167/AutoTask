@@ -1,5 +1,6 @@
 export enum ETypeFilter {
   SEARCH = 'search',
+  POPOVER = 'popover',
   SELECT = 'select',
   DATE = 'date',
 }
@@ -14,6 +15,7 @@ export enum EBotherAdvanceBasicFilter {
 export enum ETypeButton {
   PRIMARY = 'primary',
   DEFAULT = 'default',
+  TOGGLE = 'toggle',
   SUB_PRIMARY = 'sub_primary',
 }
 export interface IOptionFilterTop {
@@ -50,6 +52,7 @@ export interface IFilterTopButton {
   activeIcon?: string;
   loading?: boolean;
   disabled?: boolean;
+  value?: any;
 }
 
 export interface ITabFilter {

@@ -41,9 +41,11 @@ export class FilterTopTableComponent {
     name: string;
   }>();
   @Output() searchEvent = new EventEmitter<{term: string; name: string}>();
+  @Output() popoverEvent = new EventEmitter<{value: string; name: string}>();
   @Output() selectEvent = new EventEmitter<{value?: string; name: string}>();
   @Output() scrollToEndEvent = new EventEmitter<string>();
   @Output() clickButtonEvent = new EventEmitter<string>();
+  @Output() toggleButtonEvent = new EventEmitter<{value: boolean; name?: string}>();
 
   @Input() configFilters: IFilterTopTable[] = [];
   @Input() configButtons: IFilterTopButton[] = [];
@@ -76,6 +78,10 @@ export class FilterTopTableComponent {
       (item) => item.botherType !== EBotherAdvanceBasicFilter.ADVANCE,
     );
   }
+  getDefaultValuePopover(name?: string) {
+    const filter = this.configFilters.find((item) => item.name === name);
+    return filter?.options?.find((item) => filter.value === item['value'])?.['label'];  
+  }
   handleOpenPopover(event: any) {
     // this.filteredTabs = this.tabs;
   }
@@ -87,6 +93,9 @@ export class FilterTopTableComponent {
   }
   onSelectValue(value?: string, name: string = 'select') {
     this.selectEvent.emit({value, name});
+  }
+  onPopoverValue(value: any, name: string = 'popover') {
+    this.popoverEvent.emit({value, name});
   }
   handleSearchingView(value: any, name: string) {
     // console.log(value, name);
@@ -130,6 +139,10 @@ export class FilterTopTableComponent {
   }
   onClick(name: string) {
     this.clickButtonEvent.emit(name);
+  }
+  handleToggleAction(event: any, name?: string) {
+    const checked = !!event.target?.checked;
+    this.toggleButtonEvent.emit({value: checked, name});
   }
   ngOnDestroy(): void {
     this.destroy$.next(true);

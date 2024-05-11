@@ -597,9 +597,9 @@ ng-select.select-search-icon {
       width: 250px;
       padding: 10px;
     }
-    .popover-arrow {
-      display: none;
-    }
+    // .popover-arrow {
+    //   display: none;
+    // }
     .list-tab {
       max-height: 500px;
       .tab-item {
@@ -623,6 +623,27 @@ ng-select.select-search-icon {
       @extend .custom-scrollbar;
     }
   }
+  &.custom-popover-dropdown {
+    // z-index of bs-dropdown-menu is 1040
+    .popover-body {
+      width: fit-content;
+      padding: 0px 10px;
+    }
+    
+    .tab-item {
+      padding: 10px;
+      white-space: pre-wrap;
+      font-weight: 500;
+      cursor: pointer;
+      &.active {
+        background-color: $neutral-100;
+      }
+      &:hover {
+        background-color: $neutral-100;
+      }
+    }
+  }
+  
   &.filter-advance-popover-tab {
     .popover-body {
       width: 450px;
@@ -634,7 +655,6 @@ ng-select.select-search-icon {
       white-space: pre-wrap;
     }
   }
-
 }
 
 // Card body

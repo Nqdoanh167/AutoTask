@@ -36,13 +36,13 @@ export const listColumns: IDataColumns = {
       name: 'Ngày tạo',
       value: 'createdAt',
       tooltip: 'Ngày tạo',
-      fieldSort: 'createdAt',
+      // fieldSort: 'createdAt',
     },
     {
       name: 'Ngày cập nhật',
       value: 'updatedAt',
       tooltip: 'Ngày cập nhật',
-      fieldSort: 'updatedAt',
+      // fieldSort: 'updatedAt',
     },
     {
       name: 'Người tạo',

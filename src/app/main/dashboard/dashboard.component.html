@@ -4,8 +4,8 @@
       <div class="content-site">
         <app-view-mode-tab [key]="EScreens.DASHBOARD"></app-view-mode-tab>
         <app-filter-top-table [configFilters]="configFilters" [configButtons]="configButtons"
-          (clickButtonEvent)="handleAction($event)" (searchEvent)="onSearch($event)"
-          (selectEvent)="onSelectFilter($event)"  (pickerDateEvent)="onPickerDateFilter($event)" (scrollToEndEvent)="handleLoadMoreData($event)"></app-filter-top-table>
+          (clickButtonEvent)="handleAction($event)" (toggleButtonEvent)="handleToggleAction($event)" (searchEvent)="onSearch($event)"
+          (selectEvent)="onSelectFilter($event)"  (popoverEvent)="onPopoverFilter($event)" (pickerDateEvent)="onPickerDateFilter($event)" (scrollToEndEvent)="handleLoadMoreData($event)"></app-filter-top-table>
         <div class="table-responsive tableFixHead custom-scrollbar">
           <table class="table col-resizable">
             <thead>
