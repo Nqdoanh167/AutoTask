@@ -107,7 +107,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     {
       type: ETypeFilter.SELECT,
       name: 'chainActId',
-      placeholder: 'Chuỗi',
+      placeholder: 'Chuỗi hành động',
       options: [
         {
           id: 'NONE',
@@ -161,7 +161,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     {
       type: ETypeFilter.SELECT,
       name: 'counselorId',
-      placeholder: 'Nv Phụ trách',
+      placeholder: 'Phụ trách chính',
       options: [],
       bindLabel: 'label',
       bindValue: 'value',
@@ -205,6 +205,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
       value: 'createdAt',
     },
     {
+      type: ETypeFilter.SELECT,
+      name: 'sourceIds',
+      placeholder: 'Nguồn dữ liệu',
+      options: [],
+      bindLabel: 'name',
+      bindValue: 'id',
+      clearable: true,
+      searchable: true,
+      multiple: true,
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
+    },
+    {
       type: ETypeFilter.DATE,
       name: 'createdAt',
       placeholder: 'Ngày tạo',
@@ -220,18 +232,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearable: true,
       botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'sourceIds',
-      placeholder: 'Nguồn tạo',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
+   
   ];
   public configButtons: IFilterTopButton[] = [
     {
@@ -708,7 +709,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.sources.rows.concat(res.data),
               'id',
             );
-            this.configFilters[10].options = this.sources.rows;
+            this.configFilters[8].options = this.sources.rows;
             this.sources.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
