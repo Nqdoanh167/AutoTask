@@ -10,67 +10,56 @@
             Loại hành động
             <span class="required">*</span>
           </label>
-          <ng-select
-            [ngClass]="{
+          <ng-select [ngClass]="{
               'is-invalid': submitted && f['nextAction'].errors
-            }"
-            [placeholder]="'Chọn hành động'"
-            [searchable]="true"
-            [items]="nextStepTypes"
-            (change)="handleChangeTypeAction()"
-            class="dropdown-auto-width"
-            appearance="outline"
-            formControlName="nextAction"
-            id="actionType"
-            appendTo=".modal-update-action"
-            bindLabel="label"
-            bindValue="value"
-          ></ng-select>
-          <div
-            *ngIf="submitted && f['nextAction'].errors"
-            class="invalid-feedback"
-          >
+            }" [placeholder]="'Chọn hành động'" [searchable]="true" [items]="nextStepTypes"
+            (change)="handleChangeTypeAction($event)" class="dropdown-auto-width" appearance="outline"
+            formControlName="nextAction" id="actionType" appendTo=".modal-update-action" bindLabel="label"
+            bindValue="value"></ng-select>
+          <div *ngIf="submitted && f['nextAction'].errors" class="invalid-feedback">
             <div *ngIf="f['nextAction'].errors?.['required']">
               Loại hành động không được bỏ trống
             </div>
           </div>
         </div>
-        <div
-          *ngIf="
+        <div *ngIf="
             f['nextAction'].value &&
             [
               ENextStepType.CALL_BLOCK_AUTOMATION,
               ENextStepType.CONTINUE_TO_NEXT_ACTION,
+              ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK,
               ENextStepType.ADD_CHAIN
             ].includes(f['nextAction'].value)
-          "
-          class="mb-2"
-        >
-          <div
-            *ngIf="
+          " class="mb-2">
+          <div *ngIf="
+              f['nextAction'].value === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK
+            ">
+            <label class="form-control-label" for="actionType">
+              Chọn thông tin
+              <span class="required">*</span>
+            </label>
+            <ng-container>
+              <ng-select [ngClass]="{
+                  'is-invalid': submitted && f['closeCloneTask']?.errors
+                }" formControlName="closeCloneTask" [placeholder]="'Chọn thông tin'" [searchable]="true"
+                [items]="optionToCloneTask" [closeOnSelect]="false" [loading]="loadingData.blocks" [clearable]="false"
+                [multiple]="true" class="dropdown-auto-width custom-input-multiple-round" bindLabel="label"
+                bindValue="value" appendTo=".modal-update-action"></ng-select>
+            </ng-container>
+          </div>
+          <div *ngIf="
               f['nextAction'].value === ENextStepType.CALL_BLOCK_AUTOMATION
-            "
-          >
+            ">
             <label class="form-control-label" for="actionType">
               Automation Block
               <span class="required">*</span>
             </label>
             <ng-container formGroupName="callBlockAutomation">
-              <ng-select
-                [ngClass]="{
+              <ng-select [ngClass]="{
                   'is-invalid': submitted && f['callBlockAutomation']?.errors
-                }"
-                formControlName="blockId"
-                [placeholder]="'Chọn Block'"
-                [searchable]="true"
-                [items]="blocks"
-                [loading]="loadingData.blocks"
-                [clearable]="false"
-                class="dropdown-auto-width"
-                bindLabel="name"
-                bindValue="id"
-                appendTo=".modal-update-action"
-              ></ng-select>
+                }" formControlName="blockId" [placeholder]="'Chọn Block'" [searchable]="true" [items]="blocks"
+                [loading]="loadingData.blocks" [clearable]="false" class="dropdown-auto-width" bindLabel="name"
+                bindValue="id" appendTo=".modal-update-action"></ng-select>
             </ng-container>
           </div>
           <div *ngIf="f['nextAction'].value === ENextStepType.ADD_CHAIN">
@@ -79,24 +68,12 @@
               <span class="required">*</span>
             </label>
             <ng-container formGroupName="addNewChain">
-              <ng-select
-                [ngClass]="{
+              <ng-select [ngClass]="{
                   'is-invalid': submitted && f['addNewChain']?.errors
-                }"
-                formControlName="chainActResultId"
-                [placeholder]="'Chọn HĐ từ chuỗi khác'"
-                [searchable]="true"
-                [searchFn]="customSearchFn"
-                [items]="actionChains"
-                (change)="handleChangeNextActionInNewChain($event)"
-                [loading]="loadingData.actionChains"
-                [clearable]="false"
-                class="dropdown-auto-width"
-                bindLabel="name"
-                bindValue="id"
-                groupBy="actionResults"
-                appendTo=".modal-update-action"
-              >
+                }" formControlName="chainActResultId" [placeholder]="'Chọn HĐ từ chuỗi khác'" [searchable]="true"
+                [searchFn]="customSearchFn" [items]="actionChains" (change)="handleChangeNextActionInNewChain($event)"
+                [loading]="loadingData.actionChains" [clearable]="false" class="dropdown-auto-width" bindLabel="name"
+                bindValue="id" groupBy="actionResults" appendTo=".modal-update-action">
                 <ng-template ng-optgroup-tmp let-item="item">
                   {{ item?.name || '-' }}
                 </ng-template>
@@ -114,31 +91,20 @@
               </ng-select>
             </ng-container>
           </div>
-          <div
-            *ngIf="
+          <div *ngIf="
               f['nextAction'].value === ENextStepType.CONTINUE_TO_NEXT_ACTION
-            "
-          >
+            ">
             <label class="form-control-label" for="actionType">
               Hành động trong chuỗi
               <span class="required">*</span>
             </label>
             <ng-container formGroupName="moveToAction">
-              <ng-select
-                [ngClass]="{
+              <ng-select [ngClass]="{
                   'is-invalid': submitted && f['moveToAction']?.errors
-                }"
-                formControlName="chainActResultId"
-                [placeholder]="'Chọn Hành động'"
-                [searchable]="false"
-                [items]="actionResults"
-                [clearable]="false"
-                (change)="handleChangeNextActionInChain($event)"
-                class="dropdown-auto-width"
-                bindLabel="action.name"
-                bindValue="id"
-                appendTo=".modal-update-action"
-              ></ng-select>
+                }" formControlName="chainActResultId" [placeholder]="'Chọn Hành động'" [searchable]="false"
+                [items]="actionResults" [clearable]="false" (change)="handleChangeNextActionInChain($event)"
+                class="dropdown-auto-width" bindLabel="action.name" bindValue="id"
+                appendTo=".modal-update-action"></ng-select>
             </ng-container>
             <!--            <div-->
             <!--              *ngIf="submitted && f['moveToAction']?.errors"-->
@@ -153,43 +119,26 @@
             Độ trễ
             <span class="required">*</span>
           </label>
-          <ng-select
-            id="delayType"
-            (change)="handleChangeDelayType()"
-            [ngClass]="{
+          <ng-select id="delayType" (change)="handleChangeDelayType()" [ngClass]="{
               'is-invalid': submitted && f['delayType'].errors
-            }"
-            [placeholder]="'Chọn loại'"
-            [clearable]="false"
-            [searchable]="false"
-            formControlName="delayType"
-            class="dropdown-auto-width"
-            appendTo=".modal-update-action"
-          >
+            }" [placeholder]="'Chọn loại'" [clearable]="false" [searchable]="false" formControlName="delayType"
+            class="dropdown-auto-width" appendTo=".modal-update-action">
             <ng-option [value]="EDelayType.NOW">Ngay lập tức</ng-option>
             <ng-option [value]="EDelayType.MINUTE">Phút</ng-option>
             <ng-option [value]="EDelayType.HOUR">Giờ</ng-option>
             <ng-option [value]="EDelayType.DAY">Ngày</ng-option>
           </ng-select>
         </div>
-        <div
-          class="mb-2"
-          *ngIf="
+        <div class="mb-2" *ngIf="
             ![undefined, EDelayType.NOW, null].includes(f['delayType'].value)
-          "
-        >
-          <input
-            [ngClass]="{
+          ">
+          <input [ngClass]="{
               'is-invalid':
                 submitted &&
                 (f['delayType'].value === undefined ||
                   f['delayType'].value === null ||
                   !f['delayValue'].value)
-            }"
-            class="input-medium"
-            type="number"
-            formControlName="delayValue"
-          />
+            }" class="input-medium" type="number" formControlName="delayValue" />
         </div>
         <!--        <div class="mb-2">-->
         <!--          <label class="form-control-label" for="type">-->
@@ -212,34 +161,18 @@
         <!--          </ng-select>-->
         <!--        </div>-->
       </ng-container>
-      <div
-        modalFooter
-        class="d-flex justify-content-between align-items-center"
-      >
+      <div modalFooter class="d-flex justify-content-between align-items-center">
         <div>
-          <button
-            *ngIf="sourceData"
-            (click)="onDelete()"
-            class="btn button-delete-modal"
-            type="button"
-          >
+          <button *ngIf="sourceData" (click)="onDelete()" class="btn button-delete-modal" type="button">
             Xóa
           </button>
         </div>
         <div class="d-flex gap-2">
-          <button
-            (click)="hideModal()"
-            class="btn button-default-modal"
-            type="button"
-          >
+          <button (click)="hideModal()" class="btn button-default-modal" type="button">
             Hủy
           </button>
-          <custom-button-loading
-            (action)="onSubmit()"
-            [type]="'button'"
-            [textButton]="'Xác nhận'"
-            [className]="'button-submit-modal'"
-          ></custom-button-loading>
+          <custom-button-loading (action)="onSubmit()" [type]="'button'" [textButton]="'Xác nhận'"
+            [className]="'button-submit-modal'"></custom-button-loading>
         </div>
       </div>
     </app-custom-modal>

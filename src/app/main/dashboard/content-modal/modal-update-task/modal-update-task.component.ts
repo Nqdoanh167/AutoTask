@@ -24,6 +24,7 @@ import {
   AbstractControl,
   FormArray,
   FormBuilder,
+  FormControl,
   FormGroup,
   ValidationErrors,
   Validators,
@@ -466,7 +467,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             (<FormGroup>taskChainResultForm.controls.action).controls['reasons']
           )).push(reasonForm);
         });
-
         taskChainResult.results?.forEach((result) => {
           const resultForm = this.fb.group({
             result: this.fb.group({
@@ -476,9 +476,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             nextActions: this.fb.array([]),
           });
           result.nextActions?.forEach((nextAction) => {
+            
             const nextActionForm = this.fb.group({
               addNewChain: nextAction.addNewChain,
               callBlockAutomation: nextAction.callBlockAutomation,
+              closeCloneTask: [nextAction.closeCloneTask],
               delayType: nextAction.delayType,
               delayValue: nextAction.delayValue,
               moveToAction: nextAction.moveToAction,
@@ -505,6 +507,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
               moveToAction: nextAction?.childNextAction?.moveToAction,
               callBlockAutomation:
                 nextAction?.childNextAction?.callBlockAutomation,
+              closeCloneTask: [nextAction?.childNextAction?.closeCloneTask],
               addNewChain: nextAction?.childNextAction?.addNewChain,
               nextAction: nextAction?.childNextAction?.nextAction,
               type: nextAction?.childNextAction?.type,
@@ -1045,8 +1048,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
               formSteps.push(
                 this.fb.group({
                   ...dataStepForm,
+                  closeCloneTask:[dataStepForm.closeCloneTask],
                   childNextAction: {
                     ...dataStepForm,
+                    closeCloneTask: dataStepForm.closeCloneTask,
                   },
                 }),
               );

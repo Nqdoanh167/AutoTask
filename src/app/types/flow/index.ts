@@ -28,7 +28,17 @@ export enum ENextStepType {
   CREATE_ORDER = 'CREATE_ORDER',
   CALL_BLOCK_AUTOMATION = 'CALL_BLOCK_AUTOMATION',
   CLOSE_CHAIN = 'CLOSE_CHAIN',
+  CLOSE_CHAIN_AND_CLONE_TASK = 'CLOSE_CHAIN_AND_CLONE_TASK',
   ADD_CHAIN = 'ADD_CHAIN',
+}
+
+export enum EOptionCloneTask {
+  SOURCE = 'SOURCE',
+  COUNSELOR = 'COUNSELOR',
+  TAG = 'TAG',
+  CURRENT_CHAIN = 'CURRENT_CHAIN',
+  LEADDEAL = 'LEADDEAL',
+  PRODUCT = 'PRODUCT',
 }
 
 export enum EResultType {
@@ -122,6 +132,7 @@ export interface IChainNextAction {
   callBlockAutomation?: {
     blockId?: string;
   };
+  closeCloneTask?: string[];
   callToBlockId?: string;
   moveToActionId?: string;
   addNewChainId?: string;

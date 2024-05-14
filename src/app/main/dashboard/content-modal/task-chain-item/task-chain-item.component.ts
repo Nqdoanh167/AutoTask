@@ -18,6 +18,7 @@ import {
   EActionType,
   EDelayType,
   ENextStepType,
+  EOptionCloneTask,
   EStatusTaskChainResult,
   ETaskChainResultType,
   ETaskChainType,
@@ -60,7 +61,32 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   @Output() updateTaskChainEvent = new EventEmitter();
   @Output() cancelUpdateTaskChainEvent = new EventEmitter();
   @Output() callEvent = new EventEmitter();
-
+  public optionToCloneTask = [
+    {
+      label: 'Nguồn dữ liệu',
+      value: EOptionCloneTask.SOURCE,
+    },
+    {
+      label: 'Nhân sự phụ trách',
+      value: EOptionCloneTask.COUNSELOR,
+    },
+    {
+      label: 'TAG',
+      value: EOptionCloneTask.TAG,
+    },
+    {
+      label: 'Chuỗi hiện tại',
+      value: EOptionCloneTask.CURRENT_CHAIN,
+    },
+    {
+      label: 'Thông tin khách hàng',
+      value: EOptionCloneTask.LEADDEAL,
+    },
+    {
+      label: 'Sản phẩm quan tâm',
+      value: EOptionCloneTask.PRODUCT,
+    },
+  ];
   public loading = {
     submit: false,
     sendBlock: false,
@@ -220,6 +246,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
           addNewChain: nextAction?.childNextAction?.addNewChain
             ? nextAction?.childNextAction?.addNewChain
             : null,
+          closeCloneTask: nextAction?.childNextAction?.closeCloneTask
+            ? nextAction?.childNextAction?.closeCloneTask
+            : null,
           nextAction: nextAction?.childNextAction?.nextAction,
         };
         return {
@@ -239,6 +268,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
               chainActResultId: nextAction.moveToActionId,
             }
           : null,
+        closeCloneTask: nextAction.closeCloneTask || null
       };
       return {
         ...nextAction,
@@ -296,6 +326,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       case ENextStepType.CLOSE_CHAIN:
         string += 'Đóng chuỗi';
         break;
+      case ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK:
+        string += 'Đóng chuỗi và tạo bản sao công việc';
+        break;
       default:
         string += '-';
         break;
@@ -313,6 +346,13 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         `<b>${
           nextStep.childNextAction?.moveToAction?.chainActResult?.action
             ?.name || ''
+        }</b>`;
+    }
+    if (nextStep.childNextAction?.closeCloneTask?.length) {
+      string +=
+        ': ' +
+        `<b>${
+          this.optionToCloneTask.filter(o => nextStep.childNextAction?.closeCloneTask?.includes(o.value))?.map(o => o.label)?.join(", ")
         }</b>`;
     }
     if (

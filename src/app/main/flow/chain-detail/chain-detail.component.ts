@@ -15,6 +15,7 @@ import {
   EChainNextActType,
   EDelayType,
   ENextStepType,
+  EOptionCloneTask,
   IAction,
   IActResult,
   IChainAct,
@@ -108,6 +109,32 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+  public optionToCloneTask = [
+    {
+      label: 'Nguồn dữ liệu',
+      value: EOptionCloneTask.SOURCE,
+    },
+    {
+      label: 'Nhân sự phụ trách',
+      value: EOptionCloneTask.COUNSELOR,
+    },
+    {
+      label: 'TAG',
+      value: EOptionCloneTask.TAG,
+    },
+    {
+      label: 'Chuỗi hiện tại',
+      value: EOptionCloneTask.CURRENT_CHAIN,
+    },
+    {
+      label: 'Thông tin khách hàng',
+      value: EOptionCloneTask.LEADDEAL,
+    },
+    {
+      label: 'Sản phẩm quan tâm',
+      value: EOptionCloneTask.PRODUCT,
+    },
+  ];
   public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
     rows: [],
     loading: false,
@@ -278,6 +305,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               case ENextStepType.CALL_BLOCK_AUTOMATION:
                 if (!nextAction.callToBlockId) return false;
                 break;
+              case ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK:
+                if (!nextAction.closeCloneTask?.length) return false;
+                break;
               default:
                 break;
             }
@@ -317,6 +347,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                     ? {
                         blockId: nextAction.callToBlockId,
                       }
+                    : null,
+                  closeCloneTask: nextAction.closeCloneTask?.length
+                    ? nextAction.closeCloneTask
                     : null,
                   moveToAction: nextAction.moveToActionId
                     ? {
@@ -835,10 +868,16 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     nextAction.moveToAction = {
       chainActResultId: undefined,
     };
+    nextAction.closeCloneTask = Object.values(EOptionCloneTask);
     nextAction.addNewChainId = undefined;
     nextAction.addNewChainActId = undefined;
     nextAction.moveToActionId = undefined;
     nextAction.callToBlockId = undefined;
+    if(nextAction.nextAction === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
+      nextAction.closeCloneTask = Object.values(EOptionCloneTask);
+    } else {
+      nextAction.closeCloneTask = []
+    }
   }
 
   handleChangeActionFromNewChain(

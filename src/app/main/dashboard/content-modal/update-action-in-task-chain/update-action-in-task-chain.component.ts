@@ -10,6 +10,7 @@ import {
   EChainNextActType,
   EDelayType,
   ENextStepType,
+  EOptionCloneTask,
   IAction,
   IActResult,
   IChainAct,
@@ -53,7 +54,32 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   @Output() updateSuccess = new EventEmitter<any>();
   @Output() deleteEvent = new EventEmitter<any>();
-
+  public optionToCloneTask = [
+    {
+      label: 'Nguồn dữ liệu',
+      value: EOptionCloneTask.SOURCE,
+    },
+    {
+      label: 'Nhân sự phụ trách',
+      value: EOptionCloneTask.COUNSELOR,
+    },
+    {
+      label: 'TAG',
+      value: EOptionCloneTask.TAG,
+    },
+    {
+      label: 'Chuỗi hiện tại',
+      value: EOptionCloneTask.CURRENT_CHAIN,
+    },
+    {
+      label: 'Thông tin khách hàng',
+      value: EOptionCloneTask.LEADDEAL,
+    },
+    {
+      label: 'Sản phẩm quan tâm',
+      value: EOptionCloneTask.PRODUCT,
+    },
+  ];
   public nextStepTypes = this.configurationService.nextStepTypes;
   public submitted = false;
   public updateForm = this.fb.group(
@@ -67,6 +93,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       callBlockAutomation: this.fb.group({
         blockId: null,
       }),
+      closeCloneTask: [null],
       addNewChain: this.fb.group({
         chainActResultId: null,
         chainActResult: null,
@@ -136,6 +163,14 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
         callBlockAutomation?.setErrors(null);
       }
     }
+    if (nextAction?.value === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
+      const closeCloneTask = form.get('closeCloneTask');
+      if (!closeCloneTask?.value?.length) {
+        closeCloneTask?.setErrors({required: true});
+      } else {
+        closeCloneTask?.setErrors(null);
+      }
+    }
     return null;
   }
 
@@ -178,7 +213,11 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     this.hideModal();
   }
 
-  handleChangeTypeAction() {
+  handleChangeTypeAction(event: any) {
+    let optionClone: string[] = [];
+    if(event?.value === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
+      optionClone = Object.values(EOptionCloneTask);
+    } 
     this.updateForm.patchValue({
       moveToAction: {
         chainActResultId: null,
@@ -187,6 +226,8 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       callBlockAutomation: {
         blockId: null,
       },
+      
+      closeCloneTask: optionClone,
       addNewChain: {
         chainActResultId: null,
         chainActResult: null,
