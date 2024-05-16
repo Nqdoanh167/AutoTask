@@ -60,6 +60,10 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       value: EOptionCloneTask.SOURCE,
     },
     {
+      label: 'Ghi chú',
+      value: EOptionCloneTask.NOTE,
+    },
+    {
       label: 'Nhân sự phụ trách',
       value: EOptionCloneTask.COUNSELOR,
     },

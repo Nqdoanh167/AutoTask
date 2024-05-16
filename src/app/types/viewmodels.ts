@@ -1466,6 +1466,7 @@ export enum EInformationContentHistoryTask {
   INIT_PRODUCT = 'INIT_PRODUCT',
   SEND_BLOCK_AUTOMATION = 'SEND_BLOCK_AUTOMATION',
   CALL_PHONE = 'CALL_PHONE',
+  CHANGE_NOTE_I = 'CHANGE_NOTE_I',
 }
 export interface IContentHistoryTask {
   orderProduct?: IOrderProductContentHistoryTask[];

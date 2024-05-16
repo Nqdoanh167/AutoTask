@@ -60,6 +60,7 @@ import { HistoryComponent } from './content-modal/history/history.component';
     PipeTimeViewModule,
     CustomModalComponent,
     FormsModule,
+    TextAreaComponent,
     NgSelectModule,
     ReactiveFormsModule,
     TabsModule,

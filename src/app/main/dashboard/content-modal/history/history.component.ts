@@ -279,6 +279,8 @@ export class HistoryComponent implements OnDestroy, OnInit {
         return `Nguồn dữ liệu`;
       case EInformationContentHistoryTask.CHANGE_SOURCE:
         return `Thay đổi nguồn dữ liệu`;
+      case EInformationContentHistoryTask.CHANGE_NOTE_I:
+        return `Thay đổi ghi chú`;
       case EInformationContentHistoryTask.COUNSELOR:
         return `Nhân sự phụ trách`;
       case EInformationContentHistoryTask.CUSTOMER:

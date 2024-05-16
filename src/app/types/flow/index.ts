@@ -38,6 +38,7 @@ export enum EOptionCloneTask {
   TAG = 'TAG',
   CURRENT_CHAIN = 'CURRENT_CHAIN',
   LEADDEAL = 'LEADDEAL',
+  NOTE = 'NOTE',
   PRODUCT = 'PRODUCT',
 }
 
@@ -304,6 +305,7 @@ export interface ITask {
   checked?: boolean;
   id: string;
   name: string;
+  note: string;
   leadDeal?: ILeadDealDto;
   tags?: ITag[];
   cart: ITaskCartDto;
