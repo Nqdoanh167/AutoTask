@@ -301,6 +301,8 @@ export class HistoryComponent implements OnDestroy, OnInit {
         return `Gọi điện thoại`;
       case EInformationContentHistoryTask.LOCKED_CHAIN:
         return `Khóa chuỗi hành động`;
+      case EInformationContentHistoryTask.ROLE:
+        return `Vai trò`;
       case ESubInformationContentHistoryTask.ACTION:
         return `Hành động`;
       default:

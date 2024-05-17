@@ -27,6 +27,7 @@ import {
   IUpdateTaskResultDto,
 } from '@app/types/flow';
 import {
+  ISetting,
   ISource,
   ISourceDto,
   IUpdateSourceDto,
@@ -54,6 +55,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     history: 'task-history',
     source: 'source',
     settingView: 'setting-view',
+    setting: 'setting',
   };
   private defaultParams: any = {};
 
@@ -370,6 +372,20 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     update: (body: IViewDto) =>
       this.httpClient.put<EntityResult<IView>>(
         this.createUrl([this.api.settingView]),
+        body,
+      ),
+  };
+  setting = {
+    retrieve: (params = {}) =>
+      this.httpClient.get<EntityResult<ISetting>>(
+        this.createUrl([this.api.setting, 'retrieve']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    update: (body: IViewDto) =>
+      this.httpClient.put<EntityResult<IView>>(
+        this.createUrl([this.api.setting]),
         body,
       ),
   };

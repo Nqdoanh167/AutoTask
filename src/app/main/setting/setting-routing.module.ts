@@ -7,6 +7,7 @@ import {EmployeeComponent} from '@main/setting/employee/employee.component';
 import {BranchComponent} from '@main/setting/branch/branch.component';
 import {SourceComponent} from '@main/setting/source/source.component';
 import { TagComponent } from './tag/tag.component';
+import { RoleComponent } from './role/role.component';
 
 const routes: Routes = [
   {
@@ -37,6 +38,10 @@ const routes: Routes = [
       {
         path: 'branch',
         component: BranchComponent,
+      },
+      {
+        path: 'role',
+        component: RoleComponent,
       },
     ],
   },

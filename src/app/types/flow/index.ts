@@ -300,7 +300,15 @@ export interface ITaskCartDto {
   prepaidCards: PrepaidCard[];
   courseEvents: CourseEvent[];
 }
-
+export interface ITeam {
+  roleId: string;
+  roleIcon: string;
+  roleName: string;
+  userId: string;
+  userName: string;
+  userPicture: string;
+  userEmail: string;
+}
 export interface ITask {
   checked?: boolean;
   id: string;
@@ -313,6 +321,7 @@ export interface ITask {
   counselor: AccountPublic;
   taskChainIds: string[];
   taskChains: ITaskChain[];
+  teams?: ITeam[]
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;
