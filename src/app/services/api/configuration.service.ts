@@ -60,6 +60,7 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
       value: ENextStepType.CONTINUE_TO_NEXT_ACTION,
       label: 'Hành động tiếp theo trong chuỗi',
     },
+   
     {
       value: ENextStepType.CREATE_ORDER,
       label: 'Tạo đơn hàng',
@@ -71,6 +72,10 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
     {
       value: ENextStepType.CLOSE_CHAIN,
       label: 'Đóng chuỗi HĐ',
+    },
+    {
+      value: ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK,
+      label: 'Đóng chuỗi HĐ và tạo bản sao công việc',
     },
     {
       value: ENextStepType.ADD_CHAIN,

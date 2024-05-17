@@ -92,21 +92,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
           label: 'Hành động hoàn thành',
           value: EActionStates.EXECUTED,
         },
-        {
-          label: 'Ẩn chuỗi đã đóng',
-          value: EActionStates.HIDE_FULL_EXECUTED,
-        },
+        // {
+        //   label: 'Ẩn chuỗi đã đóng',
+        //   value: EActionStates.HIDE_FULL_EXECUTED,
+        // },
       ],
       bindLabel: 'label',
       bindValue: 'value',
       clearable: true,
       multiple: true,
       minWidth: '200px',
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
       type: ETypeFilter.SELECT,
       name: 'chainActId',
-      placeholder: 'Chuỗi',
+      placeholder: 'Chuỗi hành động',
       options: [
         {
           id: 'NONE',
@@ -160,7 +161,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     {
       type: ETypeFilter.SELECT,
       name: 'counselorId',
-      placeholder: 'Nv Phụ trách',
+      placeholder: 'Phụ trách chính',
       options: [],
       bindLabel: 'label',
       bindValue: 'value',
@@ -169,22 +170,51 @@ export class DashboardComponent implements OnInit, OnDestroy {
       botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
-      type: ETypeFilter.SELECT,
+      type: ETypeFilter.POPOVER,
       name: 'sort',
       placeholder: 'Sắp xếp',
       options: [
         {
-          label: 'Thời gian gần nhất',
+          label: 'Ngày tạo: Mới -> Cũ',
+          value: '-createdAt',
+        },
+        {
+          label: 'Ngày tạo: Cũ -> Mới',
+          value: 'createdAt',
+        },
+        {
+          label: 'Ngày cập nhật: Mới -> Cũ',
+          value: '-updatedAt',
+        },
+        {
+          label: 'Ngày cập nhật: Cũ -> Mới',
+          value: 'updatedAt',
+        },
+        {
+          label: 'Hành động: Trễ -> Cần thực hiện -> Đã thực hiện',
           value: 'deadlineDate',
         },
         {
-          label: 'Thời gian xa nhất',
+          label: 'Hành động: Đã thực hiện -> Cần thực hiện -> Trễ',
           value: '-deadlineDate',
         },
       ],
       bindLabel: 'label',
       bindValue: 'value',
       clearable: true,
+      value: 'createdAt',
+    },
+    {
+      type: ETypeFilter.SELECT,
+      name: 'sourceIds',
+      placeholder: 'Nguồn dữ liệu',
+      options: [],
+      bindLabel: 'name',
+      bindValue: 'id',
+      clearable: true,
+      searchable: true,
+      multiple: true,
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
       type: ETypeFilter.DATE,
@@ -202,20 +232,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearable: true,
       botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'sourceIds',
-      placeholder: 'Nguồn tạo',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
+   
   ];
   public configButtons: IFilterTopButton[] = [
+    {
+      name: 'isHideExecute',
+      type: ETypeButton.TOGGLE,
+      label: 'Ẩn chuỗi đã đóng',
+      value: true,
+    },
     {
       name: 'reload',
       type: ETypeButton.DEFAULT,
@@ -452,16 +477,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.configFilters.forEach((configFilter) => {
             if (
               configFilter.type === ETypeFilter.SELECT ||
+              configFilter.type === ETypeFilter.POPOVER ||
               configFilter.type === ETypeFilter.DATE
             ) {
-              configFilter.value =
-                currentActiveViewMode?.options[configFilter.name!];
               if (configFilter.name === 'sort') {
-                this.dataSource.paramsQuery.sort = currentActiveViewMode
-                  ?.options[configFilter.name!] as string;
+                configFilter.value =
+                  currentActiveViewMode?.options[configFilter.name!] ||
+                  '-createdAt';
+                this.dataSource.paramsQuery.sort =
+                  currentActiveViewMode?.options[configFilter.name!] ||
+                  ('-createdAt' as string);
               } else {
+                configFilter.value =
+                  currentActiveViewMode?.options[configFilter.name!];
                 objFilterQuery[configFilter.name!] = configFilter.value;
               }
+            }
+          });
+
+          this.configButtons.forEach((configButton) => {
+            if (configButton.type === ETypeButton.TOGGLE) {
+              configButton.value =
+                currentActiveViewMode?.options[configButton.name!];
+              objFilterQuery[configButton.name!] = configButton.value;
             }
           });
           // update dataSource.paramsQuery.filter by objFilterQuery
@@ -671,7 +709,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.sources.rows.concat(res.data),
               'id',
             );
-            this.configFilters[10].options = this.sources.rows;
+            this.configFilters[8].options = this.sources.rows;
             this.sources.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -756,6 +794,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     if (name === 'add_new') {
       this.handleUpdate();
+    }
+  }
+  handleToggleAction(data: {name?: string; value: boolean}) {
+    const obj = JSON.parse(this.dataSource.paramsQuery.filter || '{}');
+    obj[data.name!] = data.value;
+    this.dataSource.paramsQuery.filter = JSON.stringify(obj);
+    const configButton = this.configButtons.find(
+      (cf) => cf.name === data.name,
+    );
+    configButton!.value = data.value;
+
+    if (!isEqual(obj, this.currentActiveViewMode?.options)) {
+      this.handleViewModeChange(true);
+      return;
     }
   }
 
@@ -882,7 +934,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.dataSource.paramsQuery.q = term;
     this.getDataSource(true);
   }
-
+  onPopoverFilter(data: {value?: string | string[]; name: string}) {
+    if (data.value) {
+      this.dataSource.paramsQuery.sort = data.value;
+    } else {
+      delete this.dataSource.paramsQuery.sort;
+    }
+    this.configFilters[7].value = data.value;
+    if (data.value !== this.currentActiveViewMode?.options?.sort) {
+      this.handleViewModeChange(true);
+    }
+  }
   onSelectFilter(data: {value?: string | string[]; name: string}) {
     try {
       const {value, name} = data;
