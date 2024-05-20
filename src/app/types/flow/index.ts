@@ -34,7 +34,7 @@ export enum ENextStepType {
 
 export enum EOptionCloneTask {
   SOURCE = 'SOURCE',
-  COUNSELOR = 'COUNSELOR',
+  TEAM = 'TEAM',
   TAG = 'TAG',
   CURRENT_CHAIN = 'CURRENT_CHAIN',
   LEADDEAL = 'LEADDEAL',
@@ -337,7 +337,7 @@ export interface ITaskDto {
 }
 export interface IBulkTaskDto {
   taskIds: string[];
-  counselorId: string | null;
+  teams: ITeam[];
 }
 
 export interface IAddTaskChainDto {

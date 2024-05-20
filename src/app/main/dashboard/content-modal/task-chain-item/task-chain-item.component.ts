@@ -72,7 +72,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     },
     {
       label: 'Nhân sự phụ trách',
-      value: EOptionCloneTask.COUNSELOR,
+      value: EOptionCloneTask.TEAM,
     },
     {
       label: 'TAG',

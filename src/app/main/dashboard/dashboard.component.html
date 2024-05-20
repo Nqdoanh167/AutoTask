@@ -4,8 +4,10 @@
       <div class="content-site">
         <app-view-mode-tab [key]="EScreens.DASHBOARD"></app-view-mode-tab>
         <app-filter-top-table [configFilters]="configFilters" [configButtons]="configButtons"
-          (clickButtonEvent)="handleAction($event)" (toggleButtonEvent)="handleToggleAction($event)" (searchEvent)="onSearch($event)"
-          (selectEvent)="onSelectFilter($event)"  (popoverEvent)="onPopoverFilter($event)" (pickerDateEvent)="onPickerDateFilter($event)" (scrollToEndEvent)="handleLoadMoreData($event)"></app-filter-top-table>
+          (clickButtonEvent)="handleAction($event)" (toggleButtonEvent)="handleToggleAction($event)"
+          (searchEvent)="onSearch($event)" (selectEvent)="onSelectFilter($event)"
+          (popoverEvent)="onPopoverFilter($event)" (pickerDateEvent)="onPickerDateFilter($event)"
+          (scrollToEndEvent)="handleLoadMoreData($event)"></app-filter-top-table>
         <div class="table-responsive tableFixHead custom-scrollbar">
           <table class="table col-resizable">
             <thead>
@@ -184,7 +186,8 @@
                     <ng-container *ngSwitchCase="'leadDeal'">
                       <td>
                         <div class="d-flex flex-column" *ngIf="item.leadDeal">
-                          <span class="fw-500 text-link"  (click)="handleViewCustomer(item)">{{ item.leadDeal?.name || '-' }}</span>
+                          <span class="fw-500 text-link" (click)="handleViewCustomer(item)">{{ item.leadDeal?.name ||
+                            '-' }}</span>
                           <span *ngIf="item.leadDeal?.phone">
                             {{ item.leadDeal?.phone || '-' }}
                           </span>
@@ -256,19 +259,25 @@
                         </div>
                       </td>
                     </ng-container>
-                    <ng-container *ngSwitchCase="'counselor'">
+                    <ng-container *ngSwitchCase="'teams'">
                       <td>
-                        <div class="d-flex" *ngIf="item.counselor">
-                          <img src="{{ item.counselor.picture }}" fallback="assets/images/avatar.svg"
-                            class="avatar me-2" />
-                          <div class="d-flex flex-column">
-                            <span class="fw-500">
-                              {{ item.counselor?.name || '-' }}
-                            </span>
-                            <span>{{ item.counselor?.email || '-' }}</span>
+                        <ng-container *ngFor="let team of item.teams">
+                          <div class="d-flex my-2" *ngIf="team.userId">
+                            <img src="{{ team.userPicture }}" fallback="assets/images/avatar.svg" class="avatar me-2" />
+                            <div class="d-flex flex-column">
+                              <span class="fw-500">
+                                {{ team.userName }}  
+                               
+                              </span>
+                              <span>{{ team.userEmail }}</span>
+                              <span class="fw-normal fs-7">
+                               <i class="fa-solid" [ngClass]="team.roleIcon"></i>
+                                 {{ team.roleName }}
+                               </span>
+                            </div>
                           </div>
-                        </div>
-                        <div *ngIf="!item.counselor">-</div>
+                        </ng-container>
+                        <div *ngIf="!item.teams?.length">-</div>
                       </td>
                     </ng-container>
                     <ng-container *ngSwitchCase="'createdAt'">
@@ -324,15 +333,6 @@
             <div>
               Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng
               dữ liệu của bản ghi cũng sẽ bị ảnh hưởng.
-            </div>
-          </div>
-        </modal-confirm>
-        <modal-confirm [key]="'remove-assign-counselor'" (confirmEvent)="onRemoveAssignCounselor($event)">
-          <div class="state-warning d-flex gap-2" childContent>
-            <div><i class="fa-regular fa-circle-question"></i></div>
-            <div>
-              Lưu ý: Sau khi bỏ, Task sẽ không có nhân viên phụ trách. 
-              Các hoạt động chăm sóc khách hàng có thể bị đình trệ
             </div>
           </div>
         </modal-confirm>
