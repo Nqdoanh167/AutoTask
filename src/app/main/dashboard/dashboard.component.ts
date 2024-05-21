@@ -50,6 +50,7 @@ import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-as
 import {environment} from 'src/environments/environment';
 import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 import {listColumnsDashboardDefault} from '@app/variable';
+import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone/modal-clone.component';
 
 @Component({
   selector: 'app-task',
@@ -767,6 +768,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.log(e);
     }
+  }
+  handleCopy(task: ITask) {
+      const modalClone = this.modalService.show(ModalCloneComponent, {
+        initialState: {
+          task: task,
+        },
+        ignoreBackdropClick: true,
+        keyboard: false,
+      });
+      modalClone.content?.submit.subscribe(res =>{
+        if(res){
+          modalClone.hide();
+          this.cloneTask(task.id, res);
+        }
+      })
+  }
+  cloneTask(id: string, options: string[]) {
+    this.autoTaskService.task
+      .clone(id, {
+        options: options,
+      })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.dataSource.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          this.commonService.handleResSuccess('clone');
+          this.getDataSource();
+        },
+        error: (err) => { 
+          this.commonService.handleErr(err);
+        }
+      });
   }
 
   handleAction(name: string) {

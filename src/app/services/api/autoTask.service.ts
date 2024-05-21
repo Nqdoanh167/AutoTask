@@ -6,6 +6,7 @@ import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {
+  CloneTaskDto,
   IAction,
   IActReason,
   IActResult,
@@ -228,6 +229,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     create: (body: ITaskDto) =>
       this.httpClient.post<EntityResult<ITask>>(
         this.createUrl([this.api.task]),
+        body,
+      ),
+    clone: (id: string, body: CloneTaskDto) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, id, 'clone']),
         body,
       ),
     createOrder: (id: string) =>

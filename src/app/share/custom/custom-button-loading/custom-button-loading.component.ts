@@ -5,11 +5,11 @@ import {CommonModule} from '@angular/common';
   selector: 'custom-button-loading',
   template: `
     <button
-      (click)="onAction()"
+      (click)="onAction(); clicked = true"
       [type]="type"
       class="d-flex align-items-center input-size-sm {{ className }}"
       [ngClass]="{loading: isLoading}"
-      [disabled]="isDisabled"
+      [disabled]="isDisabled || clicked"
       [id]="id"
     >
       <span
@@ -34,11 +34,16 @@ export class CustomButtonLoadingComponent implements OnInit {
   @Input() id?: string;
   @Output() action = new EventEmitter<Event>();
 
+  clicked = false;
+
   constructor() {}
 
   ngOnInit(): void {}
 
   onAction() {
     this.action.emit();
+    setTimeout(() => {
+      this.clicked = false;
+    }, 2000);
   }
 }

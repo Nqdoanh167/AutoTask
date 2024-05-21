@@ -335,6 +335,9 @@ export interface ITaskDto {
   counselorId: string;
   addChainActIds?: string[];
 }
+export interface CloneTaskDto {
+  options: string[]
+}
 export interface IBulkTaskDto {
   taskIds: string[];
   teams: ITeam[];

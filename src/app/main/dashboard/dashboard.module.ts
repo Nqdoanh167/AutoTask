@@ -35,10 +35,12 @@ import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/
 import { OrdersComponent } from './content-modal/orders/orders.component';
 import { MycurrencyModule } from '@app/share/pipe/mycurrency.module';
 import { HistoryComponent } from './content-modal/history/history.component';
+import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone/modal-clone.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
+    ModalCloneComponent,
     ModalUpdateTaskComponent,
     UpdateActionInTaskChainComponent,
     TaskChainItemComponent,
