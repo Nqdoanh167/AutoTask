@@ -6,6 +6,7 @@ import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {
+  CloneTaskDto,
   IAction,
   IActReason,
   IActResult,
@@ -27,6 +28,7 @@ import {
   IUpdateTaskResultDto,
 } from '@app/types/flow';
 import {
+  ISetting,
   ISource,
   ISourceDto,
   IUpdateSourceDto,
@@ -54,6 +56,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     history: 'task-history',
     source: 'source',
     settingView: 'setting-view',
+    setting: 'setting',
   };
   private defaultParams: any = {};
 
@@ -228,6 +231,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.task]),
         body,
       ),
+    clone: (id: string, body: CloneTaskDto) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, id, 'clone']),
+        body,
+      ),
     createOrder: (id: string) =>
       this.httpClient.post<EntityResult<any[]>>(
         this.createUrl([this.api.task, id, 'create-order']),
@@ -370,6 +378,20 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     update: (body: IViewDto) =>
       this.httpClient.put<EntityResult<IView>>(
         this.createUrl([this.api.settingView]),
+        body,
+      ),
+  };
+  setting = {
+    retrieve: (params = {}) =>
+      this.httpClient.get<EntityResult<ISetting>>(
+        this.createUrl([this.api.setting, 'retrieve']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    update: (body: IViewDto) =>
+      this.httpClient.put<EntityResult<IView>>(
+        this.createUrl([this.api.setting]),
         body,
       ),
   };

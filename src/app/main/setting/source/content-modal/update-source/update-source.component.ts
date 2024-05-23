@@ -148,7 +148,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       value: ESourceArgKey.PRODUCT_NAME,
     },
     {
-      label: 'Nhân viên phụ trách ',
+      label: 'Nhân viên phụ trách',
       value: ESourceArgKey.COUNSELOR_ID,
     },
     {

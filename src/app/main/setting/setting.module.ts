@@ -19,7 +19,8 @@ import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-s
 import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
-import { TagComponent } from './tag/tag.component';
+import {TagComponent} from './tag/tag.component';
+import {RoleComponent} from './role/role.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { TagComponent } from './tag/tag.component';
     BranchComponent,
     ModalEmployeeInfoComponent,
     SourceComponent,
+    RoleComponent,
     UpdateSourceComponent,
   ],
   imports: [

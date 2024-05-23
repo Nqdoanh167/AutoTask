@@ -29,7 +29,7 @@ export const listColumns: IDataColumns = {
     },
     {
       name: 'Nhân viên phụ trách',
-      value: 'counselor',
+      value: 'teams',
       tooltip: 'Nhân viên phụ trách',
     },
     {
@@ -62,7 +62,7 @@ export const listColumnsDashboardDefault: IColumns[] =
     [
       'name',
       'taskChains',
-      'counselor',
+      'teams',
       'cart',
       'orderIds',
       'leadDeal',

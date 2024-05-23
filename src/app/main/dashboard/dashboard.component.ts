@@ -46,10 +46,11 @@ import {AuthService} from '@app/services/api/auth.service';
 import {EScreens, ISource, IViewModeDto} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
-import {ModalAssignCounselorComponent} from './content-modal/multiple-action/modal-assign-counselor/modal-assign-counselor.component';
+import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
 import {environment} from 'src/environments/environment';
 import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 import {listColumnsDashboardDefault} from '@app/variable';
+import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone/modal-clone.component';
 
 @Component({
   selector: 'app-task',
@@ -63,11 +64,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public multipleAction = [
     {
       label: 'Gán nhân viên phụ trách',
-      value: ETypeBulkUpdate.ASSIGN_COUNSELOR,
+      value: ETypeBulkUpdate.ASSIGN_TEAM,
     },
     {
       label: 'Bỏ nhân viên phụ trách',
-      value: ETypeBulkUpdate.REMOVE_COUNSELOR,
+      value: ETypeBulkUpdate.REMOVE_TEAM,
     },
   ];
   public configFilters: IFilterTopTable[] = [
@@ -160,8 +161,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'counselorId',
-      placeholder: 'Phụ trách chính',
+      name: 'teamId',
+      placeholder: 'Nhân sự phụ trách',
       options: [],
       bindLabel: 'label',
       bindValue: 'value',
@@ -232,7 +233,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       clearable: true,
       botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
-   
   ];
   public configButtons: IFilterTopButton[] = [
     {
@@ -351,7 +351,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         if (biz) {
           this.currentBiz = biz.alias || '';
           this.configFilters[6].options = [
-            {label: 'Chưa gán nhân viên phụ trách', value: 'NONE'},
+            {label: 'Chưa gán nhân sự phụ trách', value: 'NONE'},
           ].concat(
             biz?.users?.map((user) => ({
               label: user.name,
@@ -386,50 +386,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getSource();
     this.handleActiveViewMode();
   }
-  showModalMultipleAction(action: any) {
-    if (action.value === ETypeBulkUpdate.ASSIGN_COUNSELOR) {
-      const modalRef = this.modalService.show(ModalAssignCounselorComponent, {
-        class: 'modal-dialog-centered',
-      });
-      modalRef.content?.assignCounselor.subscribe((data) => {
-        if (data) {
-          const payload = {
-            taskIds: this.taskChecked,
-            counselorId: data.counselorId,
-          };
-          this.autoTaskService.task.bulkUpdate(payload).subscribe({
-            next: (res) => {
-              if (res.status === 200) {
-                this.toastrService.success(
-                  'Gán nhân viên phụ trách thành công',
-                );
-                this.getDataSource();
-              } else {
-                this.commonService.handleResErr(res);
-              }
-            },
-            error: (err) => this.commonService.handleErr(err),
-          });
-        }
-      });
-    } else if (action.value === ETypeBulkUpdate.REMOVE_COUNSELOR) {
-      const title = 'Bỏ gán nhân viên phụ trách';
-      const description = `Loại bỏ nhân viên phụ trách ra khỏi  tất cả những Task đã được chọn. Task không có nhân viên phụ trách sẽ không bị ảnh hưởng.`;
-      const okText = 'Đồng ý';
-
-      const modalContent: IModalConfirmContent = {
-        title,
-        description,
-        okText,
-        type: 'warning',
-        modalType: 'advance',
-      };
-
-      this.modalConfirmService.openModal(
-        modalContent,
-        'remove-assign-counselor',
-      );
-    }
+  showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
+    const modalRef = this.modalService.show(ModalAssignTeamComponent, {
+      class: 'modal-dialog-centered',
+      initialState: {
+        action: action.value,
+      },
+    });
+    modalRef.content?.assignTeams.subscribe((data) => {
+      if (data) {
+        const payload = {
+          taskIds: this.taskChecked,
+          teams: data.teams,
+        };
+        this.autoTaskService.task.bulkUpdate(payload).subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.toastrService.success('Gán nhân viên phụ trách thành công');
+              this.getDataSource();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => this.commonService.handleErr(err),
+        });
+      }
+    });
   }
   stateChecked(item: ITask, event: any): void {
     const checked = event.target.checked;
@@ -787,6 +769,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
       console.log(e);
     }
   }
+  handleCopy(task: ITask) {
+      const modalClone = this.modalService.show(ModalCloneComponent, {
+        initialState: {
+          task: task,
+        },
+        ignoreBackdropClick: true,
+        keyboard: false,
+      });
+      modalClone.content?.submit.subscribe(res =>{
+        if(res){
+          modalClone.hide();
+          this.cloneTask(task.id, res);
+        }
+      })
+  }
+  cloneTask(id: string, options: string[]) {
+    this.autoTaskService.task
+      .clone(id, {
+        options: options,
+      })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.dataSource.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          this.commonService.handleResSuccess('clone');
+          this.getDataSource();
+        },
+        error: (err) => { 
+          this.commonService.handleErr(err);
+        }
+      });
+  }
 
   handleAction(name: string) {
     if (name === 'reload') {
@@ -800,9 +816,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const obj = JSON.parse(this.dataSource.paramsQuery.filter || '{}');
     obj[data.name!] = data.value;
     this.dataSource.paramsQuery.filter = JSON.stringify(obj);
-    const configButton = this.configButtons.find(
-      (cf) => cf.name === data.name,
-    );
+    const configButton = this.configButtons.find((cf) => cf.name === data.name);
     configButton!.value = data.value;
 
     if (!isEqual(obj, this.currentActiveViewMode?.options)) {
@@ -838,7 +852,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onRemoveAssignCounselor(value: any) {
     const payload = {
       taskIds: this.taskChecked,
-      counselorId: null,
+      teams: [],
     };
     this.autoTaskService.task
       .bulkUpdate(payload)

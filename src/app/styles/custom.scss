@@ -138,7 +138,7 @@ button[disabled] {
 }
 
 .btn-action-table {
-  padding: 10px;
+  padding: 6px;
   cursor: pointer;
   color: $neutral-300;
   i {
@@ -278,6 +278,18 @@ button[disabled] {
   }
 }
 
+.ng-select-to-icon {
+  .ng-arrow-wrapper {
+    display: none;
+  }
+}
+
+.ng-select-custom.ng-select-opened {
+  .ng-select-container {
+    background: #e7e9ef;
+    border-radius: 6px;
+  }
+}
 .ng-select-disabled {
   opacity: 0.6;
 
