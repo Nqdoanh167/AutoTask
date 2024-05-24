@@ -803,6 +803,12 @@ export interface Combo {
   id: string;
   name: string;
   picture: string;
+  followProducts: {
+    quantity: number;
+    products: string[];
+    parent: string;
+  }[];
+  version: string;
   amount: number;
   createdAt: Date;
   updatedAt: Date;

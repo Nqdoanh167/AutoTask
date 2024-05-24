@@ -80,6 +80,15 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     },
     isAllowLoadMore: false,
   };
+  public sameProducts: ICommonDataLazy<Product, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+    },
+    isAllowLoadMore: false,
+  };
   public warehouses: ICommonDataLazy<Warehouse, IQueryBase> = {
     rows: [],
     loading: false,
@@ -265,7 +274,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   handleChangeProducts(event: any) {
     if (!event) return;
     const valueProducts = this.formGroup.get('cart').value?.products || [];
-    const fProduct = valueProducts.find((el: any) => el.id === event.id);
+    const fProduct = valueProducts.find((el: any) => el.id === event.id && !el.combo);
     if (fProduct) {
       fProduct.quantity += 1;
     } else {
@@ -280,10 +289,15 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   handleChangeCombo(event: any) {
     if (!event) return;
     const ids = event?.followProducts?.reduce((acc: string[], el: any) => {
-      acc.push(...el.products);
+      if(el.products?.length) {
+        acc.push(el.products[0]);
+      }
       return acc;
     }, []);
-    this.getAllProductByCombo(ids);
+    if(ids.length) {
+      
+      this.getAllProductByCombo(ids, {...event, version: uuidv4()});
+    }
     this.selectCombo.handleClearClick();
   }
   matchingInventoryWithProduct(productId: string) {
@@ -317,13 +331,32 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       products: valueProducts,
     });
   }
+  getSameParentProduct(id: string) {
+    this.sameProducts.loading = true;
+    this.productService.product
+      .sameParent(id)
+      .subscribe({
+        next: (res) => {
+          if(res && res.status === 200) {
+            this.sameProducts.rows = res.data || [];
+          } else {
+            this.sameProducts.rows = [];
+
+          }
+          this.sameProducts.loading = false;
+        },
+        error: (err) => {
+          this.sameProducts.loading = false;
+        },
+      });
+  }
   getInventoryByWarehouse() {
     const query = {
       warehouse: this.warehouseData,
-      product: this.formProducts.map((el: any) => el.id).join(','),
+      product: this.formProducts?.map((el: any) => el.id).join(','),
     };
+    if(!query.product) return;
     this.inventories.loading = true;
-
     this.salecenterService.productWarehouse.inventory(query).subscribe({
       next: (res) => {
         this.inventories.loading = false;
@@ -356,7 +389,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       0,
     );
   }
-  getAllProductByCombo(ids: string[]) {
+  getAllProductByCombo(ids: string[], combo: Combo) {
     this.productService.product
       .all({isProduct: true, ids: ids.join(',')})
       .subscribe({
@@ -369,14 +402,25 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
               const fProduct = valueProducts.find(
                 (el: any) => el.id === product.id,
               );
-              if (fProduct) {
-                fProduct.quantity += 1;
-              } else {
-                valueProducts.push({
-                  ...pick(product, ['id', 'code', 'name', 'picture', 'price']),
-                  quantity: 1,
-                });
-              }
+              // if (fProduct) {
+              //   fProduct.quantity += 1;
+              // } else {
+              //   valueProducts.push({
+              //     ...pick(product, ['id', 'code', 'name', 'picture', 'price']),
+              //     quantity: 1,
+              //     combo: combo.id,
+              //     comboName: combo.name,
+              //   });
+              // }
+              valueProducts.push({
+                ...pick(product, ['id', 'code', 'name', 'picture', 'price']),
+                quantity: combo.followProducts.find(
+                  (el) => el.products.includes(product.id),
+                )?.quantity || 1,
+                combo: combo.id,
+                comboName: combo.name,
+                comboVersion: combo.version,
+              });
             });
             this.formGroup.get('cart').patchValue({
               products: [...valueProducts],

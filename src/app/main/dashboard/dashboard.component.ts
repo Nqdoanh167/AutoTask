@@ -119,7 +119,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       bindValue: 'id',
       clearable: true,
       searchable: true,
-      multiple: false,
+      multiple: true,
       onSearch: (event: any) => this.handleSearchActChain(event),
       botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },

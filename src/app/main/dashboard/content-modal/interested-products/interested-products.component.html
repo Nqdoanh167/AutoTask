@@ -85,6 +85,31 @@
                     <span>
                       {{item.name}}
                     </span>
+                    <span *ngIf="item.combo" [popover]="popoverSameProduct" [outsideClick]="true"
+                      [placement]="'bottom left'" class="fs-7 badge bg-orange text-white cursor-pointer"
+                      (click)="getSameParentProduct(item.id)">
+                      {{item.comboName}}
+                    </span>
+                    <ng-template #popoverSameProduct>
+                      <div class="popover-tab">
+                        <div *ngIf="sameProducts.loading; else other">
+                          <i class="fa-solid fa-spin fa-spinner"></i>
+                        </div>
+                        <ng-template #other>
+                          <div *ngFor="let same of sameProducts.rows" class="m-2">
+                            <img class="image-product-radius me-2"
+                              [src]="same.picture || 'assets/images/default-product.png'"
+                              fallback="assets/images/no-photo.jpeg" [alt]="same.name" width="30" height="30" />
+                            <span>
+                              {{same.name}}
+                            </span>
+                          </div>
+                          <div *ngIf="!sameProducts.rows.length">
+                            Không có biến thể nào!!!
+                          </div>
+                        </ng-template>
+                      </div>
+                    </ng-template>
                     <span [popover]="popoverEditName" [popoverContext]="{item: item, index: i }" [outsideClick]="true"
                       [placement]="'bottom left'" class="cursor-pointer ms-1" *ngIf="item.isVirtual">
                       <i class="fa-solid fa-pencil fs-7"></i>
@@ -102,7 +127,8 @@
                 </td>
                 <td>
                   <div *ngIf="inventories.loading">
-                  <i class="fa-solid fa-spin fa-spinner text-secondary"></i></div>
+                    <i class="fa-solid fa-spin fa-spinner text-secondary"></i>
+                  </div>
                   <div *ngIf="!inventories.loading">
                     <div class="fw-normal" *ngIf="matchingInventoryWithProduct(item.id)">
                       <span>Khả dụng: {{matchingInventoryWithProduct(item.id)?.qtyAvailable}}</span> | <span
@@ -134,7 +160,7 @@
                 <td>
                   <div class="w-50">
                     <app-input-mask className="text-end" [isQuantity]="true" [value]="item.quantity"
-                      (changeValue)="changeQuantity($event, i)"> </app-input-mask>
+                      (changeValue)="changeQuantity($event, i)" [min]="1"> </app-input-mask>
                   </div>
                 </td>
                 <td>

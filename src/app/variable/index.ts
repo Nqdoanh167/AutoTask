@@ -18,9 +18,9 @@ export const listColumns: IDataColumns = {
       tooltip: 'Khách hàng',
     },
     {
-      name: 'Sản phẩm quản tâm',
+      name: 'Sản phẩm quan tâm',
       value: 'cart',
-      tooltip: 'Sản phẩm quản tâm',
+      tooltip: 'Sản phẩm quan tâm',
     },
     {
       name: 'Số lượng đơn hàng',
