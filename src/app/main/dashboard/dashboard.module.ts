@@ -36,6 +36,7 @@ import { OrdersComponent } from './content-modal/orders/orders.component';
 import { MycurrencyModule } from '@app/share/pipe/mycurrency.module';
 import { HistoryComponent } from './content-modal/history/history.component';
 import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone/modal-clone.component';
+import { InputMaskModule } from '@app/share/input/input-mask/input-mask.module';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone
     ModalConfirmComponent,
     PipeTimeViewModule,
     CustomModalComponent,
+    InputMaskModule,
     FormsModule,
     TextAreaComponent,
     NgSelectModule,

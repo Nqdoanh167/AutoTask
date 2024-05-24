@@ -448,6 +448,39 @@ export interface ToppingValue {
   updatedAt?: Date;
 }
 
+export interface ProductWarehouse {
+  [key: string]: {
+    inventory: number;
+    qtyAvailable: number;
+    qtyInDamaged: number;
+    qtyInExpired: number;
+    qtyInHold: number;
+    qtyInTransfer: number;
+    qtyInDeposit: number;
+    qtyInTransit: number;
+  };
+}
+export interface Warehouse {
+  id: string;
+  name: string;
+  author: string;
+  updatedBy: AccountPublic;
+  bizId: string;
+  phone: string;
+  provinceCode: string;
+  districtCode: string;
+  wardCode: string;
+  province: string;
+  district: string;
+  ward: string;
+  street: string;
+  address: string;
+  description: string;
+  isDefault: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 export interface Product {
   id: string;
   author?: string;
@@ -1417,6 +1450,10 @@ export enum ENoteContentHistoryTask {
 export interface IOrderProductContentHistoryTask {
   key: EOrderProductContentHistoryTask;
   value: string;
+  sub?: {
+    key: ESubOrderProductHistoryTask;
+    value: string;
+  }[];
 }
 export enum EOrderProductContentHistoryTask {
   CREATE_ORDER = 'CREATE_ORDER',
@@ -1440,11 +1477,16 @@ export interface IInformationContentHistoryTask {
   key: EInformationContentHistoryTask;
   value: string;
   sub?: {
-    key: ESubInformationContentHistoryTask,
-    value: string,
+    key: ESubInformationContentHistoryTask;
+    value: string;
   }[];
 }
 export enum ESubInformationContentHistoryTask {
+  ACTION = 'ACTION',
+  NONE = 'NONE',
+}
+export enum ESubOrderProductHistoryTask {
+  NONE = 'NONE',
   ACTION = 'ACTION',
 }
 export enum EInformationContentHistoryTask {

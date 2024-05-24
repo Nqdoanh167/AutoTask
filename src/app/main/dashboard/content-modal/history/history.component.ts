@@ -19,6 +19,7 @@ import {
   ENoteContentHistoryTask,
   EOrderProductContentHistoryTask,
   ESubInformationContentHistoryTask,
+  ESubOrderProductHistoryTask,
   ETabHistoryKey,
   EntityPagination,
   ICommonDataSource,
@@ -305,6 +306,10 @@ export class HistoryComponent implements OnDestroy, OnInit {
         return `Vai trò`;
       case ESubInformationContentHistoryTask.ACTION:
         return `Hành động`;
+      case ESubInformationContentHistoryTask.NONE:
+          return ``;
+      case ESubOrderProductHistoryTask.NONE:
+        return ``;
       default:
         return '';
     }

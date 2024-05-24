@@ -235,6 +235,9 @@ export interface IProductDto {
   name: string;
   picture: string;
   quantity: number;
+  code: number;
+  price: number;
+  isVirtual?: boolean;
 }
 
 export interface ILeadDealDto extends Customer {

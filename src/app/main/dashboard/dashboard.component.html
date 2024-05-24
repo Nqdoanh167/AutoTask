@@ -215,7 +215,7 @@
                                 type: 'Sản phẩm'
                               }"></ng-container>
                             </ng-container>
-                            <ng-container *ngFor="let product of item.cart?.combos">
+                            <!-- <ng-container *ngFor="let product of item.cart?.combos">
                               <ng-container [ngTemplateOutlet]="templateProductItem" [ngTemplateOutletContext]="{
                                 product: product,
                                 type: 'Combo'
@@ -238,9 +238,11 @@
                                 product: product,
                                 type: 'Thẻ trả trước'
                               }"></ng-container>
-                            </ng-container>
+                            </ng-container> -->
                             <ng-template #templateProductItem let-product="product" let-type="type">
-                              <div tooltip="{{ type }}" placement="top" class="product-item d-flex align-items-center">
+                              <div
+                                tooltip="{{ product.name }}: {{product.quantity}} x {{product.price | currency: 'VND'}}"
+                                placement="top" class="product-item d-flex align-items-center">
                                 <img src="{{
                                   product?.picture ||
                                     'assets/images/default-product.png'
@@ -248,6 +250,7 @@
                                 <div class="product-item-name">
                                   {{ product.name || '-' }}
                                 </div>
+
                               </div>
                             </ng-template>
                           </div>
