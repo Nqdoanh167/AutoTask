@@ -365,7 +365,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.handleUpdate(undefined, q['id']);
       }
     });
-    const typeColumn = 'columnDashboard';
+    const typeColumn = 'columnDashboardAutoTask';
     const defaultColumn = listColumnsDashboardDefault;
     const dataColumns = JSON.parse(localStorage.getItem(typeColumn) as string);
     if (
@@ -897,7 +897,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showModalOrderableTable() {
     const modalRef = this.modalService.show(OrderableTableComponent, {
       initialState: {
-        typeColumn: 'columnDashboard',
+        typeColumn: 'columnDashboardAutoTask',
       },
       class: 'modal-opacity-4 modal-lg modal-dialog-centered modal-default',
     });

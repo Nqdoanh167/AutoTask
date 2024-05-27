@@ -1,7 +1,7 @@
 import {IColumns, IDataColumns} from '../types/viewmodels';
 
 export const listColumns: IDataColumns = {
-  columnDashboard: [
+  columnDashboardAutoTask: [
     {
       name: 'Task',
       value: 'name',
@@ -58,7 +58,7 @@ export const listColumns: IDataColumns = {
   ],
 };
 export const listColumnsDashboardDefault: IColumns[] =
-  listColumns.columnDashboard.filter((el) =>
+  listColumns.columnDashboardAutoTask.filter((el) =>
     [
       'name',
       'taskChains',

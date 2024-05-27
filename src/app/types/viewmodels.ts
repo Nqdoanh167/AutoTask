@@ -834,7 +834,7 @@ export enum ETypeAppointment {
   APPOINTMENT = 'APPOINTMENT',
 }
 export interface IDataColumns {
-  columnDashboard: IColumns[];
+  columnDashboardAutoTask: IColumns[];
 }
 export interface IColumns {
   name: string;
