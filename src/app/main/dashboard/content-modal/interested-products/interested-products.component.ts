@@ -100,7 +100,6 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     isAllowLoadMore: false,
   };
   public isCombo = false;
-  public warehouseData!: string;
 
   public permitModules: string[] = [];
   private textSearchProduct = new BehaviorSubject<string | undefined>(
@@ -133,11 +132,14 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     });
   }
 
-  formCard() {
+  formCart() {
     return this.formGroup.get('cart');
   }
   get formProducts() {
     return this.formGroup.get('cart').value?.products;
+  }
+  get formWarehouse() {
+    return this.formGroup.get('cart').value?.warehouses;
   }
   ngOnInit(): void {
     this.getListWarehouse();
@@ -189,11 +191,15 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
-            this.warehouses.rows = res.data;
-            this.warehouseData =
-              this.warehouses.rows.find((el) => el.isDefault)?.id ||
-              res.data[0].id ||
-              '';
+            this.warehouses.rows = res.data?.filter((el) => el.isActive) || [];
+            if (!this.formWarehouse?.length) {
+              const fdefaultWarehouse = this.warehouses.rows.find(
+                (el) => el.isDefault,
+              );
+              this.formCart().patchValue({
+                warehouses: fdefaultWarehouse ? [fdefaultWarehouse] : null,
+              });
+            }
           } else {
             this.commonService.handleResErr(res);
           }
@@ -268,13 +274,24 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       });
   }
   handleChangeWarehouse(event: any) {
-    this.warehouseData = event?.id;
+    this.formCart().patchValue({
+      warehouses: [
+        {
+          name: event.name,
+          id: event.id,
+          isActive: event.isActive,
+          isDefault: event.isDefault,
+        },
+      ],
+    });
     this.getInventoryByWarehouse();
   }
   handleChangeProducts(event: any) {
     if (!event) return;
     const valueProducts = this.formGroup.get('cart').value?.products || [];
-    const fProduct = valueProducts.find((el: any) => el.id === event.id && !el.combo);
+    const fProduct = valueProducts.find(
+      (el: any) => el.id === event.id && !el.combo,
+    );
     if (fProduct) {
       fProduct.quantity += 1;
     } else {
@@ -289,13 +306,12 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   handleChangeCombo(event: any) {
     if (!event) return;
     const ids = event?.followProducts?.reduce((acc: string[], el: any) => {
-      if(el.products?.length) {
+      if (el.products?.length) {
         acc.push(el.products[0]);
       }
       return acc;
     }, []);
-    if(ids.length) {
-      
+    if (ids.length) {
       this.getAllProductByCombo(ids, {...event, version: uuidv4()});
     }
     this.selectCombo.handleClearClick();
@@ -333,29 +349,26 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   }
   getSameParentProduct(id: string) {
     this.sameProducts.loading = true;
-    this.productService.product
-      .sameParent(id)
-      .subscribe({
-        next: (res) => {
-          if(res && res.status === 200) {
-            this.sameProducts.rows = res.data || [];
-          } else {
-            this.sameProducts.rows = [];
-
-          }
-          this.sameProducts.loading = false;
-        },
-        error: (err) => {
-          this.sameProducts.loading = false;
-        },
-      });
+    this.productService.product.sameParent(id).subscribe({
+      next: (res) => {
+        if (res && res.status === 200) {
+          this.sameProducts.rows = res.data || [];
+        } else {
+          this.sameProducts.rows = [];
+        }
+        this.sameProducts.loading = false;
+      },
+      error: (err) => {
+        this.sameProducts.loading = false;
+      },
+    });
   }
   getInventoryByWarehouse() {
     const query = {
-      warehouse: this.warehouseData,
+      warehouse: this.formWarehouse[0]?.id,
       product: this.formProducts?.map((el: any) => el.id).join(','),
     };
-    if(!query.product) return;
+    if (!query.product) return;
     this.inventories.loading = true;
     this.salecenterService.productWarehouse.inventory(query).subscribe({
       next: (res) => {
@@ -414,9 +427,10 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
               // }
               valueProducts.push({
                 ...pick(product, ['id', 'code', 'name', 'picture', 'price']),
-                quantity: combo.followProducts.find(
-                  (el) => el.products.includes(product.id),
-                )?.quantity || 1,
+                quantity:
+                  combo.followProducts.find((el) =>
+                    el.products.includes(product.id),
+                  )?.quantity || 1,
                 combo: combo.id,
                 comboName: combo.name,
                 comboVersion: combo.version,

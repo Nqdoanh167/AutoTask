@@ -300,6 +300,7 @@ export interface ITaskCartDto {
   products: Product[];
   beautyServices: BeautyService[];
   combos: Combo[];
+  warehouse: string;
   prepaidCards: PrepaidCard[];
   courseEvents: CourseEvent[];
 }

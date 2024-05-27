@@ -3,14 +3,14 @@
     <ng-container formGroupName="cart">
       <div class="row g-2">
         <div class="col-3">
-          <ng-select [(ngModel)]="warehouseData" [ngModelOptions]="{standalone: true}"
+          <ng-select [ngModel]="formWarehouse?.[0]?.id" [ngModelOptions]="{standalone: true}"
             (change)="handleChangeWarehouse($event)" [placeholder]="'Chọn kho'" [multiple]="false"
             [items]="warehouses.rows" [clearable]="false" [loading]="warehouses.loading" bindLabel="name" bindValue="id"
             class="dropdown-auto-width" appearance="outline" appendTo=".modal">
           </ng-select>
         </div>
         <div class="col-7" *ngIf="!isCombo">
-          <ng-select [readonly]="!warehouseData" #selectProduct (change)="handleChangeProducts($event)"
+          <ng-select [readonly]="!formWarehouse" #selectProduct (change)="handleChangeProducts($event)"
             [placeholder]="'Chọn Sản phẩm'" [searchable]="true"
             (search)="handleSearchValue($event, ETypeProduct.PRODUCT)" [clearSearchOnAdd]="true" [multiple]="false"
             [items]="products.rows" bindLabel="name" [compareWith]="compareFunction" [virtualScroll]="true"
@@ -28,7 +28,7 @@
           </ng-select>
         </div>
         <div class="col-7" *ngIf="isCombo">
-          <ng-select [readonly]="!warehouseData" #selectCombo (change)="handleChangeCombo($event)"
+          <ng-select [readonly]="!formWarehouse" #selectCombo (change)="handleChangeCombo($event)"
             (search)="handleSearchValue($event, ETypeProduct.COMBO)" [placeholder]="'Chọn Combo'" [searchable]="true"
             [items]="combos.rows" bindLabel="name" [clearable]="false" [loading]="combos.loading"
             class="dropdown-auto-width custom-select-icon" appearance="outline" appendTo=".modal"

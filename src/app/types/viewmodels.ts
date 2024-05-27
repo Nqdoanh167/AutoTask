@@ -1478,6 +1478,8 @@ export enum EOrderProductContentHistoryTask {
   REMOVE_PREPAIDCARDS = 'REMOVE_PREPAIDCARDS',
   ADD_PREPAIDCARDS = 'ADD_PREPAIDCARDS',
   CHANGE_PREPAIDCARDS = 'CHANGE_PREPAIDCARDS',
+  CHANGE_WAREHOUSES = 'CHANGE_WAREHOUSES',
+
 }
 export interface IInformationContentHistoryTask {
   key: EInformationContentHistoryTask;

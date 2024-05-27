@@ -120,6 +120,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       products: null,
       courseEvents: null,
       beautyServices: null,
+      warehouses: null,
       prepaidCards: null,
       combos: null,
     }),
