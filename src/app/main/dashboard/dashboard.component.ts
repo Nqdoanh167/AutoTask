@@ -486,7 +486,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           });
           // update dataSource.paramsQuery.filter by objFilterQuery
           this.dataSource.paramsQuery.filter = JSON.stringify(objFilterQuery);
-          this.getDataSource();
+          this.getDataSource(true);
         });
     } catch (e) {
       console.log(e);
@@ -553,10 +553,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getDataSource();
   }
   getDataSource(isReset?: boolean) {
-    let params = {...this.dataSource.paramsQuery};
     if (isReset) {
-      params.page = 1;
+      this.dataSource.paramsQuery.page = 1;
     }
+    let params = {...this.dataSource.paramsQuery};
+   
     Object.keys(this.sort).forEach((key) => {
       if (this.sort[key] !== 0) {
         let sortAll = params.sort?.split(',') || [];

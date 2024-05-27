@@ -1,4 +1,9 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
 .custom-select-icon ::ng-deep .ng-arrow-wrapper{
     font-family: FontAwesome;
     content: "\f002";
+}
+.item-name {
+    @include mixins.limit-text-row(1);
 }

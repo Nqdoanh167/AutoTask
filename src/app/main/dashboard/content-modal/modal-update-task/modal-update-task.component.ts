@@ -45,7 +45,7 @@ import {
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
-import {find, uniqBy} from 'lodash';
+import {find, intersection, uniqBy} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {calculateTime} from '@app/utils/common';
@@ -917,6 +917,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         addChainActIds: (this.addTaskChainForm.value?.addChainActIds ||
           []) as unknown as string[],
       } as unknown as IAddTaskChainDto;
+      
       this.loading.addTaskChain = true;
       this.autoTaskService.task
         .updateTaskChain(this.sourceData.id!, body)
@@ -940,6 +941,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       const newAddChainActIds =
         this.addTaskChainForm.value?.addChainActIds || [];
       const oldAddChainActIds = this.updateForm.value?.addChainActIds || [];
+      if(intersection(newAddChainActIds, oldAddChainActIds)?.length > 0) {
+        this.toastr.warning('Chuỗi hành động đã tồn tại, vui lòng chọn lại!');
+        return;
+      }
       this.updateForm.patchValue({
         addChainActIds: [...oldAddChainActIds, ...newAddChainActIds],
       } as any);
