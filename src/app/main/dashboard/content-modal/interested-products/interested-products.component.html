@@ -1,5 +1,5 @@
 <form (keydown.enter)="$event.preventDefault()" [formGroup]="formGroup" *ngIf="permitModules.includes('products')">
-  <div class="list-product overflow-x-hidden mt-2" [ngClass]="{'px-2 py-3 rounded border': formProducts}">
+  <div class="list-product overflow-x-hidden mt-2 detail-order-product" [ngClass]="{'px-2 py-3 rounded border': formProducts}">
     <ng-container formGroupName="cart">
       <div class="row g-2">
         <div class="col-3">
@@ -85,18 +85,18 @@
                     <span>
                       {{item.name}}
                     </span>
-                    <span *ngIf="item.combo" [popover]="popoverSameProduct" [outsideClick]="true"
-                      [placement]="'bottom left'" class="fs-7 badge bg-orange text-white cursor-pointer"
+                    <span *ngIf="item.combo" [popover]="popoverSameProduct"  container=".detail-order-product" placement="bottom"  [popoverContext]="{item}" [outsideClick]="true"
+                      [placement]="'bottom left'" class="fs-7 badge bg-orange text-white cursor-pointer" tooltipHtml="Chọn sản phẩm có thuộc tính khác"
                       (click)="getSameParentProduct(item.id)">
                       {{item.comboName}}
                     </span>
-                    <ng-template #popoverSameProduct>
+                    <ng-template #popoverSameProduct let-item="item">
                       <div class="popover-tab">
                         <div *ngIf="sameProducts.loading; else other">
                           <i class="fa-solid fa-spin fa-spinner"></i>
                         </div>
                         <ng-template #other>
-                          <div *ngFor="let same of sameProducts.rows" class="m-2">
+                          <div *ngFor="let same of sameProducts.rows" class="popover-tab-item" (click)="handleChangeProductsIntoCombo(same, i)">
                             <img class="image-product-radius me-2"
                               [src]="same.picture || 'assets/images/default-product.png'"
                               fallback="assets/images/no-photo.jpeg" [alt]="same.name" width="30" height="30" />

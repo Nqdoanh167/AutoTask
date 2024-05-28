@@ -286,6 +286,23 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     });
     this.getInventoryByWarehouse();
   }
+  handleChangeProductsIntoCombo(same: any, index: number) {
+    const valueProducts = this.formProducts || [];
+    const fProduct = valueProducts[index]
+    valueProducts.splice(index, 1, {
+      ...fProduct,
+      id: same.id,
+      code: same.code,
+      name: same.name,
+      picture: same.picture,
+      price: same.price,
+    });
+    (this.formCart() as FormGroup).patchValue({
+      products: valueProducts
+    });
+    this.getInventoryByWarehouse();
+    
+  }
   handleChangeProducts(event: any) {
     if (!event) return;
     const valueProducts = this.formGroup.get('cart').value?.products || [];

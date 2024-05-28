@@ -67,7 +67,7 @@
                 </span>
               </div>
             </div>
-            <ng-select [items]="biz.users" (change)="onChangeTeam(teamIndex, $event)" appearance="outline"
+            <ng-select [items]="biz.users" (change)="onChangeTeam(teamIndex, $event)" (clear)="onClearTeam(teamIndex)" appearance="outline"
               appendTo=".modal-assign-team" class="w-75" bindLabel="name" bindValue="id"
               placeholder="Gán nhân sự vào vai trò {{team.value.roleName}}" [multiple]="false">
               <ng-template ng-option-tmp ng-label-tmp let-item="item">
