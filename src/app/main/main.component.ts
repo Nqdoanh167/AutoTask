@@ -62,6 +62,11 @@ export class MainComponent implements OnInit {
       name: 'Chi nhánh',
       isActive: true,
     },
+    {
+      link: '/setting/role',
+      name: 'Vai trò',
+      isActive: true,
+    },
   ];
   constructor(
     private router: Router,

@@ -5,8 +5,8 @@ export enum ETypeFilter {
   DATE = 'date',
 }
 export enum ETypeBulkUpdate {
-  REMOVE_COUNSELOR = 'REMOVE_COUNSELOR',
-  ASSIGN_COUNSELOR = 'ASSIGN_COUNSELOR',
+  REMOVE_TEAM = 'REMOVE_TEAM',
+  ASSIGN_TEAM = 'ASSIGN_TEAM',
 }
 export enum EBotherAdvanceBasicFilter {
   BASIC = 'basic',

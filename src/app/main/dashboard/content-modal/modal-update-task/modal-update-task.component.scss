@@ -34,3 +34,30 @@
   padding-bottom: 3px;
   border-bottom: 1px solid #dcdcdc;
 }
+.button-role {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+.dropdown-menu {
+  max-height: 40vh;
+  overflow: auto;
+  .item-user-dropdown {
+    &.disabled {
+      cursor: not-allowed;
+      color: #dcdcdc;
+    }
+    &:hover{
+    color: var(--bs-secondary);
+    border-radius: 6px;
+    background-color: #4277ff1a;
+    font-weight: 500;
+    }
+    &.selected {
+    color: var(--bs-secondary);
+    border-radius: 6px;
+    background-color: #4277ff1a;
+    font-weight: 500;
+    }
+  }
+}

@@ -1,0 +1,117 @@
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {
+  ETypeButton,
+  ETypeFilter,
+  IFilterTopButton,
+  IFilterTopTable,
+} from '@app/types/common';
+import {
+  Biz,
+  BizRole,
+  EntityPagination,
+  IRoleAct,
+  ITag,
+  User,
+} from '@app/types/viewmodels';
+import {Subject, take, takeUntil} from 'rxjs';
+import {AuthService} from '@app/services/api/auth.service';
+import {environment} from '../../../../environments/environment';
+import {removeCharacter} from '@app/utils/common';
+import {ModalEmployeeInfoComponent} from '@main/setting/components/modal-employee-info/modal-employee-info.component';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
+import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
+import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
+import { ToastrService } from 'ngx-toastr';
+
+@Component({
+  selector: 'app-role',
+  templateUrl: './role.component.html',
+  styleUrls: ['./role.component.scss'],
+})
+export class RoleComponent implements OnDestroy, OnInit {
+  public roles: EntityPagination<BizRole> = {
+    rows: [],
+    loading: false,
+    limit: 20,
+    query: {},
+    page: 1,
+    total: 0,
+  };
+  settingForm!: FormGroup;
+  private currentBiz!: Biz;
+  private destroy$ = new Subject();
+  constructor(
+    private readonly authService: AuthService,
+    private readonly autoTaskService: AutoTaskService,
+    private readonly fb: FormBuilder,
+    private readonly commonService: CommonService,
+    private readonly toasrt: ToastrService,
+  ) {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.currentBiz = biz || '';
+        this.roles.rows = biz.roles || [];
+      });
+  }
+
+  ngOnInit() {
+    this.initial();
+  }
+  initial() {
+    this.settingForm = this.fb.group({
+      roles: [[]],
+      assignRole: [null],
+    });
+    this.getSetting();
+  }
+  getSetting() {
+    this.autoTaskService.setting
+      .retrieve({bizId: this.currentBiz.id})
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.settingForm.patchValue(res.data);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+  onsubmit() {
+    console.log(this.settingForm.value);
+    
+    if (this.settingForm.invalid) {
+      this.toasrt.warning('Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+    this.autoTaskService.setting
+      .update({
+        ...this.settingForm.value,
+      })
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
+}
