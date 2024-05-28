@@ -43,9 +43,10 @@ export class InputMaskComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) {
+    
+  }
   ngOnChanges(changes: SimpleChanges): void {
-    this.cdr.detectChanges();
 
     if (changes['isQuantity']) {
       setTimeout(() => {
@@ -53,7 +54,9 @@ export class InputMaskComponent implements OnInit, OnChanges, OnDestroy {
       }, 0);
     }
   }
-
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
+  }
   ngOnInit(): void {
     if (!isNaN(Number(String(this.max)))) {
       this.max = Number(String(this.max));
@@ -61,13 +64,11 @@ export class InputMaskComponent implements OnInit, OnChanges, OnDestroy {
     if (!isNaN(Number(String(this.min)))) {
       this.min = Number(String(this.min));
     }
-
     if (!this.value) this.value = 0;
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
       next: (res) => {
         if (res) {
           this.biz = res;
-
           this.setupOption(this.biz);
         }
       },
@@ -105,6 +106,7 @@ export class InputMaskComponent implements OnInit, OnChanges, OnDestroy {
       } else {
       }
     }
+    
     if (typeof this.min === 'number' && this.value < this.min) {
       this.value = this.min;
       if (isEmit) {

@@ -34,7 +34,7 @@ export enum ENextStepType {
 
 export enum EOptionCloneTask {
   SOURCE = 'SOURCE',
-  COUNSELOR = 'COUNSELOR',
+  TEAM = 'TEAM',
   TAG = 'TAG',
   CURRENT_CHAIN = 'CURRENT_CHAIN',
   LEADDEAL = 'LEADDEAL',
@@ -235,6 +235,9 @@ export interface IProductDto {
   name: string;
   picture: string;
   quantity: number;
+  code: number;
+  price: number;
+  isVirtual?: boolean;
 }
 
 export interface ILeadDealDto extends Customer {
@@ -297,10 +300,19 @@ export interface ITaskCartDto {
   products: Product[];
   beautyServices: BeautyService[];
   combos: Combo[];
+  warehouse: string;
   prepaidCards: PrepaidCard[];
   courseEvents: CourseEvent[];
 }
-
+export interface ITeam {
+  roleId: string;
+  roleIcon: string;
+  roleName: string;
+  userId: string;
+  userName: string;
+  userPicture: string;
+  userEmail: string;
+}
 export interface ITask {
   checked?: boolean;
   id: string;
@@ -313,6 +325,7 @@ export interface ITask {
   counselor: AccountPublic;
   taskChainIds: string[];
   taskChains: ITaskChain[];
+  teams?: ITeam[]
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;
@@ -326,9 +339,12 @@ export interface ITaskDto {
   counselorId: string;
   addChainActIds?: string[];
 }
+export interface CloneTaskDto {
+  options: string[]
+}
 export interface IBulkTaskDto {
   taskIds: string[];
-  counselorId: string | null;
+  teams: ITeam[];
 }
 
 export interface IAddTaskChainDto {

@@ -2,10 +2,36 @@
   <form [formGroup]="updateForm">
     <app-custom-modal>
       <ng-container modalTitle>
-        <input required class="input__title basic-input-title input-medium" formControlName="name"
-          [placeholder]="'Nhập tên task'" [ngClass]="{
+        <div class="d-flex align-items-center justify-content-between">
+          <input required class="input__title basic-input-title input-medium" formControlName="name"
+            [placeholder]="'Nhập tên task'" [ngClass]="{
             'is-invalid': submitted && f['name'].errors
           }" />
+        </div>
+      </ng-container>
+      <ng-container modalTitleRight>
+        <div class="d-flex align-items-center justify-content-between">
+          <ng-select [style.width]="'200px'" [clearable]="false" [searchable]="true" [placeholder]="'Chọn chi nhánh...'"
+            appearance="outline" [readonly]="true" class="ng-select-custom dropdown-auto-width input-medium me-2"
+            appendTo=".modal-update-task">
+            <ng-option *ngFor="let item of sources.rows" [value]="item.id" [disabled]="!item.isActive">
+              <div>
+                {{ item.name }}
+              </div>
+            </ng-option>
+          </ng-select>
+          <ng-select [style.width]="'200px'" [clearable]="false" [searchable]="true"
+            [placeholder]="'Chọn nguồn dữ liệu...'" [ngClass]="{
+              'is-invalid': submitted && f['sourceId'].errors
+            }" formControlName="sourceId" appearance="outline"
+            class="ng-select-custom dropdown-auto-width input-medium me-2" id="sourceId" appendTo=".modal-update-task">
+            <ng-option *ngFor="let item of sources.rows" [value]="item.id" [disabled]="!item.isActive">
+              <div>
+                {{ item.name }}
+              </div>
+            </ng-option>
+          </ng-select>
+        </div>
       </ng-container>
       <ng-container modalBody>
         <div class="content-wrapper position-relative">
@@ -59,38 +85,39 @@
                         </ng-template>
                       </ng-select>
                     </div>
-                    <div class="d-flex align-items-center">
-                      <div class="fw-500 me-2">Nguồn dữ liệu:</div>
-                      <ng-select [style.width]="'200px'" [clearable]="false" [searchable]="true"
-                        [placeholder]="'Chọn nguồn...'" [ngClass]="{
-                          'is-invalid': submitted && f['sourceId'].errors
-                        }" formControlName="sourceId" appearance="outline"
-                        class="ng-select-custom dropdown-auto-width input-medium me-2" id="sourceId"
-                        appendTo=".modal-update-task">
-                        <ng-option *ngFor="let item of sources.rows" [value]="item.id" [disabled]="!item.isActive">
-                          <div>
-                            {{ item.name }}
-                          </div>
-                        </ng-option>
-                      </ng-select>
-                      <div class="fw-500 me-2">Nhân viên phụ trách:</div>
-                      <ng-select [style.width]="'200px'" [clearable]="false" formControlName="counselorId"
-                        [searchable]="true" [placeholder]="'Chọn nhân viên...'" [ngClass]="{
-                          'is-invalid': submitted && f['counselorId'].errors
-                        }" appearance="outline" class="ng-select-custom dropdown-auto-width input-medium" id="userIds"
-                        appendTo=".modal-update-task" class="me-2">
-                        <ng-option *ngFor="let item of listBizUsers" [value]="item.id" [disabled]="!item.isActive">
-                          <div class="d-flex align-items-center">
-                            <div>
-                              <img class="avatar me-2" src="{{ item.picture }}" fallback="assets/images/avatar.svg"
-                                alt="" />
+                    <div class="d-flex align-items-center" formArrayName="teams">
+                      <div class="fw-500 me-2 text-uppercase" *ngIf="autoTaskSetting?.roles?.length">Nhân sự phụ
+                        trách/Vai
+                        trò:</div>
+                      <div *ngFor="let settingRole of formTeams.controls; let settingRoleIndex = index"
+                        class="btn-group mx-2" dropdown container=".modal-update-task" [autoClose]="true">
+                        <button dropdownToggle type="button" class="btn btn-default border rounded-pill button-role"
+                          popoverTitle="Vai trò: {{settingRole.value?.roleName}}"
+                          popover="Thông tin: {{settingRole.value?.userName}} - {{settingRole.value?.userEmail}}"
+                          triggers="mouseenter:mouseleave" placement="bottom" container=".modal-update-task">
+                          <i *ngIf="!settingRole.value.userId" class="fa-solid"
+                            [ngClass]="settingRole.value?.roleIcon"></i>
+                          <img *ngIf="!!settingRole.value.userId" width="40" height="40" class="rounded-pill"
+                            [src]="settingRole.value?.userPicture" alt="">
+                        </button>
+                        <ul id="dropdown-select-role{{settingRole.value.roleId}}" *dropdownMenu class="dropdown-menu"
+                          role="menu" aria-labelledby="button-select-role">
+                          <li role="menuitem" class="item-user-dropdown"
+                            [class.selected]="item.id === settingRole.value.userId" *ngFor="let item of listBizUsers"
+                            [class.disabled]="!item.isActive"
+                            (click)="item.id === settingRole.value.userId ? onRemoveTeam(settingRoleIndex) : onChooseTeam(settingRoleIndex, item)">
+                            <div class="d-flex align-items-center p-3 cursor-pointer">
+                              <div>
+                                <img class="avatar me-2" src="{{ item.picture }}" fallback="assets/images/avatar.svg"
+                                  alt="" />
+                              </div>
+                              <div class="text-truncate">
+                                {{ item.name }}
+                              </div>
                             </div>
-                            <div>
-                              {{ item.name }}
-                            </div>
-                          </div>
-                        </ng-option>
-                      </ng-select>
+                          </li>
+                        </ul>
+                      </div>
                       <div class="action-reload">
                         <button *ngIf="sourceData?.id" (click)="getDetailTask(true)"
                           class="btn button-medium button-outline" type="button" [disabled]="loading.getDetail">
@@ -248,7 +275,7 @@
                 </div>
               </div>
             </tab>
-            <tab>
+            <tab *ngIf="sourceData?.id">
               <ng-template tabHeading>
                 <div class="title-tab">
                   <span>Lịch sử</span>

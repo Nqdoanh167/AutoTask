@@ -41,6 +41,14 @@
                   <li *ngFor="let contentHistory of (item.content.orderProduct || [])">
                     {{ getActionContent(contentHistory.key) }}
                     <span class="text-link cursor-text">{{contentHistory.value}}</span>
+                    <div *ngIf="contentHistory.sub?.length" class="ms-4">
+                      <ul>
+                        <li *ngFor="let sub of contentHistory.sub">
+                          {{ getActionContent(sub?.key) }}
+                          <span class="text-link cursor-text">{{sub?.value}}</span>
+                        </li>
+                      </ul>
+                    </div>
                   </li>
                 </ul>
 

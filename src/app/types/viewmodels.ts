@@ -448,6 +448,39 @@ export interface ToppingValue {
   updatedAt?: Date;
 }
 
+export interface ProductWarehouse {
+  [key: string]: {
+    inventory: number;
+    qtyAvailable: number;
+    qtyInDamaged: number;
+    qtyInExpired: number;
+    qtyInHold: number;
+    qtyInTransfer: number;
+    qtyInDeposit: number;
+    qtyInTransit: number;
+  };
+}
+export interface Warehouse {
+  id: string;
+  name: string;
+  author: string;
+  updatedBy: AccountPublic;
+  bizId: string;
+  phone: string;
+  provinceCode: string;
+  districtCode: string;
+  wardCode: string;
+  province: string;
+  district: string;
+  ward: string;
+  street: string;
+  address: string;
+  description: string;
+  isDefault: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 export interface Product {
   id: string;
   author?: string;
@@ -770,6 +803,12 @@ export interface Combo {
   id: string;
   name: string;
   picture: string;
+  followProducts: {
+    quantity: number;
+    products: string[];
+    parent: string;
+  }[];
+  version: string;
   amount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -795,7 +834,7 @@ export enum ETypeAppointment {
   APPOINTMENT = 'APPOINTMENT',
 }
 export interface IDataColumns {
-  columnDashboard: IColumns[];
+  columnDashboardAutoTask: IColumns[];
 }
 export interface IColumns {
   name: string;
@@ -1417,6 +1456,10 @@ export enum ENoteContentHistoryTask {
 export interface IOrderProductContentHistoryTask {
   key: EOrderProductContentHistoryTask;
   value: string;
+  sub?: {
+    key: ESubOrderProductHistoryTask;
+    value: string;
+  }[];
 }
 export enum EOrderProductContentHistoryTask {
   CREATE_ORDER = 'CREATE_ORDER',
@@ -1435,16 +1478,23 @@ export enum EOrderProductContentHistoryTask {
   REMOVE_PREPAIDCARDS = 'REMOVE_PREPAIDCARDS',
   ADD_PREPAIDCARDS = 'ADD_PREPAIDCARDS',
   CHANGE_PREPAIDCARDS = 'CHANGE_PREPAIDCARDS',
+  CHANGE_WAREHOUSES = 'CHANGE_WAREHOUSES',
+
 }
 export interface IInformationContentHistoryTask {
   key: EInformationContentHistoryTask;
   value: string;
   sub?: {
-    key: ESubInformationContentHistoryTask,
-    value: string,
+    key: ESubInformationContentHistoryTask;
+    value: string;
   }[];
 }
 export enum ESubInformationContentHistoryTask {
+  ACTION = 'ACTION',
+  NONE = 'NONE',
+}
+export enum ESubOrderProductHistoryTask {
+  NONE = 'NONE',
   ACTION = 'ACTION',
 }
 export enum EInformationContentHistoryTask {
@@ -1467,6 +1517,7 @@ export enum EInformationContentHistoryTask {
   SEND_BLOCK_AUTOMATION = 'SEND_BLOCK_AUTOMATION',
   CALL_PHONE = 'CALL_PHONE',
   CHANGE_NOTE_I = 'CHANGE_NOTE_I',
+  ROLE = 'ROLE',
 }
 export interface IContentHistoryTask {
   orderProduct?: IOrderProductContentHistoryTask[];

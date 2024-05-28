@@ -88,4 +88,10 @@ export interface IView {
   updatedBy: AccountPublic;
 }
 
+export interface ISetting {
+  roles: string[];
+  assignRole: string;
+  bizId: string;
+  updatedBy: AccountPublic;
+}
 export interface IViewDto extends Pick<IView, 'screen' | 'modes'> {}

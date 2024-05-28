@@ -1,7 +1,7 @@
 import {IColumns, IDataColumns} from '../types/viewmodels';
 
 export const listColumns: IDataColumns = {
-  columnDashboard: [
+  columnDashboardAutoTask: [
     {
       name: 'Task',
       value: 'name',
@@ -18,9 +18,9 @@ export const listColumns: IDataColumns = {
       tooltip: 'Khách hàng',
     },
     {
-      name: 'Sản phẩm quản tâm',
+      name: 'Sản phẩm quan tâm',
       value: 'cart',
-      tooltip: 'Sản phẩm quản tâm',
+      tooltip: 'Sản phẩm quan tâm',
     },
     {
       name: 'Số lượng đơn hàng',
@@ -29,7 +29,7 @@ export const listColumns: IDataColumns = {
     },
     {
       name: 'Nhân viên phụ trách',
-      value: 'counselor',
+      value: 'teams',
       tooltip: 'Nhân viên phụ trách',
     },
     {
@@ -58,11 +58,11 @@ export const listColumns: IDataColumns = {
   ],
 };
 export const listColumnsDashboardDefault: IColumns[] =
-  listColumns.columnDashboard.filter((el) =>
+  listColumns.columnDashboardAutoTask.filter((el) =>
     [
       'name',
       'taskChains',
-      'counselor',
+      'teams',
       'cart',
       'orderIds',
       'leadDeal',

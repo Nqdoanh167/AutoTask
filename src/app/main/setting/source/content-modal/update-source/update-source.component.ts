@@ -68,6 +68,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       products: null,
       courseEvents: null,
       beautyServices: null,
+      warehouse: null,
       prepaidCards: null,
       combos: null,
     }),
@@ -148,7 +149,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       value: ESourceArgKey.PRODUCT_NAME,
     },
     {
-      label: 'Nhân viên phụ trách ',
+      label: 'Nhân viên phụ trách',
       value: ESourceArgKey.COUNSELOR_ID,
     },
     {
@@ -230,6 +231,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
         products: null,
         courseEvents: null,
         beautyServices: null,
+        warehouse: null,
         prepaidCards: null,
         combos: null,
       },
