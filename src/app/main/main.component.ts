@@ -47,19 +47,8 @@ export class MainComponent implements OnInit {
       isActive: true,
     },
     {
-      link: '/setting/employee',
-      name: 'Nhân viên',
-      isActive: true,
-    },
-   
-    {
       link: '/setting/permission',
       name: 'Phân quyền',
-      isActive: true,
-    },
-    {
-      link: '/setting/branch',
-      name: 'Chi nhánh',
       isActive: true,
     },
     {

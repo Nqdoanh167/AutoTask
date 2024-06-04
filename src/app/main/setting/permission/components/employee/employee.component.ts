@@ -8,10 +8,10 @@ import {
 import {User} from '@app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
-import {environment} from '../../../../environments/environment';
 import {removeCharacter} from '@app/utils/common';
 import {ModalEmployeeInfoComponent} from '@main/setting/components/modal-employee-info/modal-employee-info.component';
 import {BsModalService} from 'ngx-bootstrap/modal';
+import {environment} from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-employee',

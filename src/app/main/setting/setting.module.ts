@@ -3,7 +3,6 @@ import {CommonModule} from '@angular/common';
 import {SettingComponent} from './setting.component';
 import {SettingRoutingModule} from './setting-routing.module';
 import {PermissionComponent} from './permission/permission.component';
-import {EmployeeComponent} from './employee/employee.component';
 import {BranchComponent} from './branch/branch.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {PipeTimeViewModule} from '@share/pipe/timeView.module';
@@ -21,18 +20,22 @@ import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 import {TagComponent} from './tag/tag.component';
 import {RoleComponent} from './role/role.component';
+import {RolesComponent} from './permission/components/roles/roles.component';
+import {EmployeeComponent} from '@main/setting/permission/components/employee/employee.component';
+import {TabsModule} from 'ngx-bootstrap/tabs';
 
 @NgModule({
   declarations: [
     SettingComponent,
     TagComponent,
     PermissionComponent,
-    EmployeeComponent,
     BranchComponent,
     ModalEmployeeInfoComponent,
     SourceComponent,
     RoleComponent,
     UpdateSourceComponent,
+    RolesComponent,
+    EmployeeComponent,
   ],
   imports: [
     CommonModule,
@@ -49,6 +52,7 @@ import {RoleComponent} from './role/role.component';
     CustomButtonLoadingComponent,
     TooltipModule,
     ConvertTypeModule,
+    TabsModule,
   ],
 })
 export class SettingModule {}

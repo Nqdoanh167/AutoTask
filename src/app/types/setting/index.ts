@@ -94,4 +94,10 @@ export interface ISetting {
   bizId: string;
   updatedBy: AccountPublic;
 }
+
 export interface IViewDto extends Pick<IView, 'screen' | 'modes'> {}
+
+export enum ETabPermissions {
+  EMPLOYEE = 'EMPLOYEE',
+  ROLE = 'ROLE',
+}
