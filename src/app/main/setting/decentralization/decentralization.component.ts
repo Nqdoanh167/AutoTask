@@ -4,15 +4,15 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Subject, takeUntil} from 'rxjs';
 
 @Component({
-  selector: 'app-permission',
-  templateUrl: './permission.component.html',
-  styleUrls: ['./permission.component.scss'],
+  selector: 'app-decentralization',
+  templateUrl: './decentralization.component.html',
+  styleUrls: ['./decentralization.component.scss'],
 })
-export class PermissionComponent implements OnInit, OnDestroy {
+export class DecentralizationComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   public tabs = [
     {key: ETabPermissions.EMPLOYEE, name: 'Nhân viên'},
-    {key: ETabPermissions.ROLE, name: 'Quyền'},
+    {key: ETabPermissions.PERMISSION, name: 'Quyền'},
   ];
 
   public activeTab: ETabPermissions = ETabPermissions.EMPLOYEE;

@@ -47,7 +47,7 @@ export class MainComponent implements OnInit {
       isActive: true,
     },
     {
-      link: '/setting/permission',
+      link: '/setting/decentralization',
       name: 'Phân quyền',
       isActive: true,
     },

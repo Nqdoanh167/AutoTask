@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {SettingComponent} from './setting.component';
 import {SettingRoutingModule} from './setting-routing.module';
-import {PermissionComponent} from './permission/permission.component';
+import {DecentralizationComponent} from '@main/setting/decentralization/decentralization.component';
 import {BranchComponent} from './branch/branch.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {PipeTimeViewModule} from '@share/pipe/timeView.module';
@@ -20,21 +20,21 @@ import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 import {TagComponent} from './tag/tag.component';
 import {RoleComponent} from './role/role.component';
-import {RolesComponent} from './permission/components/roles/roles.component';
-import {EmployeeComponent} from '@main/setting/permission/components/employee/employee.component';
+import {PermissionsComponent} from '@main/setting/decentralization/components/permissions/permissions.component';
+import {EmployeeComponent} from '@main/setting/decentralization/components/employee/employee.component';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 
 @NgModule({
   declarations: [
     SettingComponent,
     TagComponent,
-    PermissionComponent,
+    DecentralizationComponent,
     BranchComponent,
     ModalEmployeeInfoComponent,
     SourceComponent,
     RoleComponent,
     UpdateSourceComponent,
-    RolesComponent,
+    PermissionsComponent,
     EmployeeComponent,
   ],
   imports: [

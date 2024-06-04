@@ -99,5 +99,5 @@ export interface IViewDto extends Pick<IView, 'screen' | 'modes'> {}
 
 export enum ETabPermissions {
   EMPLOYEE = 'EMPLOYEE',
-  ROLE = 'ROLE',
+  PERMISSION = 'PERMISSION',
 }
