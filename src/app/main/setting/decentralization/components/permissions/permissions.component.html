@@ -23,13 +23,13 @@
             <tbody>
               <tr
                 class="text-center"
-                *ngIf="!listFilteredBranches.length && !loading.data"
+                *ngIf="!item.rows.length && !item.loading"
               >
                 <td colspan="12">
                   <div>Không có dữ liệu</div>
                 </td>
               </tr>
-              <tr class="text-center" *ngIf="loading.data">
+              <tr class="text-center" *ngIf="item.loading">
                 <td colspan="12">
                   <div class="spinner-grow text-primary" role="status">
                     <span class="visually-hidden">Loading</span>
@@ -37,7 +37,7 @@
                   <div>Loading</div>
                 </td>
               </tr>
-              <tr *ngFor="let item of listFilteredBranches; index as i">
+              <tr *ngFor="let item of item.rows; index as i">
                 <td class="column-index">{{ i + 1 }}</td>
                 <td class="">{{ item.name || '-' }}</td>
                 <td class="">-</td>

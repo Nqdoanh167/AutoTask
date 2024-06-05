@@ -1,0 +1,60 @@
+<div class="standard-table-data">
+  <div class="header-table" #headerTable>
+    <ng-content select="[headerTable]"></ng-content>
+    <app-filter-top-table
+      [configFilters]="configFilters"
+      [configButtons]="configButtons"
+      (clickButtonEvent)="handleAction($event)"
+      (searchEvent)="onSearch($event)"
+    ></app-filter-top-table>
+  </div>
+  <div class="body-table">
+    <ng-content select="[bodyTable]"></ng-content>
+  </div>
+  @if (!isHidePaginate) {
+    <ng-container #footerTable>
+      <ng-content select="[footerTable]"></ng-content>
+      @if (!footerTable.children.length) {
+        <ng-container>
+          <div
+            class="right d-flex justify-content-md-between justify-content-center mt-3 flex-wrap gap-2"
+          >
+            <div class="d-flex align-items-center">
+              <span class="text-secondary" style="width: auto">Hiển thị</span>
+              <select
+                class="form-select border-0 mx-2"
+                [(ngModel)]="item.paramsQuery!.limit"
+                style="width: 100px"
+                (change)="pageChanged({}, $event)"
+              >
+                <option [value]="10">10</option>
+                <option [value]="20">20</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+              <span class="text-secondary">trong tổng số</span>
+              <span class="text-secondary mx-1">{{ item.total || 0 }}</span>
+              <span class="text-secondary">bản ghi</span>
+            </div>
+            <pagination
+              [disabled]="item.loading"
+              [boundaryLinks]="true"
+              [totalItems]="item.total! || 0"
+              [itemsPerPage]="
+                (item.paramsQuery?.limit | convertType: 'number') || 10
+              "
+              [(ngModel)]="item.paramsQuery!.page"
+              (pageChanged)="pageChanged($event, null)"
+              [rotate]="false"
+              [maxSize]="4"
+              previousText="&lsaquo;"
+              nextText="&rsaquo;"
+              firstText="Trang đầu"
+              lastText="Trang cuối"
+            ></pagination>
+          </div>
+        </ng-container>
+      }
+    </ng-container>
+  }
+</div>
