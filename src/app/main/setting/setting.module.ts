@@ -3,7 +3,6 @@ import {CommonModule} from '@angular/common';
 import {SettingComponent} from './setting.component';
 import {SettingRoutingModule} from './setting-routing.module';
 import {DecentralizationComponent} from '@main/setting/decentralization/decentralization.component';
-import {BranchComponent} from './branch/branch.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {FallbackImageModule} from '@share/directive/fallback-image/fallback-image.module';
@@ -20,22 +19,25 @@ import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 import {TagComponent} from './tag/tag.component';
 import {RoleComponent} from './role/role.component';
-import {PermissionsComponent} from '@main/setting/decentralization/components/permissions/permissions.component';
 import {EmployeeComponent} from '@main/setting/decentralization/components/employee/employee.component';
 import {TabsModule} from 'ngx-bootstrap/tabs';
+import {PermissionsComponent} from '@main/setting/decentralization/components/permissions/permissions.component';
+import {AddEditPermissionComponent} from './decentralization/modal-contents/add-edit-permission/add-edit-permission.component';
+import {AddEditEmployeePermissionComponent} from './decentralization/modal-contents/add-edit-employee-permission/add-edit-employee-permission.component';
 
 @NgModule({
   declarations: [
     SettingComponent,
     TagComponent,
     DecentralizationComponent,
-    BranchComponent,
     ModalEmployeeInfoComponent,
     SourceComponent,
     RoleComponent,
     UpdateSourceComponent,
     PermissionsComponent,
     EmployeeComponent,
+    AddEditPermissionComponent,
+    AddEditEmployeePermissionComponent,
   ],
   imports: [
     CommonModule,
