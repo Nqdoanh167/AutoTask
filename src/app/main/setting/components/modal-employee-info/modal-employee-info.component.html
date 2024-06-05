@@ -32,7 +32,7 @@
               <label class="form-control-label" for="name">Tên nhân viên</label>
               <input
                 [readonly]="true"
-                class="form-control"
+                class="form-control input-disabled"
                 [ngClass]="{'is-invalid': submitted && f['name'].errors}"
                 [placeholder]="'Tên nhân viên...'"
                 formControlName="name"
@@ -44,7 +44,7 @@
               <label class="form-control-label" for="email">Email</label>
               <input
                 [readonly]="true"
-                class="form-control"
+                class="form-control input-disabled"
                 [ngClass]="{'is-invalid': submitted && f['email'].errors}"
                 [placeholder]="'Email...'"
                 formControlName="email"
@@ -65,12 +65,12 @@
               <ng-select
                 [disabled]="true"
                 [clearable]="false"
-                [placeholder]="'Nhóm...'"
+                [placeholder]="'Vùng chức năng...'"
                 [searchable]="false"
                 [multiple]="true"
                 [items]="sourceData?.groups || []"
                 [isOpen]="false"
-                class="dropdown-auto-width custom-input-multiple disabled"
+                class="dropdown-auto-width custom-input-multiple disabled input-disabled"
                 formControlName="groups"
                 [compareWith]="compareFunction"
                 id="groups"
@@ -95,7 +95,7 @@
                 [multiple]="true"
                 [items]="sourceData?.roles || []"
                 [isOpen]="false"
-                class="dropdown-auto-width custom-input-multiple disabled"
+                class="dropdown-auto-width custom-input-multiple disabled input-disabled"
                 formControlName="roles"
                 [compareWith]="compareFunction"
                 id="roles"
@@ -125,7 +125,7 @@
                 [multiple]="true"
                 [items]="sourceData?.branches || []"
                 [isOpen]="false"
-                class="dropdown-auto-width custom-input-multiple disabled"
+                class="dropdown-auto-width custom-input-multiple"
                 formControlName="branches"
                 [compareWith]="compareFunction"
                 id="branches"
