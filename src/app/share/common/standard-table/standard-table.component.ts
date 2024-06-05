@@ -1,5 +1,11 @@
-import {ChangeDetectorRef, Component, inject, Input} from '@angular/core';
-import {ICommonDataSource} from '@app/types/viewmodels';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  Input,
+  OnInit,
+} from '@angular/core';
+import {ICommonDataSource, IPageChange} from '@app/types/viewmodels';
 import {sortBy, sortIcon} from '@app/utils/common';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
@@ -22,10 +28,11 @@ import {CommonModule} from '@angular/common';
   templateUrl: './standard-table.component.html',
   styleUrl: './standard-table.component.scss',
 })
-export class StandardTableComponent<T, K extends any> {
+export class StandardTableComponent<T, K extends any> implements OnInit {
   @Input() isHidePaginate: boolean = false;
+  @Input() isHideFilter: boolean = false;
 
-  protected detect = inject(ChangeDetectorRef);
+  protected readonly cdr = inject(ChangeDetectorRef);
 
   protected sortProperty: string = 'createdAt';
   protected sortOrder = 1;
@@ -47,6 +54,10 @@ export class StandardTableComponent<T, K extends any> {
 
   constructor() {}
 
+  ngOnInit() {
+    this.getDataSource();
+  }
+
   handleAction(name: string) {}
 
   getDataSource(isReset?: boolean) {}
@@ -57,7 +68,7 @@ export class StandardTableComponent<T, K extends any> {
     this.getDataSource(true);
   }
 
-  handleSortBy(property: string): void {
+  sortBy(property: string): void {
     const {sortProperty, sortOrder, sortQuery} = sortBy(
       this.sortOrder,
       this.sortProperty,
@@ -68,13 +79,15 @@ export class StandardTableComponent<T, K extends any> {
       ...this.item.paramsQuery,
       sort: sortQuery ? sortQuery : undefined,
     };
+    this.getDataSource(true);
   }
 
-  handleSortIcon(property: string) {
+  sortIcon(property: string) {
     return sortIcon(property, this.sortProperty, this.sortOrder);
   }
 
-  pageChanged(event: {page?: number; itemsPerPage?: number}, limit: any): void {
+  pageChanged(data: IPageChange): void {
+    const {event, limit} = data;
     if (event.page) {
       this.item.paramsQuery = {...this.item.paramsQuery, page: event.page};
     }

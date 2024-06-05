@@ -877,10 +877,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     nextAction.addNewChainActId = undefined;
     nextAction.moveToActionId = undefined;
     nextAction.callToBlockId = undefined;
-    if(nextAction.nextAction === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
+    if (nextAction.nextAction === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
       nextAction.closeCloneTask = Object.values(EOptionCloneTask);
     } else {
-      nextAction.closeCloneTask = []
+      nextAction.closeCloneTask = [];
     }
   }
 

@@ -16,7 +16,7 @@ import {FormBuilder} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
-import { ModalConfirmService } from '@app/share/custom/modal-confirm/modal-confirm.service';
+import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
 
 @Component({
   selector: 'app-tag',

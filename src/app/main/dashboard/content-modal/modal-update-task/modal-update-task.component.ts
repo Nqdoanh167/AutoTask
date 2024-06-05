@@ -297,20 +297,20 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             this.autoTaskSetting = res.data;
             res.data.roles?.forEach((role) => {
               const findRole = this.currentBiz.roles.find((r) => r.id === role);
-              let initTeam = null
-              if(!this.sourceData && findRole?.id === res.data.assignRole) {
-                initTeam =  {
+              let initTeam = null;
+              if (!this.sourceData && findRole?.id === res.data.assignRole) {
+                initTeam = {
                   userId: this.currentBiz.user.id,
                   userName: this.currentBiz.user.name,
                   userPicture: this.currentBiz.user.picture,
                   userEmail: this.currentBiz.user.email,
-                }
+                };
               }
-              
+
               const findTeam = this.sourceData?.teams?.find(
                 (team) => team.roleId === role,
               );
-            
+
               this.formTeams.push(
                 this.fb.group({
                   roleId: findRole?.id,
@@ -318,7 +318,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
                   roleName: findRole?.name,
                   userId: initTeam?.userId || findTeam?.userId || null,
                   userName: initTeam?.userName || findTeam?.userName || null,
-                  userPicture: initTeam?.userPicture || findTeam?.userPicture || null,
+                  userPicture:
+                    initTeam?.userPicture || findTeam?.userPicture || null,
                   userEmail: initTeam?.userEmail || findTeam?.userEmail || null,
                 }),
               );
@@ -918,7 +919,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         addChainActIds: (this.addTaskChainForm.value?.addChainActIds ||
           []) as unknown as string[],
       } as unknown as IAddTaskChainDto;
-      
+
       this.loading.addTaskChain = true;
       this.autoTaskService.task
         .updateTaskChain(this.sourceData.id!, body)
@@ -942,7 +943,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       const newAddChainActIds =
         this.addTaskChainForm.value?.addChainActIds || [];
       const oldAddChainActIds = this.updateForm.value?.addChainActIds || [];
-      if(intersection(newAddChainActIds, oldAddChainActIds)?.length > 0) {
+      if (intersection(newAddChainActIds, oldAddChainActIds)?.length > 0) {
         this.toastr.warning('Chuỗi hành động đã tồn tại, vui lòng chọn lại!');
         return;
       }

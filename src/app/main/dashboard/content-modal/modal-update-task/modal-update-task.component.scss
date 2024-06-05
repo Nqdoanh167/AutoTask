@@ -47,17 +47,17 @@
       cursor: not-allowed;
       color: #dcdcdc;
     }
-    &:hover{
-    color: var(--bs-secondary);
-    border-radius: 6px;
-    background-color: #4277ff1a;
-    font-weight: 500;
+    &:hover {
+      color: var(--bs-secondary);
+      border-radius: 6px;
+      background-color: #4277ff1a;
+      font-weight: 500;
     }
     &.selected {
-    color: var(--bs-secondary);
-    border-radius: 6px;
-    background-color: #4277ff1a;
-    font-weight: 500;
+      color: var(--bs-secondary);
+      border-radius: 6px;
+      background-color: #4277ff1a;
+      font-weight: 500;
     }
   }
 }

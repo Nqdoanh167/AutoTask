@@ -3,18 +3,40 @@
     <ng-container modalTitle>Tạo bản sao task</ng-container>
     <ng-container modalBody>
       <label for="assign-team" class="form-control-label">
-        Những thông tin cần giữ khi tạo bản sao <span class="text-danger">*</span>
+        Những thông tin cần giữ khi tạo bản sao
+        <span class="text-danger">*</span>
       </label>
-      <ng-select [items]="optionToCloneTask" appearance="outline" formControlName="optionToClone"
-        appendTo=".modal-clone" placeholder="Chọn thông tin" bindValue="value" [closeOnSelect]="false" bindLabel="label" [multiple]="true"
-        class="custom-input-multiple-round">
-      </ng-select>
+      <ng-select
+        [items]="optionToCloneTask"
+        appearance="outline"
+        formControlName="optionToClone"
+        appendTo=".modal-clone"
+        placeholder="Chọn thông tin"
+        bindValue="value"
+        [closeOnSelect]="false"
+        bindLabel="label"
+        [multiple]="true"
+        class="custom-input-multiple-round"
+      ></ng-select>
     </ng-container>
-    <div modalFooter class="d-flex justify-content-end align-items-center gap-2" id="footer-modal-assign-team">
-      <button (click)="hideModal()" class="btn button-default-modal" type="button">
+    <div
+      modalFooter
+      class="d-flex justify-content-end align-items-center gap-2"
+      id="footer-modal-assign-team"
+    >
+      <button
+        (click)="hideModal()"
+        class="btn button-default-modal"
+        type="button"
+      >
         Hủy
       </button>
-      <button (click)="onSubmit()" [disabled]="!form.valid" class="btn btn-primary text-white" type="button">
+      <button
+        (click)="onSubmit()"
+        [disabled]="!form.valid"
+        class="btn btn-primary text-white"
+        type="button"
+      >
         Lưu
       </button>
     </div>

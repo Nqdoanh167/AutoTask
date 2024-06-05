@@ -24,7 +24,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
-import { ToastrService } from 'ngx-toastr';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-role',
@@ -87,7 +87,7 @@ export class RoleComponent implements OnDestroy, OnInit {
   }
   onsubmit() {
     console.log(this.settingForm.value);
-    
+
     if (this.settingForm.invalid) {
       this.toasrt.warning('Vui lòng nhập đầy đủ thông tin');
       return;

@@ -4,6 +4,8 @@ import {
   Input,
   Output,
   SimpleChanges,
+  OnInit,
+  OnDestroy,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
@@ -35,7 +37,7 @@ import {cloneDeep, isEmpty} from 'lodash';
   templateUrl: './filter-top-table.component.html',
   styleUrls: ['./filter-top-table.component.scss'],
 })
-export class FilterTopTableComponent {
+export class FilterTopTableComponent implements OnInit, OnDestroy {
   @Output() pickerDateEvent = new EventEmitter<{
     value: IDateRange | Date;
     name: string;
@@ -45,7 +47,10 @@ export class FilterTopTableComponent {
   @Output() selectEvent = new EventEmitter<{value?: string; name: string}>();
   @Output() scrollToEndEvent = new EventEmitter<string>();
   @Output() clickButtonEvent = new EventEmitter<string>();
-  @Output() toggleButtonEvent = new EventEmitter<{value: boolean; name?: string}>();
+  @Output() toggleButtonEvent = new EventEmitter<{
+    value: boolean;
+    name?: string;
+  }>();
 
   @Input() configFilters: IFilterTopTable[] = [];
   @Input() configButtons: IFilterTopButton[] = [];
@@ -80,7 +85,9 @@ export class FilterTopTableComponent {
   }
   getDefaultValuePopover(name?: string) {
     const filter = this.configFilters.find((item) => item.name === name);
-    return filter?.options?.find((item) => filter.value === item['value'])?.['label'];  
+    return filter?.options?.find((item) => filter.value === item['value'])?.[
+      'label'
+    ];
   }
   handleOpenPopover(event: any) {
     // this.filteredTabs = this.tabs;

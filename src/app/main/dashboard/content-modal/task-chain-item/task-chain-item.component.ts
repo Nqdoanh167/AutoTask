@@ -272,7 +272,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
               chainActResultId: nextAction.moveToActionId,
             }
           : null,
-        closeCloneTask: nextAction.closeCloneTask || null
+        closeCloneTask: nextAction.closeCloneTask || null,
       };
       return {
         ...nextAction,
@@ -355,9 +355,12 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     if (nextStep.childNextAction?.closeCloneTask?.length) {
       string +=
         ': ' +
-        `<b>${
-          this.optionToCloneTask.filter(o => nextStep.childNextAction?.closeCloneTask?.includes(o.value))?.map(o => o.label)?.join(", ")
-        }</b>`;
+        `<b>${this.optionToCloneTask
+          .filter(
+            (o) => nextStep.childNextAction?.closeCloneTask?.includes(o.value),
+          )
+          ?.map((o) => o.label)
+          ?.join(', ')}</b>`;
     }
     if (
       nextStep.childNextAction?.addNewChain?.chain &&

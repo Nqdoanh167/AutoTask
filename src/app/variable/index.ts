@@ -54,7 +54,6 @@ export const listColumns: IDataColumns = {
       value: 'updatedBy',
       tooltip: 'Người cập nhật',
     },
-   
   ],
 };
 export const listColumnsDashboardDefault: IColumns[] =

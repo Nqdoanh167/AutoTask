@@ -6,9 +6,8 @@ import {
   IFilterTopTable,
 } from '@app/types/common';
 import {Subject, takeUntil} from 'rxjs';
-import {removeCharacter} from '@app/utils/common';
 import {AuthService} from '@app/services/api/auth.service';
-import {IBranch, IQueryBase} from '@app/types/viewmodels';
+import {IQueryBase} from '@app/types/viewmodels';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
 
@@ -50,7 +49,7 @@ export class PermissionsComponent
       .subscribe((biz) => {});
   }
 
-  ngOnInit() {}
+  // ngOnInit() {}
 
   override handleAction(name: string) {
     if (name === 'add_new') {

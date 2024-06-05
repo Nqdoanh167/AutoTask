@@ -60,7 +60,7 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
       value: ENextStepType.CONTINUE_TO_NEXT_ACTION,
       label: 'Hành động tiếp theo trong chuỗi',
     },
-   
+
     {
       value: ENextStepType.CREATE_ORDER,
       label: 'Tạo đơn hàng',

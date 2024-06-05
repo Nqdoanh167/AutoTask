@@ -25,7 +25,7 @@ import {EOptionCloneTask, ITask} from '@app/types/flow';
 })
 export class ModalCloneComponent implements OnInit, OnDestroy {
   @Input() task!: ITask;
-  @Output() submit = new EventEmitter();
+  @Output() submitEvent = new EventEmitter();
   public optionToCloneTask = [
     {
       label: 'Nguồn dữ liệu',
@@ -76,7 +76,7 @@ export class ModalCloneComponent implements OnInit, OnDestroy {
     this.modalRef.hide();
   }
   onSubmit() {
-    this.submit.emit(this.form.value.optionToClone);
+    this.submitEvent.emit(this.form.value.optionToClone);
   }
   ngOnDestroy(): void {
     this.destroy$.next(true);

@@ -1479,7 +1479,6 @@ export enum EOrderProductContentHistoryTask {
   ADD_PREPAIDCARDS = 'ADD_PREPAIDCARDS',
   CHANGE_PREPAIDCARDS = 'CHANGE_PREPAIDCARDS',
   CHANGE_WAREHOUSES = 'CHANGE_WAREHOUSES',
-
 }
 export interface IInformationContentHistoryTask {
   key: EInformationContentHistoryTask;
@@ -1633,4 +1632,9 @@ export interface IPaginationStandard {
   limit: number;
   current: number;
   pageSize: number;
+}
+
+export interface IPageChange {
+  event: {page?: number; itemsPerPage?: number};
+  limit: any;
 }

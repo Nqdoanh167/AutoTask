@@ -325,7 +325,7 @@ export interface ITask {
   counselor: AccountPublic;
   taskChainIds: string[];
   taskChains: ITaskChain[];
-  teams?: ITeam[]
+  teams?: ITeam[];
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;
@@ -340,7 +340,7 @@ export interface ITaskDto {
   addChainActIds?: string[];
 }
 export interface CloneTaskDto {
-  options: string[]
+  options: string[];
 }
 export interface IBulkTaskDto {
   taskIds: string[];

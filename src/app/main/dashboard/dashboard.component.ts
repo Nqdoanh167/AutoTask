@@ -50,7 +50,7 @@ import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-as
 import {environment} from 'src/environments/environment';
 import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 import {listColumnsDashboardDefault} from '@app/variable';
-import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone/modal-clone.component';
+import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
 
 @Component({
   selector: 'app-task',
@@ -557,7 +557,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.dataSource.paramsQuery.page = 1;
     }
     let params = {...this.dataSource.paramsQuery};
-   
+
     Object.keys(this.sort).forEach((key) => {
       if (this.sort[key] !== 0) {
         let sortAll = params.sort?.split(',') || [];
@@ -771,19 +771,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
   handleCopy(task: ITask) {
-      const modalClone = this.modalService.show(ModalCloneComponent, {
-        initialState: {
-          task: task,
-        },
-        ignoreBackdropClick: true,
-        keyboard: false,
-      });
-      modalClone.content?.submit.subscribe(res =>{
-        if(res){
-          modalClone.hide();
-          this.cloneTask(task.id, res);
-        }
-      })
+    const modalClone = this.modalService.show(ModalCloneComponent, {
+      initialState: {
+        task: task,
+      },
+      ignoreBackdropClick: true,
+      keyboard: false,
+    });
+    modalClone.content?.submitEvent.subscribe((res) => {
+      if (res) {
+        modalClone.hide();
+        this.cloneTask(task.id, res);
+      }
+    });
   }
   cloneTask(id: string, options: string[]) {
     this.autoTaskService.task
@@ -799,9 +799,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.commonService.handleResSuccess('clone');
           this.getDataSource();
         },
-        error: (err) => { 
+        error: (err) => {
           this.commonService.handleErr(err);
-        }
+        },
       });
   }
 

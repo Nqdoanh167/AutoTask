@@ -24,6 +24,8 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
 import {PermissionsComponent} from '@main/setting/decentralization/components/permissions/permissions.component';
 import {AddEditPermissionComponent} from './decentralization/modal-contents/add-edit-permission/add-edit-permission.component';
 import {AddEditEmployeePermissionComponent} from './decentralization/modal-contents/add-edit-employee-permission/add-edit-employee-permission.component';
+import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
+import {StandardDataSizeComponent} from '@share/common/standard-data-size/standard-data-size.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +57,8 @@ import {AddEditEmployeePermissionComponent} from './decentralization/modal-conte
     TooltipModule,
     ConvertTypeModule,
     TabsModule,
+    StandardTableComponent,
+    StandardDataSizeComponent,
   ],
 })
 export class SettingModule {}

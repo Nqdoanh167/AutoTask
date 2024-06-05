@@ -219,9 +219,9 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   handleChangeTypeAction(event: any) {
     let optionClone: string[] = [];
-    if(event?.value === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
+    if (event?.value === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
       optionClone = Object.values(EOptionCloneTask);
-    } 
+    }
     this.updateForm.patchValue({
       moveToAction: {
         chainActResultId: null,
@@ -230,7 +230,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       callBlockAutomation: {
         blockId: null,
       },
-      
+
       closeCloneTask: optionClone,
       addNewChain: {
         chainActResultId: null,

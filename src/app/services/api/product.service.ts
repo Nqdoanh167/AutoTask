@@ -55,12 +55,12 @@ export class ProductService extends BaseApiService implements OnDestroy {
         },
       ),
     all: (params = {}) =>
-        this.httpClient.get<EntityResult<Product[]>>(
-          this.createUrl([this.api.product, 'all']),
-          {
-            params: this.createParams(Object.assign(params, this.defaultParams)),
-          },
-        ),
+      this.httpClient.get<EntityResult<Product[]>>(
+        this.createUrl([this.api.product, 'all']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     sameParent: (id: string, params = {}) =>
       this.httpClient.get<EntityResult<Product[]>>(
         this.createUrl([this.api.product, id, 'same-parent']),
