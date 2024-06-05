@@ -30,6 +30,7 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
     roles: [null],
     branches: [null],
     status: [null],
+    isActive: [false],
   });
   public submitted = false;
   public loading = {

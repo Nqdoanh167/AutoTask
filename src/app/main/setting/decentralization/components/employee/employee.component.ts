@@ -91,7 +91,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
       initialState: {
         sourceData: value,
       },
-      class: 'modal-dialog-centered modal-lg',
+      class: 'modal-dialog-centered modal-xl',
     });
     modalUpdate?.content?.updateSuccess
       .pipe()

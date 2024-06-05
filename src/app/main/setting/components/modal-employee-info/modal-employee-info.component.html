@@ -4,9 +4,29 @@
       [isSubmitting]="loading.submit"
       (submitModal)="onSubmit()"
     >
-      <ng-container modalTitle>Thông tin nhân viên</ng-container>
+      <ng-container modalTitle>Chỉnh sửa quyền của nhân viên</ng-container>
       <ng-container modalBody>
         <form [formGroup]="updateForm">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="headline">Thông tin nhân viên</span>
+            <div class="d-flex align-items-center gap-2">
+              <label
+                class="form-check-label form-control-label mb-0"
+                for="isActive"
+              >
+                Trạng thái kích hoạt
+              </label>
+              <div class="form-check form-switch">
+                <input
+                  formControlName="isActive"
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="isActive"
+                />
+              </div>
+            </div>
+          </div>
           <div class="row mb-2">
             <div class="col-6">
               <label class="form-control-label" for="name">Tên nhân viên</label>
@@ -34,9 +54,9 @@
             </div>
           </div>
           <div class="row mb-2">
-            <div class="col-12">
+            <div class="col-6">
               <label class="form-control-label" for="groups">
-                Nhóm
+                Vùng chức năng
                 <i
                   (click)="viewSetting('groups')"
                   class="fa-solid fa-link ms-1"
@@ -59,9 +79,7 @@
                 bindValue="id"
               ></ng-select>
             </div>
-          </div>
-          <div class="row mb-2">
-            <div class="col-12">
+            <div class="col-6">
               <label class="form-control-label" for="roles">
                 Vai trò
                 <i
@@ -86,6 +104,9 @@
                 bindValue="id"
               ></ng-select>
             </div>
+          </div>
+          <div class="mb-2 mt-3">
+            <span class="headline">Phân quyền</span>
           </div>
           <div class="row mb-2">
             <div class="col-12">
