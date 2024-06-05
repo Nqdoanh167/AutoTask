@@ -26,6 +26,7 @@ import {AddEditPermissionComponent} from './decentralization/modal-contents/add-
 import {AddEditEmployeePermissionComponent} from './decentralization/modal-contents/add-edit-employee-permission/add-edit-employee-permission.component';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
 import {StandardDataSizeComponent} from '@share/common/standard-data-size/standard-data-size.component';
+import {CdkDropList} from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import {StandardDataSizeComponent} from '@share/common/standard-data-size/standa
     TabsModule,
     StandardTableComponent,
     StandardDataSizeComponent,
+    CdkDropList,
   ],
 })
 export class SettingModule {}

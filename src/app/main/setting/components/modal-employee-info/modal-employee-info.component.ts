@@ -38,7 +38,57 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
     data: false,
   };
   public currentBiz = '';
+  public data: any = [
+    {
+      branchName: 'Chi nhánh Hà Nội',
+      departments: [
+        {
+          name: 'Phòng Marketing',
+          teams: [
+            {
+              name: 'Team 1',
+            },
+            {
+              name: 'Team 2',
+            },
+          ],
+        },
+        {
+          name: 'Phòng Sale',
+          teams: [
+            {
+              name: 'Team 5',
+            },
+            {
+              name: 'Team 3',
+            },
+            {
+              name: 'Team 3123',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      branchName: 'Chi nhánh HCM',
+      departments: [
+        {
+          name: 'Phòng Marketing HCM',
+          teams: [
+            {
+              name: 'Team 1 HCM',
+            },
+          ],
+        },
+        {
+          name: 'Phòng Sale HCM',
+        },
+      ],
+    },
+  ];
+
   private destroy$ = new Subject();
+
   constructor(
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
