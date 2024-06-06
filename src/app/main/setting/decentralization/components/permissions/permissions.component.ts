@@ -13,6 +13,8 @@ import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-
 import {Permission} from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
+import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 
 @Component({
   selector: 'app-permissions',
@@ -46,6 +48,7 @@ export class PermissionsComponent
     private readonly modalService: BsModalService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
+    private readonly modalConfirmService: ModalConfirmService,
   ) {
     super();
   }
@@ -96,7 +99,45 @@ export class PermissionsComponent
       });
   }
 
-  handleDelete(data?: Permission) {}
+  handleDelete(value: Permission) {
+    const title = 'Xóa quyền';
+    const description = `Bạn sắp xóa quyền <b>${
+      value.name || ''
+    }</b>, hành động này không thể hoàn tác.`;
+    const okText = 'Xóa';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'warning',
+      modalType: 'advance',
+      context: value,
+      errorState:
+        'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
+        '        của bản ghi cũng sẽ bị ảnh hưởng.',
+    };
+
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDelete(value);
+    });
+  }
+
+  onDelete(value: Permission) {
+    this.autoTaskService.permission
+      .delete(value.id)
+      .pipe()
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('delete');
+            this.getDataSource();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next(true);
