@@ -5,12 +5,14 @@ import {
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {IQueryBase} from '@app/types/viewmodels';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
 import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-permission/add-edit-permission.component';
+import {Permission} from '@app/types/setting';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
 
 @Component({
   selector: 'app-permissions',
@@ -18,7 +20,7 @@ import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-
   styleUrls: ['./permissions.component.scss'],
 })
 export class PermissionsComponent
-  extends StandardTableComponent<any, IQueryBase>
+  extends StandardTableComponent<Permission, IQueryBase>
   implements OnDestroy, OnInit
 {
   public override configFilters: IFilterTopTable[] = [
@@ -43,6 +45,7 @@ export class PermissionsComponent
   constructor(
     private readonly authService: AuthService,
     private readonly modalService: BsModalService,
+    private readonly autoTaskService: AutoTaskService,
   ) {
     super();
     this.authService.currentBiz
@@ -56,15 +59,45 @@ export class PermissionsComponent
     }
   }
 
-  override getDataSource(isReset?: boolean) {}
-
-  handleUpdate(data?: any) {
-    this.modalService.show(AddEditPermissionComponent, {
-      class: 'modal-xl modal-dialog-centered',
-    });
+  override getDataSource(isReset?: boolean) {
+    let params = {...this.item.paramsQuery};
+    if (isReset) {
+      params.limit = 20;
+      params.page = 1;
+    }
+    this.item.loading = true;
+    this.autoTaskService.permission
+      .get(params)
+      .pipe(
+        finalize(() => (this.item.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.item.rows = res.data;
+            this.item.total = res.total;
+          }
+        },
+      });
   }
 
-  handleDelete(data?: any) {}
+  handleUpdate(data?: Permission) {
+    const modalAddEdit = this.modalService.show(AddEditPermissionComponent, {
+      class: 'modal-xl modal-dialog-centered',
+      initialState: {
+        sourceData: data,
+      },
+    });
+    modalAddEdit?.content?.successEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.getDataSource();
+        modalAddEdit.hide();
+      });
+  }
+
+  handleDelete(data?: Permission) {}
 
   ngOnDestroy(): void {
     this.destroy$.next(true);

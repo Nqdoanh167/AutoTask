@@ -35,6 +35,11 @@ import {
   IView,
   IViewDto,
   IViewModeDto,
+  Permission,
+  PermissionDto,
+  UpdatePermissionDto,
+  UpdateUserAclDto,
+  UserAcl,
 } from '@app/types/setting';
 
 @Injectable({
@@ -57,6 +62,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     source: 'source',
     settingView: 'setting-view',
     setting: 'setting',
+    permission: 'permission',
+    userAcl: 'user-acl',
   };
   private defaultParams: any = {};
 
@@ -358,6 +365,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.tag, id]),
       ),
   };
+
   history = {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<IHistory[]>>(
@@ -367,6 +375,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         },
       ),
   };
+
   settingView = {
     retrieve: (params = {}) =>
       this.httpClient.get<EntityResult<IView>>(
@@ -381,6 +390,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         body,
       ),
   };
+
   setting = {
     retrieve: (params = {}) =>
       this.httpClient.get<EntityResult<ISetting>>(
@@ -393,6 +403,54 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.put<EntityResult<IView>>(
         this.createUrl([this.api.setting]),
         body,
+      ),
+  };
+
+  permission = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<Permission[]>>(
+        this.createUrl([this.api.permission]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: PermissionDto) =>
+      this.httpClient.post<EntityResult<Permission>>(
+        this.createUrl([this.api.permission]),
+        body,
+      ),
+    update: (id: string, body: UpdatePermissionDto) =>
+      this.httpClient.patch<EntityResult<Permission>>(
+        this.createUrl([this.api.permission, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.permission, id]),
+      ),
+  };
+
+  userAcl = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<UserAcl[]>>(
+        this.createUrl([this.api.userAcl]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: UpdateUserAclDto) =>
+      this.httpClient.post<EntityResult<UserAcl>>(
+        this.createUrl([this.api.userAcl]),
+        body,
+      ),
+    update: (id: string, body: UpdateUserAclDto) =>
+      this.httpClient.patch<EntityResult<UserAcl>>(
+        this.createUrl([this.api.userAcl, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.userAcl, id]),
       ),
   };
 

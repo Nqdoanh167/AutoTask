@@ -3,4 +3,27 @@
 
 .table-responsive {
   @include mixins.calculateSize('max-height', '100vh', '150px');
+
+  .column-index {
+    width: 50px;
+  }
+
+  .column-name {
+  }
+
+  .column-desc {
+    div {
+      @include mixins.limit-text-row(2);
+    }
+  }
+
+  .column-count {
+    width: 200px;
+  }
+  .column-status {
+    width: 100px;
+  }
+  .column-action {
+    width: 100px;
+  }
 }

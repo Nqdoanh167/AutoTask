@@ -1638,3 +1638,11 @@ export interface IPageChange {
   event: {page?: number; itemsPerPage?: number};
   limit: any;
 }
+
+export interface BaseInterface {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy?: AccountPublic;
+  updatedBy?: AccountPublic;
+}

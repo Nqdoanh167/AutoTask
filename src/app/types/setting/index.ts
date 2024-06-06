@@ -1,4 +1,4 @@
-import {AccountPublic} from '@app/types/viewmodels';
+import {AccountPublic, BaseInterface} from '@app/types/viewmodels';
 import {ITaskCartDto} from '@app/types/flow';
 
 export enum EDataSourceType {
@@ -106,3 +106,84 @@ export enum ETabUpdatePermissionsModal {
   INFORMATION = 'INFORMATION',
   EMPLOYEE = 'employees',
 }
+
+export enum EPerActTask {
+  CREATE_TASK = 'CREATE_TASK',
+  UPDATE_TASK = 'UPDATE_TASK',
+  DELETE_TASK = 'DELETE_TASK',
+  VIEW_INFORMATION_TASK = 'VIEW_INFORMATION_TASK',
+  VIEW_ORDER_TASK = 'VIEW_ORDER_TASK',
+  VIEW_HISTORY_TASK = 'VIEW_HISTORY_TASK',
+  CREATE_ORDER = 'CREATE_ORDER',
+  MANAGER_CHAIN = 'MANAGER_CHAIN',
+  MANGER_ACTION = 'MANGER_ACTION',
+  EDIT_TIME_ACTION = 'EDIT_TIME_ACTION',
+}
+
+export enum EPerActFlow {
+  FLOW = 'FLOW',
+  DEFAULT = 'DEFAULT',
+}
+
+export enum EPerActSetting {
+  SOURCE_SETTING = 'SOURCE_SETTING',
+  TAG_SETTING = 'TAG_SETTING',
+  ROLE_SETTING = 'ROLE_SETTING',
+  PERMISSION_SETTING_ACCESS = 'PERMISSION_SETTING_ACCESS',
+  PERMISSION_SETTING_USER_IN_BRANCH = 'PERMISSION_SETTING_USER_IN_BRANCH',
+  PERMISSION_SETTING_USER_IN_DEPARTMENT = 'PERMISSION_SETTING_USER_IN_DEPARTMENT',
+  PERMISSION_SETTING_USER_IN_TEAM = 'PERMISSION_SETTING_USER_IN_TEAM',
+}
+
+export enum EPerActType {
+  TASK = 'task',
+  FLOW = 'flow',
+  SETTING = 'setting',
+}
+
+export interface PermissionAction {
+  [EPerActType.TASK]: EPerActTask;
+  [EPerActType.FLOW]: EPerActFlow;
+  [EPerActType.SETTING]: EPerActSetting;
+}
+
+export interface Permission extends BaseInterface {
+  name: string;
+  description: string;
+  isActive: boolean;
+  permissionAction: PermissionAction;
+  userAclCount?: number;
+}
+
+export interface PermissionDto
+  extends Pick<
+    Permission,
+    'name' | 'description' | 'isActive' | 'permissionAction'
+  > {}
+
+export interface UpdatePermissionDto extends PermissionDto {}
+
+export interface UserAclBaseRole {
+  id: string;
+  role: string;
+  name: string;
+  permission: string;
+}
+
+export interface UserAclTeam extends UserAclBaseRole {}
+
+export interface UserAclDepartment extends UserAclBaseRole {
+  teams: UserAclTeam[];
+}
+
+export interface UserAclBranch extends UserAclBaseRole {
+  departments: UserAclDepartment[];
+}
+
+export interface UserAcl extends Omit<BaseInterface, 'id'> {
+  userId: string;
+  isActive: boolean;
+  branches: UserAclBranch[];
+}
+
+export interface UpdateUserAclDto extends UserAcl {}
