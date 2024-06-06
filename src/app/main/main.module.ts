@@ -5,6 +5,7 @@ import {MainComponent} from './main.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HeaderModule} from '@share/layout/header/header.module';
 import {SidebarModule} from '@share/layout/sidebar/sidebar.module';
+import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
 // component
 
 @NgModule({
@@ -16,6 +17,7 @@ import {SidebarModule} from '@share/layout/sidebar/sidebar.module';
     FormsModule,
     HeaderModule,
     SidebarModule,
+    ModalConfirmComponent,
   ],
 })
 export class MainModule {}

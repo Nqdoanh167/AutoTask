@@ -626,7 +626,7 @@
   class="modal-backdrop fade in show"
 ></bs-modal-backdrop>
 
-<modal-confirm [key]="'closeChain'" (confirmEvent)="onCloseChain($event)">
+<modal-confirm [key]="'closeChain'">
   <div class="state-warning d-flex gap-2" childContent>
     <div><i class="fa-regular fa-circle-question"></i></div>
     <div>
@@ -636,7 +636,7 @@
   </div>
 </modal-confirm>
 
-<modal-confirm [key]="'deleteChain'" (confirmEvent)="onDeleteChain($event)">
+<modal-confirm [key]="'deleteChain'">
   <div class="state-warning d-flex gap-2" childContent>
     <div><i class="fa-regular fa-circle-question"></i></div>
     <div>
@@ -646,7 +646,7 @@
   </div>
 </modal-confirm>
 
-<modal-confirm [key]="'deleteTask'" (confirmEvent)="onDeleteTask($event)">
+<modal-confirm [key]="'deleteTask'">
   <div class="state-warning d-flex gap-2" childContent>
     <div><i class="fa-regular fa-circle-question"></i></div>
     <div>

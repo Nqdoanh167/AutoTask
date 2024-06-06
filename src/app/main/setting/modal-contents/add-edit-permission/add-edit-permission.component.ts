@@ -44,7 +44,7 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   public updateForm = this.fb.group({
     name: [null, [Validators.required]],
-    isActive: [false],
+    isActive: [true],
     description: [null],
     permissionAction: this.fb.group({
       task: [],
