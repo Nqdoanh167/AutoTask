@@ -9,9 +9,9 @@ import {User} from '@app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {removeCharacter} from '@app/utils/common';
-import {ModalEmployeeInfoComponent} from '@main/setting/components/modal-employee-info/modal-employee-info.component';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {environment} from '../../../../../../environments/environment';
+import {ModalEmployeeInfoComponent} from '@main/setting/modal-contents/modal-employee-info/modal-employee-info.component';
 
 @Component({
   selector: 'app-employee',
@@ -34,7 +34,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
     {
       name: 'add_new',
       type: ETypeButton.PRIMARY,
-      label: 'Thêm nhân viên',
+      label: 'Thêm nhân viên (module Cài đặt)',
       icon: './assets/images/icon/plus.svg',
     },
   ];

@@ -1,0 +1,119 @@
+<app-custom-modal [isSubmitting]="loading.submit" (submitModal)="onSubmit()">
+  <ng-container modalTitle>Chỉnh sửa quyền</ng-container>
+  <ng-container modalBody>
+    <tabset class="custom-tab-basic">
+      <tab
+        *ngFor="let tab of tabs"
+        [active]="tab.key === activeTab"
+        (selectTab)="selectTab(tab.key)"
+      >
+        <ng-template tabHeading>
+          <div class="title-tab">
+            <span>{{ tab.name }}</span>
+          </div>
+        </ng-template>
+      </tab>
+      <div class="mt-3">
+        @if (activeTab === ETabUpdatePermissionsModal.INFORMATION) {
+          <form [formGroup]="updateForm">
+            <div class="row mb-2">
+              <div class="col-8">
+                <label class="form-control-label" for="name">
+                  Tên
+                  <span class="required">*</span>
+                </label>
+                <input
+                  class="form-control"
+                  [ngClass]="{'is-invalid': submitted && f['name'].errors}"
+                  [placeholder]="'Tên...'"
+                  formControlName="name"
+                  id="name"
+                  type="text"
+                />
+                <div
+                  *ngIf="submitted && f['name'].errors"
+                  class="invalid-feedback"
+                >
+                  <div *ngIf="f['name'].errors?.['required']">
+                    Mô tả không được bỏ trống
+                  </div>
+                </div>
+              </div>
+              <div class="col-4">
+                <label
+                  class="form-check-label form-control-label"
+                  for="isActive"
+                >
+                  Trạng thái kích hoạt
+                </label>
+                <div class="form-check form-switch mt-2">
+                  <input
+                    formControlName="isActive"
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="isActive"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-12">
+                <label for="description" class="form-control-label">
+                  Mô tả
+                </label>
+                <textarea
+                  formControlName="description"
+                  id="description"
+                  placeholder="Nhập Mô tả..."
+                  [rows]="4"
+                ></textarea>
+              </div>
+            </div>
+            <div class="mb-3">
+              <span class="headline">Chức năng</span>
+            </div>
+            <div class="functions">
+              <accordion class="accordion-white" [isAnimated]="true">
+                <accordion-group>
+                  <div
+                    accordion-heading
+                    class="header-item d-flex justify-content-between align-items-center"
+                  >
+                    <span class="fw-bold">Quản lý Task</span>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                      />
+                    </div>
+                  </div>
+                  This content is straight in the template.
+                </accordion-group>
+                <accordion-group>
+                  <div
+                    accordion-heading
+                    class="header-item d-flex justify-content-between align-items-center"
+                  >
+                    <span class="fw-bold">Cấu hình quy tắc và dữ liệu</span>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                      />
+                    </div>
+                  </div>
+                  This content is straight in the template.2
+                </accordion-group>
+              </accordion>
+            </div>
+          </form>
+        } @else {
+          312
+        }
+      </div>
+    </tabset>
+  </ng-container>
+</app-custom-modal>

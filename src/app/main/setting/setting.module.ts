@@ -6,7 +6,6 @@ import {DecentralizationComponent} from '@main/setting/decentralization/decentra
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {FallbackImageModule} from '@share/directive/fallback-image/fallback-image.module';
-import {ModalEmployeeInfoComponent} from './components/modal-employee-info/modal-employee-info.component';
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgSelectModule} from '@ng-select/ng-select';
@@ -22,11 +21,12 @@ import {RoleComponent} from './role/role.component';
 import {EmployeeComponent} from '@main/setting/decentralization/components/employee/employee.component';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 import {PermissionsComponent} from '@main/setting/decentralization/components/permissions/permissions.component';
-import {AddEditPermissionComponent} from './decentralization/modal-contents/add-edit-permission/add-edit-permission.component';
-import {AddEditEmployeePermissionComponent} from './decentralization/modal-contents/add-edit-employee-permission/add-edit-employee-permission.component';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
 import {StandardDataSizeComponent} from '@share/common/standard-data-size/standard-data-size.component';
 import {CdkDropList} from '@angular/cdk/drag-drop';
+import {ModalEmployeeInfoComponent} from '@main/setting/modal-contents/modal-employee-info/modal-employee-info.component';
+import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-permission/add-edit-permission.component';
+import {AccordionModule} from 'ngx-bootstrap/accordion';
 
 @NgModule({
   declarations: [
@@ -40,7 +40,6 @@ import {CdkDropList} from '@angular/cdk/drag-drop';
     PermissionsComponent,
     EmployeeComponent,
     AddEditPermissionComponent,
-    AddEditEmployeePermissionComponent,
   ],
   imports: [
     CommonModule,
@@ -61,6 +60,7 @@ import {CdkDropList} from '@angular/cdk/drag-drop';
     StandardTableComponent,
     StandardDataSizeComponent,
     CdkDropList,
+    AccordionModule,
   ],
 })
 export class SettingModule {}

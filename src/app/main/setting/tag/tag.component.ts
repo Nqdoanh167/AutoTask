@@ -5,12 +5,10 @@ import {
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {EntityPagination, ITag, User} from '@app/types/viewmodels';
+import {EntityPagination, ITag} from '@app/types/viewmodels';
 import {Subject, take, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
-import {environment} from '../../../../environments/environment';
 import {removeCharacter} from '@app/utils/common';
-import {ModalEmployeeInfoComponent} from '@main/setting/components/modal-employee-info/modal-employee-info.component';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {FormBuilder} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';

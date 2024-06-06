@@ -1,29 +1,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {
-  ETypeButton,
-  ETypeFilter,
-  IFilterTopButton,
-  IFilterTopTable,
-} from '@app/types/common';
-import {
-  Biz,
-  BizRole,
-  EntityPagination,
-  IRoleAct,
-  ITag,
-  User,
-} from '@app/types/viewmodels';
+import {Biz, BizRole, EntityPagination} from '@app/types/viewmodels';
 import {Subject, take, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
-import {environment} from '../../../../environments/environment';
-import {removeCharacter} from '@app/utils/common';
-import {ModalEmployeeInfoComponent} from '@main/setting/components/modal-employee-info/modal-employee-info.component';
-import {BsModalService} from 'ngx-bootstrap/modal';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
-import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
 import {ToastrService} from 'ngx-toastr';
 
 @Component({

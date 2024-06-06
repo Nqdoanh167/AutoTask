@@ -101,3 +101,8 @@ export enum ETabPermissions {
   EMPLOYEE = 'EMPLOYEE',
   PERMISSION = 'PERMISSION',
 }
+
+export enum ETabUpdatePermissionsModal {
+  INFORMATION = 'INFORMATION',
+  EMPLOYEE = 'employees',
+}

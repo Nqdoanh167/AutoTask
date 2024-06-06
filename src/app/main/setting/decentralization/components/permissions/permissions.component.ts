@@ -10,6 +10,7 @@ import {AuthService} from '@app/services/api/auth.service';
 import {IQueryBase} from '@app/types/viewmodels';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
+import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-permission/add-edit-permission.component';
 
 @Component({
   selector: 'app-permissions',
@@ -23,7 +24,7 @@ export class PermissionsComponent
   public override configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
-      placeholder: 'Tìm theo...',
+      placeholder: 'Tìm kiếm...',
     },
   ];
   public override configButtons: IFilterTopButton[] = [
@@ -49,8 +50,6 @@ export class PermissionsComponent
       .subscribe((biz) => {});
   }
 
-  // ngOnInit() {}
-
   override handleAction(name: string) {
     if (name === 'add_new') {
       this.handleUpdate();
@@ -59,9 +58,13 @@ export class PermissionsComponent
 
   override getDataSource(isReset?: boolean) {}
 
-  handleUpdate(data?: any) {}
+  handleUpdate(data?: any) {
+    this.modalService.show(AddEditPermissionComponent, {
+      class: 'modal-xl modal-dialog-centered',
+    });
+  }
 
-  handleDelete(data: any) {}
+  handleDelete(data?: any) {}
 
   ngOnDestroy(): void {
     this.destroy$.next(true);
