@@ -129,7 +129,7 @@
                   <!--                    </td>-->
                   <!--                  </tr>-->
                   @for (
-                    branch of data;
+                    branch of sourceData.branches;
                     track branchIndex;
                     let branchIndex = $index;
                     let firstBranch = $first;
@@ -140,7 +140,7 @@
                         <input
                           class="form-control input-disabled"
                           [readonly]="true"
-                          [value]="branch.branchName"
+                          [value]="branch.name"
                         />
                       </td>
                       <td class="columns-step-center content">

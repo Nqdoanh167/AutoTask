@@ -99,6 +99,24 @@
       background: url(^assets/images/icon/step-or-temp.svg) center no-repeat;
       background-position-y: -40px;
       position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 12px;
+        top: -10px;
+        left: calc(50% - 1px);
+        background-color: #dfe2ee;
+      }
+      &::after {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 12px;
+        bottom: -10px;
+        left: calc(50% - 1px);
+        background-color: #dfe2ee;
+      }
     }
   }
 }

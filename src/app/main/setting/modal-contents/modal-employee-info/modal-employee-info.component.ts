@@ -20,7 +20,7 @@ import {AuthService} from '@app/services/api/auth.service';
   styleUrls: ['./modal-employee-info.component.scss'],
 })
 export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
-  @Input() sourceData?: User;
+  @Input({required: true}) sourceData!: User;
   @Output() updateSuccess = new EventEmitter();
 
   public updateForm = this.fb.group({
@@ -38,54 +38,6 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
     data: false,
   };
   public currentBiz = '';
-  public data: any = [
-    {
-      branchName: 'Chi nhánh Hà Nội',
-      departments: [
-        {
-          name: 'Phòng Marketing',
-          teams: [
-            {
-              name: 'Team 1',
-            },
-            {
-              name: 'Team 2',
-            },
-          ],
-        },
-        {
-          name: 'Phòng Sale',
-          teams: [
-            {
-              name: 'Team 5',
-            },
-            {
-              name: 'Team 3',
-            },
-            {
-              name: 'Team 3123',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      branchName: 'Chi nhánh HCM',
-      departments: [
-        {
-          name: 'Phòng Marketing HCM',
-          teams: [
-            {
-              name: 'Team 1 HCM',
-            },
-          ],
-        },
-        {
-          name: 'Phòng Sale HCM',
-        },
-      ],
-    },
-  ];
 
   private destroy$ = new Subject();
 
@@ -109,6 +61,7 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
 
   ngOnInit() {
     if (this.sourceData) {
+      console.log(this.sourceData);
       this.updateForm.patchValue({
         ...this.sourceData,
       } as any);

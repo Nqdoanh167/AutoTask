@@ -142,15 +142,19 @@ export interface User {
   isActive: boolean;
   createdAt?: Date;
 }
-export interface Branch {
-  address: string;
-  desc: string;
+export interface Team {
   id: string;
   name: string;
-  phone: string;
+  desc: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+export interface Department extends Team {
+  teams: Team[];
+}
+export interface Branch extends Team {
+  departments: Department[];
 }
 
 export interface BizDomain {
