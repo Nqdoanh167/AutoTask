@@ -431,12 +431,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   userAcl = {
-    get: (params = {}) =>
+    get: () =>
       this.httpClient.get<EntityResult<UserAcl[]>>(
         this.createUrl([this.api.userAcl]),
-        {
-          params: this.createParams(Object.assign(params, this.defaultParams)),
-        },
       ),
     create: (body: UpdateUserAclDto) =>
       this.httpClient.post<EntityResult<UserAcl>>(

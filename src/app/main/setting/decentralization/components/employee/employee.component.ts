@@ -6,12 +6,15 @@ import {
   IFilterTopTable,
 } from '@app/types/common';
 import {User} from '@app/types/viewmodels';
-import {Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {removeCharacter} from '@app/utils/common';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {environment} from '../../../../../../environments/environment';
 import {ModalEmployeeInfoComponent} from '@main/setting/modal-contents/modal-employee-info/modal-employee-info.component';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
+import {UserAcl} from '@app/types/setting';
 
 @Component({
   selector: 'app-employee',
@@ -50,6 +53,8 @@ export class EmployeeComponent implements OnDestroy, OnInit {
   constructor(
     private readonly authService: AuthService,
     private readonly modalService: BsModalService,
+    private readonly autoTaskService: AutoTaskService,
+    private readonly commonService: CommonService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -60,12 +65,35 @@ export class EmployeeComponent implements OnDestroy, OnInit {
       });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getUserAcl();
+  }
 
-  getDataSource(isReset?: boolean) {}
+  getUserAcl() {
+    this.loading.data = true;
+    this.autoTaskService.userAcl
+      .get()
+      .pipe(
+        finalize(() => (this.loading.data = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        this.loading.data = false;
+        if (res.status === 200) {
+          this.handleMapData(res.data);
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      });
+  }
+
+  handleMapData(data: UserAcl[]) {
+    console.log(data);
+  }
+
   handleAction(name: string) {
     if (name === 'reload') {
-      this.getDataSource(true);
+      this.getUserAcl();
     }
     if (name === 'add_new') {
       const url = `${environment.urlDomain}/${this.currentBiz}/settings/staff`;
@@ -95,7 +123,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
     });
     modalUpdate?.content?.updateSuccess
       .pipe()
-      .subscribe(() => this.getDataSource());
+      .subscribe(() => this.getUserAcl());
   }
 
   ngOnDestroy(): void {
