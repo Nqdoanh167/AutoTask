@@ -1,12 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {
-  distinctUntilChanged,
-  filter,
-  finalize,
-  interval,
-  Subject,
-  takeUntil,
-} from 'rxjs';
+import {distinctUntilChanged, filter, finalize, Subject, takeUntil} from 'rxjs';
 import {
   EBotherAdvanceBasicFilter,
   ETypeBulkUpdate,
@@ -22,7 +15,6 @@ import {
   IDateRange,
   IQueryBase,
   ITag,
-  Source,
 } from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {CommonService} from '@app/services/common/common.service';
@@ -41,7 +33,7 @@ import {
   ITaskChain,
 } from '@app/types/flow';
 import moment from 'moment/moment';
-import {cloneDeep, isEmpty, isEqual, uniqBy} from 'lodash';
+import {cloneDeep, isEqual, uniqBy} from 'lodash';
 import {AuthService} from '@app/services/api/auth.service';
 import {EScreens, ISource, IViewModeDto} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -939,9 +931,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       type: 'warning',
       modalType: 'advance',
       context: value,
+      errorState:
+        'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
+        '        của bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
-    this.modalConfirmService.openModal(modalContent, 'delete');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDelete(value);
+    });
   }
 
   onSearch(value: {term: string; name: string}) {

@@ -18,14 +18,12 @@ import {
   ITaskChain,
   ITaskChainResult,
   ITaskDto,
-  ITeam,
 } from '@app/types/flow';
 import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {
   AbstractControl,
   FormArray,
   FormBuilder,
-  FormControl,
   FormGroup,
   ValidationErrors,
   Validators,
@@ -33,7 +31,6 @@ import {
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
   Biz,
-  BizRole,
   EntityPagination,
   ICommonDataLazy,
   ICommonDataSource,
@@ -45,7 +42,7 @@ import {
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
-import {find, intersection, uniqBy} from 'lodash';
+import {intersection, uniqBy} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {calculateTime} from '@app/utils/common';
@@ -867,9 +864,14 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       type: 'warning',
       modalType: 'advance',
       context: this.sourceData,
+      errorState:
+        'Cẩn trọng với thao tác xóa Task. Các module khác đang sử dụng dữ liệu của\n' +
+        '      bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
-    this.modalConfirmService.openModal(modalContent, 'deleteTask');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDeleteTask(this.sourceData!);
+    });
   }
 
   onDeleteTask(value: ITask) {
@@ -981,9 +983,14 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       type: 'warning',
       modalType: 'advance',
       context: taskChain,
+      errorState:
+        'Cẩn trọng với thao tác xóa chuỗi. Các module khác đang sử dụng dữ liệu của\n' +
+        '      bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
-    this.modalConfirmService.openModal(modalContent, 'closeChain');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onCloseChain(taskChain);
+    });
   }
 
   onCloseChain(value: ITaskChain) {
@@ -1022,8 +1029,13 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         type: 'warning',
         modalType: 'advance',
         context: taskChain,
+        errorState:
+          'Cẩn trọng với thao tác đóng chuỗi. Các module khác đang sử dụng dữ liệu\n' +
+          '      của bản ghi cũng sẽ bị ảnh hưởng.',
       };
-      this.modalConfirmService.openModal(modalContent, 'deleteChain');
+      this.modalConfirmService.openModal(modalContent, undefined, () => {
+        this.onDeleteChain(taskChain);
+      });
     } else {
       const addChainActIds = this.updateForm.value?.addChainActIds || [];
       this.formTaskChains.removeAt(chainIndex);

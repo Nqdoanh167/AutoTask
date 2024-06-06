@@ -170,8 +170,13 @@ export class SourceComponent
       type: 'warning',
       modalType: 'advance',
       context: value,
+      errorState:
+        'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
+        '        của bản ghi cũng sẽ bị ảnh hưởng.',
     };
-    this.modalConfirmService.openModal(modalContent, 'delete');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDelete(value);
+    });
   }
 
   ngOnDestroy(): void {

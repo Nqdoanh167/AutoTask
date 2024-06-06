@@ -133,9 +133,12 @@ export class TagComponent implements OnDestroy, OnInit {
       type: 'warning',
       modalType: 'advance',
       context: value,
+      errorState: 'Bạn chắc chắn xóa tag này?',
     };
 
-    this.modalConfirmService.openModal(modalContent, 'delete');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDelete(value);
+    });
   }
   handleAction(name: string) {
     if (name === 'reload') {

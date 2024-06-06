@@ -298,7 +298,9 @@ export class ViewModeTabComponent
       modalType: 'advance',
       context: value,
     };
-    this.modalConfirmService.openModal(modalContent, 'deleteViewMode');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.removeTabHandler(value);
+    });
   }
 
   removeTabHandler(tab: IViewModeDto): void {

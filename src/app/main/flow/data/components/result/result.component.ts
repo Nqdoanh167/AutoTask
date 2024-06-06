@@ -14,7 +14,7 @@ import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.co
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {ModalUpdateResultComponent} from '@main/flow/data/content-modal/modal-update-result/modal-update-result.component';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {EActionType, EResultType, IActResult} from '@app/types/flow';
+import {EResultType, IActResult} from '@app/types/flow';
 import {sortBy, sortIcon} from '@app/utils/common';
 
 @Component({
@@ -160,9 +160,14 @@ export class ResultComponent implements OnInit, OnDestroy {
       type: 'warning',
       modalType: 'advance',
       context: value,
+      errorState:
+        'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
+        '        của bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
-    this.modalConfirmService.openModal(modalContent, 'delete');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDelete(value);
+    });
   }
 
   onSearch(value: {term: string; name: string}) {
