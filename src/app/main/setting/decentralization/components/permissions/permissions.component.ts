@@ -51,6 +51,7 @@ export class PermissionsComponent
     private readonly modalConfirmService: ModalConfirmService,
   ) {
     super();
+    this.item.paramsQuery.filter = JSON.stringify({retrieveUser: true});
   }
 
   override handleAction(name: string) {

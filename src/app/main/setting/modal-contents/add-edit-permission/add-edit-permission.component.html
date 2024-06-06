@@ -122,7 +122,10 @@
             </div>
           </form>
         } @else {
-          312
+          <app-employee
+            [isInPermissionModal]="true"
+            [sourceData]="[]"
+          ></app-employee>
         }
       </div>
     </tabset>

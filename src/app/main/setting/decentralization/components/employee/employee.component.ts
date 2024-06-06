@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {
   ETypeButton,
   ETypeFilter,
@@ -22,6 +22,8 @@ import {UserAcl} from '@app/types/setting';
   styleUrls: ['./employee.component.scss'],
 })
 export class EmployeeComponent implements OnDestroy, OnInit {
+  @Input() isInPermissionModal = false;
+  @Input() sourceData: User[] = [];
   public configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
@@ -55,18 +57,24 @@ export class EmployeeComponent implements OnDestroy, OnInit {
     private readonly modalService: BsModalService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
-  ) {
-    this.authService.currentBiz
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((biz) => {
-        this.listBizUsers = biz.users;
-        this.listFilteredBizUsers = biz.users;
-        this.currentBiz = biz.alias || '';
-      });
-  }
+  ) {}
 
   ngOnInit() {
-    this.getUserAcl();
+    if (!this.isInPermissionModal) {
+      this.authService.currentBiz
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((biz) => {
+          this.listBizUsers = biz.users;
+          this.listFilteredBizUsers = biz.users;
+          this.currentBiz = biz.alias || '';
+        });
+      this.getUserAcl();
+    } else {
+      this.configFilters = [];
+      this.configButtons = [];
+      this.listBizUsers = [...this.sourceData];
+      this.listFilteredBizUsers = [...this.sourceData];
+    }
   }
 
   getUserAcl() {

@@ -165,6 +165,7 @@ export interface Permission extends BaseInterface {
   isActive: boolean;
   permissionAction: PermissionAction;
   userAclCount?: number;
+  userAcls?: UserAcl[];
 }
 
 export interface PermissionDto

@@ -10,11 +10,13 @@
           [isHidePaginate]="true"
         >
           <ng-container bodyTable>
-            <div class="table-responsive tableFixHead custom-scrollbar">
+            <div
+              class="table-responsive tableFixHead custom-scrollbar"
+              [class.thin-table]="isInPermissionModal"
+            >
               <table class="table">
                 <thead>
                   <tr>
-                    <th class="column-index">#</th>
                     <th class="column-employee">Nhân viên</th>
                     <th class="column-group">Vùng chức năng</th>
                     <th class="column-role">Vai trò</th>
@@ -41,7 +43,6 @@
                     </td>
                   </tr>
                   <tr *ngFor="let item of listFilteredBizUsers; index as i">
-                    <td class="column-index">{{ i + 1 }}</td>
                     <td class="column-employee">
                       <div class="d-flex align-items-center">
                         <div>
