@@ -1,4 +1,6 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -17,6 +19,7 @@ import {
   EPerActType,
   ETabUpdatePermissionsModal,
   IPermissionGroups,
+  IPermissionItem,
   Permission,
   PermissionDto,
 } from '@app/types/setting';
@@ -26,6 +29,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
   selector: 'app-add-edit-permission',
   templateUrl: './add-edit-permission.component.html',
   styleUrls: ['./add-edit-permission.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddEditPermissionComponent implements OnInit, OnDestroy {
   @Input() sourceData?: Permission;
@@ -122,10 +126,15 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
     private readonly modalRef: BsModalRef,
     private readonly fb: FormBuilder,
     private readonly autoTaskService: AutoTaskService,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
     return this.updateForm.controls;
+  }
+
+  formPermissionAction(key: EPerActType) {
+    return this.updateForm.get(`permissionAction.${key}`) as AbstractControl;
   }
 
   ngOnInit() {
@@ -136,14 +145,17 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   pathForm(data?: Permission) {
     this.updateForm.patchValue({
-      ...this.sourceData,
+      ...data,
     } as Permission as any);
-    const permissionAction = this.sourceData;
-    const permissionActionForm = this.updateForm.get('permissionAction')
-      ?.value || {task: [], flow: [], setting: []};
-    const {task, flow, setting} = permissionActionForm;
+    const permissionAction = data?.permissionAction || {
+      task: [],
+      flow: [],
+      setting: [],
+    };
     if (permissionAction) {
-      Object.keys(permissionAction.permissionAction).forEach((key) => {
+      Object.keys(permissionAction).forEach((key) => {
+        const values = permissionAction[key as EPerActType] || [];
+        if (!values.length) return;
         const group = this.permissionGroups.find((item) => item.key === key);
         if (group) {
           group.isOpen = true;
@@ -207,6 +219,28 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
     group.isOpen = !group.isOpen;
     const {key} = group;
     this.updateForm.get(`permissionAction.${key}`)?.setValue(null);
+    this.cdr.detectChanges();
+  }
+
+  onCheckboxChange(
+    event: Event,
+    permission: IPermissionItem,
+    group: IPermissionGroups,
+  ) {
+    const {checked} = event.target as HTMLInputElement;
+    const value: string[] =
+      this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
+    if (checked) {
+      value.push(permission.key);
+    } else {
+      const index = value.indexOf(permission.key);
+      if (index > -1) {
+        value.splice(index, 1);
+      }
+    }
+    this.updateForm
+      .get(`permissionAction.${group.key}`)
+      ?.setValue(value as any);
   }
 
   ngOnDestroy() {

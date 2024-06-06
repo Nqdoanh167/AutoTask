@@ -141,11 +141,16 @@ export enum EPerActType {
   SETTING = 'setting',
 }
 
+export interface IPermissionItem {
+  key: EPerActSetting | EPerActFlow | EPerActTask;
+  name: string;
+}
+
 export interface IPermissionGroups {
   name: string;
   key: EPerActType;
   isOpen: boolean;
-  permissions: Record<string, string>[];
+  permissions: IPermissionItem[];
 }
 
 export interface PermissionAction {

@@ -16,7 +16,6 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th class="column-index">#</th>
                     <th class="">Quyền</th>
                     <th class="">Mô tả</th>
                     <th class="">Số người đã gán quyền</th>
@@ -42,8 +41,14 @@
                     </td>
                   </tr>
                   <tr *ngFor="let item of item.rows; index as i">
-                    <td class="column-index">{{ i + 1 }}</td>
-                    <td class="column-name">{{ item.name || '-' }}</td>
+                    <td class="column-name">
+                      <div
+                        class="fw-500 cursor-pointer"
+                        (click)="handleUpdate(item)"
+                      >
+                        {{ item.name || '-' }}
+                      </div>
+                    </td>
                     <td class="column-desc">
                       <div>{{ item.description || '-' }}</div>
                     </td>

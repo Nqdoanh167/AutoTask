@@ -84,6 +84,7 @@
                       <span class="fw-bold">{{ group.name }}</span>
                       <div class="form-check form-switch">
                         <input
+                          checked="{{ group.isOpen ? 'checked' : null }}"
                           class="form-check-input"
                           type="checkbox"
                           role="switch"
@@ -98,8 +99,16 @@
                             <label class="basic-checkbox">
                               <div class="ms-2">{{ permission['name'] }}</div>
                               <input
+                                [defaultChecked]="
+                                  (
+                                    formPermissionAction(group.key)?.value || []
+                                  ).includes(permission['key'])
+                                "
                                 [value]="permission['key']"
                                 type="checkbox"
+                                (change)="
+                                  onCheckboxChange($event, permission, group)
+                                "
                               />
                               <span class="checkmark"></span>
                             </label>
