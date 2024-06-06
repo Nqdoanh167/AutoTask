@@ -141,6 +141,13 @@ export enum EPerActType {
   SETTING = 'setting',
 }
 
+export interface IPermissionGroups {
+  name: string;
+  key: EPerActType;
+  isOpen: boolean;
+  permissions: Record<string, string>[];
+}
+
 export interface PermissionAction {
   [EPerActType.TASK]: EPerActTask;
   [EPerActType.FLOW]: EPerActFlow;

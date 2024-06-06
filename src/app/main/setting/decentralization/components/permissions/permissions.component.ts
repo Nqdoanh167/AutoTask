@@ -6,13 +6,13 @@ import {
   IFilterTopTable,
 } from '@app/types/common';
 import {finalize, Subject, takeUntil} from 'rxjs';
-import {AuthService} from '@app/services/api/auth.service';
 import {IQueryBase} from '@app/types/viewmodels';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
 import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-permission/add-edit-permission.component';
 import {Permission} from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
 
 @Component({
   selector: 'app-permissions',
@@ -43,14 +43,11 @@ export class PermissionsComponent
 
   private destroy$ = new Subject();
   constructor(
-    private readonly authService: AuthService,
     private readonly modalService: BsModalService,
     private readonly autoTaskService: AutoTaskService,
+    private readonly commonService: CommonService,
   ) {
     super();
-    this.authService.currentBiz
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((biz) => {});
   }
 
   override handleAction(name: string) {
@@ -77,6 +74,8 @@ export class PermissionsComponent
           if (res.status === 200) {
             this.item.rows = res.data;
             this.item.total = res.total;
+          } else {
+            this.commonService.handleResErr(res);
           }
         },
       });
