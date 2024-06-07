@@ -154,9 +154,9 @@ export interface IPermissionGroups {
 }
 
 export interface PermissionAction {
-  [EPerActType.TASK]: EPerActTask;
-  [EPerActType.FLOW]: EPerActFlow;
-  [EPerActType.SETTING]: EPerActSetting;
+  [EPerActType.TASK]: EPerActTask[];
+  [EPerActType.FLOW]: EPerActFlow[];
+  [EPerActType.SETTING]: EPerActSetting[];
 }
 
 export interface Permission extends BaseInterface {

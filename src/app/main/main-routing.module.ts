@@ -2,6 +2,8 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {MainComponent} from './main.component';
 import {NotfoundComponent} from '../notfound/notfound.component';
+import {HasPermissionAccessModuleGuard} from '@app/services/guard/hasPermissionAccess.guard';
+import {EModule} from '@app/types/viewmodels';
 
 const routes: Routes = [
   {
@@ -10,23 +12,27 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'dashboard',
+        redirectTo: EModule.DASHBOARD,
         pathMatch: 'full',
       },
       {
-        path: 'dashboard',
+        path: EModule.DASHBOARD,
+        canActivate: [HasPermissionAccessModuleGuard],
+        data: {},
         loadChildren: () =>
           import('@main/dashboard/dashboard.module').then(
             (m) => m.DashboardModule,
           ),
       },
       {
-        path: 'config',
+        path: EModule.CONFIG,
+        canActivate: [HasPermissionAccessModuleGuard],
         loadChildren: () =>
           import('./flow/flow.module').then((m) => m.FlowModule),
       },
       {
-        path: 'setting',
+        path: EModule.SETTING,
+        canActivate: [HasPermissionAccessModuleGuard],
         loadChildren: () =>
           import('./setting/setting.module').then((m) => m.SettingModule),
       },

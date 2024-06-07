@@ -3,10 +3,23 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
 import {BizService} from './biz.service';
-import {Biz, BizModule, ERole, IBranch, User} from 'src/app/types/viewmodels';
+import {
+  Biz,
+  BizModule,
+  EModule,
+  ERole,
+  IBranch,
+  User,
+} from 'src/app/types/viewmodels';
 import {environment} from 'src/environments/environment';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {UserPerAccess} from '@app/types/setting';
+import {
+  EPerActFlow,
+  EPerActSetting,
+  EPerActTask,
+  EPerActType,
+  UserPerAccess,
+} from '@app/types/setting';
 
 @Injectable({
   providedIn: 'root',
@@ -67,6 +80,7 @@ export class AuthService {
             this.modules.next(res.data.modules);
             this.refToken = res.refToken || null;
             this.isLoggedInSubject.next(true);
+            this.getUserPerAccess();
           } else {
             window.location.href = parsedURL.origin;
           }
@@ -103,6 +117,41 @@ export class AuthService {
         window.location.href = '/';
       },
     });
+  }
+
+  getAccessibleModules() {
+    let accessibleModules: EModule[] = [];
+    const modules = [EModule.SETTING, EModule.CONFIG, EModule.DASHBOARD];
+    modules.forEach((module) => {
+      if (this.checkUserAccessModule(module)) {
+        accessibleModules.push(module);
+      }
+    });
+    return accessibleModules;
+  }
+
+  checkUserAccessModule(module: EModule): boolean {
+    const userPer = this.userAccessPerSubject.getValue();
+    if (!userPer) return false;
+    switch (module) {
+      case EModule.DASHBOARD:
+        return !!userPer[EPerActType.TASK].length;
+      case EModule.CONFIG:
+        return !!userPer[EPerActType.FLOW].length;
+      case EModule.SETTING:
+        return !!userPer[EPerActType.SETTING].length;
+      default:
+        return false;
+    }
+  }
+
+  checkUserPer(
+    type: EPerActType,
+    roles: (EPerActTask | EPerActFlow | EPerActSetting)[],
+  ): boolean {
+    const userPer = this.userAccessPerSubject.getValue();
+    if (!userPer) return false;
+    return userPer[type]?.some((per) => roles.includes(per));
   }
 
   isOwner(): boolean {

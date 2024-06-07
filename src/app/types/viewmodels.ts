@@ -1560,7 +1560,6 @@ export interface ISidebar {
 }
 
 export enum EModule {
-  TABLE = 'table',
   DASHBOARD = 'dashboard',
   CONFIG = 'config',
   SETTING = 'setting',
