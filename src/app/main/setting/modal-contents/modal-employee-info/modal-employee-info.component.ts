@@ -6,13 +6,23 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormBuilder} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
-import {User} from '@app/types/viewmodels';
+import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {environment} from '../../../../../environments/environment';
 import {AuthService} from '@app/services/api/auth.service';
+import {
+  CombinedUserAcl,
+  Permission,
+  UpdateUserAclDto,
+  UserAclBranch,
+  UserAclDepartment,
+  UserAclTeam,
+} from '@app/types/setting';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {pick} from 'lodash';
 
 @Component({
   selector: 'app-modal-employee-info',
@@ -20,10 +30,11 @@ import {AuthService} from '@app/services/api/auth.service';
   styleUrls: ['./modal-employee-info.component.scss'],
 })
 export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
-  @Input({required: true}) sourceData!: User;
+  @Input({required: true}) sourceData!: CombinedUserAcl;
   @Output() updateSuccess = new EventEmitter();
 
   public updateForm = this.fb.group({
+    userId: [null],
     name: [null],
     email: [null],
     groups: [null],
@@ -38,6 +49,16 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
     data: false,
   };
   public currentBiz = '';
+  public permissions: ICommonDataLazy<Permission, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
 
   private destroy$ = new Subject();
 
@@ -47,6 +68,7 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
     private readonly modalRef: BsModalRef,
     private readonly fb: FormBuilder,
     private readonly authService: AuthService,
+    private readonly autoTaskService: AutoTaskService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -60,15 +82,57 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+    this.getPermissions();
     if (this.sourceData) {
-      console.log(this.sourceData);
       this.updateForm.patchValue({
         ...this.sourceData,
+        userId: this.sourceData?.id,
+        isActive: this.sourceData?.isActiveAcl,
+        branches: this.sourceData?.aclBranches,
       } as any);
     }
   }
 
-  handleUpdate() {}
+  getPermissions() {
+    this.permissions.loading = true;
+    this.autoTaskService.permission
+      .get(this.permissions.paramsQuery)
+      .pipe(
+        finalize(() => (this.permissions.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        if (res.status === 200) {
+          this.permissions.rows = res.data;
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      });
+  }
+
+  handleUpdate() {
+    this.loading.submit = true;
+    const data = pick(
+      this.updateForm.value,
+      'userId',
+      'branches',
+      'isActive',
+    ) as any as UpdateUserAclDto;
+    this.autoTaskService.userAcl
+      .upsert(data)
+      .pipe(
+        finalize(() => (this.loading.submit = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        if (res.status === 200) {
+          this.updateSuccess.emit();
+          this.commonService.handleResSuccess('update');
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      });
+  }
 
   hideModal(): void {
     this.modalRef.hide();
@@ -88,6 +152,21 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
   viewSetting(key: 'groups' | 'roles' | 'branches') {
     const url = `${environment.urlDomain}/${this.currentBiz}/settings/${key}`;
     window.open(url, '_blank');
+  }
+
+  handleChangePermission(
+    data: Permission,
+    team?: UserAclTeam,
+    department?: UserAclDepartment,
+    branch?: UserAclBranch,
+  ) {
+    if (team?.id) {
+      team.permission = data.id;
+    } else if (department?.id) {
+      department.permission = data.id;
+    } else if (branch?.id) {
+      branch.permission = data.id;
+    }
   }
 
   ngOnDestroy() {

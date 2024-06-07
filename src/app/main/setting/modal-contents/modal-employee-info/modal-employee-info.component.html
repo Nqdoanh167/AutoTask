@@ -129,7 +129,7 @@
                   <!--                    </td>-->
                   <!--                  </tr>-->
                   @for (
-                    branch of sourceData.branches;
+                    branch of f['branches'].value;
                     track branchIndex;
                     let branchIndex = $index;
                     let firstBranch = $first;
@@ -268,42 +268,51 @@
                                   let lastTeam = last
                                 "
                               >
-                                <ng-select
-                                  [placeholder]="'Chọn Quyền'"
-                                  [searchable]="false"
-                                  [items]="[]"
-                                  class="dropdown-auto-width"
-                                  id="role-{{ teamIndex }}-{{
-                                    departmentIndex
-                                  }}-{{ branchIndex }}"
-                                  [notFoundText]="'Không có dữ liệu'"
-                                  appendTo=".modal-employee-info"
-                                ></ng-select>
+                                <ng-container
+                                  [ngTemplateOutlet]="selectPermission"
+                                  [ngTemplateOutletContext]="{
+                                    id:
+                                      'role-' +
+                                      branchIndex +
+                                      '-' +
+                                      departmentIndex +
+                                      '-' +
+                                      teamIndex,
+                                    branch: branch,
+                                    department: department,
+                                    team: team,
+                                    value: team?.permission
+                                  }"
+                                ></ng-container>
                               </div>
                             } @else {
-                              <ng-select
-                                [placeholder]="'Chọn Quyền'"
-                                [searchable]="false"
-                                [items]="[]"
-                                class="dropdown-auto-width"
-                                id="role-{{ departmentIndex }}-{{
-                                  branchIndex
-                                }}"
-                                [notFoundText]="'Không có dữ liệu'"
-                                appendTo=".modal-employee-info"
-                              ></ng-select>
+                              <ng-container
+                                [ngTemplateOutlet]="selectPermission"
+                                [ngTemplateOutletContext]="{
+                                  id:
+                                    'role-' +
+                                    branchIndex +
+                                    '-' +
+                                    departmentIndex,
+                                  branch: branch,
+                                  department: department,
+                                  team: undefined,
+                                  value: department?.permission
+                                }"
+                              ></ng-container>
                             }
                           </div>
                         } @else {
-                          <ng-select
-                            [placeholder]="'Chọn Quyền'"
-                            [searchable]="false"
-                            [items]="[]"
-                            class="dropdown-auto-width"
-                            id="role-{{ branchIndex }}"
-                            [notFoundText]="'Không có dữ liệu'"
-                            appendTo=".modal-employee-info"
-                          ></ng-select>
+                          <ng-container
+                            [ngTemplateOutlet]="selectPermission"
+                            [ngTemplateOutletContext]="{
+                              id: 'role-' + branchIndex,
+                              branch: branch,
+                              department: undefined,
+                              team: undefined,
+                              value: branch?.permission
+                            }"
+                          ></ng-container>
                         }
                       </td>
                     </tr>
@@ -318,14 +327,26 @@
   </div>
 </ng-container>
 
-<ng-template #selectPermission>
-  <!--  <ng-select-->
-  <!--    [placeholder]="'Chọn Quyền'"-->
-  <!--    [searchable]="false"-->
-  <!--    [items]="[]"-->
-  <!--    class="dropdown-auto-width"-->
-  <!--    id="role-{{ branchIndex }}"-->
-  <!--    [notFoundText]="'Không có dữ liệu'"-->
-  <!--    appendTo=".modal-employee-info"-->
-  <!--  ></ng-select>-->
+<ng-template
+  #selectPermission
+  let-id="id"
+  let-branch="branch"
+  let-department="department"
+  let-team="team"
+  let-value="value"
+>
+  <ng-select
+    [ngModel]="value"
+    [loading]="permissions.loading"
+    [placeholder]="'Chọn Quyền'"
+    [searchable]="false"
+    [items]="permissions.rows"
+    class="dropdown-auto-width"
+    id="{{ id }}"
+    [notFoundText]="'Không có dữ liệu'"
+    (change)="handleChangePermission($event, team, department, branch)"
+    bindLabel="name"
+    bindValue="id"
+    appendTo=".modal-employee-info"
+  ></ng-select>
 </ng-template>

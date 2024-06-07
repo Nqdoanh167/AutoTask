@@ -1,4 +1,4 @@
-import {AccountPublic, BaseInterface} from '@app/types/viewmodels';
+import {AccountPublic, BaseInterface, User} from '@app/types/viewmodels';
 import {ITaskCartDto} from '@app/types/flow';
 
 export enum EDataSourceType {
@@ -200,3 +200,8 @@ export interface UserAcl extends Omit<BaseInterface, 'id'> {
 }
 
 export interface UpdateUserAclDto extends UserAcl {}
+
+export interface CombinedUserAcl extends User {
+  isActiveAcl: boolean;
+  aclBranches: UserAclBranch[];
+}

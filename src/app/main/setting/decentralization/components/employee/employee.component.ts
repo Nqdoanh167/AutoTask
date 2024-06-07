@@ -14,7 +14,7 @@ import {environment} from '../../../../../../environments/environment';
 import {ModalEmployeeInfoComponent} from '@main/setting/modal-contents/modal-employee-info/modal-employee-info.component';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import {UserAcl} from '@app/types/setting';
+import {CombinedUserAcl, UserAcl} from '@app/types/setting';
 
 @Component({
   selector: 'app-employee',
@@ -44,8 +44,8 @@ export class EmployeeComponent implements OnDestroy, OnInit {
     },
   ];
 
-  public listBizUsers: User[] = [];
-  public listFilteredBizUsers: User[] = [];
+  public listBizUsers: CombinedUserAcl[] = [];
+  public listFilteredBizUsers: CombinedUserAcl[] = [];
   public loading = {
     data: false,
   };
@@ -64,16 +64,16 @@ export class EmployeeComponent implements OnDestroy, OnInit {
       this.authService.currentBiz
         .pipe(takeUntil(this.destroy$))
         .subscribe((biz) => {
-          this.listBizUsers = biz.users;
-          this.listFilteredBizUsers = biz.users;
+          this.listBizUsers = biz.users as CombinedUserAcl[];
+          this.listFilteredBizUsers = biz.users as CombinedUserAcl[];
           this.currentBiz = biz.alias || '';
         });
       this.getUserAcl();
     } else {
       this.configFilters = [];
       this.configButtons = [];
-      this.listBizUsers = [...this.sourceData];
-      this.listFilteredBizUsers = [...this.sourceData];
+      this.listBizUsers = [...this.sourceData] as CombinedUserAcl[];
+      this.listFilteredBizUsers = [...this.sourceData] as CombinedUserAcl[];
     }
   }
 
@@ -96,7 +96,17 @@ export class EmployeeComponent implements OnDestroy, OnInit {
   }
 
   handleMapData(data: UserAcl[]) {
-    console.log(data);
+    this.listBizUsers = this.listFilteredBizUsers =
+      this.listBizUsers?.map((user) => {
+        const userAcl = data?.find((item) => item.userId === user.id);
+        return {
+          ...user,
+          ...({
+            aclBranches: userAcl?.branches || user.branches,
+            isActiveAcl: userAcl?.isActive,
+          } as CombinedUserAcl),
+        };
+      }) || [];
   }
 
   handleAction(name: string) {
@@ -122,7 +132,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
     );
   }
 
-  handleUpdate(value?: User) {
+  handleUpdate(value?: CombinedUserAcl) {
     const modalUpdate = this.modalService.show(ModalEmployeeInfoComponent, {
       initialState: {
         sourceData: value,
@@ -130,7 +140,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
       class: 'modal-dialog-centered modal-xl',
     });
     modalUpdate?.content?.updateSuccess
-      .pipe()
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.getUserAcl());
   }
 

@@ -146,6 +146,7 @@ export interface Team {
   id: string;
   name: string;
   desc: string;
+  permission?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
