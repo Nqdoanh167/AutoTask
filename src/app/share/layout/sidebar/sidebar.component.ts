@@ -3,8 +3,7 @@ import {NavigationEnd, Router} from '@angular/router';
 import {AuthService} from 'src/app/services/api/auth.service';
 import {BreadcrumbService} from 'src/app/services/common/breadcrumb.service';
 import {Biz, EModule, ISidebar, User} from 'src/app/types/viewmodels';
-import {filter, switchMap} from 'rxjs/operators';
-import {of} from 'rxjs';
+import {filter} from 'rxjs/operators';
 
 @Component({
   selector: 'app-sidebar',
@@ -77,7 +76,7 @@ export class SidebarComponent implements OnInit {
     const urlOne = url.substring(0, this.getPositionString(url, '/', 2));
     // const urlTwo = url.substring(0, this.getPositionString(url, '/', 3));
     this.sidebars = this.sidebars.map((side: any) => {
-      side.isActive = side.link === urlOne ? true : false;
+      side.isActive = side.link === urlOne;
       return side;
     });
   }
