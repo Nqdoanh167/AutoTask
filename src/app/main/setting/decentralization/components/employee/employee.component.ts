@@ -65,6 +65,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
         .pipe(takeUntil(this.destroy$))
         .subscribe((biz) => {
           this.listBizUsers = biz.users as CombinedUserAcl[];
+          console.log(this.listBizUsers);
           this.listFilteredBizUsers = biz.users as CombinedUserAcl[];
           this.currentBiz = biz.alias || '';
         });
