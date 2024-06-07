@@ -25,11 +25,13 @@ export class MainComponent implements OnInit {
   public listConfigNavItems: ISidebar[] = [
     {
       link: `/${EModule.CONFIG}/${EFlowTab.RULE}`,
+      alias: EFlowTab.RULE,
       name: 'Cấu hình quy tắc',
       isActive: true,
     },
     {
       link: `/${EModule.CONFIG}/${EFlowTab.DATA}`,
+      alias: EFlowTab.DATA,
       name: 'Cấu hình dữ liệu',
       isActive: true,
     },
@@ -44,21 +46,25 @@ export class MainComponent implements OnInit {
   public listSettingNavItems: ISidebar[] = [
     {
       link: `/${EModule.SETTING}/${ESettingTab.SOURCE}`,
+      alias: ESettingTab.SOURCE,
       name: 'Nguồn dữ liệu',
       isActive: true,
     },
     {
       link: `/${EModule.SETTING}/${ESettingTab.TAG}`,
+      alias: ESettingTab.TAG,
       name: 'Tag',
       isActive: true,
     },
     {
       link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
+      alias: ESettingTab.DECENTRALIZATION,
       name: 'Phân quyền',
       isActive: true,
     },
     {
       link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
+      alias: ESettingTab.ROLE,
       name: 'Vai trò',
       isActive: true,
     },
@@ -83,14 +89,25 @@ export class MainComponent implements OnInit {
         map(() => {
           let route: ActivatedRoute = this.router.routerState.root;
           const url = this.router.url;
+          let mainModule;
           if (url.includes(`/${EModule.CONFIG}`)) {
+            mainModule = EModule.CONFIG;
             this.listNavItems = this.listConfigNavItems;
           } else if (url.includes(`/${EModule.SETTING}`)) {
+            mainModule = EModule.SETTING;
             this.listNavItems = this.listSettingNavItems;
           } else if (url.includes(`/${EModule.DASHBOARD}`)) {
+            mainModule = EModule.DASHBOARD;
             this.listNavItems = this.listDashboardNavItems;
           } else {
             this.listNavItems = [];
+          }
+          const getAccessibleSite = this.authService.getAccessibleSite();
+          const availableTabs = getAccessibleSite[mainModule as EModule];
+          if (mainModule !== EModule.DASHBOARD) {
+            this.listNavItems = this.listNavItems.filter((side) => {
+              return availableTabs.includes(side.alias as any);
+            });
           }
           let routeTitle = '';
           while (route!.firstChild) {
