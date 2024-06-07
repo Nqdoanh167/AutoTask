@@ -2,7 +2,9 @@ import {Component, OnInit} from '@angular/core';
 import {NavigationEnd, Router} from '@angular/router';
 import {AuthService} from 'src/app/services/api/auth.service';
 import {BreadcrumbService} from 'src/app/services/common/breadcrumb.service';
-import {Biz, ISidebar, User} from 'src/app/types/viewmodels';
+import {Biz, EModule, ISidebar, User} from 'src/app/types/viewmodels';
+import {filter, switchMap} from 'rxjs/operators';
+import {of} from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,21 +14,24 @@ import {Biz, ISidebar, User} from 'src/app/types/viewmodels';
 export class SidebarComponent implements OnInit {
   sidebars: ISidebar[] = [
     {
-      link: '/dashboard',
+      link: `/${EModule.DASHBOARD}`,
+      alias: EModule.DASHBOARD,
       name: 'Dashboard',
       icon: './assets/images/module/table.svg',
       iconActive: './assets/images/module/table-active.svg',
       isActive: true,
     },
     {
-      link: '/config',
+      link: `/${EModule.CONFIG}`,
+      alias: EModule.CONFIG,
       name: 'Cấu hình Quy tắc và Dữ liệu',
       icon: './assets/images/module/flow.svg',
       iconActive: './assets/images/module/flow-active.svg',
       isActive: false,
     },
     {
-      link: '/setting',
+      link: `/${EModule.SETTING}`,
+      alias: EModule.SETTING,
       name: 'Cài đặt',
       icon: './assets/images/module/setting.svg',
       iconActive: './assets/images/module/setting-active.svg',
@@ -46,6 +51,14 @@ export class SidebarComponent implements OnInit {
     this.authService.currentUser.subscribe((res) => {
       if (res) this.user = res;
     });
+    this.authService.userAccessPer$
+      .pipe(filter((res) => !!res))
+      .subscribe((res) => {
+        const listModuleCanAccess = this.authService.getAccessibleModules();
+        this.sidebars = this.sidebars.filter((side) => {
+          return listModuleCanAccess.includes(side.alias as EModule);
+        });
+      });
   }
 
   ngOnInit(): void {

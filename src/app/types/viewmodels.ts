@@ -1551,6 +1551,7 @@ export interface Source {
 
 export interface ISidebar {
   link: string;
+  alias?: string;
   name: string;
   icon?: string;
   iconActive?: string;
