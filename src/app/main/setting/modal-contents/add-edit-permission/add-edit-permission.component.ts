@@ -59,11 +59,12 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
       key: EPerActType.TASK,
       isOpen: false,
       permissions: [
+        {key: EPerActTask.VIEW_TASK, name: 'Xem Task'},
+        {key: EPerActTask.VIEW_TASK_BIZ, name: 'Xem toàn bộ Task trong Biz'},
         {key: EPerActTask.CREATE_TASK, name: 'Tạo Task'},
         {key: EPerActTask.UPDATE_TASK, name: 'Cập nhật Task'},
         {key: EPerActTask.DELETE_TASK, name: 'Xóa Task'},
         {key: EPerActTask.VIEW_INFORMATION_TASK, name: 'Xem tab thông tin'},
-        {key: EPerActTask.VIEW_ORDER_TASK, name: 'Xem tab đơn hàng'},
         {key: EPerActTask.VIEW_HISTORY_TASK, name: 'Xem tab lịch sử'},
         {key: EPerActTask.CREATE_ORDER, name: 'Tạo đơn hàng'},
         {
@@ -84,27 +85,32 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
       name: 'Cấu hình quy tắc và dữ liệu',
       key: EPerActType.FLOW,
       isOpen: false,
-      permissions: [{key: EPerActFlow.FLOW, name: 'Mặc định'}],
+      permissions: [
+        {key: EPerActFlow.VIEW_FLOW, name: 'Xem Cấu hình quy tắc & dữ liệu'},
+        {key: EPerActFlow.UPDATE_FLOW, name: 'Sửa Cấu hình quy tắc & dữ liệu'},
+      ],
     },
     {
       name: 'Cài đặt',
       key: EPerActType.SETTING,
       isOpen: false,
       permissions: [
-        {key: EPerActSetting.SOURCE_SETTING, name: 'Cấu hình Nguồn dữ liệu'},
-        {key: EPerActSetting.TAG_SETTING, name: 'Cấu hình Tag'},
-        {key: EPerActSetting.ROLE_SETTING, name: 'Cấu hình vai trò'},
+        {key: EPerActSetting.VIEW_SOURCE_SETTING, name: 'Xem Nguồn dữ liệu'},
+        {key: EPerActSetting.VIEW_TAG_SETTING, name: 'Xem Tag'},
+        {key: EPerActSetting.VIEW_ROLE_SETTING, name: 'Xem Vai trò'},
         {
-          key: EPerActSetting.PERMISSION_SETTING_USER_IN_BRANCH,
-          name: 'Cấu hình quyền cho nhân viên cùng chi nhánh (QL chi nhánh)',
+          key: EPerActSetting.UPDATE_SOURCE_SETTING,
+          name: 'Sửa Nguồn dữ liệu',
+        },
+        {key: EPerActSetting.UPDATE_TAG_SETTING, name: 'Sửa Tag'},
+        {key: EPerActSetting.UPDATE_ROLE_SETTING, name: 'Sửa Vai trò'},
+        {
+          key: EPerActSetting.VIEW_USER_ACCESS_BIZ,
+          name: 'Xem toàn bộ nhân sự trong Nhân viên',
         },
         {
-          key: EPerActSetting.PERMISSION_SETTING_USER_IN_DEPARTMENT,
-          name: 'Cấu hình quyền cho nhân viên cùng phòng ban (QL phòng ban)',
-        },
-        {
-          key: EPerActSetting.PERMISSION_SETTING_USER_IN_TEAM,
-          name: 'Cấu hình quyền cho nhân viên cùng đội nhóm (QL đội nhóm)',
+          key: EPerActSetting.UPDATE_USER_ACCESS,
+          name: 'Gán quyền cho nhân sự',
         },
         {key: EPerActSetting.PERMISSION_SETTING_ACCESS, name: 'Cấu hình quyền'},
       ],
