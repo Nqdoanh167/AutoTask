@@ -8,6 +8,9 @@
   }
 }
 .table {
+  .rootRow {
+    border-bottom: 1px solid vars.$neutral-100;
+  }
   td {
     div {
       padding: 0;

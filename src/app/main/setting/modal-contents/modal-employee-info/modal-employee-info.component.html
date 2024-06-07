@@ -135,7 +135,7 @@
                     let firstBranch = $first;
                     let lastBranch = $last
                   ) {
-                    <tr>
+                    <tr class="rootRow">
                       <td class="columns-branch">
                         <input
                           class="form-control input-disabled"
@@ -246,37 +246,65 @@
                         </div>
                       </td>
                       <td class="columns-role">
-                        <div
-                          class="group-data"
-                          [class.mt-2]="!firstDepartment"
-                          *ngFor="
-                            let department of branch.departments;
-                            let departmentIndex = index;
-                            let firstDepartment = first;
-                            let lastDepartment = last
-                          "
-                        >
+                        @if (branch?.departments?.length) {
                           <div
-                            class="data-item"
-                            [class.mt-2]="!firstTeam"
+                            class="group-data"
+                            [class.mt-2]="!firstDepartment"
                             *ngFor="
-                              let team of department['teams'];
-                              let teamIndex = index;
-                              let firstTeam = first;
-                              let lastTeam = last
+                              let department of branch.departments;
+                              let departmentIndex = index;
+                              let firstDepartment = first;
+                              let lastDepartment = last
                             "
                           >
-                            <ng-select
-                              [placeholder]="'Chọn Quyền'"
-                              [searchable]="false"
-                              [items]="[]"
-                              class="dropdown-auto-width"
-                              id="role-{{ teamIndex }}-{{ departmentIndex }}"
-                              [notFoundText]="'Không có dữ liệu'"
-                              appendTo=".modal"
-                            ></ng-select>
+                            @if (department['teams']?.length) {
+                              <div
+                                class="data-item"
+                                [class.mt-2]="!firstTeam"
+                                *ngFor="
+                                  let team of department['teams'];
+                                  let teamIndex = index;
+                                  let firstTeam = first;
+                                  let lastTeam = last
+                                "
+                              >
+                                <ng-select
+                                  [placeholder]="'Chọn Quyền'"
+                                  [searchable]="false"
+                                  [items]="[]"
+                                  class="dropdown-auto-width"
+                                  id="role-{{ teamIndex }}-{{
+                                    departmentIndex
+                                  }}-{{ branchIndex }}"
+                                  [notFoundText]="'Không có dữ liệu'"
+                                  appendTo=".modal-employee-info"
+                                ></ng-select>
+                              </div>
+                            } @else {
+                              <ng-select
+                                [placeholder]="'Chọn Quyền'"
+                                [searchable]="false"
+                                [items]="[]"
+                                class="dropdown-auto-width"
+                                id="role-{{ departmentIndex }}-{{
+                                  branchIndex
+                                }}"
+                                [notFoundText]="'Không có dữ liệu'"
+                                appendTo=".modal-employee-info"
+                              ></ng-select>
+                            }
                           </div>
-                        </div>
+                        } @else {
+                          <ng-select
+                            [placeholder]="'Chọn Quyền'"
+                            [searchable]="false"
+                            [items]="[]"
+                            class="dropdown-auto-width"
+                            id="role-{{ branchIndex }}"
+                            [notFoundText]="'Không có dữ liệu'"
+                            appendTo=".modal-employee-info"
+                          ></ng-select>
+                        }
                       </td>
                     </tr>
                   }
@@ -289,3 +317,15 @@
     </app-custom-modal>
   </div>
 </ng-container>
+
+<ng-template #selectPermission>
+  <ng-select
+    [placeholder]="'Chọn Quyền'"
+    [searchable]="false"
+    [items]="[]"
+    class="dropdown-auto-width"
+    id="role-{{ branchIndex }}"
+    [notFoundText]="'Không có dữ liệu'"
+    appendTo=".modal-employee-info"
+  ></ng-select>
+</ng-template>
