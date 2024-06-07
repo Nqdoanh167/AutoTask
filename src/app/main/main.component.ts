@@ -105,5 +105,7 @@ export class MainComponent implements OnInit {
       });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.authService.getUserPerAccess();
+  }
 }

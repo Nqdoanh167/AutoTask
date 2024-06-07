@@ -205,3 +205,19 @@ export interface CombinedUserAcl extends User {
   isActiveAcl: boolean;
   aclBranches: UserAclBranch[];
 }
+
+export enum ELevelPer {
+  BRANCH = 'BRANCH',
+  DEPARTMENT = 'DEPARTMENT',
+  TEAM = 'TEAM',
+}
+
+export interface SeparateTaskPer {
+  id: string;
+  permission: EPerActTask[];
+  type: ELevelPer;
+}
+
+export interface UserPerAccess extends PermissionAction {
+  separateTask: SeparateTaskPer[];
+}

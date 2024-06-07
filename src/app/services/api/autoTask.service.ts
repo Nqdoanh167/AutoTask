@@ -40,15 +40,17 @@ import {
   UpdatePermissionDto,
   UpdateUserAclDto,
   UserAcl,
+  UserPerAccess,
 } from '@app/types/setting';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AutoTaskService extends BaseApiService implements OnDestroy {
-  destroy = new Subject();
+  private destroy = new Subject();
+  private defaultParams: any = {};
 
-  api = {
+  public api = {
     action: 'action',
     actionResult: 'act-result',
     actionReason: 'act-reason',
@@ -65,7 +67,6 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     permission: 'permission',
     userAcl: 'user-acl',
   };
-  private defaultParams: any = {};
 
   private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
   public dashboardViewModes = this.dashboardViewModes$.asObservable();
@@ -429,7 +430,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.permission, id]),
       ),
     getUserPermissions: () =>
-      this.httpClient.get<EntityResult<any>>(
+      this.httpClient.get<EntityResult<UserPerAccess>>(
         this.createUrl([this.api.permission, 'user-access']),
       ),
   };

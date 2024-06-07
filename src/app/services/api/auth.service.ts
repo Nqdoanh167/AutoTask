@@ -1,18 +1,12 @@
-import {Injectable, Inject} from '@angular/core';
+import {Injectable, Injector} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {BaseApiService} from './base.service';
 import {BehaviorSubject} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
 import {BizService} from './biz.service';
-import {
-  Biz,
-  BizModule,
-  Branch,
-  ERole,
-  IBranch,
-  User,
-} from 'src/app/types/viewmodels';
+import {Biz, BizModule, ERole, IBranch, User} from 'src/app/types/viewmodels';
 import {environment} from 'src/environments/environment';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {UserPerAccess} from '@app/types/setting';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +23,13 @@ export class AuthService {
     .asObservable()
     .pipe(distinctUntilChanged());
 
+  private userAccessPerSubject = new BehaviorSubject<UserPerAccess | null>(
+    null,
+  );
+  public userAccessPer$ = this.userAccessPerSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public branches = new BehaviorSubject<IBranch[]>([]);
   public modules = new BehaviorSubject<BizModule[]>([]);
@@ -37,13 +38,13 @@ export class AuthService {
     .pipe(distinctUntilChanged());
 
   public refToken: string | null = null;
+  public auth = {};
 
   constructor(
     private bizService: BizService,
     protected httpClient: HttpClient,
+    private injector: Injector,
   ) {}
-
-  auth = {};
 
   popular() {
     let alias = 'test';
@@ -86,16 +87,37 @@ export class AuthService {
       }
     }
   }
+
+  getUserPerAccess() {
+    const autoTaskService = this.injector.get(AutoTaskService);
+    autoTaskService.permission.getUserPermissions().subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          console.log('res', res);
+          this.userAccessPerSubject.next(res.data);
+        } else {
+          window.location.href = '/';
+        }
+      },
+      error: (error) => {
+        window.location.href = '/';
+      },
+    });
+  }
+
   isOwner(): boolean {
     return this.currentBizSubject?.value?.user.role == ERole.OWNER;
   }
+
   getToken(name = 'smaxapp_token'): string {
     const token = localStorage.getItem(name);
     return token || '';
   }
+
   setToken(token: string, name = 'smaxapp_token') {
     localStorage.setItem(name, token);
   }
+
   setUser(user: User) {
     this.currentUserSubject.next(user);
   }
