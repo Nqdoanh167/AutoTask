@@ -3,7 +3,13 @@ import {Title} from '@angular/platform-browser';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {filter, map} from 'rxjs';
 import {AuthService} from '../services/api/auth.service';
-import {Biz, EModule, ISidebar} from '../types/viewmodels';
+import {
+  Biz,
+  EFlowTab,
+  EModule,
+  ESettingTab,
+  ISidebar,
+} from '../types/viewmodels';
 
 @Component({
   selector: 'app-main',
@@ -18,41 +24,41 @@ export class MainComponent implements OnInit {
 
   public listConfigNavItems: ISidebar[] = [
     {
-      link: '/config/rule',
+      link: `/${EModule.CONFIG}/${EFlowTab.RULE}`,
       name: 'Cấu hình quy tắc',
       isActive: true,
     },
     {
-      link: '/config/data',
+      link: `/${EModule.CONFIG}/${EFlowTab.DATA}`,
       name: 'Cấu hình dữ liệu',
       isActive: true,
     },
   ];
   public listDashboardNavItems: ISidebar[] = [
     {
-      link: '/dashboard',
+      link: `/${EModule.DASHBOARD}`,
       name: 'Quản lý Task',
       isActive: true,
     },
   ];
   public listSettingNavItems: ISidebar[] = [
     {
-      link: '/setting/source',
+      link: `/${EModule.SETTING}/${ESettingTab.SOURCE}`,
       name: 'Nguồn dữ liệu',
       isActive: true,
     },
     {
-      link: '/setting/tag',
+      link: `/${EModule.SETTING}/${ESettingTab.TAG}`,
       name: 'Tag',
       isActive: true,
     },
     {
-      link: '/setting/decentralization',
+      link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
       name: 'Phân quyền',
       isActive: true,
     },
     {
-      link: '/setting/role',
+      link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
       name: 'Vai trò',
       isActive: true,
     },

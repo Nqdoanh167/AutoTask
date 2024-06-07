@@ -6,8 +6,10 @@ import {BizService} from './biz.service';
 import {
   Biz,
   BizModule,
+  EFlowTab,
   EModule,
   ERole,
+  ESettingTab,
   IBranch,
   User,
 } from 'src/app/types/viewmodels';
@@ -117,6 +119,68 @@ export class AuthService {
         window.location.href = '/';
       },
     });
+  }
+
+  getAccessibleSite() {
+    let accessibleSites: Record<EModule, string[]> = {
+      [EModule.DASHBOARD]: [],
+      [EModule.CONFIG]: [],
+      [EModule.SETTING]: [],
+    };
+    const accessibleModules = this.getAccessibleModules();
+    accessibleModules.forEach((module) => {
+      switch (module) {
+        case EModule.DASHBOARD:
+          accessibleSites[module] = [EModule.DASHBOARD];
+          break;
+        case EModule.CONFIG:
+          if (
+            this.checkUserPer(EPerActType.FLOW, [
+              EPerActFlow.VIEW_FLOW,
+              EPerActFlow.UPDATE_FLOW,
+            ])
+          ) {
+            accessibleSites[module] = [EFlowTab.DATA, EFlowTab.RULE];
+          }
+          break;
+        case EModule.SETTING:
+          if (
+            this.checkUserPer(EPerActType.SETTING, [
+              EPerActSetting.VIEW_SOURCE_SETTING,
+              EPerActSetting.UPDATE_SOURCE_SETTING,
+            ])
+          ) {
+            accessibleSites[module].push(ESettingTab.SOURCE);
+          }
+          if (
+            this.checkUserPer(EPerActType.SETTING, [
+              EPerActSetting.VIEW_TAG_SETTING,
+              EPerActSetting.UPDATE_TAG_SETTING,
+            ])
+          ) {
+            accessibleSites[module].push(ESettingTab.TAG);
+          }
+          if (
+            this.checkUserPer(EPerActType.SETTING, [
+              EPerActSetting.VIEW_ROLE_SETTING,
+              EPerActSetting.UPDATE_ROLE_SETTING,
+            ])
+          ) {
+            accessibleSites[module].push(ESettingTab.ROLE);
+          }
+          if (
+            this.checkUserPer(EPerActType.SETTING, [
+              EPerActSetting.VIEW_USER_ACCESS_BIZ,
+              EPerActSetting.UPDATE_USER_ACCESS,
+              EPerActSetting.PERMISSION_SETTING_ACCESS,
+            ])
+          ) {
+            accessibleSites[module].push(ESettingTab.DECENTRALIZATION);
+          }
+          break;
+      }
+    });
+    return accessibleSites;
   }
 
   getAccessibleModules() {

@@ -1575,8 +1575,10 @@ export enum EFlowTab {
 }
 
 export enum ESettingTab {
-  PERMISSION = 'permission',
-  NON = 'non',
+  SOURCE = 'source',
+  TAG = 'tag',
+  DECENTRALIZATION = 'decentralization',
+  ROLE = 'role',
 }
 
 export type ITypePaginate = 'number' | 'lazy';

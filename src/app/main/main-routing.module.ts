@@ -18,7 +18,6 @@ const routes: Routes = [
       {
         path: EModule.DASHBOARD,
         canActivate: [HasPermissionAccessModuleGuard],
-        data: {},
         loadChildren: () =>
           import('@main/dashboard/dashboard.module').then(
             (m) => m.DashboardModule,

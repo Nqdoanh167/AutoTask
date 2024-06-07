@@ -6,6 +6,8 @@ import {DecentralizationComponent} from '@main/setting/decentralization/decentra
 import {SourceComponent} from '@main/setting/source/source.component';
 import {TagComponent} from './tag/tag.component';
 import {RoleComponent} from './role/role.component';
+import {HasPermissionAccessModuleGuard} from '@app/services/guard/hasPermissionAccessSubModule.guard';
+import {EModule, ESettingTab} from '@app/types/viewmodels';
 
 const routes: Routes = [
   {
@@ -14,23 +16,39 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'source',
+        redirectTo: ESettingTab.SOURCE,
         pathMatch: 'full',
       },
       {
-        path: 'source',
+        path: ESettingTab.SOURCE,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
         component: SourceComponent,
       },
       {
-        path: 'decentralization',
+        path: ESettingTab.DECENTRALIZATION,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
         component: DecentralizationComponent,
       },
       {
-        path: 'tag',
+        path: ESettingTab.TAG,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
         component: TagComponent,
       },
       {
-        path: 'role',
+        path: ESettingTab.ROLE,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
         component: RoleComponent,
       },
     ],
