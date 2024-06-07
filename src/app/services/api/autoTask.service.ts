@@ -428,6 +428,10 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.delete<EntityResult<any>>(
         this.createUrl([this.api.permission, id]),
       ),
+    getUserPermissions: () =>
+      this.httpClient.get<EntityResult<any>>(
+        this.createUrl([this.api.permission, 'user-access']),
+      ),
   };
 
   userAcl = {
