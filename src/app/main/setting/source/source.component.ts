@@ -134,7 +134,7 @@ export class SourceComponent
   }
 
   handleUpdate(data?: any) {
-    if (!this.permission.edit) return;
+    if (data && !this.permission.edit) return;
     try {
       this.modalUpdateSource = this.modalService.show(UpdateSourceComponent, {
         initialState: {
