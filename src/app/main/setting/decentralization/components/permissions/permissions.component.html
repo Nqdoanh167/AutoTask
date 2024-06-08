@@ -20,7 +20,9 @@
                     <th class="">Mô tả</th>
                     <th class="">Số người đã gán quyền</th>
                     <th class="column-status">Trạng thái</th>
-                    <th class="column-action">Thao tác</th>
+                    @if (permission.edit) {
+                      <th class="column-action">Thao tác</th>
+                    }
                   </tr>
                 </thead>
                 <tbody>
@@ -67,22 +69,24 @@
                         />
                       </div>
                     </td>
-                    <td class="columns-action">
-                      <div class="d-flex">
-                        <span
-                          (click)="handleUpdate(item)"
-                          class="d-flex align-items-center btn-action-table"
-                        >
-                          <img src="./assets/images/icon/edit.svg" alt="" />
-                        </span>
-                        <span
-                          (click)="handleDelete(item)"
-                          class="d-flex align-items-center btn-action-table"
-                        >
-                          <img src="./assets/images/icon/remove.svg" alt="" />
-                        </span>
-                      </div>
-                    </td>
+                    @if (permission.edit) {
+                      <td class="columns-action">
+                        <div class="d-flex">
+                          <span
+                            (click)="handleUpdate(item)"
+                            class="d-flex align-items-center btn-action-table"
+                          >
+                            <img src="./assets/images/icon/edit.svg" alt="" />
+                          </span>
+                          <span
+                            (click)="handleDelete(item)"
+                            class="d-flex align-items-center btn-action-table"
+                          >
+                            <img src="./assets/images/icon/remove.svg" alt="" />
+                          </span>
+                        </div>
+                      </td>
+                    }
                   </tr>
                 </tbody>
               </table>

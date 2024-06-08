@@ -37,7 +37,9 @@
                       <th class="column-role">Vai trò</th>
                       <th class="column-branch">Chi nhánh</th>
                       <th class="column-status">Trạng thái</th>
-                      <th>Thao tác</th>
+                      @if (permission.edit || permission.removePer) {
+                        <th class="columns-action">Hành động</th>
+                      }
                     } @else {
                       <ng-container
                         *ngTemplateOutlet="selectBatchAction"
@@ -141,25 +143,36 @@
                         />
                       </div>
                     </td>
-                    <td class="columns-action">
-                      <div class="d-flex">
-                        @if (!isInPermissionModal) {
-                          <span
-                            (click)="handleUpdate(item)"
-                            class="d-flex align-items-center btn-action-table"
-                          >
-                            <img src="./assets/images/icon/edit.svg" alt="" />
-                          </span>
-                        } @else {
-                          <span
-                            (click)="removePerOfEmployees([item])"
-                            class="d-flex align-items-center cursor-pointer"
-                          >
-                            <i class="fa-solid fa-user-minus text-danger"></i>
-                          </span>
-                        }
-                      </div>
-                    </td>
+                    @if (permission.edit || permission.removePer) {
+                      <td class="columns-action">
+                        <div class="d-flex">
+                          @if (!isInPermissionModal) {
+                            @if (permission.edit) {
+                              <span
+                                (click)="handleUpdate(item)"
+                                class="d-flex align-items-center btn-action-table"
+                              >
+                                <img
+                                  src="./assets/images/icon/edit.svg"
+                                  alt=""
+                                />
+                              </span>
+                            }
+                          } @else {
+                            @if (permission.removePer) {
+                              <span
+                                (click)="removePerOfEmployees([item])"
+                                class="d-flex align-items-center cursor-pointer"
+                              >
+                                <i
+                                  class="fa-solid fa-user-minus text-danger"
+                                ></i>
+                              </span>
+                            }
+                          }
+                        </div>
+                      </td>
+                    }
                   </tr>
                 </tbody>
               </table>

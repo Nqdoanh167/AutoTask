@@ -6,7 +6,6 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ToastrService} from 'ngx-toastr';
-import {EPerActSetting, EPerActType} from '@app/types/setting';
 
 @Component({
   selector: 'app-role',

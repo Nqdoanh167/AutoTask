@@ -16,6 +16,8 @@ import {CommonService} from '@app/services/common/common.service';
 import {
   CombinedUserAcl,
   EBatchActionEmployeePer,
+  EPerActSetting,
+  EPerActType,
   Permission,
   UserAcl,
 } from '@app/types/setting';
@@ -64,6 +66,11 @@ export class EmployeeComponent
     data: false,
   };
 
+  public permission = {
+    edit: false,
+    removePer: false,
+  };
+
   private currentBiz = '';
   private destroy$ = new Subject();
   constructor(
@@ -92,6 +99,15 @@ export class EmployeeComponent
       this.configButtons = [];
       this.handleMapData(this.sourceData, true);
     }
+    const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
+    this.permission.edit = permissions?.some(
+      (per) => per === EPerActSetting.UPDATE_USER_ACCESS,
+    );
+    this.permission.removePer =
+      this.isInPermissionModal &&
+      permissions?.some(
+        (per) => per === EPerActSetting.PERMISSION_SETTING_ACCESS,
+      );
   }
 
   getUserAcl() {

@@ -10,11 +10,12 @@ import {IQueryBase} from '@app/types/viewmodels';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
 import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-permission/add-edit-permission.component';
-import {Permission} from '@app/types/setting';
+import {EPerActSetting, EPerActType, Permission} from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-permissions',
@@ -43,15 +44,30 @@ export class PermissionsComponent
     data: false,
   };
 
+  public permission = {
+    edit: false,
+    add: false,
+  };
+
   private destroy$ = new Subject();
   constructor(
     private readonly modalService: BsModalService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly modalConfirmService: ModalConfirmService,
+    private readonly authService: AuthService,
   ) {
     super();
     this.item.paramsQuery.filter = JSON.stringify({retrieveUser: true});
+    const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
+    this.permission.edit = this.permission.add = permissions?.some(
+      (per) => per === EPerActSetting.PERMISSION_SETTING_ACCESS,
+    );
+    if (!this.permission.add) {
+      this.configButtons = this.configButtons?.filter(
+        (button) => button.name !== 'add_new',
+      );
+    }
   }
 
   override handleAction(name: string) {

@@ -15,14 +15,17 @@
         </tab>
       </tabset>
       <div class="content-site mt-2">
-        <ng-container [ngSwitch]="activeTab">
-          <ng-container *ngSwitchCase="ETabPermissions.EMPLOYEE">
+        @switch (activeTab) {
+          @case (ETabPermissions.EMPLOYEE) {
             <app-employee></app-employee>
-          </ng-container>
-          <ng-container *ngSwitchCase="ETabPermissions.PERMISSION">
+          }
+          @case (ETabPermissions.PERMISSION) {
             <app-permissions></app-permissions>
-          </ng-container>
-        </ng-container>
+          }
+          @default {
+            <div class="center-item mt-5 mb-5">Không có quyền truy cập</div>
+          }
+        }
       </div>
     </div>
   </div>
