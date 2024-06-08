@@ -1,5 +1,11 @@
-<app-custom-modal [isSubmitting]="loading.submit" (submitModal)="onSubmit()">
-  <ng-container modalTitle>Chỉnh sửa quyền</ng-container>
+<app-custom-modal
+  [isSubmitting]="loading.submit"
+  (submitModal)="onSubmit()"
+  [hideFooter]="activeTab === ETabUpdatePermissionsModal.EMPLOYEE"
+>
+  <ng-container modalTitle>
+    {{ sourceData?.id ? 'Chỉnh sửa' : 'Thêm mới' }} quyền
+  </ng-container>
   <ng-container modalBody>
     <tabset class="custom-tab-basic">
       <tab
@@ -124,7 +130,7 @@
         } @else {
           <app-employee
             [isInPermissionModal]="true"
-            [sourceData]="[]"
+            [sourceData]="sourceData?.userAcls || []"
           ></app-employee>
         }
       </div>

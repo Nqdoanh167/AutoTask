@@ -23,7 +23,7 @@ import {CombinedUserAcl, UserAcl} from '@app/types/setting';
 })
 export class EmployeeComponent implements OnDestroy, OnInit {
   @Input() isInPermissionModal = false;
-  @Input() sourceData: User[] = [];
+  @Input() sourceData: UserAcl[] = [];
   public configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
@@ -60,21 +60,19 @@ export class EmployeeComponent implements OnDestroy, OnInit {
   ) {}
 
   ngOnInit() {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.listBizUsers = biz.users as CombinedUserAcl[];
+        this.listFilteredBizUsers = biz.users as CombinedUserAcl[];
+        this.currentBiz = biz.alias || '';
+      });
     if (!this.isInPermissionModal) {
-      this.authService.currentBiz
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((biz) => {
-          this.listBizUsers = biz.users as CombinedUserAcl[];
-          console.log(this.listBizUsers);
-          this.listFilteredBizUsers = biz.users as CombinedUserAcl[];
-          this.currentBiz = biz.alias || '';
-        });
       this.getUserAcl();
     } else {
       this.configFilters = [];
       this.configButtons = [];
-      this.listBizUsers = [...this.sourceData] as CombinedUserAcl[];
-      this.listFilteredBizUsers = [...this.sourceData] as CombinedUserAcl[];
+      this.handleMapData(this.sourceData, true);
     }
   }
 
@@ -96,7 +94,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
       });
   }
 
-  handleMapData(data: UserAcl[]) {
+  handleMapData(data: UserAcl[], onlyHasAcl = false) {
     this.listBizUsers = this.listFilteredBizUsers =
       this.listBizUsers?.map((user) => {
         const userAcl = data?.find((item) => item.userId === user.id);
@@ -108,6 +106,12 @@ export class EmployeeComponent implements OnDestroy, OnInit {
           } as CombinedUserAcl),
         };
       }) || [];
+    // if onlyHasAcl is true, only show users that have acl
+    if (onlyHasAcl) {
+      this.listFilteredBizUsers = this.listFilteredBizUsers.filter(
+        (user) => user.isActiveAcl,
+      );
+    }
   }
 
   handleAction(name: string) {
