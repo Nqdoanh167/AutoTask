@@ -140,11 +140,12 @@ export class EmployeeComponent
           } as CombinedUserAcl),
         };
       }) || [];
-    // if onlyHasAcl is true, only show users that have acl
+    // if onlyHasAcl is true, only show users that have acl, even both isActiveAcl is true or false
     if (onlyHasAcl) {
-      this.listFilteredBizUsers = this.listFilteredBizUsers.filter(
-        (user) => user.isActiveAcl,
-      );
+      this.listBizUsers = this.listFilteredBizUsers =
+        this.listFilteredBizUsers.filter(
+          (user) => user.isActiveAcl !== undefined,
+        );
     }
     if (this.isInPermissionModal) {
       this.item.rows = this.listFilteredBizUsers;
