@@ -161,11 +161,11 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
     branch?: UserAclBranch,
   ) {
     if (team?.id) {
-      team.permission = data.id;
+      team.permission = data?.id ?? null;
     } else if (department?.id) {
-      department.permission = data.id;
+      department.permission = data?.id ?? null;
     } else if (branch?.id) {
-      branch.permission = data.id;
+      branch.permission = data?.id ?? null;
     }
   }
 
