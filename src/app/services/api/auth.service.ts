@@ -131,7 +131,14 @@ export class AuthService {
     accessibleModules.forEach((module) => {
       switch (module) {
         case EModule.DASHBOARD:
-          accessibleSites[module] = [EModule.DASHBOARD];
+          if (
+            this.checkUserPer(EPerActType.TASK, [
+              EPerActTask.VIEW_TASK,
+              EPerActTask.VIEW_TASK_BIZ,
+            ])
+          ) {
+            accessibleSites[module] = [EModule.DASHBOARD];
+          }
           break;
         case EModule.CONFIG:
           if (
