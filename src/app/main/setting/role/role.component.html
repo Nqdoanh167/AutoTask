@@ -3,7 +3,11 @@
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between">
         <div class="title fw-bold fs-5">Vai trò</div>
-        <div class="btn btn-primary" (click)="onsubmit()">Lưu</div>
+        @if (this.permission.update) {
+          <div class="btn btn-primary" (click)="onsubmit()">Lưu</div>
+        } @else {
+          <div></div>
+        }
       </div>
       <div class="my-3 state-warning">
         <div class="fw-500">Lưu ý</div>

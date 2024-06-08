@@ -6,7 +6,7 @@ import {
   IFilterTopTable,
 } from '@app/types/common';
 import {EntityPagination, ITag} from '@app/types/viewmodels';
-import {Subject, take, takeUntil} from 'rxjs';
+import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {removeCharacter} from '@app/utils/common';
 import {BsModalService} from 'ngx-bootstrap/modal';
@@ -15,6 +15,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
+import {EPerActSetting, EPerActType} from '@app/types/setting';
 
 @Component({
   selector: 'app-tag',
@@ -68,6 +69,11 @@ export class TagComponent implements OnDestroy, OnInit {
     data: false,
   };
   public submitted = false;
+  public permission = {
+    add: false,
+    edit: false,
+    delete: false,
+  };
 
   private currentBiz = '';
   private destroy$ = new Subject();
@@ -84,16 +90,34 @@ export class TagComponent implements OnDestroy, OnInit {
       .subscribe((biz) => {
         this.currentBiz = biz.alias || '';
       });
+    const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
+    if (permissions?.some((per) => per === EPerActSetting.UPDATE_TAG_SETTING)) {
+      this.permission = {
+        ...this.permission,
+        add: true,
+        edit: true,
+        delete: true,
+      };
+    }
+    if (!this.permission.add) {
+      this.configButtons = this.configButtons.filter(
+        (button) => button.name !== 'add_new',
+      );
+    }
   }
 
   ngOnInit() {
     this.getListTag();
   }
   getListTag() {
+    this.loading.data = true;
     const params = {...this.tags.query};
     this.autoTaskService.tag
       .get(params)
-      .pipe(take(1))
+      .pipe(
+        take(1),
+        finalize(() => (this.loading.data = false)),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {

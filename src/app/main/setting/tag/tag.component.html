@@ -13,8 +13,10 @@
             <thead>
               <tr>
                 <th class="column-index">#</th>
-                <th class="column-source">Nguồn</th>
-                <th class="column-action text-center">Thao tác</th>
+                <th class="column-source">Tag</th>
+                @if (this.permission.edit || this.permission.delete) {
+                  <th class="column-action text-center">Thao tác</th>
+                }
               </tr>
             </thead>
             <tbody>
@@ -60,24 +62,30 @@
                       </span>
                     </div>
                   </td>
-                  <td class="columns-action">
-                    <div class="d-flex justify-content-center">
-                      <button
-                        class="btn p-1 me-1"
-                        type="button"
-                        (click)="addEdit(tag, i)"
-                      >
-                        <img src="./assets/images/icon/edit.svg" alt="" />
-                      </button>
-                      <button
-                        (click)="onDeleteItem(tag)"
-                        class="btn button-delete p-1"
-                        type="button"
-                      >
-                        <img src="./assets/images/icon/remove.svg" alt="" />
-                      </button>
-                    </div>
-                  </td>
+                  @if (this.permission.edit || this.permission.delete) {
+                    <td class="columns-action">
+                      <div class="d-flex justify-content-center">
+                        @if (this.permission.edit) {
+                          <button
+                            class="btn p-1 me-1"
+                            type="button"
+                            (click)="addEdit(tag, i)"
+                          >
+                            <img src="./assets/images/icon/edit.svg" alt="" />
+                          </button>
+                        }
+                        @if (this.permission.delete) {
+                          <button
+                            (click)="onDeleteItem(tag)"
+                            class="btn button-delete p-1"
+                            type="button"
+                          >
+                            <img src="./assets/images/icon/remove.svg" alt="" />
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  }
                 </ng-container>
                 <ng-template #otherEdit>
                   <td colspan="3" class="form-add-tag pb-2 pt-2">

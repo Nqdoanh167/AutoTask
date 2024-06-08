@@ -469,7 +469,8 @@ ng-select.custom-input-multiple-round {
       }
     }
   }
-  &.disabled {
+  &.disabled,
+  &.ng-select-disabled {
     .ng-select-container {
       .ng-value-container {
         .ng-value {

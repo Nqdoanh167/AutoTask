@@ -6,6 +6,7 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ToastrService} from 'ngx-toastr';
+import {EPerActSetting, EPerActType} from '@app/types/setting';
 
 @Component({
   selector: 'app-role',
@@ -22,6 +23,10 @@ export class RoleComponent implements OnDestroy, OnInit {
     total: 0,
   };
   settingForm!: FormGroup;
+  public permission = {
+    update: false,
+  };
+
   private currentBiz!: Biz;
   private destroy$ = new Subject();
   constructor(
@@ -37,6 +42,10 @@ export class RoleComponent implements OnDestroy, OnInit {
         this.currentBiz = biz || '';
         this.roles.rows = biz.roles || [];
       });
+    // this.permission.update = this.authService.checkUserPer(
+    //   EPerActType.SETTING,
+    //   [EPerActSetting.UPDATE_ROLE_SETTING],
+    // );
   }
 
   ngOnInit() {
@@ -47,6 +56,9 @@ export class RoleComponent implements OnDestroy, OnInit {
       roles: [[]],
       assignRole: [null],
     });
+    if (!this.permission.update) {
+      this.settingForm.disable();
+    }
     this.getSetting();
   }
   getSetting() {
@@ -67,8 +79,6 @@ export class RoleComponent implements OnDestroy, OnInit {
       });
   }
   onsubmit() {
-    console.log(this.settingForm.value);
-
     if (this.settingForm.invalid) {
       this.toasrt.warning('Vui lòng nhập đầy đủ thông tin');
       return;
