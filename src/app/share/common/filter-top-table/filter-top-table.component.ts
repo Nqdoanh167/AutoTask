@@ -2,10 +2,9 @@ import {
   Component,
   EventEmitter,
   Input,
-  Output,
-  SimpleChanges,
-  OnInit,
   OnDestroy,
+  OnInit,
+  Output,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
@@ -18,11 +17,10 @@ import {
 } from '@app/types/common';
 import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
 import {PopoverModule} from 'ngx-bootstrap/popover';
-import {IDateRange, ObjectAny} from '@app/types/viewmodels';
+import {IDateRange} from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {Subject, filter, takeUntil} from 'rxjs';
+import {Subject, takeUntil} from 'rxjs';
 import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
-import {cloneDeep, isEmpty} from 'lodash';
 
 @Component({
   selector: 'app-filter-top-table',
@@ -123,6 +121,7 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
     this.handleSearchingView(term, name);
     this.searchEvent.emit({term, name});
   }
+
   onPickerDateAdvance(
     value: IDateRange | Date,
     name: string = 'date',

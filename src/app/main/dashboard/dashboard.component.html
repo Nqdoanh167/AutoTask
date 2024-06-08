@@ -18,18 +18,20 @@
           <table class="table col-resizable">
             <thead>
               <tr *ngIf="!taskChecked.length">
-                <th scope="col" style="width: 40px" class="column-checkbox">
-                  <label class="basic-checkbox standalone">
-                    <input
-                      type="checkbox"
-                      [checked]="
-                        headerCheckboxState[dataSource.paramsQuery.page]
-                      "
-                      (change)="toggleAllRows($event)"
-                    />
-                    <span class="checkmark"></span>
-                  </label>
-                </th>
+                @if (permission.edit) {
+                  <th scope="col" style="width: 40px" class="column-checkbox">
+                    <label class="basic-checkbox standalone">
+                      <input
+                        type="checkbox"
+                        [checked]="
+                          headerCheckboxState[dataSource.paramsQuery.page]
+                        "
+                        (change)="toggleAllRows($event)"
+                      />
+                      <span class="checkmark"></span>
+                    </label>
+                  </th>
+                }
                 <ng-container
                   *ngFor="let columns of dataColumnsShow; index as i"
                 >
@@ -92,7 +94,7 @@
                       style="width: 250px"
                       [items]="multipleAction"
                       (change)="showModalMultipleAction($event)"
-                      appendto="body"
+                      appendTo="body"
                       class="ng-select ng-select-single"
                     ></ng-select>
                   </div>
@@ -118,16 +120,18 @@
               </tr>
               <ng-container *ngIf="!dataSource.loading">
                 <tr *ngFor="let item of dataSource.rows; index as i">
-                  <td>
-                    <label class="basic-checkbox">
-                      <input
-                        type="checkbox"
-                        [checked]="taskChecked.includes(item.id)"
-                        (change)="stateChecked(item, $event)"
-                      />
-                      <span class="checkmark"></span>
-                    </label>
-                  </td>
+                  @if (permission.edit) {
+                    <td>
+                      <label class="basic-checkbox">
+                        <input
+                          type="checkbox"
+                          [checked]="taskChecked.includes(item.id)"
+                          (change)="stateChecked(item, $event)"
+                        />
+                        <span class="checkmark"></span>
+                      </label>
+                    </td>
+                  }
                   <ng-container
                     *ngFor="let columns of dataColumnsShow; index as i"
                   >
@@ -474,24 +478,29 @@
                   </ng-container>
                   <td class="columns-action">
                     <div class="d-flex">
-                      <span
-                        (click)="handleUpdate(item)"
-                        class="d-flex align-items-center btn-action-table"
-                      >
-                        <img src="./assets/images/icon/edit.svg" alt="" />
-                      </span>
-                      <span
-                        (click)="handleCopy(item)"
-                        class="d-flex align-items-center btn-action-table"
-                      >
-                        <img src="./assets/images/icon/copy.svg" alt="" />
-                      </span>
-                      <span
-                        (click)="handleDeleteAction(item)"
-                        class="d-flex align-items-center btn-action-table"
-                      >
-                        <img src="./assets/images/icon/remove.svg" alt="" />
-                      </span>
+                      @if (permission.edit) {
+                        <span
+                          (click)="handleUpdate(item)"
+                          class="d-flex align-items-center btn-action-table"
+                        >
+                          <img src="./assets/images/icon/edit.svg" alt="" />
+                        </span>
+                        <span
+                          (click)="handleCopy(item)"
+                          class="d-flex align-items-center btn-action-table"
+                        >
+                          <img src="./assets/images/icon/copy.svg" alt="" />
+                        </span>
+                      }
+
+                      @if (permission.delete) {
+                        <span
+                          (click)="handleDeleteAction(item)"
+                          class="d-flex align-items-center btn-action-table"
+                        >
+                          <img src="./assets/images/icon/remove.svg" alt="" />
+                        </span>
+                      }
                     </div>
                   </td>
                 </tr>

@@ -115,7 +115,11 @@
                   [typePicker]="filter.subType"
                   [defaultRangeValue]="filter.value"
                   (changeDateEmmit)="
-                    onPickerDateAdvance($event, filter.name, filter.subType)
+                    onPickerDateAdvance(
+                      $event,
+                      filter.name || '',
+                      filter.subType
+                    )
                   "
                   [placeholder]="filter.placeholder || 'Picker Date'"
                   [showClearButton]="true"
@@ -143,61 +147,64 @@
     </ng-container>
   </div>
   <div class="right d-flex flex-wrap align-items-center gap-2">
-    <ng-container [ngSwitch]="filter.type" *ngFor="let filter of configButtons">
-      <ng-container *ngSwitchCase="ETypeButton.TOGGLE">
-        <div class="form-check form-switch mb-0">
-          <input
-            (change)="handleToggleAction($event, filter.name)"
-            checked="{{ filter.value ? 'checked' : null }}"
-            class="form-check-input"
-            type="checkbox"
-            role="switch"
-            name="{{ filter.name }}"
-          />
-          <label [for]="filter.name">
+    <ng-container *ngFor="let filter of configButtons">
+      <ng-container [ngSwitch]="filter.type" *ngIf="!filter.hidden">
+        <ng-container *ngSwitchCase="ETypeButton.TOGGLE">
+          <div class="form-check form-switch mb-0">
+            <input
+              (change)="handleToggleAction($event, filter.name)"
+              checked="{{ filter.value ? 'checked' : null }}"
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              name="{{ filter.name }}"
+            />
+            <label [for]="filter.name">
+              {{ filter.label }}
+            </label>
+          </div>
+        </ng-container>
+        <ng-container *ngSwitchDefault>
+          <button
+            type="button"
+            class="btn button-medium {{
+              filter.className
+            }} center-item button-filter-top"
+            [ngClass]="{
+              'button-fill secondary-color':
+                filter.type === ETypeButton.PRIMARY,
+              'button-outline': filter.type === ETypeButton.DEFAULT,
+              'button-sub-primary  secondary-color2':
+                filter.type === ETypeButton.SUB_PRIMARY
+            }"
+            (click)="onClick(filter.name || 'button')"
+            [disabled]="filter.disabled"
+          >
+            <ng-container *ngIf="!filter.loading">
+              <img
+                *ngIf="filter.icon"
+                src="{{ filter.icon }}"
+                alt=""
+                class="icon"
+                [ngClass]="{'me-1': !!filter.label}"
+              />
+              <img
+                *ngIf="filter.activeIcon || filter.icon"
+                src="{{ filter.activeIcon ?? filter.icon }}"
+                alt=""
+                class="activeIcon"
+                [ngClass]="{'me-1': !!filter.label}"
+              />
+            </ng-container>
+            <ng-container *ngIf="filter.loading">
+              <i
+                class="fas fa-spinner fa-spin me-1-2"
+                [ngClass]="{'me-1': !!filter.label}"
+              ></i>
+            </ng-container>
             {{ filter.label }}
-          </label>
-        </div>
-      </ng-container>
-      <ng-container *ngSwitchDefault>
-        <button
-          type="button"
-          class="btn button-medium {{
-            filter.className
-          }} center-item button-filter-top"
-          [ngClass]="{
-            'button-fill secondary-color': filter.type === ETypeButton.PRIMARY,
-            'button-outline': filter.type === ETypeButton.DEFAULT,
-            'button-sub-primary  secondary-color2':
-              filter.type === ETypeButton.SUB_PRIMARY
-          }"
-          (click)="onClick(filter.name || 'button')"
-          [disabled]="filter.disabled"
-        >
-          <ng-container *ngIf="!filter.loading">
-            <img
-              *ngIf="filter.icon"
-              src="{{ filter.icon }}"
-              alt=""
-              class="icon"
-              [ngClass]="{'me-1': !!filter.label}"
-            />
-            <img
-              *ngIf="filter.activeIcon || filter.icon"
-              src="{{ filter.activeIcon ?? filter.icon }}"
-              alt=""
-              class="activeIcon"
-              [ngClass]="{'me-1': !!filter.label}"
-            />
-          </ng-container>
-          <ng-container *ngIf="filter.loading">
-            <i
-              class="fas fa-spinner fa-spin me-1-2"
-              [ngClass]="{'me-1': !!filter.label}"
-            ></i>
-          </ng-container>
-          {{ filter.label }}
-        </button>
+          </button>
+        </ng-container>
       </ng-container>
     </ng-container>
   </div>

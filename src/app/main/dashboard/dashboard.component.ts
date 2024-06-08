@@ -35,7 +35,14 @@ import {
 import moment from 'moment/moment';
 import {cloneDeep, isEqual, uniqBy} from 'lodash';
 import {AuthService} from '@app/services/api/auth.service';
-import {EScreens, ISource, IViewModeDto} from '@app/types/setting';
+import {
+  EPerActSetting,
+  EPerActTask,
+  EPerActType,
+  EScreens,
+  ISource,
+  IViewModeDto,
+} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
@@ -327,6 +334,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updatedAt: 0,
     createdAt: 0,
   };
+  public permission = {
+    add: false,
+    edit: false,
+    delete: false,
+  };
+
   constructor(
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
@@ -377,7 +390,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getTag();
     this.getSource();
     this.handleActiveViewMode();
+    const permissions = this.authService.getUserPerByType(EPerActType.TASK);
+    this.permission.edit = this.hasPermission(
+      permissions,
+      EPerActTask.UPDATE_TASK,
+    );
+    this.permission.add = this.hasPermission(
+      permissions,
+      EPerActTask.CREATE_TASK,
+    );
+    this.permission.delete = this.hasPermission(
+      permissions,
+      EPerActTask.DELETE_TASK,
+    );
+    if (!this.permission.add) {
+      this.configButtons[2].hidden = true;
+    }
   }
+
+  private hasPermission(permissions: any[], permission: any): boolean {
+    return permissions?.some((per) => per === permission);
+  }
+
   showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
     const modalRef = this.modalService.show(ModalAssignTeamComponent, {
       class: 'modal-dialog-centered',
@@ -739,6 +773,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   handleUpdate(value?: any, taskId?: string) {
     if (value) {
       this.handleClearQueryParams();
+      if (!this.permission.edit) {
+        return;
+      }
     }
     try {
       const modalUpdate = this.modalService.show(ModalUpdateTaskComponent, {
