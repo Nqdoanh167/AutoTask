@@ -17,12 +17,32 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th class="column-employee">Nhân viên</th>
-                    <th class="column-group">Vùng chức năng</th>
-                    <th class="column-role">Vai trò</th>
-                    <th class="column-branch">Chi nhánh</th>
-                    <th class="column-status">Trạng thái</th>
-                    <th>Thao tác</th>
+                    @if (isInPermissionModal) {
+                      <th class="column-checkbox">
+                        <label class="basic-checkbox standalone">
+                          <input
+                            (change)="
+                              handleSelectRow({type: 'all', event: $event})
+                            "
+                            [checked]="isAllChecked()"
+                            type="checkbox"
+                          />
+                          <span class="checkmark"></span>
+                        </label>
+                      </th>
+                    }
+                    @if (!getLengthCheckRow()) {
+                      <th class="column-employee">Nhân viên</th>
+                      <th class="column-group">Vùng chức năng</th>
+                      <th class="column-role">Vai trò</th>
+                      <th class="column-branch">Chi nhánh</th>
+                      <th class="column-status">Trạng thái</th>
+                      <th>Thao tác</th>
+                    } @else {
+                      <ng-container
+                        *ngTemplateOutlet="selectBatchAction"
+                      ></ng-container>
+                    }
                   </tr>
                 </thead>
                 <tbody>
@@ -43,6 +63,23 @@
                     </td>
                   </tr>
                   <tr *ngFor="let item of listFilteredBizUsers; index as i">
+                    @if (isInPermissionModal) {
+                      <td class="column-checkbox">
+                        <label class="basic-checkbox standalone">
+                          <input
+                            value="{{ item.id }}"
+                            [checked]="isCheckRow(item)"
+                            (change)="
+                              handleSelectRow({item: item, event: $event})
+                            "
+                            (keydown)="isShift = true"
+                            (keyup)="isShift = false"
+                            type="checkbox"
+                          />
+                          <span class="checkmark"></span>
+                        </label>
+                      </td>
+                    }
                     <td class="column-employee">
                       <div class="d-flex align-items-center">
                         <div>
@@ -106,12 +143,21 @@
                     </td>
                     <td class="columns-action">
                       <div class="d-flex">
-                        <span
-                          (click)="handleUpdate(item)"
-                          class="d-flex align-items-center btn-action-table"
-                        >
-                          <img src="./assets/images/icon/edit.svg" alt="" />
-                        </span>
+                        @if (!isInPermissionModal) {
+                          <span
+                            (click)="handleUpdate(item)"
+                            class="d-flex align-items-center btn-action-table"
+                          >
+                            <img src="./assets/images/icon/edit.svg" alt="" />
+                          </span>
+                        } @else {
+                          <span
+                            (click)="removePerOfEmployees([item])"
+                            class="d-flex align-items-center cursor-pointer"
+                          >
+                            <i class="fa-solid fa-user-minus text-danger"></i>
+                          </span>
+                        }
                       </div>
                     </td>
                   </tr>
@@ -124,3 +170,26 @@
     </div>
   </div>
 </div>
+
+<ng-template #selectBatchAction>
+  <th colspan="12">
+    <div class="d-flex align-items-center gap-3">
+      <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
+      <ng-select
+        #selectBatchActions
+        [style.width]="'230px'"
+        [placeholder]="'Thao tác hàng loạt'"
+        [searchable]="false"
+        appearance="outline"
+        (change)="handleChangeBatchAction($event)"
+        [(ngModel)]="batchAction"
+        [clearable]="false"
+        appendTo=".setting-employee-site"
+      >
+        <ng-option [value]="EBatchActionEmployeePer.REMOVE">
+          Xóa quyền này của nhân viên
+        </ng-option>
+      </ng-select>
+    </div>
+  </th>
+</ng-template>

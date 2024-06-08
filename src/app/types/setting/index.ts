@@ -182,6 +182,10 @@ export interface PermissionDto
 
 export interface UpdatePermissionDto extends PermissionDto {}
 
+export enum EBatchActionEmployeePer {
+  REMOVE = 'REMOVE',
+}
+
 export interface UserAclBaseRole {
   id: string;
   role: string;
@@ -206,6 +210,11 @@ export interface UserAcl extends Omit<BaseInterface, 'id'> {
 }
 
 export interface UpdateUserAclDto extends UserAcl {}
+
+export interface BulkRemoveUserAcl {
+  permissionId: string;
+  userIds: string[];
+}
 
 export interface CombinedUserAcl extends User {
   isActiveAcl: boolean;

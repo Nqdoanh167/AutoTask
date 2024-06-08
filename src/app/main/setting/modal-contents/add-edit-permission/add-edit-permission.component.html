@@ -129,6 +129,7 @@
           </form>
         } @else {
           <app-employee
+            [permissionDetail]="sourceData"
             [isInPermissionModal]="true"
             [sourceData]="sourceData?.userAcls || []"
           ></app-employee>

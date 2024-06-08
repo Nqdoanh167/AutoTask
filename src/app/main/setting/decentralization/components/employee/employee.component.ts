@@ -5,7 +5,6 @@ import {
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {User} from '@app/types/viewmodels';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {removeCharacter} from '@app/utils/common';
@@ -14,23 +13,38 @@ import {environment} from '../../../../../../environments/environment';
 import {ModalEmployeeInfoComponent} from '@main/setting/modal-contents/modal-employee-info/modal-employee-info.component';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import {CombinedUserAcl, UserAcl} from '@app/types/setting';
+import {
+  CombinedUserAcl,
+  EBatchActionEmployeePer,
+  Permission,
+  UserAcl,
+} from '@app/types/setting';
+import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
+import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-employee',
   templateUrl: './employee.component.html',
   styleUrls: ['./employee.component.scss'],
 })
-export class EmployeeComponent implements OnDestroy, OnInit {
+export class EmployeeComponent
+  extends CheckboxSortTableComponent<CombinedUserAcl, any>
+  implements OnDestroy, OnInit
+{
   @Input() isInPermissionModal = false;
   @Input() sourceData: UserAcl[] = [];
-  public configFilters: IFilterTopTable[] = [
+  @Input() permissionDetail?: Permission;
+
+  protected readonly EBatchActionEmployeePer = EBatchActionEmployeePer;
+  public override configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
       placeholder: 'Tìm theo Tên nhân viên...',
     },
   ];
-  public configButtons: IFilterTopButton[] = [
+  public override configButtons: IFilterTopButton[] = [
     {
       name: 'reload',
       type: ETypeButton.DEFAULT,
@@ -57,9 +71,13 @@ export class EmployeeComponent implements OnDestroy, OnInit {
     private readonly modalService: BsModalService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
-  ) {}
+    private readonly modalConfirmService: ModalConfirmService,
+    private readonly toastr: ToastrService,
+  ) {
+    super();
+  }
 
-  ngOnInit() {
+  override ngOnInit() {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
@@ -112,9 +130,12 @@ export class EmployeeComponent implements OnDestroy, OnInit {
         (user) => user.isActiveAcl,
       );
     }
+    if (this.isInPermissionModal) {
+      this.item.rows = this.listFilteredBizUsers;
+    }
   }
 
-  handleAction(name: string) {
+  override handleAction(name: string) {
     if (name === 'reload') {
       this.getUserAcl();
     }
@@ -124,7 +145,7 @@ export class EmployeeComponent implements OnDestroy, OnInit {
     }
   }
 
-  onSearch(value: {term: string; name: string}) {
+  override onSearch(value: {term: string; name: string}) {
     const {term} = value;
     const keyword = removeCharacter(term)
       .toLocaleLowerCase()
@@ -147,6 +168,62 @@ export class EmployeeComponent implements OnDestroy, OnInit {
     modalUpdate?.content?.updateSuccess
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.getUserAcl());
+  }
+
+  removePerOfEmployees(employees: CombinedUserAcl[]) {
+    if (!this.permissionDetail) {
+      this.toastr.warning('Không tìm thấy thông tin quyền');
+      return;
+    }
+    const title = 'Loại bỏ quyền khỏi nhân viên?';
+    const subtext =
+      employees.length === 1
+        ? `nhân viên ${employees[0].name}`
+        : `${employees.length} nhân viên đã chọn`;
+    const description = `Bạn sắp bỏ quyền <b>${
+      this.permissionDetail?.name || ''
+    }</b> khỏi <b>${subtext}</b>, hành động này không thể hoàn tác. 
+Nhân viên bị loại bỏ quyền có thể không được phép truy cập & sử dụng module.`;
+    const okText = 'Xác nhận';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'warning',
+      modalType: 'advance',
+    };
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      const permissionId = this.permissionDetail?.id || '';
+      const userIds = employees.map((user) => user.id);
+      const data = {
+        permissionId,
+        userIds,
+      };
+      this.autoTaskService.userAcl
+        .bulkRemovePer(data)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((res) => {
+          if (res.status === 200) {
+            this.toastr.success('Loại bỏ quyền thành công');
+            this.listFilteredBizUsers = this.listFilteredBizUsers.filter(
+              (row) => !userIds.includes(row.id),
+            );
+            this.cdr.detectChanges();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        });
+    });
+  }
+
+  handleChangeBatchAction(action: EBatchActionEmployeePer) {
+    if (action === EBatchActionEmployeePer.REMOVE) {
+      const selectedRows = this.getCheckRows();
+      console.log(selectedRows);
+      this.removePerOfEmployees(selectedRows);
+    }
+    this.selectBatchActions?.handleClearClick();
   }
 
   ngOnDestroy(): void {

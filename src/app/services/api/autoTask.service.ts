@@ -28,6 +28,7 @@ import {
   IUpdateTaskResultDto,
 } from '@app/types/flow';
 import {
+  BulkRemoveUserAcl,
   ISetting,
   ISource,
   ISourceDto,
@@ -448,6 +449,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<any>>(
         this.createUrl([this.api.userAcl, id]),
+      ),
+    bulkRemovePer: (body: BulkRemoveUserAcl) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.userAcl, 'bulk-remove']),
+        body,
       ),
   };
 
