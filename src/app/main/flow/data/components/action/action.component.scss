@@ -4,6 +4,6 @@
 .table-responsive {
   @include mixins.calculateSize('max-height', '100vh', '265px');
   .columns-action {
-    width: 20%;
+    width: 100px;
   }
 }

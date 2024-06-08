@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {
   ETypeButton,
   ETypeFilter,
@@ -23,6 +23,7 @@ import {sortBy, sortIcon} from '@app/utils/common';
   styleUrls: ['./chain-action.component.scss'],
 })
 export class ChainActionComponent implements OnInit, OnDestroy {
+  @Input() hasEditPer = false;
   private destroy$ = new Subject();
 
   public configFilters: IFilterTopTable[] = [
@@ -66,6 +67,11 @@ export class ChainActionComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getDataSource();
+    if (!this.hasEditPer) {
+      this.configButtons = this.configButtons.filter(
+        (item) => item.name !== 'add_new',
+      );
+    }
   }
 
   getDataSource(isReset?: boolean) {

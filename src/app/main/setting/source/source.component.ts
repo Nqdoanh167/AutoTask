@@ -78,8 +78,6 @@ export class SourceComponent
     edit: false,
     delete: false,
   };
-
-  protected readonly EPerActSetting = EPerActSetting;
   protected modalUpdateSource?: BsModalRef;
 
   constructor(
