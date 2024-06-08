@@ -12,9 +12,15 @@ import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.ser
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
 import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
-import {EDataSourceType, ISource} from '@app/types/setting';
+import {
+  EDataSourceType,
+  EPerActSetting,
+  EPerActType,
+  ISource,
+} from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-source',
@@ -67,6 +73,13 @@ export class SourceComponent
     },
   ];
 
+  public permission = {
+    add: false,
+    edit: false,
+    delete: false,
+  };
+
+  protected readonly EPerActSetting = EPerActSetting;
   protected modalUpdateSource?: BsModalRef;
 
   constructor(
@@ -74,8 +87,25 @@ export class SourceComponent
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
     private readonly autoTaskService: AutoTaskService,
+    private readonly authService: AuthService,
   ) {
     super();
+    const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
+    if (
+      permissions?.some((per) => per === EPerActSetting.UPDATE_SOURCE_SETTING)
+    ) {
+      this.permission = {
+        ...this.permission,
+        add: true,
+        edit: true,
+        delete: true,
+      };
+    }
+    if (!this.permission.add) {
+      this.configButtons = this.configButtons.filter(
+        (button) => button.name !== 'add_new',
+      );
+    }
   }
 
   override getDataSource(isReset: boolean = false) {
@@ -104,6 +134,7 @@ export class SourceComponent
   }
 
   handleUpdate(data?: any) {
+    if (!this.permission.edit) return;
     try {
       this.modalUpdateSource = this.modalService.show(UpdateSourceComponent, {
         initialState: {

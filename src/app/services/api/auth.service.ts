@@ -225,6 +225,11 @@ export class AuthService {
     return userPer[type]?.some((per) => roles.includes(per));
   }
 
+  getUserPerByType(type: EPerActType) {
+    const userPer = this.userAccessPerSubject.getValue();
+    return userPer?.[type] || [];
+  }
+
   isOwner(): boolean {
     return this.currentBizSubject?.value?.user.role == ERole.OWNER;
   }
