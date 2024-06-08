@@ -133,7 +133,7 @@ export class SourceComponent
       });
   }
 
-  handleUpdate(data?: any) {
+  handleUpdate(data?: ISource) {
     if (data && !this.permission.edit) return;
     try {
       this.modalUpdateSource = this.modalService.show(UpdateSourceComponent, {
