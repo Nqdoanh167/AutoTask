@@ -6,6 +6,7 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ToastrService} from 'ngx-toastr';
+import {EPerActSetting, EPerActType} from '@app/types/setting';
 
 @Component({
   selector: 'app-role',
@@ -41,10 +42,10 @@ export class RoleComponent implements OnDestroy, OnInit {
         this.currentBiz = biz || '';
         this.roles.rows = biz.roles || [];
       });
-    // this.permission.update = this.authService.checkUserPer(
-    //   EPerActType.SETTING,
-    //   [EPerActSetting.UPDATE_ROLE_SETTING],
-    // );
+    this.permission.update = this.authService.checkUserPer(
+      EPerActType.SETTING,
+      [EPerActSetting.UPDATE_ROLE_SETTING],
+    );
   }
 
   ngOnInit() {
