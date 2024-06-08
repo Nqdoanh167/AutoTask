@@ -136,7 +136,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.permissions);
     this.rootFormGroup.valueChanges?.subscribe((value) => {
       // console.log(value);
     });
