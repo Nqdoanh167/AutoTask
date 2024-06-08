@@ -68,15 +68,15 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
         {key: EPerActTask.VIEW_HISTORY_TASK, name: 'Xem tab lịch sử'},
         {key: EPerActTask.CREATE_ORDER, name: 'Tạo đơn hàng'},
         {
-          key: EPerActTask.MANAGER_CHAIN,
-          name: 'Quản lý chuỗi công việc (Không chỉnh thời gian)',
+          key: EPerActTask.MANAGE_CHAIN,
+          name: 'Quản lý chuỗi công việc',
         },
         {
           key: EPerActTask.EDIT_TIME_ACTION,
           name: 'Chỉnh sửa thời gian hành động',
         },
         {
-          key: EPerActTask.MANGER_ACTION,
+          key: EPerActTask.MANAGE_ACTION,
           name: 'Quản lý hành động trong chuỗi (Không chỉnh thời gian)',
         },
       ],

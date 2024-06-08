@@ -41,6 +41,13 @@ import moment from 'moment/moment';
   styleUrls: ['./task-chain-item.component.scss'],
 })
 export class TaskChainItemComponent implements OnDestroy, OnInit {
+  @Input() permissions: {
+    canEditAction: boolean;
+    canEditDeadline: boolean;
+  } = {
+    canEditAction: false,
+    canEditDeadline: false,
+  };
   @Input() formItem!: FormGroup | any;
   @Input() submitted: boolean = false;
   @Input() results: IActResult[] = [];
@@ -129,6 +136,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
+    console.log(this.permissions);
     this.rootFormGroup.valueChanges?.subscribe((value) => {
       // console.log(value);
     });
@@ -445,6 +453,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   ) {
     const staticTaskChain =
       this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex];
+    if (type !== 'timer' && !this.permissions.canEditAction) return false;
     if (type === 'result') {
       return (
         ((!staticTaskChain?.action?.callBlockAutomation?.blockId &&
@@ -457,6 +466,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'timer') {
+      if (!this.permissions.canEditDeadline) return false;
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&

@@ -54,7 +54,7 @@ import {environment} from '../../../../../environments/environment';
 import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal-call.component';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
-import {ISetting, ISource} from '@app/types/setting';
+import {EPerActTask, EPerActType, ISetting, ISource} from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
@@ -74,6 +74,13 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   @Input() sourceData?: ITask;
   @Input() taskId?: string;
   @Output() updateSuccess = new EventEmitter();
+
+  public permissions = {
+    canEditAction: false,
+    canEditChain: false,
+    canEditDeadline: false,
+    canCreateOrder: false,
+  };
 
   public tags: EntityPagination<ITag> = {
     rows: [],
@@ -270,6 +277,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+    this.checkPermission();
     this.getDetailTask();
     if (this.sourceData) {
       this.patchForm(this.sourceData);
@@ -284,6 +292,26 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.getSource();
     this.getTag();
     this.getAutoTaskSetting();
+  }
+
+  private hasPermission(permissions: any[], permission: any): boolean {
+    return permissions?.some((per) => per === permission);
+  }
+
+  checkPermission() {
+    const permissions = this.authService.getUserPerByType(EPerActType.TASK);
+    this.permissions.canEditChain = this.hasPermission(
+      permissions,
+      EPerActTask.MANAGE_CHAIN,
+    );
+    this.permissions.canEditAction = this.hasPermission(
+      permissions,
+      EPerActTask.MANAGE_ACTION,
+    );
+    this.permissions.canEditDeadline = this.hasPermission(
+      permissions,
+      EPerActTask.EDIT_TIME_ACTION,
+    );
   }
   getAutoTaskSetting() {
     this.autoTaskService.setting

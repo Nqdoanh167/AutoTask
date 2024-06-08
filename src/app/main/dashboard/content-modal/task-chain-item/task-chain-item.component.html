@@ -407,7 +407,8 @@
                     *ngIf="
                       !staticDataChainItem?.taskChainResults?.[
                         taskChainResultIndex
-                      ]?.['isEdit']
+                      ]?.['isEdit'] &&
+                      (permissions.canEditAction || permissions.canEditDeadline)
                     "
                   >
                     <button

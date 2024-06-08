@@ -358,6 +358,10 @@
                           </div>
                         </div>
                         <app-task-chain-item
+                          [permissions]="{
+                            canEditAction: permissions.canEditAction,
+                            canEditDeadline: permissions.canEditDeadline
+                          }"
                           [submitted]="submitted"
                           [formItem]="taskChain"
                           [results]="results.rows"
