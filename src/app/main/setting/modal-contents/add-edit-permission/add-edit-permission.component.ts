@@ -108,6 +108,10 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
           name: 'Thêm, Sửa, Xóa Vai trò',
         },
         {
+          key: EPerActSetting.VIEW_USER_ACCESS,
+          name: 'Xem Nhân viên',
+        },
+        {
           key: EPerActSetting.VIEW_USER_ACCESS_BIZ,
           name: 'Xem toàn bộ nhân sự trong Nhân viên',
         },
@@ -116,7 +120,11 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
           name: 'Gán quyền cho nhân sự',
         },
         {
-          key: EPerActSetting.PERMISSION_SETTING_ACCESS,
+          key: EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
+          name: 'Xem Quyền',
+        },
+        {
+          key: EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
           name: 'Thêm, Sửa, Xóa Quyền',
         },
       ],

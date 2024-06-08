@@ -61,7 +61,7 @@ export class PermissionsComponent
     this.item.paramsQuery.filter = JSON.stringify({retrieveUser: true});
     const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
     this.permission.edit = this.permission.add = permissions?.some(
-      (per) => per === EPerActSetting.PERMISSION_SETTING_ACCESS,
+      (per) => per === EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
     );
     if (!this.permission.add) {
       this.configButtons = this.configButtons?.filter(

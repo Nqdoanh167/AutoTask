@@ -179,7 +179,8 @@ export class AuthService {
             this.checkUserPer(EPerActType.SETTING, [
               EPerActSetting.VIEW_USER_ACCESS_BIZ,
               EPerActSetting.UPDATE_USER_ACCESS,
-              EPerActSetting.PERMISSION_SETTING_ACCESS,
+              EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
+              EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
             ])
           ) {
             accessibleSites[module].push(ESettingTab.DECENTRALIZATION);

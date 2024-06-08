@@ -35,7 +35,10 @@ export class DecentralizationComponent implements OnInit, OnDestroy {
     }
     if (
       permissions.find((p) =>
-        [EPerActSetting.PERMISSION_SETTING_ACCESS].includes(p as any),
+        [
+          EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
+          EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
+        ].includes(p as any),
       )
     ) {
       this.tabs.push({key: ETabPermissions.PERMISSION, name: 'Quyền'});

@@ -106,7 +106,7 @@ export class EmployeeComponent
     this.permission.removePer =
       this.isInPermissionModal &&
       permissions?.some(
-        (per) => per === EPerActSetting.PERMISSION_SETTING_ACCESS,
+        (per) => per === EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
       );
   }
 
