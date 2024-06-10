@@ -25,6 +25,7 @@ import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {ToastrService} from 'ngx-toastr';
+import {uniqBy} from 'lodash';
 
 @Component({
   selector: 'app-employee',
@@ -132,10 +133,14 @@ export class EmployeeComponent
     this.listBizUsers = this.listFilteredBizUsers =
       this.listBizUsers?.map((user) => {
         const userAcl = data?.find((item) => item.userId === user.id);
+        const userAclBranches = uniqBy(
+          [...(userAcl?.branches || []), ...user.branches],
+          'id',
+        );
         return {
           ...user,
           ...({
-            aclBranches: userAcl?.branches || user.branches,
+            aclBranches: userAclBranches,
             isActiveAcl: userAcl?.isActive,
           } as CombinedUserAcl),
         };
@@ -237,7 +242,6 @@ Nhân viên bị loại bỏ quyền có thể không được phép truy cập 
   handleChangeBatchAction(action: EBatchActionEmployeePer) {
     if (action === EBatchActionEmployeePer.REMOVE) {
       const selectedRows = this.getCheckRows();
-      console.log(selectedRows);
       this.removePerOfEmployees(selectedRows);
     }
     this.selectBatchActions?.handleClearClick();
