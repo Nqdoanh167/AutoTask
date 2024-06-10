@@ -1073,35 +1073,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let obj = JSON.parse(filter);
         if (Array.isArray(value) && value.length > 0) {
           obj[name] = value;
-          if (name === 'chainActIds') {
-            const selectedChains = this.actionChains.rows.filter((chain) =>
-              value.includes(chain.id),
-            );
-            const actions = selectedChains?.reduce((acc: any[], chain) => {
-              return uniqBy(
-                [
-                  ...acc,
-                  ...chain?.actionResults?.map((chainActResult) => {
-                    return chainActResult.action;
-                  }),
-                ],
-                'id',
-              );
-            }, []);
-            const configFilterAction = this.configFilters.find(
-              (filter) => filter.name === 'actionIds',
-            );
-            if (configFilterAction) {
-              configFilterAction.options = actions?.filter(
-                (actions) => !!actions,
-              );
-            }
-          }
         } else if (
           typeof value === 'string' &&
           (!!value || Number(value) === 0)
         ) {
           obj[name] = value;
+          // if (name === 'chainActId') {
+          //   const selectedChains = this.actionChains.rows.filter((chain) =>
+          //     value.includes(chain.id),
+          //   );
+          //   const actions = selectedChains?.reduce((acc: any[], chain) => {
+          //     return uniqBy(
+          //       [
+          //         ...acc,
+          //         ...chain?.actionResults?.map((chainActResult) => {
+          //           return chainActResult.action;
+          //         }),
+          //       ],
+          //       'id',
+          //     );
+          //   }, []);
+          //   const configFilterAction = this.configFilters.find(
+          //     (filter) => filter.name === 'actionIds',
+          //   );
+          //   if (configFilterAction) {
+          //     configFilterAction.options = actions?.filter(
+          //       (actions) => !!actions,
+          //     );
+          //   }
+          // }
         } else {
           delete obj[name];
           if (name === 'chainActIds') {
