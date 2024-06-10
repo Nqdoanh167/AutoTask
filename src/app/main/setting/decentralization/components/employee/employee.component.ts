@@ -128,58 +128,49 @@ export class EmployeeComponent
       });
   }
 
+  private findAclById(aclList: any[], id: any): any {
+    return aclList?.find((item) => item.userId === id);
+  }
+
+  private findPropertyById(list: any[], id: any): any {
+    return list?.find((item) => item.id === id);
+  }
+
+  private mapProperties(properties: any[], aclProperties: any[]): any[] {
+    return properties?.map((property) => {
+      const aclProperty = this.findPropertyById(aclProperties, property.id);
+      return {
+        ...property,
+        ...aclProperty,
+        departments: this.mapProperties(
+          property.departments,
+          aclProperty?.departments,
+        ),
+      };
+    });
+  }
+
   handleMapData(data: UserAcl[], onlyHasAcl = false) {
     this.listBizUsers = this.listFilteredBizUsers =
       this.listBizUsers?.map((user) => {
-        const userAcl = data?.find((item) => item.userId === user.id);
-        const userAclBranches = user.roleBranches?.map((branch) => {
-          const branchAcl = userAcl?.branches?.find(
-            (item) => item.id === branch.id,
-          );
-          return {
-            ...branch,
-            ...branchAcl,
-            departments: branch?.departments?.map((department) => {
-              const departmentAcl = branchAcl?.departments?.find(
-                (item) => item.id === department.id,
-              );
-              return {
-                ...department,
-                ...departmentAcl,
-                teams: department?.teams?.map((team) => {
-                  const teamAcl = departmentAcl?.teams?.find(
-                    (item) => item.id === team.id,
-                  );
-                  return {
-                    ...team,
-                    ...teamAcl,
-                  };
-                }),
-              };
-            }),
-          };
-        }) as any;
+        const userAcl = this.findAclById(data, user.id);
         return {
           ...user,
-          ...({
-            aclBranches: userAclBranches,
-            isActiveAcl: userAcl?.isActive,
-          } as CombinedUserAcl),
+          aclBranches: this.mapProperties(user.roleBranches, userAcl?.branches),
+          isActiveAcl: userAcl?.isActive,
         };
       }) || [];
-    // if onlyHasAcl is true, only show users that have acl, even both isActiveAcl is true or false
+
     if (onlyHasAcl) {
       this.listBizUsers = this.listFilteredBizUsers =
         this.listFilteredBizUsers.filter(
           (user) => user.isActiveAcl !== undefined,
         );
     }
+
     if (this.isInPermissionModal) {
       this.item.rows = this.listFilteredBizUsers;
     }
-    console.log(
-      this.listFilteredBizUsers.find((user) => user.name === 'Kiên Nguyễn Văn'),
-    );
   }
 
   override handleAction(name: string) {
