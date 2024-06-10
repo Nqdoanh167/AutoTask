@@ -341,7 +341,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   handleCheckPermission() {
-    const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
+    const permissions = [
+      ...this.authService.getUserPerByType(EPerActType.TASK),
+      ...this.authService.getUserPerByType(EPerActType.SETTING),
+      ...this.authService.getUserPerByType(EPerActType.FLOW),
+    ];
     if (
       permissions.some((per) =>
         [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW].includes(
