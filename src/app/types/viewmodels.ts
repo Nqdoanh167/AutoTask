@@ -135,6 +135,7 @@ export interface User {
   };
   groupIds?: string[];
   branches: Branch[];
+  roleBranches: Branch[];
   branchIds: string[];
   groups?: BizGroup[];
   roleIds?: string[];

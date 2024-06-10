@@ -17,7 +17,6 @@ import {
   CombinedUserAcl,
   Permission,
   UpdateUserAclDto,
-  UserAcl,
   UserAclBranch,
   UserAclDepartment,
   UserAclTeam,

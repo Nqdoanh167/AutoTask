@@ -25,7 +25,6 @@ import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {ToastrService} from 'ngx-toastr';
-import {uniqBy} from 'lodash';
 
 @Component({
   selector: 'app-employee',
@@ -133,10 +132,33 @@ export class EmployeeComponent
     this.listBizUsers = this.listFilteredBizUsers =
       this.listBizUsers?.map((user) => {
         const userAcl = data?.find((item) => item.userId === user.id);
-        const userAclBranches = uniqBy(
-          [...(userAcl?.branches || []), ...user.branches],
-          'id',
-        );
+        const userAclBranches = user.roleBranches?.map((branch) => {
+          const branchAcl = userAcl?.branches?.find(
+            (item) => item.id === branch.id,
+          );
+          return {
+            ...branch,
+            ...branchAcl,
+            departments: branch?.departments?.map((department) => {
+              const departmentAcl = branchAcl?.departments?.find(
+                (item) => item.id === department.id,
+              );
+              return {
+                ...department,
+                ...departmentAcl,
+                teams: department?.teams?.map((team) => {
+                  const teamAcl = departmentAcl?.teams?.find(
+                    (item) => item.id === team.id,
+                  );
+                  return {
+                    ...team,
+                    ...teamAcl,
+                  };
+                }),
+              };
+            }),
+          };
+        }) as any;
         return {
           ...user,
           ...({
@@ -155,6 +177,9 @@ export class EmployeeComponent
     if (this.isInPermissionModal) {
       this.item.rows = this.listFilteredBizUsers;
     }
+    console.log(
+      this.listFilteredBizUsers.find((user) => user.name === 'Kiên Nguyễn Văn'),
+    );
   }
 
   override handleAction(name: string) {
