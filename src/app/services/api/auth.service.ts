@@ -6,10 +6,8 @@ import {BizService} from './biz.service';
 import {
   Biz,
   BizModule,
-  EFlowTab,
   EModule,
   ERole,
-  ESettingTab,
   IBranch,
   User,
 } from 'src/app/types/viewmodels';
@@ -27,6 +25,7 @@ import {
   listDashboardNavItems,
   listSettingNavItems,
 } from '@app/variable';
+import uniq from 'lodash/uniq';
 
 @Injectable({
   providedIn: 'root',
@@ -207,6 +206,20 @@ export class AuthService {
   getUserPerByType(type: EPerActType) {
     const userPer = this.userAccessPerSubject.getValue();
     return userPer?.[type] || [];
+  }
+
+  // Get all user in the same branch with current user
+  getColleague() {
+    const users = this.currentBizSubject.getValue()?.users;
+    const currentUser = this.currentBizSubject.getValue()?.user;
+    const postLastBranches = currentUser?.posLastBranches;
+    if (currentUser?.role == ERole.OWNER) {
+      return users;
+    }
+    const colleagueIds = postLastBranches?.reduce((acc: string[], branch) => {
+      return [...acc, ...(branch.userIds || [])];
+    }, []);
+    return users?.filter((user) => colleagueIds.includes(user.id));
   }
 
   isOwner(): boolean {

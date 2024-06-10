@@ -36,6 +36,7 @@ import moment from 'moment/moment';
 import {cloneDeep, isEqual, uniqBy} from 'lodash';
 import {AuthService} from '@app/services/api/auth.service';
 import {
+  EPerActFlow,
   EPerActSetting,
   EPerActTask,
   EPerActType,
@@ -76,100 +77,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       placeholder: 'Tìm kiếm...',
     },
     {
-      type: ETypeFilter.SELECT,
-      name: 'actionStates',
-      placeholder: 'Trạng thái hành động',
-      options: [
-        {
-          label: 'Hành động đã trễ',
-          value: EActionStates.OVERDUE,
-        },
-        {
-          label: 'Hành động hẹn giờ',
-          value: EActionStates.DUE_SOON,
-        },
-        {
-          label: 'Hành động hoàn thành',
-          value: EActionStates.EXECUTED,
-        },
-        // {
-        //   label: 'Ẩn chuỗi đã đóng',
-        //   value: EActionStates.HIDE_FULL_EXECUTED,
-        // },
-      ],
-      bindLabel: 'label',
-      bindValue: 'value',
-      clearable: true,
-      multiple: true,
-      minWidth: '200px',
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'chainActId',
-      placeholder: 'Chuỗi hành động',
-      options: [
-        {
-          id: 'NONE',
-          name: 'Chưa gán chuỗi',
-        },
-      ],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: false,
-      onSearch: (event: any) => this.handleSearchActChain(event),
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'actionIds',
-      placeholder: 'Hành động',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'tags',
-      placeholder: 'Tag',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'resultIds',
-      placeholder: 'Kết quả',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'teamId',
-      placeholder: 'Nhân sự phụ trách',
-      options: [],
-      bindLabel: 'label',
-      bindValue: 'value',
-      clearable: true,
-      searchable: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
       type: ETypeFilter.POPOVER,
       name: 'sort',
       placeholder: 'Sắp xếp',
@@ -206,14 +113,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'sourceIds',
-      placeholder: 'Nguồn dữ liệu',
+      name: 'actionStates',
+      placeholder: 'Trạng thái hành động',
+      options: [
+        {
+          label: 'Hành động đã trễ',
+          value: EActionStates.OVERDUE,
+        },
+        {
+          label: 'Hành động hẹn giờ',
+          value: EActionStates.DUE_SOON,
+        },
+        {
+          label: 'Hành động hoàn thành',
+          value: EActionStates.EXECUTED,
+        },
+        // {
+        //   label: 'Ẩn chuỗi đã đóng',
+        //   value: EActionStates.HIDE_FULL_EXECUTED,
+        // },
+      ],
+      bindLabel: 'label',
+      bindValue: 'value',
+      clearable: true,
+      multiple: true,
+      minWidth: '200px',
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
+    },
+    {
+      type: ETypeFilter.SELECT,
+      name: 'teamId',
+      placeholder: 'Nhân sự phụ trách',
       options: [],
       bindLabel: 'name',
       bindValue: 'id',
       clearable: true,
       searchable: true,
-      multiple: true,
       botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
@@ -355,14 +290,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe((biz) => {
         if (biz) {
           this.currentBiz = biz.alias || '';
-          this.configFilters[6].options = [
-            {label: 'Chưa gán nhân sự phụ trách', value: 'NONE'},
-          ].concat(
-            biz?.users?.map((user) => ({
-              label: user.name,
-              value: user.id as any,
-            })),
+          this.authService.getColleague();
+          const configFilterStaff = this.configFilters.find(
+            (filter) => filter.name === 'teamId',
           );
+          if (configFilterStaff) {
+            configFilterStaff.options = [
+              {name: 'Chưa gán nhân sự phụ trách', id: 'NONE'},
+            ].concat(this.authService.getColleague());
+          }
         }
       });
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((q) => {
@@ -384,11 +320,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.getActionChain();
-    this.getResult();
-    this.getAction();
-    this.getTag();
-    this.getSource();
+    this.handleCheckPermission();
     this.handleActiveViewMode();
     const permissions = this.authService.getUserPerByType(EPerActType.TASK);
     this.permission.edit = this.hasPermission(
@@ -405,6 +337,112 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
     if (!this.permission.add) {
       this.configButtons[2].hidden = true;
+    }
+  }
+
+  handleCheckPermission() {
+    const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
+    if (
+      permissions.some((per) =>
+        [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW].includes(
+          per as EPerActFlow,
+        ),
+      )
+    ) {
+      this.getActionChain();
+      this.getResult();
+      this.getAction();
+      this.configFilters = [
+        ...this.configFilters,
+        ...[
+          {
+            type: ETypeFilter.SELECT,
+            name: 'chainActId',
+            placeholder: 'Chuỗi hành động',
+            options: [
+              {
+                id: 'NONE',
+                name: 'Chưa gán chuỗi',
+              },
+            ],
+            bindLabel: 'name',
+            bindValue: 'id',
+            clearable: true,
+            searchable: true,
+            multiple: false,
+            onSearch: (event: any) => this.handleSearchActChain(event),
+            botherType: EBotherAdvanceBasicFilter.ADVANCE,
+          },
+          {
+            type: ETypeFilter.SELECT,
+            name: 'actionIds',
+            placeholder: 'Hành động',
+            options: [],
+            bindLabel: 'name',
+            bindValue: 'id',
+            clearable: true,
+            searchable: true,
+            multiple: true,
+            botherType: EBotherAdvanceBasicFilter.ADVANCE,
+          },
+          {
+            type: ETypeFilter.SELECT,
+            name: 'resultIds',
+            placeholder: 'Kết quả',
+            options: [],
+            bindLabel: 'name',
+            bindValue: 'id',
+            clearable: true,
+            searchable: true,
+            multiple: true,
+            botherType: EBotherAdvanceBasicFilter.ADVANCE,
+          },
+        ],
+      ];
+    }
+    if (
+      permissions.some((per) =>
+        [
+          EPerActSetting.VIEW_SOURCE_SETTING,
+          EPerActSetting.UPDATE_SOURCE_SETTING,
+        ].includes(per as EPerActSetting),
+      )
+    ) {
+      this.getSource();
+      this.configFilters.push({
+        type: ETypeFilter.SELECT,
+        name: 'sourceIds',
+        placeholder: 'Nguồn dữ liệu',
+        options: [],
+        bindLabel: 'name',
+        bindValue: 'id',
+        clearable: true,
+        searchable: true,
+        multiple: true,
+        botherType: EBotherAdvanceBasicFilter.ADVANCE,
+      });
+    }
+    if (
+      permissions.some((per) =>
+        [
+          EPerActSetting.VIEW_TAG_SETTING,
+          EPerActSetting.UPDATE_TAG_SETTING,
+        ].includes(per as EPerActSetting),
+      )
+    ) {
+      this.getTag();
+      this.configFilters.push({
+        type: ETypeFilter.SELECT,
+        name: 'tagIds',
+        placeholder: 'Tag',
+        options: [],
+        bindLabel: 'name',
+        bindValue: 'id',
+        clearable: true,
+        searchable: true,
+        multiple: true,
+        botherType: EBotherAdvanceBasicFilter.ADVANCE,
+      });
     }
   }
 
@@ -623,10 +661,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.actionChains.rows.concat(res.data),
               'id',
             );
-            this.configFilters[2].options = [
-              ...(this.configFilters[2].options || []),
-              ...this.actionChains.rows,
-            ];
+            const configFilterChain = this.configFilters.find(
+              (filter) => filter.name === 'chainActId',
+            );
+            if (configFilterChain) {
+              configFilterChain.options = [
+                {id: 'NONE', name: 'Chưa gán chuỗi'},
+              ].concat(this.actionChains.rows);
+            }
             this.actionChains.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -657,7 +699,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.results.rows.concat(res.data),
               'id',
             );
-            this.configFilters[5].options = this.results.rows;
+            const configFilterResult = this.configFilters.find(
+              (filter) => filter.name === 'resultIds',
+            );
+            if (configFilterResult) {
+              configFilterResult.options = this.results.rows;
+            }
             this.results.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -688,7 +735,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.actions.rows.concat(res.data),
               'id',
             );
-            this.configFilters[3].options = this.actions.rows;
+            const configFilterAction = this.configFilters.find(
+              (filter) => filter.name === 'actionIds',
+            );
+            if (configFilterAction) {
+              configFilterAction.options = this.actions.rows;
+            }
             this.actions.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -718,7 +770,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.sources.rows.concat(res.data),
               'id',
             );
-            this.configFilters[8].options = this.sources.rows;
+            const configFilterSource = this.configFilters.find(
+              (filter) => filter.name === 'sourceIds',
+            );
+            if (configFilterSource) {
+              configFilterSource.options = this.sources.rows;
+            }
             this.sources.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -745,7 +802,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res.status === 200) {
             this.tags.rows = uniqBy(this.tags.rows.concat(res.data), 'id');
-            this.configFilters[4].options = this.tags.rows;
+            const configFilterTag = this.configFilters.find(
+              (filter) => filter.name === 'tagIds',
+            );
+            if (configFilterTag) {
+              configFilterTag.options = this.tags.rows;
+            }
             this.tags.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -989,7 +1051,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       delete this.dataSource.paramsQuery.sort;
     }
-    this.configFilters[7].value = data.value;
+    const configFilterPopover = this.configFilters.find(
+      (filter) => filter.name === 'sort',
+    );
+    if (configFilterPopover) {
+      configFilterPopover.value = data.value;
+    }
     if (data.value !== this.currentActiveViewMode?.options?.sort) {
       this.handleViewModeChange(true);
     }
@@ -1017,9 +1084,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 'id',
               );
             }, []);
-            this.configFilters[3].options = actions?.filter(
-              (actions) => !!actions,
+            const configFilterAction = this.configFilters.find(
+              (filter) => filter.name === 'actionIds',
             );
+            if (configFilterAction) {
+              configFilterAction.options = actions?.filter(
+                (actions) => !!actions,
+              );
+            }
           }
         } else if (
           typeof value === 'string' &&
@@ -1029,7 +1101,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         } else {
           delete obj[name];
           if (name === 'chainActIds') {
-            this.configFilters[3].options = this.actions.rows;
+            const configFilterAction = this.configFilters.find(
+              (filter) => filter.name === 'actionIds',
+            );
+            if (configFilterAction) {
+              configFilterAction.options = this.actions.rows;
+            }
           }
         }
         this.dataSource.paramsQuery.filter = JSON.stringify(obj);

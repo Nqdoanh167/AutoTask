@@ -24,7 +24,7 @@ import {
   Warehouse,
 } from '@app/types/viewmodels';
 import {ProductService} from '@app/services/api/product.service';
-import {pick, uniq, uniqBy} from 'lodash';
+import {pick, uniqBy} from 'lodash';
 import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
 import {ToastrService} from 'ngx-toastr';

@@ -113,6 +113,15 @@ export interface ITag {
   createdBy?: Partial<AccountPublic>;
   updatedBy?: Partial<AccountPublic>;
 }
+export interface IPosLastBranches {
+  id: string;
+  name: string;
+  role: BizRole;
+  teams: string[];
+  departments: string[];
+  userIds: string[];
+}
+
 export interface User {
   id: string;
   name: string;
@@ -136,6 +145,7 @@ export interface User {
   groupIds?: string[];
   branches: Branch[];
   roleBranches: Branch[];
+  posLastBranches: IPosLastBranches[];
   branchIds: string[];
   groups?: BizGroup[];
   roleIds?: string[];

@@ -22,7 +22,7 @@ import {
   UserAclTeam,
 } from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {pick} from 'lodash';
+import pick from 'lodash/pick';
 
 @Component({
   selector: 'app-modal-employee-info',
