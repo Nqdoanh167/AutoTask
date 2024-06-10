@@ -38,7 +38,7 @@ export class HasPermissionAccessModuleGuard implements CanActivate {
           if (listModuleCanAccess?.[0]) {
             this.router.navigate(['/' + listModuleCanAccess[0]]);
           } else {
-            this.router.navigate(['/']);
+            window.location.href = '/';
           }
           return of(false);
         }

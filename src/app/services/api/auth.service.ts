@@ -114,7 +114,6 @@ export class AuthService {
     autoTaskService.permission.getUserPermissions().subscribe({
       next: (res) => {
         if (res.status === 200) {
-          console.log('res', res);
           this.userAccessPerSubject.next(res.data);
         } else {
           window.location.href = '/';
@@ -160,6 +159,10 @@ export class AuthService {
         ?.map((item) => item.alias!);
       accessibleSites[module] = [...sites];
     });
+    // if all key of accessibleSites is empty, return empty object
+    if (!Object.values(accessibleSites).some((sites) => sites.length > 0)) {
+      window.location.href = '/';
+    }
     return accessibleSites;
   }
 
@@ -171,6 +174,9 @@ export class AuthService {
         accessibleModules.push(module);
       }
     });
+    if (accessibleModules.length === 0) {
+      window.location.href = '/';
+    }
     return accessibleModules;
   }
 
