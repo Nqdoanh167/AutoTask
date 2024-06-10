@@ -37,6 +37,7 @@ import {MycurrencyModule} from '@app/share/pipe/mycurrency.module';
 import {HistoryComponent} from './content-modal/history/history.component';
 import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
 import {InputMaskModule} from '@app/share/input/input-mask/input-mask.module';
+import {TreeSelectModule} from 'primeng/treeselect';
 
 @NgModule({
   declarations: [
@@ -82,6 +83,7 @@ import {InputMaskModule} from '@app/share/input/input-mask/input-mask.module';
     CustomInputSearchComponent,
     ViewModeTabComponent,
     CustomDatePickerComponent,
+    TreeSelectModule,
   ],
 })
 export class DashboardModule {}

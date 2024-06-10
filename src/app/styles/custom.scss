@@ -1491,6 +1491,43 @@ i {
   border-right-color: white;
 }
 
+// TREE_SELECT
+.custom-tree-select {
+  display: flex;
+  align-items: center;
+  border: none;
+  background-color: #e7e9ef;
+
+  .p-treeselect-label {
+    font-size: 14px;
+  }
+
+  .p-placeholder {
+    font-size: 13px;
+  }
+
+  .p-treeselect-items-wrapper {
+    .p-tree-selectable {
+      padding: 10px;
+
+      .p-treenode-content {
+        font-size: 14px;
+        padding: 0;
+      }
+
+      .p-treenode-children {
+        padding-left: 10px;
+      }
+    }
+  }
+
+  &.is-invalid {
+    .p-inputwrapper {
+      border: 1px solid #dc3545;
+    }
+  }
+}
+
 // COMMON STYLE
 //.modal-open .modal {
 //  background: #00000077;

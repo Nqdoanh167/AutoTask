@@ -9,6 +9,7 @@ import {
   PrepaidCard,
   Product,
 } from '@app/types/viewmodels';
+import {ELevelPer} from '@app/types/setting';
 
 export enum ETabConfigData {
   ACTION = 'action',
@@ -326,14 +327,22 @@ export interface ITask {
   taskChainIds: string[];
   taskChains: ITaskChain[];
   teams?: ITeam[];
+  branch: IBranchTaskDto;
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;
   updatedAt: Date;
 }
 
+export interface IBranchTaskDto {
+  unit: ELevelPer;
+  name: string;
+  id: string;
+}
+
 export interface ITaskDto {
   name: string;
+  branch: IBranchTaskDto;
   leadDeal: ILeadDealDto;
   products: IProductDto[];
   counselorId: string;
@@ -379,4 +388,12 @@ export enum EActionStates {
   DUE_SOON = 'DUE_SOON',
   EXECUTED = 'EXECUTED',
   HIDE_FULL_EXECUTED = 'HIDE_FULL_EXECUTED',
+}
+
+export interface ModifiedUserUnit {
+  key: string;
+  label: string;
+  level: ELevelPer;
+  data: string;
+  children?: ModifiedUserUnit[];
 }

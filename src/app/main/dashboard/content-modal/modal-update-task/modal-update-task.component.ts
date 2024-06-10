@@ -18,6 +18,7 @@ import {
   ITaskChain,
   ITaskChainResult,
   ITaskDto,
+  ModifiedUserUnit,
 } from '@app/types/flow';
 import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {
@@ -54,7 +55,13 @@ import {environment} from '../../../../../environments/environment';
 import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal-call.component';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
-import {EPerActTask, EPerActType, ISetting, ISource} from '@app/types/setting';
+import {
+  ELevelPer,
+  EPerActTask,
+  EPerActType,
+  ISetting,
+  ISource,
+} from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
@@ -132,6 +139,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     teams: this.fb.array([]),
     sourceId: null,
     addChainActIds: null,
+    branch: [null, [Validators.required]],
   });
 
   public addTaskChainForm = this.fb.group({
@@ -219,6 +227,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   };
   public listBizUsers: User[] = [];
   public triggerCallHistory!: any;
+  public units: ModifiedUserUnit[] = [];
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
@@ -238,6 +248,35 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         } as any);
         this.listBizUsers = biz.users;
         this.currentBiz = biz;
+        if (biz?.user?.roleBranches) {
+          this.units = biz.user.roleBranches?.map((branch) => {
+            return {
+              key: branch.id,
+              data: branch.id,
+              label: branch.name,
+              selectable: !branch.departments?.length,
+              level: ELevelPer.BRANCH,
+              children: branch.departments?.map((department) => {
+                return {
+                  key: department.id,
+                  data: department.id,
+                  label: department.name,
+                  selectable: !department.teams?.length,
+                  level: ELevelPer.DEPARTMENT,
+                  children: department.teams?.map((team) => {
+                    return {
+                      key: team.id,
+                      data: team.id,
+                      label: team.name,
+                      selectable: true,
+                      level: ELevelPer.TEAM,
+                    };
+                  }),
+                };
+              }),
+            };
+          });
+        }
       });
   }
 
@@ -479,6 +518,41 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       },
       counselorId: dataSource?.counselor?.id,
     } as any);
+    this.units.forEach((branch) => {
+      if (branch.data === dataSource.branch?.id) {
+        this.updateForm.patchValue({
+          branch: {
+            level: branch.level,
+            label: branch.label,
+            data: branch.data,
+          } as any,
+        });
+      } else {
+        branch.children?.forEach((department) => {
+          if (department.data === dataSource.branch?.id) {
+            this.updateForm.patchValue({
+              branch: {
+                level: department.level,
+                label: department.label,
+                data: department.data,
+              } as any,
+            });
+          } else {
+            department.children?.forEach((team) => {
+              if (team.data === dataSource.branch?.id) {
+                this.updateForm.patchValue({
+                  branch: {
+                    level: team.level,
+                    label: team.label,
+                    data: team.data,
+                  } as any,
+                });
+              }
+            });
+          }
+        });
+      }
+    });
     this.formTaskChains.clear();
     dataSource.taskChains?.forEach((taskChain) => {
       const taskChainForm = this.fb.group({
@@ -764,10 +838,16 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleUpdate() {
+    const branchForm = this.f['branch'].value;
     return new Promise((resolve, reject) => {
       this.loading.submit = true;
       const body = {
         ...this.updateForm.value,
+        branch: {
+          unit: branchForm.level,
+          name: branchForm.label,
+          id: branchForm.data,
+        },
       } as unknown as ITaskDto as any;
       if (this.sourceData?.id) {
         delete body.addChainActIds;
@@ -1260,6 +1340,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  handleClickPTree(event: any) {
+    this.commonService.handleClickPTree(event);
   }
 
   ngOnDestroy(): void {

@@ -15,27 +15,21 @@
         </div>
       </ng-container>
       <ng-container modalTitleRight>
-        <div class="d-flex align-items-center justify-content-between">
-          <ng-select
-            [style.width]="'200px'"
-            [clearable]="false"
-            [searchable]="true"
-            [placeholder]="'Chọn chi nhánh...'"
-            appearance="outline"
-            [readonly]="true"
-            class="ng-select-custom dropdown-auto-width input-medium me-2"
-            appendTo=".modal-update-task"
-          >
-            <ng-option
-              *ngFor="let item of sources.rows"
-              [value]="item.id"
-              [disabled]="!item.isActive"
-            >
-              <div>
-                {{ item.name }}
-              </div>
-            </ng-option>
-          </ng-select>
+        <div class="d-flex align-items-center justify-content-between gap-3">
+          <div [style.width]="'250px'" id="categoryCode">
+            <p-treeSelect
+              [filter]="true"
+              [options]="units"
+              (click)="handleClickPTree($event)"
+              formControlName="branch"
+              class="w-100"
+              containerStyleClass="w-100 input-medium custom-tree-select"
+              [ngClass]="{
+                'is-invalid': submitted && f['branch'].errors
+              }"
+              placeholder="Chọn Đơn vị..."
+            ></p-treeSelect>
+          </div>
           <ng-select
             [style.width]="'200px'"
             [clearable]="false"

@@ -105,6 +105,31 @@ export class CommonService implements OnDestroy {
     this.listBreadcrumb$.next([this.defaultBreadcrumb, breadcrumb]);
   }
 
+  handleClickPTree(event: any) {
+    event.preventDefault();
+    try {
+      const node = event.target;
+      if (node.tagName === 'SPAN') {
+        const parent = node?.parentNode?.parentNode;
+        if (parent) {
+          Array.from(parent?.children)?.forEach((item: any) => {
+            if (item.tagName === 'BUTTON') {
+              item.click();
+            }
+          });
+        }
+      } else {
+        Array.from(node?.children)?.forEach((item: any) => {
+          if (item.tagName === 'BUTTON') {
+            item.click();
+          }
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy.next(true);
     this.destroy.complete();
