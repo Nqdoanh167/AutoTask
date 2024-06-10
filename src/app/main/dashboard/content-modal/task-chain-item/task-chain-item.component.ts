@@ -27,6 +27,8 @@ import {
   IChainResult,
   ITaskChain,
   ITaskChainResult,
+  IUpdateDeadlineTaskResult,
+  IUpdateTaskResultDto,
 } from '@app/types/flow';
 import {calculateTime} from '@app/utils/common';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
@@ -245,61 +247,89 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     if (!taskChainResult.id) return;
     const {note, resultIndex, reasonIndex, nextActions, deadlineDate, action} =
       this.formTaskChainResults().at(taskChainResultIndex).value;
-    const modifiedNextActions = nextActions.map((nextAction: any) => {
-      if (nextAction?.childNextAction) {
+    const originalDeadlineDate =
+      this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
+        ?.deadlineDate;
+    // check if deadlineDate is change
+    if (
+      new Date(originalDeadlineDate!).getTime() !==
+      new Date(deadlineDate).getTime()
+    ) {
+      const body = {
+        deadlineDate: deadlineDate.toISOString(),
+        note,
+      };
+      this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
+    } else {
+      const modifiedNextActions = nextActions.map((nextAction: any) => {
+        if (nextAction?.childNextAction) {
+          const modify = {
+            callBlockAutomation: nextAction?.childNextAction
+              ?.callBlockAutomation
+              ? nextAction?.childNextAction?.callBlockAutomation
+              : null,
+            moveToAction: nextAction?.childNextAction?.moveToAction
+              ? nextAction?.childNextAction?.moveToAction
+              : null,
+            addNewChain: nextAction?.childNextAction?.addNewChain
+              ? nextAction?.childNextAction?.addNewChain
+              : null,
+            closeCloneTask: nextAction?.childNextAction?.closeCloneTask
+              ? nextAction?.childNextAction?.closeCloneTask
+              : null,
+            nextAction: nextAction?.childNextAction?.nextAction,
+          };
+          return {
+            ...nextAction,
+            ...nextAction.childNextAction,
+            ...modify,
+          };
+        }
         const modify = {
-          callBlockAutomation: nextAction?.childNextAction?.callBlockAutomation
-            ? nextAction?.childNextAction?.callBlockAutomation
+          callBlockAutomation: nextAction.callToBlockId
+            ? {
+                blockId: nextAction.callToBlockId,
+              }
             : null,
-          moveToAction: nextAction?.childNextAction?.moveToAction
-            ? nextAction?.childNextAction?.moveToAction
+          moveToAction: nextAction.moveToActionId
+            ? {
+                chainActResultId: nextAction.moveToActionId,
+              }
             : null,
-          addNewChain: nextAction?.childNextAction?.addNewChain
-            ? nextAction?.childNextAction?.addNewChain
-            : null,
-          closeCloneTask: nextAction?.childNextAction?.closeCloneTask
-            ? nextAction?.childNextAction?.closeCloneTask
-            : null,
-          nextAction: nextAction?.childNextAction?.nextAction,
+          closeCloneTask: nextAction.closeCloneTask || null,
         };
         return {
           ...nextAction,
-          ...nextAction.childNextAction,
           ...modify,
         };
-      }
-      const modify = {
-        callBlockAutomation: nextAction.callToBlockId
-          ? {
-              blockId: nextAction.callToBlockId,
-            }
+      });
+      const body = {
+        note,
+        resultIndex: resultIndex || resultIndex === 0 ? resultIndex : null,
+        reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
+        nextActions: modifiedNextActions,
+        deadlineDate: deadlineDate,
+        chain: this.staticDataChainItem,
+        callBlockAutomation: action.callBlockAutomation.blockId
+          ? action.callBlockAutomation
           : null,
-        moveToAction: nextAction.moveToActionId
-          ? {
-              chainActResultId: nextAction.moveToActionId,
-            }
-          : null,
-        closeCloneTask: nextAction.closeCloneTask || null,
       };
-      return {
-        ...nextAction,
-        ...modify,
-      };
-    });
-    const body = {
-      note,
-      resultIndex: resultIndex || resultIndex === 0 ? resultIndex : null,
-      reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
-      nextActions: modifiedNextActions,
-      deadlineDate: deadlineDate,
-      chain: this.staticDataChainItem,
-      callBlockAutomation: action.callBlockAutomation.blockId
-        ? action.callBlockAutomation
-        : null,
-    };
+      this.handleUpdateTaskChainResult(
+        taskChainResult.id,
+        taskChainResultIndex,
+        body,
+      );
+    }
+  }
+
+  handleUpdateDeadline(
+    taskChainResultId: string,
+    taskChainResultIndex: number,
+    body: IUpdateDeadlineTaskResult,
+  ) {
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
-      .update(taskChainResult.id, body)
+      .updateDeadline(taskChainResultId, body)
       .pipe(finalize(() => (this.loading.submit = false)))
       .subscribe({
         next: (res) => {
@@ -315,7 +345,32 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
             this.commonService.handleResErr(res);
           }
         },
-        error: (err) => this.commonService.handleErr(err),
+      });
+  }
+
+  handleUpdateTaskChainResult(
+    taskChainResultId: string,
+    taskChainResultIndex: number,
+    body: IUpdateTaskResultDto,
+  ) {
+    this.loading.submit = true;
+    this.autoTaskService.taskChainResult
+      .update(taskChainResultId, body)
+      .pipe(finalize(() => (this.loading.submit = false)))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+            if (res.data.executedDate) {
+              this.formTaskChainResults().at(taskChainResultIndex).patchValue({
+                executedDate: res.data.executedDate,
+              });
+            }
+            this.updateTaskChainEvent.emit();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
       });
   }
 

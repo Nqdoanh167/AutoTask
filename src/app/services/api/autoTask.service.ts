@@ -25,6 +25,7 @@ import {
   ITaskChainResult,
   ITaskDto,
   IUpdateChainActDto,
+  IUpdateDeadlineTaskResult,
   IUpdateTaskResultDto,
 } from '@app/types/flow';
 import {
@@ -293,6 +294,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     update: (id: string, body: IUpdateTaskResultDto) =>
       this.httpClient.patch<EntityResult<ITaskChainResult>>(
         this.createUrl([this.api.taskChainResult, id]),
+        body,
+      ),
+    updateDeadline: (id: string, body: IUpdateDeadlineTaskResult) =>
+      this.httpClient.patch<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'deadline']),
         body,
       ),
     sendBlock: (id: string) =>

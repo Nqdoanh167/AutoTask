@@ -366,6 +366,9 @@ export interface IUpdateTaskResultDto {
   nextActions?: IChainNextAction[];
 }
 
+export interface IUpdateDeadlineTaskResult
+  extends Pick<IUpdateTaskResultDto, 'note' | 'deadlineDate'> {}
+
 export enum EStatusTaskChainResult {
   DONE = 'DONE',
   UNDONE = 'UNDONE',
