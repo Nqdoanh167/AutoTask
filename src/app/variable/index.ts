@@ -1,4 +1,12 @@
-import {IColumns, IDataColumns} from '../types/viewmodels';
+import {
+  EFlowTab,
+  EModule,
+  ESettingTab,
+  IColumns,
+  IDataColumns,
+  ISidebar,
+} from '../types/viewmodels';
+import {EPerActFlow, EPerActSetting, EPerActTask} from '@app/types/setting';
 
 export const listColumns: IDataColumns = {
   columnDashboardAutoTask: [
@@ -68,3 +76,76 @@ export const listColumnsDashboardDefault: IColumns[] =
       'createdAt',
     ].includes(el.value),
   );
+
+export const listSettingNavItems: ISidebar[] = [
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.SOURCE}`,
+    alias: ESettingTab.SOURCE,
+    name: 'Nguồn dữ liệu',
+    isActive: true,
+    permissions: [
+      EPerActSetting.VIEW_SOURCE_SETTING,
+      EPerActSetting.UPDATE_SOURCE_SETTING,
+    ],
+  },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.TAG}`,
+    alias: ESettingTab.TAG,
+    name: 'Tag',
+    isActive: true,
+    permissions: [
+      EPerActSetting.VIEW_TAG_SETTING,
+      EPerActSetting.UPDATE_TAG_SETTING,
+    ],
+  },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
+    alias: ESettingTab.DECENTRALIZATION,
+    name: 'Phân quyền',
+    isActive: true,
+    permissions: [
+      EPerActSetting.VIEW_USER_ACCESS_BIZ,
+      EPerActSetting.VIEW_USER_ACCESS,
+      EPerActSetting.UPDATE_USER_ACCESS,
+      EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
+      EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
+    ],
+  },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
+    alias: ESettingTab.ROLE,
+    name: 'Vai trò',
+    isActive: true,
+    permissions: [
+      EPerActSetting.VIEW_ROLE_SETTING,
+      EPerActSetting.UPDATE_ROLE_SETTING,
+    ],
+  },
+];
+
+export const listDashboardNavItems: ISidebar[] = [
+  {
+    link: `/${EModule.DASHBOARD}`,
+    alias: '',
+    name: 'Quản lý Task',
+    isActive: true,
+    permissions: [EPerActTask.VIEW_TASK, EPerActTask.VIEW_TASK_BIZ],
+  },
+];
+
+export const listConfigNavItems: ISidebar[] = [
+  {
+    link: `/${EModule.CONFIG}/${EFlowTab.RULE}`,
+    alias: EFlowTab.RULE,
+    name: 'Cấu hình quy tắc',
+    isActive: true,
+    permissions: [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW],
+  },
+  {
+    link: `/${EModule.CONFIG}/${EFlowTab.DATA}`,
+    alias: EFlowTab.DATA,
+    name: 'Cấu hình dữ liệu',
+    isActive: true,
+    permissions: [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW],
+  },
+];

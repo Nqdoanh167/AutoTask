@@ -1552,13 +1552,14 @@ export interface Source {
 
 export interface ISidebar {
   link: string;
-  alias?: string;
+  alias: string;
   name: string;
   icon?: string;
   iconActive?: string;
   isActive: boolean;
   children?: ISidebar[];
   disabled?: boolean;
+  permissions?: any[];
 }
 
 export enum EModule {

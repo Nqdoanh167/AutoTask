@@ -3,13 +3,12 @@ import {Title} from '@angular/platform-browser';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {filter, map} from 'rxjs';
 import {AuthService} from '../services/api/auth.service';
+import {Biz, EModule, ISidebar} from '../types/viewmodels';
 import {
-  Biz,
-  EFlowTab,
-  EModule,
-  ESettingTab,
-  ISidebar,
-} from '../types/viewmodels';
+  listConfigNavItems,
+  listDashboardNavItems,
+  listSettingNavItems,
+} from '@app/variable';
 
 @Component({
   selector: 'app-main',
@@ -22,53 +21,9 @@ export class MainComponent implements OnInit {
 
   public listNavItems: ISidebar[] = [];
 
-  public listConfigNavItems: ISidebar[] = [
-    {
-      link: `/${EModule.CONFIG}/${EFlowTab.RULE}`,
-      alias: EFlowTab.RULE,
-      name: 'Cấu hình quy tắc',
-      isActive: true,
-    },
-    {
-      link: `/${EModule.CONFIG}/${EFlowTab.DATA}`,
-      alias: EFlowTab.DATA,
-      name: 'Cấu hình dữ liệu',
-      isActive: true,
-    },
-  ];
-  public listDashboardNavItems: ISidebar[] = [
-    {
-      link: `/${EModule.DASHBOARD}`,
-      name: 'Quản lý Task',
-      isActive: true,
-    },
-  ];
-  public listSettingNavItems: ISidebar[] = [
-    {
-      link: `/${EModule.SETTING}/${ESettingTab.SOURCE}`,
-      alias: ESettingTab.SOURCE,
-      name: 'Nguồn dữ liệu',
-      isActive: true,
-    },
-    {
-      link: `/${EModule.SETTING}/${ESettingTab.TAG}`,
-      alias: ESettingTab.TAG,
-      name: 'Tag',
-      isActive: true,
-    },
-    {
-      link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
-      alias: ESettingTab.DECENTRALIZATION,
-      name: 'Phân quyền',
-      isActive: true,
-    },
-    {
-      link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
-      alias: ESettingTab.ROLE,
-      name: 'Vai trò',
-      isActive: true,
-    },
-  ];
+  public listConfigNavItems: ISidebar[] = listConfigNavItems;
+  public listDashboardNavItems: ISidebar[] = listDashboardNavItems;
+  public listSettingNavItems: ISidebar[] = listSettingNavItems;
   constructor(
     private router: Router,
     private authService: AuthService,

@@ -22,6 +22,11 @@ import {
   EPerActType,
   UserPerAccess,
 } from '@app/types/setting';
+import {
+  listConfigNavItems,
+  listDashboardNavItems,
+  listSettingNavItems,
+} from '@app/variable';
 
 @Injectable({
   providedIn: 'root',
@@ -128,65 +133,32 @@ export class AuthService {
       [EModule.SETTING]: [],
     };
     const accessibleModules = this.getAccessibleModules();
+    const userPer = this.userAccessPerSubject.getValue();
     accessibleModules.forEach((module) => {
+      let key: EPerActType;
+      let listNavItems: any[] = [];
       switch (module) {
         case EModule.DASHBOARD:
-          if (
-            this.checkUserPer(EPerActType.TASK, [
-              EPerActTask.VIEW_TASK,
-              EPerActTask.VIEW_TASK_BIZ,
-            ])
-          ) {
-            accessibleSites[module] = [EModule.DASHBOARD];
-          }
+          key = EPerActType.TASK;
+          listNavItems = listDashboardNavItems;
           break;
         case EModule.CONFIG:
-          if (
-            this.checkUserPer(EPerActType.FLOW, [
-              EPerActFlow.VIEW_FLOW,
-              EPerActFlow.UPDATE_FLOW,
-            ])
-          ) {
-            accessibleSites[module] = [EFlowTab.DATA, EFlowTab.RULE];
-          }
+          key = EPerActType.FLOW;
+          listNavItems = listConfigNavItems;
           break;
         case EModule.SETTING:
-          if (
-            this.checkUserPer(EPerActType.SETTING, [
-              EPerActSetting.VIEW_SOURCE_SETTING,
-              EPerActSetting.UPDATE_SOURCE_SETTING,
-            ])
-          ) {
-            accessibleSites[module].push(ESettingTab.SOURCE);
-          }
-          if (
-            this.checkUserPer(EPerActType.SETTING, [
-              EPerActSetting.VIEW_TAG_SETTING,
-              EPerActSetting.UPDATE_TAG_SETTING,
-            ])
-          ) {
-            accessibleSites[module].push(ESettingTab.TAG);
-          }
-          if (
-            this.checkUserPer(EPerActType.SETTING, [
-              EPerActSetting.VIEW_ROLE_SETTING,
-              EPerActSetting.UPDATE_ROLE_SETTING,
-            ])
-          ) {
-            accessibleSites[module].push(ESettingTab.ROLE);
-          }
-          if (
-            this.checkUserPer(EPerActType.SETTING, [
-              EPerActSetting.VIEW_USER_ACCESS_BIZ,
-              EPerActSetting.UPDATE_USER_ACCESS,
-              EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
-              EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
-            ])
-          ) {
-            accessibleSites[module].push(ESettingTab.DECENTRALIZATION);
-          }
+          key = EPerActType.SETTING;
+          listNavItems = listSettingNavItems;
           break;
       }
+      const sites = listNavItems
+        ?.filter((item) => {
+          return !!item?.permissions?.some((per: any) => {
+            return (userPer?.[key] as any)?.includes(per);
+          });
+        })
+        ?.map((item) => item.alias!);
+      accessibleSites[module] = [...sites];
     });
     return accessibleSites;
   }

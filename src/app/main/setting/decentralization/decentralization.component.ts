@@ -28,7 +28,8 @@ export class DecentralizationComponent implements OnInit, OnDestroy {
         [
           EPerActSetting.UPDATE_USER_ACCESS,
           EPerActSetting.VIEW_USER_ACCESS_BIZ,
-        ].includes(p as any),
+          EPerActSetting.VIEW_USER_ACCESS,
+        ].includes(p as EPerActSetting),
       )
     ) {
       this.tabs.push({key: ETabPermissions.EMPLOYEE, name: 'Nhân viên'});
@@ -38,7 +39,7 @@ export class DecentralizationComponent implements OnInit, OnDestroy {
         [
           EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
           EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
-        ].includes(p as any),
+        ].includes(p as EPerActSetting),
       )
     ) {
       this.tabs.push({key: ETabPermissions.PERMISSION, name: 'Quyền'});
