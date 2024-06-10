@@ -20,6 +20,9 @@ import {
   EPerActType,
   Permission,
   UserAcl,
+  UserAclBranch,
+  UserAclDepartment,
+  UserAclTeam,
 } from '@app/types/setting';
 import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
@@ -128,22 +131,28 @@ export class EmployeeComponent
       });
   }
 
-  private findAclById(aclList: any[], id: any): any {
+  private findAclById(aclList: UserAcl[], id: string): UserAcl | undefined {
     return aclList?.find((item) => item.userId === id);
   }
 
-  private findPropertyById(list: any[], id: any): any {
+  private findPropertyById(
+    list: (UserAclBranch | UserAclDepartment | UserAclTeam | any)[],
+    id: string,
+  ): any {
     return list?.find((item) => item.id === id);
   }
 
-  private mapProperties(properties: any[], aclProperties: any[]): any[] {
+  private mapProperties<T>(
+    properties: (T | any)[],
+    aclProperties: (T | any)[],
+  ): any[] {
     return properties?.map((property) => {
       const aclProperty = this.findPropertyById(aclProperties, property.id);
       return {
         ...property,
         ...aclProperty,
-        departments: this.mapProperties(
-          property.departments,
+        departments: this.mapProperties<UserAclDepartment>(
+          property?.departments,
           aclProperty?.departments,
         ),
       };
@@ -156,10 +165,13 @@ export class EmployeeComponent
         const userAcl = this.findAclById(data, user.id);
         return {
           ...user,
-          aclBranches: this.mapProperties(user.roleBranches, userAcl?.branches),
+          aclBranches: this.mapProperties<UserAclBranch>(
+            user.roleBranches,
+            userAcl?.branches || [],
+          ),
           isActiveAcl: userAcl?.isActive,
-        };
-      }) || [];
+        } as CombinedUserAcl;
+      }) || ([] as CombinedUserAcl[]);
 
     if (onlyHasAcl) {
       this.listBizUsers = this.listFilteredBizUsers =
