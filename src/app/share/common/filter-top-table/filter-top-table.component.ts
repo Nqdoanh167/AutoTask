@@ -2,8 +2,9 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
+  OnInit,
   Output,
-  SimpleChanges,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
@@ -16,11 +17,10 @@ import {
 } from '@app/types/common';
 import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
 import {PopoverModule} from 'ngx-bootstrap/popover';
-import {IDateRange, ObjectAny} from '@app/types/viewmodels';
+import {IDateRange} from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {Subject, filter, takeUntil} from 'rxjs';
+import {Subject, takeUntil} from 'rxjs';
 import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
-import {cloneDeep, isEmpty} from 'lodash';
 
 @Component({
   selector: 'app-filter-top-table',
@@ -35,7 +35,7 @@ import {cloneDeep, isEmpty} from 'lodash';
   templateUrl: './filter-top-table.component.html',
   styleUrls: ['./filter-top-table.component.scss'],
 })
-export class FilterTopTableComponent {
+export class FilterTopTableComponent implements OnInit, OnDestroy {
   @Output() pickerDateEvent = new EventEmitter<{
     value: IDateRange | Date;
     name: string;
@@ -45,7 +45,10 @@ export class FilterTopTableComponent {
   @Output() selectEvent = new EventEmitter<{value?: string; name: string}>();
   @Output() scrollToEndEvent = new EventEmitter<string>();
   @Output() clickButtonEvent = new EventEmitter<string>();
-  @Output() toggleButtonEvent = new EventEmitter<{value: boolean; name?: string}>();
+  @Output() toggleButtonEvent = new EventEmitter<{
+    value: boolean;
+    name?: string;
+  }>();
 
   @Input() configFilters: IFilterTopTable[] = [];
   @Input() configButtons: IFilterTopButton[] = [];
@@ -80,7 +83,9 @@ export class FilterTopTableComponent {
   }
   getDefaultValuePopover(name?: string) {
     const filter = this.configFilters.find((item) => item.name === name);
-    return filter?.options?.find((item) => filter.value === item['value'])?.['label'];  
+    return filter?.options?.find((item) => filter.value === item['value'])?.[
+      'label'
+    ];
   }
   handleOpenPopover(event: any) {
     // this.filteredTabs = this.tabs;
@@ -116,6 +121,7 @@ export class FilterTopTableComponent {
     this.handleSearchingView(term, name);
     this.searchEvent.emit({term, name});
   }
+
   onPickerDateAdvance(
     value: IDateRange | Date,
     name: string = 'date',

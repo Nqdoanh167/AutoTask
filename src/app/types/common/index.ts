@@ -53,6 +53,7 @@ export interface IFilterTopButton {
   loading?: boolean;
   disabled?: boolean;
   value?: any;
+  hidden?: boolean;
 }
 
 export interface ITabFilter {

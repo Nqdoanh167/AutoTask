@@ -66,9 +66,10 @@
   >
     <div class="modal-body">
       <div class="d-flex flex-column justify-content-center align-items-center">
-        <h5 class="modal-title pull-left text-center">
-          {{ modalContent.title }}
-        </h5>
+        <h5
+          class="modal-title pull-left text-center"
+          [innerHTML]="modalContent.title"
+        ></h5>
         <p
           class="mb-2 text-description"
           style="white-space: pre-line"
@@ -77,6 +78,12 @@
       </div>
       <div class="mb-3">
         <ng-content select="[childContent]"></ng-content>
+        @if (modalContent.errorState) {
+          <div class="state-warning d-flex gap-2">
+            <div><i class="fa-solid fa-circle-info"></i></div>
+            <div>{{ modalContent.errorState }}</div>
+          </div>
+        }
       </div>
       <div
         class="d-flex justify-content-center gap-2 mt-2"

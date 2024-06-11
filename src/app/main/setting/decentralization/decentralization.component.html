@@ -1,0 +1,32 @@
+<div class="setting-decentralization-site">
+  <div class="card">
+    <div class="card-body">
+      <tabset class="custom-tab-basic">
+        <tab
+          *ngFor="let tab of tabs"
+          [active]="tab.key === activeTab"
+          (selectTab)="selectTab(tab.key)"
+        >
+          <ng-template tabHeading>
+            <div class="title-tab">
+              <span>{{ tab.name }}</span>
+            </div>
+          </ng-template>
+        </tab>
+      </tabset>
+      <div class="content-site mt-2">
+        @switch (activeTab) {
+          @case (ETabPermissions.EMPLOYEE) {
+            <app-employee></app-employee>
+          }
+          @case (ETabPermissions.PERMISSION) {
+            <app-permissions></app-permissions>
+          }
+          @default {
+            <div class="center-item mt-5 mb-5">Không có quyền truy cập</div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

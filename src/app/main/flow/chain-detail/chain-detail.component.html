@@ -1,49 +1,85 @@
 <div class="chain-detail-site">
   <div class="card">
     <div class="card-body">
-      <div class="header-site d-flex justify-content-between align-items-center">
+      <div
+        class="header-site d-flex justify-content-between align-items-center"
+      >
         <div class="d-flex align-items-center gap-5">
           <span class="fw-bold">{{ detailChain?.name || '-' }}</span>
           <div class="form-check form-switch mb-0">
-            <input checked="{{ detailChain?.isActive ? 'checked' : null }}" (change)="handleUpdateChain($event)"
-              class="form-check-input" type="checkbox" role="switch" id="isActiveChain" />
-            <label class="form-check-label form-control-label mb-0" for="isActiveChain">
+            <input
+              checked="{{ detailChain?.isActive ? 'checked' : null }}"
+              (change)="handleUpdateChain($event)"
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              id="isActiveChain"
+            />
+            <label
+              class="form-check-label form-control-label mb-0"
+              for="isActiveChain"
+            >
               Trạng thái kich hoạt
             </label>
           </div>
-          <div *ngIf="!!detailChain" class="d-flex justify-content-center align-items-center gap-2">
+          <div
+            *ngIf="!!detailChain"
+            class="d-flex justify-content-center align-items-center gap-2"
+          >
             <label class="form-control-label mb-0">
               Độ trễ chuỗi
-              <i class="fa-regular fa-circle-question ms-1" tooltip="Sau bao lâu thực hiện hành động đầu tiên của chuỗi"
-                placement="right"></i>
+              <i
+                class="fa-regular fa-circle-question ms-1"
+                tooltip="Sau bao lâu thực hiện hành động đầu tiên của chuỗi"
+                placement="right"
+              ></i>
             </label>
-            <ng-select [style.width]="'130px'" [placeholder]="'Chọn loại'" [(ngModel)]="fistActionDelay.delayType"
-              (change)="fistActionDelay.delayValue = undefined" [ngClass]="{
+            <ng-select
+              [style.width]="'130px'"
+              [placeholder]="'Chọn loại'"
+              [(ngModel)]="fistActionDelay.delayType"
+              (change)="fistActionDelay.delayValue = undefined"
+              [ngClass]="{
                 'is-invalid':
                   submitted && fistActionDelay.delayType === undefined
-              }" [clearable]="false" [searchable]="false" class="dropdown-auto-width" id="delayType-first-action"
-              appendTo="body">
+              }"
+              [clearable]="false"
+              [searchable]="false"
+              class="dropdown-auto-width"
+              id="delayType-first-action"
+              appendTo="body"
+            >
               <ng-option [value]="EDelayType.NOW">Ngay lập tức</ng-option>
               <ng-option [value]="EDelayType.MINUTE">Phút</ng-option>
               <ng-option [value]="EDelayType.HOUR">Giờ</ng-option>
               <ng-option [value]="EDelayType.DAY">Ngày</ng-option>
             </ng-select>
-            <div *ngIf="
+            <div
+              *ngIf="
                 ![undefined, EDelayType.NOW].includes(fistActionDelay.delayType)
-              " [style.width]="'150px'">
-              <input [ngClass]="{
+              "
+              [style.width]="'150px'"
+            >
+              <input
+                [ngClass]="{
                   'is-invalid':
                     submitted &&
                     (fistActionDelay.delayValue === undefined ||
                       fistActionDelay.delayValue === null)
-                }" placeholder="Nhập số nguyên" class="input-medium" type="number"
-                [(ngModel)]="fistActionDelay.delayValue" />
+                }"
+                placeholder="Nhập số nguyên"
+                class="input-medium"
+                type="number"
+                [(ngModel)]="fistActionDelay.delayValue"
+              />
             </div>
           </div>
         </div>
         <div>
-          <app-filter-top-table [configButtons]="configButtons"
-            (clickButtonEvent)="handleAction($event)"></app-filter-top-table>
+          <app-filter-top-table
+            [configButtons]="configButtons"
+            (clickButtonEvent)="handleAction($event)"
+          ></app-filter-top-table>
         </div>
       </div>
       <div class="table-responsive tableFixHead custom-scrollbar mt-3">
@@ -58,18 +94,27 @@
               <th class="columns-next-action">Bước tiếp theo</th>
               <th class="columns-duration">
                 Độ trễ
-                <i class="fa-regular fa-circle-question ms-1" tooltip="Khoảng thời gian thực hiện hành động kế"
-                  placement="right"></i>
+                <i
+                  class="fa-regular fa-circle-question ms-1"
+                  tooltip="Khoảng thời gian thực hiện hành động kế"
+                  placement="right"
+                ></i>
               </th>
             </tr>
           </thead>
           <tbody cdkDropList (cdkDropListDropped)="dropRow($event)">
-            <tr class="text-center" *ngIf="!detailChain?.actionResults?.length && !loading.detail">
+            <tr
+              class="text-center"
+              *ngIf="!detailChain?.actionResults?.length && !loading.detail"
+            >
               <td colspan="12">
                 <div class="mt-3">Không có dữ liệu</div>
                 <div class="mt-3">
                   Kiểm tra và thêm hành động vào chuỗi
-                  <span (click)="handleNavigate('?tab=chain_action')" class="text-link cursor-pointer fw-500">
+                  <span
+                    (click)="handleNavigate('?tab=chain_action')"
+                    class="text-link cursor-pointer fw-500"
+                  >
                     tại đây
                   </span>
                 </div>
@@ -83,11 +128,13 @@
                 <div>Loading</div>
               </td>
             </tr>
-            <ng-container *ngFor="
+            <ng-container
+              *ngFor="
                 let item of detailChain?.actionResults;
                 index as i;
                 let lastAction = last
-              ">
+              "
+            >
               <tr cdkDrag cdkDragLockAxis="y" class="rootRow">
                 <td class="" colspan="1">
                   <div class="d-flex align-items-center">
@@ -96,44 +143,86 @@
                 </td>
                 <td class="columns-action">
                   <div class="d-flex gap-2">
-                    <div cdkDragHandle (click)="$event.preventDefault()"
-                      class="d-flex align-items-center cursor-pointer button-more-option">
+                    <div
+                      cdkDragHandle
+                      (click)="$event.preventDefault()"
+                      class="d-flex align-items-center cursor-pointer button-more-option"
+                    >
                       <img src="./assets/images/icon/dragDrop.svg" alt="" />
                     </div>
-                    <ng-select [style.width]="'95%'" [placeholder]="'Chọn hành động'" [searchable]="false"
-                      (open)="!actions.rows.length && getAction()" [loading]="actions.loading"
-                      (scrollToEnd)="handleLoadMore('action')" (change)="handleChangeAction($event, i, item)"
-                      [(ngModel)]="item.actionId" [ngClass]="{
+                    <ng-select
+                      [style.width]="'95%'"
+                      [placeholder]="'Chọn hành động'"
+                      [searchable]="false"
+                      (open)="!actions.rows.length && getAction()"
+                      [loading]="actions.loading"
+                      (scrollToEnd)="handleLoadMore('action')"
+                      (change)="handleChangeAction($event, i, item)"
+                      [(ngModel)]="item.actionId"
+                      [ngClass]="{
                         'is-invalid': submitted && !item.actionId
-                      }" [clearable]="false" class="dropdown-auto-width" id="actions-{{ i }}" appendTo="body">
-                      <ng-option *ngFor="let action of actions.rows" [value]="action.id"
-                        [disabled]="getActionIds().includes(action.id)">
+                      }"
+                      [clearable]="false"
+                      class="dropdown-auto-width"
+                      id="actions-{{ i }}"
+                      appendTo="body"
+                    >
+                      <ng-option
+                        *ngFor="let action of actions.rows"
+                        [value]="action.id"
+                        [disabled]="getActionIds().includes(action.id)"
+                      >
                         {{ action.name }}
                       </ng-option>
                     </ng-select>
-                    <div style="width: 30px"
-                      class="button-more-option d-flex justify-content-center align-items-center">
-                      <div class="dropdown" dropdown container="body" placement="right">
+                    <div
+                      style="width: 30px"
+                      class="button-more-option d-flex justify-content-center align-items-center"
+                    >
+                      <div
+                        class="dropdown"
+                        dropdown
+                        container="body"
+                        placement="right"
+                      >
                         <button dropdownToggle type="button">
                           <i class="fa-solid fa-ellipsis-vertical"></i>
                         </button>
-                        <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown-menu-custom"
-                          aria-labelledby="my-dropdown">
-                          <button class="dropdown-item" type="button" (click)="handleAddAction(i)">
+                        <div
+                          *dropdownMenu
+                          class="dropdown-menu dropdown-menu-right dropdown-menu-custom"
+                          aria-labelledby="my-dropdown"
+                        >
+                          <button
+                            class="dropdown-item"
+                            type="button"
+                            (click)="handleAddAction(i)"
+                          >
                             <div class="d-flex align-items-center">
                               <i class="fa-solid fa-plus me-2"></i>
                               <span>Thêm hành động lên trên</span>
                             </div>
                           </button>
-                          <button class="dropdown-item" type="button" (click)="handleAddAction(i + 1)">
+                          <button
+                            class="dropdown-item"
+                            type="button"
+                            (click)="handleAddAction(i + 1)"
+                          >
                             <div class="d-flex align-items-center">
                               <i class="fa-solid fa-plus me-2"></i>
                               <span>Thêm hành động xuống dưới</span>
                             </div>
                           </button>
-                          <button class="dropdown-item text-danger" type="button" (click)="handleRemoveAction(i, item)">
+                          <button
+                            class="dropdown-item text-danger"
+                            type="button"
+                            (click)="handleRemoveAction(i, item)"
+                          >
                             <div class="d-flex align-items-center">
-                              <i style="color: #ef6a6a" class="fa-solid fa-trash-can me-2"></i>
+                              <i
+                                style="color: #ef6a6a"
+                                class="fa-solid fa-trash-can me-2"
+                              ></i>
                               <span>Xóa hành động</span>
                             </div>
                           </button>
@@ -143,13 +232,17 @@
                   </div>
                 </td>
                 <td class="columns-step-or-center content">
-                  <div [class.mt-2]="!firstResult" *ngFor="
+                  <div
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
                       let result of item.results;
                       let resultIndex = index;
                       let firstResult = first;
                       let lastResult = last
-                    ">
-                    <div [ngClass]="{
+                    "
+                  >
+                    <div
+                      [ngClass]="{
                         'columns-step-item--first':
                           item.results.length !== 1 && firstResult,
                         'columns-step-item--last':
@@ -159,66 +252,117 @@
                           !firstResult &&
                           !lastResult &&
                           item.results.length !== 1
-                      }" class="columns-step-item"></div>
-                    <div *ngFor="
+                      }"
+                      class="columns-step-item"
+                    ></div>
+                    <div
+                      *ngFor="
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
                         let firstAction = first;
                         let lastNextAction = last
-                      ">
-                      <div *ngIf="!firstAction" [class.padding-temp]="!lastResult"></div>
+                      "
+                    >
+                      <div
+                        *ngIf="!firstAction"
+                        [class.padding-temp]="!lastResult"
+                      ></div>
                     </div>
                     <div [class.padding-button-temp]="!lastResult"></div>
                   </div>
                 </td>
-                <td cdkDropList (cdkDropListDropped)="dropResultRow($event, item.results)"
-                  class="columns-result group-data">
-                  <div [class.mt-2]="!firstResult" *ngFor="
+                <td
+                  cdkDropList
+                  (cdkDropListDropped)="dropResultRow($event, item.results)"
+                  class="columns-result group-data"
+                >
+                  <div
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
                       let result of item.results;
                       let resultIndex = index;
                       let firstResult = first;
                       let lastResult = last
-                    ">
+                    "
+                  >
                     <div cdkDrag cdkDragLockAxis="y" class="row result-item">
                       <div class="d-flex align-items-center">
-                        <div cdkDragHandle (click)="$event.preventDefault()"
-                          class="d-flex align-items-center cursor-pointer me-2 button-more-option">
+                        <div
+                          cdkDragHandle
+                          (click)="$event.preventDefault()"
+                          class="d-flex align-items-center cursor-pointer me-2 button-more-option"
+                        >
                           <img src="./assets/images/icon/dragDrop.svg" alt="" />
                         </div>
-                        <ng-select [style.width]="'95%'" [placeholder]="'Chọn kết quả'" [searchable]="false"
-                          [items]="results.rows" (open)="!results.rows.length && getResult()"
-                          [loading]="results.loading" (scrollToEnd)="handleLoadMore('result')"
-                          [(ngModel)]="result.resultId" [ngClass]="{
+                        <ng-select
+                          [style.width]="'95%'"
+                          [placeholder]="'Chọn kết quả'"
+                          [searchable]="false"
+                          [items]="results.rows"
+                          (open)="!results.rows.length && getResult()"
+                          [loading]="results.loading"
+                          (scrollToEnd)="handleLoadMore('result')"
+                          [(ngModel)]="result.resultId"
+                          [ngClass]="{
                             'is-invalid': submitted && !result.resultId
-                          }" [clearable]="false" class="ng-select-custom dropdown-auto-width input-medium"
-                          id="results-{{ resultIndex }}" bindLabel="name" bindValue="id" appendTo="body"></ng-select>
-                        <div style="width: 30px"
-                          class="button-more-option d-flex justify-content-center align-items-center">
-                          <div class="dropdown" container="body" dropdown placement="right">
+                          }"
+                          [clearable]="false"
+                          class="ng-select-custom dropdown-auto-width input-medium"
+                          id="results-{{ resultIndex }}"
+                          bindLabel="name"
+                          bindValue="id"
+                          appendTo="body"
+                        ></ng-select>
+                        <div
+                          style="width: 30px"
+                          class="button-more-option d-flex justify-content-center align-items-center"
+                        >
+                          <div
+                            class="dropdown"
+                            container="body"
+                            dropdown
+                            placement="right"
+                          >
                             <button dropdownToggle type="button">
                               <i class="fa-solid fa-ellipsis-vertical"></i>
                             </button>
-                            <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown-menu-custom"
-                              aria-labelledby="my-dropdown">
-                              <button class="dropdown-item" type="button"
-                                (click)="handleAddResult(item, i, resultIndex)">
+                            <div
+                              *dropdownMenu
+                              class="dropdown-menu dropdown-menu-right dropdown-menu-custom"
+                              aria-labelledby="my-dropdown"
+                            >
+                              <button
+                                class="dropdown-item"
+                                type="button"
+                                (click)="handleAddResult(item, i, resultIndex)"
+                              >
                                 <div class="d-flex align-items-center">
                                   <i class="fa-solid fa-plus me-2"></i>
                                   <span>Thêm kết quả lên trên</span>
                                 </div>
                               </button>
-                              <button class="dropdown-item" type="button" (click)="
+                              <button
+                                class="dropdown-item"
+                                type="button"
+                                (click)="
                                   handleAddResult(item, i, resultIndex + 1)
-                                ">
+                                "
+                              >
                                 <div class="d-flex align-items-center">
                                   <i class="fa-solid fa-plus me-2"></i>
                                   <span>Thêm kết quả xuống dưới</span>
                                 </div>
                               </button>
-                              <button class="dropdown-item text-danger" type="button"
-                                (click)="handleRemoveResult(i, resultIndex)">
+                              <button
+                                class="dropdown-item text-danger"
+                                type="button"
+                                (click)="handleRemoveResult(i, resultIndex)"
+                              >
                                 <div class="d-flex align-items-center">
-                                  <i style="color: #ef6a6a" class="fa-solid fa-trash-can me-2"></i>
+                                  <i
+                                    style="color: #ef6a6a"
+                                    class="fa-solid fa-trash-can me-2"
+                                  ></i>
                                   <span>Xóa kết quả</span>
                                 </div>
                               </button>
@@ -227,36 +371,55 @@
                         </div>
                       </div>
                     </div>
-                    <div *ngFor="
+                    <div
+                      *ngFor="
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
                         let firstAction = first
-                      ">
-                      <div *ngIf="!firstAction" class="" [class.padding-temp]="!lastResult"></div>
+                      "
+                    >
+                      <div
+                        *ngIf="!firstAction"
+                        class=""
+                        [class.padding-temp]="!lastResult"
+                      ></div>
                     </div>
-                    <div class="" [class.padding-button-temp]="!lastResult"></div>
+                    <div
+                      class=""
+                      [class.padding-button-temp]="!lastResult"
+                    ></div>
                   </div>
                   <div>
-                    <button type="button" class="btn button-add-row text-link w-100 mt-2"
-                      (click)="handleAddResult(item, i)">
+                    <button
+                      type="button"
+                      class="btn button-add-row text-link w-100 mt-2"
+                      (click)="handleAddResult(item, i)"
+                    >
                       <i class="fa-solid fa-plus me-1"></i>
                       Thêm kết quả
                     </button>
                   </div>
                 </td>
                 <td class="columns-step-center content">
-                  <div [class.mt-2]="!firstResult" *ngFor="
+                  <div
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
                       let result of item.results;
                       let resultIndex = index;
                       let firstResult = first;
                       let lastResult = last
-                    ">
-                    <div class="columns-step-item" *ngFor="
+                    "
+                  >
+                    <div
+                      class="columns-step-item"
+                      *ngFor="
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
                         let firstAction = first;
                         let lastNextAction = last
-                      " [class.mt-2]="!firstAction" [ngClass]="{
+                      "
+                      [class.mt-2]="!firstAction"
+                      [ngClass]="{
                         'columns-step-item--first':
                           result['nextActions'].length !== 1 && firstAction,
                         'columns-step-item--last':
@@ -267,45 +430,81 @@
                           !firstAction &&
                           !lastNextAction &&
                           result['nextActions'].length !== 1
-                      }"></div>
-                    <div *ngIf="!result['nextActions'].length" [style.height]="'36px'"></div>
+                      }"
+                    ></div>
+                    <div
+                      *ngIf="!result['nextActions'].length"
+                      [style.height]="'36px'"
+                    ></div>
                     <div class="padding-button-temp"></div>
                   </div>
                 </td>
                 <td class="columns-next-action">
-                  <div class="group-data" [class.mt-2]="!firstResult" *ngFor="
+                  <div
+                    class="group-data"
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
                       let result of item.results;
                       let resultIndex = index;
                       let firstResult = first
-                    " cdkDropList (cdkDropListDropped)="
+                    "
+                    cdkDropList
+                    (cdkDropListDropped)="
                       dropResultRow($event, result['nextActions'])
-                    ">
-                    <div class="data-item" *ngFor="
+                    "
+                  >
+                    <div
+                      class="data-item"
+                      *ngFor="
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
                         let firstAction = first;
                         let lastNextAction = last
-                      ">
-                      <div cdkDrag cdkDragLockAxis="y" class="d-flex align-items-center">
-                        <div cdkDragHandle (click)="$event.preventDefault()"
-                          class="d-flex align-items-center cursor-pointer me-2 button-more-option">
+                      "
+                    >
+                      <div
+                        cdkDrag
+                        cdkDragLockAxis="y"
+                        class="d-flex align-items-center"
+                      >
+                        <div
+                          cdkDragHandle
+                          (click)="$event.preventDefault()"
+                          class="d-flex align-items-center cursor-pointer me-2 button-more-option"
+                        >
                           <img src="./assets/images/icon/dragDrop.svg" alt="" />
                         </div>
-                        <div style="width: 95%" class="row result-item gx-2" [class.mt-2]="!firstAction">
+                        <div
+                          style="width: 95%"
+                          class="row result-item gx-2"
+                          [class.mt-2]="!firstAction"
+                        >
                           <div class="col">
-                            <ng-select [ngClass]="{
+                            <ng-select
+                              [ngClass]="{
                                 'is-invalid':
                                   submitted &&
                                   ((result.resultId &&
                                     nextAction.nextAction === undefined) ||
                                     !result.resultId)
-                              }" [placeholder]="'Chọn hành động'" [searchable]="false" [items]="nextStepTypes"
-                              [(ngModel)]="nextAction.nextAction" (change)="handleChangeNextAction(nextAction)"
-                              [clearable]="false" class="dropdown-auto-width" id="action-{{ nextActionIndex }}-{{
+                              }"
+                              [placeholder]="'Chọn hành động'"
+                              [searchable]="false"
+                              [items]="nextStepTypes"
+                              [(ngModel)]="nextAction.nextAction"
+                              (change)="handleChangeNextAction(nextAction)"
+                              [clearable]="false"
+                              class="dropdown-auto-width"
+                              id="action-{{ nextActionIndex }}-{{
                                 resultIndex
-                              }}" bindLabel="label" bindValue="value" appendTo="body"></ng-select>
+                              }}"
+                              bindLabel="label"
+                              bindValue="value"
+                              appendTo="body"
+                            ></ng-select>
                           </div>
-                          <div *ngIf="
+                          <div
+                            *ngIf="
                               nextAction.nextAction &&
                               [
                                 ENextStepType.CALL_BLOCK_AUTOMATION,
@@ -313,67 +512,114 @@
                                 ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK,
                                 ENextStepType.ADD_CHAIN
                               ].includes(nextAction.nextAction)
-                            " class="col">
-                            <div *ngIf="
+                            "
+                            class="col"
+                          >
+                            <div
+                              *ngIf="
                                 nextAction.nextAction ===
                                 ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK
-                              ">
-                              <ng-select [ngClass]="{
+                              "
+                            >
+                              <ng-select
+                                [ngClass]="{
                                   'is-invalid':
                                     submitted &&
                                     ((result.resultId &&
                                       !nextAction.closeCloneTask?.length) ||
                                       !result.resultId)
-                                }" [(ngModel)]="nextAction.closeCloneTask" [placeholder]="'Chọn thông tin'"
-                                [searchable]="true" [closeOnSelect]="false" [items]="optionToCloneTask" [multiple]="true" [clearable]="false"
-                                class="dropdown-auto-width custom-input-multiple-round" id="clone-{{ nextActionIndex }}-{{
+                                }"
+                                [(ngModel)]="nextAction.closeCloneTask"
+                                [placeholder]="'Chọn thông tin'"
+                                [searchable]="true"
+                                [closeOnSelect]="false"
+                                [items]="optionToCloneTask"
+                                [multiple]="true"
+                                [clearable]="false"
+                                class="dropdown-auto-width custom-input-multiple-round"
+                                id="clone-{{ nextActionIndex }}-{{
                                   resultIndex
-                                }}" bindLabel="label" bindValue="value" appendTo="body">
+                                }}"
+                                bindLabel="label"
+                                bindValue="value"
+                                appendTo="body"
+                              >
                                 <ng-template ng-multi-label-tmp>
                                   <div class="mb-1">
-                                    {{ nextAction.closeCloneTask?.length }} thông tin sẽ sao chép
+                                    {{ nextAction.closeCloneTask?.length }}
+                                    thông tin sẽ sao chép
                                   </div>
                                 </ng-template>
                               </ng-select>
                             </div>
-                            <div *ngIf="
+                            <div
+                              *ngIf="
                                 nextAction.nextAction ===
                                 ENextStepType.CALL_BLOCK_AUTOMATION
-                              ">
-                              <ng-select [ngClass]="{
+                              "
+                            >
+                              <ng-select
+                                [ngClass]="{
                                   'is-invalid':
                                     submitted &&
                                     ((result.resultId &&
                                       nextAction.callToBlockId === undefined) ||
                                       !result.resultId)
-                                }" [(ngModel)]="nextAction.callToBlockId" [placeholder]="'Chọn Block'"
-                                [searchable]="true" [items]="blocks.rows" [loading]="blocks.loading" [clearable]="false"
-                                class="dropdown-auto-width" id="block-{{ nextActionIndex }}-{{
+                                }"
+                                [(ngModel)]="nextAction.callToBlockId"
+                                [placeholder]="'Chọn Block'"
+                                [searchable]="true"
+                                [items]="blocks.rows"
+                                [loading]="blocks.loading"
+                                [clearable]="false"
+                                class="dropdown-auto-width"
+                                id="block-{{ nextActionIndex }}-{{
                                   resultIndex
-                                }}" bindLabel="name" bindValue="id" appendTo="body"></ng-select>
+                                }}"
+                                bindLabel="name"
+                                bindValue="id"
+                                appendTo="body"
+                              ></ng-select>
                             </div>
-                            <div *ngIf="
+                            <div
+                              *ngIf="
                                 nextAction.nextAction ===
                                 ENextStepType.ADD_CHAIN
-                              ">
-                              <ng-select [ngClass]="{
+                              "
+                            >
+                              <ng-select
+                                [ngClass]="{
                                   'is-invalid':
                                     submitted &&
                                     ((result.resultId &&
                                       nextAction.addNewChainActId ===
                                         undefined) ||
                                       !result.resultId)
-                                }" [(ngModel)]="nextAction.addNewChainActId" (change)="
+                                }"
+                                [(ngModel)]="nextAction.addNewChainActId"
+                                (change)="
                                   handleChangeActionFromNewChain(
                                     $event,
                                     nextAction
                                   )
-                                " [placeholder]="'Chọn HĐ từ chuỗi khác'" [searchable]="true" [items]="
+                                "
+                                [placeholder]="'Chọn HĐ từ chuỗi khác'"
+                                [searchable]="true"
+                                [items]="
                                   actionChains.rows
                                     | filterData: [detailChain?.id] : ['id']
-                                " [loading]="actionChains.loading" [clearable]="false" class="dropdown-auto-width" id="actionChain-{{ nextActionIndex }}-{{
+                                "
+                                [loading]="actionChains.loading"
+                                [clearable]="false"
+                                class="dropdown-auto-width"
+                                id="actionChain-{{ nextActionIndex }}-{{
                                   resultIndex
-                                }}" bindLabel="name" bindValue="id" groupBy="actionResults" appendTo="body">
+                                }}"
+                                bindLabel="name"
+                                bindValue="id"
+                                groupBy="actionResults"
+                                appendTo="body"
+                              >
                                 <ng-template ng-optgroup-tmp let-item="item">
                                   {{ item?.name || '-' }}
                                 </ng-template>
@@ -390,23 +636,36 @@
                                 </ng-template>
                               </ng-select>
                             </div>
-                            <div *ngIf="
+                            <div
+                              *ngIf="
                                 nextAction.nextAction ===
                                 ENextStepType.CONTINUE_TO_NEXT_ACTION
-                              ">
-                              <ng-select [ngClass]="{
+                              "
+                            >
+                              <ng-select
+                                [ngClass]="{
                                   'is-invalid':
                                     submitted &&
                                     ((result.resultId &&
                                       !nextAction.moveToActionId) ||
                                       !result.resultId)
-                                }" [(ngModel)]="nextAction.moveToActionId" [placeholder]="'Chọn Hành động'"
-                                [searchable]="false" [clearable]="false" class="dropdown-auto-width" id="block-{{ nextActionIndex }}-{{
+                                }"
+                                [(ngModel)]="nextAction.moveToActionId"
+                                [placeholder]="'Chọn Hành động'"
+                                [searchable]="false"
+                                [clearable]="false"
+                                class="dropdown-auto-width"
+                                id="block-{{ nextActionIndex }}-{{
                                   resultIndex
-                                }}" appendTo="body">
-                                <ng-option *ngFor="
+                                }}"
+                                appendTo="body"
+                              >
+                                <ng-option
+                                  *ngFor="
                                     let option of filterActionResults(item.id)
-                                  " [value]="option.id">
+                                  "
+                                  [value]="option.id"
+                                >
                                   {{ option.action?.name || '-' }}
                                 </ng-option>
                               </ng-select>
@@ -440,44 +699,69 @@
                           <!--                            </ng-select>-->
                           <!--                          </div>-->
                         </div>
-                        <div class="button-more-option d-flex justify-content-center align-items-center">
-                          <div class="dropdown" container="body" dropdown placement="right">
+                        <div
+                          class="button-more-option d-flex justify-content-center align-items-center"
+                        >
+                          <div
+                            class="dropdown"
+                            container="body"
+                            dropdown
+                            placement="right"
+                          >
                             <button dropdownToggle class="btn" type="button">
                               <i class="fa-solid fa-ellipsis-vertical"></i>
                             </button>
-                            <div *dropdownMenu class="dropdown-menu dropdown-menu-right dropdown-menu-custom"
-                              aria-labelledby="my-dropdown">
-                              <button class="dropdown-item" type="button" (click)="
+                            <div
+                              *dropdownMenu
+                              class="dropdown-menu dropdown-menu-right dropdown-menu-custom"
+                              aria-labelledby="my-dropdown"
+                            >
+                              <button
+                                class="dropdown-item"
+                                type="button"
+                                (click)="
                                   handleAddNextAction(
                                     item,
                                     i,
                                     resultIndex,
                                     nextActionIndex
                                   )
-                                ">
+                                "
+                              >
                                 <div class="d-flex align-items-center">
                                   <i class="fa-solid fa-plus me-2"></i>
                                   <span>Thêm hành động lên trên</span>
                                 </div>
                               </button>
-                              <button class="dropdown-item" type="button" (click)="
+                              <button
+                                class="dropdown-item"
+                                type="button"
+                                (click)="
                                   handleAddNextAction(
                                     item,
                                     i,
                                     resultIndex,
                                     nextActionIndex + 1
                                   )
-                                ">
+                                "
+                              >
                                 <div class="d-flex align-items-center">
                                   <i class="fa-solid fa-plus me-2"></i>
                                   <span>Thêm hành động xuống dưới</span>
                                 </div>
                               </button>
-                              <button class="dropdown-item text-danger" type="button" (click)="
+                              <button
+                                class="dropdown-item text-danger"
+                                type="button"
+                                (click)="
                                   removeNextAction(result, nextActionIndex)
-                                ">
+                                "
+                              >
                                 <div class="d-flex align-items-center">
-                                  <i style="color: #ef6a6a" class="fa-solid fa-trash-can me-2"></i>
+                                  <i
+                                    style="color: #ef6a6a"
+                                    class="fa-solid fa-trash-can me-2"
+                                  ></i>
                                   <span>Xóa hành động</span>
                                 </div>
                               </button>
@@ -486,10 +770,17 @@
                         </div>
                       </div>
                     </div>
-                    <div *ngIf="!result['nextActions'].length" [style.height]="'36px'"></div>
+                    <div
+                      *ngIf="!result['nextActions'].length"
+                      [style.height]="'36px'"
+                    ></div>
                     <div>
-                      <button *ngIf="item.results.length" type="button" class="btn button-add-row text-link w-100 mt-2"
-                        (click)="handleAddNextAction(item, i, resultIndex)">
+                      <button
+                        *ngIf="item.results.length"
+                        type="button"
+                        class="btn button-add-row text-link w-100 mt-2"
+                        (click)="handleAddNextAction(item, i, resultIndex)"
+                      >
                         <i class="fa-solid fa-plus me-1"></i>
                         Thêm hành động kế
                       </button>
@@ -504,28 +795,41 @@
                 <!--                  {{ item.action?.name || '-' }}-->
                 <!--                </div>-->
                 <td class="columns-duration">
-                  <div [class.mt-2]="!firstResult" *ngFor="
+                  <div
+                    [class.mt-2]="!firstResult"
+                    *ngFor="
                       let result of item.results;
                       let resultIndex = index;
                       let firstResult = first
-                    ">
-                    <div *ngFor="
+                    "
+                  >
+                    <div
+                      *ngFor="
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
                         let firstAction = first
-                      ">
+                      "
+                    >
                       <div class="row gx-2" [class.mt-2]="!firstAction">
                         <div class="col">
-                          <ng-select [ngClass]="{
+                          <ng-select
+                            [ngClass]="{
                               'is-invalid':
                                 submitted &&
                                 ((result.resultId &&
                                   nextAction.delayType === undefined) ||
                                   !result.resultId)
-                            }" [placeholder]="'Chọn loại'" [(ngModel)]="nextAction.delayType" [clearable]="false"
-                            [searchable]="false" class="dropdown-auto-width" id="delayType-{{ nextActionIndex }}-{{
+                            }"
+                            [placeholder]="'Chọn loại'"
+                            [(ngModel)]="nextAction.delayType"
+                            [clearable]="false"
+                            [searchable]="false"
+                            class="dropdown-auto-width"
+                            id="delayType-{{ nextActionIndex }}-{{
                               resultIndex
-                            }}" appendTo="body">
+                            }}"
+                            appendTo="body"
+                          >
                             <ng-option [value]="EDelayType.NOW">
                               Ngay lập tức
                             </ng-option>
@@ -536,17 +840,28 @@
                             <ng-option [value]="EDelayType.DAY">Ngày</ng-option>
                           </ng-select>
                         </div>
-                        <div *ngIf="
+                        <div
+                          *ngIf="
                             ![undefined, EDelayType.NOW].includes(
                               nextAction.delayType
                             )
-                          " class="col-6">
-                          <input [(ngModel)]="nextAction.delayValue" class="input-medium" [ngClass]="{
+                          "
+                          class="col-6"
+                        >
+                          <input
+                            [(ngModel)]="nextAction.delayValue"
+                            class="input-medium"
+                            [ngClass]="{
                               'is-invalid':
                                 submitted &&
                                 ((result.resultId && !nextAction.delayValue) ||
                                   !result.resultId)
-                            }" min="1" type="number" mask="00000000" [allowNegativeNumbers]="false" />
+                            }"
+                            min="1"
+                            type="number"
+                            mask="00000000"
+                            [allowNegativeNumbers]="false"
+                          />
                           <!--                          <app-input-mask-->
                           <!--                            id="from"-->
                           <!--                            [isQuantity]="true"-->
@@ -563,8 +878,14 @@
                         </div>
                       </div>
                     </div>
-                    <div *ngIf="!result['nextActions'].length" [style.height]="'36px'"></div>
-                    <div [class.mt-2]="result['nextActions'].length" class="padding-button-temp"></div>
+                    <div
+                      *ngIf="!result['nextActions'].length"
+                      [style.height]="'36px'"
+                    ></div>
+                    <div
+                      [class.mt-2]="result['nextActions'].length"
+                      class="padding-button-temp"
+                    ></div>
                   </div>
                 </td>
               </tr>
@@ -573,7 +894,11 @@
               <td></td>
               <td class="p-0">
                 <div>
-                  <button type="button" class="btn button-add-row text-link w-100 mt-2" (click)="handleAddAction()">
+                  <button
+                    type="button"
+                    class="btn button-add-row text-link w-100 mt-2"
+                    (click)="handleAddAction()"
+                  >
                     <i class="fa-solid fa-plus me-1"></i>
                     Thêm hành động
                   </button>
@@ -591,8 +916,12 @@
   <div class="modal-default">
     <div class="modal-header">
       <h4 class="modal-title pull-left">HDSD Cấu hình quy tắc</h4>
-      <button type="button" class="btn-close close pull-right" aria-label="Close"
-        (click)="introductionModalRef?.hide()">
+      <button
+        type="button"
+        class="btn-close close pull-right"
+        aria-label="Close"
+        (click)="introductionModalRef?.hide()"
+      >
         <span aria-hidden="true" class="visually-hidden">&times;</span>
       </button>
     </div>
@@ -656,8 +985,12 @@
   <div class="modal-default">
     <div class="modal-header">
       <h4 class="modal-title pull-left">Thêm Bước tiếp theo</h4>
-      <button type="button" class="btn-close close pull-right" aria-label="Close"
-        (click)="addNextActionModalRef?.hide()">
+      <button
+        type="button"
+        class="btn-close close pull-right"
+        aria-label="Close"
+        (click)="addNextActionModalRef?.hide()"
+      >
         <span aria-hidden="true" class="visually-hidden">&times;</span>
       </button>
     </div>
@@ -668,14 +1001,23 @@
             Kết quả cần thêm Bước tiếp theo
             <span class="required">*</span>
           </label>
-          <ng-select [clearable]="false" [placeholder]="'Chọn Kết quả'"
-            [ngClass]="{'is-invalid': submittedModal && f['resultId'].errors}" formControlName="resultId"
-            class="dropdown-auto-width" id="action-modal" appendTo=".modal">
+          <ng-select
+            [clearable]="false"
+            [placeholder]="'Chọn Kết quả'"
+            [ngClass]="{'is-invalid': submittedModal && f['resultId'].errors}"
+            formControlName="resultId"
+            class="dropdown-auto-width"
+            id="action-modal"
+            appendTo=".modal"
+          >
             <ng-option [value]="option.id" *ngFor="let option of resultsInRow">
               {{ option.name }}
             </ng-option>
           </ng-select>
-          <div *ngIf="submittedModal && f['resultId'].errors" class="invalid-feedback">
+          <div
+            *ngIf="submittedModal && f['resultId'].errors"
+            class="invalid-feedback"
+          >
             <div *ngIf="f['resultId'].errors?.['required']">
               Kết quả không được bỏ trống
             </div>
@@ -685,11 +1027,19 @@
     </div>
     <div class="modal-footer d-flex justify-content-end">
       <div class="d-flex">
-        <button (click)="addNextActionModalRef?.hide()" class="btn button-default-modal mx-2" type="button">
+        <button
+          (click)="addNextActionModalRef?.hide()"
+          class="btn button-default-modal mx-2"
+          type="button"
+        >
           Hủy
         </button>
-        <custom-button-loading (action)="onSubmitModal()" [type]="'button'" [textButton]="'Lưu'"
-          [className]="'button-fill button-submit-modal button-medium'"></custom-button-loading>
+        <custom-button-loading
+          (action)="onSubmitModal()"
+          [type]="'button'"
+          [textButton]="'Lưu'"
+          [className]="'button-fill button-submit-modal button-medium'"
+        ></custom-button-loading>
       </div>
     </div>
   </div>

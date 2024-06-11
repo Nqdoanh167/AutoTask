@@ -1,16 +1,16 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import {PermissionComponent} from './permission.component';
+import {DecentralizationComponent} from './decentralization.component';
 
 describe('PermissionComponent', () => {
-  let component: PermissionComponent;
-  let fixture: ComponentFixture<PermissionComponent>;
+  let component: DecentralizationComponent;
+  let fixture: ComponentFixture<DecentralizationComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PermissionComponent],
+      declarations: [DecentralizationComponent],
     });
-    fixture = TestBed.createComponent(PermissionComponent);
+    fixture = TestBed.createComponent(DecentralizationComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

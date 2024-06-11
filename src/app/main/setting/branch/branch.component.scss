@@ -1,6 +1,0 @@
-@use 'src/app/styles/variable' as vars;
-@use 'src/app/styles/mixins' as mixins;
-
-.table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '150px');
-}

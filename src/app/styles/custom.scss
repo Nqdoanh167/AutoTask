@@ -26,7 +26,7 @@ textarea {
 
 .input-disabled {
   cursor: not-allowed;
-  opacity: 0.6 !important;
+  opacity: 0.7 !important;
 }
 
 input.custom-input-color {
@@ -469,7 +469,8 @@ ng-select.custom-input-multiple-round {
       }
     }
   }
-  &.disabled {
+  &.disabled,
+  &.ng-select-disabled {
     .ng-select-container {
       .ng-value-container {
         .ng-value {
@@ -641,7 +642,7 @@ ng-select.select-search-icon {
       width: fit-content;
       padding: 0px 10px;
     }
-    
+
     .tab-item {
       padding: 10px;
       white-space: pre-wrap;
@@ -655,15 +656,15 @@ ng-select.select-search-icon {
       }
     }
   }
-  
+
   &.filter-advance-popover-tab {
     .popover-body {
       width: 450px;
     }
     .ng-select.ng-select-multiple
-    .ng-select-container
-    .ng-value-container
-    .ng-value {
+      .ng-select-container
+      .ng-value-container
+      .ng-value {
       white-space: pre-wrap;
     }
   }
@@ -742,7 +743,7 @@ progressbar.custom-progress {
 // table
 .table-responsive {
   .col-resizable th::after {
-    content: "";
+    content: '';
     position: absolute;
     top: 15px;
     right: 0;
@@ -1488,6 +1489,43 @@ i {
 
 .popover > .arrow:after {
   border-right-color: white;
+}
+
+// TREE_SELECT
+.custom-tree-select {
+  display: flex;
+  align-items: center;
+  border: none;
+  background-color: #e7e9ef;
+
+  .p-treeselect-label {
+    font-size: 14px;
+  }
+
+  .p-placeholder {
+    font-size: 13px;
+  }
+
+  .p-treeselect-items-wrapper {
+    .p-tree-selectable {
+      padding: 10px;
+
+      .p-treenode-content {
+        font-size: 14px;
+        padding: 0;
+      }
+
+      .p-treenode-children {
+        padding-left: 10px;
+      }
+    }
+  }
+
+  &.is-invalid {
+    .p-inputwrapper {
+      border: 1px solid #dc3545;
+    }
+  }
 }
 
 // COMMON STYLE

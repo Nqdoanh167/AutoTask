@@ -6,10 +6,15 @@
           Tên khách hàng
           <span class="required">*</span>
         </label>
-        <app-input-suggest-customer id="leadDeal.name" formControlName="name" [inputId]="'leadDeal.name'"
-          [placeholder]="'Nhập Tên...'" (valueChange)="onChangeInputSuggestCustomer($event)"
+        <app-input-suggest-customer
+          id="leadDeal.name"
+          formControlName="name"
+          [inputId]="'leadDeal.name'"
+          [placeholder]="'Nhập Tên...'"
+          (valueChange)="onChangeInputSuggestCustomer($event)"
           (selectCustomer)="handleChooseCustomer($event)"
-          [className]="submitted && f['name'].errors ? 'is-invalid' : ''"></app-input-suggest-customer>
+          [className]="submitted && f['name'].errors ? 'is-invalid' : ''"
+        ></app-input-suggest-customer>
         <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
           <div *ngIf="f['name'].errors?.['required']">
             Tên không được bỏ trống
@@ -20,46 +25,86 @@
       <div class="col-6">
         <div *ngIf="selectedCustomer">
           <label class="form-control-label">Khách hàng đã chọn</label>
-          <div class="person-info d-flex justify-content-between align-items-center">
+          <div
+            class="person-info d-flex justify-content-between align-items-center"
+          >
             <div class="d-flex justify-content-between align-items-center">
-              <img class="avatar-selected" alt="" fallback="assets/images/avatar.svg"
-                src="{{ selectedCustomer?.picture }}" />
+              <img
+                class="avatar-selected"
+                alt=""
+                fallback="assets/images/avatar.svg"
+                src="{{ selectedCustomer?.picture }}"
+              />
               <div class="d-flex flex-column mx-3">
-                <span class="account-name fw-500 text-link" (click)="handleViewCustomer(selectedCustomer.id)">
+                <span
+                  class="account-name fw-500 text-link"
+                  (click)="handleViewCustomer(selectedCustomer.id)"
+                >
                   {{ selectedCustomer?.name }}
                 </span>
                 <span class="account-phone">{{ selectedCustomer?.phone }}</span>
               </div>
-              <div class="d-flex flex-row flex-wrap gap-2" *ngIf="selectedCustomer && !selectTag">
+              <div
+                class="d-flex flex-row flex-wrap gap-2"
+                *ngIf="selectedCustomer && !selectTag"
+              >
                 <div *ngFor="let tag of selectedCustomer?.tags">
-                  <span class="tag-item" [ngClass]="{nonBack: !tag.bgColor}" [ngStyle]="{background: tag.bgColor}">
+                  <span
+                    class="tag-item"
+                    [ngClass]="{nonBack: !tag.bgColor}"
+                    [ngStyle]="{background: tag.bgColor}"
+                  >
                     <span>{{ tag.name }}</span>
                   </span>
                 </div>
                 <div>
-                  <span class="cursor-pointer ms-2" (click)="selectTag = !selectTag">
+                  <span
+                    class="cursor-pointer ms-2"
+                    (click)="selectTag = !selectTag"
+                  >
                     <i class="fa-solid fa-user-tag"></i>
                   </span>
                 </div>
               </div>
               <div *ngIf="selectTag">
-                <ng-select class="custom-input-tag" placeholder="Chọn tags..." formControlName="tags" [items]="tags.rows" appendTo=".modal"
-                  (blur)="selectTag = !selectTag" appearance="outline" [multiple]="true" [closeOnSelect]="false"
-                  [compareWith]="compareFunction">
+                <ng-select
+                  class="custom-input-tag"
+                  placeholder="Chọn tags..."
+                  formControlName="tags"
+                  [items]="tags.rows"
+                  appendTo=".modal"
+                  (blur)="selectTag = !selectTag"
+                  appearance="outline"
+                  [multiple]="true"
+                  [closeOnSelect]="false"
+                  [compareWith]="compareFunction"
+                >
                   <ng-template ng-option-tmp let-item="item">
-                    <div class="tag-item" [ngClass]="{nonBack: !item.bgColor}" [ngStyle]="{background: item.bgColor}">
+                    <div
+                      class="tag-item"
+                      [ngClass]="{nonBack: !item.bgColor}"
+                      [ngStyle]="{background: item.bgColor}"
+                    >
                       {{ item.name }}
                     </div>
                   </ng-template>
                   <ng-template ng-label-tmp let-item="item" let-clear="clear">
                     <span class="ng-value-icon" (click)="clear(item)">×</span>
-                    <div class="tag-item" [ngClass]="{nonBack: !item.bgColor}" [ngStyle]="{background: item.bgColor}">
+                    <div
+                      class="tag-item"
+                      [ngClass]="{nonBack: !item.bgColor}"
+                      [ngStyle]="{background: item.bgColor}"
+                    >
                       {{ item.name }}
                     </div>
                   </ng-template>
                 </ng-select>
               </div>
-              <button (click)="handleClearSelectedCustomer()" class="btn" type="button">
+              <button
+                (click)="handleClearSelectedCustomer()"
+                class="btn"
+                type="button"
+              >
                 <i class="fa-solid fa-circle-xmark" style="color: #afb2bd"></i>
               </button>
             </div>
@@ -72,23 +117,43 @@
         <label class="form-control-label" for="leadDeal.phone">
           Số điện thoại
         </label>
-        <app-input-suggest-customer id="leadDeal.phone" formControlName="phone" [inputId]="'leadDeal.phone'"
-          [placeholder]="'Nhập Số điện thoại...'" (valueChange)="onChangeInputSuggestCustomer($event)"
-          (selectCustomer)="handleChooseCustomer($event)"></app-input-suggest-customer>
+        <app-input-suggest-customer
+          id="leadDeal.phone"
+          formControlName="phone"
+          [inputId]="'leadDeal.phone'"
+          [placeholder]="'Nhập Số điện thoại...'"
+          (valueChange)="onChangeInputSuggestCustomer($event)"
+          (selectCustomer)="handleChooseCustomer($event)"
+        ></app-input-suggest-customer>
       </div>
       <div class="col-3">
         <label class="form-control-label" for="leadDeal.email">Email</label>
-        <app-input-suggest-customer id="leadDeal.email" formControlName="email" [inputId]="'leadDeal.email'"
-          [placeholder]="'Nhập Email...'" (valueChange)="onChangeInputSuggestCustomer($event)"
-          (selectCustomer)="handleChooseCustomer($event)"></app-input-suggest-customer>
+        <app-input-suggest-customer
+          id="leadDeal.email"
+          formControlName="email"
+          [inputId]="'leadDeal.email'"
+          [placeholder]="'Nhập Email...'"
+          (valueChange)="onChangeInputSuggestCustomer($event)"
+          (selectCustomer)="handleChooseCustomer($event)"
+        ></app-input-suggest-customer>
       </div>
       <div class="col-3">
         <label class="form-control-label" for="leadDeal.gender">
           Giới tính
         </label>
-        <div id="leadDeal.gender" class="d-flex align-items-center gap-4 input-medium">
+        <div
+          id="leadDeal.gender"
+          class="d-flex align-items-center gap-4 input-medium"
+        >
           <div class="basic-radio">
-            <input formControlName="gender" type="radio" name="gender" class="check" id="male" [value]="'male'" />
+            <input
+              formControlName="gender"
+              type="radio"
+              name="gender"
+              class="check"
+              id="male"
+              [value]="'male'"
+            />
             <label for="male">
               <div class="container">
                 <div class="cRadioBtn">
@@ -102,7 +167,14 @@
             </label>
           </div>
           <div class="basic-radio">
-            <input formControlName="gender" [value]="'female'" type="radio" name="gender" class="check" id="female" />
+            <input
+              formControlName="gender"
+              [value]="'female'"
+              type="radio"
+              name="gender"
+              class="check"
+              id="female"
+            />
             <label for="female">
               <div class="container">
                 <div class="cRadioBtn">
@@ -116,8 +188,14 @@
             </label>
           </div>
           <div class="basic-radio">
-            <input formControlName="gender" [value]="'other'" type="radio" name="gender" class="check"
-              id="lead.other" />
+            <input
+              formControlName="gender"
+              [value]="'other'"
+              type="radio"
+              name="gender"
+              class="check"
+              id="lead.other"
+            />
             <label for="lead.other">
               <div class="container">
                 <div class="cRadioBtn">
@@ -135,13 +213,23 @@
       <div class="col-3">
         <label class="form-control-label" for="leadDeal.gender">
           Loại khách hàng
-          <i class="fa-regular fa-circle-question ms-1" tooltip="Lead: Khách hàng tiềm năng, có khả năng sẽ mua hàng của doanh nghiệp sau khi được chăm sóc
+          <i
+            class="fa-regular fa-circle-question ms-1"
+            tooltip="Lead: Khách hàng tiềm năng, có khả năng sẽ mua hàng của doanh nghiệp sau khi được chăm sóc
 Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua hàng (thường đã được chăm sóc hoặc lên hợp đồng)"
-            placement="right"></i>
+            placement="right"
+          ></i>
         </label>
         <div class="d-flex align-items-center gap-4 input-medium">
           <div class="basic-radio">
-            <input formControlName="type" type="radio" name="type" class="check" id="lead" [value]="'LEAD'" />
+            <input
+              formControlName="type"
+              type="radio"
+              name="type"
+              class="check"
+              id="lead"
+              [value]="'LEAD'"
+            />
             <label for="lead">
               <div class="container">
                 <div class="cRadioBtn">
@@ -155,7 +243,14 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
             </label>
           </div>
           <div class="basic-radio">
-            <input formControlName="type" [value]="'DEAL'" type="radio" name="type" class="check" id="deal" />
+            <input
+              formControlName="type"
+              [value]="'DEAL'"
+              type="radio"
+              name="type"
+              class="check"
+              id="deal"
+            />
             <label for="deal">
               <div class="container">
                 <div class="cRadioBtn">
@@ -175,48 +270,93 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
       <label class="form-control-label" for="leadDeal.address">Địa chỉ</label>
       <div id="leadDeal.address" class="row">
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-          <ng-select [clearable]="false" [ngClass]="{
+          <ng-select
+            [clearable]="false"
+            [ngClass]="{
               'is-invalid': submitted && f['provinceCode'].errors
-            }" [placeholder]="'Chọn Tỉnh/Thành phố'" appearance="outline" formControlName="provinceCode" id="province"
-            labelForId="province" (change)="handleChangeLocation($event, 'province')" appendTo=".modal">
+            }"
+            [placeholder]="'Chọn Tỉnh/Thành phố'"
+            appearance="outline"
+            formControlName="provinceCode"
+            id="province"
+            labelForId="province"
+            (change)="handleChangeLocation($event, 'province')"
+            appendTo=".modal"
+          >
             <ng-container *ngIf="listProvince.length > 0; else selectNoData">
-              <ng-option *ngFor="let item of listProvince; index as i" [value]="item?.provinceCode">
+              <ng-option
+                *ngFor="let item of listProvince; index as i"
+                [value]="item?.provinceCode"
+              >
                 {{ item?.province }}
               </ng-option>
             </ng-container>
           </ng-select>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-          <ng-select [clearable]="false" [ngClass]="{
+          <ng-select
+            [clearable]="false"
+            [ngClass]="{
               'input-disabled': !f['provinceCode'].value
-            }" [disabled]="!f['provinceCode'].value" [readonly]="!f['provinceCode'].value"
-            [placeholder]="'Chọn Quận/Huyện'" appearance="outline" formControlName="districtCode" id="district"
-            labelForId="district" (change)="handleChangeLocation($event, 'district')" appendTo=".modal">
+            }"
+            [disabled]="!f['provinceCode'].value"
+            [readonly]="!f['provinceCode'].value"
+            [placeholder]="'Chọn Quận/Huyện'"
+            appearance="outline"
+            formControlName="districtCode"
+            id="district"
+            labelForId="district"
+            (change)="handleChangeLocation($event, 'district')"
+            appendTo=".modal"
+          >
             <ng-container *ngIf="listDistrict.length > 0; else selectNoData">
-              <ng-option *ngFor="let item of listDistrict; index as i" [value]="item?.districtCode">
+              <ng-option
+                *ngFor="let item of listDistrict; index as i"
+                [value]="item?.districtCode"
+              >
                 {{ item?.district }}
               </ng-option>
             </ng-container>
           </ng-select>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-          <ng-select [clearable]="false" [ngClass]="{
+          <ng-select
+            [clearable]="false"
+            [ngClass]="{
               'input-disabled': !f['districtCode'].value
-            }" [disabled]="!f['districtCode'].value" [readonly]="!f['districtCode'].value"
-            [placeholder]="'Chọn Phường/Xã'" class="input-medium" appearance="outline" formControlName="wardCode"
-            id="ward" labelForId="ward" (change)="handleChangeLocation($event, 'ward')" appendTo=".modal">
+            }"
+            [disabled]="!f['districtCode'].value"
+            [readonly]="!f['districtCode'].value"
+            [placeholder]="'Chọn Phường/Xã'"
+            class="input-medium"
+            appearance="outline"
+            formControlName="wardCode"
+            id="ward"
+            labelForId="ward"
+            (change)="handleChangeLocation($event, 'ward')"
+            appendTo=".modal"
+          >
             <ng-container *ngIf="listWard.length > 0; else selectNoData">
-              <ng-option *ngFor="let item of listWard; index as i" [value]="item?.wardCode">
+              <ng-option
+                *ngFor="let item of listWard; index as i"
+                [value]="item?.wardCode"
+              >
                 {{ item?.ward }}
               </ng-option>
             </ng-container>
           </ng-select>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-          <input class="form-control" [ngClass]="{
+          <input
+            class="form-control"
+            [ngClass]="{
               'is-invalid': submitted && f['street'].errors
-            }" [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'" formControlName="street" id="street"
-            type="text" />
+            }"
+            [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
+            formControlName="street"
+            id="street"
+            type="text"
+          />
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {EActionType, IAction, IActReason, IBodyAction} from '@app/types/flow';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
-import {uniqBy} from 'lodash';
+import uniqBy from 'lodash/uniqBy';
 import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
 

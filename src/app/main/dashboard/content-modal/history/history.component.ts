@@ -6,6 +6,7 @@ import {
   QueryList,
   SimpleChanges,
   ViewChildren,
+  OnChanges,
 } from '@angular/core';
 import {Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormGroup} from '@angular/forms';
@@ -19,6 +20,7 @@ import {
   ENoteContentHistoryTask,
   EOrderProductContentHistoryTask,
   ESubInformationContentHistoryTask,
+  ESubOrderProductHistoryTask,
   ETabHistoryKey,
   EntityPagination,
   ICommonDataSource,
@@ -46,7 +48,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss'],
 })
-export class HistoryComponent implements OnDestroy, OnInit {
+export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
   @Input() taskId!: string;
   @Input() triggerCall!: any;
   public currentBiz!: Biz;
@@ -73,7 +75,6 @@ export class HistoryComponent implements OnDestroy, OnInit {
     },
   ];
   public configFilters: IFilterTopTable[] = [
-  
     {
       type: ETypeFilter.SELECT,
       name: 'tabKey',
@@ -142,9 +143,9 @@ export class HistoryComponent implements OnDestroy, OnInit {
   onSelectFilter(data: {value?: string | string[]; name: string}) {
     const filter = this.history.paramsQuery?.filter || '{}';
     let obj = JSON.parse(filter);
-   
+
     obj[data.name] = data.value;
-    if(Array.isArray(data.value) && data.value.length === 0) { 
+    if (Array.isArray(data.value) && data.value.length === 0) {
       delete obj[data.name];
     }
     this.history.paramsQuery.filter = JSON.stringify(obj);
@@ -231,6 +232,8 @@ export class HistoryComponent implements OnDestroy, OnInit {
         return `Tạo đơn hàng`;
       case EOrderProductContentHistoryTask.ADD_PRODUCTS:
         return `Thêm sản phẩm`;
+      case EOrderProductContentHistoryTask.CHANGE_WAREHOUSES:
+        return `Thay đổi kho`;
       case EOrderProductContentHistoryTask.REMOVE_PRODUCTS:
         return `Xóa sản phẩm`;
       case EOrderProductContentHistoryTask.CHANGE_PRODUCTS:
@@ -305,6 +308,10 @@ export class HistoryComponent implements OnDestroy, OnInit {
         return `Vai trò`;
       case ESubInformationContentHistoryTask.ACTION:
         return `Hành động`;
+      case ESubInformationContentHistoryTask.NONE:
+        return ``;
+      case ESubOrderProductHistoryTask.NONE:
+        return ``;
       default:
         return '';
     }

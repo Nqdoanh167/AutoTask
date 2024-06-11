@@ -1,9 +1,12 @@
 <div class="modal-default">
   <div class="modal-header">
-    <div class="modal-title">
-      Tuỳ chỉnh bảng
-    </div>
-    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="hideModal()">
+    <div class="modal-title">Tuỳ chỉnh bảng</div>
+    <button
+      type="button"
+      class="btn-close close pull-right"
+      aria-label="Close"
+      (click)="hideModal()"
+    >
       <span aria-hidden="true" class="visually-hidden">&times;</span>
     </button>
   </div>
@@ -14,11 +17,13 @@
         <div>
           <form [formGroup]="form" novalidate>
             <div class="list-value">
-              <div class=" mt-1" *ngFor="let data of listColumns; let i = index">
+              <div class="mt-1" *ngFor="let data of listColumns; let i = index">
                 <label class="basic-checkbox">
                   <div class="ms-2">{{ data.name }}</div>
                   <input
-                    [defaultChecked]="listChecked.includes(data.value)"  [value]="data.value" (change)="onCheckboxChange($event)"
+                    [defaultChecked]="listChecked.includes(data.value)"
+                    [value]="data.value"
+                    (change)="onCheckboxChange($event)"
                     type="checkbox"
                   />
                   <span class="checkmark"></span>
@@ -29,15 +34,25 @@
         </div>
       </div>
       <div class="col-6 colum-drop pt-2 pb-2">
-        <div class="headline mb-2">Các cột đang hiển thị ({{listColumnsActive.length}}/{{listColumns.length}})</div>
-        <bs-sortable [(ngModel)]="listColumnsActive" [itemTemplate]="itemTemplate" itemClass="sortable-item" itemActiveClass="sortable-item-active" placeholderItem="Drag here" placeholderClass="placeholderStyle text-center" wrapperClass="sortable-wrapper"></bs-sortable>
+        <div class="headline mb-2">
+          Các cột đang hiển thị ({{ listColumnsActive.length }}/{{
+            listColumns.length
+          }})
+        </div>
+        <bs-sortable
+          [(ngModel)]="listColumnsActive"
+          [itemTemplate]="itemTemplate"
+          itemClass="sortable-item"
+          itemActiveClass="sortable-item-active"
+          placeholderItem="Drag here"
+          placeholderClass="placeholderStyle text-center"
+          wrapperClass="sortable-wrapper"
+        ></bs-sortable>
 
         <ng-template #itemTemplate let-item="item" let-index="index">
           <div class="columns-item mt-1">
             <div class="d-flex justify-content-between align-items-center">
-            <span>
-              {{ index + 1 }}: {{ item.value.name }}
-            </span>
+              <span>{{ index + 1 }}: {{ item.value.name }}</span>
               <i class="fa fa-arrows-alt-v"></i>
             </div>
           </div>
@@ -47,10 +62,28 @@
   </div>
   <div class="modal-footer two-side-buttons">
     <div>
-      <button type="button" class="btn button-default-modal" (click)="onReload()"> Đặt lại </button>
+      <button
+        type="button"
+        class="btn button-default-modal"
+        (click)="onReload()"
+      >
+        Đặt lại
+      </button>
     </div>
-    <div class="buttons"><button type="button" class="btn button-default-modal " (click)="hideModal()"> Hủy </button>
-      <button class="btn button-submit-modal" type="button" (click)="onSubmit()"><span>Lưu</span>
+    <div class="buttons">
+      <button
+        type="button"
+        class="btn button-default-modal"
+        (click)="hideModal()"
+      >
+        Hủy
+      </button>
+      <button
+        class="btn button-submit-modal"
+        type="button"
+        (click)="onSubmit()"
+      >
+        <span>Lưu</span>
       </button>
     </div>
   </div>

@@ -2,25 +2,25 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {
-  EntityResult,
-  Config,
-  SaleHistory,
+  AppointmentBooking,
   AppointmentRoom,
   AppointmentStatus,
-  AppointmentBooking,
+  Biz,
+  Config,
+  EntityResult,
+  IRoleAct,
+  Order,
+  SaleHistory,
+  SaleReason,
   Staff,
   Status,
-  SaleReason,
-  Biz,
-  Order,
   Tag,
   User,
-  IRoleAct,
 } from 'src/app/types/viewmodels';
 import {BehaviorSubject, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
-import {Router} from '@angular/router';
+
 declare const FB: any;
 
 @Injectable({

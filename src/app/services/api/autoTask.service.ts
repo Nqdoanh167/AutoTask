@@ -25,9 +25,11 @@ import {
   ITaskChainResult,
   ITaskDto,
   IUpdateChainActDto,
+  IUpdateDeadlineTaskResult,
   IUpdateTaskResultDto,
 } from '@app/types/flow';
 import {
+  BulkRemoveUserAcl,
   ISetting,
   ISource,
   ISourceDto,
@@ -35,15 +37,22 @@ import {
   IView,
   IViewDto,
   IViewModeDto,
+  Permission,
+  PermissionDto,
+  UpdatePermissionDto,
+  UpdateUserAclDto,
+  UserAcl,
+  UserPerAccess,
 } from '@app/types/setting';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AutoTaskService extends BaseApiService implements OnDestroy {
-  destroy = new Subject();
+  private destroy = new Subject();
+  private defaultParams: any = {};
 
-  api = {
+  public api = {
     action: 'action',
     actionResult: 'act-result',
     actionReason: 'act-reason',
@@ -57,8 +66,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     source: 'source',
     settingView: 'setting-view',
     setting: 'setting',
+    permission: 'permission',
+    userAcl: 'user-acl',
   };
-  private defaultParams: any = {};
 
   private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
   public dashboardViewModes = this.dashboardViewModes$.asObservable();
@@ -286,6 +296,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.taskChainResult, id]),
         body,
       ),
+    updateDeadline: (id: string, body: IUpdateDeadlineTaskResult) =>
+      this.httpClient.patch<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'deadline']),
+        body,
+      ),
     sendBlock: (id: string) =>
       this.httpClient.post<EntityResult<ITaskChainResult>>(
         this.createUrl([this.api.taskChainResult, id, 'send-block']),
@@ -358,6 +373,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.tag, id]),
       ),
   };
+
   history = {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<IHistory[]>>(
@@ -367,6 +383,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         },
       ),
   };
+
   settingView = {
     retrieve: (params = {}) =>
       this.httpClient.get<EntityResult<IView>>(
@@ -381,6 +398,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         body,
       ),
   };
+
   setting = {
     retrieve: (params = {}) =>
       this.httpClient.get<EntityResult<ISetting>>(
@@ -392,6 +410,55 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     update: (body: IViewDto) =>
       this.httpClient.put<EntityResult<IView>>(
         this.createUrl([this.api.setting]),
+        body,
+      ),
+  };
+
+  permission = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<Permission[]>>(
+        this.createUrl([this.api.permission]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: PermissionDto) =>
+      this.httpClient.post<EntityResult<Permission>>(
+        this.createUrl([this.api.permission]),
+        body,
+      ),
+    update: (id: string, body: UpdatePermissionDto) =>
+      this.httpClient.patch<EntityResult<Permission>>(
+        this.createUrl([this.api.permission, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.permission, id]),
+      ),
+    getUserPermissions: () =>
+      this.httpClient.get<EntityResult<UserPerAccess>>(
+        this.createUrl([this.api.permission, 'user-access']),
+      ),
+  };
+
+  userAcl = {
+    get: () =>
+      this.httpClient.get<EntityResult<UserAcl[]>>(
+        this.createUrl([this.api.userAcl]),
+      ),
+    upsert: (body: UpdateUserAclDto) =>
+      this.httpClient.post<EntityResult<UserAcl>>(
+        this.createUrl([this.api.userAcl]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.userAcl, id]),
+      ),
+    bulkRemovePer: (body: BulkRemoveUserAcl) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.userAcl, 'bulk-remove']),
         body,
       ),
   };

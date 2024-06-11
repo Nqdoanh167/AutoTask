@@ -113,6 +113,15 @@ export interface ITag {
   createdBy?: Partial<AccountPublic>;
   updatedBy?: Partial<AccountPublic>;
 }
+export interface IPosLastBranches {
+  id: string;
+  name: string;
+  role: BizRole;
+  teams: string[];
+  departments: string[];
+  userIds: string[];
+}
+
 export interface User {
   id: string;
   name: string;
@@ -135,6 +144,8 @@ export interface User {
   };
   groupIds?: string[];
   branches: Branch[];
+  roleBranches: Branch[];
+  posLastBranches: IPosLastBranches[];
   branchIds: string[];
   groups?: BizGroup[];
   roleIds?: string[];
@@ -142,15 +153,20 @@ export interface User {
   isActive: boolean;
   createdAt?: Date;
 }
-export interface Branch {
-  address: string;
-  desc: string;
+export interface Team {
   id: string;
   name: string;
-  phone: string;
+  desc: string;
+  permission?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+export interface Department extends Team {
+  teams: Team[];
+}
+export interface Branch extends Team {
+  departments: Department[];
 }
 
 export interface BizDomain {
@@ -448,6 +464,39 @@ export interface ToppingValue {
   updatedAt?: Date;
 }
 
+export interface ProductWarehouse {
+  [key: string]: {
+    inventory: number;
+    qtyAvailable: number;
+    qtyInDamaged: number;
+    qtyInExpired: number;
+    qtyInHold: number;
+    qtyInTransfer: number;
+    qtyInDeposit: number;
+    qtyInTransit: number;
+  };
+}
+export interface Warehouse {
+  id: string;
+  name: string;
+  author: string;
+  updatedBy: AccountPublic;
+  bizId: string;
+  phone: string;
+  provinceCode: string;
+  districtCode: string;
+  wardCode: string;
+  province: string;
+  district: string;
+  ward: string;
+  street: string;
+  address: string;
+  description: string;
+  isDefault: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 export interface Product {
   id: string;
   author?: string;
@@ -770,6 +819,12 @@ export interface Combo {
   id: string;
   name: string;
   picture: string;
+  followProducts: {
+    quantity: number;
+    products: string[];
+    parent: string;
+  }[];
+  version: string;
   amount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -795,7 +850,7 @@ export enum ETypeAppointment {
   APPOINTMENT = 'APPOINTMENT',
 }
 export interface IDataColumns {
-  columnDashboard: IColumns[];
+  columnDashboardAutoTask: IColumns[];
 }
 export interface IColumns {
   name: string;
@@ -1417,6 +1472,10 @@ export enum ENoteContentHistoryTask {
 export interface IOrderProductContentHistoryTask {
   key: EOrderProductContentHistoryTask;
   value: string;
+  sub?: {
+    key: ESubOrderProductHistoryTask;
+    value: string;
+  }[];
 }
 export enum EOrderProductContentHistoryTask {
   CREATE_ORDER = 'CREATE_ORDER',
@@ -1435,16 +1494,22 @@ export enum EOrderProductContentHistoryTask {
   REMOVE_PREPAIDCARDS = 'REMOVE_PREPAIDCARDS',
   ADD_PREPAIDCARDS = 'ADD_PREPAIDCARDS',
   CHANGE_PREPAIDCARDS = 'CHANGE_PREPAIDCARDS',
+  CHANGE_WAREHOUSES = 'CHANGE_WAREHOUSES',
 }
 export interface IInformationContentHistoryTask {
   key: EInformationContentHistoryTask;
   value: string;
   sub?: {
-    key: ESubInformationContentHistoryTask,
-    value: string,
+    key: ESubInformationContentHistoryTask;
+    value: string;
   }[];
 }
 export enum ESubInformationContentHistoryTask {
+  ACTION = 'ACTION',
+  NONE = 'NONE',
+}
+export enum ESubOrderProductHistoryTask {
+  NONE = 'NONE',
   ACTION = 'ACTION',
 }
 export enum EInformationContentHistoryTask {
@@ -1497,16 +1562,17 @@ export interface Source {
 
 export interface ISidebar {
   link: string;
+  alias: string;
   name: string;
   icon?: string;
   iconActive?: string;
   isActive: boolean;
   children?: ISidebar[];
   disabled?: boolean;
+  permissions?: any[];
 }
 
 export enum EModule {
-  TABLE = 'table',
   DASHBOARD = 'dashboard',
   CONFIG = 'config',
   SETTING = 'setting',
@@ -1522,8 +1588,10 @@ export enum EFlowTab {
 }
 
 export enum ESettingTab {
-  PERMISSION = 'permission',
-  NON = 'non',
+  SOURCE = 'source',
+  TAG = 'tag',
+  DECENTRALIZATION = 'decentralization',
+  ROLE = 'role',
 }
 
 export type ITypePaginate = 'number' | 'lazy';
@@ -1583,4 +1651,17 @@ export interface IPaginationStandard {
   limit: number;
   current: number;
   pageSize: number;
+}
+
+export interface IPageChange {
+  event: {page?: number; itemsPerPage?: number};
+  limit: any;
+}
+
+export interface BaseInterface {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy?: AccountPublic;
+  updatedBy?: AccountPublic;
 }

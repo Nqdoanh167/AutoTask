@@ -1,0 +1,177 @@
+<app-custom-modal
+  [isSubmitting]="loading.submit"
+  (submitModal)="onSubmit()"
+  [hideFooter]="activeTab === ETabUpdatePermissionsModal.EMPLOYEE"
+>
+  <ng-container modalTitle>
+    {{ sourceData?.id ? 'Chỉnh sửa' : 'Thêm mới' }} quyền
+  </ng-container>
+  <ng-container modalBody>
+    <tabset class="custom-tab-basic">
+      <tab
+        *ngFor="let tab of tabs"
+        [active]="tab.key === activeTab"
+        (selectTab)="selectTab(tab.key)"
+      >
+        <ng-template tabHeading>
+          <div class="title-tab">
+            <span>{{ tab.name }}</span>
+          </div>
+        </ng-template>
+      </tab>
+      <div class="mt-3">
+        @if (activeTab === ETabUpdatePermissionsModal.INFORMATION) {
+          <form [formGroup]="updateForm">
+            <div class="row mb-2">
+              <div class="col-8">
+                <label class="form-control-label" for="name">
+                  Tên
+                  <span class="required">*</span>
+                </label>
+                <input
+                  class="form-control"
+                  [ngClass]="{'is-invalid': submitted && f['name'].errors}"
+                  [placeholder]="'Tên...'"
+                  formControlName="name"
+                  id="name"
+                  type="text"
+                />
+                <div
+                  *ngIf="submitted && f['name'].errors"
+                  class="invalid-feedback"
+                >
+                  <div *ngIf="f['name'].errors?.['required']">
+                    Tên không được bỏ trống
+                  </div>
+                </div>
+              </div>
+              <div class="col-4">
+                <label
+                  class="form-check-label form-control-label"
+                  for="isActive"
+                >
+                  Trạng thái kích hoạt
+                </label>
+                <div class="form-check form-switch mt-2">
+                  <input
+                    formControlName="isActive"
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="isActive"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-12">
+                <label for="description" class="form-control-label">
+                  Mô tả
+                </label>
+                <textarea
+                  formControlName="description"
+                  id="description"
+                  placeholder="Nhập Mô tả..."
+                  [rows]="4"
+                ></textarea>
+              </div>
+            </div>
+            <div class="mb-3">
+              <span class="headline">Chức năng</span>
+              <div class="state-warning">
+                <p class="fw-500 mb-2">Lưu ý:</p>
+                <ul [style.list-style-type]="'circle'" class="ps-3">
+                  <li>
+                    Các tính năng
+                    <b>Thêm, Sửa, Xóa</b>
+                    đã bao gồm tính năng
+                    <b>Xem</b>
+                    tương ứng. VD: Nhân sự có quyền Thêm Task sẽ có quyền Xem
+                    Task
+                  </li>
+                  <li>
+                    Đối với các
+                    <b>tính năng phụ thuộc vào nhau</b>
+                    , bạn cần chọn tất cả chúng để việc sử dụng không bị gián
+                    đoạn. VD: Để nhân sự thêm được Tag, Vai trò hoặc Nguồn dữ
+                    liệu vào trong Task, bạn cần chọn quyền Sửa Task, Xem Tag,
+                    Xem Nguồn dữ liệu, Xem Vai trò.
+                  </li>
+                  <li>
+                    Nếu nhân sự được trao quyền
+                    <b>Xem Task</b>
+                    thì mặc định, họ được xem những Task mà họ góp Vai trò trong
+                    đó. Những nhân sự quản trị của Chi nhánh/Phòng ban/Đội nhóm
+                    sẽ thấy toàn bộ Task của Chi nhánh/Phòng ban/Đội nhóm mà họ
+                    quản lý
+                  </li>
+                  <li>
+                    Nếu nhân sự được trao quyền
+                    <b>Xem Nhân viên</b>
+                    , thì mặc định, họ chỉ được xem thông tin của bản thân mình.
+                    Những nhân sự quản trị của Chi nhánh/Phòng ban/Đội nhóm sẽ
+                    thấy toàn bộ thông tin của nhân sự trong Chi nhánh/Phòng
+                    ban/Đội nhóm mà họ quản lý
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="functions">
+              <accordion class="accordion-white" [isAnimated]="true">
+                @for (group of permissionGroups; track $index) {
+                  <accordion-group [isOpen]="group.isOpen" [isDisabled]="true">
+                    <div
+                      accordion-heading
+                      class="header-item d-flex justify-content-between align-items-center"
+                    >
+                      <span class="fw-bold">{{ group.name }}</span>
+                      <div class="form-check form-switch">
+                        <input
+                          checked="{{ group.isOpen ? 'checked' : null }}"
+                          class="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          (change)="handleToggleGroup(group)"
+                        />
+                      </div>
+                    </div>
+                    <div class="content-group">
+                      <div class="row g-2">
+                        @for (permission of group.permissions; track $index) {
+                          <div class="col-4">
+                            <label class="basic-checkbox">
+                              <div class="ms-2">{{ permission['name'] }}</div>
+                              <input
+                                [defaultChecked]="
+                                  (
+                                    formPermissionAction(group.key)?.value || []
+                                  ).includes(permission['key'])
+                                "
+                                [value]="permission['key']"
+                                type="checkbox"
+                                (change)="
+                                  onCheckboxChange($event, permission, group)
+                                "
+                              />
+                              <span class="checkmark"></span>
+                            </label>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </accordion-group>
+                }
+              </accordion>
+            </div>
+          </form>
+        } @else {
+          <app-employee
+            [permissionDetail]="sourceData"
+            [isInPermissionModal]="true"
+            [sourceData]="sourceData?.userAcls || []"
+          ></app-employee>
+        }
+      </div>
+    </tabset>
+  </ng-container>
+</app-custom-modal>

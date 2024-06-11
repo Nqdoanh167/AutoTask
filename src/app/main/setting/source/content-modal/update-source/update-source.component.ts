@@ -16,6 +16,7 @@ import {BsModalRef} from 'ngx-bootstrap/modal';
 import {
   EDataSourceType,
   ESourceArgKey,
+  ISource,
   ISourceArgsDto,
   IUpdateSourceDto,
 } from '@app/types/setting';
@@ -47,7 +48,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
   styleUrls: ['./update-source.component.scss'],
 })
 export class UpdateSourceComponent implements OnDestroy, OnInit {
-  @Input() sourceData?: any;
+  @Input() sourceData?: ISource;
   @Output() updateSuccess = new EventEmitter<any>();
   @Output() deleteEvent = new EventEmitter<any>();
 
@@ -68,6 +69,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       products: null,
       courseEvents: null,
       beautyServices: null,
+      warehouse: null,
       prepaidCards: null,
       combos: null,
     }),
@@ -199,7 +201,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       this.updateForm.patchValue({
         ...this.sourceData,
         counselorId: this.sourceData?.counselor?.id,
-      });
+      } as ISource as any);
       if (this.sourceData.arguments) {
         this.sourceData?.arguments?.forEach((argument: ISourceArgsDto) => {
           this.formArguments().push(
@@ -230,6 +232,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
         products: null,
         courseEvents: null,
         beautyServices: null,
+        warehouse: null,
         prepaidCards: null,
         combos: null,
       },

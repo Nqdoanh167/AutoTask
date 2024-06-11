@@ -1,0 +1,27 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.custom-select-icon ::ng-deep .ng-arrow-wrapper {
+  font-family: FontAwesome;
+  content: '\f002';
+}
+.item-name {
+  @include mixins.limit-text-row(1);
+}
+.popover-tab-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: vars.$radius-s;
+  cursor: pointer;
+  &-title {
+    max-width: 150px;
+  }
+  &.active {
+    background-color: vars.$neutral-100;
+  }
+  &:hover {
+    background-color: vars.$neutral-100;
+  }
+}

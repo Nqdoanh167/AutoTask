@@ -86,6 +86,14 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
       },
     });
   }
+  onClearTeam(index: number) {
+    this.formTeams.at(index).patchValue({
+      userId: null,
+      userName: null,
+      userPicture: null,
+      userEmail: null,
+    });
+  }
   onChangeTeam(index: number, event: any) {
     if (event) {
       this.formTeams.at(index).patchValue({

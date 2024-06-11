@@ -18,14 +18,13 @@ import {
   ITaskChain,
   ITaskChainResult,
   ITaskDto,
-  ITeam,
+  ModifiedUserUnit,
 } from '@app/types/flow';
 import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {
   AbstractControl,
   FormArray,
   FormBuilder,
-  FormControl,
   FormGroup,
   ValidationErrors,
   Validators,
@@ -33,7 +32,6 @@ import {
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
   Biz,
-  BizRole,
   EntityPagination,
   ICommonDataLazy,
   ICommonDataSource,
@@ -45,7 +43,7 @@ import {
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
-import {find, uniqBy} from 'lodash';
+import {intersection, uniqBy} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {calculateTime} from '@app/utils/common';
@@ -57,7 +55,13 @@ import {environment} from '../../../../../environments/environment';
 import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal-call.component';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
-import {ISetting, ISource} from '@app/types/setting';
+import {
+  ELevelPer,
+  EPerActTask,
+  EPerActType,
+  ISetting,
+  ISource,
+} from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
@@ -77,6 +81,13 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   @Input() sourceData?: ITask;
   @Input() taskId?: string;
   @Output() updateSuccess = new EventEmitter();
+
+  public permissions = {
+    canEditAction: false,
+    canEditChain: false,
+    canEditDeadline: false,
+    canCreateOrder: false,
+  };
 
   public tags: EntityPagination<ITag> = {
     rows: [],
@@ -120,6 +131,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       products: null,
       courseEvents: null,
       beautyServices: null,
+      warehouses: null,
       prepaidCards: null,
       combos: null,
     }),
@@ -127,6 +139,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     teams: this.fb.array([]),
     sourceId: null,
     addChainActIds: null,
+    branch: [null],
   });
 
   public addTaskChainForm = this.fb.group({
@@ -214,6 +227,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   };
   public listBizUsers: User[] = [];
   public triggerCallHistory!: any;
+  public units: ModifiedUserUnit[] = [];
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
@@ -233,6 +248,35 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         } as any);
         this.listBizUsers = biz.users;
         this.currentBiz = biz;
+        if (biz?.user?.roleBranches) {
+          this.units = biz.user.roleBranches?.map((branch) => {
+            return {
+              key: branch.id,
+              data: branch.id,
+              label: branch.name,
+              selectable: !branch.departments?.length,
+              level: ELevelPer.BRANCH,
+              children: branch.departments?.map((department) => {
+                return {
+                  key: department.id,
+                  data: department.id,
+                  label: department.name,
+                  selectable: !department.teams?.length,
+                  level: ELevelPer.DEPARTMENT,
+                  children: department.teams?.map((team) => {
+                    return {
+                      key: team.id,
+                      data: team.id,
+                      label: team.name,
+                      selectable: true,
+                      level: ELevelPer.TEAM,
+                    };
+                  }),
+                };
+              }),
+            };
+          });
+        }
       });
   }
 
@@ -272,6 +316,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+    this.checkPermission();
     this.getDetailTask();
     if (this.sourceData) {
       this.patchForm(this.sourceData);
@@ -287,6 +332,26 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     this.getTag();
     this.getAutoTaskSetting();
   }
+
+  private hasPermission(permissions: any[], permission: any): boolean {
+    return permissions?.some((per) => per === permission);
+  }
+
+  checkPermission() {
+    const permissions = this.authService.getUserPerByType(EPerActType.TASK);
+    this.permissions.canEditChain = this.hasPermission(
+      permissions,
+      EPerActTask.MANAGE_CHAIN,
+    );
+    this.permissions.canEditAction = this.hasPermission(
+      permissions,
+      EPerActTask.MANAGE_ACTION,
+    );
+    this.permissions.canEditDeadline = this.hasPermission(
+      permissions,
+      EPerActTask.EDIT_TIME_ACTION,
+    );
+  }
   getAutoTaskSetting() {
     this.autoTaskService.setting
       .retrieve({bizId: this.currentBiz.id})
@@ -296,20 +361,20 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             this.autoTaskSetting = res.data;
             res.data.roles?.forEach((role) => {
               const findRole = this.currentBiz.roles.find((r) => r.id === role);
-              let initTeam = null
-              if(!this.sourceData && findRole?.id === res.data.assignRole) {
-                initTeam =  {
+              let initTeam = null;
+              if (!this.sourceData && findRole?.id === res.data.assignRole) {
+                initTeam = {
                   userId: this.currentBiz.user.id,
                   userName: this.currentBiz.user.name,
                   userPicture: this.currentBiz.user.picture,
                   userEmail: this.currentBiz.user.email,
-                }
+                };
               }
-              
+
               const findTeam = this.sourceData?.teams?.find(
                 (team) => team.roleId === role,
               );
-            
+
               this.formTeams.push(
                 this.fb.group({
                   roleId: findRole?.id,
@@ -317,7 +382,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
                   roleName: findRole?.name,
                   userId: initTeam?.userId || findTeam?.userId || null,
                   userName: initTeam?.userName || findTeam?.userName || null,
-                  userPicture: initTeam?.userPicture || findTeam?.userPicture || null,
+                  userPicture:
+                    initTeam?.userPicture || findTeam?.userPicture || null,
                   userEmail: initTeam?.userEmail || findTeam?.userEmail || null,
                 }),
               );
@@ -452,6 +518,41 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       },
       counselorId: dataSource?.counselor?.id,
     } as any);
+    this.units.forEach((branch) => {
+      if (branch.data === dataSource.branch?.id) {
+        this.updateForm.patchValue({
+          branch: {
+            level: branch.level,
+            label: branch.label,
+            data: branch.data,
+          } as any,
+        });
+      } else {
+        branch.children?.forEach((department) => {
+          if (department.data === dataSource.branch?.id) {
+            this.updateForm.patchValue({
+              branch: {
+                level: department.level,
+                label: department.label,
+                data: department.data,
+              } as any,
+            });
+          } else {
+            department.children?.forEach((team) => {
+              if (team.data === dataSource.branch?.id) {
+                this.updateForm.patchValue({
+                  branch: {
+                    level: team.level,
+                    label: team.label,
+                    data: team.data,
+                  } as any,
+                });
+              }
+            });
+          }
+        });
+      }
+    });
     this.formTaskChains.clear();
     dataSource.taskChains?.forEach((taskChain) => {
       const taskChainForm = this.fb.group({
@@ -737,10 +838,16 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleUpdate() {
+    const branchForm = this.f['branch'].value;
     return new Promise((resolve, reject) => {
       this.loading.submit = true;
       const body = {
         ...this.updateForm.value,
+        branch: {
+          unit: branchForm.level,
+          name: branchForm.label,
+          id: branchForm.data,
+        },
       } as unknown as ITaskDto as any;
       if (this.sourceData?.id) {
         delete body.addChainActIds;
@@ -865,9 +972,14 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       type: 'warning',
       modalType: 'advance',
       context: this.sourceData,
+      errorState:
+        'Cẩn trọng với thao tác xóa Task. Các module khác đang sử dụng dữ liệu của\n' +
+        '      bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
-    this.modalConfirmService.openModal(modalContent, 'deleteTask');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDeleteTask(this.sourceData!);
+    });
   }
 
   onDeleteTask(value: ITask) {
@@ -917,6 +1029,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         addChainActIds: (this.addTaskChainForm.value?.addChainActIds ||
           []) as unknown as string[],
       } as unknown as IAddTaskChainDto;
+
       this.loading.addTaskChain = true;
       this.autoTaskService.task
         .updateTaskChain(this.sourceData.id!, body)
@@ -940,6 +1053,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       const newAddChainActIds =
         this.addTaskChainForm.value?.addChainActIds || [];
       const oldAddChainActIds = this.updateForm.value?.addChainActIds || [];
+      if (intersection(newAddChainActIds, oldAddChainActIds)?.length > 0) {
+        this.toastr.warning('Chuỗi hành động đã tồn tại, vui lòng chọn lại!');
+        return;
+      }
       this.updateForm.patchValue({
         addChainActIds: [...oldAddChainActIds, ...newAddChainActIds],
       } as any);
@@ -974,9 +1091,14 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       type: 'warning',
       modalType: 'advance',
       context: taskChain,
+      errorState:
+        'Cẩn trọng với thao tác xóa chuỗi. Các module khác đang sử dụng dữ liệu của\n' +
+        '      bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
-    this.modalConfirmService.openModal(modalContent, 'closeChain');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onCloseChain(taskChain);
+    });
   }
 
   onCloseChain(value: ITaskChain) {
@@ -1015,8 +1137,13 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         type: 'warning',
         modalType: 'advance',
         context: taskChain,
+        errorState:
+          'Cẩn trọng với thao tác đóng chuỗi. Các module khác đang sử dụng dữ liệu\n' +
+          '      của bản ghi cũng sẽ bị ảnh hưởng.',
       };
-      this.modalConfirmService.openModal(modalContent, 'deleteChain');
+      this.modalConfirmService.openModal(modalContent, undefined, () => {
+        this.onDeleteChain(taskChain);
+      });
     } else {
       const addChainActIds = this.updateForm.value?.addChainActIds || [];
       this.formTaskChains.removeAt(chainIndex);
@@ -1213,6 +1340,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  handleClickPTree(event: any) {
+    this.commonService.handleClickPTree(event);
   }
 
   ngOnDestroy(): void {

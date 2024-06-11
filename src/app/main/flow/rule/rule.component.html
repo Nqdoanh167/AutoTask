@@ -71,25 +71,28 @@
                         <input
                           (change)="handleToggleAction($event, item.id)"
                           checked="{{ item?.isActive ? 'checked' : null }}"
+                          [disabled]="!permission.edit"
                           class="form-check-input"
                           type="checkbox"
                           role="switch"
                           id=""
                         />
                       </div>
-                      <span
-                        [routerLink]="item.id"
-                        class="d-flex align-items-center btn-action-table"
-                      >
-                        <img src="./assets/images/icon/edit.svg" alt="" />
-                      </span>
-                      <span
-                        cdkDragHandle
-                        (click)="$event.preventDefault()"
-                        class="d-flex align-items-center btn-action-table"
-                      >
-                        <img src="./assets/images/icon/dragDrop.svg" alt="" />
-                      </span>
+                      @if (permission.edit) {
+                        <span
+                          [routerLink]="item.id"
+                          class="d-flex align-items-center btn-action-table"
+                        >
+                          <img src="./assets/images/icon/edit.svg" alt="" />
+                        </span>
+                        <span
+                          cdkDragHandle
+                          (click)="$event.preventDefault()"
+                          class="d-flex align-items-center btn-action-table"
+                        >
+                          <img src="./assets/images/icon/dragDrop.svg" alt="" />
+                        </span>
+                      }
                     </div>
                   </div>
                   <div
