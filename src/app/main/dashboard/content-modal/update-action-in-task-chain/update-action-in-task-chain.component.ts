@@ -24,10 +24,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {CommonService} from '@app/services/common/common.service';
-import {AuthService} from '@app/services/api/auth.service';
+import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {removeCharacter} from '@app/utils/common';
@@ -90,15 +87,10 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   };
   protected readonly ENextStepType = ENextStepType;
   protected readonly EDelayType = EDelayType;
-  protected readonly EChainNextActType = EChainNextActType;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
-    private readonly autoTaskService: AutoTaskService,
-    private readonly commonService: CommonService,
-    private readonly authService: AuthService,
-    private readonly modalService: BsModalService,
     private readonly configurationService: ConfigurationService,
   ) {}
 

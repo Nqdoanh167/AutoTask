@@ -18,7 +18,6 @@ import {
   EActionType,
   EDelayType,
   ENextStepType,
-  EOptionCloneTask,
   EStatusTaskChainResult,
   ETaskChainResultType,
   ETaskChainType,
@@ -34,7 +33,6 @@ import {calculateTime} from '@app/utils/common';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IBlockAutomation} from '@app/types/automation';
-import {BsModalService} from 'ngx-bootstrap/modal';
 import moment from 'moment/moment';
 import {optionToCloneTask} from '@app/variable';
 
@@ -80,7 +78,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   private destroy$ = new Subject();
   protected readonly EActionType = EActionType;
-  protected readonly ENextStepType = ENextStepType;
   protected readonly today = new Date();
   protected readonly ETaskChainResultType = ETaskChainResultType;
 
@@ -89,7 +86,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     private readonly fb: FormBuilder,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
-    private readonly modalService: BsModalService,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
@@ -176,6 +172,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       )).clear();
     }
   }
+
   handleChangeTaskChainReason(
     taskChainResultIndex: number,
     value: {id: string; name: string},
