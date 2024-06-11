@@ -7,6 +7,7 @@ import {
   ISidebar,
 } from '../types/viewmodels';
 import {EPerActFlow, EPerActSetting, EPerActTask} from '@app/types/setting';
+import {EOptionCloneTask} from '@app/types/flow';
 
 export const listColumns: IDataColumns = {
   columnDashboardAutoTask: [
@@ -147,5 +148,39 @@ export const listConfigNavItems: ISidebar[] = [
     name: 'Cấu hình dữ liệu',
     isActive: true,
     permissions: [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW],
+  },
+];
+export const optionToCloneTask = [
+  {
+    label: 'Nguồn dữ liệu',
+    value: EOptionCloneTask.SOURCE,
+  },
+  {
+    label: 'Ghi chú',
+    value: EOptionCloneTask.NOTE,
+  },
+  {
+    label: 'Nhân sự phụ trách',
+    value: EOptionCloneTask.TEAM,
+  },
+  {
+    label: 'TAG',
+    value: EOptionCloneTask.TAG,
+  },
+  {
+    label: 'Chuỗi hiện tại',
+    value: EOptionCloneTask.CURRENT_CHAIN,
+  },
+  {
+    label: 'Thông tin khách hàng',
+    value: EOptionCloneTask.LEADDEAL,
+  },
+  {
+    label: 'Sản phẩm quan tâm',
+    value: EOptionCloneTask.PRODUCT,
+  },
+  {
+    label: 'Chi nhánh/Phòng ban/Nhóm',
+    value: EOptionCloneTask.BRANCH,
   },
 ];

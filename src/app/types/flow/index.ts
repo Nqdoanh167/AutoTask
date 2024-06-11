@@ -41,6 +41,7 @@ export enum EOptionCloneTask {
   LEADDEAL = 'LEADDEAL',
   NOTE = 'NOTE',
   PRODUCT = 'PRODUCT',
+  BRANCH = 'BRANCH',
 }
 
 export enum EResultType {

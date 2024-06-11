@@ -139,7 +139,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     teams: this.fb.array([]),
     sourceId: null,
     addChainActIds: null,
-    branch: [null, [Validators.required]],
+    branch: [null],
   });
 
   public addTaskChainForm = this.fb.group({

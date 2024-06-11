@@ -36,6 +36,7 @@ import {CommonService} from '@app/services/common/common.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import moment from 'moment/moment';
+import {optionToCloneTask} from '@app/variable';
 
 @Component({
   selector: 'app-task-chain-item',
@@ -70,36 +71,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   @Output() updateTaskChainEvent = new EventEmitter();
   @Output() cancelUpdateTaskChainEvent = new EventEmitter();
   @Output() callEvent = new EventEmitter();
-  public optionToCloneTask = [
-    {
-      label: 'Nguồn dữ liệu',
-      value: EOptionCloneTask.SOURCE,
-    },
-    {
-      label: 'Ghi chú',
-      value: EOptionCloneTask.NOTE,
-    },
-    {
-      label: 'Nhân sự phụ trách',
-      value: EOptionCloneTask.TEAM,
-    },
-    {
-      label: 'TAG',
-      value: EOptionCloneTask.TAG,
-    },
-    {
-      label: 'Chuỗi hiện tại',
-      value: EOptionCloneTask.CURRENT_CHAIN,
-    },
-    {
-      label: 'Thông tin khách hàng',
-      value: EOptionCloneTask.LEADDEAL,
-    },
-    {
-      label: 'Sản phẩm quan tâm',
-      value: EOptionCloneTask.PRODUCT,
-    },
-  ];
+  public optionToCloneTask = optionToCloneTask;
   public loading = {
     submit: false,
     sendBlock: false,

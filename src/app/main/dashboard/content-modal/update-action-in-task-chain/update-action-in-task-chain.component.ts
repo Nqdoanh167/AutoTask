@@ -31,6 +31,7 @@ import {AuthService} from '@app/services/api/auth.service';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {removeCharacter} from '@app/utils/common';
+import {optionToCloneTask} from '@app/variable';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -54,36 +55,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   @Output() updateSuccess = new EventEmitter<any>();
   @Output() deleteEvent = new EventEmitter<any>();
-  public optionToCloneTask = [
-    {
-      label: 'Nguồn dữ liệu',
-      value: EOptionCloneTask.SOURCE,
-    },
-    {
-      label: 'Ghi chú',
-      value: EOptionCloneTask.NOTE,
-    },
-    {
-      label: 'Nhân sự phụ trách',
-      value: EOptionCloneTask.TEAM,
-    },
-    {
-      label: 'TAG',
-      value: EOptionCloneTask.TAG,
-    },
-    {
-      label: 'Chuỗi hiện tại',
-      value: EOptionCloneTask.CURRENT_CHAIN,
-    },
-    {
-      label: 'Thông tin khách hàng',
-      value: EOptionCloneTask.LEADDEAL,
-    },
-    {
-      label: 'Sản phẩm quan tâm',
-      value: EOptionCloneTask.PRODUCT,
-    },
-  ];
+  public optionToCloneTask = optionToCloneTask;
   public nextStepTypes = this.configurationService.nextStepTypes;
   public submitted = false;
   public updateForm = this.fb.group(

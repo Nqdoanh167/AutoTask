@@ -7,15 +7,10 @@ import {
   Output,
 } from '@angular/core';
 import {Subject} from 'rxjs';
-import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
-import {CommonService} from '@app/services/common/common.service';
 import {Biz} from '@app/types/viewmodels';
 import {AuthService} from '@app/services/api/auth.service';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {ISetting} from '@app/types/setting';
-import {Router} from '@angular/router';
-import {ETypeBulkUpdate} from '@app/types/common';
 import {EOptionCloneTask, ITask} from '@app/types/flow';
 
 @Component({
@@ -50,6 +45,10 @@ export class ModalCloneComponent implements OnInit, OnDestroy {
     {
       label: 'Sản phẩm quan tâm',
       value: EOptionCloneTask.PRODUCT,
+    },
+    {
+      label: 'Thông tin đơn vị (Chi nhánh/Phòng ban/Nhóm)',
+      value: EOptionCloneTask.BRANCH,
     },
   ];
   public form!: FormGroup;
