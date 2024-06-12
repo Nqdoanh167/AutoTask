@@ -1498,12 +1498,23 @@ i {
   border: none;
   background-color: #e7e9ef;
 
+  .p-treeselect-label.p-placeholder {
+    font-family: Roboto;
+    font-size: 14px;
+    line-height: 21px;
+    color: #979aa6;
+  }
+
   .p-treeselect-label {
     font-size: 14px;
   }
 
   .p-placeholder {
     font-size: 13px;
+  }
+
+  .p-treenode-label {
+    font-family: Roboto;
   }
 
   .p-treeselect-items-wrapper {
@@ -1518,6 +1529,15 @@ i {
       .p-treenode-children {
         padding-left: 10px;
       }
+    }
+  }
+
+  &.show-in-above {
+    .p-treeselect-items-wrapper {
+      height: 200px !important;
+    }
+    .p-overlay.p-component.ng-star-inserted {
+      top: -200px !important;
     }
   }
 

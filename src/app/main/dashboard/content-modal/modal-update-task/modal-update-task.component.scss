@@ -21,10 +21,11 @@
 }
 
 .avatar {
-  width: 30px;
-  height: 30px;
-  object-fit: cover;
-  border-radius: 50%;
+  @include mixins.imageCircle(30px);
+}
+
+.source-picture {
+  @include mixins.imageCircle(20px);
 }
 
 .button-header {

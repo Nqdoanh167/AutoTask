@@ -1,7 +1,13 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, IHistory, ITag, Order} from 'src/app/types/viewmodels';
+import {
+  EntityResult,
+  ESocialPlatform,
+  IHistory,
+  ITag,
+  Order,
+} from 'src/app/types/viewmodels';
 import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
@@ -15,6 +21,7 @@ import {
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
+  IBranchTaskDto,
   IBulkTaskDto,
   IChainAct,
   IChainResult,
@@ -27,12 +34,13 @@ import {
   IUpdateChainActDto,
   IUpdateDeadlineTaskResult,
   IUpdateTaskResultDto,
+  ModifiedUserUnit,
 } from '@app/types/flow';
 import {
   BulkRemoveUserAcl,
+  ELevelPer,
   ISetting,
   ISource,
-  ISourceDto,
   IUpdateSourceDto,
   IView,
   IViewDto,
@@ -334,6 +342,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
+    getOrderBySource: (params = {}) =>
+      this.httpClient.get<EntityResult<Record<ESocialPlatform, ISource[]>>>(
+        this.createUrl([this.api.source, 'group']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     create: (body: IUpdateSourceDto) =>
       this.httpClient.post<EntityResult<ISource>>(
         this.createUrl([this.api.source]),
@@ -490,6 +505,79 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   getCurrentActiveViewMode() {
     return this.currentActiveViewMode$.getValue();
+  }
+
+  findUnitFromData(data: IBranchTaskDto) {
+    const units = this.getUserUnits();
+    let res: ModifiedUserUnit | undefined = undefined;
+    units.forEach((branch) => {
+      if (branch.data === data?.id && !data.department) {
+        res = branch;
+      } else {
+        branch.children?.forEach((department) => {
+          if (department.data === data?.department && !data.team) {
+            res = department;
+          } else {
+            department.children?.forEach((team) => {
+              if (team.data === data?.team) {
+                res = team;
+              }
+            });
+          }
+        });
+      }
+    });
+    return res;
+  }
+
+  getUserUnits() {
+    let units: ModifiedUserUnit[] = [];
+    const currentBiz = this.authService.getCurrentBiz();
+    if (currentBiz?.user?.roleBranches) {
+      units = currentBiz.user.roleBranches?.map((branch) => {
+        return {
+          key: branch.id,
+          data: branch.id,
+          label: branch.name,
+          selectable: !branch.departments?.length,
+          id: branch.id,
+          name: branch.name,
+          department: null,
+          departmentName: null,
+          team: null,
+          teamName: null,
+          children: branch.departments?.map((department) => {
+            return {
+              key: department.id,
+              data: department.id,
+              label: department.name,
+              selectable: !department.teams?.length,
+              id: branch.id,
+              name: branch.name,
+              department: department.id,
+              departmentName: department.name,
+              team: null,
+              teamName: null,
+              children: department.teams?.map((team) => {
+                return {
+                  key: team.id,
+                  data: team.id,
+                  label: team.name,
+                  selectable: true,
+                  id: branch.id,
+                  name: branch.name,
+                  department: department.id,
+                  departmentName: department.name,
+                  team: team.id,
+                  teamName: team.name,
+                };
+              }),
+            };
+          }),
+        };
+      });
+    }
+    return units;
   }
 
   ngOnDestroy(): void {

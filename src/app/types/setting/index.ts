@@ -1,5 +1,5 @@
 import {AccountPublic, BaseInterface, User} from '@app/types/viewmodels';
-import {ITaskCartDto} from '@app/types/flow';
+import {IBranchTaskDto, ITaskCartDto} from '@app/types/flow';
 
 export enum EDataSourceType {
   MANUAL = 'MANUAL',
@@ -16,10 +16,11 @@ export enum ESourceArgKey {
   WARD_CODE = 'wardCode',
   DISTRICT_CODE = 'districtCode',
   PROVINCE_CODE = 'provinceCode',
-  COUNSELOR_ID = 'counselorId',
+  TAGS = 'tags',
+  TEAMS = 'teams',
   ADD_CHAIN_ACT_IDS = 'addChainActIds',
   PRODUCT_NAME = 'product.name',
-  PRODUCT_ID = 'product.id',
+  BRANCH = 'branch',
 }
 
 export interface ISourceArgsDto {
@@ -27,10 +28,28 @@ export interface ISourceArgsDto {
   argRef: string;
 }
 
+export interface ISourceDTaskTeam {
+  roleId: string;
+  roleIcon: string;
+  roleName: string;
+  userId: string;
+  userName: string;
+  userPicture: string;
+  userEmail: string;
+}
+
+export interface ISourceDTask {
+  branch: IBranchTaskDto;
+  teams: ISourceDTaskTeam[];
+  taskChainIds: string[];
+}
+
 export interface ISource {
   id: string;
   name: string;
+  picture: string;
   type: EDataSourceType;
+  dTask: ISourceDTask;
   isActive: boolean;
   exeCount: number;
   counselor: AccountPublic;

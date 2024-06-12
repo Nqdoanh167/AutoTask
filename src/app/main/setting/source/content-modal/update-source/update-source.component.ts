@@ -16,31 +16,22 @@ import {BsModalRef} from 'ngx-bootstrap/modal';
 import {
   EDataSourceType,
   ESourceArgKey,
+  ISetting,
   ISource,
   ISourceArgsDto,
   IUpdateSourceDto,
 } from '@app/types/setting';
-import {
-  ICommonDataLazy,
-  IQueryBase,
-  Product,
-  User,
-} from '@app/types/viewmodels';
-import {
-  BehaviorSubject,
-  debounceTime,
-  distinctUntilChanged,
-  finalize,
-  Subject,
-  takeUntil,
-} from 'rxjs';
+import {Biz, ICommonDataLazy, IQueryBase, User} from '@app/types/viewmodels';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {MainService} from '@app/services/api/main.service';
 import {ToastrService} from 'ngx-toastr';
 import {CommonService} from '@app/services/common/common.service';
-import {pick, uniqBy} from 'lodash';
-import {ProductService} from '@app/services/api/product.service';
+import {uniqBy} from 'lodash';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {socialPlatforms} from '@app/variable';
+import {IChainAct} from '@app/types/flow';
+import {OverlayListenerOptions, OverlayOptions} from 'primeng/api';
 
 @Component({
   selector: 'app-update-source',
@@ -53,25 +44,25 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   @Output() deleteEvent = new EventEmitter<any>();
 
   private destroy$ = new Subject();
-  private textSearchProduct = new BehaviorSubject<string | undefined>(
-    undefined,
-  );
+  private currentBiz!: Biz;
 
+  public autoTaskSetting!: ISetting;
+  public platformOptions = socialPlatforms;
   public submitted = false;
   public updateForm = this.fb.group({
     name: [null, [Validators.required]],
     type: EDataSourceType.MANUAL,
+    platform: [null, [Validators.required]],
+    platformId: [null],
+    picture: [null],
     isActive: true,
     arguments: this.fb.array([]),
     exeCount: null,
     counselorId: null,
-    cart: this.fb.group({
-      products: null,
-      courseEvents: null,
-      beautyServices: null,
-      warehouse: null,
-      prepaidCards: null,
-      combos: null,
+    dTask: this.fb.group({
+      branch: null,
+      teams: this.fb.array([]),
+      taskChainIds: null,
     }),
     apiEndpoint: this.fb.group({
       path: null,
@@ -82,17 +73,18 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     }),
     apiBody: null,
   });
-  public products: ICommonDataLazy<Product, IQueryBase> = {
+  public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
     rows: [],
     loading: false,
     paramsQuery: {
       page: 1,
       limit: 100,
       sort: '-createdAt',
-      isParent: false,
+      filter: JSON.stringify({isActive: true}),
     },
     isAllowLoadMore: false,
   };
+  public units = this.autoTaskService.getUserUnits();
   public listType = [
     {
       label: 'Thủ công',
@@ -151,14 +143,24 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     },
     {
       label: 'Nhân viên phụ trách',
-      value: ESourceArgKey.COUNSELOR_ID,
+      value: ESourceArgKey.TEAMS,
     },
     {
       label: 'Chuỗi hành động',
       value: ESourceArgKey.ADD_CHAIN_ACT_IDS,
     },
+    {
+      label: 'Tag',
+      value: ESourceArgKey.TAGS,
+    },
+    {
+      label: 'Thông tin đơn vị (Chi nhánh/Phòng ban/Nhóm)',
+      value: ESourceArgKey.BRANCH,
+    },
   ];
+
   protected readonly EDataSourceType = EDataSourceType;
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
@@ -167,11 +169,11 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     private readonly toastr: ToastrService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
-    private readonly productService: ProductService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
+        this.currentBiz = biz;
         this.listBizUsers =
           biz.users?.map((user) => {
             return {
@@ -190,6 +192,10 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     return (<FormArray>this.updateForm.get('arguments')) as FormArray;
   }
 
+  get formTeams() {
+    return <FormArray>this.updateForm.get('dTask.teams');
+  }
+
   checkExistArgKey(argKey: string) {
     return this.formArguments().controls.some(
       (control) => control?.get('argKey')?.value === argKey,
@@ -197,12 +203,20 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
+    this.getAutoTaskSetting();
+    this.getActionChain();
     if (this.sourceData) {
       this.updateForm.patchValue({
         ...this.sourceData,
         counselorId: this.sourceData?.counselor?.id,
       } as ISource as any);
-      if (this.sourceData.arguments) {
+      if (this.sourceData?.dTask?.branch) {
+        const foundUnit = this.autoTaskService.findUnitFromData(
+          this.sourceData?.dTask?.branch,
+        );
+        this.updateForm.get('dTask.branch')?.setValue(foundUnit as any);
+      }
+      if (this.sourceData?.arguments) {
         this.sourceData?.arguments?.forEach((argument: ISourceArgsDto) => {
           this.formArguments().push(
             this.fb.group({
@@ -213,12 +227,79 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
         });
       }
     }
-    this.textSearchProduct
-      .pipe(takeUntil(this.destroy$), debounceTime(600), distinctUntilChanged())
-      .subscribe((data) => {
-        this.products.paramsQuery.q = data || '';
-        this.products.paramsQuery.page = 1;
-        this.getListProduct(undefined, true);
+  }
+
+  getActionChain() {
+    this.actionChains.loading = true;
+    this.autoTaskService.chainAction
+      .get(this.actionChains.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.actionChains.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.actionChains.rows = uniqBy(
+              this.actionChains.rows.concat(res.data),
+              'id',
+            );
+            this.actionChains.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.actionChains.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.actionChains.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getAutoTaskSetting() {
+    if (!this.currentBiz) return;
+    this.autoTaskService.setting
+      .retrieve({bizId: this.currentBiz?.id})
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            this.autoTaskSetting = res.data;
+            res.data.roles?.forEach((role) => {
+              const findRole = this.currentBiz.roles.find((r) => r.id === role);
+              let initTeam = null;
+              if (!this.sourceData && findRole?.id === res.data.assignRole) {
+                initTeam = {
+                  userId: this.currentBiz.user.id,
+                  userName: this.currentBiz.user.name,
+                  userPicture: this.currentBiz.user.picture,
+                  userEmail: this.currentBiz.user.email,
+                };
+              }
+
+              const findTeam = this.sourceData?.dTask?.teams?.find(
+                (team) => team.roleId === role,
+              );
+
+              this.formTeams.push(
+                this.fb.group({
+                  roleId: findRole?.id,
+                  roleIcon: findRole?.icon,
+                  roleName: findRole?.name,
+                  userId: initTeam?.userId || findTeam?.userId || null,
+                  userName: initTeam?.userName || findTeam?.userName || null,
+                  userPicture:
+                    initTeam?.userPicture || findTeam?.userPicture || null,
+                  userEmail: initTeam?.userEmail || findTeam?.userEmail || null,
+                }),
+              );
+            });
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
       });
   }
 
@@ -228,14 +309,6 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     this.updateForm.patchValue({
       arguments: [],
       counselorId: null,
-      cart: {
-        products: null,
-        courseEvents: null,
-        beautyServices: null,
-        warehouse: null,
-        prepaidCards: null,
-        combos: null,
-      },
     });
     if (
       this.f['type'].value === EDataSourceType.API &&
@@ -246,59 +319,8 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     }
   }
 
-  handleSearchValue($event: {term: string; items: any[]}, key: string) {
-    switch (key) {
-      case 'products':
-        this.textSearchProduct.next($event.term.trim());
-        break;
-      default:
-        break;
-    }
-  }
-
   onDelete() {
     this.deleteEvent.emit(this.sourceData);
-  }
-
-  getListProduct(isInit: boolean = false, isSearching: boolean = false) {
-    this.products.loading = true;
-    const ids: string[] = [];
-    const query = {
-      ...this.products.paramsQuery,
-      ...(isInit && ids.length && {ids: ids}),
-    };
-    if (isSearching) {
-      this.products.rows = [];
-    }
-
-    this.productService.product
-      .get(query)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.products.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res && res.status === 200) {
-            let newData: any[] = [];
-            newData = [
-              ...this.products.rows,
-              ...res.data?.map((product) =>
-                pick(product, ['id', 'name', 'picture']),
-              ),
-            ];
-            this.products.rows = uniqBy(newData, 'id');
-            this.products.isAllowLoadMore = true;
-          } else {
-            this.products.isAllowLoadMore = false;
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.products.isAllowLoadMore = false;
-          this.commonService.handleResErr(err);
-        },
-      });
   }
 
   hideModal(): void {
@@ -307,8 +329,23 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
 
   handleUpdate() {
     this.loading.submit = true;
+    const branchForm = this.f['dTask']?.value?.branch;
     const body = {
       ...this.updateForm.value,
+      dTask: {
+        ...this.updateForm.value.dTask,
+        branch: !!branchForm
+          ? {
+              unit: branchForm?.level,
+              id: branchForm?.id,
+              name: branchForm?.name,
+              department: branchForm?.department,
+              departmentName: branchForm?.departmentName,
+              team: branchForm?.team,
+              teamName: branchForm?.teamName,
+            }
+          : null,
+      },
     } as any as IUpdateSourceDto;
     if (this.sourceData?.id) {
       this.autoTaskService.source
@@ -386,15 +423,37 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     this.copyText(JSON.stringify(apiBody));
   }
 
-  compareFunction(item: Product, selected: Product) {
-    return item.id === selected.id;
+  onChooseTeam(index: number, user: User) {
+    this.formTeams.at(index).patchValue({
+      userId: user.id,
+      userName: user.name,
+      userPicture: user.picture,
+      userEmail: user.email,
+    });
   }
 
-  handleLoadMore(key: 'products') {
-    if (key === 'products' && this.products.isAllowLoadMore) {
-      this.products!.paramsQuery!.page! += 1;
-      this.getListProduct();
-    }
+  onRemoveTeam(index: number) {
+    this.formTeams.at(index).patchValue({
+      userId: null,
+      userName: null,
+      userPicture: null,
+      userEmail: null,
+    });
+  }
+
+  handleClickPTree(event: any) {
+    this.commonService.handleClickPTree(event);
+  }
+
+  getOverlayOptions(): OverlayOptions {
+    return {
+      listener: (event: Event, options?: OverlayListenerOptions) => {
+        if (options?.type === 'scroll') {
+          return false;
+        }
+        return options?.valid;
+      },
+    };
   }
 
   ngOnDestroy(): void {

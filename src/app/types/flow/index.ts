@@ -339,6 +339,10 @@ export interface IBranchTaskDto {
   unit: ELevelPer;
   name: string;
   id: string;
+  department: string;
+  departmentName: string;
+  team: string;
+  teamName: string;
 }
 
 export interface ITaskDto {
@@ -394,7 +398,6 @@ export enum EActionStates {
 export interface ModifiedUserUnit {
   key: string;
   label: string;
-  level: ELevelPer;
   data: string;
   children?: ModifiedUserUnit[];
 }

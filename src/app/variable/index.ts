@@ -2,6 +2,7 @@ import {
   EFlowTab,
   EModule,
   ESettingTab,
+  ESocialPlatform,
   IColumns,
   IDataColumns,
   ISidebar,
@@ -99,19 +100,19 @@ export const listSettingNavItems: ISidebar[] = [
       EPerActSetting.UPDATE_TAG_SETTING,
     ],
   },
-  {
-    link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
-    alias: ESettingTab.DECENTRALIZATION,
-    name: 'Phân quyền',
-    isActive: true,
-    permissions: [
-      EPerActSetting.VIEW_USER_ACCESS_BIZ,
-      EPerActSetting.VIEW_USER_ACCESS,
-      EPerActSetting.UPDATE_USER_ACCESS,
-      EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
-      EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
-    ],
-  },
+  // {
+  //   link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
+  //   alias: ESettingTab.DECENTRALIZATION,
+  //   name: 'Phân quyền',
+  //   isActive: true,
+  //   permissions: [
+  //     EPerActSetting.VIEW_USER_ACCESS_BIZ,
+  //     EPerActSetting.VIEW_USER_ACCESS,
+  //     EPerActSetting.UPDATE_USER_ACCESS,
+  //     EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
+  //     EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
+  //   ],
+  // },
   {
     link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
     alias: ESettingTab.ROLE,
@@ -182,5 +183,31 @@ export const optionToCloneTask = [
   {
     label: 'Chi nhánh/Phòng ban/Nhóm',
     value: EOptionCloneTask.BRANCH,
+  },
+];
+
+export const socialPlatforms: {
+  label: string;
+  value: ESocialPlatform;
+  image?: string;
+}[] = [
+  {
+    label: 'Facebook',
+    value: ESocialPlatform.FACEBOOK,
+    image: './assets/images/socials/facebook.svg',
+  },
+  {
+    label: 'Zalo',
+    value: ESocialPlatform.ZALO,
+    image: './assets/images/socials/zalo.svg',
+  },
+  {
+    label: 'LadiPage',
+    value: ESocialPlatform.LADIPAGE,
+    image: './assets/images/socials/landipage.svg',
+  },
+  {
+    label: 'Other',
+    value: ESocialPlatform.OTHER,
   },
 ];

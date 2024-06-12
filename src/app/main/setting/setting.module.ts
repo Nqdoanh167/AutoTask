@@ -27,6 +27,10 @@ import {CdkDropList} from '@angular/cdk/drag-drop';
 import {ModalEmployeeInfoComponent} from '@main/setting/modal-contents/modal-employee-info/modal-employee-info.component';
 import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-permission/add-edit-permission.component';
 import {AccordionModule} from 'ngx-bootstrap/accordion';
+import {InputUploadModule} from '@share/input/input-upload/input-upload.module';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {TreeSelectModule} from 'primeng/treeselect';
 
 @NgModule({
   declarations: [
@@ -61,6 +65,10 @@ import {AccordionModule} from 'ngx-bootstrap/accordion';
     StandardDataSizeComponent,
     CdkDropList,
     AccordionModule,
+    InputUploadModule,
+    BsDropdownModule,
+    PopoverModule,
+    TreeSelectModule,
   ],
 })
 export class SettingModule {}

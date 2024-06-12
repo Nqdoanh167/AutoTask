@@ -27,14 +27,14 @@ const routes: Routes = [
         canActivate: [HasPermissionAccessModuleGuard],
         component: SourceComponent,
       },
-      {
-        path: ESettingTab.DECENTRALIZATION,
-        data: {
-          mainModule: EModule.SETTING,
-        },
-        canActivate: [HasPermissionAccessModuleGuard],
-        component: DecentralizationComponent,
-      },
+      // {
+      //   path: ESettingTab.DECENTRALIZATION,
+      //   data: {
+      //     mainModule: EModule.SETTING,
+      //   },
+      //   canActivate: [HasPermissionAccessModuleGuard],
+      //   component: DecentralizationComponent,
+      // },
       {
         path: ESettingTab.TAG,
         data: {

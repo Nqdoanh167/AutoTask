@@ -227,7 +227,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   };
   public listBizUsers: User[] = [];
   public triggerCallHistory!: any;
-  public units: ModifiedUserUnit[] = [];
+  public units = this.autoTaskService.getUserUnits();
 
   constructor(
     private readonly fb: FormBuilder,
@@ -248,35 +248,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         } as any);
         this.listBizUsers = biz.users;
         this.currentBiz = biz;
-        if (biz?.user?.roleBranches) {
-          this.units = biz.user.roleBranches?.map((branch) => {
-            return {
-              key: branch.id,
-              data: branch.id,
-              label: branch.name,
-              selectable: !branch.departments?.length,
-              level: ELevelPer.BRANCH,
-              children: branch.departments?.map((department) => {
-                return {
-                  key: department.id,
-                  data: department.id,
-                  label: department.name,
-                  selectable: !department.teams?.length,
-                  level: ELevelPer.DEPARTMENT,
-                  children: department.teams?.map((team) => {
-                    return {
-                      key: team.id,
-                      data: team.id,
-                      label: team.name,
-                      selectable: true,
-                      level: ELevelPer.TEAM,
-                    };
-                  }),
-                };
-              }),
-            };
-          });
-        }
       });
   }
 
@@ -518,41 +489,14 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       },
       counselorId: dataSource?.counselor?.id,
     } as any);
-    this.units.forEach((branch) => {
-      if (branch.data === dataSource.branch?.id) {
-        this.updateForm.patchValue({
-          branch: {
-            level: branch.level,
-            label: branch.label,
-            data: branch.data,
-          } as any,
-        });
-      } else {
-        branch.children?.forEach((department) => {
-          if (department.data === dataSource.branch?.id) {
-            this.updateForm.patchValue({
-              branch: {
-                level: department.level,
-                label: department.label,
-                data: department.data,
-              } as any,
-            });
-          } else {
-            department.children?.forEach((team) => {
-              if (team.data === dataSource.branch?.id) {
-                this.updateForm.patchValue({
-                  branch: {
-                    level: team.level,
-                    label: team.label,
-                    data: team.data,
-                  } as any,
-                });
-              }
-            });
-          }
-        });
-      }
-    });
+    if (dataSource.branch) {
+      const foundUnit = this.autoTaskService.findUnitFromData(
+        dataSource.branch,
+      );
+      this.updateForm.patchValue({
+        branch: foundUnit as any,
+      });
+    }
     this.formTaskChains.clear();
     dataSource.taskChains?.forEach((taskChain) => {
       const taskChainForm = this.fb.group({
@@ -839,15 +783,22 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   handleUpdate() {
     const branchForm = this.f['branch'].value;
+    console.log(branchForm);
     return new Promise((resolve, reject) => {
       this.loading.submit = true;
       const body = {
         ...this.updateForm.value,
-        branch: {
-          unit: branchForm.level,
-          name: branchForm.label,
-          id: branchForm.data,
-        },
+        branch: !!branchForm
+          ? {
+              unit: branchForm?.level,
+              id: branchForm?.id,
+              name: branchForm?.name,
+              department: branchForm?.department,
+              departmentName: branchForm?.departmentName,
+              team: branchForm?.team,
+              teamName: branchForm?.teamName,
+            }
+          : null,
       } as unknown as ITaskDto as any;
       if (this.sourceData?.id) {
         delete body.addChainActIds;

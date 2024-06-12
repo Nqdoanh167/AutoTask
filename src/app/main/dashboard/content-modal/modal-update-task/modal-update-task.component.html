@@ -50,6 +50,13 @@
               [disabled]="!item.isActive"
             >
               <div>
+                @if (item.picture) {
+                  <img
+                    src="{{ item.picture }}"
+                    alt=""
+                    class="source-picture me-1"
+                  />
+                }
                 {{ item.name }}
               </div>
             </ng-option>

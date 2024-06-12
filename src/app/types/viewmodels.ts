@@ -1665,3 +1665,10 @@ export interface BaseInterface {
   createdBy?: AccountPublic;
   updatedBy?: AccountPublic;
 }
+
+export enum ESocialPlatform {
+  FACEBOOK = 'FACEBOOK',
+  ZALO = 'ZALO',
+  LADIPAGE = 'LADIPAGE',
+  OTHER = 'OTHER',
+}

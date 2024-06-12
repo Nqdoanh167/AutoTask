@@ -2,153 +2,343 @@
   <div class="card">
     <div class="card-body">
       <div class="content-site">
-        <app-standard-data-size
-          [item]="item"
-          [configButtons]="configButtons"
+        <app-filter-top-table
           [configFilters]="configFilters"
+          [configButtons]="configButtons"
+          (clickButtonEvent)="handleAction($event)"
           (searchEvent)="onSearch($event)"
-          (pageChangeEvent)="pageChanged($event)"
-          (selectFilterEvent)="onSelectFilter($event)"
-          (actionEvent)="handleAction($event)"
-        >
-          <ng-container bodyTable>
-            <div class="table-responsive tableFixHead custom-scrollbar">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th
-                      (click)="sortBy('name')"
-                      class="column-name th-allow-sort"
-                    >
-                      <span
-                        class="icon-sort"
-                        [innerHTML]="sortIcon('name')"
-                      ></span>
-                      Tên nguồn
-                    </th>
-                    <th (click)="sortBy('type')" class="th-allow-sort">
-                      <span
-                        class="icon-sort"
-                        [innerHTML]="sortIcon('type')"
-                      ></span>
-                      Loại kết nối
-                    </th>
-                    <th (click)="sortBy('count')" class="th-allow-sort">
-                      <span
-                        class="icon-sort"
-                        [innerHTML]="sortIcon('count')"
-                      ></span>
-                      Số lần gọi API
-                    </th>
-                    <th (click)="sortBy('status')" class="th-allow-sort">
-                      <span
-                        class="icon-sort"
-                        [innerHTML]="sortIcon('status')"
-                      ></span>
-                      Trạng thái
-                    </th>
-                    <th (click)="sortBy('createdAt')" class="th-allow-sort">
-                      <span
-                        class="icon-sort"
-                        [innerHTML]="sortIcon('createdAt')"
-                      ></span>
-                      Ngày tạo
-                    </th>
-                    @if (this.permission.edit || this.permission.delete) {
-                      <th class="columns-action">Hành động</th>
-                    }
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    class="text-center"
-                    *ngIf="!item.rows.length && !item.loading"
-                  >
-                    <td colspan="12">
-                      <div>Không có dữ liệu</div>
-                    </td>
-                  </tr>
-                  <tr class="text-center" *ngIf="item.loading">
-                    <td colspan="12">
-                      <div class="spinner-grow text-primary" role="status">
-                        <span class="visually-hidden">Loading</span>
-                      </div>
-                      <div>Loading</div>
-                    </td>
-                  </tr>
-                  <tr *ngFor="let item of item.rows; index as i">
-                    <td class="column-name">
-                      <div
-                        class="fw-500 cursor-pointer"
-                        (click)="handleUpdate(item)"
-                      >
-                        {{ item.name || '-' }}
-                      </div>
-                    </td>
-                    <td class="">
-                      <div>
-                        {{
-                          item.type === EDataSourceType.MANUAL
-                            ? 'Thủ công'
-                            : 'API'
-                        }}
-                      </div>
-                    </td>
-                    <td class="">
-                      <div>
-                        {{
-                          item.type === EDataSourceType.MANUAL
-                            ? 'N/A'
-                            : (item.exeCount | number) || 0
-                        }}
-                      </div>
-                    </td>
-                    <td class="">
-                      <div>
-                        <img
-                          src="assets/images/icon/{{
-                            item.isActive ? 'check.svg' : 'not-check.svg'
-                          }}"
-                          width="10"
-                          height="10"
-                          alt=""
-                        />
-                      </div>
-                    </td>
-                    <td>
-                      {{ item.createdAt | timeView }}
-                    </td>
-                    @if (this.permission.edit || this.permission.delete) {
-                      <td class="columns-action">
-                        <div class="d-flex">
-                          @if (this.permission.edit) {
-                            <span
-                              (click)="handleUpdate(item)"
-                              class="d-flex align-items-center btn-action-table"
-                            >
-                              <img src="./assets/images/icon/edit.svg" alt="" />
-                            </span>
-                          }
-                          @if (this.permission.delete) {
-                            <span
-                              (click)="handleDelete(item)"
-                              class="d-flex align-items-center btn-action-table"
-                            >
-                              <img
-                                src="./assets/images/icon/remove.svg"
-                                alt=""
-                              />
-                            </span>
-                          }
-                        </div>
-                      </td>
-                    }
-                  </tr>
-                </tbody>
-              </table>
+          (selectEvent)="onSelectFilter($event)"
+        ></app-filter-top-table>
+        <accordion class="accordion-white mt-4" [isAnimated]="true">
+          <accordion-group *ngFor="let social of socialPlatforms" #myGroup>
+            <div
+              accordion-heading
+              class="header-item d-flex justify-content-between align-items-center py-2"
+            >
+              <span class="fw-500">
+                @if (social.image) {
+                  <img
+                    class="me-2"
+                    src="{{ social.image }}"
+                    alt=""
+                    [style]="{width: '25px', height: '25px'}"
+                  />
+                }
+                {{ social.label }}
+              </span>
+              <i
+                class="me-2 fas"
+                [ngClass]="{
+                  'fa-chevron-down': myGroup?.isOpen,
+                  'fa-chevron-up': !myGroup?.isOpen
+                }"
+              ></i>
             </div>
-          </ng-container>
-        </app-standard-data-size>
+            <div>
+              <ng-container>
+                <div class="table-responsive tableFixHead custom-scrollbar">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th
+                          (click)="sortBy('name')"
+                          class="column-name th-allow-sort"
+                        >
+                          <span
+                            class="icon-sort"
+                            [innerHTML]="sortIcon('name')"
+                          ></span>
+                          Tên nguồn
+                        </th>
+                        <th (click)="sortBy('type')" class="th-allow-sort">
+                          <span
+                            class="icon-sort"
+                            [innerHTML]="sortIcon('type')"
+                          ></span>
+                          Loại kết nối
+                        </th>
+                        <th (click)="sortBy('count')" class="th-allow-sort">
+                          <span
+                            class="icon-sort"
+                            [innerHTML]="sortIcon('count')"
+                          ></span>
+                          Số lần gọi API
+                        </th>
+                        <th (click)="sortBy('status')" class="th-allow-sort">
+                          <span
+                            class="icon-sort"
+                            [innerHTML]="sortIcon('status')"
+                          ></span>
+                          Trạng thái
+                        </th>
+                        <th (click)="sortBy('createdAt')" class="th-allow-sort">
+                          <span
+                            class="icon-sort"
+                            [innerHTML]="sortIcon('createdAt')"
+                          ></span>
+                          Ngày tạo
+                        </th>
+                        @if (this.permission.edit || this.permission.delete) {
+                          <th class="columns-action">Hành động</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        class="text-center"
+                        *ngIf="
+                          !dataSources[social.value].length && !loading.data
+                        "
+                      >
+                        <td colspan="12">
+                          <div>Không có dữ liệu</div>
+                        </td>
+                      </tr>
+                      <tr class="text-center" *ngIf="loading.data">
+                        <td colspan="12">
+                          <div class="spinner-grow text-primary" role="status">
+                            <span class="visually-hidden">Loading</span>
+                          </div>
+                          <div>Loading</div>
+                        </td>
+                      </tr>
+                      <tr
+                        *ngFor="
+                          let item of dataSources[social.value];
+                          index as i
+                        "
+                      >
+                        <td class="column-name">
+                          <div
+                            class="fw-500 cursor-pointer"
+                            (click)="handleUpdate(item)"
+                          >
+                            @if (item.picture) {
+                              <img
+                                src="{{ item.picture }}"
+                                alt=""
+                                class="avatar me-1"
+                              />
+                            }
+                            {{ item.name || '-' }}
+                          </div>
+                        </td>
+                        <td class="">
+                          <div>
+                            {{
+                              item.type === EDataSourceType.MANUAL
+                                ? 'Thủ công'
+                                : 'API'
+                            }}
+                          </div>
+                        </td>
+                        <td class="">
+                          <div>
+                            {{
+                              item.type === EDataSourceType.MANUAL
+                                ? 'N/A'
+                                : (item.exeCount | number) || 0
+                            }}
+                          </div>
+                        </td>
+                        <td class="">
+                          <div>
+                            <img
+                              src="assets/images/icon/{{
+                                item.isActive ? 'check.svg' : 'not-check.svg'
+                              }}"
+                              width="10"
+                              height="10"
+                              alt=""
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          {{ item.createdAt | timeView }}
+                        </td>
+                        @if (this.permission.edit || this.permission.delete) {
+                          <td class="columns-action">
+                            <div class="d-flex">
+                              @if (this.permission.edit) {
+                                <span
+                                  (click)="handleUpdate(item)"
+                                  class="d-flex align-items-center btn-action-table"
+                                >
+                                  <img
+                                    src="./assets/images/icon/edit.svg"
+                                    alt=""
+                                  />
+                                </span>
+                              }
+                              @if (this.permission.delete) {
+                                <span
+                                  (click)="handleDelete(item)"
+                                  class="d-flex align-items-center btn-action-table"
+                                >
+                                  <img
+                                    src="./assets/images/icon/remove.svg"
+                                    alt=""
+                                  />
+                                </span>
+                              }
+                            </div>
+                          </td>
+                        }
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </ng-container>
+            </div>
+          </accordion-group>
+        </accordion>
+        <!--        <app-standard-data-size-->
+        <!--          [item]="item"-->
+        <!--          [configButtons]="configButtons"-->
+        <!--          [configFilters]="configFilters"-->
+        <!--          (searchEvent)="onSearch($event)"-->
+        <!--          (pageChangeEvent)="pageChanged($event)"-->
+        <!--          (selectFilterEvent)="onSelectFilter($event)"-->
+        <!--          (actionEvent)="handleAction($event)"-->
+        <!--        >-->
+        <!--                  <ng-container bodyTable>-->
+        <!--                    <div class="table-responsive tableFixHead custom-scrollbar">-->
+        <!--                      <table class="table">-->
+        <!--                        <thead>-->
+        <!--                          <tr>-->
+        <!--                            <th-->
+        <!--                              (click)="sortBy('name')"-->
+        <!--                              class="column-name th-allow-sort"-->
+        <!--                            >-->
+        <!--                              <span-->
+        <!--                                class="icon-sort"-->
+        <!--                                [innerHTML]="sortIcon('name')"-->
+        <!--                              ></span>-->
+        <!--                              Tên nguồn-->
+        <!--                            </th>-->
+        <!--                            <th (click)="sortBy('type')" class="th-allow-sort">-->
+        <!--                              <span-->
+        <!--                                class="icon-sort"-->
+        <!--                                [innerHTML]="sortIcon('type')"-->
+        <!--                              ></span>-->
+        <!--                              Loại kết nối-->
+        <!--                            </th>-->
+        <!--                            <th (click)="sortBy('count')" class="th-allow-sort">-->
+        <!--                              <span-->
+        <!--                                class="icon-sort"-->
+        <!--                                [innerHTML]="sortIcon('count')"-->
+        <!--                              ></span>-->
+        <!--                              Số lần gọi API-->
+        <!--                            </th>-->
+        <!--                            <th (click)="sortBy('status')" class="th-allow-sort">-->
+        <!--                              <span-->
+        <!--                                class="icon-sort"-->
+        <!--                                [innerHTML]="sortIcon('status')"-->
+        <!--                              ></span>-->
+        <!--                              Trạng thái-->
+        <!--                            </th>-->
+        <!--                            <th (click)="sortBy('createdAt')" class="th-allow-sort">-->
+        <!--                              <span-->
+        <!--                                class="icon-sort"-->
+        <!--                                [innerHTML]="sortIcon('createdAt')"-->
+        <!--                              ></span>-->
+        <!--                              Ngày tạo-->
+        <!--                            </th>-->
+        <!--                            @if (this.permission.edit || this.permission.delete) {-->
+        <!--                              <th class="columns-action">Hành động</th>-->
+        <!--                            }-->
+        <!--                          </tr>-->
+        <!--                        </thead>-->
+        <!--                        <tbody>-->
+        <!--                          <tr-->
+        <!--                            class="text-center"-->
+        <!--                            *ngIf="!item.rows.length && !item.loading"-->
+        <!--                          >-->
+        <!--                            <td colspan="12">-->
+        <!--                              <div>Không có dữ liệu</div>-->
+        <!--                            </td>-->
+        <!--                          </tr>-->
+        <!--                          <tr class="text-center" *ngIf="item.loading">-->
+        <!--                            <td colspan="12">-->
+        <!--                              <div class="spinner-grow text-primary" role="status">-->
+        <!--                                <span class="visually-hidden">Loading</span>-->
+        <!--                              </div>-->
+        <!--                              <div>Loading</div>-->
+        <!--                            </td>-->
+        <!--                          </tr>-->
+        <!--                          <tr *ngFor="let item of item.rows; index as i">-->
+        <!--                            <td class="column-name">-->
+        <!--                              <div-->
+        <!--                                class="fw-500 cursor-pointer"-->
+        <!--                                (click)="handleUpdate(item)"-->
+        <!--                              >-->
+        <!--                                {{ item.name || '-' }}-->
+        <!--                              </div>-->
+        <!--                            </td>-->
+        <!--                            <td class="">-->
+        <!--                              <div>-->
+        <!--                                {{-->
+        <!--                                  item.type === EDataSourceType.MANUAL-->
+        <!--                                    ? 'Thủ công'-->
+        <!--                                    : 'API'-->
+        <!--                                }}-->
+        <!--                              </div>-->
+        <!--                            </td>-->
+        <!--                            <td class="">-->
+        <!--                              <div>-->
+        <!--                                {{-->
+        <!--                                  item.type === EDataSourceType.MANUAL-->
+        <!--                                    ? 'N/A'-->
+        <!--                                    : (item.exeCount | number) || 0-->
+        <!--                                }}-->
+        <!--                              </div>-->
+        <!--                            </td>-->
+        <!--                            <td class="">-->
+        <!--                              <div>-->
+        <!--                                <img-->
+        <!--                                  src="assets/images/icon/{{-->
+        <!--                                    item.isActive ? 'check.svg' : 'not-check.svg'-->
+        <!--                                  }}"-->
+        <!--                                  width="10"-->
+        <!--                                  height="10"-->
+        <!--                                  alt=""-->
+        <!--                                />-->
+        <!--                              </div>-->
+        <!--                            </td>-->
+        <!--                            <td>-->
+        <!--                              {{ item.createdAt | timeView }}-->
+        <!--                            </td>-->
+        <!--                            @if (this.permission.edit || this.permission.delete) {-->
+        <!--                              <td class="columns-action">-->
+        <!--                                <div class="d-flex">-->
+        <!--                                  @if (this.permission.edit) {-->
+        <!--                                    <span-->
+        <!--                                      (click)="handleUpdate(item)"-->
+        <!--                                      class="d-flex align-items-center btn-action-table"-->
+        <!--                                    >-->
+        <!--                                      <img src="./assets/images/icon/edit.svg" alt="" />-->
+        <!--                                    </span>-->
+        <!--                                  }-->
+        <!--                                  @if (this.permission.delete) {-->
+        <!--                                    <span-->
+        <!--                                      (click)="handleDelete(item)"-->
+        <!--                                      class="d-flex align-items-center btn-action-table"-->
+        <!--                                    >-->
+        <!--                                      <img-->
+        <!--                                        src="./assets/images/icon/remove.svg"-->
+        <!--                                        alt=""-->
+        <!--                                      />-->
+        <!--                                    </span>-->
+        <!--                                  }-->
+        <!--                                </div>-->
+        <!--                              </td>-->
+        <!--                            }-->
+        <!--                          </tr>-->
+        <!--                        </tbody>-->
+        <!--                      </table>-->
+        <!--                    </div>-->
+        <!--                  </ng-container>-->
+        <!--        </app-standard-data-size>-->
       </div>
     </div>
   </div>

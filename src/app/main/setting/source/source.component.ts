@@ -6,7 +6,7 @@ import {
   IFilterTopTable,
 } from '@app/types/common';
 import {finalize, Subject, takeUntil} from 'rxjs';
-import {IQueryBase} from '@app/types/viewmodels';
+import {ESocialPlatform, IQueryBase} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
@@ -21,6 +21,8 @@ import {
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
 import {AuthService} from '@app/services/api/auth.service';
+import {socialPlatforms} from '@app/variable';
+import {ETaskChainType} from '@app/types/flow';
 
 @Component({
   selector: 'app-source',
@@ -34,6 +36,17 @@ export class SourceComponent
   private destroy$ = new Subject();
 
   protected readonly EDataSourceType = EDataSourceType;
+
+  public socialPlatforms = socialPlatforms;
+  public loading = {
+    data: false,
+  };
+  public dataSources: Record<ESocialPlatform, ISource[]> = {
+    [ESocialPlatform.FACEBOOK]: [],
+    [ESocialPlatform.ZALO]: [],
+    [ESocialPlatform.LADIPAGE]: [],
+    [ESocialPlatform.OTHER]: [],
+  };
   public override configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
@@ -106,26 +119,28 @@ export class SourceComponent
     }
   }
 
-  override getDataSource(isReset: boolean = false) {
+  override getDataSource() {
     let params = {...this.item.paramsQuery};
-    if (isReset) {
-      params.limit = 20;
-      params.page = 1;
-    }
-    this.item.loading = true;
+    this.loading.data = true;
     this.autoTaskService.source
-      .get(params)
+      .getOrderBySource(params)
       .pipe(
         finalize(() => {
-          this.item.loading = false;
+          this.loading.data = false;
         }),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.item.rows = res.data;
-            this.item.total = res.total;
+            this.dataSources = {
+              [ESocialPlatform.FACEBOOK]:
+                res.data[ESocialPlatform.FACEBOOK] ?? [],
+              [ESocialPlatform.ZALO]: res.data[ESocialPlatform.ZALO] ?? [],
+              [ESocialPlatform.LADIPAGE]:
+                res.data[ESocialPlatform.LADIPAGE] ?? [],
+              [ESocialPlatform.OTHER]: res.data[ESocialPlatform.OTHER] ?? [],
+            };
           }
         },
       });
@@ -158,7 +173,7 @@ export class SourceComponent
 
   override handleAction(name: string) {
     if (name === 'reload') {
-      this.getDataSource(true);
+      this.getDataSource();
     }
     if (name === 'add_new') {
       this.handleUpdate();
@@ -212,4 +227,6 @@ export class SourceComponent
     this.destroy$.next(true);
     this.destroy$.complete();
   }
+
+  protected readonly ETaskChainType = ETaskChainType;
 }

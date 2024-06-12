@@ -216,79 +216,79 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     if (!taskChainResult.id) return;
     const {note, resultIndex, reasonIndex, nextActions, deadlineDate, action} =
       this.formTaskChainResults().at(taskChainResultIndex).value;
-    const originalDeadlineDate =
-      this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
-        ?.deadlineDate;
-    // check if deadlineDate is change
-    if (
-      new Date(originalDeadlineDate!).getTime() !==
-      new Date(deadlineDate).getTime()
-    ) {
-      const body = {
-        deadlineDate: deadlineDate.toISOString(),
-        note,
-      };
-      this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
-    } else {
-      const modifiedNextActions = nextActions.map((nextAction: any) => {
-        if (nextAction?.childNextAction) {
-          const modify = {
-            callBlockAutomation: nextAction?.childNextAction
-              ?.callBlockAutomation
-              ? nextAction?.childNextAction?.callBlockAutomation
-              : null,
-            moveToAction: nextAction?.childNextAction?.moveToAction
-              ? nextAction?.childNextAction?.moveToAction
-              : null,
-            addNewChain: nextAction?.childNextAction?.addNewChain
-              ? nextAction?.childNextAction?.addNewChain
-              : null,
-            closeCloneTask: nextAction?.childNextAction?.closeCloneTask
-              ? nextAction?.childNextAction?.closeCloneTask
-              : null,
-            nextAction: nextAction?.childNextAction?.nextAction,
-          };
-          return {
-            ...nextAction,
-            ...nextAction.childNextAction,
-            ...modify,
-          };
-        }
+    const modifiedNextActions = nextActions.map((nextAction: any) => {
+      if (nextAction?.childNextAction) {
         const modify = {
-          callBlockAutomation: nextAction.callToBlockId
-            ? {
-                blockId: nextAction.callToBlockId,
-              }
+          callBlockAutomation: nextAction?.childNextAction?.callBlockAutomation
+            ? nextAction?.childNextAction?.callBlockAutomation
             : null,
-          moveToAction: nextAction.moveToActionId
-            ? {
-                chainActResultId: nextAction.moveToActionId,
-              }
+          moveToAction: nextAction?.childNextAction?.moveToAction
+            ? nextAction?.childNextAction?.moveToAction
             : null,
-          closeCloneTask: nextAction.closeCloneTask || null,
+          addNewChain: nextAction?.childNextAction?.addNewChain
+            ? nextAction?.childNextAction?.addNewChain
+            : null,
+          closeCloneTask: nextAction?.childNextAction?.closeCloneTask
+            ? nextAction?.childNextAction?.closeCloneTask
+            : null,
+          nextAction: nextAction?.childNextAction?.nextAction,
         };
         return {
           ...nextAction,
+          ...nextAction.childNextAction,
           ...modify,
         };
-      });
-      const body = {
-        note,
-        resultIndex: resultIndex || resultIndex === 0 ? resultIndex : null,
-        reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
-        nextActions: modifiedNextActions,
-        deadlineDate: deadlineDate,
-        chain: this.staticDataChainItem,
-        callBlockAutomation: action.callBlockAutomation.blockId
-          ? action.callBlockAutomation
+      }
+      const modify = {
+        callBlockAutomation: nextAction.callToBlockId
+          ? {
+              blockId: nextAction.callToBlockId,
+            }
           : null,
+        moveToAction: nextAction.moveToActionId
+          ? {
+              chainActResultId: nextAction.moveToActionId,
+            }
+          : null,
+        closeCloneTask: nextAction.closeCloneTask || null,
       };
-      this.handleUpdateTaskChainResult(
-        taskChainResult.id,
-        taskChainResultIndex,
-        body,
-      );
-    }
+      return {
+        ...nextAction,
+        ...modify,
+      };
+    });
+    const body = {
+      note,
+      resultIndex: resultIndex || resultIndex === 0 ? resultIndex : null,
+      reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
+      nextActions: modifiedNextActions,
+      deadlineDate: deadlineDate,
+      chain: this.staticDataChainItem,
+      callBlockAutomation: action.callBlockAutomation.blockId
+        ? action.callBlockAutomation
+        : null,
+    };
+    this.handleUpdateTaskChainResult(
+      taskChainResult.id,
+      taskChainResultIndex,
+      body,
+    );
+    // const originalDeadlineDate =
+    //   this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
+    //     ?.deadlineDate;
+    // // check if deadlineDate is change
+    // if (
+    //   new Date(originalDeadlineDate!).getTime() !==
+    //   new Date(deadlineDate).getTime()
+    // ) {
+    //   const body = {
+    //     deadlineDate: deadlineDate.toISOString(),
+    //     note,
+    //   };
+    //   this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
+    // } else {
+    //
+    // }
   }
 
   handleUpdateDeadline(
