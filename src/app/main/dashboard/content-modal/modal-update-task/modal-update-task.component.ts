@@ -783,7 +783,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   handleUpdate() {
     const branchForm = this.f['branch'].value;
-    console.log(branchForm);
     return new Promise((resolve, reject) => {
       this.loading.submit = true;
       const body = {
