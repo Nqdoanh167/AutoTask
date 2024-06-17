@@ -100,19 +100,19 @@ export const listSettingNavItems: ISidebar[] = [
       EPerActSetting.UPDATE_TAG_SETTING,
     ],
   },
-  // {
-  //   link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
-  //   alias: ESettingTab.DECENTRALIZATION,
-  //   name: 'Phân quyền',
-  //   isActive: true,
-  //   permissions: [
-  //     EPerActSetting.VIEW_USER_ACCESS_BIZ,
-  //     EPerActSetting.VIEW_USER_ACCESS,
-  //     EPerActSetting.UPDATE_USER_ACCESS,
-  //     EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
-  //     EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
-  //   ],
-  // },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
+    alias: ESettingTab.DECENTRALIZATION,
+    name: 'Phân quyền',
+    isActive: true,
+    permissions: [
+      EPerActSetting.VIEW_USER_ACCESS_BIZ,
+      EPerActSetting.VIEW_USER_ACCESS,
+      EPerActSetting.UPDATE_USER_ACCESS,
+      EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
+      EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
+    ],
+  },
   {
     link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
     alias: ESettingTab.ROLE,

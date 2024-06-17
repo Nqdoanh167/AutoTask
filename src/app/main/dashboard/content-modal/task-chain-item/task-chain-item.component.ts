@@ -268,27 +268,27 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         ? action.callBlockAutomation
         : null,
     };
-    this.handleUpdateTaskChainResult(
-      taskChainResult.id,
-      taskChainResultIndex,
-      body,
-    );
-    // const originalDeadlineDate =
-    //   this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
-    //     ?.deadlineDate;
-    // // check if deadlineDate is change
-    // if (
-    //   new Date(originalDeadlineDate!).getTime() !==
-    //   new Date(deadlineDate).getTime()
-    // ) {
-    //   const body = {
-    //     deadlineDate: deadlineDate.toISOString(),
-    //     note,
-    //   };
-    //   this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
-    // } else {
-    //
-    // }
+
+    const originalDeadlineDate =
+      this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
+        ?.deadlineDate;
+    // check if deadlineDate is change
+    if (
+      new Date(originalDeadlineDate!).getTime() !==
+      new Date(deadlineDate).getTime()
+    ) {
+      const body = {
+        deadlineDate: deadlineDate.toISOString(),
+        note,
+      };
+      this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
+    } else {
+      this.handleUpdateTaskChainResult(
+        taskChainResult.id,
+        taskChainResultIndex,
+        body,
+      );
+    }
   }
 
   handleUpdateDeadline(
