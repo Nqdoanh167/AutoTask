@@ -1,4 +1,8 @@
-<form [formGroup]="formGroup">
+<form
+  [formGroup]="formGroup"
+  class="custom-form"
+  [class.disabled]="!hasUpdateTaskPer"
+>
   <div class="information mt-2 overflow-x-hidden">
     @if (hasPermitCustomer && hasUpdateTaskPer) {
       <div class="mb-3">

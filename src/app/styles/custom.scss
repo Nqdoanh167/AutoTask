@@ -42,6 +42,16 @@ input.custom-input-color {
   background: #e7e9ef;
 }
 
+// Form
+.custom-form {
+  &.disabled {
+    .form-control {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
 //button
 button:disabled,
 button[disabled] {
