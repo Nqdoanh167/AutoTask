@@ -37,6 +37,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
   inputSuggestCustomers!: QueryList<InputSuggestCustomerComponent>;
   @Input() formGroup!: FormGroup;
   @Input() submitted: boolean = false;
+  @Input() hasUpdateTaskPer: boolean = false;
   @Input() isOpenBackdrop: boolean = false;
   @Output() isOpenBackdropChange = new EventEmitter<boolean>();
 
@@ -88,6 +89,9 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
+    if (!this.hasUpdateTaskPer) {
+      this.formGroup.disable();
+    }
     this.getTag();
     this.getProvince();
     this.formGroup.valueChanges

@@ -413,6 +413,7 @@
                     ></i>
                   </div>
                   <app-customer-info
+                    [hasUpdateTaskPer]="permissions.canEditTask"
                     [submitted]="submitted"
                     [formGroup]="formLeadDeal"
                     [(isOpenBackdrop)]="isOpenBackDrop"

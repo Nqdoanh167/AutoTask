@@ -1,6 +1,6 @@
 <form [formGroup]="formGroup">
   <div class="information mt-2 overflow-x-hidden">
-    @if (hasPermitCustomer) {
+    @if (hasPermitCustomer && hasUpdateTaskPer) {
       <div class="mb-3">
         <app-input-suggest-customer
           id="input-search-customer"
@@ -165,7 +165,7 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
         </div>
       </div>
       <div class="col-3">
-        @if (selectedCustomer && hasPermitCustomer) {
+        @if (selectedCustomer && hasPermitCustomer && hasUpdateTaskPer) {
           <label class="form-control-label"></label>
           <button
             (click)="handleSyncCustomer()"
@@ -343,18 +343,25 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
       <div class="d-flex align-items-center justify-content-between">
         <div class="subhead">
           Bản ghi Khách hàng tương ứng trong hệ thống
-          <span (click)="handleUpdateCustomer()" class="btn-action-table ms-1">
-            <img src="./assets/images/icon/edit.svg" alt="" />
-          </span>
+          @if (hasUpdateTaskPer) {
+            <span
+              (click)="handleUpdateCustomer()"
+              class="btn-action-table ms-1"
+            >
+              <img src="./assets/images/icon/edit.svg" alt="" />
+            </span>
+          }
         </div>
-        <button
-          (click)="handleClearSelectedCustomer()"
-          class="btn button-medium button-sub-primary red-color"
-          type="button"
-        >
-          Bỏ chọn
-          <i class="fa-solid fa-circle-xmark ms-1"></i>
-        </button>
+        @if (hasUpdateTaskPer) {
+          <button
+            (click)="handleClearSelectedCustomer()"
+            class="btn button-medium button-sub-primary red-color"
+            type="button"
+          >
+            Bỏ chọn
+            <i class="fa-solid fa-circle-xmark ms-1"></i>
+          </button>
+        }
       </div>
       @if (!loading.customer) {
         <div class="mt-1">

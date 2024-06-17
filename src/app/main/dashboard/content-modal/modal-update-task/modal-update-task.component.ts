@@ -87,6 +87,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     canEditChain: false,
     canEditDeadline: false,
     canCreateOrder: false,
+    canEditTask: false,
   };
 
   public tags: EntityPagination<ITag> = {
@@ -307,6 +308,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   checkPermission() {
     const permissions = this.authService.getUserPerByType(EPerActType.TASK);
+    this.permissions.canEditTask = this.hasPermission(
+      permissions,
+      EPerActTask.UPDATE_TASK,
+    );
     this.permissions.canEditChain = this.hasPermission(
       permissions,
       EPerActTask.MANAGE_CHAIN,
