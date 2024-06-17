@@ -288,7 +288,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   ngOnInit() {
     this.checkPermission();
-    this.getDetailTask();
     if (this.sourceData) {
       this.patchForm(this.sourceData);
     }
@@ -452,6 +451,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
       });
   }
+
   getDetailTask(isRefresh = false) {
     if (!this.sourceData?.id && !this.taskId) return;
     this.loading.getDetail = true;

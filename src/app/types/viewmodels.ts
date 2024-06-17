@@ -577,41 +577,7 @@ export interface LoyaltyRank {
   createdAt: Date;
   updatedAt: Date;
 }
-export interface Customer {
-  saleCenter: any;
-  id: string;
-  bizId?: string;
-  fbId?: string;
-  zaloId?: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  gender?: 'male' | 'female' | 'other';
-  typePrice?: string;
-  code: string;
-  picture?: string;
-  pictures?: string[];
-  postcode: string;
-  provinceCode: string;
-  districtCode: string;
-  wardCode: string;
-  province: string;
-  district: string;
-  ward: string;
-  street: string;
-  address: string;
-  tags: CustomerTag[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-export interface CustomerTag {
-  bizId?: string;
-  bgColor?: string;
-  createdAt?: string;
-  name?: string;
-  updatedAt?: string;
-  id: string;
-}
+
 export interface Segment {
   id: string;
   bizId?: string;

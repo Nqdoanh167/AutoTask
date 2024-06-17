@@ -3,13 +3,12 @@ import {
   BeautyService,
   Combo,
   CourseEvent,
-  Customer,
   ITag,
-  Order,
   PrepaidCard,
   Product,
 } from '@app/types/viewmodels';
 import {ELevelPer} from '@app/types/setting';
+import {Customer} from '@app/types/customer';
 
 export enum ETabConfigData {
   ACTION = 'action',

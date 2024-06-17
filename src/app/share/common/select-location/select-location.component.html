@@ -1,0 +1,92 @@
+<form (keydown.enter)="$event.preventDefault()" [formGroup]="formLocation">
+  <div class="row g-3">
+    <div class="col-12" [ngClass]="{'col-4': typeDisplay === 'horizontal'}">
+      @if (showLabel) {
+        <label class="form-control-label" for="province">Tỉnh/Thành phố</label>
+      }
+      <ng-select
+        [placeholder]="'Chọn tỉnh/thành phố...'"
+        [searchable]="true"
+        appearance="outline"
+        id="province"
+        labelForId="province"
+        formControlName="provinceCode"
+        (change)="handleChangeValue($event, 'provinceCode')"
+        (open)="getProvince()"
+        [clearable]="false"
+        [loading]="loadingLocation.province"
+      >
+        <ng-container>
+          <ng-option
+            *ngFor="let item of provinces; index as i"
+            [value]="item.provinceCode"
+          >
+            {{ item.province + ' (' + item.provinceCode + ')' }}
+          </ng-option>
+        </ng-container>
+      </ng-select>
+    </div>
+    <div
+      *ngIf="['districtCode', 'wardCode'].includes(type)"
+      class="col-12"
+      [ngClass]="{'col-4': typeDisplay === 'horizontal'}"
+    >
+      @if (showLabel) {
+        <label class="form-control-label" for="district">Quận/Huyện</label>
+      }
+      <ng-select
+        [placeholder]="'Chọn quận/huyện...'"
+        [searchable]="true"
+        appearance="outline"
+        id="district"
+        labelForId="district"
+        formControlName="districtCode"
+        [readonly]="!selected?.province"
+        (change)="handleChangeValue($event, 'districtCode')"
+        (open)="getDistrict()"
+        [clearable]="false"
+        [loading]="loadingLocation.district"
+      >
+        <ng-container>
+          <ng-option
+            *ngFor="let item of districts; index as i"
+            [value]="item.districtCode"
+          >
+            {{ item.district + ' (' + item.districtCode + ')' }}
+          </ng-option>
+        </ng-container>
+      </ng-select>
+    </div>
+    <div
+      *ngIf="['wardCode'].includes(type)"
+      class="col-12"
+      [ngClass]="{'col-4': typeDisplay === 'horizontal'}"
+    >
+      @if (showLabel) {
+        <label class="form-control-label" for="ward">Phường/Xã</label>
+      }
+      <ng-select
+        [placeholder]="'Chọn phường/xã...'"
+        [searchable]="true"
+        appearance="outline"
+        id="ward"
+        labelForId="ward"
+        formControlName="wardCode"
+        [readonly]="!selected?.district"
+        (change)="handleChangeValue($event, 'wardCode')"
+        (open)="getWard()"
+        [clearable]="false"
+        [loading]="loadingLocation.ward"
+      >
+        <ng-container>
+          <ng-option
+            *ngFor="let item of wards; index as i"
+            [value]="item.wardCode"
+          >
+            {{ item.ward + ' (' + item.wardCode + ')' }}
+          </ng-option>
+        </ng-container>
+      </ng-select>
+    </div>
+  </div>
+</form>

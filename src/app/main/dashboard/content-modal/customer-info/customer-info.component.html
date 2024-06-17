@@ -1,20 +1,34 @@
 <form [formGroup]="formGroup">
   <div class="information mt-2 overflow-x-hidden">
+    @if (hasPermitCustomer) {
+      <div class="mb-3">
+        <app-input-suggest-customer
+          id="input-search-customer"
+          [uiType]="'search'"
+          [inputId]="'input-search-customer'"
+          [placeholder]="
+            'Tìm kiếm khách trong Biz theo Họ tên, SĐT hoặc Email khách hàng'
+          "
+          (valueChange)="onChangeInputSuggestCustomer($event)"
+          (selectCustomer)="handleChooseCustomer($event)"
+        ></app-input-suggest-customer>
+      </div>
+    }
     <div style="padding-left: 1px" class="row mt-2">
-      <div class="col-6">
+      <div class="col-3">
         <label class="form-control-label" for="leadDeal.name">
           Tên khách hàng
           <span class="required">*</span>
         </label>
-        <app-input-suggest-customer
-          id="leadDeal.name"
+        <input
           formControlName="name"
-          [inputId]="'leadDeal.name'"
-          [placeholder]="'Nhập Tên...'"
-          (valueChange)="onChangeInputSuggestCustomer($event)"
-          (selectCustomer)="handleChooseCustomer($event)"
-          [className]="submitted && f['name'].errors ? 'is-invalid' : ''"
-        ></app-input-suggest-customer>
+          type="text"
+          name="leadDeal.name"
+          id="leadDeal.name"
+          placeholder="Nhập Tên khách hàng..."
+          class="form-control"
+          [class]="submitted && f['name'].errors ? 'is-invalid' : ''"
+        />
         <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
           <div *ngIf="f['name'].errors?.['required']">
             Tên không được bỏ trống
@@ -22,120 +36,60 @@
           <div *ngIf="f['name'].errors?.['maxlength']">Tên không hợp lệ</div>
         </div>
       </div>
-      <div class="col-6">
-        <div *ngIf="selectedCustomer">
-          <label class="form-control-label">Khách hàng đã chọn</label>
-          <div
-            class="person-info d-flex justify-content-between align-items-center"
-          >
-            <div class="d-flex justify-content-between align-items-center">
-              <img
-                class="avatar-selected"
-                alt=""
-                fallback="assets/images/avatar.svg"
-                src="{{ selectedCustomer?.picture }}"
-              />
-              <div class="d-flex flex-column mx-3">
-                <span
-                  class="account-name fw-500 text-link"
-                  (click)="handleViewCustomer(selectedCustomer.id)"
-                >
-                  {{ selectedCustomer?.name }}
-                </span>
-                <span class="account-phone">{{ selectedCustomer?.phone }}</span>
-              </div>
-              <div
-                class="d-flex flex-row flex-wrap gap-2"
-                *ngIf="selectedCustomer && !selectTag"
-              >
-                <div *ngFor="let tag of selectedCustomer?.tags">
-                  <span
-                    class="tag-item"
-                    [ngClass]="{nonBack: !tag.bgColor}"
-                    [ngStyle]="{background: tag.bgColor}"
-                  >
-                    <span>{{ tag.name }}</span>
-                  </span>
-                </div>
-                <div>
-                  <span
-                    class="cursor-pointer ms-2"
-                    (click)="selectTag = !selectTag"
-                  >
-                    <i class="fa-solid fa-user-tag"></i>
-                  </span>
+      <div class="col-3">
+        <label class="form-control-label" for="leadDeal.gender">
+          Loại khách hàng
+          <i
+            class="fa-regular fa-circle-question ms-1"
+            tooltip="Lead: Khách hàng tiềm năng, có khả năng sẽ mua hàng của doanh nghiệp sau khi được chăm sóc
+Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua hàng (thường đã được chăm sóc hoặc lên hợp đồng)"
+            placement="right"
+          ></i>
+        </label>
+        <div class="d-flex align-items-center gap-4 input-medium">
+          <div class="basic-radio">
+            <input
+              formControlName="type"
+              type="radio"
+              name="type"
+              class="check"
+              id="lead"
+              [value]="'LEAD'"
+            />
+            <label for="lead">
+              <div class="container">
+                <div class="cRadioBtn">
+                  <div class="overlay"></div>
+                  <div class="drops xsDrop"></div>
+                  <div class="drops mdDrop"></div>
+                  <div class="drops lgDrop"></div>
                 </div>
               </div>
-              <div *ngIf="selectTag">
-                <ng-select
-                  class="custom-input-tag"
-                  placeholder="Chọn tags..."
-                  formControlName="tags"
-                  [items]="tags.rows"
-                  appendTo=".modal"
-                  (blur)="selectTag = !selectTag"
-                  appearance="outline"
-                  [multiple]="true"
-                  [closeOnSelect]="false"
-                  [compareWith]="compareFunction"
-                >
-                  <ng-template ng-option-tmp let-item="item">
-                    <div
-                      class="tag-item"
-                      [ngClass]="{nonBack: !item.bgColor}"
-                      [ngStyle]="{background: item.bgColor}"
-                    >
-                      {{ item.name }}
-                    </div>
-                  </ng-template>
-                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
-                    <span class="ng-value-icon" (click)="clear(item)">×</span>
-                    <div
-                      class="tag-item"
-                      [ngClass]="{nonBack: !item.bgColor}"
-                      [ngStyle]="{background: item.bgColor}"
-                    >
-                      {{ item.name }}
-                    </div>
-                  </ng-template>
-                </ng-select>
+              <span>Lead</span>
+            </label>
+          </div>
+          <div class="basic-radio">
+            <input
+              formControlName="type"
+              [value]="'DEAL'"
+              type="radio"
+              name="type"
+              class="check"
+              id="deal"
+            />
+            <label for="deal">
+              <div class="container">
+                <div class="cRadioBtn">
+                  <div class="overlay"></div>
+                  <div class="drops xsDrop"></div>
+                  <div class="drops mdDrop"></div>
+                  <div class="drops lgDrop"></div>
+                </div>
               </div>
-              <button
-                (click)="handleClearSelectedCustomer()"
-                class="btn"
-                type="button"
-              >
-                <i class="fa-solid fa-circle-xmark" style="color: #afb2bd"></i>
-              </button>
-            </div>
+              <span>Deal</span>
+            </label>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="row mt-2">
-      <div class="col-3">
-        <label class="form-control-label" for="leadDeal.phone">
-          Số điện thoại
-        </label>
-        <app-input-suggest-customer
-          id="leadDeal.phone"
-          formControlName="phone"
-          [inputId]="'leadDeal.phone'"
-          [placeholder]="'Nhập Số điện thoại...'"
-          (valueChange)="onChangeInputSuggestCustomer($event)"
-          (selectCustomer)="handleChooseCustomer($event)"
-        ></app-input-suggest-customer>
-      </div>
-      <div class="col-3">
-        <label class="form-control-label" for="leadDeal.email">Email</label>
-        <app-input-suggest-customer
-          id="leadDeal.email"
-          formControlName="email"
-          [inputId]="'leadDeal.email'"
-          [placeholder]="'Nhập Email...'"
-          (valueChange)="onChangeInputSuggestCustomer($event)"
-          (selectCustomer)="handleChooseCustomer($event)"
-        ></app-input-suggest-customer>
       </div>
       <div class="col-3">
         <label class="form-control-label" for="leadDeal.gender">
@@ -211,59 +165,80 @@
         </div>
       </div>
       <div class="col-3">
-        <label class="form-control-label" for="leadDeal.gender">
-          Loại khách hàng
-          <i
-            class="fa-regular fa-circle-question ms-1"
-            tooltip="Lead: Khách hàng tiềm năng, có khả năng sẽ mua hàng của doanh nghiệp sau khi được chăm sóc
-Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua hàng (thường đã được chăm sóc hoặc lên hợp đồng)"
-            placement="right"
-          ></i>
+        @if (selectedCustomer && hasPermitCustomer) {
+          <label class="form-control-label"></label>
+          <button
+            (click)="handleSyncCustomer()"
+            class="w-100 btn button-medium button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+          >
+            <i class="fa-solid fa-arrow-right-arrow-left fa-rotate-90 me-2"></i>
+            Cập nhật cho bản ghi Khách hàng
+          </button>
+        }
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-3">
+        <label class="form-control-label" for="leadDeal.phone">
+          Số điện thoại
         </label>
-        <div class="d-flex align-items-center gap-4 input-medium">
-          <div class="basic-radio">
-            <input
-              formControlName="type"
-              type="radio"
-              name="type"
-              class="check"
-              id="lead"
-              [value]="'LEAD'"
-            />
-            <label for="lead">
-              <div class="container">
-                <div class="cRadioBtn">
-                  <div class="overlay"></div>
-                  <div class="drops xsDrop"></div>
-                  <div class="drops mdDrop"></div>
-                  <div class="drops lgDrop"></div>
-                </div>
-              </div>
-              <span>Lead</span>
-            </label>
-          </div>
-          <div class="basic-radio">
-            <input
-              formControlName="type"
-              [value]="'DEAL'"
-              type="radio"
-              name="type"
-              class="check"
-              id="deal"
-            />
-            <label for="deal">
-              <div class="container">
-                <div class="cRadioBtn">
-                  <div class="overlay"></div>
-                  <div class="drops xsDrop"></div>
-                  <div class="drops mdDrop"></div>
-                  <div class="drops lgDrop"></div>
-                </div>
-              </div>
-              <span>Deal</span>
-            </label>
-          </div>
-        </div>
+        <input
+          formControlName="phone"
+          type="text"
+          name="leadDeal.phone"
+          id="leadDeal.phone"
+          placeholder="Nhập Số điện thoại..."
+          class="form-control"
+          [class]="submitted && f['phone'].errors ? 'is-invalid' : ''"
+        />
+      </div>
+      <div class="col-3">
+        <label class="form-control-label" for="leadDeal.email">Email</label>
+        <input
+          formControlName="email"
+          type="text"
+          name="leadDeal.email"
+          id="leadDeal.email"
+          placeholder="Nhập Email..."
+          class="form-control"
+          [class]="submitted && f['email'].errors ? 'is-invalid' : ''"
+        />
+      </div>
+      <div class="col-6">
+        <label class="form-control-label" for="leadDeal.tags">Tag</label>
+        <ng-select
+          id="leadDeal.tags"
+          class="custom-input-tag full-width"
+          placeholder="Chọn tags..."
+          formControlName="tags"
+          [items]="tags.rows"
+          appendTo=".modal"
+          (blur)="selectTag = !selectTag"
+          appearance="outline"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          [compareWith]="compareFunction"
+        >
+          <ng-template ng-option-tmp let-item="item">
+            <div
+              class="tag-item"
+              [ngClass]="{nonBack: !item.bgColor}"
+              [ngStyle]="{background: item.bgColor}"
+            >
+              {{ item.name }}
+            </div>
+          </ng-template>
+          <ng-template ng-label-tmp let-item="item" let-clear="clear">
+            <span class="ng-value-icon" (click)="clear(item)">×</span>
+            <div
+              class="tag-item"
+              [ngClass]="{nonBack: !item.bgColor}"
+              [ngStyle]="{background: item.bgColor}"
+            >
+              {{ item.name }}
+            </div>
+          </ng-template>
+        </ng-select>
       </div>
     </div>
     <div class="mt-2">
@@ -352,6 +327,7 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
             [ngClass]="{
               'is-invalid': submitted && f['street'].errors
             }"
+            (change)="handleCombineAddress()"
             [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
             formControlName="street"
             id="street"
@@ -361,6 +337,174 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
       </div>
     </div>
   </div>
+
+  @if (selectedCustomer && hasPermitCustomer) {
+    <div class="corresponding-customer mt-3">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="subhead">
+          Bản ghi Khách hàng tương ứng trong hệ thống
+          <span (click)="handleUpdateCustomer()" class="btn-action-table ms-1">
+            <img src="./assets/images/icon/edit.svg" alt="" />
+          </span>
+        </div>
+        <button
+          (click)="handleClearSelectedCustomer()"
+          class="btn button-medium button-sub-primary red-color"
+          type="button"
+        >
+          Bỏ chọn
+          <i class="fa-solid fa-circle-xmark ms-1"></i>
+        </button>
+      </div>
+      @if (!loading.customer) {
+        <div class="mt-1">
+          <div
+            class="person-info d-flex justify-content-between align-items-center"
+          >
+            <div
+              class="d-flex justify-content-between align-items-center gap-3"
+            >
+              <img
+                class="avatar-selected"
+                alt=""
+                fallback="assets/images/avatar.svg"
+                src="{{ selectedCustomer?.picture }}"
+              />
+              <div>
+                <div class="d-flex gap-3">
+                  <span
+                    class="account-name fw-500 text-link"
+                    (click)="handleViewCustomer(selectedCustomer.id)"
+                  >
+                    {{ selectedCustomer?.name }}
+                  </span>
+                  @if (selectedCustomer?.phone) {
+                    <span>
+                      <span class="fw-500">SĐT:</span>
+                      {{ selectedCustomer?.phone }}
+                    </span>
+                  }
+                  @if (selectedCustomer?.email) {
+                    <span>
+                      <span class="fw-500">Email:</span>
+                      {{ selectedCustomer?.email }}
+                    </span>
+                  }
+                </div>
+
+                @if (selectedCustomer?.address) {
+                  <div>
+                    <span class="fw-500">Địa chỉ:</span>
+                    {{ selectedCustomer?.address }}
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+          <div
+            class="d-flex flex-row flex-wrap gap-2 mt-3"
+            *ngIf="selectedCustomer && !selectTag"
+          >
+            <div *ngFor="let tag of selectedCustomer?.tags">
+              <span
+                class="tag-item"
+                [ngClass]="{nonBack: !tag.bgColor}"
+                [ngStyle]="{background: tag.bgColor}"
+              >
+                <span>{{ tag.name }}</span>
+              </span>
+            </div>
+          </div>
+          @if (selectedCustomer?.saleCenter) {
+            <div class="mt-3 sale-info">
+              <div class="d-flex align-items-center">
+                <span class="fw-500">
+                  Doanh thu:
+                  <span class="text-danger">
+                    {{
+                      selectedCustomer?.saleCenter?.moneyCompleted ?? 0 | number
+                    }}
+                    VNĐ
+                  </span>
+                </span>
+                <div class="separate"></div>
+                <span
+                  (click)="handleViewOrderType('completed')"
+                  class="fw-500 text-success cursor-pointer"
+                >
+                  {{
+                    selectedCustomer?.saleCenter?.totalOrderCompleted ?? 0
+                      | number
+                  }}
+                  đơn hàng thành công
+                  <i
+                    class="ms-1 fa-solid"
+                    [style.color]="'#000'"
+                    [class]="
+                      viewOrderType === 'completed'
+                        ? 'fa-chevron-down'
+                        : 'fa-chevron-up'
+                    "
+                  ></i>
+                </span>
+                <div class="separate"></div>
+                <span
+                  (click)="handleViewOrderType('cancelled')"
+                  class="fw-500 text-danger cursor-pointer"
+                >
+                  {{
+                    selectedCustomer?.saleCenter?.totalOrderRefund ?? 0 | number
+                  }}
+                  đơn đã hoàn
+                  <i
+                    class="ms-1 fa-solid"
+                    [style.color]="'#000'"
+                    [class]="
+                      viewOrderType === 'cancelled'
+                        ? 'fa-chevron-down'
+                        : 'fa-chevron-up'
+                    "
+                  ></i>
+                </span>
+              </div>
+              <div class="list-order mt-2">
+                <div class="custom-scrollbar" [style.max-height]="'500px'">
+                  <table class="table transparent">
+                    <tbody>
+                      <tr
+                        *ngFor="
+                          let order of viewOrCustomerOrders;
+                          let index = index
+                        "
+                      >
+                        <td>{{ order?.createdAt | timeView }}</td>
+                        <td>
+                          <div
+                            class="fw-500 cursor-pointer text-link"
+                            (click)="handleViewOrder(order?.id)"
+                          >
+                            {{ order?.code || '-' }}
+                          </div>
+                        </td>
+                        <td>{{ order?.amount ?? 0 | number }} VNĐ</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="text-center">
+          <div class="spinner-grow text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <div>Loading...</div>
+        </div>
+      }
+    </div>
+  }
 
   <ng-template #selectNoData>
     <ng-option [value]="null">Không có dữ liệu</ng-option>
