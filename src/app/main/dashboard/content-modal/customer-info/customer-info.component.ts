@@ -93,6 +93,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     this.formGroup.valueChanges
       .pipe(distinctUntilKeyChanged('id'))
       .subscribe((value) => {
+        console.log(value);
         if (value?.id) {
           this.getCustomerDetail(value.id);
           if (value?.provinceCode) {

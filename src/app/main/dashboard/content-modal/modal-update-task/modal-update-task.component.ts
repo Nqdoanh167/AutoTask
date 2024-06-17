@@ -291,9 +291,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     if (this.sourceData) {
       this.patchForm(this.sourceData);
     }
-    if (this.taskId) {
-      this.getDetailTask();
-    }
+    this.getDetailTask();
     this.getActionChain();
     this.getResult();
     this.getAction();
