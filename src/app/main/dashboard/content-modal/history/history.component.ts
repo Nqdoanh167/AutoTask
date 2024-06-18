@@ -293,6 +293,10 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
         return `Khóa chuỗi hành động`;
       case EInformationContentHistoryTask.ROLE:
         return `Vai trò`;
+      case EInformationContentHistoryTask.BRANCH:
+        return `Gán chi nhánh`;
+      case EInformationContentHistoryTask.CHANGE_BRANCH:
+        return `Thay đổi chi nhánh`;
       case ESubInformationContentHistoryTask.ACTION:
         return `Hành động`;
       case ESubInformationContentHistoryTask.NONE:
