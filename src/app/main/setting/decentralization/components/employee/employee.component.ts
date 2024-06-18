@@ -139,6 +139,9 @@ export class EmployeeComponent
     list: (UserAclBranch | UserAclDepartment | UserAclTeam | any)[],
     id: string,
   ): any {
+    if (!list?.length) {
+      return;
+    }
     return list?.find((item) => item.id === id);
   }
 
