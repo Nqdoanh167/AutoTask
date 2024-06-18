@@ -1,7 +1,13 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, IHistory, ITag, Order} from 'src/app/types/viewmodels';
+import {
+  EntityResult,
+  ESocialPlatform,
+  IHistory,
+  ITag,
+  Order,
+} from 'src/app/types/viewmodels';
 import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
@@ -15,6 +21,7 @@ import {
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
+  IBranchTaskDto,
   IBulkTaskDto,
   IChainAct,
   IChainResult,
@@ -25,25 +32,35 @@ import {
   ITaskChainResult,
   ITaskDto,
   IUpdateChainActDto,
+  IUpdateDeadlineTaskResult,
   IUpdateTaskResultDto,
+  ModifiedUserUnit,
 } from '@app/types/flow';
 import {
+  BulkRemoveUserAcl,
+  ELevelPer,
   ISetting,
   ISource,
-  ISourceDto,
   IUpdateSourceDto,
   IView,
   IViewDto,
   IViewModeDto,
+  Permission,
+  PermissionDto,
+  UpdatePermissionDto,
+  UpdateUserAclDto,
+  UserAcl,
+  UserPerAccess,
 } from '@app/types/setting';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AutoTaskService extends BaseApiService implements OnDestroy {
-  destroy = new Subject();
+  private destroy = new Subject();
+  private defaultParams: any = {};
 
-  api = {
+  public api = {
     action: 'action',
     actionResult: 'act-result',
     actionReason: 'act-reason',
@@ -57,8 +74,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     source: 'source',
     settingView: 'setting-view',
     setting: 'setting',
+    permission: 'permission',
+    userAcl: 'user-acl',
   };
-  private defaultParams: any = {};
 
   private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
   public dashboardViewModes = this.dashboardViewModes$.asObservable();
@@ -286,6 +304,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.taskChainResult, id]),
         body,
       ),
+    updateDeadline: (id: string, body: IUpdateDeadlineTaskResult) =>
+      this.httpClient.patch<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'deadline']),
+        body,
+      ),
     sendBlock: (id: string) =>
       this.httpClient.post<EntityResult<ITaskChainResult>>(
         this.createUrl([this.api.taskChainResult, id, 'send-block']),
@@ -315,6 +338,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<ISource[]>>(
         this.createUrl([this.api.source]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    getOrderBySource: (params = {}) =>
+      this.httpClient.get<EntityResult<Record<ESocialPlatform, ISource[]>>>(
+        this.createUrl([this.api.source, 'group']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
@@ -358,6 +388,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.tag, id]),
       ),
   };
+
   history = {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<IHistory[]>>(
@@ -367,6 +398,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         },
       ),
   };
+
   settingView = {
     retrieve: (params = {}) =>
       this.httpClient.get<EntityResult<IView>>(
@@ -381,6 +413,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         body,
       ),
   };
+
   setting = {
     retrieve: (params = {}) =>
       this.httpClient.get<EntityResult<ISetting>>(
@@ -392,6 +425,55 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     update: (body: IViewDto) =>
       this.httpClient.put<EntityResult<IView>>(
         this.createUrl([this.api.setting]),
+        body,
+      ),
+  };
+
+  permission = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<Permission[]>>(
+        this.createUrl([this.api.permission]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: PermissionDto) =>
+      this.httpClient.post<EntityResult<Permission>>(
+        this.createUrl([this.api.permission]),
+        body,
+      ),
+    update: (id: string, body: UpdatePermissionDto) =>
+      this.httpClient.patch<EntityResult<Permission>>(
+        this.createUrl([this.api.permission, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.permission, id]),
+      ),
+    getUserPermissions: () =>
+      this.httpClient.get<EntityResult<UserPerAccess>>(
+        this.createUrl([this.api.permission, 'user-access']),
+      ),
+  };
+
+  userAcl = {
+    get: () =>
+      this.httpClient.get<EntityResult<UserAcl[]>>(
+        this.createUrl([this.api.userAcl]),
+      ),
+    upsert: (body: UpdateUserAclDto) =>
+      this.httpClient.post<EntityResult<UserAcl>>(
+        this.createUrl([this.api.userAcl]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.userAcl, id]),
+      ),
+    bulkRemovePer: (body: BulkRemoveUserAcl) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.userAcl, 'bulk-remove']),
         body,
       ),
   };
@@ -423,6 +505,79 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   getCurrentActiveViewMode() {
     return this.currentActiveViewMode$.getValue();
+  }
+
+  findUnitFromData(data: IBranchTaskDto) {
+    const units = this.getUserUnits();
+    let res: ModifiedUserUnit | undefined = undefined;
+    units.forEach((branch) => {
+      if (branch.data === data?.id && !data.department) {
+        res = branch;
+      } else {
+        branch.children?.forEach((department) => {
+          if (department.data === data?.department && !data.team) {
+            res = department;
+          } else {
+            department.children?.forEach((team) => {
+              if (team.data === data?.team) {
+                res = team;
+              }
+            });
+          }
+        });
+      }
+    });
+    return res;
+  }
+
+  getUserUnits() {
+    let units: ModifiedUserUnit[] = [];
+    const currentBiz = this.authService.getCurrentBiz();
+    if (currentBiz?.user?.roleBranches) {
+      units = currentBiz.user.roleBranches?.map((branch) => {
+        return {
+          key: branch.id,
+          data: branch.id,
+          label: branch.name,
+          selectable: !branch.departments?.length,
+          id: branch.id,
+          name: branch.name,
+          department: null,
+          departmentName: null,
+          team: null,
+          teamName: null,
+          children: branch.departments?.map((department) => {
+            return {
+              key: department.id,
+              data: department.id,
+              label: department.name,
+              selectable: !department.teams?.length,
+              id: branch.id,
+              name: branch.name,
+              department: department.id,
+              departmentName: department.name,
+              team: null,
+              teamName: null,
+              children: department.teams?.map((team) => {
+                return {
+                  key: team.id,
+                  data: team.id,
+                  label: team.name,
+                  selectable: true,
+                  id: branch.id,
+                  name: branch.name,
+                  department: department.id,
+                  departmentName: department.name,
+                  team: team.id,
+                  teamName: team.name,
+                };
+              }),
+            };
+          }),
+        };
+      });
+    }
+    return units;
   }
 
   ngOnDestroy(): void {

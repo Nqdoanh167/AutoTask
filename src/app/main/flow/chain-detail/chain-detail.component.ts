@@ -35,6 +35,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {AutomationService} from '@app/services/api/automation.service';
 import {IBlockAutomation} from '@app/types/automation';
+import {optionToCloneTask} from '@app/variable';
 
 @Component({
   selector: 'app-chain-detail',
@@ -109,36 +110,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
-  public optionToCloneTask = [
-    {
-      label: 'Nguồn dữ liệu',
-      value: EOptionCloneTask.SOURCE,
-    },
-    {
-      label: 'Ghi chú',
-      value: EOptionCloneTask.NOTE,
-    },
-    {
-      label: 'Nhân sự phụ trách',
-      value: EOptionCloneTask.TEAM,
-    },
-    {
-      label: 'TAG',
-      value: EOptionCloneTask.TAG,
-    },
-    {
-      label: 'Chuỗi hiện tại',
-      value: EOptionCloneTask.CURRENT_CHAIN,
-    },
-    {
-      label: 'Thông tin khách hàng',
-      value: EOptionCloneTask.LEADDEAL,
-    },
-    {
-      label: 'Sản phẩm quan tâm',
-      value: EOptionCloneTask.PRODUCT,
-    },
-  ];
+  public optionToCloneTask = optionToCloneTask;
   public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
     rows: [],
     loading: false,
@@ -877,10 +849,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     nextAction.addNewChainActId = undefined;
     nextAction.moveToActionId = undefined;
     nextAction.callToBlockId = undefined;
-    if(nextAction.nextAction === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
+    if (nextAction.nextAction === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
       nextAction.closeCloneTask = Object.values(EOptionCloneTask);
     } else {
-      nextAction.closeCloneTask = []
+      nextAction.closeCloneTask = [];
     }
   }
 

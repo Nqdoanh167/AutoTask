@@ -1,9 +1,0 @@
-@use 'src/app/styles/variable' as vars;
-@use 'src/app/styles/mixins' as mixins;
-
-.fa-link {
-  cursor: pointer;
-  &:hover {
-    color: vars.$secondary-500;
-  }
-}

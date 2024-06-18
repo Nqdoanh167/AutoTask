@@ -6,6 +6,7 @@ import {
   QueryList,
   SimpleChanges,
   ViewChildren,
+  OnChanges,
 } from '@angular/core';
 import {Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormGroup} from '@angular/forms';
@@ -29,7 +30,7 @@ import {AuthService} from '@app/services/api/auth.service';
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
 })
-export class OrdersComponent implements OnDestroy, OnInit {
+export class OrdersComponent implements OnDestroy, OnInit, OnChanges {
   @Input() orders!: Order[];
   @Input() loading!: boolean;
   public currentBiz!: Biz;
@@ -57,18 +58,18 @@ export class OrdersComponent implements OnDestroy, OnInit {
     switch (this.sort[sort]) {
       case 0:
         this.sort[sort] = 1;
-        this.ordersCopy = this.orders.sort((a, b) => 
-          sort === 'createdAt' 
-            ? new Date(a[sort]).getTime() - new Date(b[sort]).getTime() 
-            : Number(a[sort]) - Number(b[sort])
+        this.ordersCopy = this.orders.sort((a, b) =>
+          sort === 'createdAt'
+            ? new Date(a[sort]).getTime() - new Date(b[sort]).getTime()
+            : Number(a[sort]) - Number(b[sort]),
         );
         break;
       case 1:
         this.sort[sort] = -1;
-        this.ordersCopy = this.orders.sort((a, b) => 
-          sort === 'createdAt' 
-            ? new Date(b[sort]).getTime() - new Date(a[sort]).getTime() 
-            : Number(b[sort]) - Number(a[sort])
+        this.ordersCopy = this.orders.sort((a, b) =>
+          sort === 'createdAt'
+            ? new Date(b[sort]).getTime() - new Date(a[sort]).getTime()
+            : Number(b[sort]) - Number(a[sort]),
         );
         break;
       case -1:

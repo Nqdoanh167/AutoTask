@@ -1,7 +1,12 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, Customer, Segment, CustomerTag} from 'src/app/types/viewmodels';
+import {
+  EntityResult,
+  Customer,
+  Segment,
+  CustomerTag,
+} from 'src/app/types/viewmodels';
 import {BehaviorSubject, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';

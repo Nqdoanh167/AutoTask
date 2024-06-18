@@ -6,6 +6,7 @@ import {
   QueryList,
   SimpleChanges,
   ViewChildren,
+  OnChanges,
 } from '@angular/core';
 import {Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormGroup} from '@angular/forms';
@@ -47,7 +48,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss'],
 })
-export class HistoryComponent implements OnDestroy, OnInit {
+export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
   @Input() taskId!: string;
   @Input() triggerCall!: any;
   public currentBiz!: Biz;

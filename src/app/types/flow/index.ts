@@ -9,6 +9,7 @@ import {
   PrepaidCard,
   Product,
 } from '@app/types/viewmodels';
+import {ELevelPer} from '@app/types/setting';
 
 export enum ETabConfigData {
   ACTION = 'action',
@@ -40,6 +41,7 @@ export enum EOptionCloneTask {
   LEADDEAL = 'LEADDEAL',
   NOTE = 'NOTE',
   PRODUCT = 'PRODUCT',
+  BRANCH = 'BRANCH',
 }
 
 export enum EResultType {
@@ -325,22 +327,34 @@ export interface ITask {
   counselor: AccountPublic;
   taskChainIds: string[];
   taskChains: ITaskChain[];
-  teams?: ITeam[]
+  teams?: ITeam[];
+  branch: IBranchTaskDto;
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;
   updatedAt: Date;
 }
 
+export interface IBranchTaskDto {
+  unit: ELevelPer;
+  name: string;
+  id: string;
+  department: string;
+  departmentName: string;
+  team: string;
+  teamName: string;
+}
+
 export interface ITaskDto {
   name: string;
+  branch: IBranchTaskDto;
   leadDeal: ILeadDealDto;
   products: IProductDto[];
   counselorId: string;
   addChainActIds?: string[];
 }
 export interface CloneTaskDto {
-  options: string[]
+  options: string[];
 }
 export interface IBulkTaskDto {
   taskIds: string[];
@@ -366,6 +380,9 @@ export interface IUpdateTaskResultDto {
   nextActions?: IChainNextAction[];
 }
 
+export interface IUpdateDeadlineTaskResult
+  extends Pick<IUpdateTaskResultDto, 'note' | 'deadlineDate'> {}
+
 export enum EStatusTaskChainResult {
   DONE = 'DONE',
   UNDONE = 'UNDONE',
@@ -376,4 +393,11 @@ export enum EActionStates {
   DUE_SOON = 'DUE_SOON',
   EXECUTED = 'EXECUTED',
   HIDE_FULL_EXECUTED = 'HIDE_FULL_EXECUTED',
+}
+
+export interface ModifiedUserUnit {
+  key: string;
+  label: string;
+  data: string;
+  children?: ModifiedUserUnit[];
 }

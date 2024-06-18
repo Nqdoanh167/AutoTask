@@ -2,12 +2,12 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {NotfoundComponent} from '@app/notfound/notfound.component';
 import {SettingComponent} from './setting.component';
-import {PermissionComponent} from './permission/permission.component';
-import {EmployeeComponent} from '@main/setting/employee/employee.component';
-import {BranchComponent} from '@main/setting/branch/branch.component';
+import {DecentralizationComponent} from '@main/setting/decentralization/decentralization.component';
 import {SourceComponent} from '@main/setting/source/source.component';
-import { TagComponent } from './tag/tag.component';
-import { RoleComponent } from './role/role.component';
+import {TagComponent} from './tag/tag.component';
+import {RoleComponent} from './role/role.component';
+import {HasPermissionAccessModuleGuard} from '@app/services/guard/hasPermissionAccessSubModule.guard';
+import {EModule, ESettingTab} from '@app/types/viewmodels';
 
 const routes: Routes = [
   {
@@ -16,31 +16,39 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'source',
+        redirectTo: ESettingTab.SOURCE,
         pathMatch: 'full',
       },
       {
-        path: 'source',
+        path: ESettingTab.SOURCE,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
         component: SourceComponent,
       },
+      // {
+      //   path: ESettingTab.DECENTRALIZATION,
+      //   data: {
+      //     mainModule: EModule.SETTING,
+      //   },
+      //   canActivate: [HasPermissionAccessModuleGuard],
+      //   component: DecentralizationComponent,
+      // },
       {
-        path: 'employee',
-        component: EmployeeComponent,
-      },
-      {
-        path: 'permission',
-        component: PermissionComponent,
-      },
-      {
-        path: 'tag',
+        path: ESettingTab.TAG,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
         component: TagComponent,
       },
       {
-        path: 'branch',
-        component: BranchComponent,
-      },
-      {
-        path: 'role',
+        path: ESettingTab.ROLE,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
         component: RoleComponent,
       },
     ],

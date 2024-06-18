@@ -5,6 +5,8 @@ import {FlowComponent} from './flow.component';
 import {RuleComponent} from './rule/rule.component';
 import {DataComponent} from './data/data.component';
 import {ChainDetailComponent} from '@main/flow/chain-detail/chain-detail.component';
+import {EModule} from '@app/types/viewmodels';
+import {HasPermissionAccessModuleGuard} from '@app/services/guard/hasPermissionAccessSubModule.guard';
 
 const routes: Routes = [
   {
@@ -18,6 +20,10 @@ const routes: Routes = [
       },
       {
         path: 'rule',
+        data: {
+          mainModule: EModule.CONFIG,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
         children: [
           {
             path: ':id',
@@ -31,6 +37,10 @@ const routes: Routes = [
       },
       {
         path: 'data',
+        data: {
+          mainModule: EModule.CONFIG,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
         component: DataComponent,
       },
     ],

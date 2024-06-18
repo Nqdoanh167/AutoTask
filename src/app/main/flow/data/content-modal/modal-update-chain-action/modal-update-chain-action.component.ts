@@ -26,7 +26,7 @@ import {
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
-import {uniqBy} from 'lodash';
+import uniqBy from 'lodash/uniqBy';
 
 @Component({
   selector: 'app-modal-update-chain-action',

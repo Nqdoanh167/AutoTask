@@ -2,6 +2,8 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ETabConfigData} from '@app/types/flow';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subject, takeUntil} from 'rxjs';
+import {AuthService} from '@app/services/api/auth.service';
+import {EPerActFlow, EPerActType} from '@app/types/setting';
 
 @Component({
   selector: 'app-data',
@@ -19,6 +21,9 @@ export class DataComponent implements OnInit, OnDestroy {
     {key: ETabConfigData.REASON, name: 'Nguyên nhân'},
   ];
   public activeTab: ETabConfigData = ETabConfigData.ACTION;
+  public permission = {
+    edit: false,
+  };
 
   protected readonly ETabConfigData = ETabConfigData;
 
@@ -27,7 +32,13 @@ export class DataComponent implements OnInit, OnDestroy {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-  ) {}
+    private readonly authService: AuthService,
+  ) {
+    const permissions = this.authService.getUserPerByType(EPerActType.FLOW);
+    this.permission.edit = permissions?.some(
+      (per) => per === EPerActFlow.UPDATE_FLOW,
+    );
+  }
 
   ngOnInit() {
     this.route.queryParamMap

@@ -1,23 +1,39 @@
 <div class="histories mt-2 overflow-x-hidden">
   <div class="filter">
-    <app-filter-top-table [configFilters]="configFilters" [configButtons]="configButtons" (clickButtonEvent)="handleAction($event)" (selectEvent)="onSelectFilter($event)"
-      (pickerDateEvent)="onPickerDateFilter($event)"></app-filter-top-table>
+    <app-filter-top-table
+      [configFilters]="configFilters"
+      [configButtons]="configButtons"
+      (clickButtonEvent)="handleAction($event)"
+      (selectEvent)="onSelectFilter($event)"
+      (pickerDateEvent)="onPickerDateFilter($event)"
+    ></app-filter-top-table>
   </div>
-  <div class="table-responsive tableFixHead custom-scrollbar" style="min-height: 50vh;"> 
+  <div
+    class="table-responsive tableFixHead custom-scrollbar"
+    style="min-height: 50vh"
+  >
     <table class="table">
       <thead>
         <tr>
-          <th>Thời gian cập nhật
-            <span class="caret-wrapper justify-content-center" (click)="changeSort('createdAt')">
-              <i class="fa fa-caret-up asc" [ngClass]="{'text-primary': sort.createdAt === 1}"></i>
-              <i class="fa fa-caret-down desc" [ngClass]="{'text-primary': sort.createdAt === -1}"></i>
+          <th>
+            Thời gian cập nhật
+            <span
+              class="caret-wrapper justify-content-center"
+              (click)="changeSort('createdAt')"
+            >
+              <i
+                class="fa fa-caret-up asc"
+                [ngClass]="{'text-primary': sort.createdAt === 1}"
+              ></i>
+              <i
+                class="fa fa-caret-down desc"
+                [ngClass]="{'text-primary': sort.createdAt === -1}"
+              ></i>
             </span>
           </th>
           <th>Tab</th>
-          <th>Nội dung thay đổi
-          </th>
-          <th>Nhân sự thực hiện
-          </th>
+          <th>Nội dung thay đổi</th>
+          <th>Nhân sự thực hiện</th>
         </tr>
       </thead>
       <tbody>
@@ -38,14 +54,22 @@
             <div class="content-history">
               <ng-container [ngSwitch]="item.tabKey">
                 <ul *ngSwitchCase="ETabHistoryKey.ORDER_PRODUCT">
-                  <li *ngFor="let contentHistory of (item.content.orderProduct || [])">
+                  <li
+                    *ngFor="
+                      let contentHistory of item.content.orderProduct || []
+                    "
+                  >
                     {{ getActionContent(contentHistory.key) }}
-                    <span class="text-link cursor-text">{{contentHistory.value}}</span>
+                    <span class="text-link cursor-text">
+                      {{ contentHistory.value }}
+                    </span>
                     <div *ngIf="contentHistory.sub?.length" class="ms-4">
                       <ul>
                         <li *ngFor="let sub of contentHistory.sub">
                           {{ getActionContent(sub?.key) }}
-                          <span class="text-link cursor-text">{{sub?.value}}</span>
+                          <span class="text-link cursor-text">
+                            {{ sub?.value }}
+                          </span>
                         </li>
                       </ul>
                     </div>
@@ -53,21 +77,31 @@
                 </ul>
 
                 <ul *ngSwitchCase="ETabHistoryKey.NOTE">
-                  <li *ngFor="let contentHistory of (item.content.note || [])">
+                  <li *ngFor="let contentHistory of item.content.note || []">
                     {{ getActionContent(contentHistory.key) }}
-                    <span class="text-link cursor-text">{{contentHistory.value}}</span>
+                    <span class="text-link cursor-text">
+                      {{ contentHistory.value }}
+                    </span>
                   </li>
                 </ul>
 
                 <ul *ngSwitchCase="ETabHistoryKey.INFORMATION">
-                  <li *ngFor="let contentHistory of (item.content.information || [])">
+                  <li
+                    *ngFor="
+                      let contentHistory of item.content.information || []
+                    "
+                  >
                     {{ getActionContent(contentHistory.key) }}
-                    <span class="text-link cursor-text">{{contentHistory.value}}</span>
+                    <span class="text-link cursor-text">
+                      {{ contentHistory.value }}
+                    </span>
                     <div *ngIf="contentHistory.sub?.length" class="ms-4">
                       <ul>
                         <li *ngFor="let sub of contentHistory.sub">
                           {{ getActionContent(sub?.key) }}
-                          <span class="text-link cursor-text">{{sub?.value}}</span>
+                          <span class="text-link cursor-text">
+                            {{ sub?.value }}
+                          </span>
                         </li>
                       </ul>
                     </div>
@@ -79,8 +113,14 @@
           <td>
             <div class="d-flex align-items-center gap-2">
               <div>
-                <img *ngIf="item.actionBy?.picture" width="30" height="30" class="rounded-pill"
-                  [src]="item.actionBy?.picture" alt="avatar">
+                <img
+                  *ngIf="item.actionBy?.picture"
+                  width="30"
+                  height="30"
+                  class="rounded-pill"
+                  [src]="item.actionBy?.picture"
+                  alt="avatar"
+                />
               </div>
               <div class="fw-normal">
                 {{ item.actionBy?.name }}

@@ -26,7 +26,7 @@ import {EScreens, IViewDto, IViewModeDto} from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {v4 as uuidv4} from 'uuid';
-import {cloneDeep} from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -298,7 +298,9 @@ export class ViewModeTabComponent
       modalType: 'advance',
       context: value,
     };
-    this.modalConfirmService.openModal(modalContent, 'deleteViewMode');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.removeTabHandler(value);
+    });
   }
 
   removeTabHandler(tab: IViewModeDto): void {
