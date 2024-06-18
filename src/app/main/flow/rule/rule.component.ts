@@ -12,6 +12,8 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ConfigurationService} from '@app/services/api/configuration.service';
+import {AuthService} from '@app/services/api/auth.service';
+import {EPerActFlow, EPerActSetting, EPerActType} from '@app/types/setting';
 
 @Component({
   selector: 'app-rule',
@@ -35,6 +37,9 @@ export class RuleComponent implements OnDestroy, OnInit {
     },
     total: 0,
   };
+  public permission = {
+    edit: false,
+  };
 
   public nextStepTypes = this.configurationService.nextStepTypes;
 
@@ -42,7 +47,13 @@ export class RuleComponent implements OnDestroy, OnInit {
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly configurationService: ConfigurationService,
-  ) {}
+    private readonly authService: AuthService,
+  ) {
+    const permissions = this.authService.getUserPerByType(EPerActType.FLOW);
+    this.permission.edit = permissions?.some(
+      (per) => per === EPerActFlow.UPDATE_FLOW,
+    );
+  }
 
   onSearch(value: any) {}
 

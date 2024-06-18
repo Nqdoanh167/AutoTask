@@ -6,26 +6,48 @@ import {
   IFilterTopTable,
 } from '@app/types/common';
 import {finalize, Subject, takeUntil} from 'rxjs';
-import {ICommonDataSource} from '@app/types/viewmodels';
+import {ESocialPlatform, IQueryBase} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
 import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-source/update-source.component';
-import {EDataSourceType, ISource} from '@app/types/setting';
-import {sortBy, sortIcon} from '@app/utils/common';
+import {
+  EDataSourceType,
+  EPerActSetting,
+  EPerActType,
+  ISource,
+} from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
+import {AuthService} from '@app/services/api/auth.service';
+import {socialPlatforms} from '@app/variable';
+import {ETaskChainType} from '@app/types/flow';
 
 @Component({
   selector: 'app-source',
   templateUrl: './source.component.html',
   styleUrls: ['./source.component.scss'],
 })
-export class SourceComponent implements OnInit, OnDestroy {
+export class SourceComponent
+  extends StandardTableComponent<ISource, IQueryBase>
+  implements OnInit, OnDestroy
+{
   private destroy$ = new Subject();
 
   protected readonly EDataSourceType = EDataSourceType;
-  public configFilters: IFilterTopTable[] = [
+
+  public socialPlatforms = socialPlatforms;
+  public loading = {
+    data: false,
+  };
+  public dataSources: Record<ESocialPlatform, ISource[]> = {
+    [ESocialPlatform.FACEBOOK]: [],
+    [ESocialPlatform.ZALO]: [],
+    [ESocialPlatform.LADIPAGE]: [],
+    [ESocialPlatform.OTHER]: [],
+  };
+  public override configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
       placeholder: 'Tìm kiếm...',
@@ -50,7 +72,7 @@ export class SourceComponent implements OnInit, OnDestroy {
       multiple: false,
     },
   ];
-  public configButtons: IFilterTopButton[] = [
+  public override configButtons: IFilterTopButton[] = [
     {
       name: 'reload',
       type: ETypeButton.DEFAULT,
@@ -64,54 +86,68 @@ export class SourceComponent implements OnInit, OnDestroy {
     },
   ];
 
-  public dataSource: ICommonDataSource<ISource, any> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 20,
-      sort: '-createdAt',
-    },
-    total: 0,
+  public permission = {
+    add: false,
+    edit: false,
+    delete: false,
   };
   protected modalUpdateSource?: BsModalRef;
-  private sortProperty: string = 'createdAt';
-  private sortOrder = 1;
+
   constructor(
     private readonly modalConfirmService: ModalConfirmService,
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
     private readonly autoTaskService: AutoTaskService,
-  ) {}
-
-  ngOnInit() {
-    this.getDataSource();
+    private readonly authService: AuthService,
+  ) {
+    super();
+    const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
+    if (
+      permissions?.some((per) => per === EPerActSetting.UPDATE_SOURCE_SETTING)
+    ) {
+      this.permission = {
+        ...this.permission,
+        add: true,
+        edit: true,
+        delete: true,
+      };
+    }
+    if (!this.permission.add) {
+      this.configButtons = this.configButtons.filter(
+        (button) => button.name !== 'add_new',
+      );
+    }
   }
 
-  getDataSource(isReset: boolean = false) {
-    let params = {...this.dataSource.paramsQuery};
-    if (isReset) {
-      params.limit = 20;
-      params.page = 1;
-    }
-    this.dataSource.loading = true;
+  override getDataSource() {
+    let params = {...this.item.paramsQuery};
+    this.loading.data = true;
     this.autoTaskService.source
-      .get(params)
+      .getOrderBySource(params)
       .pipe(
+        finalize(() => {
+          this.loading.data = false;
+        }),
         takeUntil(this.destroy$),
-        finalize(() => (this.dataSource.loading = false)),
       )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.dataSource.rows = res.data;
-            this.dataSource.total = res.total;
+            this.dataSources = {
+              [ESocialPlatform.FACEBOOK]:
+                res.data[ESocialPlatform.FACEBOOK] ?? [],
+              [ESocialPlatform.ZALO]: res.data[ESocialPlatform.ZALO] ?? [],
+              [ESocialPlatform.LADIPAGE]:
+                res.data[ESocialPlatform.LADIPAGE] ?? [],
+              [ESocialPlatform.OTHER]: res.data[ESocialPlatform.OTHER] ?? [],
+            };
           }
         },
       });
   }
 
-  handleUpdate(data?: any) {
+  handleUpdate(data?: ISource) {
+    if (data && !this.permission.edit) return;
     try {
       this.modalUpdateSource = this.modalService.show(UpdateSourceComponent, {
         initialState: {
@@ -135,32 +171,9 @@ export class SourceComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSearch(value: {term: string; name: string}) {
-    const {term} = value;
-    this.dataSource.paramsQuery.q = term;
-    this.getDataSource(true);
-  }
-
-  onSelectFilter(data: {value?: string; name: string}) {
-    try {
-      const {value, name} = data;
-      const filter = this.dataSource.paramsQuery?.filter || '{}';
-      let obj = JSON.parse(filter);
-      if (value || Number(value) === 0) {
-        obj[name] = value;
-      } else {
-        delete obj[name];
-      }
-      this.dataSource.paramsQuery.filter = JSON.stringify(obj);
-      this.getDataSource(true);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  handleAction(name: string) {
+  override handleAction(name: string) {
     if (name === 'reload') {
-      this.getDataSource(true);
+      this.getDataSource();
     }
     if (name === 'add_new') {
       this.handleUpdate();
@@ -201,47 +214,19 @@ export class SourceComponent implements OnInit, OnDestroy {
       type: 'warning',
       modalType: 'advance',
       context: value,
+      errorState:
+        'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
+        '        của bản ghi cũng sẽ bị ảnh hưởng.',
     };
-    this.modalConfirmService.openModal(modalContent, 'delete');
-  }
-
-  pageChanged(dataPage: {page: number; limit: number}): void {
-    const {page, limit} = dataPage;
-    if (page) {
-      this.dataSource.paramsQuery = {
-        ...this.dataSource.paramsQuery,
-        page: page,
-      };
-    }
-    if (limit) {
-      this.dataSource.paramsQuery = {
-        ...this.dataSource.paramsQuery,
-        limit: Number(limit),
-      };
-    }
-    this.getDataSource();
-  }
-
-  sortBy(property: string): void {
-    const {sortProperty, sortOrder, sortQuery} = sortBy(
-      this.sortOrder,
-      this.sortProperty,
-      property,
-    );
-    [this.sortProperty, this.sortOrder] = [sortProperty, sortOrder];
-    this.dataSource.paramsQuery = {
-      ...this.dataSource.paramsQuery,
-      sort: sortQuery ? sortQuery : undefined,
-    };
-    this.getDataSource(true);
-  }
-
-  sortIcon(property: string) {
-    return sortIcon(property, this.sortProperty, this.sortOrder);
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDelete(value);
+    });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
+
+  protected readonly ETaskChainType = ETaskChainType;
 }

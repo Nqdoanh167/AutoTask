@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  AfterViewInit,
 } from '@angular/core';
 import {Biz} from 'src/app/types/viewmodels';
 import {AuthService} from 'src/app/services/api/auth.service';
@@ -18,7 +19,9 @@ import {Subject, takeUntil} from 'rxjs';
   templateUrl: './input-mask.component.html',
   styleUrls: ['./input-mask.component.scss'],
 })
-export class InputMaskComponent implements OnInit, OnChanges, OnDestroy {
+export class InputMaskComponent
+  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+{
   @Input() id: string | null = null;
   @Input() className: string | null = null;
   @Input() placeholder: string | null = null;
@@ -43,11 +46,8 @@ export class InputMaskComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
-  ) {
-    
-  }
+  ) {}
   ngOnChanges(changes: SimpleChanges): void {
-
     if (changes['isQuantity']) {
       setTimeout(() => {
         this.setupOption(this.biz);
@@ -106,7 +106,7 @@ export class InputMaskComponent implements OnInit, OnChanges, OnDestroy {
       } else {
       }
     }
-    
+
     if (typeof this.min === 'number' && this.value < this.min) {
       this.value = this.min;
       if (isEmit) {

@@ -14,15 +14,24 @@ export class ModalConfirmService {
   public modalType = new BehaviorSubject<string | 'default' | 'advance'>(
     'default',
   );
+  public okFunc = new BehaviorSubject<Function | null>(null);
+  public declineFunc = new BehaviorSubject<Function | null>(null);
 
   constructor() {}
 
-  openModal(modalContent: IModalConfirmContent, key?: string): void {
+  openModal(
+    modalContent: IModalConfirmContent,
+    key?: string,
+    okFunc?: Function,
+    declineFunc?: Function,
+  ): void {
     this.modalType.next(modalContent.modalType || 'default');
     this.toggleModal.next({
       isOpen: true,
       key,
     });
+    this.okFunc.next(okFunc || null);
+    this.declineFunc.next(declineFunc || null);
     this.modalContent.next(modalContent);
   }
 
@@ -32,5 +41,9 @@ export class ModalConfirmService {
       key: undefined,
     });
     this.modalContent.next({});
+  }
+
+  successEvent() {
+    this.closeModal();
   }
 }

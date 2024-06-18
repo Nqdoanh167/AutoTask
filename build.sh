@@ -1,1 +1,1 @@
-ng b --configuration production
+ng b --aot=true --output-hashing=all

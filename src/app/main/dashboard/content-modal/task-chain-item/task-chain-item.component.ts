@@ -18,7 +18,6 @@ import {
   EActionType,
   EDelayType,
   ENextStepType,
-  EOptionCloneTask,
   EStatusTaskChainResult,
   ETaskChainResultType,
   ETaskChainType,
@@ -27,13 +26,15 @@ import {
   IChainResult,
   ITaskChain,
   ITaskChainResult,
+  IUpdateDeadlineTaskResult,
+  IUpdateTaskResultDto,
 } from '@app/types/flow';
 import {calculateTime} from '@app/utils/common';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IBlockAutomation} from '@app/types/automation';
-import {BsModalService} from 'ngx-bootstrap/modal';
 import moment from 'moment/moment';
+import {optionToCloneTask} from '@app/variable';
 
 @Component({
   selector: 'app-task-chain-item',
@@ -41,6 +42,13 @@ import moment from 'moment/moment';
   styleUrls: ['./task-chain-item.component.scss'],
 })
 export class TaskChainItemComponent implements OnDestroy, OnInit {
+  @Input() permissions: {
+    canEditAction: boolean;
+    canEditDeadline: boolean;
+  } = {
+    canEditAction: false,
+    canEditDeadline: false,
+  };
   @Input() formItem!: FormGroup | any;
   @Input() submitted: boolean = false;
   @Input() results: IActResult[] = [];
@@ -61,36 +69,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   @Output() updateTaskChainEvent = new EventEmitter();
   @Output() cancelUpdateTaskChainEvent = new EventEmitter();
   @Output() callEvent = new EventEmitter();
-  public optionToCloneTask = [
-    {
-      label: 'Nguồn dữ liệu',
-      value: EOptionCloneTask.SOURCE,
-    },
-    {
-      label: 'Ghi chú',
-      value: EOptionCloneTask.NOTE,
-    },
-    {
-      label: 'Nhân sự phụ trách',
-      value: EOptionCloneTask.TEAM,
-    },
-    {
-      label: 'TAG',
-      value: EOptionCloneTask.TAG,
-    },
-    {
-      label: 'Chuỗi hiện tại',
-      value: EOptionCloneTask.CURRENT_CHAIN,
-    },
-    {
-      label: 'Thông tin khách hàng',
-      value: EOptionCloneTask.LEADDEAL,
-    },
-    {
-      label: 'Sản phẩm quan tâm',
-      value: EOptionCloneTask.PRODUCT,
-    },
-  ];
+  public optionToCloneTask = optionToCloneTask;
   public loading = {
     submit: false,
     sendBlock: false,
@@ -99,7 +78,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   private destroy$ = new Subject();
   protected readonly EActionType = EActionType;
-  protected readonly ENextStepType = ENextStepType;
   protected readonly today = new Date();
   protected readonly ETaskChainResultType = ETaskChainResultType;
 
@@ -108,7 +86,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     private readonly fb: FormBuilder,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
-    private readonly modalService: BsModalService,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
@@ -195,6 +172,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       )).clear();
     }
   }
+
   handleChangeTaskChainReason(
     taskChainResultIndex: number,
     value: {id: string; name: string},
@@ -272,7 +250,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
               chainActResultId: nextAction.moveToActionId,
             }
           : null,
-        closeCloneTask: nextAction.closeCloneTask || null
+        closeCloneTask: nextAction.closeCloneTask || null,
       };
       return {
         ...nextAction,
@@ -290,9 +268,37 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         ? action.callBlockAutomation
         : null,
     };
+    this.handleUpdateTaskChainResult(
+      taskChainResult.id,
+      taskChainResultIndex,
+      body,
+    );
+    // const originalDeadlineDate =
+    //   this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
+    //     ?.deadlineDate;
+    // // check if deadlineDate is change
+    // if (
+    //   new Date(originalDeadlineDate!).getTime() !==
+    //   new Date(deadlineDate).getTime()
+    // ) {
+    //   const body = {
+    //     deadlineDate: deadlineDate.toISOString(),
+    //     note,
+    //   };
+    //   this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
+    // } else {
+    //
+    // }
+  }
+
+  handleUpdateDeadline(
+    taskChainResultId: string,
+    taskChainResultIndex: number,
+    body: IUpdateDeadlineTaskResult,
+  ) {
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
-      .update(taskChainResult.id, body)
+      .updateDeadline(taskChainResultId, body)
       .pipe(finalize(() => (this.loading.submit = false)))
       .subscribe({
         next: (res) => {
@@ -308,7 +314,32 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
             this.commonService.handleResErr(res);
           }
         },
-        error: (err) => this.commonService.handleErr(err),
+      });
+  }
+
+  handleUpdateTaskChainResult(
+    taskChainResultId: string,
+    taskChainResultIndex: number,
+    body: IUpdateTaskResultDto,
+  ) {
+    this.loading.submit = true;
+    this.autoTaskService.taskChainResult
+      .update(taskChainResultId, body)
+      .pipe(finalize(() => (this.loading.submit = false)))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+            if (res.data.executedDate) {
+              this.formTaskChainResults().at(taskChainResultIndex).patchValue({
+                executedDate: res.data.executedDate,
+              });
+            }
+            this.updateTaskChainEvent.emit();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
       });
   }
 
@@ -355,9 +386,12 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     if (nextStep.childNextAction?.closeCloneTask?.length) {
       string +=
         ': ' +
-        `<b>${
-          this.optionToCloneTask.filter(o => nextStep.childNextAction?.closeCloneTask?.includes(o.value))?.map(o => o.label)?.join(", ")
-        }</b>`;
+        `<b>${this.optionToCloneTask
+          .filter(
+            (o) => nextStep.childNextAction?.closeCloneTask?.includes(o.value),
+          )
+          ?.map((o) => o.label)
+          ?.join(', ')}</b>`;
     }
     if (
       nextStep.childNextAction?.addNewChain?.chain &&
@@ -442,6 +476,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   ) {
     const staticTaskChain =
       this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex];
+    if (type !== 'timer' && !this.permissions.canEditAction) return false;
     if (type === 'result') {
       return (
         ((!staticTaskChain?.action?.callBlockAutomation?.blockId &&
@@ -454,6 +489,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'timer') {
+      if (!this.permissions.canEditDeadline) return false;
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&

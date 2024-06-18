@@ -49,8 +49,8 @@ export class InputUploadComponent implements OnInit {
     this.loading = true;
     this.storageService.attach(accept, 2, this.bodyUpload).subscribe({
       next: (res) => {
-        if (res.data?.length) {
-          this.url = res.data[0];
+        if (res?.data?.length) {
+          this.url = res?.data?.[0];
           this.urlChange.emit(this.url);
         }
         this.loading = false;

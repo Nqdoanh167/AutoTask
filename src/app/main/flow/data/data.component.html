@@ -17,19 +17,19 @@
       <div class="content-site mt-3">
         <ng-container [ngSwitch]="activeTab">
           <ng-container *ngSwitchCase="ETabConfigData.ACTION">
-            <app-action></app-action>
+            <app-action [hasEditPer]="permission.edit"></app-action>
           </ng-container>
           <ng-container *ngSwitchCase="ETabConfigData.CHAIN_ACTION">
-            <app-chain-action></app-chain-action>
+            <app-chain-action [hasEditPer]="permission.edit"></app-chain-action>
           </ng-container>
           <ng-container *ngSwitchCase="ETabConfigData.RESULT">
-            <app-result></app-result>
+            <app-result [hasEditPer]="permission.edit"></app-result>
           </ng-container>
           <ng-container *ngSwitchCase="ETabConfigData.REASON">
-            <app-reason></app-reason>
+            <app-reason [hasEditPer]="permission.edit"></app-reason>
           </ng-container>
           <ng-container *ngSwitchDefault>
-            <app-action></app-action>
+            <app-action [hasEditPer]="permission.edit"></app-action>
           </ng-container>
         </ng-container>
       </div>

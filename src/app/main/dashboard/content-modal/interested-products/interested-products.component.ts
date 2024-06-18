@@ -24,7 +24,7 @@ import {
   Warehouse,
 } from '@app/types/viewmodels';
 import {ProductService} from '@app/services/api/product.service';
-import {pick, uniq, uniqBy} from 'lodash';
+import {pick, uniqBy} from 'lodash';
 import {CommonService} from '@app/services/common/common.service';
 import {AuthService} from '@app/services/api/auth.service';
 import {ToastrService} from 'ngx-toastr';
@@ -288,7 +288,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   }
   handleChangeProductsIntoCombo(same: any, index: number) {
     const valueProducts = this.formProducts || [];
-    const fProduct = valueProducts[index]
+    const fProduct = valueProducts[index];
     valueProducts.splice(index, 1, {
       ...fProduct,
       id: same.id,
@@ -298,10 +298,9 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       price: same.price,
     });
     (this.formCart() as FormGroup).patchValue({
-      products: valueProducts
+      products: valueProducts,
     });
     this.getInventoryByWarehouse();
-    
   }
   handleChangeProducts(event: any) {
     if (!event) return;

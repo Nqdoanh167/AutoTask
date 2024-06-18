@@ -24,13 +24,11 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {CommonService} from '@app/services/common/common.service';
-import {AuthService} from '@app/services/api/auth.service';
+import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {removeCharacter} from '@app/utils/common';
+import {optionToCloneTask} from '@app/variable';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -54,36 +52,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   @Output() updateSuccess = new EventEmitter<any>();
   @Output() deleteEvent = new EventEmitter<any>();
-  public optionToCloneTask = [
-    {
-      label: 'Nguồn dữ liệu',
-      value: EOptionCloneTask.SOURCE,
-    },
-    {
-      label: 'Ghi chú',
-      value: EOptionCloneTask.NOTE,
-    },
-    {
-      label: 'Nhân sự phụ trách',
-      value: EOptionCloneTask.TEAM,
-    },
-    {
-      label: 'TAG',
-      value: EOptionCloneTask.TAG,
-    },
-    {
-      label: 'Chuỗi hiện tại',
-      value: EOptionCloneTask.CURRENT_CHAIN,
-    },
-    {
-      label: 'Thông tin khách hàng',
-      value: EOptionCloneTask.LEADDEAL,
-    },
-    {
-      label: 'Sản phẩm quan tâm',
-      value: EOptionCloneTask.PRODUCT,
-    },
-  ];
+  public optionToCloneTask = optionToCloneTask;
   public nextStepTypes = this.configurationService.nextStepTypes;
   public submitted = false;
   public updateForm = this.fb.group(
@@ -118,15 +87,10 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   };
   protected readonly ENextStepType = ENextStepType;
   protected readonly EDelayType = EDelayType;
-  protected readonly EChainNextActType = EChainNextActType;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
-    private readonly autoTaskService: AutoTaskService,
-    private readonly commonService: CommonService,
-    private readonly authService: AuthService,
-    private readonly modalService: BsModalService,
     private readonly configurationService: ConfigurationService,
   ) {}
 
@@ -219,9 +183,9 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   handleChangeTypeAction(event: any) {
     let optionClone: string[] = [];
-    if(event?.value === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
+    if (event?.value === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
       optionClone = Object.values(EOptionCloneTask);
-    } 
+    }
     this.updateForm.patchValue({
       moveToAction: {
         chainActResultId: null,
@@ -230,7 +194,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       callBlockAutomation: {
         blockId: null,
       },
-      
+
       closeCloneTask: optionClone,
       addNewChain: {
         chainActResultId: null,

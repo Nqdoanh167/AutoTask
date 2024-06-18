@@ -1,0 +1,208 @@
+<div class="setting-employee-site">
+  <div class="card">
+    <div class="card-body">
+      <div class="list-data">
+        <app-standard-data-size
+          [configButtons]="configButtons"
+          [configFilters]="configFilters"
+          (searchEvent)="onSearch($event)"
+          (actionEvent)="handleAction($event)"
+          [isHidePaginate]="true"
+        >
+          <ng-container bodyTable>
+            <div
+              class="table-responsive tableFixHead custom-scrollbar"
+              [class.thin-table]="isInPermissionModal"
+            >
+              <table class="table">
+                <thead>
+                  <tr>
+                    @if (isInPermissionModal) {
+                      <th class="column-checkbox">
+                        <label class="basic-checkbox standalone">
+                          <input
+                            (change)="
+                              handleSelectRow({type: 'all', event: $event})
+                            "
+                            [checked]="isAllChecked()"
+                            type="checkbox"
+                          />
+                          <span class="checkmark"></span>
+                        </label>
+                      </th>
+                    }
+                    @if (!getLengthCheckRow()) {
+                      <th class="column-employee">Nhân viên</th>
+                      <th class="column-group">Vùng chức năng</th>
+                      <th class="column-role">Vai trò</th>
+                      <th class="column-branch">Chi nhánh</th>
+                      <th class="column-status">Trạng thái</th>
+                      @if (permission.edit || permission.removePer) {
+                        <th class="columns-action">Hành động</th>
+                      }
+                    } @else {
+                      <ng-container
+                        *ngTemplateOutlet="selectBatchAction"
+                      ></ng-container>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    class="text-center"
+                    *ngIf="!listFilteredBizUsers.length && !loading.data"
+                  >
+                    <td colspan="12">
+                      <div>Không có dữ liệu</div>
+                    </td>
+                  </tr>
+                  <tr class="text-center" *ngIf="loading.data">
+                    <td colspan="12">
+                      <div class="spinner-grow text-primary" role="status">
+                        <span class="visually-hidden">Loading</span>
+                      </div>
+                      <div>Loading</div>
+                    </td>
+                  </tr>
+                  <tr *ngFor="let item of listFilteredBizUsers; index as i">
+                    @if (isInPermissionModal) {
+                      <td class="column-checkbox">
+                        <label class="basic-checkbox standalone">
+                          <input
+                            value="{{ item.id }}"
+                            [checked]="isCheckRow(item)"
+                            (change)="
+                              handleSelectRow({item: item, event: $event})
+                            "
+                            (keydown)="isShift = true"
+                            (keyup)="isShift = false"
+                            type="checkbox"
+                          />
+                          <span class="checkmark"></span>
+                        </label>
+                      </td>
+                    }
+                    <td class="column-employee">
+                      <div class="d-flex align-items-center">
+                        <div>
+                          <img
+                            class="avatar me-2"
+                            src="{{ item.picture }}"
+                            fallback="assets/images/avatar.svg"
+                            alt=""
+                          />
+                        </div>
+                        <div class="d-flex flex-column">
+                          <span>
+                            <span class="fw-500">
+                              {{ item.name || '-' }}&nbsp;
+                            </span>
+                            <span class="callout-regular">
+                              ({{ item.role }})
+                            </span>
+                          </span>
+                          <span class="callout-regular">
+                            {{ item.email || '-' }}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="column-group">
+                      <div class="list-badge d-flex flex-wrap gap-1">
+                        <span *ngFor="let group of item.groups" class="badge">
+                          {{ group.name || '-' }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="column-role">
+                      <div class="list-badge d-flex flex-wrap gap-1">
+                        <span *ngFor="let role of item.roles" class="badge">
+                          {{ role.name || '-' }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="column-branch">
+                      <div class="list-badge d-flex flex-wrap gap-1">
+                        <span
+                          *ngFor="let branch of item.branches"
+                          class="badge"
+                        >
+                          {{ branch.name || '-' }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="column-status">
+                      <div>
+                        <img
+                          src="assets/images/icon/{{
+                            item.isActiveAcl ? 'check.svg' : 'not-check.svg'
+                          }}"
+                          width="10"
+                          height="10"
+                          alt=""
+                        />
+                      </div>
+                    </td>
+                    @if (permission.edit || permission.removePer) {
+                      <td class="columns-action">
+                        <div class="d-flex">
+                          @if (!isInPermissionModal) {
+                            @if (permission.edit) {
+                              <span
+                                (click)="handleUpdate(item)"
+                                class="d-flex align-items-center btn-action-table"
+                              >
+                                <img
+                                  src="./assets/images/icon/edit.svg"
+                                  alt=""
+                                />
+                              </span>
+                            }
+                          } @else {
+                            @if (permission.removePer) {
+                              <span
+                                (click)="removePerOfEmployees([item])"
+                                class="d-flex align-items-center cursor-pointer"
+                              >
+                                <i
+                                  class="fa-solid fa-user-minus text-danger"
+                                ></i>
+                              </span>
+                            }
+                          }
+                        </div>
+                      </td>
+                    }
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </app-standard-data-size>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #selectBatchAction>
+  <th colspan="12">
+    <div class="d-flex align-items-center gap-3">
+      <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
+      <ng-select
+        #selectBatchActions
+        [style.width]="'230px'"
+        [placeholder]="'Thao tác hàng loạt'"
+        [searchable]="false"
+        appearance="outline"
+        (change)="handleChangeBatchAction($event)"
+        [(ngModel)]="batchAction"
+        [clearable]="false"
+        appendTo=".setting-employee-site"
+      >
+        <ng-option [value]="EBatchActionEmployeePer.REMOVE">
+          Xóa quyền này của nhân viên
+        </ng-option>
+      </ng-select>
+    </div>
+  </th>
+</ng-template>

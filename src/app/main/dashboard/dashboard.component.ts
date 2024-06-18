@@ -1,12 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {
-  distinctUntilChanged,
-  filter,
-  finalize,
-  interval,
-  Subject,
-  takeUntil,
-} from 'rxjs';
+import {distinctUntilChanged, filter, finalize, Subject, takeUntil} from 'rxjs';
 import {
   EBotherAdvanceBasicFilter,
   ETypeBulkUpdate,
@@ -22,7 +15,6 @@ import {
   IDateRange,
   IQueryBase,
   ITag,
-  Source,
 } from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {CommonService} from '@app/services/common/common.service';
@@ -41,16 +33,24 @@ import {
   ITaskChain,
 } from '@app/types/flow';
 import moment from 'moment/moment';
-import {cloneDeep, isEmpty, isEqual, uniqBy} from 'lodash';
+import {cloneDeep, isEqual, uniqBy} from 'lodash';
 import {AuthService} from '@app/services/api/auth.service';
-import {EScreens, ISource, IViewModeDto} from '@app/types/setting';
+import {
+  EPerActFlow,
+  EPerActSetting,
+  EPerActTask,
+  EPerActType,
+  EScreens,
+  ISource,
+  IViewModeDto,
+} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
 import {environment} from 'src/environments/environment';
 import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 import {listColumnsDashboardDefault} from '@app/variable';
-import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone/modal-clone.component';
+import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
 
 @Component({
   selector: 'app-task',
@@ -75,100 +75,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     {
       type: ETypeFilter.SEARCH,
       placeholder: 'Tìm kiếm...',
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'actionStates',
-      placeholder: 'Trạng thái hành động',
-      options: [
-        {
-          label: 'Hành động đã trễ',
-          value: EActionStates.OVERDUE,
-        },
-        {
-          label: 'Hành động hẹn giờ',
-          value: EActionStates.DUE_SOON,
-        },
-        {
-          label: 'Hành động hoàn thành',
-          value: EActionStates.EXECUTED,
-        },
-        // {
-        //   label: 'Ẩn chuỗi đã đóng',
-        //   value: EActionStates.HIDE_FULL_EXECUTED,
-        // },
-      ],
-      bindLabel: 'label',
-      bindValue: 'value',
-      clearable: true,
-      multiple: true,
-      minWidth: '200px',
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'chainActId',
-      placeholder: 'Chuỗi hành động',
-      options: [
-        {
-          id: 'NONE',
-          name: 'Chưa gán chuỗi',
-        },
-      ],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: false,
-      onSearch: (event: any) => this.handleSearchActChain(event),
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'actionIds',
-      placeholder: 'Hành động',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'tags',
-      placeholder: 'Tag',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'resultIds',
-      placeholder: 'Kết quả',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'teamId',
-      placeholder: 'Nhân sự phụ trách',
-      options: [],
-      bindLabel: 'label',
-      bindValue: 'value',
-      clearable: true,
-      searchable: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
       type: ETypeFilter.POPOVER,
@@ -207,14 +113,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
     },
     {
       type: ETypeFilter.SELECT,
-      name: 'sourceIds',
-      placeholder: 'Nguồn dữ liệu',
+      name: 'actionStates',
+      placeholder: 'Trạng thái hành động',
+      options: [
+        {
+          label: 'Hành động đã trễ',
+          value: EActionStates.OVERDUE,
+        },
+        {
+          label: 'Hành động hẹn giờ',
+          value: EActionStates.DUE_SOON,
+        },
+        {
+          label: 'Hành động hoàn thành',
+          value: EActionStates.EXECUTED,
+        },
+        // {
+        //   label: 'Ẩn chuỗi đã đóng',
+        //   value: EActionStates.HIDE_FULL_EXECUTED,
+        // },
+      ],
+      bindLabel: 'label',
+      bindValue: 'value',
+      clearable: true,
+      multiple: true,
+      minWidth: '200px',
+      botherType: EBotherAdvanceBasicFilter.ADVANCE,
+    },
+    {
+      type: ETypeFilter.SELECT,
+      name: 'teamId',
+      placeholder: 'Nhân sự phụ trách',
       options: [],
       bindLabel: 'name',
       bindValue: 'id',
       clearable: true,
       searchable: true,
-      multiple: true,
       botherType: EBotherAdvanceBasicFilter.ADVANCE,
     },
     {
@@ -335,6 +269,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     updatedAt: 0,
     createdAt: 0,
   };
+  public permission = {
+    add: false,
+    edit: false,
+    delete: false,
+  };
+
   constructor(
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
@@ -350,14 +290,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe((biz) => {
         if (biz) {
           this.currentBiz = biz.alias || '';
-          this.configFilters[6].options = [
-            {label: 'Chưa gán nhân sự phụ trách', value: 'NONE'},
-          ].concat(
-            biz?.users?.map((user) => ({
-              label: user.name,
-              value: user.id as any,
-            })),
+          this.authService.getColleague();
+          const configFilterStaff = this.configFilters.find(
+            (filter) => filter.name === 'teamId',
           );
+          if (configFilterStaff) {
+            configFilterStaff.options = [
+              {name: 'Chưa gán nhân sự phụ trách', id: 'NONE'},
+            ].concat(this.authService.getColleague());
+          }
         }
       });
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((q) => {
@@ -379,13 +320,140 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.getActionChain();
-    this.getResult();
-    this.getAction();
-    this.getTag();
-    this.getSource();
+    this.handleCheckPermission();
     this.handleActiveViewMode();
+    const permissions = this.authService.getUserPerByType(EPerActType.TASK);
+    this.permission.edit = this.hasPermission(
+      permissions,
+      EPerActTask.UPDATE_TASK,
+    );
+    this.permission.add = this.hasPermission(
+      permissions,
+      EPerActTask.CREATE_TASK,
+    );
+    this.permission.delete = this.hasPermission(
+      permissions,
+      EPerActTask.DELETE_TASK,
+    );
+    if (!this.permission.add) {
+      this.configButtons[2].hidden = true;
+    }
   }
+
+  handleCheckPermission() {
+    const permissions = [
+      ...this.authService.getUserPerByType(EPerActType.TASK),
+      ...this.authService.getUserPerByType(EPerActType.SETTING),
+      ...this.authService.getUserPerByType(EPerActType.FLOW),
+    ];
+    if (
+      permissions.some((per) =>
+        [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW].includes(
+          per as EPerActFlow,
+        ),
+      )
+    ) {
+      this.getActionChain();
+      this.getResult();
+      this.getAction();
+      this.configFilters = [
+        ...this.configFilters,
+        ...[
+          {
+            type: ETypeFilter.SELECT,
+            name: 'chainActId',
+            placeholder: 'Chuỗi hành động',
+            options: [
+              {
+                id: 'NONE',
+                name: 'Chưa gán chuỗi',
+              },
+            ],
+            bindLabel: 'name',
+            bindValue: 'id',
+            clearable: true,
+            searchable: true,
+            multiple: false,
+            onSearch: (event: any) => this.handleSearchActChain(event),
+            botherType: EBotherAdvanceBasicFilter.ADVANCE,
+          },
+          {
+            type: ETypeFilter.SELECT,
+            name: 'actionIds',
+            placeholder: 'Hành động',
+            options: [],
+            bindLabel: 'name',
+            bindValue: 'id',
+            clearable: true,
+            searchable: true,
+            multiple: true,
+            botherType: EBotherAdvanceBasicFilter.ADVANCE,
+          },
+          {
+            type: ETypeFilter.SELECT,
+            name: 'resultIds',
+            placeholder: 'Kết quả',
+            options: [],
+            bindLabel: 'name',
+            bindValue: 'id',
+            clearable: true,
+            searchable: true,
+            multiple: true,
+            botherType: EBotherAdvanceBasicFilter.ADVANCE,
+          },
+        ],
+      ];
+    }
+    if (
+      permissions.some((per) =>
+        [
+          EPerActSetting.VIEW_SOURCE_SETTING,
+          EPerActSetting.UPDATE_SOURCE_SETTING,
+        ].includes(per as EPerActSetting),
+      )
+    ) {
+      this.getSource();
+      this.configFilters.push({
+        type: ETypeFilter.SELECT,
+        name: 'sourceIds',
+        placeholder: 'Nguồn dữ liệu',
+        options: [],
+        bindLabel: 'name',
+        bindValue: 'id',
+        clearable: true,
+        searchable: true,
+        multiple: true,
+        botherType: EBotherAdvanceBasicFilter.ADVANCE,
+      });
+    }
+    if (
+      permissions.some((per) =>
+        [
+          EPerActSetting.VIEW_TAG_SETTING,
+          EPerActSetting.UPDATE_TAG_SETTING,
+        ].includes(per as EPerActSetting),
+      )
+    ) {
+      this.getTag();
+      this.configFilters.push({
+        type: ETypeFilter.SELECT,
+        name: 'tagIds',
+        placeholder: 'Tag',
+        options: [],
+        bindLabel: 'name',
+        bindValue: 'id',
+        clearable: true,
+        searchable: true,
+        multiple: true,
+        botherType: EBotherAdvanceBasicFilter.ADVANCE,
+      });
+    }
+  }
+
+  private hasPermission(permissions: any[], permission: any): boolean {
+    return permissions?.some((per) => per === permission);
+  }
+
   showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
     const modalRef = this.modalService.show(ModalAssignTeamComponent, {
       class: 'modal-dialog-centered',
@@ -557,7 +625,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.dataSource.paramsQuery.page = 1;
     }
     let params = {...this.dataSource.paramsQuery};
-   
+
     Object.keys(this.sort).forEach((key) => {
       if (this.sort[key] !== 0) {
         let sortAll = params.sort?.split(',') || [];
@@ -597,10 +665,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.actionChains.rows.concat(res.data),
               'id',
             );
-            this.configFilters[2].options = [
-              ...(this.configFilters[2].options || []),
-              ...this.actionChains.rows,
-            ];
+            const configFilterChain = this.configFilters.find(
+              (filter) => filter.name === 'chainActId',
+            );
+            if (configFilterChain) {
+              configFilterChain.options = [
+                {id: 'NONE', name: 'Chưa gán chuỗi'},
+              ].concat(this.actionChains.rows);
+            }
             this.actionChains.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -631,7 +703,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.results.rows.concat(res.data),
               'id',
             );
-            this.configFilters[5].options = this.results.rows;
+            const configFilterResult = this.configFilters.find(
+              (filter) => filter.name === 'resultIds',
+            );
+            if (configFilterResult) {
+              configFilterResult.options = this.results.rows;
+            }
             this.results.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -662,7 +739,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.actions.rows.concat(res.data),
               'id',
             );
-            this.configFilters[3].options = this.actions.rows;
+            const configFilterAction = this.configFilters.find(
+              (filter) => filter.name === 'actionIds',
+            );
+            if (configFilterAction) {
+              configFilterAction.options = this.actions.rows;
+            }
             this.actions.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -692,7 +774,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
               this.sources.rows.concat(res.data),
               'id',
             );
-            this.configFilters[8].options = this.sources.rows;
+            const configFilterSource = this.configFilters.find(
+              (filter) => filter.name === 'sourceIds',
+            );
+            if (configFilterSource) {
+              configFilterSource.options = this.sources.rows;
+            }
             this.sources.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -719,7 +806,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res.status === 200) {
             this.tags.rows = uniqBy(this.tags.rows.concat(res.data), 'id');
-            this.configFilters[4].options = this.tags.rows;
+            const configFilterTag = this.configFilters.find(
+              (filter) => filter.name === 'tagIds',
+            );
+            if (configFilterTag) {
+              configFilterTag.options = this.tags.rows;
+            }
             this.tags.isAllowLoadMore = res.meta
               ? res.meta.currentPage < res.meta.totalPage
               : false;
@@ -747,6 +839,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   handleUpdate(value?: any, taskId?: string) {
     if (value) {
       this.handleClearQueryParams();
+      if (!this.permission.edit) {
+        return;
+      }
     }
     try {
       const modalUpdate = this.modalService.show(ModalUpdateTaskComponent, {
@@ -771,19 +866,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
   handleCopy(task: ITask) {
-      const modalClone = this.modalService.show(ModalCloneComponent, {
-        initialState: {
-          task: task,
-        },
-        ignoreBackdropClick: true,
-        keyboard: false,
-      });
-      modalClone.content?.submit.subscribe(res =>{
-        if(res){
-          modalClone.hide();
-          this.cloneTask(task.id, res);
-        }
-      })
+    const modalClone = this.modalService.show(ModalCloneComponent, {
+      initialState: {
+        task: task,
+      },
+      ignoreBackdropClick: true,
+      keyboard: false,
+    });
+    modalClone.content?.submitEvent.subscribe((res) => {
+      if (res) {
+        modalClone.hide();
+        this.cloneTask(task.id, res);
+      }
+    });
   }
   cloneTask(id: string, options: string[]) {
     this.autoTaskService.task
@@ -799,9 +894,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.commonService.handleResSuccess('clone');
           this.getDataSource();
         },
-        error: (err) => { 
+        error: (err) => {
           this.commonService.handleErr(err);
-        }
+        },
       });
   }
 
@@ -939,9 +1034,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       type: 'warning',
       modalType: 'advance',
       context: value,
+      errorState:
+        'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
+        '        của bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
-    this.modalConfirmService.openModal(modalContent, 'delete');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDelete(value);
+    });
   }
 
   onSearch(value: {term: string; name: string}) {
@@ -955,7 +1055,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       delete this.dataSource.paramsQuery.sort;
     }
-    this.configFilters[7].value = data.value;
+    const configFilterPopover = this.configFilters.find(
+      (filter) => filter.name === 'sort',
+    );
+    if (configFilterPopover) {
+      configFilterPopover.value = data.value;
+    }
     if (data.value !== this.currentActiveViewMode?.options?.sort) {
       this.handleViewModeChange(true);
     }
@@ -968,34 +1073,44 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let obj = JSON.parse(filter);
         if (Array.isArray(value) && value.length > 0) {
           obj[name] = value;
-          if (name === 'chainActIds') {
-            const selectedChains = this.actionChains.rows.filter((chain) =>
-              value.includes(chain.id),
-            );
-            const actions = selectedChains?.reduce((acc: any[], chain) => {
-              return uniqBy(
-                [
-                  ...acc,
-                  ...chain?.actionResults?.map((chainActResult) => {
-                    return chainActResult.action;
-                  }),
-                ],
-                'id',
-              );
-            }, []);
-            this.configFilters[3].options = actions?.filter(
-              (actions) => !!actions,
-            );
-          }
         } else if (
           typeof value === 'string' &&
           (!!value || Number(value) === 0)
         ) {
           obj[name] = value;
+          // if (name === 'chainActId') {
+          //   const selectedChains = this.actionChains.rows.filter((chain) =>
+          //     value.includes(chain.id),
+          //   );
+          //   const actions = selectedChains?.reduce((acc: any[], chain) => {
+          //     return uniqBy(
+          //       [
+          //         ...acc,
+          //         ...chain?.actionResults?.map((chainActResult) => {
+          //           return chainActResult.action;
+          //         }),
+          //       ],
+          //       'id',
+          //     );
+          //   }, []);
+          //   const configFilterAction = this.configFilters.find(
+          //     (filter) => filter.name === 'actionIds',
+          //   );
+          //   if (configFilterAction) {
+          //     configFilterAction.options = actions?.filter(
+          //       (actions) => !!actions,
+          //     );
+          //   }
+          // }
         } else {
           delete obj[name];
           if (name === 'chainActIds') {
-            this.configFilters[3].options = this.actions.rows;
+            const configFilterAction = this.configFilters.find(
+              (filter) => filter.name === 'actionIds',
+            );
+            if (configFilterAction) {
+              configFilterAction.options = this.actions.rows;
+            }
           }
         }
         this.dataSource.paramsQuery.filter = JSON.stringify(obj);

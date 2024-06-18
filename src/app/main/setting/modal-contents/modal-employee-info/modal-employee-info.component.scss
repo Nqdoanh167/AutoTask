@@ -1,0 +1,134 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.fa-link {
+  cursor: pointer;
+  &:hover {
+    color: vars.$secondary-500;
+  }
+}
+.table {
+  .rootRow {
+    border-bottom: 1px solid vars.$neutral-100;
+  }
+  td {
+    div {
+      padding: 0;
+    }
+  }
+  .columns-branch {
+    width: 20%;
+    vertical-align: top;
+  }
+  .columns-department {
+    width: 20%;
+    vertical-align: top;
+  }
+  .columns-team {
+    width: 20%;
+    vertical-align: top;
+  }
+  .columns-role {
+    width: 20%;
+    vertical-align: top;
+  }
+  .columns-step-center {
+    width: 2%;
+    &.content {
+      vertical-align: top;
+    }
+    .columns-step-item {
+      height: 36px;
+      background: url(^assets/images/icon/step.svg) center no-repeat;
+      &::before {
+        content: none;
+        width: 0;
+        height: 0;
+      }
+      &--center {
+        position: relative;
+        &::before {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          top: -10px;
+          left: calc(50% - 1px);
+          background-color: #dfe2ee;
+        }
+        &::after {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          bottom: -10px;
+          left: calc(50% - 1px);
+          background-color: #dfe2ee;
+        }
+      }
+
+      &--last {
+        background: url(^assets/images/icon/step-last.svg) center -40px no-repeat;
+        position: relative;
+        &::before {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          top: -10px;
+          left: calc(50% - 1px);
+          background-color: #dfe2ee;
+        }
+      }
+      &--first {
+        background: url(^assets/images/icon/step-first.svg) center 15px
+          no-repeat;
+        position: relative;
+        &::after {
+          content: '';
+          position: absolute;
+          width: 2px;
+          height: 12px;
+          bottom: -10px;
+          left: calc(50% - 1px);
+          background-color: #dfe2ee;
+        }
+      }
+      &--one {
+        background: url(^assets/images/icon/step-once.svg) center no-repeat;
+      }
+    }
+    .padding-temp {
+      background: url(^assets/images/icon/step-or-temp.svg) center no-repeat;
+      background-position-y: -40px;
+      position: relative;
+      &::before {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 12px;
+        top: -10px;
+        left: calc(50% - 1px);
+        background-color: #dfe2ee;
+      }
+      &::after {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 12px;
+        bottom: -10px;
+        left: calc(50% - 1px);
+        background-color: #dfe2ee;
+      }
+    }
+  }
+}
+
+.padding-temp {
+  height: 36px;
+  margin-top: 0.5rem !important;
+}
+.padding-button-temp {
+  height: 20px;
+  margin-top: 0.5rem !important;
+}

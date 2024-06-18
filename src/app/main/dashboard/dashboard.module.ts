@@ -29,14 +29,15 @@ import {InputSuggestCustomerComponent} from '@share/common/input-select-customer
 import {ModalCallComponent} from './content-modal/modal-call/modal-call.component';
 import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
 import {ViewModeTabComponent} from '@share/common/view-mode-tab/view-mode-tab.component';
-import { ModalAssignTeamComponent } from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
-import { OrderableTableModule } from '@app/share/orderable-table/orderable-table.module';
-import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
-import { OrdersComponent } from './content-modal/orders/orders.component';
-import { MycurrencyModule } from '@app/share/pipe/mycurrency.module';
-import { HistoryComponent } from './content-modal/history/history.component';
-import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone/modal-clone.component';
-import { InputMaskModule } from '@app/share/input/input-mask/input-mask.module';
+import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
+import {OrderableTableModule} from '@app/share/orderable-table/orderable-table.module';
+import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
+import {OrdersComponent} from './content-modal/orders/orders.component';
+import {MycurrencyModule} from '@app/share/pipe/mycurrency.module';
+import {HistoryComponent} from './content-modal/history/history.component';
+import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
+import {InputMaskModule} from '@app/share/input/input-mask/input-mask.module';
+import {TreeSelectModule} from 'primeng/treeselect';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,7 @@ import { InputMaskModule } from '@app/share/input/input-mask/input-mask.module';
     ModalAssignTeamComponent,
     ModalCallComponent,
     OrdersComponent,
-    HistoryComponent
+    HistoryComponent,
   ],
   imports: [
     CommonModule,
@@ -82,6 +83,7 @@ import { InputMaskModule } from '@app/share/input/input-mask/input-mask.module';
     CustomInputSearchComponent,
     ViewModeTabComponent,
     CustomDatePickerComponent,
+    TreeSelectModule,
   ],
 })
 export class DashboardModule {}
