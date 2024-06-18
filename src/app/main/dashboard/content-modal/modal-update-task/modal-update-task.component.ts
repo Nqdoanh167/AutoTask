@@ -18,7 +18,6 @@ import {
   ITaskChain,
   ITaskChainResult,
   ITaskDto,
-  ModifiedUserUnit,
 } from '@app/types/flow';
 import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {
@@ -56,7 +55,6 @@ import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
 import {
-  ELevelPer,
   EPerActFlow,
   EPerActSetting,
   EPerActTask,
@@ -65,7 +63,7 @@ import {
   ISource,
 } from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
-import {EBotherAdvanceBasicFilter, ETypeFilter} from '@app/types/common';
+import {ETabTaskDetail} from '@app/types/task';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -85,6 +83,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   @Input() taskId?: string;
   @Output() updateSuccess = new EventEmitter();
 
+  private destroy$ = new Subject();
+  private currentBiz!: Biz;
+
   public permissions = {
     canEditAction: false,
     canEditChain: false,
@@ -93,6 +94,22 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     canEditTask: false,
     canGetTag: false,
   };
+
+  public activeTab = ETabTaskDetail.INFO;
+  public tabs = [
+    {
+      label: 'Thông tin',
+      key: ETabTaskDetail.INFO,
+    },
+    {
+      label: 'Đơn hàng & Sản phẩm',
+      key: ETabTaskDetail.ORDER,
+    },
+    {
+      label: 'Lịch sử',
+      key: ETabTaskDetail.HISTORY,
+    },
+  ];
 
   public tags: EntityPagination<ITag> = {
     rows: [],
@@ -106,8 +123,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   public submittedModal = {
     addTaskChain: false,
   };
-  private currentBiz!: Biz;
-  protected readonly ETaskChainType = ETaskChainType;
   public submitted = false;
   public updateForm = this.fb.group({
     name: ['Task mới', [Validators.required]],
@@ -221,8 +236,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   public isOpenBackDrop: boolean = false;
 
-  private destroy$ = new Subject();
-
   public loading = {
     submit: false,
     data: false,
@@ -232,8 +245,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     deleteTask: false,
   };
   public listBizUsers: User[] = [];
-  public triggerCallHistory!: any;
   public units = this.autoTaskService.getUserUnits();
+
+  protected readonly ETabTaskDetail = ETabTaskDetail;
+  protected readonly ETaskChainType = ETaskChainType;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -870,7 +885,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
                 this.updateSuccess.emit();
                 resolve(res.data);
                 this.getDetailTask();
-                this.triggerCallHistory = Math.random();
               } else {
                 reject(res);
                 if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
@@ -908,10 +922,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
                 this.updateSuccess.emit();
                 this.sourceData = res.data;
                 this.patchForm(res.data);
-                this.triggerCallHistory = Math.random();
                 resolve(res.data);
                 this.getDetailTask();
-                // this.hideModal();
               } else {
                 reject(res);
                 if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
@@ -996,7 +1008,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         if (res.status === 200) {
           this.commonService.handleResSuccess('delete');
           this.updateSuccess.emit();
-          this.triggerCallHistory = Math.random();
           this.hideModal();
         } else {
           this.commonService.handleResErr(res);
@@ -1045,7 +1056,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             if (res.status === 200) {
               this.getDetailTask();
               this.updateSuccess.emit();
-              this.triggerCallHistory = Math.random();
               this.addTaskChainModalRef?.hide();
             } else {
               this.commonService.handleResErr(res);
@@ -1115,7 +1125,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.getDetailTask();
-            this.triggerCallHistory = Math.random();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -1169,7 +1178,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res.status === 200) {
             this.getDetailTask();
-            this.triggerCallHistory = Math.random();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -1301,7 +1309,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
             undefined,
             'Tạo đơn hàng thành công',
           );
-          this.triggerCallHistory = Math.random();
           this.updateSuccess.emit();
           this.getDetailTask();
         } else {
@@ -1341,7 +1348,6 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
       modalCall.onHide?.pipe().subscribe(() => {
         this.isOpenBackDrop = false;
-        this.triggerCallHistory = Math.random();
       });
     } catch (e) {
       console.log(e);

@@ -6,7 +6,7 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import {Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {
   Biz,
   EInformationContentHistoryTask,
@@ -37,7 +37,6 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 })
 export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
   @Input() taskId!: string;
-  @Input() triggerCall!: any;
   public currentBiz!: Biz;
   public history: ICommonDataSource<IHistory, any> = {
     rows: [],
@@ -119,14 +118,13 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
         }));
       });
   }
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['taskId'] || changes['triggerCall']) {
-      this.getHistory();
-    }
-  }
+
+  ngOnChanges(changes: SimpleChanges): void {}
+
   ngOnInit(): void {
-    // this.getHistory();
+    this.getHistory();
   }
+
   onSelectFilter(data: {value?: string | string[]; name: string}) {
     const filter = this.history.paramsQuery?.filter || '{}';
     let obj = JSON.parse(filter);
@@ -138,11 +136,13 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
     this.history.paramsQuery.filter = JSON.stringify(obj);
     this.getHistory();
   }
+
   handleAction(name: string) {
     if (name === 'reload') {
       this.getHistory();
     }
   }
+
   onPickerDateFilter(data: {value?: IDateRange | Date; name: string}) {
     try {
       const {value, name} = data;
@@ -166,6 +166,7 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       console.log(e);
     }
   }
+
   changeSort(sort: 'createdAt') {
     switch (this.sort[sort]) {
       case 0:
@@ -182,7 +183,9 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
     }
     this.getHistory();
   }
+
   getHistory() {
+    this.history.loading = true;
     this.history.paramsQuery.filter = JSON.stringify({
       ...JSON.parse(this.history.paramsQuery.filter || '{}'),
       taskId: this.taskId,
@@ -192,13 +195,18 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       sortAll.push(this.sort.createdAt === 1 ? `createdAt` : `-createdAt`);
       this.history.paramsQuery.sort = sortAll.join(',');
     }
-    this.autoTaskService.history.get(this.history.paramsQuery).subscribe({
-      next: (res) => {
-        this.history.rows = res.data;
-        this.history.total = res.total;
-      },
-      error: (err) => {},
-    });
+    this.autoTaskService.history
+      .get(this.history.paramsQuery)
+      .pipe(
+        finalize(() => (this.history.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          this.history.rows = res.data;
+          this.history.total = res.total;
+        },
+      });
   }
 
   getTabKey(tab: ETabHistoryKey) {

@@ -37,97 +37,108 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of history.rows; index as i">
-          <td>
-            <div class="fw-normal">
-              {{ item.createdAt | timeView }}
-            </div>
-          </td>
-          <td>
-            <div>
-              <div class="fw-normal">
-                {{ getTabKey(item.tabKey) }}
+        @if (history.loading) {
+          <tr class="text-center">
+            <td colspan="12">
+              <div class="spinner-grow text-primary" role="status">
+                <span class="visually-hidden">Loading</span>
               </div>
-            </div>
-          </td>
-          <td>
-            <div class="content-history">
-              <ng-container [ngSwitch]="item.tabKey">
-                <ul *ngSwitchCase="ETabHistoryKey.ORDER_PRODUCT">
-                  <li
-                    *ngFor="
-                      let contentHistory of item.content.orderProduct || []
-                    "
-                  >
-                    {{ getActionContent(contentHistory.key) }}
-                    <span class="text-link cursor-text">
-                      {{ contentHistory.value }}
-                    </span>
-                    <div *ngIf="contentHistory.sub?.length" class="ms-4">
-                      <ul>
-                        <li *ngFor="let sub of contentHistory.sub">
-                          {{ getActionContent(sub?.key) }}
-                          <span class="text-link cursor-text">
-                            {{ sub?.value }}
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                  </li>
-                </ul>
-
-                <ul *ngSwitchCase="ETabHistoryKey.NOTE">
-                  <li *ngFor="let contentHistory of item.content.note || []">
-                    {{ getActionContent(contentHistory.key) }}
-                    <span class="text-link cursor-text">
-                      {{ contentHistory.value }}
-                    </span>
-                  </li>
-                </ul>
-
-                <ul *ngSwitchCase="ETabHistoryKey.INFORMATION">
-                  <li
-                    *ngFor="
-                      let contentHistory of item.content.information || []
-                    "
-                  >
-                    {{ getActionContent(contentHistory.key) }}
-                    <span class="text-link cursor-text">
-                      {{ contentHistory.value }}
-                    </span>
-                    <div *ngIf="contentHistory.sub?.length" class="ms-4">
-                      <ul>
-                        <li *ngFor="let sub of contentHistory.sub">
-                          {{ getActionContent(sub?.key) }}
-                          <span class="text-link cursor-text">
-                            {{ sub?.value }}
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                  </li>
-                </ul>
-              </ng-container>
-            </div>
-          </td>
-          <td>
-            <div class="d-flex align-items-center gap-2">
+              <div>Loading</div>
+            </td>
+          </tr>
+        } @else {
+          <tr *ngFor="let item of history.rows; index as i">
+            <td>
+              <div class="fw-normal">
+                {{ item.createdAt | timeView }}
+              </div>
+            </td>
+            <td>
               <div>
-                <img
-                  *ngIf="item.actionBy?.picture"
-                  width="30"
-                  height="30"
-                  class="rounded-pill"
-                  [src]="item.actionBy?.picture"
-                  alt="avatar"
-                />
+                <div class="fw-normal">
+                  {{ getTabKey(item.tabKey) }}
+                </div>
               </div>
-              <div class="fw-normal">
-                {{ item.actionBy?.name }}
+            </td>
+            <td>
+              <div class="content-history">
+                <ng-container [ngSwitch]="item.tabKey">
+                  <ul *ngSwitchCase="ETabHistoryKey.ORDER_PRODUCT">
+                    <li
+                      *ngFor="
+                        let contentHistory of item.content.orderProduct || []
+                      "
+                    >
+                      {{ getActionContent(contentHistory.key) }}
+                      <span class="text-link cursor-text">
+                        {{ contentHistory.value }}
+                      </span>
+                      <div *ngIf="contentHistory.sub?.length" class="ms-4">
+                        <ul>
+                          <li *ngFor="let sub of contentHistory.sub">
+                            {{ getActionContent(sub?.key) }}
+                            <span class="text-link cursor-text">
+                              {{ sub?.value }}
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
+                    </li>
+                  </ul>
+
+                  <ul *ngSwitchCase="ETabHistoryKey.NOTE">
+                    <li *ngFor="let contentHistory of item.content.note || []">
+                      {{ getActionContent(contentHistory.key) }}
+                      <span class="text-link cursor-text">
+                        {{ contentHistory.value }}
+                      </span>
+                    </li>
+                  </ul>
+
+                  <ul *ngSwitchCase="ETabHistoryKey.INFORMATION">
+                    <li
+                      *ngFor="
+                        let contentHistory of item.content.information || []
+                      "
+                    >
+                      {{ getActionContent(contentHistory.key) }}
+                      <span class="text-link cursor-text">
+                        {{ contentHistory.value }}
+                      </span>
+                      <div *ngIf="contentHistory.sub?.length" class="ms-4">
+                        <ul>
+                          <li *ngFor="let sub of contentHistory.sub">
+                            {{ getActionContent(sub?.key) }}
+                            <span class="text-link cursor-text">
+                              {{ sub?.value }}
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
+                    </li>
+                  </ul>
+                </ng-container>
               </div>
-            </div>
-          </td>
-        </tr>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div>
+                  <img
+                    *ngIf="item.actionBy?.picture"
+                    width="30"
+                    height="30"
+                    class="rounded-pill"
+                    [src]="item.actionBy?.picture"
+                    alt="avatar"
+                  />
+                </div>
+                <div class="fw-normal">
+                  {{ item.actionBy?.name }}
+                </div>
+              </div>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
   </div>
