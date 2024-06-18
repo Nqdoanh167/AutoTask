@@ -57,12 +57,15 @@ import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
 import {
   ELevelPer,
+  EPerActFlow,
+  EPerActSetting,
   EPerActTask,
   EPerActType,
   ISetting,
   ISource,
 } from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
+import {EBotherAdvanceBasicFilter, ETypeFilter} from '@app/types/common';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -88,6 +91,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     canEditDeadline: false,
     canCreateOrder: false,
     canEditTask: false,
+    canGetTag: false,
   };
 
   public tags: EntityPagination<ITag> = {
@@ -179,6 +183,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+
   public blocks: ICommonDataLazy<IBlockAutomation, IQueryBase> = {
     rows: [],
     loading: false,
@@ -268,9 +273,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       this.formTaskChains.at(chainIndex).get('taskChainResults')
     )) as FormArray;
   }
+
   findTag(tagId: string) {
     return this.tags.rows.find((tag) => tag.id === tagId);
   }
+
   formNextSteps(chainIndex: number, taskChainResultIndex: number) {
     return (<FormArray>(
       this.formTaskChainResults(chainIndex)
@@ -293,13 +300,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       this.patchForm(this.sourceData);
     }
     this.getDetailTask();
-    this.getActionChain();
-    this.getResult();
-    this.getAction();
     this.getBlock();
-    this.getSource();
-    this.getTag();
-    this.getAutoTaskSetting();
   }
 
   private hasPermission(permissions: any[], permission: any): boolean {
@@ -307,24 +308,70 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   checkPermission() {
-    const permissions = this.authService.getUserPerByType(EPerActType.TASK);
+    const taskPermissions = this.authService.getUserPerByType(EPerActType.TASK);
+    const flowPermissions = this.authService.getUserPerByType(EPerActType.FLOW);
+    const settingPermissions = this.authService.getUserPerByType(
+      EPerActType.SETTING,
+    );
     this.permissions.canEditTask = this.hasPermission(
-      permissions,
+      taskPermissions,
       EPerActTask.UPDATE_TASK,
     );
     this.permissions.canEditChain = this.hasPermission(
-      permissions,
+      taskPermissions,
       EPerActTask.MANAGE_CHAIN,
     );
     this.permissions.canEditAction = this.hasPermission(
-      permissions,
+      taskPermissions,
       EPerActTask.MANAGE_ACTION,
     );
     this.permissions.canEditDeadline = this.hasPermission(
-      permissions,
+      taskPermissions,
       EPerActTask.EDIT_TIME_ACTION,
     );
+    if (
+      settingPermissions.some((per) =>
+        [
+          EPerActSetting.VIEW_TAG_SETTING,
+          EPerActSetting.UPDATE_TAG_SETTING,
+        ].includes(per as EPerActSetting),
+      )
+    ) {
+      this.getTag();
+    }
+    if (
+      settingPermissions.some((per) =>
+        [
+          EPerActSetting.VIEW_SOURCE_SETTING,
+          EPerActSetting.UPDATE_SOURCE_SETTING,
+        ].includes(per as EPerActSetting),
+      )
+    ) {
+      this.getSource();
+    }
+    if (
+      settingPermissions.some((per) =>
+        [
+          EPerActSetting.VIEW_ROLE_SETTING,
+          EPerActSetting.UPDATE_ROLE_SETTING,
+        ].includes(per as EPerActSetting),
+      )
+    ) {
+      this.getAutoTaskSetting();
+    }
+    if (
+      flowPermissions.some((per) =>
+        [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW].includes(
+          per as EPerActFlow,
+        ),
+      )
+    ) {
+      this.getActionChain();
+      this.getResult();
+      this.getAction();
+    }
   }
+
   getAutoTaskSetting() {
     this.autoTaskService.setting
       .retrieve({bizId: this.currentBiz.id})
@@ -373,6 +420,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   // getRoleById(id: string) {
   //   return this.currentBiz.roles.find((role) => role.id === id);
   // }
+
   onChooseTeam(index: number, user: User) {
     this.formTeams.at(index).patchValue({
       userId: user.id,
@@ -381,6 +429,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       userEmail: user.email,
     });
   }
+
   onRemoveTeam(index: number) {
     this.formTeams.at(index).patchValue({
       userId: null,
@@ -389,6 +438,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       userEmail: null,
     });
   }
+
   changeSelectTag(action: boolean) {
     this.selectTag = action;
     if (this.sourceData?.id) {
@@ -400,6 +450,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
     }
   }
+
   createNewTagAndChoose(tagName: string) {
     const body: ITag = {
       name: tagName,
@@ -424,6 +475,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
       });
   }
+
   getTag() {
     this.autoTaskService.tag.get().subscribe({
       next: (res) => {
@@ -438,6 +490,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       },
     });
   }
+
   getOrderDetail(orderIds: string[]) {
     this.autoTaskService.task
       .retrieveOrdersByTask({orderIds: orderIds})
