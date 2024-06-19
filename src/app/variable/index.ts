@@ -13,9 +13,9 @@ import {EOptionCloneTask} from '@app/types/flow';
 export const listColumns: IDataColumns = {
   columnDashboardAutoTask: [
     {
-      name: 'Task',
+      name: 'Tác vụ',
       value: 'name',
-      tooltip: 'Task',
+      tooltip: 'Tác vụ',
     },
     {
       name: 'Hành động - Kết quả',
@@ -129,7 +129,7 @@ export const listDashboardNavItems: ISidebar[] = [
   {
     link: `/${EModule.DASHBOARD}`,
     alias: '',
-    name: 'Quản lý Task',
+    name: 'Quản lý tác vụ',
     isActive: true,
     permissions: [EPerActTask.VIEW_TASK, EPerActTask.VIEW_TASK_BIZ],
   },

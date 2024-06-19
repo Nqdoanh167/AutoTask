@@ -183,7 +183,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     {
       name: 'add_new',
       type: ETypeButton.PRIMARY,
-      label: 'Thêm task',
+      label: 'Thêm tác vụ',
       icon: './assets/images/icon/plus.svg',
     },
   ];

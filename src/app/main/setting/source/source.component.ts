@@ -227,6 +227,4 @@ export class SourceComponent
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
-  protected readonly ETaskChainType = ETaskChainType;
 }

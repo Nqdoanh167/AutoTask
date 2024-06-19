@@ -55,7 +55,7 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   public permissionGroups: IPermissionGroups[] = [
     {
-      name: 'Quản lý Task',
+      name: 'Quản lý tác vụ',
       key: EPerActType.TASK,
       isOpen: false,
       permissions: [
