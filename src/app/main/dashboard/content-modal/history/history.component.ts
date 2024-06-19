@@ -268,7 +268,7 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       case EInformationContentHistoryTask.REMOVE_TAG:
         return `Xóa tag`;
       case EInformationContentHistoryTask.CREATE_TASK:
-        return `Khởi tạo task`;
+        return `Tác vụ được tạo`;
       case EInformationContentHistoryTask.CHANGE_CUSTOMER:
         return `Thay đổi khách hàng`;
       case EInformationContentHistoryTask.NAME_TASK:

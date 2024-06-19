@@ -4,17 +4,17 @@
       <ng-container modalTitle>Bỏ nhân sự phụ trách</ng-container>
       <ng-container modalBody>
         <div class="mb-3">
-          Loại bỏ nhân sự phụ trách ra khỏi vai trò tương uwngss trong tất cả
-          những Task đã chọn. Nếu vai trò chưa được gán nhân sự thì sẽ không bị
-          ảnh hưởng
+          Loại bỏ nhân sự phụ trách ra khỏi vai trò tương ứng trong tất cả những
+          Tác vụ đã chọn. Nếu vai trò chưa được gán nhân sự thì sẽ không bị ảnh
+          hưởng
 
           <hr class="border-white my-2" />
           <span class="fw-bold">Lưu ý:</span>
-          Sau khi bỏ, Task có thể sẽ không có nhân sự phụ trách. Các hoạt động
-          chăm sóc khách hàng có thể bị đinh trệ
+          Sau khi bỏ, Tác vụ có thể sẽ không có nhân sự phụ trách. Các hoạt động
+          chăm sóc khách hàng có thể bị đình trệ
         </div>
         <div class="mb-2" formArrayName="teams">
-          <label for="assign-team" class="form-control-label">
+          <label class="form-control-label">
             Những vai trò cần bỏ nhân sự phụ trách
           </label>
           <div
@@ -66,15 +66,15 @@
       <ng-container modalTitle>Gán nhân sự phụ trách</ng-container>
       <ng-container modalBody>
         <div class="mb-3">
-          Gán nhân sự phụ trách vào các vai trò tương ứng cho tất cả những Task
-          được chọn. Những nhân sự cũ đã gắn ( nếu có ) sẽ bị đè.
+          Gán nhân sự phụ trách vào các vai trò tương ứng cho tất cả những Tác
+          vụ được chọn. Những nhân sự cũ đã gắn ( nếu có ) sẽ bị đè.
 
           <hr class="border-white my-2" />
-          Để cấu hình vai trò nào sẽ xuất hiện trong Task, vui lòng truy cập
+          Để cấu hình vai trò nào sẽ xuất hiện trong Tác vụ, vui lòng truy cập
           <span class="text-link" (click)="navigateSetting()">Cấu hình</span>
         </div>
         <div class="mb-2" formArrayName="teams">
-          <label for="assign-team" class="form-control-label">
+          <label class="form-control-label">
             Nhân viên phụ trách cần gán
             <span class="text-danger">*</span>
           </label>

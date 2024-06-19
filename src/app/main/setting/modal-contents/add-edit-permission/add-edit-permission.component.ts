@@ -55,15 +55,15 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   public permissionGroups: IPermissionGroups[] = [
     {
-      name: 'Quản lý tác vụ',
+      name: 'Quản lý Tác vụ',
       key: EPerActType.TASK,
       isOpen: false,
       permissions: [
-        {key: EPerActTask.VIEW_TASK, name: 'Xem Task'},
+        {key: EPerActTask.VIEW_TASK, name: 'Xem Tác vụ'},
         {key: EPerActTask.VIEW_TASK_BIZ, name: 'Xem toàn bộ Task trong Biz'},
-        {key: EPerActTask.CREATE_TASK, name: 'Tạo Task'},
-        {key: EPerActTask.UPDATE_TASK, name: 'Cập nhật Task'},
-        {key: EPerActTask.DELETE_TASK, name: 'Xóa Task'},
+        {key: EPerActTask.CREATE_TASK, name: 'Tạo Tác vụ'},
+        {key: EPerActTask.UPDATE_TASK, name: 'Cập nhật Tác vụ'},
+        {key: EPerActTask.DELETE_TASK, name: 'Xóa Tác vụ'},
         {key: EPerActTask.VIEW_INFORMATION_TASK, name: 'Xem tab thông tin'},
         {key: EPerActTask.VIEW_HISTORY_TASK, name: 'Xem tab lịch sử'},
         {key: EPerActTask.CREATE_ORDER, name: 'Tạo đơn hàng'},
