@@ -1,4 +1,10 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {distinctUntilChanged, filter, finalize, Subject, takeUntil} from 'rxjs';
 import {
   EBotherAdvanceBasicFilter,
@@ -51,6 +57,7 @@ import {environment} from 'src/environments/environment';
 import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 import {listColumnsDashboardDefault} from '@app/variable';
 import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
+import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-task',
@@ -58,6 +65,8 @@ import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/m
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  @ViewChild('multipleActionRef', {static: false})
+  multipleActionRef!: NgSelectComponent;
   private destroy$ = new Subject();
   public currentBiz: string = '';
   protected readonly ETaskChainType = ETaskChainType;
@@ -284,6 +293,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private readonly toastrService: ToastrService,
     private router: Router,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -455,31 +465,39 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
-    const modalRef = this.modalService.show(ModalAssignTeamComponent, {
-      class: 'modal-dialog-centered',
-      initialState: {
-        action: action.value,
-      },
-    });
-    modalRef.content?.assignTeams.subscribe((data) => {
-      if (data) {
-        const payload = {
-          taskIds: this.taskChecked,
-          teams: data.teams,
-        };
-        this.autoTaskService.task.bulkUpdate(payload).subscribe({
-          next: (res) => {
-            if (res.status === 200) {
-              this.toastrService.success('Gán nhân viên phụ trách thành công');
-              this.getDataSource();
-            } else {
-              this.commonService.handleResErr(res);
-            }
-          },
-          error: (err) => this.commonService.handleErr(err),
-        });
-      }
-    });
+    try {
+      const modalRef = this.modalService.show(ModalAssignTeamComponent, {
+        class: 'modal-dialog-centered',
+        initialState: {
+          action: action?.value,
+        },
+      });
+      this.cdr.markForCheck();
+      modalRef.content?.assignTeams.subscribe((data) => {
+        if (data) {
+          const payload = {
+            taskIds: this.taskChecked,
+            teams: data.teams,
+          };
+          this.autoTaskService.task.bulkUpdate(payload).subscribe({
+            next: (res) => {
+              if (res.status === 200) {
+                this.toastrService.success(
+                  'Gán nhân viên phụ trách thành công',
+                );
+                this.getDataSource();
+              } else {
+                this.commonService.handleResErr(res);
+              }
+            },
+            error: (err) => this.commonService.handleErr(err),
+          });
+        }
+      });
+      this.multipleActionRef.handleClearClick();
+    } catch (e) {
+      console.log(e);
+    }
   }
   stateChecked(item: ITask, event: any): void {
     const checked = event.target.checked;
