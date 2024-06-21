@@ -5,13 +5,14 @@ import {BsModalRef} from 'ngx-bootstrap/modal';
 import uniqBy from 'lodash/uniqBy';
 import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 import {CommonService} from '@app/services/common/common.service';
-import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
+import {ICommonDataLazy, IQueryBase, User} from '@app/types/viewmodels';
 import {Platform} from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
 import {OmiExtension} from '@app/types/omicall';
+import { AuthService } from '@app/services/api/auth.service';
 
 declare function omicallInit(dataConfig: OmiExtension): void;
-declare function omicallMakeCall(phoneNumber: string, hotline: string): void;
+declare function omicallMakeCall(phoneNumber: string, hotline: string, user: User, taskId: string): void;
 
 @Component({
   selector: 'app-modal-call',
@@ -20,6 +21,7 @@ declare function omicallMakeCall(phoneNumber: string, hotline: string): void;
 })
 export class ModalCallComponent implements OnInit, OnDestroy {
   @Input() customerPhone: string = '';
+  @Input() taskId!: string;
 
   private destroy$ = new Subject();
   public loading = {
@@ -74,13 +76,20 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   public time: number = 0;
   public displayCallTime: any;
   public interval: any;
-
+  public user!: User;
   constructor(
     private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
     private readonly modalRef: BsModalRef,
     private readonly commonService: CommonService,
     private readonly smsOttCallService: SmsOttCallService,
-  ) {}
+  ) {
+    this.authService.currentBiz
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((biz) => {
+      this.user = biz.user;
+    });
+  }
 
   get f(): {[key: string]: AbstractControl} {
     return this.form.controls;
@@ -407,7 +416,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
           });
           break;
         case 'omicall':
-          omicallMakeCall(this.customerPhone, phone);
+          omicallMakeCall(this.customerPhone, phone, this.user, this.taskId);
           break;
         default:
           return;

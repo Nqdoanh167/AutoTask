@@ -69,12 +69,12 @@ function omicallInit(dataConfig) {
     });
 }
 
-function omicallMakeCall(phoneNumber, hotline) {
+function omicallMakeCall(phoneNumber, hotline, user, taskId) {
     console.log('omicallMakeCall:', phoneNumber, hotline);
     try {
         const footerModalCall = document.getElementById('footer-modal-call');
         footerModalCall.style.visibility = 'hidden';
-        omiSDK.makeCall(phoneNumber, hotline);
+        omiSDK.makeCall(phoneNumber, {sipNumber: hotline, datas: {'User-Data': JSON.stringify({module: 'auto-task', userId: user.id, taskId: taskId})}});
     } catch (e) {
         console.log(e)
     }

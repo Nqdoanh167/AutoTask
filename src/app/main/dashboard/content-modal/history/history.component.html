@@ -101,10 +101,32 @@
                         let contentHistory of item.content.information || []
                       "
                     >
-                      {{ getActionContent(contentHistory.key) }}
-                      <span class="text-link cursor-text">
-                        {{ contentHistory.value }}
-                      </span>
+                      <div class="d-flex align-items-center gap-2">
+                        <div>
+                          {{ getActionContent(contentHistory.key) }}
+                        </div>
+                        <div *ngIf="contentHistory.key == CALL_PHONE_ACTION">
+                          <audio
+                            controls
+                            style="height: 35px"
+                            *ngIf="contentHistory.value"
+                          >
+                            <source
+                              [src]="contentHistory.value"
+                              type="audio/ogg"
+                            />
+                          </audio>
+                          <div *ngIf="!contentHistory.value">
+                            ---Không có file ghi âm---
+                          </div>
+                        </div>
+                        <div
+                          class="text-link cursor-text"
+                          *ngIf="contentHistory.key != CALL_PHONE_ACTION"
+                        >
+                          {{ contentHistory.value }}
+                        </div>
+                      </div>
                       <div *ngIf="contentHistory.sub?.length" class="ms-4">
                         <ul>
                           <li *ngFor="let sub of contentHistory.sub">

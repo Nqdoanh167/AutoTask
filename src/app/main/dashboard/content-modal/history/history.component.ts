@@ -53,6 +53,7 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
     createdAt: 0,
   };
   public ETabHistoryKey = ETabHistoryKey;
+  public CALL_PHONE_ACTION = EInformationContentHistoryTask.CALL_PHONE;
   public configButtons: IFilterTopButton[] = [
     {
       name: 'reload',
@@ -142,7 +143,9 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       this.getHistory();
     }
   }
-
+  handleAudioCallPhone(link: string) {
+    
+  }
   onPickerDateFilter(data: {value?: IDateRange | Date; name: string}) {
     try {
       const {value, name} = data;
@@ -203,7 +206,12 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       )
       .subscribe({
         next: (res) => {
-          this.history.rows = res.data;
+          this.history.rows = res.data?.map((item) => {
+            return {
+              ...item,
+              actionBy: this.currentBiz.users?.find(user => user.id === item.actionBy.id) || item.actionBy || {},
+            };
+          })
           this.history.total = res.total;
         },
       });

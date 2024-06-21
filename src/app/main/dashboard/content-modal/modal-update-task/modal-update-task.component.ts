@@ -1342,6 +1342,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         class: 'modal-dialog-centered',
         initialState: {
           customerPhone: phone,
+          taskId: this.sourceData?.id
         },
         ignoreBackdropClick: true,
         keyboard: false,
