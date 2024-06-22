@@ -64,6 +64,7 @@ import {
 } from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 import {ETabTaskDetail} from '@app/types/task';
+import {MainService} from '@app/services/api/main.service';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -125,8 +126,9 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   };
   public submitted = false;
   public updateForm = this.fb.group({
-    name: ['Tác vụ mới', [Validators.required]],
+    name: [null, [Validators.required]],
     note: null,
+    code: null,
     leadDeal: this.fb.group({
       id: null,
       type: 'LEAD',
@@ -260,6 +262,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly automationService: AutomationService,
     private readonly toastr: ToastrService,
+    private readonly mainService: MainService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -1342,7 +1345,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         class: 'modal-dialog-centered',
         initialState: {
           customerPhone: phone,
-          taskId: this.sourceData?.id
+          taskId: this.sourceData?.id,
         },
         ignoreBackdropClick: true,
         keyboard: false,
@@ -1357,6 +1360,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   handleClickPTree(event: any) {
     this.commonService.handleClickPTree(event);
+  }
+
+  copyText(text: string) {
+    this.mainService.copyText(text);
+    this.toastr.success('Sao chép thành công');
   }
 
   ngOnDestroy(): void {

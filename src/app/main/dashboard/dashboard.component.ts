@@ -290,9 +290,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly autoTaskService: AutoTaskService,
     private readonly authService: AuthService,
-    private route: ActivatedRoute,
+    private readonly route: ActivatedRoute,
     private readonly toastrService: ToastrService,
-    private router: Router,
+    private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
   ) {
     this.authService.currentBiz

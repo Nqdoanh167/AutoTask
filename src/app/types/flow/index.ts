@@ -315,6 +315,7 @@ export interface ITeam {
   userEmail: string;
 }
 export interface ITask {
+  code: string;
   checked?: boolean;
   id: string;
   name: string;

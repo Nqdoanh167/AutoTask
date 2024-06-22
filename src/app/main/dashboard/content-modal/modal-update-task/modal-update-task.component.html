@@ -15,7 +15,9 @@
         </div>
       </ng-container>
       <ng-container modalTitleRight>
-        <div class="d-flex align-items-center justify-content-between gap-3">
+        <div
+          class="d-flex align-items-center justify-content-between gap-3 me-2"
+        >
           <div [style.width]="'250px'" id="categoryCode">
             <p-treeSelect
               [filter]="true"
@@ -61,6 +63,14 @@
               </div>
             </ng-option>
           </ng-select>
+          @if (f['code'].value) {
+            <div
+              (click)="copyText(f['code'].value)"
+              class="subhead cursor-pointer"
+            >
+              #{{ f['code'].value }}
+            </div>
+          }
         </div>
       </ng-container>
       <ng-container modalBody>
