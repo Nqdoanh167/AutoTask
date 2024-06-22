@@ -82,6 +82,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   @Input() sourceData?: ITask;
   @Input() taskId?: string;
+  @Input() code?: string;
   @Output() updateSuccess = new EventEmitter();
 
   private destroy$ = new Subject();
@@ -317,7 +318,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     if (this.sourceData) {
       this.patchForm(this.sourceData);
     }
-    this.getDetailTask();
+    if (this.code) {
+      this.getTaskByCode();
+    } else {
+      this.getDetailTask();
+    }
     this.getBlock();
   }
 
@@ -549,6 +554,27 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
         error: (err) => {
           this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getTaskByCode() {
+    this.loading.getDetail = true;
+    this.autoTaskService.task
+      .get({filter: JSON.stringify({codeIn: [this.code]})})
+      .pipe(finalize(() => (this.loading.getDetail = false)))
+      .subscribe({
+        next: (res) => {
+          const detailTask = res?.data?.[0];
+          if (res.status === 200 && detailTask) {
+            this.sourceData = detailTask;
+            if (detailTask.orderIds?.length > 0) {
+              this.getOrderDetail(detailTask.orderIds);
+            }
+            this.patchForm(detailTask);
+          } else {
+            this.commonService.handleResErr(res);
+          }
         },
       });
   }

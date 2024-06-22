@@ -315,6 +315,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (q['id']) {
         this.handleUpdate(undefined, q['id']);
       }
+      if (q['code']) {
+        this.handleUpdate(undefined, undefined, q['code']);
+      }
     });
     const typeColumn = 'columnDashboardAutoTask';
     const defaultColumn = listColumnsDashboardDefault;
@@ -854,7 +857,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleUpdate(value?: any, taskId?: string) {
+  handleUpdate(value?: any, taskId?: string, code?: string) {
     if (value) {
       this.handleClearQueryParams();
       if (!this.permission.edit) {
@@ -866,6 +869,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         initialState: {
           sourceData: value,
           taskId,
+          code,
         },
         class: 'modal-xl',
         ignoreBackdropClick: true,
