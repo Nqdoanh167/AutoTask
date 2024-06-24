@@ -290,9 +290,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly autoTaskService: AutoTaskService,
     private readonly authService: AuthService,
-    private route: ActivatedRoute,
+    private readonly route: ActivatedRoute,
     private readonly toastrService: ToastrService,
-    private router: Router,
+    private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
   ) {
     this.authService.currentBiz
@@ -314,6 +314,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((q) => {
       if (q['id']) {
         this.handleUpdate(undefined, q['id']);
+      }
+      if (q['code']) {
+        this.handleUpdate(undefined, undefined, q['code']);
       }
     });
     const typeColumn = 'columnDashboardAutoTask';
@@ -854,7 +857,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleUpdate(value?: any, taskId?: string) {
+  handleUpdate(value?: any, taskId?: string, code?: string) {
     if (value) {
       this.handleClearQueryParams();
       if (!this.permission.edit) {
@@ -866,6 +869,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         initialState: {
           sourceData: value,
           taskId,
+          code,
         },
         class: 'modal-xl',
         ignoreBackdropClick: true,

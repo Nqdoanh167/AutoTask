@@ -145,7 +145,13 @@
                           >
                             {{ item.name || '-' }}
                           </div>
-                          <div class="d-flex flex-row flex-wrap gap-1">
+                          <div
+                            class="fw-500 cursor-pointer text-link mt-1"
+                            (click)="handleUpdate(item)"
+                          >
+                            {{ item.code || '-' }}
+                          </div>
+                          <div class="d-flex flex-row flex-wrap gap-1 mt-1">
                             <div *ngFor="let tag of item.tags">
                               <span
                                 class="text-capitalize me-2 tag-item"
