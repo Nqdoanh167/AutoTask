@@ -10,6 +10,7 @@ import {Platform} from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
 import {OmiExtension} from '@app/types/omicall';
 import { AuthService } from '@app/services/api/auth.service';
+import { ITask } from '@app/types/flow';
 
 declare function omicallInit(dataConfig: OmiExtension): void;
 declare function omicallMakeCall(phoneNumber: string, hotline: string, user: User, taskId: string): void;
@@ -21,7 +22,7 @@ declare function omicallMakeCall(phoneNumber: string, hotline: string, user: Use
 })
 export class ModalCallComponent implements OnInit, OnDestroy {
   @Input() customerPhone: string = '';
-  @Input() taskId!: string;
+  @Input() task!: ITask;
 
   private destroy$ = new Subject();
   public loading = {
@@ -235,7 +236,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     if (!platformId) return;
     this.tokenClient.loading = true;
     this.smsOttCallService.platform
-      .getTokenClient(platformId, 'stringee')
+      .getTokenClient(platformId, 'stringee', this.task?.code!)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.tokenClient.loading = false)),
@@ -416,7 +417,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
           });
           break;
         case 'omicall':
-          omicallMakeCall(this.customerPhone, phone, this.user, this.taskId);
+          omicallMakeCall(this.customerPhone, phone, this.user, this.task?.id);
           break;
         default:
           return;

@@ -317,6 +317,7 @@ export interface ITeam {
 export interface ITask {
   checked?: boolean;
   id: string;
+  code?: string;
   name: string;
   note: string;
   leadDeal?: ILeadDealDto;
