@@ -90,7 +90,6 @@ export class AuthService {
             this.modules.next(res.data.modules);
             this.refToken = res.refToken || null;
             this.isLoggedInSubject.next(true);
-            this.getUserPerAccess();
           } else {
             window.location.href = parsedURL.origin;
           }
@@ -142,19 +141,6 @@ export class AuthService {
     //     EPerActSetting.UPDATE_USER_ACCESS,
     //   ],
     // } as any);
-    const autoTaskService = this.injector.get(AutoTaskService);
-    autoTaskService.permission.getUserPermissions().subscribe({
-      next: (res) => {
-        if (res.status === 200) {
-          this.userAccessPerSubject.next(res.data);
-        } else {
-          window.location.href = '/';
-        }
-      },
-      error: (error) => {
-        window.location.href = '/';
-      },
-    });
   }
 
   getAccessibleSite() {
@@ -270,6 +256,14 @@ export class AuthService {
 
   setUser(user: User) {
     this.currentUserSubject.next(user);
+  }
+
+  getUserAccessPerSubject() {
+    return this.userAccessPerSubject.getValue();
+  }
+
+  setUserAccessPerSubject(userPer: UserPerAccess) {
+    this.userAccessPerSubject.next(userPer);
   }
 
   logout() {

@@ -27,7 +27,6 @@ export class HasPermissionAccessModuleGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ): Observable<boolean> | boolean {
-    let roles = next.data?.['roles'] as Array<string>;
     const accessModule = next?.routeConfig?.path as EModule;
     return this.authService.userAccessPer$.pipe(
       filter((res) => !!res),

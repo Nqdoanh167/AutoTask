@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
-import {filter, map} from 'rxjs';
+import {filter, finalize, map} from 'rxjs';
 import {AuthService} from '../services/api/auth.service';
 import {Biz, EModule, ISidebar} from '../types/viewmodels';
 import {
@@ -16,8 +16,8 @@ import {
   styleUrls: ['./main.component.scss'],
 })
 export class MainComponent implements OnInit {
-  isHiddenSidebar = false;
-  biz!: Biz;
+  public isHiddenSidebar = false;
+  public biz!: Biz;
 
   public listNavItems: ISidebar[] = [];
 
@@ -29,7 +29,7 @@ export class MainComponent implements OnInit {
     private authService: AuthService,
     private title: Title,
   ) {
-    this.authService.currentBiz.subscribe({
+    this.authService.currentBiz.pipe().subscribe({
       next: (res) => {
         if (res) {
           this.biz = res;
