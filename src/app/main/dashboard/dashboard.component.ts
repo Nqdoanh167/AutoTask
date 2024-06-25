@@ -56,8 +56,6 @@ export class DashboardComponent
   //   .subscribe(() => {
   //     this.dataSource.rows = this.runTimer();
   //   });
-  public taskChecked: string[] = [];
-  public headerCheckboxState: boolean[] = [];
   public dataColumnsShow!: IColumns[];
   public units = this.autoTaskService.getUserUnits(false);
   public selectedUnits: ModifiedUserUnit[] = [];
@@ -139,11 +137,11 @@ export class DashboardComponent
           action: action?.value,
         },
       });
-      this.cdr.markForCheck();
+
       modalRef.content?.assignTeams.subscribe((data) => {
         if (data) {
           const payload = {
-            taskIds: this.taskChecked,
+            taskIds: this.getRowIds(),
             teams: data.teams,
           };
           this.autoTaskService.task.bulkUpdate(payload).subscribe({
@@ -167,45 +165,13 @@ export class DashboardComponent
     }
   }
 
-  stateChecked(item: ITask, event: any): void {
-    const checked = event.target.checked;
-    if (checked) {
-      this.taskChecked.push(item.id);
-    } else {
-      this.taskChecked = this.taskChecked.filter((id) => id !== item.id);
-    }
-
-    this.headerCheckboxState[this.item.paramsQuery.page] = this.item.rows.every(
-      (tId) => this.taskChecked.includes(tId.id),
-    );
-  }
-
-  toggleAllRows(event: any): void {
-    const checked = event.target.checked;
-
-    this.headerCheckboxState[this.item.paramsQuery.page] = checked;
-
-    this.item.rows.forEach((row) => {
-      if (checked) {
-        if (!this.taskChecked.includes(row.id)) {
-          this.taskChecked.push(row.id);
-        }
-      } else {
-        const index = this.taskChecked.indexOf(row.id);
-        if (index > -1) {
-          this.taskChecked.splice(index, 1);
-        }
-      }
-    });
-  }
-
   handleActiveViewMode() {
     try {
       this.autoTaskService.currentActiveViewMode
         .pipe(
-          takeUntil(this.destroy$),
           distinctUntilChanged(isEqual),
           filter((currentActiveViewMode) => currentActiveViewMode),
+          takeUntil(this.destroy$),
         )
         .subscribe((currentActiveViewMode) => {
           this.currentActiveViewMode = currentActiveViewMode;
@@ -424,6 +390,7 @@ export class DashboardComponent
     if (limit) {
       this.item.paramsQuery = {
         ...this.item.paramsQuery,
+        page: 1,
         limit: Number(limit),
       };
     }

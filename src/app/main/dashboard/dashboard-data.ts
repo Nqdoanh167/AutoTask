@@ -82,6 +82,7 @@ export class DashboardData extends CheckboxSortTableComponent<
   }
 
   override getDataSource(isReset?: boolean) {
+    this.item.loading = true;
     if (isReset) {
       this.item.paramsQuery.page = 1;
     }
@@ -94,18 +95,22 @@ export class DashboardData extends CheckboxSortTableComponent<
         params.sort = sortAll.join(',');
       }
     });
-    this.item.loading = true;
     this.autoTaskService.task
       .get(params)
       .pipe(
+        finalize(() => {
+          this.item.loading = false;
+          this.cdr.detectChanges();
+        }),
         takeUntil(this.destroy$),
-        finalize(() => (this.item.loading = false)),
       )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
             this.item.rows = res.data;
             this.item.total = res.total;
+          } else {
+            this.commonService.handleResErr(res);
           }
         },
       });
@@ -116,8 +121,10 @@ export class DashboardData extends CheckboxSortTableComponent<
     this.autoTaskService.chainAction
       .get(this.actionChains.paramsQuery)
       .pipe(
+        finalize(() => {
+          this.actionChains.loading = false;
+        }),
         takeUntil(this.destroy$),
-        finalize(() => (this.actionChains.loading = false)),
       )
       .subscribe({
         next: (res) => {
@@ -154,8 +161,10 @@ export class DashboardData extends CheckboxSortTableComponent<
     this.autoTaskService.actionResult
       .get(this.results.paramsQuery)
       .pipe(
+        finalize(() => {
+          this.results.loading = false;
+        }),
         takeUntil(this.destroy$),
-        finalize(() => (this.results.loading = false)),
       )
       .subscribe({
         next: (res) => {
@@ -190,8 +199,8 @@ export class DashboardData extends CheckboxSortTableComponent<
     this.autoTaskService.action
       .get(this.actions.paramsQuery)
       .pipe(
-        takeUntil(this.destroy$),
         finalize(() => (this.actions.loading = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
@@ -226,8 +235,8 @@ export class DashboardData extends CheckboxSortTableComponent<
     this.autoTaskService.source
       .get(this.sources.paramsQuery)
       .pipe(
-        takeUntil(this.destroy$),
         finalize(() => (this.sources.loading = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
@@ -262,8 +271,8 @@ export class DashboardData extends CheckboxSortTableComponent<
     this.autoTaskService.tag
       .get(this.tags.paramsQuery)
       .pipe(
-        takeUntil(this.destroy$),
         finalize(() => (this.tags.loading = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {

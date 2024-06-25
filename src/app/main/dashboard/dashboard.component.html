@@ -35,86 +35,91 @@
         <div class="table-responsive tableFixHead custom-scrollbar">
           <table class="table col-resizable">
             <thead>
-              <tr *ngIf="!taskChecked.length">
-                @if (permission.edit) {
+              @if (!getLengthCheckRow()) {
+                <tr>
+                  @if (permission.edit) {
+                    <th scope="col" style="width: 40px" class="column-checkbox">
+                      <label class="basic-checkbox standalone">
+                        <input
+                          type="checkbox"
+                          (change)="
+                            handleSelectRow({type: 'all', event: $event})
+                          "
+                          [checked]="isAllChecked()"
+                        />
+                        <span class="checkmark"></span>
+                      </label>
+                    </th>
+                  }
+                  <ng-container
+                    *ngFor="let columns of dataColumnsShow; index as i"
+                  >
+                    <th (mousedown)="startResizing($event)">
+                      <i
+                        *ngIf="columns.showTooltip"
+                        class="fa fa-question-circle"
+                        [tooltipHtml]="columns.tooltip || ''"
+                      ></i>
+                      {{ columns.name }}
+                      <span
+                        *ngIf="columns.fieldSort"
+                        class="caret-wrapper justify-content-center"
+                        (click)="changeSort(columns.fieldSort)"
+                      >
+                        <i
+                          class="fa fa-caret-up asc"
+                          [ngClass]="{
+                            'text-primary': sort[columns.fieldSort] === 1
+                          }"
+                        ></i>
+                        <i
+                          class="fa fa-caret-down desc"
+                          [ngClass]="{
+                            'text-primary': sort[columns.fieldSort] === -1
+                          }"
+                        ></i>
+                      </span>
+                    </th>
+                  </ng-container>
+                  <th scope="col">
+                    <div
+                      class="btn button-cog-table text-center"
+                      (click)="showModalOrderableTable()"
+                    >
+                      <img src="./assets/images/icon/table.svg" alt="" />
+                    </div>
+                  </th>
+                </tr>
+              } @else {
+                <tr>
                   <th scope="col" style="width: 40px" class="column-checkbox">
                     <label class="basic-checkbox standalone">
                       <input
                         type="checkbox"
-                        [checked]="headerCheckboxState[item.paramsQuery.page]"
-                        (change)="toggleAllRows($event)"
+                        (change)="handleSelectRow({type: 'all', event: $event})"
+                        [checked]="isAllChecked()"
                       />
                       <span class="checkmark"></span>
                     </label>
                   </th>
-                }
-                <ng-container
-                  *ngFor="let columns of dataColumnsShow; index as i"
-                >
-                  <th (mousedown)="startResizing($event)">
-                    <i
-                      *ngIf="columns.showTooltip"
-                      class="fa fa-question-circle"
-                      [tooltipHtml]="columns.tooltip || ''"
-                    ></i>
-                    {{ columns.name }}
-                    <span
-                      *ngIf="columns.fieldSort"
-                      class="caret-wrapper justify-content-center"
-                      (click)="changeSort(columns.fieldSort)"
-                    >
-                      <i
-                        class="fa fa-caret-up asc"
-                        [ngClass]="{
-                          'text-primary': sort[columns.fieldSort] === 1
-                        }"
-                      ></i>
-                      <i
-                        class="fa fa-caret-down desc"
-                        [ngClass]="{
-                          'text-primary': sort[columns.fieldSort] === -1
-                        }"
-                      ></i>
-                    </span>
+                  <th colspan="12">
+                    <div class="d-flex align-items-center gap-3">
+                      <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
+                      <ng-select
+                        #selectBatchActions
+                        appearance="outline"
+                        [clearable]="false"
+                        placeholder="Thao tác hàng loạt"
+                        style="width: 250px"
+                        [items]="multipleAction"
+                        (change)="showModalMultipleAction($event)"
+                        appendTo="body"
+                        class="ng-select ng-select-single"
+                      ></ng-select>
+                    </div>
                   </th>
-                </ng-container>
-                <th scope="col">
-                  <div
-                    class="btn button-cog-table text-center"
-                    (click)="showModalOrderableTable()"
-                  >
-                    <img src="./assets/images/icon/table.svg" alt="" />
-                  </div>
-                </th>
-              </tr>
-              <tr *ngIf="taskChecked.length">
-                <th scope="col" style="width: 40px" class="column-checkbox">
-                  <label class="basic-checkbox standalone">
-                    <input
-                      type="checkbox"
-                      [checked]="headerCheckboxState[item.paramsQuery.page]"
-                      (change)="toggleAllRows($event)"
-                    />
-                    <span class="checkmark"></span>
-                  </label>
-                </th>
-                <th colspan="12">
-                  <div class="d-flex align-items-center gap-3">
-                    <span>Đã chọn {{ taskChecked.length }} bản ghi</span>
-                    <ng-select
-                      #selectBatchActions
-                      appearance="outline"
-                      [clearable]="false"
-                      placeholder="Thao tác hàng loạt"
-                      style="width: 250px"
-                      [items]="multipleAction"
-                      (change)="showModalMultipleAction($event)"
-                      appendTo="body"
-                      class="ng-select ng-select-single"
-                    ></ng-select>
-                  </div>
-                </th>
-              </tr>
+                </tr>
+              }
             </thead>
             <tbody>
               <tr
@@ -139,9 +144,12 @@
                     <td>
                       <label class="basic-checkbox">
                         <input
+                          value="{{ item.id }}"
+                          [checked]="isCheckRow(item)"
+                          (change)="handleSelectRow({item, event: $event})"
+                          (keydown)="isShift = true"
+                          (keyup)="isShift = false"
                           type="checkbox"
-                          [checked]="taskChecked.includes(item.id)"
-                          (change)="stateChecked(item, $event)"
                         />
                         <span class="checkmark"></span>
                       </label>
