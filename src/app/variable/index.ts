@@ -28,6 +28,11 @@ export const listColumns: IDataColumns = {
       tooltip: 'Khách hàng',
     },
     {
+      name: 'Chi nhánh',
+      value: 'branch',
+      tooltip: 'Chi nhánh/Phòng ban/Nhóm',
+    },
+    {
       name: 'Sản phẩm quan tâm',
       value: 'cart',
       tooltip: 'Sản phẩm quan tâm',

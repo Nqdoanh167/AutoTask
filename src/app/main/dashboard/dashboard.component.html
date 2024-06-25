@@ -406,12 +406,28 @@
                                   }}"
                                   fallback="assets/images/avatar.svg"
                                   class="product-item-image me-2"
+                                  alt=""
                                 />
                                 <div class="product-item-name">
                                   {{ product.name || '-' }}
                                 </div>
                               </div>
                             </ng-template>
+                          </div>
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'branch'">
+                        <td class="column-branch">
+                          <div>
+                            {{
+                              item?.branch?.teamName &&
+                                item?.branch?.teamName + ', '
+                            }}
+                            {{
+                              item?.branch?.departmentName &&
+                                item?.branch?.departmentName + ', '
+                            }}
+                            {{ item?.branch?.name || '-' }}
                           </div>
                         </td>
                       </ng-container>
@@ -436,6 +452,7 @@
                                 src="{{ team.userPicture }}"
                                 fallback="assets/images/avatar.svg"
                                 class="avatar me-2"
+                                alt=""
                               />
                               <div class="d-flex flex-column">
                                 <span class="fw-500">
