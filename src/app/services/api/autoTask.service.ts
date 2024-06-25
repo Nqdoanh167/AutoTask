@@ -507,6 +507,29 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     return this.currentActiveViewMode$.getValue();
   }
 
+  findUnitsByIds(ids: string[]) {
+    const units = this.getUserUnits();
+    return units.flatMap((branch) => {
+      if (ids.includes(branch.data)) {
+        const departments = branch.children || [];
+        const teams = departments.flatMap(
+          (department) => department.children || [],
+        );
+        return [branch, ...departments, ...teams];
+      }
+      return (
+        branch.children?.flatMap((department) => {
+          if (ids.includes(department.data)) {
+            return [department, ...(department.children || [])];
+          }
+          return (
+            department.children?.filter((team) => ids.includes(team.data)) || []
+          );
+        }) || []
+      );
+    });
+  }
+
   findUnitFromData(data: IBranchTaskDto) {
     const units = this.getUserUnits();
     let res: ModifiedUserUnit | undefined = undefined;
@@ -530,7 +553,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     return res;
   }
 
-  getUserUnits() {
+  getUserUnits(isCheckSelectable = true) {
     let units: ModifiedUserUnit[] = [];
     const currentBiz = this.authService.getCurrentBiz();
     if (currentBiz?.user?.roleBranches) {
@@ -539,7 +562,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           key: branch.id,
           data: branch.id,
           label: branch.name,
-          selectable: !branch.departments?.length,
+          selectable: isCheckSelectable ? !branch.departments?.length : true,
           id: branch.id,
           name: branch.name,
           department: null,
@@ -551,7 +574,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
               key: department.id,
               data: department.id,
               label: department.name,
-              selectable: !department.teams?.length,
+              selectable: isCheckSelectable ? !department.teams?.length : true,
               id: branch.id,
               name: branch.name,
               department: department.id,

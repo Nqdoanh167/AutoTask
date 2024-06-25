@@ -38,6 +38,7 @@ import {HistoryComponent} from './content-modal/history/history.component';
 import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
 import {InputMaskModule} from '@app/share/input/input-mask/input-mask.module';
 import {TreeSelectModule} from 'primeng/treeselect';
+import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
 
 @NgModule({
   declarations: [
@@ -84,6 +85,7 @@ import {TreeSelectModule} from 'primeng/treeselect';
     ViewModeTabComponent,
     CustomDatePickerComponent,
     TreeSelectModule,
+    CustomSelectSearchComponent,
   ],
 })
 export class DashboardModule {}

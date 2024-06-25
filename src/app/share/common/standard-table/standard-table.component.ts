@@ -86,7 +86,7 @@ export class StandardTableComponent<T, K extends any> implements OnInit {
     return sortIcon(property, this.sortProperty, this.sortOrder);
   }
 
-  pageChanged(data: IPageChange): void {
+  pageChanged(data: IPageChange | any): void {
     const {event, limit} = data;
     if (event.page) {
       this.item.paramsQuery = {...this.item.paramsQuery, page: event.page};

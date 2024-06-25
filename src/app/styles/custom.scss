@@ -1559,6 +1559,16 @@ i {
       border: 1px solid #dc3545;
     }
   }
+
+  &.fw-normal {
+    .p-treeselect-label {
+      font-size: 12px;
+    }
+
+    .p-placeholder {
+      font-size: 12px;
+    }
+  }
 }
 
 // COMMON STYLE

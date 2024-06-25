@@ -13,7 +13,25 @@
           (popoverEvent)="onPopoverFilter($event)"
           (pickerDateEvent)="onPickerDateFilter($event)"
           (scrollToEndEvent)="handleLoadMoreData($event)"
-        ></app-filter-top-table>
+        >
+          <ng-container specificAdvanceFilter>
+            <div class="fw-normal col-4">Chi nhánh</div>
+            <div class="col-8">
+              <p-treeSelect
+                [filter]="true"
+                [options]="units"
+                [(ngModel)]="selectedUnits"
+                (onNodeSelect)="handleChangeUnits($event)"
+                (onNodeUnselect)="handleChangeUnits($event)"
+                [metaKeySelection]="false"
+                selectionMode="checkbox"
+                class="w-100"
+                containerStyleClass="w-100 input-medium custom-tree-select fw-normal"
+                placeholder="Chọn Chi nhánh..."
+              ></p-treeSelect>
+            </div>
+          </ng-container>
+        </app-filter-top-table>
         <div class="table-responsive tableFixHead custom-scrollbar">
           <table class="table col-resizable">
             <thead>
@@ -23,9 +41,7 @@
                     <label class="basic-checkbox standalone">
                       <input
                         type="checkbox"
-                        [checked]="
-                          headerCheckboxState[dataSource.paramsQuery.page]
-                        "
+                        [checked]="headerCheckboxState[item.paramsQuery.page]"
                         (change)="toggleAllRows($event)"
                       />
                       <span class="checkmark"></span>
@@ -76,9 +92,7 @@
                   <label class="basic-checkbox standalone">
                     <input
                       type="checkbox"
-                      [checked]="
-                        headerCheckboxState[dataSource.paramsQuery.page]
-                      "
+                      [checked]="headerCheckboxState[item.paramsQuery.page]"
                       (change)="toggleAllRows($event)"
                     />
                     <span class="checkmark"></span>
@@ -88,7 +102,7 @@
                   <div class="d-flex align-items-center gap-3">
                     <span>Đã chọn {{ taskChecked.length }} bản ghi</span>
                     <ng-select
-                      #multipleActionRef
+                      #selectBatchActions
                       appearance="outline"
                       [clearable]="false"
                       placeholder="Thao tác hàng loạt"
@@ -105,13 +119,13 @@
             <tbody>
               <tr
                 class="text-center"
-                *ngIf="!dataSource.rows.length && !dataSource.loading"
+                *ngIf="!item.rows.length && !item.loading"
               >
                 <td colspan="12">
                   <div>Không có dữ liệu</div>
                 </td>
               </tr>
-              <tr class="text-center" *ngIf="dataSource.loading">
+              <tr class="text-center" *ngIf="item.loading">
                 <td colspan="12">
                   <div class="spinner-grow text-primary" role="status">
                     <span class="visually-hidden">Loading</span>
@@ -119,8 +133,8 @@
                   <div>Loading</div>
                 </td>
               </tr>
-              <ng-container *ngIf="!dataSource.loading">
-                <tr *ngFor="let item of dataSource.rows; index as i">
+              <ng-container *ngIf="!item.loading">
+                <tr *ngFor="let item of item.rows; index as i">
                   @if (permission.edit) {
                     <td>
                       <label class="basic-checkbox">
@@ -516,10 +530,10 @@
           </table>
         </div>
         <custom-pagination
-          [selectedSize]="dataSource.paramsQuery.limit"
-          [currentPage]="dataSource.paramsQuery.page"
+          [selectedSize]="item.paramsQuery.limit"
+          [currentPage]="item.paramsQuery.page"
           (changePageEvent)="pageChanged($event)"
-          [total]="dataSource.total"
+          [total]="item.total"
         ></custom-pagination>
       </div>
     </div>

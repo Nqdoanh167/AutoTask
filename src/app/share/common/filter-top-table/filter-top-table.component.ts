@@ -21,6 +21,7 @@ import {IDateRange} from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {Subject, takeUntil} from 'rxjs';
 import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
+import {specialQueryTaskKeys} from '@main/dashboard/dashboard-variables';
 
 @Component({
   selector: 'app-filter-top-table',
@@ -52,6 +53,7 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
 
   @Input() configFilters: IFilterTopTable[] = [];
   @Input() configButtons: IFilterTopButton[] = [];
+
   configFilterAdvance: IFilterTopTable[] = [];
   configFilterBasic: IFilterTopTable[] = [];
   onSearchingAdvance: string[] = [];
@@ -68,11 +70,14 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
           (key: any) => {
             if (this.configFilterAdvance.some((cA) => cA.name === key)) {
               this.onSearchingAdvance.push(key);
+            } else if (specialQueryTaskKeys.includes(key)) {
+              this.onSearchingAdvance.push(key);
             }
           },
         );
       });
   }
+
   ngOnInit() {
     this.configFilterAdvance = this.configFilters.filter(
       (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
@@ -81,27 +86,34 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
       (item) => item.botherType !== EBotherAdvanceBasicFilter.ADVANCE,
     );
   }
+
   getDefaultValuePopover(name?: string) {
     const filter = this.configFilters.find((item) => item.name === name);
     return filter?.options?.find((item) => filter.value === item['value'])?.[
       'label'
     ];
   }
+
   handleOpenPopover(event: any) {
     // this.filteredTabs = this.tabs;
   }
+
   onSearch(term: string, name: string = 'search') {
     this.searchEvent.emit({term, name});
   }
+
   onPickerDate(value: any, name: string = 'date') {
     this.pickerDateEvent.emit({value, name});
   }
+
   onSelectValue(value?: string, name: string = 'select') {
     this.selectEvent.emit({value, name});
   }
+
   onPopoverValue(value: any, name: string = 'popover') {
     this.popoverEvent.emit({value, name});
   }
+
   handleSearchingView(value: any, name: string) {
     // console.log(value, name);
     // if (isEmpty(value)) {
@@ -117,6 +129,7 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
     // console.log(this.onSearchingAdvance);
     // }, 200);
   }
+
   onSearchAdvance(term: string, name: string = 'search') {
     this.handleSearchingView(term, name);
     this.searchEvent.emit({term, name});
@@ -143,13 +156,16 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
     this.handleSearchingView(value, name);
     this.selectEvent.emit({value, name});
   }
+
   onClick(name: string) {
     this.clickButtonEvent.emit(name);
   }
+
   handleToggleAction(event: any, name?: string) {
     const checked = !!event.target?.checked;
     this.toggleButtonEvent.emit({value: checked, name});
   }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();

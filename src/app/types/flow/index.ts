@@ -399,5 +399,11 @@ export interface ModifiedUserUnit {
   key: string;
   label: string;
   data: string;
+  id: string | null;
+  name: string | null;
+  department: null | string;
+  departmentName: null | string;
+  team: null | string;
+  teamName: null | string;
   children?: ModifiedUserUnit[];
 }
