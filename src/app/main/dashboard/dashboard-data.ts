@@ -1,7 +1,7 @@
 import {ICommonDataLazy, IQueryBase, ITag} from '@app/types/viewmodels';
 import {IAction, IActResult, IChainAct, ITask} from '@app/types/flow';
 import {ISource} from '@app/types/setting';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {finalize, shareReplay, Subject, takeUntil} from 'rxjs';
 import {uniqBy} from 'lodash';
 import {CommonService} from '@app/services/common/common.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
@@ -101,13 +101,17 @@ export class DashboardData extends CheckboxSortTableComponent<
           this.item.loading = false;
           this.cdr.detectChanges();
         }),
+        shareReplay(1),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.item.rows = res.data;
-            this.item.total = res.total;
+            this.item = {
+              ...this.item,
+              rows: res.data,
+              total: res.meta?.total || 0,
+            };
           } else {
             this.commonService.handleResErr(res);
           }

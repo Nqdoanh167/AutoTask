@@ -388,7 +388,7 @@ export class DashboardComponent
     if (limit) {
       this.item.paramsQuery = {
         ...this.item.paramsQuery,
-        page: 1,
+        page: page,
         limit: Number(limit),
       };
     }

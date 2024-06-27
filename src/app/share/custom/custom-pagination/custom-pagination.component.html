@@ -10,7 +10,7 @@
         [items]="optionSize"
         [clearable]="false"
         (change)="pageChanged({}, $event)"
-        [(ngModel)]="selectedSize"
+        [ngModel]="selectedSize"
         [dropdownPosition]="'top'"
       ></ng-select>
     </div>
@@ -39,7 +39,7 @@
 <ng-template #number>
   <pagination
     [totalItems]="total"
-    [(ngModel)]="currentPage"
+    [ngModel]="currentPage"
     (pageChanged)="pageChanged($event, null)"
     [itemsPerPage]="selectedSize"
     [maxSize]="3"
