@@ -13,7 +13,7 @@ import { AuthService } from '@app/services/api/auth.service';
 import { ITask } from '@app/types/flow';
 
 declare function omicallInit(dataConfig: OmiExtension): void;
-declare function omicallMakeCall(phoneNumber: string, hotline: string, user: User, taskId: string): void;
+declare function omicallMakeCall(phoneNumber: string, hotline: string, user: User, taskId: string, taskCode: string): void;
 
 @Component({
   selector: 'app-modal-call',
@@ -417,7 +417,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
           });
           break;
         case 'omicall':
-          omicallMakeCall(this.customerPhone, phone, this.user, this.task?.id);
+          omicallMakeCall(this.customerPhone, phone, this.user, this.task?.id, this.task?.code as string);
           break;
         default:
           return;
