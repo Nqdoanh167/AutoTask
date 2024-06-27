@@ -39,6 +39,7 @@ import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/m
 import {InputMaskModule} from '@app/share/input/input-mask/input-mask.module';
 import {TreeSelectModule} from 'primeng/treeselect';
 import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
+import {CustomTabSetComponent} from '@share/common/custom-tab-set/custom-tab-set.component';
 
 @NgModule({
   declarations: [
@@ -86,6 +87,7 @@ import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/cu
     CustomDatePickerComponent,
     TreeSelectModule,
     CustomSelectSearchComponent,
+    CustomTabSetComponent,
   ],
 })
 export class DashboardModule {}

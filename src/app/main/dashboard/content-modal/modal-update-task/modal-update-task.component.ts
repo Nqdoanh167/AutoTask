@@ -101,15 +101,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   public tabs = [
     {
       label: 'Thông tin',
-      key: ETabTaskDetail.INFO,
+      value: ETabTaskDetail.INFO,
     },
     {
       label: 'Đơn hàng & Sản phẩm',
-      key: ETabTaskDetail.ORDER,
-    },
-    {
-      label: 'Lịch sử',
-      key: ETabTaskDetail.HISTORY,
+      value: ETabTaskDetail.ORDER,
     },
   ];
 
@@ -581,6 +577,13 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   patchForm(dataSource?: ITask) {
     if (!dataSource) return;
+    if (!this.tabs.find((tab) => tab.value === ETabTaskDetail.HISTORY)) {
+      this.tabs.push({
+        label: 'Lịch sử',
+        value: ETabTaskDetail.HISTORY,
+      });
+    }
+
     this.updateForm.patchValue({
       ...dataSource,
       leadDeal: {
@@ -1371,7 +1374,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         class: 'modal-dialog-centered',
         initialState: {
           customerPhone: phone,
-          task: this.sourceData
+          task: this.sourceData,
         },
         ignoreBackdropClick: true,
         keyboard: false,

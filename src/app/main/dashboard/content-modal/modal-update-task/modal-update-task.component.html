@@ -75,22 +75,10 @@
       </ng-container>
       <ng-container modalBody>
         <div class="content-wrapper position-relative">
-          <tabset class="custom-tab-basic non-border">
-            @for (tab of tabs; track $index) {
-              @if (tab.key !== ETabTaskDetail.HISTORY || sourceData?.id) {
-                <tab
-                  [active]="tab.key === activeTab"
-                  (selectTab)="activeTab = tab.key"
-                >
-                  <ng-template tabHeading>
-                    <div class="title-tab">
-                      <span>{{ tab.label }}</span>
-                    </div>
-                  </ng-template>
-                </tab>
-              }
-            }
-          </tabset>
+          <app-custom-tab-set
+            [tabs]="tabs"
+            [(activeTab)]="activeTab"
+          ></app-custom-tab-set>
           <div class="content-wrapper">
             @switch (activeTab) {
               @case (ETabTaskDetail.INFO) {

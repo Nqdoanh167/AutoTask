@@ -1,0 +1,21 @@
+<div class="custom-tab-set">
+  <div class="left">
+    <tabset class="custom-tab-basic">
+      @for (tab of tabs; track 'value') {
+        <tab
+          [active]="tab.value === activeTab"
+          (selectTab)="selectTab(tab.value)"
+        >
+          <ng-template tabHeading>
+            <div class="title-tab">
+              <span>{{ tab.label }}</span>
+            </div>
+          </ng-template>
+        </tab>
+      }
+    </tabset>
+  </div>
+  <div class="right">
+    <ng-content select="[right]"></ng-content>
+  </div>
+</div>
