@@ -159,6 +159,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     sourceId: null,
     addChainActIds: null,
     branch: [null],
+    chatLink: null,
   });
 
   public addTaskChainForm = this.fb.group({
@@ -1394,6 +1395,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   copyText(text: string) {
     this.mainService.copyText(text);
     this.toastr.success('Sao chép thành công');
+  }
+
+  handleChangeChatLink() {
+    console.log(this.updateForm.value);
   }
 
   ngOnDestroy(): void {

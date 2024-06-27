@@ -328,6 +328,7 @@ export interface ITask {
   taskChainIds: string[];
   taskChains: ITaskChain[];
   teams?: ITeam[];
+  chatLink?: string;
   branch: IBranchTaskDto;
   createdBy: AccountPublic;
   updatedBy: AccountPublic;

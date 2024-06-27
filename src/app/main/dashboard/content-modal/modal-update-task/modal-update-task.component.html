@@ -18,67 +18,89 @@
         <div
           class="d-flex align-items-center justify-content-between gap-3 me-2"
         >
-          <div [style.width]="'250px'" id="categoryCode">
-            <p-treeSelect
-              [filter]="true"
-              [options]="units"
-              (click)="handleClickPTree($event)"
-              formControlName="branch"
-              class="w-100"
-              containerStyleClass="w-100 input-medium custom-tree-select"
-              [ngClass]="{
-                'is-invalid': submitted && f['branch'].errors
-              }"
-              placeholder="Chọn Đơn vị..."
-            ></p-treeSelect>
-          </div>
-          <ng-select
-            [style.width]="'200px'"
-            [clearable]="false"
-            [searchable]="true"
-            [placeholder]="'Chọn nguồn dữ liệu...'"
-            [ngClass]="{
-              'is-invalid': submitted && f['sourceId'].errors
-            }"
-            formControlName="sourceId"
-            appearance="outline"
-            class="ng-select-custom dropdown-auto-width input-medium me-2"
-            id="sourceId"
-            appendTo=".modal-update-task"
-          >
-            <ng-option
-              *ngFor="let item of sources.rows"
-              [value]="item.id"
-              [disabled]="!item.isActive"
-            >
-              <div>
-                @if (item.picture) {
-                  <img
-                    src="{{ item.picture }}"
-                    alt=""
-                    class="source-picture me-1"
-                  />
-                }
-                {{ item.name }}
-              </div>
-            </ng-option>
-          </ng-select>
           @if (f['code'].value) {
             <div
               (click)="copyText(f['code'].value)"
               class="subhead cursor-pointer"
             >
-              #{{ f['code'].value }}
+              Mã tác vụ:&nbsp; #{{ f['code'].value }}
             </div>
           }
         </div>
       </ng-container>
       <ng-container modalBody>
         <div class="content-wrapper position-relative">
-          <app-custom-tab-set
-            [tabs]="tabs"
-            [(activeTab)]="activeTab"
-          ></app-custom-tab-set>
+          <app-custom-tab-set [tabs]="tabs" [(activeTab)]="activeTab">
+            <ng-container right>
+              <div
+                class="d-flex align-items-center justify-content-between gap-2"
+              >
+                <div [style.width]="'250px'" id="categoryCode">
+                  <p-treeSelect
+                    [filter]="true"
+                    [options]="units"
+                    (click)="handleClickPTree($event)"
+                    formControlName="branch"
+                    class="w-100"
+                    containerStyleClass="w-100 input-medium custom-tree-select"
+                    [ngClass]="{
+                      'is-invalid': submitted && f['branch'].errors
+                    }"
+                    placeholder="Chọn Đơn vị..."
+                  ></p-treeSelect>
+                </div>
+                <ng-select
+                  [style.width]="'200px'"
+                  [clearable]="false"
+                  [searchable]="true"
+                  [placeholder]="'Chọn nguồn dữ liệu...'"
+                  [ngClass]="{
+                    'is-invalid': submitted && f['sourceId'].errors
+                  }"
+                  formControlName="sourceId"
+                  appearance="outline"
+                  class="ng-select-custom dropdown-auto-width input-medium"
+                  id="sourceId"
+                  appendTo=".modal-update-task"
+                >
+                  <ng-option
+                    *ngFor="let item of sources.rows"
+                    [value]="item.id"
+                    [disabled]="!item.isActive"
+                  >
+                    <div>
+                      @if (item.picture) {
+                        <img
+                          src="{{ item.picture }}"
+                          alt=""
+                          class="source-picture me-1"
+                        />
+                      }
+                      {{ item.name }}
+                    </div>
+                  </ng-option>
+                </ng-select>
+                <div class="input-group" [style.width]="'250px !important'">
+                  <input
+                    [style.width]="'170px !important'"
+                    formControlName="chatLink"
+                    type="text"
+                    class="input-medium"
+                    placeholder="Gán Link cuộc hội thoại"
+                  />
+                  <span
+                    class="input-group-text cursor-pointer button-fill secondary-color fw-500"
+                    id="basic-addon2"
+                    tooltip="Gán link cuộc hội thoại để hệ thống có thể tự động kiểm tra và bổ sung thông tin Nguồn dữ liệu vào Tác vụ"
+                    container=".modal-update-task"
+                    (click)="handleChangeChatLink()"
+                  >
+                    Áp dụng
+                  </span>
+                </div>
+              </div>
+            </ng-container>
+          </app-custom-tab-set>
           <div class="content-wrapper">
             @switch (activeTab) {
               @case (ETabTaskDetail.INFO) {
