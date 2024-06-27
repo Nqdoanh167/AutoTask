@@ -17,7 +17,6 @@ export class DashboardData extends CheckboxSortTableComponent<
   ITask,
   IQueryBase
 > {
-  protected destroy$ = new Subject();
   protected readonly commonService = inject(CommonService);
   protected readonly autoTaskService = inject(AutoTaskService);
 

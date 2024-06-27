@@ -24,7 +24,7 @@ import {AuthService} from '@app/services/api/auth.service';
 })
 export class PermissionsComponent
   extends StandardTableComponent<Permission, IQueryBase>
-  implements OnDestroy, OnInit
+  implements OnInit
 {
   public override configFilters: IFilterTopTable[] = [
     {
@@ -49,13 +49,11 @@ export class PermissionsComponent
     add: false,
   };
 
-  private destroy$ = new Subject();
   constructor(
     private readonly modalService: BsModalService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly modalConfirmService: ModalConfirmService,
-    private readonly authService: AuthService,
   ) {
     super();
     this.item.paramsQuery.filter = JSON.stringify({retrieveUser: true});
@@ -154,10 +152,5 @@ export class PermissionsComponent
           }
         },
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
   }
 }

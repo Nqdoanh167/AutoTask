@@ -48,7 +48,6 @@ export class DashboardComponent
   private resizing: boolean = false;
   private resizingColumn: HTMLElement | null = null;
 
-  public currentBiz: string = '';
   public multipleAction = TASK_MULTIPLE_ACTIONS;
   public currentActiveViewMode?: IViewModeDto;
   // public dataSource$ = interval(10000)
@@ -75,7 +74,6 @@ export class DashboardComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         if (biz) {
-          this.currentBiz = biz.alias || '';
           this.authService.getColleague();
           const configFilterStaff = this.configFilters.find(
             (filter) => filter.name === 'teamId',
@@ -398,12 +396,12 @@ export class DashboardComponent
   }
 
   handleViewCreatedOrder(item: ITask) {
-    let url = `${environment.urlDomain}/${this.currentBiz}/sale-center/?sourceId=${item.id}`;
+    let url = `${environment.urlDomain}/${this.bizAlias}/sale-center/?sourceId=${item.id}`;
     window.open(url, '_blank');
   }
 
   handleViewCustomer(item: ITask) {
-    let url = `${environment.urlDomain}/${this.currentBiz}/customers/${item.leadDeal?.id}`;
+    let url = `${environment.urlDomain}/${this.bizAlias}/customers/${item.leadDeal?.id}`;
     window.open(url, '_blank');
   }
 
@@ -611,10 +609,5 @@ export class DashboardComponent
       name: ESpecialQueryTaskKey.BRANCH_IDS,
       value: ids.filter((id) => !!id),
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
   }
 }

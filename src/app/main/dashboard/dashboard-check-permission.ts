@@ -5,12 +5,8 @@ import {
   TASK_SOURCE_SETTING_CONFIG_FILTERS,
   TASK_TAG_SETTING_CONFIG_FILTERS,
 } from '@main/dashboard/dashboard-variables';
-import {AuthService} from '@app/services/api/auth.service';
-import {inject} from '@angular/core';
 
 export class DashboardCheckPermission extends DashboardData {
-  protected readonly authService = inject(AuthService);
-
   public permission = {
     add: false,
     edit: false,

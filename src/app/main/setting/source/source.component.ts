@@ -31,10 +31,8 @@ import {ETaskChainType} from '@app/types/flow';
 })
 export class SourceComponent
   extends StandardTableComponent<ISource, IQueryBase>
-  implements OnInit, OnDestroy
+  implements OnInit
 {
-  private destroy$ = new Subject();
-
   protected readonly EDataSourceType = EDataSourceType;
 
   public socialPlatforms = socialPlatforms;
@@ -98,7 +96,6 @@ export class SourceComponent
     private readonly modalService: BsModalService,
     private readonly commonService: CommonService,
     private readonly autoTaskService: AutoTaskService,
-    private readonly authService: AuthService,
   ) {
     super();
     const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
@@ -221,10 +218,5 @@ export class SourceComponent
     this.modalConfirmService.openModal(modalContent, undefined, () => {
       this.onDelete(value);
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
   }
 }

@@ -74,10 +74,7 @@ export class EmployeeComponent
     removePer: false,
   };
 
-  private currentBiz = '';
-  private destroy$ = new Subject();
   constructor(
-    private readonly authService: AuthService,
     private readonly modalService: BsModalService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
@@ -93,7 +90,6 @@ export class EmployeeComponent
       .subscribe((biz) => {
         this.listBizUsers = biz.users as CombinedUserAcl[];
         this.listFilteredBizUsers = biz.users as CombinedUserAcl[];
-        this.currentBiz = biz.alias || '';
       });
     if (!this.isInPermissionModal) {
       this.getUserAcl();
@@ -193,7 +189,7 @@ export class EmployeeComponent
       this.getUserAcl();
     }
     if (name === 'add_new') {
-      const url = `${environment.urlDomain}/${this.currentBiz}/settings/staff`;
+      const url = `${environment.urlDomain}/${this.bizAlias}/settings/staff`;
       window.open(url, '_blank');
     }
   }
@@ -276,10 +272,5 @@ Nhân viên bị loại bỏ quyền có thể không được phép truy cập 
       this.removePerOfEmployees(selectedRows);
     }
     this.selectBatchActions?.handleClearClick();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
   }
 }
