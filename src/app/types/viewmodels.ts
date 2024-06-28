@@ -135,7 +135,7 @@ export interface User {
   picture: string;
   gender?: string;
   birthday?: string;
-  role: string;
+  role: ERole;
   biz: Biz;
   quickModules: string[];
   services: {
