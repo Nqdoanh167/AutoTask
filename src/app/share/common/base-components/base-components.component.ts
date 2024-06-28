@@ -17,6 +17,7 @@ export class BaseComponentsComponent implements OnDestroy {
   protected currentUser?: User;
   protected bizAlias?: string;
   protected bizUsers?: User[];
+  protected currentViewer?: User;
 
   constructor() {
     this.authService.currentBiz
@@ -26,6 +27,11 @@ export class BaseComponentsComponent implements OnDestroy {
         this.bizAlias = biz.alias;
         this.currentUser = biz?.user;
         this.bizUsers = biz.users;
+      });
+    this.authService.currentUser
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        this.currentViewer = user;
       });
   }
   ngOnDestroy(): void {

@@ -68,6 +68,10 @@ export class PermissionsComponent
     }
   }
 
+  override ngOnInit() {
+    super.ngOnInit();
+  }
+
   override handleAction(name: string) {
     if (name === 'add_new') {
       this.handleUpdate();

@@ -62,7 +62,6 @@ export class AuthService {
   constructor(
     private bizService: BizService,
     protected httpClient: HttpClient,
-    private injector: Injector,
   ) {}
 
   getCurrentBiz() {
