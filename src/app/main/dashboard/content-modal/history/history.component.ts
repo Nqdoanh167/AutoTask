@@ -316,6 +316,8 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
         return `Gán chi nhánh`;
       case EInformationContentHistoryTask.CHANGE_BRANCH:
         return `Thay đổi chi nhánh`;
+      case EInformationContentHistoryTask.CHAT_LINK:
+        return `Thay đổi Link Cuộc hội thoại`;
       case ESubInformationContentHistoryTask.ACTION:
         return `Hành động`;
       case ESubInformationContentHistoryTask.NONE:

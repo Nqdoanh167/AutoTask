@@ -1501,6 +1501,7 @@ export enum EInformationContentHistoryTask {
   CALL_PHONE = 'CALL_PHONE',
   CHANGE_NOTE_I = 'CHANGE_NOTE_I',
   ROLE = 'ROLE',
+  CHAT_LINK = 'CHAT_LINK',
 }
 export interface IContentHistoryTask {
   orderProduct?: IOrderProductContentHistoryTask[];
