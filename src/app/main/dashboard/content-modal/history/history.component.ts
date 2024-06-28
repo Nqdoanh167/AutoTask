@@ -143,9 +143,7 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       this.getHistory();
     }
   }
-  handleAudioCallPhone(link: string) {
-    
-  }
+  handleAudioCallPhone(link: string) {}
   onPickerDateFilter(data: {value?: IDateRange | Date; name: string}) {
     try {
       const {value, name} = data;
@@ -209,9 +207,14 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
           this.history.rows = res.data?.map((item) => {
             return {
               ...item,
-              actionBy: this.currentBiz.users?.find(user => user.id === item.actionBy.id) || item.actionBy || {},
+              actionBy:
+                this.currentBiz.users?.find(
+                  (user) => user.id === item.actionBy.id,
+                ) ||
+                item.actionBy ||
+                {},
             };
-          })
+          });
           this.history.total = res.total;
         },
       });

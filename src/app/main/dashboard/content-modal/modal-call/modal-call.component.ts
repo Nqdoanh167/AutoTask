@@ -9,11 +9,17 @@ import {ICommonDataLazy, IQueryBase, User} from '@app/types/viewmodels';
 import {Platform} from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
 import {OmiExtension} from '@app/types/omicall';
-import { AuthService } from '@app/services/api/auth.service';
-import { ITask } from '@app/types/flow';
+import {AuthService} from '@app/services/api/auth.service';
+import {ITask} from '@app/types/flow';
 
 declare function omicallInit(dataConfig: OmiExtension): void;
-declare function omicallMakeCall(phoneNumber: string, hotline: string, user: User, taskId: string, taskCode: string): void;
+declare function omicallMakeCall(
+  phoneNumber: string,
+  hotline: string,
+  user: User,
+  taskId: string,
+  taskCode: string,
+): void;
 
 @Component({
   selector: 'app-modal-call',
@@ -86,10 +92,10 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     private readonly smsOttCallService: SmsOttCallService,
   ) {
     this.authService.currentBiz
-    .pipe(takeUntil(this.destroy$))
-    .subscribe((biz) => {
-      this.user = biz.user;
-    });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.user = biz.user;
+      });
   }
 
   get f(): {[key: string]: AbstractControl} {
@@ -417,7 +423,13 @@ export class ModalCallComponent implements OnInit, OnDestroy {
           });
           break;
         case 'omicall':
-          omicallMakeCall(this.customerPhone, phone, this.user, this.task?.id, this.task?.code as string);
+          omicallMakeCall(
+            this.customerPhone,
+            phone,
+            this.user,
+            this.task?.id,
+            this.task?.code as string,
+          );
           break;
         default:
           return;
