@@ -13,7 +13,7 @@
 
   .column-desc {
     div {
-      @include mixins.limit-text-row(2);
+      @include mixins.limit-text-row(5);
     }
   }
 

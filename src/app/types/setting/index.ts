@@ -194,6 +194,11 @@ export interface PermissionAction {
   [EPerActType.SETTING]: EPerActSetting[];
 }
 
+export enum EPermDefault {
+  MEMBER_PERMISSION = 'MEMBER_PERMISSION',
+  OWNER_PERMISSION = 'OWNER_PERMISSION',
+}
+
 export interface Permission extends BaseInterface {
   name: string;
   description: string;
@@ -201,6 +206,7 @@ export interface Permission extends BaseInterface {
   permissionAction: PermissionAction;
   userAclCount?: number;
   userAcls?: UserAcl[];
+  permDefault?: EPermDefault;
 }
 
 export interface PermissionDto
