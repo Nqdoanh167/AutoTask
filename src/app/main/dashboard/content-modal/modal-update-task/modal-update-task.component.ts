@@ -62,6 +62,7 @@ import {
   EPerActType,
   ISetting,
   ISource,
+  IUpdateSourceDto,
 } from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 import {ETabTaskDetail} from '@app/types/task';
@@ -887,8 +888,43 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
   }
 
-  handleUpdate() {
+  handleCreateSourceForm(): Promise<ISource | null> {
+    return new Promise((resolve, reject) => {
+      this.autoTaskService.source
+        .create(this.updateForm.value.sourceForm as unknown as IUpdateSourceDto)
+        .pipe(take(1))
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.getSource();
+              resolve(res.data);
+            } else {
+              this.commonService.handleResErr(res);
+              reject(res);
+            }
+          },
+          error: (err) => {
+            this.commonService.handleErr(err);
+            reject(err);
+          },
+        });
+    });
+  }
+
+  async handleUpdate() {
     const branchForm = this.f['branch'].value;
+    const sourceForm = this.f['sourceForm'].value;
+    if (sourceForm) {
+      const newSource = await this.handleCreateSourceForm();
+      if (newSource) {
+        this.updateForm.patchValue({
+          sourceId: newSource.id,
+          sourceForm: null,
+        } as any);
+      } else {
+        return;
+      }
+    }
     return new Promise((resolve, reject) => {
       this.loading.submit = true;
       const body = {
