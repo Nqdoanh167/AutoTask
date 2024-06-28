@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from './services/api/auth.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {filter, finalize, switchMap} from 'rxjs';
+import {filter, switchMap} from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -25,8 +25,8 @@ export class AppComponent implements OnInit {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.loading = false;
             this.authService.setUserAccessPerSubject(res.data);
+            this.loading = false;
           } else {
             window.location.href = '/';
           }

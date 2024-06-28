@@ -1,14 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
-import {filter, finalize, map} from 'rxjs';
+import {filter, map} from 'rxjs';
 import {AuthService} from '../services/api/auth.service';
-import {Biz, EModule, ISidebar} from '../types/viewmodels';
-import {
-  listConfigNavItems,
-  listDashboardNavItems,
-  listSettingNavItems,
-} from '@app/variable';
+import {Biz, ISidebar} from '../types/viewmodels';
+import {MainService} from '@app/services/api/main.service';
 
 @Component({
   selector: 'app-main',
@@ -20,14 +16,11 @@ export class MainComponent implements OnInit {
   public biz!: Biz;
 
   public listNavItems: ISidebar[] = [];
-
-  public listConfigNavItems: ISidebar[] = listConfigNavItems;
-  public listDashboardNavItems: ISidebar[] = listDashboardNavItems;
-  public listSettingNavItems: ISidebar[] = listSettingNavItems;
   constructor(
     private router: Router,
     private authService: AuthService,
     private title: Title,
+    private readonly mainService: MainService,
   ) {
     this.authService.currentBiz.pipe().subscribe({
       next: (res) => {
@@ -43,27 +36,6 @@ export class MainComponent implements OnInit {
         filter((event) => event instanceof NavigationEnd),
         map(() => {
           let route: ActivatedRoute = this.router.routerState.root;
-          const url = this.router.url;
-          let mainModule;
-          if (url.includes(`/${EModule.CONFIG}`)) {
-            mainModule = EModule.CONFIG;
-            this.listNavItems = this.listConfigNavItems;
-          } else if (url.includes(`/${EModule.SETTING}`)) {
-            mainModule = EModule.SETTING;
-            this.listNavItems = this.listSettingNavItems;
-          } else if (url.includes(`/${EModule.DASHBOARD}`)) {
-            mainModule = EModule.DASHBOARD;
-            this.listNavItems = this.listDashboardNavItems;
-          } else {
-            this.listNavItems = [];
-          }
-          const getAccessibleSite = this.authService.getAccessibleSite();
-          const availableTabs = getAccessibleSite[mainModule as EModule];
-          if (mainModule !== EModule.DASHBOARD) {
-            this.listNavItems = this.listNavItems.filter((side) => {
-              return availableTabs.includes(side.alias as any);
-            });
-          }
           let routeTitle = '';
           while (route!.firstChild) {
             route = route.firstChild;
@@ -83,5 +55,11 @@ export class MainComponent implements OnInit {
       });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.mainService.headerTab$.pipe().subscribe((res) => {
+      if (res) {
+        this.listNavItems = res;
+      }
+    });
+  }
 }

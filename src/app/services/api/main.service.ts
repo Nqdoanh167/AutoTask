@@ -9,6 +9,7 @@ import {
   Config,
   EntityResult,
   IRoleAct,
+  ISidebar,
   Order,
   SaleHistory,
   SaleReason,
@@ -29,6 +30,11 @@ declare const FB: any;
 export class MainService extends BaseApiService implements OnDestroy {
   private isHiddenSidebarSubject = new BehaviorSubject<boolean>(false);
   public isHiddenSidebar = this.isHiddenSidebarSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
+  private headerTabsSubject = new BehaviorSubject<ISidebar[]>([]);
+  public headerTab$ = this.headerTabsSubject
     .asObservable()
     .pipe(distinctUntilChanged());
 
@@ -464,5 +470,17 @@ export class MainService extends BaseApiService implements OnDestroy {
   }
   setHiddenSidebar(item: boolean) {
     this.isHiddenSidebarSubject.next(item);
+  }
+
+  setHeaderTabs(items: ISidebar[]) {
+    this.headerTabsSubject.next(items);
+  }
+
+  getHeaderTabs() {
+    return this.headerTabsSubject.value;
+  }
+
+  clearHeaderTabs() {
+    this.headerTabsSubject.next([]);
   }
 }
