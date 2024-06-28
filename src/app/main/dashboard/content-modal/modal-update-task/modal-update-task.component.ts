@@ -32,6 +32,7 @@ import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
   Biz,
   EntityPagination,
+  ESocialPlatform,
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
@@ -157,6 +158,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
     counselorId: null,
     teams: this.fb.array([]),
     sourceId: null,
+    sourceForm: null,
     addChainActIds: null,
     branch: [null],
     chatLink: null,
@@ -1398,7 +1400,76 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleChangeChatLink() {
-    console.log(this.updateForm.value);
+    const chatLink = this.updateForm.value?.chatLink;
+    if (chatLink) {
+      let link = chatLink || '';
+      // for
+      const regexMessPancake = /(pancake).+\?c_id=([0-5][0-9]*_[0-9]*)/i;
+      const regexCommentSmaxAI =
+        /(smax\.ai).+(fb?[0-9]*)\?tid=(fb?[0-9]*_fb?[0-9]*)/i;
+      const regexMessSmaxAI = /(smax\.ai).+(fb?[0-9]*)\?tid=(fb?[0-9]*)/i;
+      const regexURLSmax = /(smax\.ai).+(fb?[0-9]*)/i;
+
+      let pageId: any = null;
+      let messId = null;
+      let platform = null;
+      if (regexURLSmax.test(link)) {
+        const matchSmaxAI = regexURLSmax.exec(link);
+        pageId = matchSmaxAI?.[2]?.replace(/[^\d]/gim, '');
+
+        if (regexMessSmaxAI.test(link)) {
+          const matchMessSmaxAI = regexMessSmaxAI.exec(link);
+          pageId = matchMessSmaxAI?.[2]?.replace(/[^\d]/gim, '');
+          messId = matchMessSmaxAI?.[3]?.replace(/[^\d]/gim, '');
+        }
+
+        if (regexCommentSmaxAI.test(link)) {
+          const matchCmtSmaxAI = regexCommentSmaxAI.exec(link);
+          let cmt = matchCmtSmaxAI?.[3];
+          if (cmt) {
+            cmt = cmt.split('_')?.[1];
+            messId = cmt?.replace(/[^\d]/gim, '');
+          }
+        }
+        platform = 'SMAXAI';
+      }
+
+      if (regexMessPancake.test(link)) {
+        const matchCmtPancake = regexMessPancake.exec(link);
+        let cmt = matchCmtPancake?.[2]?.split('_');
+        if (cmt?.length === 2) {
+          pageId = cmt[0].replace(/[^\d]/gim, '');
+          messId = cmt[1].replace(/[^\d]/gim, '');
+        }
+        platform = 'PANCAKE';
+      }
+
+      if (pageId) {
+        const hasPage = this.sources.rows.find((p) => p.platformId === pageId);
+        let platformSource: any = hasPage as ISource;
+        if (!hasPage) {
+          platformSource = {
+            id: pageId,
+            name: 'Facebook Page',
+            platform: ESocialPlatform.FACEBOOK,
+            platformId: pageId,
+            picture: `https://graph.facebook.com/${pageId}/picture?width=300&height=300`,
+          };
+          this.sources.rows.push(platformSource);
+          this.updateForm.patchValue({
+            sourceForm: platformSource,
+          });
+        } else {
+          this.updateForm.patchValue({
+            sourceForm: null,
+          });
+        }
+
+        this.updateForm.patchValue({
+          sourceId: platformSource.id,
+        });
+      }
+    }
   }
 
   ngOnDestroy(): void {

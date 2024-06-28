@@ -1,4 +1,9 @@
-import {AccountPublic, BaseInterface, User} from '@app/types/viewmodels';
+import {
+  AccountPublic,
+  BaseInterface,
+  ESocialPlatform,
+  User,
+} from '@app/types/viewmodels';
 import {IBranchTaskDto, ITaskCartDto} from '@app/types/flow';
 
 export enum EDataSourceType {
@@ -48,6 +53,8 @@ export interface ISource {
   id: string;
   name: string;
   picture: string;
+  platform: ESocialPlatform;
+  platformId: string;
   type: EDataSourceType;
   dTask: ISourceDTask;
   isActive: boolean;
