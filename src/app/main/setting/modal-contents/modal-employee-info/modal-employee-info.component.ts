@@ -93,7 +93,6 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
         isActive: this.sourceData?.isActiveAcl,
         branches: this.sourceData?.aclBranches,
       } as any);
-      console.log(this.updateForm.value);
     }
   }
 
