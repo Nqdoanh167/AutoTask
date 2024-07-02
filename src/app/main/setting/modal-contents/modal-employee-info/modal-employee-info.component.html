@@ -4,7 +4,9 @@
       [isSubmitting]="loading.submit"
       (submitModal)="onSubmit()"
     >
-      <ng-container modalTitle>Chỉnh sửa quyền của nhân viên</ng-container>
+      <ng-container modalTitle>
+        Chỉnh sửa quyền của nhân viên ({{ sourceData.role }})
+      </ng-container>
       <ng-container modalBody>
         <form [formGroup]="updateForm">
           <div class="d-flex justify-content-between align-items-center mb-2">
@@ -70,7 +72,7 @@
                 [multiple]="true"
                 [items]="sourceData?.groups || []"
                 [isOpen]="false"
-                class="dropdown-auto-width custom-input-multiple disabled input-disabled"
+                class="custom-input-multiple-round custom-input-multiple disabled input-disabled"
                 formControlName="groups"
                 [compareWith]="compareFunction"
                 id="groups"
@@ -95,7 +97,7 @@
                 [multiple]="true"
                 [items]="sourceData?.roles || []"
                 [isOpen]="false"
-                class="dropdown-auto-width custom-input-multiple disabled input-disabled"
+                class="custom-input-multiple-round custom-input-multiple disabled input-disabled"
                 formControlName="roles"
                 [compareWith]="compareFunction"
                 id="roles"
@@ -105,148 +107,132 @@
               ></ng-select>
             </div>
           </div>
-          <div class="mb-2 mt-3">
-            <span class="headline">Phân quyền</span>
-          </div>
-          <div class="decentralization">
-            <div class="table-responsive tableFixHead custom-scrollbar">
-              <table
-                class="table table-none-border table-medium-head table-light"
-              >
-                <thead>
-                  <tr>
-                    <th class="columns-branch">Chi nhánh</th>
-                    <th class="columns-step-center"></th>
-                    <th class="columns-department">Phòng ban</th>
-                    <th class="columns-team">Đội nhóm</th>
-                    <th class="columns-role">Quyền</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!--                  <tr class="text-center">-->
-                  <!--                    <td colspan="12">-->
-                  <!--                      <div class="mt-3">Không có dữ liệu</div>-->
-                  <!--                    </td>-->
-                  <!--                  </tr>-->
-                  @for (
-                    branch of f['branches'].value;
-                    track branchIndex;
-                    let branchIndex = $index;
-                    let firstBranch = $first;
-                    let lastBranch = $last
-                  ) {
-                    <tr class="rootRow">
-                      <td class="columns-branch">
-                        <input
-                          class="form-control input-disabled"
-                          [readonly]="true"
-                          [value]="branch.name"
-                        />
-                      </td>
-                      <td class="columns-step-center content">
-                        <div
-                          [class.mt-2]="!firstDepartment"
-                          *ngFor="
-                            let department of branch.departments;
-                            let departmentIndex = index;
-                            let firstDepartment = first;
-                            let lastDepartment = last
-                          "
-                        >
-                          <div
-                            [ngClass]="{
-                              'columns-step-item--first':
-                                branch?.departments?.length !== 1 &&
-                                firstDepartment,
-                              'columns-step-item--last':
-                                branch?.departments?.length !== 1 &&
-                                lastDepartment,
-                              'columns-step-item--one':
-                                branch?.departments?.length === 1,
-                              'columns-step-item--center':
-                                !firstDepartment &&
-                                !lastDepartment &&
-                                branch?.departments?.length !== 1
-                            }"
-                            class="columns-step-item"
-                          ></div>
-                          <div
-                            *ngFor="
-                              let team of department['teams'];
-                              let teamIndex = index;
-                              let firstTeam = first;
-                              let lastTeam = last
-                            "
-                          >
-                            <div
-                              *ngIf="!firstTeam"
-                              [class.padding-temp]="!lastDepartment"
-                            ></div>
-                          </div>
-                        </div>
-                      </td>
-                      <td class="columns-department">
-                        <div
-                          [class.mt-2]="!firstDepartment"
-                          *ngFor="
-                            let department of branch.departments;
-                            let departmentIndex = index;
-                            let firstDepartment = first;
-                            let lastDepartment = last
-                          "
-                        >
+          @if (sourceData.role === ERole.OWNER) {
+            <label class="form-control-label">Chi nhánh</label>
+            <ng-select
+              [multiple]="true"
+              [clearable]="false"
+              [readonly]="true"
+              [items]="f['branches'].value || []"
+              bindLabel="name"
+              bindValue="id"
+              placeholder="Chi nhánh"
+              formControlName="branchIds"
+              class="custom-input-multiple-round custom-input-multiple disabled input-disabled"
+            ></ng-select>
+          } @else {
+            <div class="mb-2 mt-3">
+              <span class="headline">Phân quyền</span>
+            </div>
+            <div class="decentralization">
+              <div class="table-responsive tableFixHead custom-scrollbar">
+                <table
+                  class="table table-none-border table-medium-head table-light"
+                >
+                  <thead>
+                    <tr>
+                      <th class="columns-branch">Chi nhánh</th>
+                      <th class="columns-step-center"></th>
+                      <th class="columns-department">Phòng ban</th>
+                      <th class="columns-team">Đội nhóm</th>
+                      <th class="columns-role">Quyền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!--                  <tr class="text-center">-->
+                    <!--                    <td colspan="12">-->
+                    <!--                      <div class="mt-3">Không có dữ liệu</div>-->
+                    <!--                    </td>-->
+                    <!--                  </tr>-->
+                    @for (
+                      branch of f['branches'].value;
+                      track branchIndex;
+                      let branchIndex = $index;
+                      let firstBranch = $first;
+                      let lastBranch = $last
+                    ) {
+                      <tr class="rootRow">
+                        <td class="columns-branch">
                           <input
                             class="form-control input-disabled"
                             [readonly]="true"
-                            [value]="department.name"
+                            [value]="branch.name"
                           />
+                        </td>
+                        <td class="columns-step-center content">
                           <div
+                            [class.mt-2]="!firstDepartment"
                             *ngFor="
-                              let team of department['teams'];
-                              let teamIndex = index;
-                              let firstTeam = first;
-                              let lastTeam = last
+                              let department of branch.departments;
+                              let departmentIndex = index;
+                              let firstDepartment = first;
+                              let lastDepartment = last
                             "
                           >
                             <div
-                              *ngIf="!firstTeam"
-                              class=""
-                              [class.padding-temp]="!lastDepartment"
+                              [ngClass]="{
+                                'columns-step-item--first':
+                                  branch?.departments?.length !== 1 &&
+                                  firstDepartment,
+                                'columns-step-item--last':
+                                  branch?.departments?.length !== 1 &&
+                                  lastDepartment,
+                                'columns-step-item--one':
+                                  branch?.departments?.length === 1,
+                                'columns-step-item--center':
+                                  !firstDepartment &&
+                                  !lastDepartment &&
+                                  branch?.departments?.length !== 1
+                              }"
+                              class="columns-step-item"
                             ></div>
+                            <div
+                              *ngFor="
+                                let team of department['teams'];
+                                let teamIndex = index;
+                                let firstTeam = first;
+                                let lastTeam = last
+                              "
+                            >
+                              <div
+                                *ngIf="!firstTeam"
+                                [class.padding-temp]="!lastDepartment"
+                              ></div>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td class="columns-team">
-                        <div
-                          class="group-data"
-                          [class.mt-2]="!firstDepartment"
-                          *ngFor="
-                            let department of branch.departments;
-                            let departmentIndex = index;
-                            let firstDepartment = first;
-                            let lastDepartment = last
-                          "
-                        >
+                        </td>
+                        <td class="columns-department">
                           <div
-                            class="data-item"
-                            [class.mt-2]="!firstTeam"
+                            [class.mt-2]="!firstDepartment"
                             *ngFor="
-                              let team of department['teams'];
-                              let teamIndex = index;
-                              let firstTeam = first;
-                              let lastTeam = last
+                              let department of branch.departments;
+                              let departmentIndex = index;
+                              let firstDepartment = first;
+                              let lastDepartment = last
                             "
                           >
                             <input
                               class="form-control input-disabled"
                               [readonly]="true"
-                              [value]="team.name"
+                              [value]="department.name"
                             />
+                            <div
+                              *ngFor="
+                                let team of department['teams'];
+                                let teamIndex = index;
+                                let firstTeam = first;
+                                let lastTeam = last
+                              "
+                            >
+                              <div
+                                *ngIf="!firstTeam"
+                                class=""
+                                [class.padding-temp]="!lastDepartment"
+                              ></div>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td class="columns-role">
-                        @if (branch?.departments?.length) {
+                        </td>
+                        <td class="columns-team">
                           <div
                             class="group-data"
                             [class.mt-2]="!firstDepartment"
@@ -257,17 +243,65 @@
                               let lastDepartment = last
                             "
                           >
-                            @if (department['teams']?.length) {
-                              <div
-                                class="data-item"
-                                [class.mt-2]="!firstTeam"
-                                *ngFor="
-                                  let team of department['teams'];
-                                  let teamIndex = index;
-                                  let firstTeam = first;
-                                  let lastTeam = last
-                                "
-                              >
+                            <div
+                              class="data-item"
+                              [class.mt-2]="!firstTeam"
+                              *ngFor="
+                                let team of department['teams'];
+                                let teamIndex = index;
+                                let firstTeam = first;
+                                let lastTeam = last
+                              "
+                            >
+                              <input
+                                class="form-control input-disabled"
+                                [readonly]="true"
+                                [value]="team.name"
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td class="columns-role">
+                          @if (branch?.departments?.length) {
+                            <div
+                              class="group-data"
+                              [class.mt-2]="!firstDepartment"
+                              *ngFor="
+                                let department of branch.departments;
+                                let departmentIndex = index;
+                                let firstDepartment = first;
+                                let lastDepartment = last
+                              "
+                            >
+                              @if (department['teams']?.length) {
+                                <div
+                                  class="data-item"
+                                  [class.mt-2]="!firstTeam"
+                                  *ngFor="
+                                    let team of department['teams'];
+                                    let teamIndex = index;
+                                    let firstTeam = first;
+                                    let lastTeam = last
+                                  "
+                                >
+                                  <ng-container
+                                    [ngTemplateOutlet]="selectPermission"
+                                    [ngTemplateOutletContext]="{
+                                      id:
+                                        'role-' +
+                                        branchIndex +
+                                        '-' +
+                                        departmentIndex +
+                                        '-' +
+                                        teamIndex,
+                                      branch: branch,
+                                      department: department,
+                                      team: team,
+                                      value: team?.permission
+                                    }"
+                                  ></ng-container>
+                                </div>
+                              } @else {
                                 <ng-container
                                   [ngTemplateOutlet]="selectPermission"
                                   [ngTemplateOutletContext]="{
@@ -275,52 +309,35 @@
                                       'role-' +
                                       branchIndex +
                                       '-' +
-                                      departmentIndex +
-                                      '-' +
-                                      teamIndex,
+                                      departmentIndex,
                                     branch: branch,
                                     department: department,
-                                    team: team,
-                                    value: team?.permission
+                                    team: undefined,
+                                    value: department?.permission
                                   }"
                                 ></ng-container>
-                              </div>
-                            } @else {
-                              <ng-container
-                                [ngTemplateOutlet]="selectPermission"
-                                [ngTemplateOutletContext]="{
-                                  id:
-                                    'role-' +
-                                    branchIndex +
-                                    '-' +
-                                    departmentIndex,
-                                  branch: branch,
-                                  department: department,
-                                  team: undefined,
-                                  value: department?.permission
-                                }"
-                              ></ng-container>
-                            }
-                          </div>
-                        } @else {
-                          <ng-container
-                            [ngTemplateOutlet]="selectPermission"
-                            [ngTemplateOutletContext]="{
-                              id: 'role-' + branchIndex,
-                              branch: branch,
-                              department: undefined,
-                              team: undefined,
-                              value: branch?.permission
-                            }"
-                          ></ng-container>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+                              }
+                            </div>
+                          } @else {
+                            <ng-container
+                              [ngTemplateOutlet]="selectPermission"
+                              [ngTemplateOutletContext]="{
+                                id: 'role-' + branchIndex,
+                                branch: branch,
+                                department: undefined,
+                                team: undefined,
+                                value: branch?.permission
+                              }"
+                            ></ng-container>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          }
         </form>
       </ng-container>
     </app-custom-modal>

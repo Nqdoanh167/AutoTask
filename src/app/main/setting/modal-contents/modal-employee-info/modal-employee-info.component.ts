@@ -10,7 +10,7 @@ import {finalize, Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormBuilder} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
-import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
+import {ERole, ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {environment} from '../../../../../environments/environment';
 import {AuthService} from '@app/services/api/auth.service';
 import {
@@ -40,6 +40,7 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
     groups: [null],
     roles: [null],
     branches: [null],
+    branchIds: [null],
     status: [null],
     isActive: [false],
   });
@@ -61,6 +62,8 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
   };
 
   private destroy$ = new Subject();
+
+  protected readonly ERole = ERole;
 
   constructor(
     private readonly modalService: BsModalService,
@@ -90,6 +93,7 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
         isActive: this.sourceData?.isActiveAcl,
         branches: this.sourceData?.aclBranches,
       } as any);
+      console.log(this.updateForm.value);
     }
   }
 
