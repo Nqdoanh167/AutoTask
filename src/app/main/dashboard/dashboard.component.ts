@@ -463,8 +463,8 @@ export class DashboardComponent
   }
 
   handleDeleteAction(value: any) {
-    const title = 'Xóa hành động';
-    const description = `Bạn sắp xóa hành động <b>${
+    const title = 'Xóa Tác Vụ';
+    const description = `Bạn sắp xóa Tác Vụ <b>${
       value.name || ''
     }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
