@@ -63,7 +63,7 @@ export class ModalUpdateTaskComponent
 
   public isOpenBackDrop: boolean = false;
   public listBizUsers: User[] = [];
-  public units = this.autoTaskService.getUserUnits();
+  public units = this.autoTaskService.getUserUnits(false);
 
   protected readonly ETabTaskDetail = ETabTaskDetail;
   protected readonly ETaskChainType = ETaskChainType;
@@ -741,10 +741,6 @@ export class ModalUpdateTaskComponent
     } catch (e) {
       console.log(e);
     }
-  }
-
-  handleClickPTree(event: any) {
-    this.commonService.handleClickPTree(event);
   }
 
   copyText(text: string) {

@@ -1510,6 +1510,9 @@ i {
   align-items: center;
   border: none;
   background-color: #e7e9ef;
+  .p-overlay {
+    z-index: 1052 !important;
+  }
 
   .p-treeselect-label.p-placeholder {
     font-family: Roboto;
