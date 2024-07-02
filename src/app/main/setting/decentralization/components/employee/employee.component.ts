@@ -5,8 +5,7 @@ import {
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {finalize, Subject, takeUntil} from 'rxjs';
-import {AuthService} from '@app/services/api/auth.service';
+import {finalize, takeUntil} from 'rxjs';
 import {removeCharacter} from '@app/utils/common';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {environment} from '../../../../../../environments/environment';
@@ -88,8 +87,19 @@ export class EmployeeComponent
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
-        this.listBizUsers = biz.users as CombinedUserAcl[];
-        this.listFilteredBizUsers = biz.users as CombinedUserAcl[];
+        const list = biz.users?.map((user) => {
+          if (user?.groupIds?.length)
+            user.groups = this.currentBiz?.groups?.filter(
+              (g) => user.groupIds?.includes(g.id),
+            );
+          if (user.roleIds?.length)
+            user.roles = this.currentBiz?.roles?.filter(
+              (g) => user.roleIds?.includes(g.id),
+            );
+          return user;
+        });
+        this.listBizUsers = list as CombinedUserAcl[];
+        this.listFilteredBizUsers = list as CombinedUserAcl[];
       });
     if (!this.isInPermissionModal) {
       this.getUserAcl();
