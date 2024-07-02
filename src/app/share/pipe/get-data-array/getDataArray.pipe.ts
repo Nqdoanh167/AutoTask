@@ -1,9 +1,18 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import find from 'lodash/find';
 
 @Pipe({name: 'getDataArray'})
 export class GetDataArrayPipe implements PipeTransform {
-  transform(array: any, key: string, valueKey: string): any {
-    return find(array, {[`${key}`]: valueKey});
+  transform(array: any[], key: string, valueKey: string): any {
+    console.log({
+      array,
+      key,
+      valueKey,
+    });
+    return array.filter((item) => {
+      if (Array.isArray(item[key])) {
+        return item[key].includes(valueKey);
+      }
+      return item[key] === valueKey;
+    });
   }
 }

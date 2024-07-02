@@ -299,7 +299,10 @@ Nếu Nguồn trả dữ liệu về và xung đột với thông tin bên dư�
                       role="menuitem"
                       class="item-user-dropdown"
                       [class.selected]="item.id === settingRole.value.userId"
-                      *ngFor="let item of listBizUsers"
+                      *ngFor="
+                        let item of listBizUsers
+                          | getDataArray: 'roleIds' : settingRole.value.roleId
+                      "
                       [class.disabled]="!item.isActive"
                       (click)="
                         item.id === settingRole.value.userId

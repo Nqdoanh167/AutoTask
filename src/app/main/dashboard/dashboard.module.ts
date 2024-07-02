@@ -40,6 +40,7 @@ import {InputMaskModule} from '@app/share/input/input-mask/input-mask.module';
 import {TreeSelectModule} from 'primeng/treeselect';
 import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
 import {CustomTabSetComponent} from '@share/common/custom-tab-set/custom-tab-set.component';
+import {GetDataArrayModule} from '@share/pipe/get-data-array/getDataArray.module';
 
 @NgModule({
   declarations: [
@@ -88,6 +89,7 @@ import {CustomTabSetComponent} from '@share/common/custom-tab-set/custom-tab-set
     TreeSelectModule,
     CustomSelectSearchComponent,
     CustomTabSetComponent,
+    GetDataArrayModule,
   ],
 })
 export class DashboardModule {}
