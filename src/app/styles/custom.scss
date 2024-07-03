@@ -185,11 +185,54 @@ button[disabled] {
 }
 
 //ng-select
-.ng-select.ng-select-multiple
-  .ng-select-container
-  .ng-value-container
-  .ng-value {
-  //background-color: unset !important;
+//.ng-select ::ng-deep .ng-arrow-wrapper {
+//  .ng-arrow {
+//    display: none;
+//  }
+//
+//  height: 14px;
+//  width: 14px;
+//  background-image: url('/assets/images/icon-caret-down.svg') !important;
+//  background-repeat: no-repeat;
+//  margin-right: 12px;
+//  margin-left: 10px;
+//  margin-top: 5px;
+//}
+//.ng-select.ng-select-multiple
+//  .ng-select-container
+//  .ng-value-container
+//  .ng-value {
+//  //background-color: unset !important;
+//}
+
+.ng-select {
+  .ng-arrow-wrapper {
+    //padding-right: 10px;
+    padding-bottom: 3px;
+  }
+  .ng-arrow {
+    border-color: inherit !important;
+    border-width: 0 !important;
+    font-size: 16px;
+    top: 0 !important;
+    left: -6px;
+    color: inherit;
+    text-align: center;
+    transform: rotate(0deg);
+    transform-origin: 8px 12px;
+    transition: transform 0.2s ease;
+    &:before {
+      content: url('../../assets/images/icon-caret-down.svg') !important;
+    }
+  }
+
+  &.ng-select-opened {
+    .ng-arrow {
+      transform: rotate(180deg);
+      top: 1px !important;
+      left: -8px !important;
+    }
+  }
 }
 
 .ng-select .ng-optgroup {
