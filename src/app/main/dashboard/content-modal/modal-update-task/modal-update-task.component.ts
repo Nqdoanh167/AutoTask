@@ -91,6 +91,10 @@ export class ModalUpdateTaskComponent
     this.handleCheckPermission();
     if (this.sourceData) {
       this.patchForm(this.sourceData);
+    } else {
+      this.updateForm.patchValue({
+        branch: this.autoTaskService.getFirstUnit()
+      } as any)
     }
     if (this.code) {
       this.getTaskByCode();

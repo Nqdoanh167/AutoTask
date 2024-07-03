@@ -530,6 +530,14 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     });
   }
 
+  getFirstUnit() {
+    const units = this.getUserUnits();
+    const firstBranch = units?.[0];
+    const firstDepartment = units?.[0]?.children?.[0];
+    const firstTeam = units?.[0]?.children?.[0]?.children?.[0];
+    return firstTeam || firstDepartment || firstBranch;
+  }
+
   findUnitFromData(data: IBranchTaskDto) {
     const units = this.getUserUnits();
     let res: ModifiedUserUnit | undefined = undefined;
