@@ -7,9 +7,11 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {timer} from 'rxjs';
+import {takeUntil, timer} from 'rxjs';
 import {AsyncPipe, DatePipe} from '@angular/common';
 import {FormatSecondsModule} from '@share/pipe/format-seconds/format-seconds.module';
+import {PhoneCallService} from '@app/services/common/phone-call.service';
+import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
 
 @Component({
   selector: 'app-phone-call-pop-up',
@@ -19,17 +21,25 @@ import {FormatSecondsModule} from '@share/pipe/format-seconds/format-seconds.mod
   styleUrl: './phone-call-pop-up.component.scss',
 })
 export class PhoneCallPopUpComponent
+  extends BaseComponentsComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   @ViewChild('audio') audio?: ElementRef;
+  @ViewChild('phoneTemp') phoneTemp?: ElementRef;
 
+  public incomingCall$ = this.phoneCallService.getIncomingCall();
   public phoneStatus: 'ringing' | 'answer' | 'end' = 'ringing';
   public showPopup = true;
   public isSilent = false;
   public isMute = false;
   public timer$ = timer(0, 1000);
 
-  constructor(private readonly cdr: ChangeDetectorRef) {}
+  constructor(
+    private readonly cdr: ChangeDetectorRef,
+    private readonly phoneCallService: PhoneCallService,
+  ) {
+    super();
+  }
 
   togglePopUp() {
     this.showPopup = !this.showPopup;
@@ -48,22 +58,36 @@ export class PhoneCallPopUpComponent
     this.isMute = !this.isMute;
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.phoneCallService
+      .getIncomingCall()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((incomingCall) => {
+        if (incomingCall) {
+          this.phoneTemp?.nativeElement?.click();
+          this.phoneTemp?.nativeElement?.focus();
+          this.phoneStatus = 'ringing';
+          this.showPopup = true;
+          setTimeout(() => {
+            const media = this.audio?.nativeElement;
+            media.muted = false;
+            media.play();
+          }, 100);
+        }
+      });
+
+    // setTimeout(() => {
+    //   this.phoneCallService.setIncomingCall({number: '0123456789'});
+    // }, 10000);
+  }
 
   handleChangePhoneStatus(status: 'answer' | 'end') {
     this.phoneStatus = status;
     if (this.phoneStatus === 'end') {
       this.showPopup = false;
+      this.phoneCallService.setIncomingCall(null);
     }
   }
 
-  ngAfterViewInit() {
-    const media = this.audio?.nativeElement;
-    media.muted = false;
-    media.play();
-  }
-
-  ngOnDestroy() {
-    // this.audio?.nativeElement.pause();
-  }
+  ngAfterViewInit() {}
 }

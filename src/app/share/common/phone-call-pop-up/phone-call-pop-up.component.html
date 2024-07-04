@@ -1,75 +1,80 @@
-<div class="phone-call-pop-up">
-  <div class="bubble-chat">
-    <div class="chat-wrapper" [class.show]="showPopup">
-      @if (phoneStatus === 'ringing') {
-        <audio autoplay loop muted #audio>
-          <source src="assets/sounds/ringing-151670.mp3" type="audio/ogg" />
-        </audio>
-      }
-      <div class="header">
-        <div class="current-phone-number">
-          <i class="fa-solid fa-phone me-1"></i>
-          0366369782
-        </div>
-      </div>
-      <div class="content">
-        <img alt="" src="assets/images/avatar.svg" class="avatar" />
-        <div class="phone-number-incoming">0366369782</div>
-        <div class="time-conversation">
-          @if (phoneStatus === 'ringing') {
-            Incoming Call...
-          } @else if (phoneStatus === 'answer') {
-            {{ timer$ | async | formatSeconds }}
-          }
-        </div>
-        <div class="action-buttons d-flex justify-content-center gap-2 mt-4">
-          @if (phoneStatus === 'ringing') {
-            <button
-              (click)="toggleSilent()"
-              type="button"
-              class="btn button-outline"
-            >
-              <i [class.red]="isSilent" class="fa-solid fa-bell-slash"></i>
-            </button>
-          }
-          @if (phoneStatus === 'answer') {
-            <button
-              (click)="toggleMute()"
-              type="button"
-              class="btn button-outline"
-            >
-              <i [class.red]="isMute" class="fa-solid fa-microphone-slash"></i>
-            </button>
-          }
-        </div>
-      </div>
-      <div class="control-buttons gap-3">
+@if (incomingCall$ | async; as incomingCall) {
+  <div class="phone-call-pop-up" #phoneTemp>
+    <div class="bubble-chat">
+      <div class="chat-wrapper" [class.show]="showPopup">
         @if (phoneStatus === 'ringing') {
-          <button
-            (click)="handleChangePhoneStatus('answer')"
-            type="button"
-            class="btn button-answer"
-          >
-            <i class="fa-solid fa-phone"></i>
-          </button>
+          <audio autoplay loop muted #audio>
+            <source src="assets/sounds/ringing-151670.mp3" type="audio/ogg" />
+          </audio>
         }
-        <button
-          (click)="handleChangePhoneStatus('end')"
-          type="button"
-          class="btn button-end"
-        >
-          <i
-            class="fa-solid fa-phone fa-rotate-by"
-            style="--fa-rotate-angle: 135deg"
-          ></i>
-        </button>
+        <div class="header">
+          <div class="current-phone-number">
+            <i class="fa-solid fa-phone me-1"></i>
+            0366369782
+          </div>
+        </div>
+        <div class="content">
+          <img alt="" src="assets/images/avatar.svg" class="avatar" />
+          <div class="phone-number-incoming">{{ incomingCall.number }}</div>
+          <div class="time-conversation">
+            @if (phoneStatus === 'ringing') {
+              Incoming Call...
+            } @else if (phoneStatus === 'answer') {
+              {{ timer$ | async | formatSeconds }}
+            }
+          </div>
+          <div class="action-buttons d-flex justify-content-center gap-2 mt-4">
+            @if (phoneStatus === 'ringing') {
+              <button
+                (click)="toggleSilent()"
+                type="button"
+                class="btn button-outline"
+              >
+                <i [class.red]="isSilent" class="fa-solid fa-bell-slash"></i>
+              </button>
+            }
+            @if (phoneStatus === 'answer') {
+              <button
+                (click)="toggleMute()"
+                type="button"
+                class="btn button-outline"
+              >
+                <i
+                  [class.red]="isMute"
+                  class="fa-solid fa-microphone-slash"
+                ></i>
+              </button>
+            }
+          </div>
+        </div>
+        <div class="control-buttons gap-3">
+          @if (phoneStatus === 'ringing') {
+            <button
+              (click)="handleChangePhoneStatus('answer')"
+              type="button"
+              class="btn button-answer"
+            >
+              <i class="fa-solid fa-phone"></i>
+            </button>
+          }
+          <button
+            (click)="handleChangePhoneStatus('end')"
+            type="button"
+            class="btn button-end"
+          >
+            <i
+              class="fa-solid fa-phone fa-rotate-by"
+              style="--fa-rotate-angle: 135deg"
+            ></i>
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="bubble-toggle" (click)="togglePopUp()">
-      <div [class.show]="showPopup" class="bubble-icon">
-        <i class="fa-solid fa-phone"></i>
-        <i class="fa-solid fa-xmark"></i>
+      <div class="bubble-toggle" (click)="togglePopUp()">
+        <div [class.show]="showPopup" class="bubble-icon">
+          <i class="fa-solid fa-phone"></i>
+          <i class="fa-solid fa-xmark"></i>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}

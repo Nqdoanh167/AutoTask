@@ -1,4 +1,4 @@
-import {Injectable, Injector} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
@@ -12,7 +12,6 @@ import {
   User,
 } from 'src/app/types/viewmodels';
 import {environment} from 'src/environments/environment';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {
   EPerActFlow,
   EPerActSetting,
@@ -25,7 +24,6 @@ import {
   listDashboardNavItems,
   listSettingNavItems,
 } from '@app/variable';
-import uniq from 'lodash/uniq';
 
 @Injectable({
   providedIn: 'root',
