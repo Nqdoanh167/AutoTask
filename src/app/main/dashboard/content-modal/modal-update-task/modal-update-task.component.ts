@@ -93,8 +93,8 @@ export class ModalUpdateTaskComponent
       this.patchForm(this.sourceData);
     } else {
       this.updateForm.patchValue({
-        branch: this.autoTaskService.getFirstUnit()
-      } as any)
+        branch: this.autoTaskService.getFirstUnit(),
+      } as any);
     }
     if (this.code) {
       this.getTaskByCode();
@@ -367,8 +367,8 @@ export class ModalUpdateTaskComponent
   }
 
   handleDeleteTask() {
-    const title = 'Xóa Task';
-    const description = `Bạn sắp xóa task <b>${
+    const title = 'Xóa Tác vụ';
+    const description = `Bạn sắp xóa Tác vụ <b>${
       this.sourceData?.name || ''
     }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
@@ -381,7 +381,7 @@ export class ModalUpdateTaskComponent
       modalType: 'advance',
       context: this.sourceData,
       errorState:
-        'Cẩn trọng với thao tác xóa Task. Các module khác đang sử dụng dữ liệu của\n' +
+        'Cẩn trọng với thao tác xóa Tác vụ. Các module khác đang sử dụng dữ liệu của\n' +
         '      bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
@@ -498,7 +498,7 @@ export class ModalUpdateTaskComponent
       modalType: 'advance',
       context: taskChain,
       errorState:
-        'Cẩn trọng với thao tác xóa chuỗi. Các module khác đang sử dụng dữ liệu của\n' +
+        'Cẩn trọng với thao tác đóng chuỗi. Các module khác đang sử dụng dữ liệu của\n' +
         '      bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
