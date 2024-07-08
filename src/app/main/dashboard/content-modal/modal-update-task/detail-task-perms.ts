@@ -42,13 +42,7 @@ export class DetailTaskPerms extends DetailTaskData {
       taskPermissions,
       EPerActTask.EDIT_TIME_ACTION,
     );
-    if (
-      taskPermissions.some((per) =>
-        [EPerActTask.UPDATE_TASK].includes(per as EPerActTask),
-      )
-    ) {
-      this.getTag();
-    }
+    this.getTag();
     this.getSource();
     this.getAutoTaskSetting();
     this.getActionChain();
