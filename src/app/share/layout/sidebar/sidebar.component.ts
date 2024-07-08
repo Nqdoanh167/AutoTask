@@ -19,7 +19,6 @@ export class SidebarComponent implements OnInit {
   public listConfigNavItems: ISidebar[] = listConfigNavItems;
   public listDashboardNavItems: ISidebar[] = listDashboardNavItems;
   public listSettingNavItems: ISidebar[] = listSettingNavItems;
-
   public sidebars: ISidebar[] = [
     {
       link: `/${EModule.DASHBOARD}`,
@@ -48,6 +47,7 @@ export class SidebarComponent implements OnInit {
   ];
   public biz!: Biz;
   public user!: User;
+
   constructor(
     private readonly router: Router,
     private readonly authService: AuthService,
@@ -72,6 +72,7 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.changeRoute();
   }
+
   changeRoute() {
     this.activeSidebar(this.router.url);
     this.router.events.subscribe((event) => {
@@ -80,6 +81,7 @@ export class SidebarComponent implements OnInit {
       }
     });
   }
+
   activeSidebar(url: string) {
     let mainModule;
     if (url.includes(`/${EModule.CONFIG}`)) {
@@ -111,6 +113,7 @@ export class SidebarComponent implements OnInit {
       return side;
     });
   }
+
   getPositionString(text: string, subString: string, index: number) {
     return text.split(subString, index).join(subString).length;
   }

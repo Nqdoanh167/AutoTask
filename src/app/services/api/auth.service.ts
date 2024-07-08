@@ -200,11 +200,13 @@ export class AuthService {
     if (!userPer) return false;
     switch (module) {
       case EModule.DASHBOARD:
-        return !!userPer[EPerActType.TASK].length;
+        return userPer[EPerActType.TASK].includes(EPerActTask.VIEW_TASK);
       case EModule.CONFIG:
-        return !!userPer[EPerActType.FLOW].length;
+        return userPer[EPerActType.FLOW].includes(EPerActFlow.VIEW_FLOW);
       case EModule.SETTING:
-        return !!userPer[EPerActType.SETTING].length;
+        return userPer[EPerActType.SETTING].includes(
+          EPerActSetting.VIEW_MASTER_DATA,
+        );
       default:
         return false;
     }
