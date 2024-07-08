@@ -8,7 +8,7 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
 import {ETaskChainType, ITask, ModifiedUserUnit} from '@app/types/flow';
 import moment from 'moment/moment';
-import {cloneDeep, isEqual} from 'lodash';
+import {isEqual} from 'lodash';
 import {
   EPerActTask,
   EPerActType,
