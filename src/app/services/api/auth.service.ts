@@ -91,7 +91,7 @@ export class AuthService {
             window.location.href = parsedURL.origin;
           }
         },
-        error: (error) => {
+        error: () => {
           if (environment.production) {
             window.location.href = '/';
           } else {
@@ -106,38 +106,6 @@ export class AuthService {
         this.loginInDev();
       }
     }
-  }
-
-  getUserPerAccess() {
-    // this.userAccessPerSubject.next({
-    //   [EPerActType.TASK]: [
-    //     EPerActTask.VIEW_TASK,
-    //     EPerActTask.VIEW_TASK_BIZ,
-    //     EPerActTask.CREATE_TASK,
-    //     EPerActTask.UPDATE_TASK,
-    //     EPerActTask.DELETE_TASK,
-    //     EPerActTask.VIEW_INFORMATION_TASK,
-    //     EPerActTask.VIEW_HISTORY_TASK,
-    //     EPerActTask.CREATE_ORDER,
-    //     EPerActTask.MANAGE_CHAIN,
-    //     EPerActTask.MANAGE_ACTION,
-    //     EPerActTask.EDIT_TIME_ACTION,
-    //   ],
-    //   [EPerActType.FLOW]: [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW],
-    //   [EPerActType.SETTING]: [
-    //     EPerActSetting.VIEW_SOURCE_SETTING,
-    //     EPerActSetting.UPDATE_SOURCE_SETTING,
-    //     EPerActSetting.VIEW_TAG_SETTING,
-    //     EPerActSetting.UPDATE_TAG_SETTING,
-    //     EPerActSetting.VIEW_ROLE_SETTING,
-    //     EPerActSetting.UPDATE_ROLE_SETTING,
-    //     EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
-    //     EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
-    //     EPerActSetting.VIEW_USER_ACCESS,
-    //     EPerActSetting.VIEW_USER_ACCESS_BIZ,
-    //     EPerActSetting.UPDATE_USER_ACCESS,
-    //   ],
-    // } as any);
   }
 
   getAccessibleSite() {
@@ -293,10 +261,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    // get the token
     const token = this.getToken();
-    // return a boolean reflecting
-    // whether or not the token is expired
     return !!token;
   }
 }

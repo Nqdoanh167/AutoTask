@@ -10,17 +10,16 @@ import {
   EntityResult,
   IRoleAct,
   ISidebar,
-  Order,
   SaleHistory,
   SaleReason,
   Staff,
-  Status,
   Tag,
   User,
 } from 'src/app/types/viewmodels';
 import {BehaviorSubject, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
+import {ITask} from '@app/types/flow';
 
 declare const FB: any;
 
@@ -41,14 +40,8 @@ export class MainService extends BaseApiService implements OnDestroy {
   private currentConfigSubject = new BehaviorSubject<Config>(
     null as unknown as Config,
   );
-  private listTagSubject = new BehaviorSubject<Tag[]>(null as unknown as Tag[]);
-  private listStatusSubject = new BehaviorSubject<Status>(
-    null as unknown as Status,
-  );
+
   public currentConfig = this.currentConfigSubject
-    .asObservable()
-    .pipe(distinctUntilChanged());
-  public listTag = this.listTagSubject
     .asObservable()
     .pipe(distinctUntilChanged());
 
@@ -357,23 +350,21 @@ export class MainService extends BaseApiService implements OnDestroy {
   hasPermissionRole({
     type,
     role,
-    order,
+    task,
   }: {
     type: string;
     role: string;
-    order?: Order | null;
+    task?: ITask | null;
   }) {
-    // Nếu là người tạo biz | ADMIN | DEV => true
     if (
       this.biz?.user?.role === 'OWNER' ||
       ['ADMIN', 'DEV'].includes(this.user?.role)
     ) {
       return true;
     }
-    // Đơn có chi nhánh => Check quyền theo chi nhánh
-    if (type === 'order' && order?.['branch']) {
+    if (type === 'order' && task?.['branch']) {
       const branch = this.bizConfig?.staff?.branches.find(
-        (b: any) => b.id === order?.['branch'],
+        (b: any) => b.id === task?.['branch'],
       );
       if (branch?.role === 'LEADER') return true;
       return (
@@ -383,7 +374,6 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.bizConfig.staff.roleAct[role]
       );
     }
-    // K có chi nhánh => check gom quyền
     return !!(
       this.bizConfig.staff?.roleAct && this.bizConfig.staff.roleAct[role]
     );
@@ -457,21 +447,10 @@ export class MainService extends BaseApiService implements OnDestroy {
     return this.biz.users.filter((u: User) => checkboxUserIds.includes(u.id));
   }
 
-  setListStatus(statuses: Status[]) {
-    this.listStatusSubject.next(statuses);
-  }
-  setListTag(tags: Tag[]) {
-    this.listTagSubject.next(tags);
-  }
   setCurrentConfig(config: Config) {
     this.currentConfigSubject.next(config);
   }
-  setListAppointmentStatus(items: AppointmentStatus[]) {
-    this.listAppointmentStatusSubject.next(items);
-  }
-  setListAppointmentRoom(items: AppointmentRoom[]) {
-    this.listAppointmentRoomSubject.next(items);
-  }
+
   setHiddenSidebar(item: boolean) {
     this.isHiddenSidebarSubject.next(item);
   }
