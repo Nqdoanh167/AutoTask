@@ -1,7 +1,7 @@
 import {formatDate} from 'src/app/utils/formatDate';
 import {PipeTransform, Pipe} from '@angular/core';
 
-@Pipe({name: 'timeView'})
+@Pipe({name: 'timeView', standalone: true})
 export class TimeViewPipe implements PipeTransform {
   transform(time: string | Date | null | undefined): string {
     if (

@@ -29,12 +29,12 @@ import {
   CdkDropList,
 } from '@angular/cdk/drag-drop';
 import {ChainDetailComponent} from './chain-detail/chain-detail.component';
-import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {FilterDataModule} from '@share/pipe/filter-data/filter-data.module';
 import {InputMaskModule} from '@share/input/input-mask/input-mask.module';
 import {NgxMaskDirective} from 'ngx-mask';
+import {TimeViewPipe} from '@share/pipe/timeView.pipe';
 
 @NgModule({
   declarations: [
@@ -69,12 +69,12 @@ import {NgxMaskDirective} from 'ngx-mask';
     CdkDrag,
     CdkDragHandle,
     CdkDragPreview,
-    PipeTimeViewModule,
     CustomButtonLoadingComponent,
     BsDropdownModule,
     FilterDataModule,
     InputMaskModule,
     NgxMaskDirective,
+    TimeViewPipe,
   ],
 })
 export class FlowModule {}

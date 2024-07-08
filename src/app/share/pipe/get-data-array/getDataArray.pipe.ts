@@ -1,13 +1,8 @@
 import {Pipe, PipeTransform} from '@angular/core';
 
-@Pipe({name: 'getDataArray'})
+@Pipe({name: 'getDataArray', standalone: true})
 export class GetDataArrayPipe implements PipeTransform {
   transform(array: any[], key: string, valueKey: string): any {
-    console.log({
-      array,
-      key,
-      valueKey,
-    });
     return array.filter((item) => {
       if (Array.isArray(item[key])) {
         return item[key].includes(valueKey);

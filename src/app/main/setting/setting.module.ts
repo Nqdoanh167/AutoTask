@@ -4,7 +4,6 @@ import {SettingComponent} from './setting.component';
 import {SettingRoutingModule} from './setting-routing.module';
 import {DecentralizationComponent} from '@main/setting/decentralization/decentralization.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
-import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {FallbackImageModule} from '@share/directive/fallback-image/fallback-image.module';
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -32,6 +31,7 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {TreeSelectModule} from 'primeng/treeselect';
 import {GetDataArrayModule} from '@share/pipe/get-data-array/getDataArray.module';
+import {TimeViewPipe} from '@share/pipe/timeView.pipe';
 
 @NgModule({
   declarations: [
@@ -50,7 +50,6 @@ import {GetDataArrayModule} from '@share/pipe/get-data-array/getDataArray.module
     CommonModule,
     SettingRoutingModule,
     FilterTopTableComponent,
-    PipeTimeViewModule,
     FallbackImageModule,
     CustomModalComponent,
     FormsModule,
@@ -71,6 +70,7 @@ import {GetDataArrayModule} from '@share/pipe/get-data-array/getDataArray.module
     PopoverModule,
     TreeSelectModule,
     GetDataArrayModule,
+    TimeViewPipe,
   ],
 })
 export class SettingModule {}
