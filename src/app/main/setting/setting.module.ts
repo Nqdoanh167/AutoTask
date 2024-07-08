@@ -30,8 +30,8 @@ import {InputUploadModule} from '@share/input/input-upload/input-upload.module';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {TreeSelectModule} from 'primeng/treeselect';
-import {GetDataArrayModule} from '@share/pipe/get-data-array/getDataArray.module';
 import {TimeViewPipe} from '@share/pipe/timeView.pipe';
+import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
 
 @NgModule({
   declarations: [
@@ -69,8 +69,8 @@ import {TimeViewPipe} from '@share/pipe/timeView.pipe';
     BsDropdownModule,
     PopoverModule,
     TreeSelectModule,
-    GetDataArrayModule,
     TimeViewPipe,
+    GetDataArrayPipe,
   ],
 })
 export class SettingModule {}

@@ -41,6 +41,7 @@ import {CustomTabSetComponent} from '@share/common/custom-tab-set/custom-tab-set
 import {CalculateTaskDeadlinePipe} from '@share/pipe/calculate-task-deadline/calculate-task-deadline.pipe';
 import {MycurrencyPipe} from '@share/pipe/mycurrency.pipe';
 import {TimeViewPipe} from '@share/pipe/timeView.pipe';
+import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
 
 @NgModule({
   declarations: [
@@ -90,6 +91,7 @@ import {TimeViewPipe} from '@share/pipe/timeView.pipe';
     CalculateTaskDeadlinePipe,
     MycurrencyPipe,
     TimeViewPipe,
+    GetDataArrayPipe,
   ],
 })
 export class DashboardModule {}
