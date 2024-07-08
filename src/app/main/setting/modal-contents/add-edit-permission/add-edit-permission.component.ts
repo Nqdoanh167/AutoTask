@@ -58,6 +58,48 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
       name: 'Quản lý Tác vụ',
       key: EPerActType.TASK,
       isOpen: false,
+      groups: [
+        {
+          name: 'Tính năng cơ bản',
+          permissions: [
+            {
+              key: EPerActTask.VIEW_TASK,
+              name: 'Truy cập Menu Quản lý tác vụ + Xem Tác vụ',
+            },
+            {
+              key: EPerActTask.VIEW_TASK_BIZ,
+              name: 'Xem tác vụ của nhân sự cùng cấp',
+            },
+            {key: EPerActTask.CREATE_TASK, name: 'Thêm Tác vụ'},
+            {key: EPerActTask.UPDATE_TASK, name: 'Sửa Tác vụ'},
+            {key: EPerActTask.DELETE_TASK, name: 'Xóa Tác vụ'},
+          ],
+        },
+        {
+          name: 'Chi tiết Tác vụ',
+          permissions: [
+            {
+              key: EPerActTask.VIEW_INFORMATION_TASK,
+              name: 'Xem tab Thông tin, Đơn hàng & Sản phẩm',
+            },
+            {key: EPerActTask.VIEW_HISTORY_TASK, name: 'Xem tab lịch sử'},
+            {
+              key: EPerActTask.MANAGE_CHAIN,
+              name: 'Quản lý chuỗi hành động',
+            },
+            {
+              key: EPerActTask.EDIT_TIME_ACTION,
+              name: 'Quản lý chuỗi hành động  + Chỉnh thời gian kết thúc hành động',
+            },
+          ],
+        },
+        {
+          name: 'Tính năng hô trợ',
+          permissions: [
+            {key: EPerActTask.CREATE_ORDER, name: 'Tạo đơn hàng từ Tác vụ'},
+          ],
+        },
+      ],
       permissions: [
         {key: EPerActTask.VIEW_TASK, name: 'Xem Tác vụ'},
         {key: EPerActTask.VIEW_TASK_BIZ, name: 'Xem toàn bộ Task trong Biz'},
@@ -86,14 +128,60 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
       key: EPerActType.FLOW,
       isOpen: false,
       permissions: [
-        {key: EPerActFlow.VIEW_FLOW, name: 'Xem Cấu hình quy tắc & dữ liệu'},
-        {key: EPerActFlow.UPDATE_FLOW, name: 'Sửa Cấu hình quy tắc & dữ liệu'},
+        {
+          key: EPerActFlow.VIEW_FLOW,
+          name: 'Truy cập Menu Cấu hình quy tắc và dữ liệu và Xem Cấu hình quy tắc & Cấu hình dữ liệu',
+        },
+        {
+          key: EPerActFlow.UPDATE_FLOW,
+          name: 'Thêm, Sửa , Xóa Cấu hình quy tắc & Cấu hình dữ liệu',
+        },
       ],
     },
     {
       name: 'Cài đặt',
       key: EPerActType.SETTING,
       isOpen: false,
+      groups: [
+        {
+          name: 'Tính năng cơ bản',
+          permissions: [
+            {
+              key: EPerActSetting.VIEW_SOURCE_SETTING,
+              name: 'Truy cập Menu Cài đặt và Xem Nguồn dữ liệu, Tag, Phân quyền và Vai trò ',
+            },
+            {
+              key: EPerActSetting.UPDATE_SOURCE_SETTING,
+              name: 'Thêm, Sửa, Xóa Nguồn dữ liệu',
+            },
+            {
+              key: EPerActSetting.UPDATE_TAG_SETTING,
+              name: 'Thêm, Sửa, Xóa Tag',
+            },
+            {
+              key: EPerActSetting.UPDATE_ROLE_SETTING,
+              name: 'Thêm, Sửa, Xóa Vai trò',
+            },
+          ],
+        },
+        {
+          name: 'Phân quyền',
+          permissions: [
+            {
+              key: EPerActSetting.VIEW_USER_ACCESS,
+              name: 'Xem nhân sự cùng cấp',
+            },
+            {
+              key: EPerActSetting.UPDATE_USER_ACCESS,
+              name: 'Gán quyền cho nhân sự',
+            },
+            {
+              key: EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
+              name: 'Thêm, Sửa, Xóa Quyền',
+            },
+          ],
+        },
+      ],
       permissions: [
         {key: EPerActSetting.VIEW_SOURCE_SETTING, name: 'Xem Nguồn dữ liệu'},
         {key: EPerActSetting.VIEW_TAG_SETTING, name: 'Xem Tag'},

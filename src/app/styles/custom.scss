@@ -1334,6 +1334,14 @@ accordion.accordion-white {
       background-color: $white;
     }
   }
+  &.header-gray {
+    .panel {
+      border-radius: 9px;
+      .card-header {
+        background-color: $neutral-100;
+      }
+    }
+  }
 }
 
 // Other

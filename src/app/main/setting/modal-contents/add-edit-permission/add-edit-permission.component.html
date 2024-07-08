@@ -117,47 +117,92 @@
               </div>
             </div>
             <div class="functions">
-              <accordion class="accordion-white" [isAnimated]="true">
+              <accordion
+                class="accordion-white header-gray"
+                [isAnimated]="true"
+              >
                 @for (group of permissionGroups; track $index) {
                   <accordion-group [isOpen]="group.isOpen" [isDisabled]="true">
                     <div
+                      (click)="handleToggleGroup(group)"
                       accordion-heading
                       class="header-item d-flex justify-content-between align-items-center"
                     >
                       <span class="fw-bold">{{ group.name }}</span>
-                      <div class="form-check form-switch">
-                        <input
-                          checked="{{ group.isOpen ? 'checked' : null }}"
-                          class="form-check-input"
-                          type="checkbox"
-                          role="switch"
-                          (change)="handleToggleGroup(group)"
-                        />
-                      </div>
+                      <i
+                        class="me-2 fas"
+                        [ngClass]="{
+                          'fa-chevron-down': group?.isOpen,
+                          'fa-chevron-up': !group?.isOpen
+                        }"
+                      ></i>
                     </div>
                     <div class="content-group">
-                      <div class="row g-2">
-                        @for (permission of group.permissions; track $index) {
-                          <div class="col-4">
-                            <label class="basic-checkbox">
-                              <div class="ms-2">{{ permission['name'] }}</div>
-                              <input
-                                [defaultChecked]="
-                                  (
-                                    formPermissionAction(group.key)?.value || []
-                                  ).includes(permission['key'])
-                                "
-                                [value]="permission['key']"
-                                type="checkbox"
-                                (change)="
-                                  onCheckboxChange($event, permission, group)
-                                "
-                              />
-                              <span class="checkmark"></span>
-                            </label>
+                      @if (group.groups) {
+                        @for (subGr of group.groups; track $index) {
+                          <div class="sub-group mb-3">
+                            <div class="form-control-label mb-3">
+                              {{ subGr.name }}
+                            </div>
+                            <div class="row g-2">
+                              @for (
+                                permission of subGr.permissions;
+                                track $index
+                              ) {
+                                <div class="col-4">
+                                  <label class="basic-checkbox">
+                                    <div class="ms-2">
+                                      {{ permission['name'] }}
+                                    </div>
+                                    <input
+                                      [defaultChecked]="
+                                        (
+                                          formPermissionAction(group.key)
+                                            ?.value || []
+                                        ).includes(permission['key'])
+                                      "
+                                      [value]="permission['key']"
+                                      type="checkbox"
+                                      (change)="
+                                        onCheckboxChange(
+                                          $event,
+                                          permission,
+                                          group
+                                        )
+                                      "
+                                    />
+                                    <span class="checkmark"></span>
+                                  </label>
+                                </div>
+                              }
+                            </div>
                           </div>
                         }
-                      </div>
+                      } @else {
+                        <div class="row g-2">
+                          @for (permission of group.permissions; track $index) {
+                            <div class="col-6">
+                              <label class="basic-checkbox">
+                                <div class="ms-2">{{ permission['name'] }}</div>
+                                <input
+                                  [defaultChecked]="
+                                    (
+                                      formPermissionAction(group.key)?.value ||
+                                      []
+                                    ).includes(permission['key'])
+                                  "
+                                  [value]="permission['key']"
+                                  type="checkbox"
+                                  (change)="
+                                    onCheckboxChange($event, permission, group)
+                                  "
+                                />
+                                <span class="checkmark"></span>
+                              </label>
+                            </div>
+                          }
+                        </div>
+                      }
                     </div>
                   </accordion-group>
                 }

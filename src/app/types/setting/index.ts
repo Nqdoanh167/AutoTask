@@ -185,6 +185,7 @@ export interface IPermissionGroups {
   name: string;
   key: EPerActType;
   isOpen: boolean;
+  groups?: {name: string; permissions: IPermissionItem[]}[];
   permissions: IPermissionItem[];
 }
 
