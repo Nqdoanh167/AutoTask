@@ -67,7 +67,7 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
               name: 'Truy cập Menu Quản lý tác vụ + Xem Tác vụ',
             },
             {
-              key: EPerActTask.VIEW_TASK_BIZ,
+              key: EPerActTask.VIEW_TASK_SAME_LEVEL,
               name: 'Xem tác vụ của nhân sự cùng cấp',
             },
             {key: EPerActTask.CREATE_TASK, name: 'Thêm Tác vụ'},
@@ -78,10 +78,6 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
         {
           name: 'Chi tiết Tác vụ',
           permissions: [
-            {
-              key: EPerActTask.VIEW_INFORMATION_TASK,
-              name: 'Xem tab Thông tin, Đơn hàng & Sản phẩm',
-            },
             {key: EPerActTask.VIEW_HISTORY_TASK, name: 'Xem tab lịch sử'},
             {
               key: EPerActTask.MANAGE_CHAIN,
@@ -89,7 +85,7 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
             },
             {
               key: EPerActTask.EDIT_TIME_ACTION,
-              name: 'Quản lý chuỗi hành động  + Chỉnh thời gian kết thúc hành động',
+              name: 'Chỉnh thời gian kết thúc hành động',
             },
           ],
         },
@@ -98,28 +94,6 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
           permissions: [
             {key: EPerActTask.CREATE_ORDER, name: 'Tạo đơn hàng từ Tác vụ'},
           ],
-        },
-      ],
-      permissions: [
-        {key: EPerActTask.VIEW_TASK, name: 'Xem Tác vụ'},
-        {key: EPerActTask.VIEW_TASK_BIZ, name: 'Xem toàn bộ Task trong Biz'},
-        {key: EPerActTask.CREATE_TASK, name: 'Tạo Tác vụ'},
-        {key: EPerActTask.UPDATE_TASK, name: 'Cập nhật Tác vụ'},
-        {key: EPerActTask.DELETE_TASK, name: 'Xóa Tác vụ'},
-        {key: EPerActTask.VIEW_INFORMATION_TASK, name: 'Xem tab thông tin'},
-        {key: EPerActTask.VIEW_HISTORY_TASK, name: 'Xem tab lịch sử'},
-        {key: EPerActTask.CREATE_ORDER, name: 'Tạo đơn hàng'},
-        {
-          key: EPerActTask.MANAGE_CHAIN,
-          name: 'Quản lý chuỗi công việc',
-        },
-        {
-          key: EPerActTask.EDIT_TIME_ACTION,
-          name: 'Chỉnh sửa thời gian hành động',
-        },
-        {
-          key: EPerActTask.MANAGE_ACTION,
-          name: 'Quản lý hành động trong chuỗi (Không chỉnh thời gian)',
         },
       ],
     },
@@ -147,7 +121,7 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
           name: 'Tính năng cơ bản',
           permissions: [
             {
-              key: EPerActSetting.VIEW_SOURCE_SETTING,
+              key: EPerActSetting.VIEW_MASTER_DATA,
               name: 'Truy cập Menu Cài đặt và Xem Nguồn dữ liệu, Tag, Phân quyền và Vai trò ',
             },
             {
@@ -168,7 +142,7 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
           name: 'Phân quyền',
           permissions: [
             {
-              key: EPerActSetting.VIEW_USER_ACCESS,
+              key: EPerActSetting.VIEW_USER_ACCESS_SAME_LEVEL,
               name: 'Xem nhân sự cùng cấp',
             },
             {
@@ -180,40 +154,6 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
               name: 'Thêm, Sửa, Xóa Quyền',
             },
           ],
-        },
-      ],
-      permissions: [
-        {key: EPerActSetting.VIEW_SOURCE_SETTING, name: 'Xem Nguồn dữ liệu'},
-        {key: EPerActSetting.VIEW_TAG_SETTING, name: 'Xem Tag'},
-        {key: EPerActSetting.VIEW_ROLE_SETTING, name: 'Xem Vai trò'},
-        {
-          key: EPerActSetting.UPDATE_SOURCE_SETTING,
-          name: 'Thêm, Sửa, Xóa Nguồn dữ liệu',
-        },
-        {key: EPerActSetting.UPDATE_TAG_SETTING, name: 'Thêm, Sửa, Xóa Tag'},
-        {
-          key: EPerActSetting.UPDATE_ROLE_SETTING,
-          name: 'Thêm, Sửa, Xóa Vai trò',
-        },
-        {
-          key: EPerActSetting.VIEW_USER_ACCESS,
-          name: 'Xem Nhân viên',
-        },
-        {
-          key: EPerActSetting.VIEW_USER_ACCESS_BIZ,
-          name: 'Xem toàn bộ nhân sự trong Nhân viên',
-        },
-        {
-          key: EPerActSetting.UPDATE_USER_ACCESS,
-          name: 'Gán quyền cho nhân sự',
-        },
-        {
-          key: EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
-          name: 'Xem Quyền',
-        },
-        {
-          key: EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
-          name: 'Thêm, Sửa, Xóa Quyền',
         },
       ],
     },
@@ -247,6 +187,10 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.sourceData) {
+      this.tabs.push({
+        key: ETabUpdatePermissionsModal.EMPLOYEE,
+        name: 'Danh sách nhân viên',
+      });
       this.pathForm(this.sourceData);
     }
   }

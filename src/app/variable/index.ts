@@ -90,43 +90,28 @@ export const listSettingNavItems: ISidebar[] = [
     alias: ESettingTab.SOURCE,
     name: 'Nguồn dữ liệu',
     isActive: true,
-    permissions: [
-      EPerActSetting.VIEW_SOURCE_SETTING,
-      EPerActSetting.UPDATE_SOURCE_SETTING,
-    ],
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
   {
     link: `/${EModule.SETTING}/${ESettingTab.TAG}`,
     alias: ESettingTab.TAG,
     name: 'Tag',
     isActive: true,
-    permissions: [
-      EPerActSetting.VIEW_TAG_SETTING,
-      EPerActSetting.UPDATE_TAG_SETTING,
-    ],
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
   {
     link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
     alias: ESettingTab.DECENTRALIZATION,
     name: 'Phân quyền',
     isActive: true,
-    permissions: [
-      EPerActSetting.VIEW_USER_ACCESS_BIZ,
-      EPerActSetting.VIEW_USER_ACCESS,
-      EPerActSetting.UPDATE_USER_ACCESS,
-      EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
-      EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
-    ],
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
   {
     link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
     alias: ESettingTab.ROLE,
     name: 'Vai trò',
     isActive: true,
-    permissions: [
-      EPerActSetting.VIEW_ROLE_SETTING,
-      EPerActSetting.UPDATE_ROLE_SETTING,
-    ],
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
 ];
 
@@ -136,7 +121,7 @@ export const listDashboardNavItems: ISidebar[] = [
     alias: '',
     name: 'Quản lý tác vụ',
     isActive: true,
-    permissions: [EPerActTask.VIEW_TASK, EPerActTask.VIEW_TASK_BIZ],
+    permissions: [EPerActTask.VIEW_TASK, EPerActTask.VIEW_TASK_SAME_LEVEL],
   },
 ];
 
@@ -146,14 +131,14 @@ export const listConfigNavItems: ISidebar[] = [
     alias: EFlowTab.RULE,
     name: 'Cấu hình quy tắc',
     isActive: true,
-    permissions: [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW],
+    permissions: [EPerActFlow.VIEW_FLOW],
   },
   {
     link: `/${EModule.CONFIG}/${EFlowTab.DATA}`,
     alias: EFlowTab.DATA,
     name: 'Cấu hình dữ liệu',
     isActive: true,
-    permissions: [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW],
+    permissions: [EPerActFlow.VIEW_FLOW],
   },
 ];
 export const optionToCloneTask = [

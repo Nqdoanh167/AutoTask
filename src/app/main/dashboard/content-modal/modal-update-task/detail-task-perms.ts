@@ -26,10 +26,6 @@ export class DetailTaskPerms extends DetailTaskData {
 
   handleCheckPermission() {
     const taskPermissions = this.authService.getUserPerByType(EPerActType.TASK);
-    const flowPermissions = this.authService.getUserPerByType(EPerActType.FLOW);
-    const settingPermissions = this.authService.getUserPerByType(
-      EPerActType.SETTING,
-    );
     this.permissions.canEditTask = this.hasPermission(
       taskPermissions,
       EPerActTask.UPDATE_TASK,
@@ -40,52 +36,23 @@ export class DetailTaskPerms extends DetailTaskData {
     );
     this.permissions.canEditAction = this.hasPermission(
       taskPermissions,
-      EPerActTask.MANAGE_ACTION,
+      EPerActTask.MANAGE_CHAIN,
     );
     this.permissions.canEditDeadline = this.hasPermission(
       taskPermissions,
       EPerActTask.EDIT_TIME_ACTION,
     );
     if (
-      settingPermissions.some((per) =>
-        [
-          EPerActSetting.VIEW_TAG_SETTING,
-          EPerActSetting.UPDATE_TAG_SETTING,
-        ].includes(per as EPerActSetting),
+      taskPermissions.some((per) =>
+        [EPerActTask.UPDATE_TASK].includes(per as EPerActTask),
       )
     ) {
       this.getTag();
     }
-    if (
-      settingPermissions.some((per) =>
-        [
-          EPerActSetting.VIEW_SOURCE_SETTING,
-          EPerActSetting.UPDATE_SOURCE_SETTING,
-        ].includes(per as EPerActSetting),
-      )
-    ) {
-      this.getSource();
-    }
-    if (
-      settingPermissions.some((per) =>
-        [
-          EPerActSetting.VIEW_ROLE_SETTING,
-          EPerActSetting.UPDATE_ROLE_SETTING,
-        ].includes(per as EPerActSetting),
-      )
-    ) {
-      this.getAutoTaskSetting();
-    }
-    if (
-      flowPermissions.some((per) =>
-        [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW].includes(
-          per as EPerActFlow,
-        ),
-      )
-    ) {
-      this.getActionChain();
-      this.getResult();
-      this.getAction();
-    }
+    this.getSource();
+    this.getAutoTaskSetting();
+    this.getActionChain();
+    this.getResult();
+    this.getAction();
   }
 }
