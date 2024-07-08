@@ -5,14 +5,8 @@ import {IColumns, IDateRange} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {calculateTime} from '@app/utils/common';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
-import {
-  ETaskChainType,
-  ITask,
-  ITaskChain,
-  ModifiedUserUnit,
-} from '@app/types/flow';
+import {ETaskChainType, ITask, ModifiedUserUnit} from '@app/types/flow';
 import moment from 'moment/moment';
 import {cloneDeep, isEqual} from 'lodash';
 import {
@@ -50,11 +44,6 @@ export class DashboardComponent
 
   public multipleAction = TASK_MULTIPLE_ACTIONS;
   public currentActiveViewMode?: IViewModeDto;
-  // public dataSource$ = interval(10000)
-  //   .pipe(takeUntil(this.destroy$))
-  //   .subscribe(() => {
-  //     this.dataSource.rows = this.runTimer();
-  //   });
   public dataColumnsShow!: IColumns[];
   public units = this.autoTaskService.getUserUnits(false);
   public selectedUnits: ModifiedUserUnit[] = [];
@@ -233,41 +222,6 @@ export class DashboardComponent
     this.autoTaskService.setCurrentActiveViewMode(changedTab);
   }
 
-  runTimer() {
-    return cloneDeep(this.item.rows);
-  }
-
-  calculateTimeLeft(date: Date, taskChain: ITaskChain) {
-    let data = {
-      timeLeft: '',
-      typeOverDeadline: 'notOver',
-    };
-    const subDate = calculateTime(date, new Date(), 'metrics') as {
-      days?: number;
-      hours?: number;
-      minutes?: number;
-    };
-    const isCloseTask = taskChain?.status === ETaskChainType.CLOSED;
-    if (subDate.days === 0 && subDate.hours === 0 && subDate.minutes === 0) {
-      data.typeOverDeadline = 'now';
-    } else if (moment().isAfter(date)) {
-      data.typeOverDeadline = 'over';
-
-      data.timeLeft = calculateTime(
-        isCloseTask ? taskChain.updatedAt : new Date(),
-        date,
-      ) as string;
-    }
-    if (data.typeOverDeadline !== 'over') {
-      data.timeLeft = calculateTime(
-        date,
-        isCloseTask ? taskChain.updatedAt : new Date(),
-      ) as string;
-    }
-
-    return data;
-  }
-
   changeSort(type: string) {
     if (this.sort[type] == 0) {
       this.sort[type] = 1;
@@ -345,7 +299,7 @@ export class DashboardComponent
         finalize(() => (this.item.loading = false)),
       )
       .subscribe({
-        next: (res) => {
+        next: () => {
           this.commonService.handleResSuccess('clone');
           this.getDataSource();
         },

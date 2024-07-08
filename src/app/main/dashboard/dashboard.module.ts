@@ -41,6 +41,7 @@ import {TreeSelectModule} from 'primeng/treeselect';
 import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
 import {CustomTabSetComponent} from '@share/common/custom-tab-set/custom-tab-set.component';
 import {GetDataArrayModule} from '@share/pipe/get-data-array/getDataArray.module';
+import {CalculateTaskDeadlinePipe} from '@share/pipe/calculate-task-deadline/calculate-task-deadline.pipe';
 
 @NgModule({
   declarations: [
@@ -90,6 +91,7 @@ import {GetDataArrayModule} from '@share/pipe/get-data-array/getDataArray.module
     CustomSelectSearchComponent,
     CustomTabSetComponent,
     GetDataArrayModule,
+    CalculateTaskDeadlinePipe,
   ],
 })
 export class DashboardModule {}
