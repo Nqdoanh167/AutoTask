@@ -137,7 +137,7 @@ export class ModalUpdateTaskComponent
   getTaskByCode() {
     this.loading.getDetail = true;
     this.autoTaskService.task
-      .get({filter: JSON.stringify({codeIn: [this.code], page: 1, limit: 1})})
+      .get({filter: JSON.stringify({codeIn: [this.code]}), page: 1, limit: 1})
       .pipe(
         finalize(() => (this.loading.getDetail = false)),
         takeUntil(this.destroy$),
