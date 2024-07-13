@@ -109,7 +109,10 @@ export class ModalUpdateTaskComponent
     this.loading.getDetail = true;
     this.autoTaskService.task
       .getOne(this.sourceData?.id ?? this.taskId!)
-      .pipe(finalize(() => (this.loading.getDetail = false)))
+      .pipe(
+        finalize(() => (this.loading.getDetail = false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -134,8 +137,11 @@ export class ModalUpdateTaskComponent
   getTaskByCode() {
     this.loading.getDetail = true;
     this.autoTaskService.task
-      .get({filter: JSON.stringify({codeIn: [this.code]})})
-      .pipe(finalize(() => (this.loading.getDetail = false)))
+      .get({filter: JSON.stringify({codeIn: [this.code], page: 1, limit: 1})})
+      .pipe(
+        finalize(() => (this.loading.getDetail = false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (res) => {
           const detailTask = res?.data?.[0];
@@ -211,7 +217,7 @@ export class ModalUpdateTaskComponent
     return new Promise((resolve, reject) => {
       this.autoTaskService.source
         .create(this.updateForm.value.sourceForm as unknown as IUpdateSourceDto)
-        .pipe(take(1))
+        .pipe(take(1), takeUntil(this.destroy$))
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
@@ -265,8 +271,8 @@ export class ModalUpdateTaskComponent
         this.autoTaskService.task
           .update(this.sourceData.id, body)
           .pipe(
-            takeUntil(this.destroy$),
             finalize(() => (this.loading.submit = false)),
+            takeUntil(this.destroy$),
           )
           .subscribe({
             next: (res) => {
@@ -302,8 +308,8 @@ export class ModalUpdateTaskComponent
         this.autoTaskService.task
           .create(body)
           .pipe(
-            takeUntil(this.destroy$),
             finalize(() => (this.loading.submit = false)),
+            takeUntil(this.destroy$),
           )
           .subscribe({
             next: (res) => {
@@ -393,18 +399,21 @@ export class ModalUpdateTaskComponent
   onDeleteTask(value: ITask) {
     if (!value?.id) return;
     this.loading.deleteTask = true;
-    this.autoTaskService.task.delete(value.id).subscribe({
-      next: (res) => {
-        if (res.status === 200) {
-          this.commonService.handleResSuccess('delete');
-          this.updateSuccess.emit();
-          this.hideModal();
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      error: (err) => this.commonService.handleErr(err),
-    });
+    this.autoTaskService.task
+      .delete(value.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('delete');
+            this.updateSuccess.emit();
+            this.hideModal();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
   }
 
   hideModal(): void {
@@ -419,13 +428,15 @@ export class ModalUpdateTaskComponent
         class: 'modal-dialog-centered modal-add-chain',
       },
     );
-    this.addTaskChainModalRef?.onHide?.pipe().subscribe(() => {
-      this.isOpenBackDrop = false;
-      this.submittedModal.addTaskChain = false;
-      this.addTaskChainForm.patchValue({
-        addChainActIds: null,
+    this.addTaskChainModalRef?.onHide
+      ?.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.isOpenBackDrop = false;
+        this.submittedModal.addTaskChain = false;
+        this.addTaskChainForm.patchValue({
+          addChainActIds: null,
+        });
       });
-    });
   }
 
   onAddTaskChain() {
@@ -440,7 +451,10 @@ export class ModalUpdateTaskComponent
       this.loading.addTaskChain = true;
       this.autoTaskService.task
         .updateTaskChain(this.sourceData.id!, body)
-        .pipe(finalize(() => (this.loading.addTaskChain = false)))
+        .pipe(
+          finalize(() => (this.loading.addTaskChain = false)),
+          takeUntil(this.destroy$),
+        )
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
@@ -510,7 +524,7 @@ export class ModalUpdateTaskComponent
   onCloseChain(value: ITaskChain) {
     this.autoTaskService.taskChain
       .closeChain(value.id)
-      .pipe()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -563,7 +577,7 @@ export class ModalUpdateTaskComponent
   onDeleteChain(value: ITaskChain) {
     this.autoTaskService.taskChain
       .delete(value.id)
-      .pipe()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -628,10 +642,10 @@ export class ModalUpdateTaskComponent
       },
     );
     modalUpdateNextStep.onHide
-      ?.pipe()
+      ?.pipe(takeUntil(this.destroy$))
       .subscribe(() => (this.isOpenBackDrop = false));
     modalUpdateNextStep.content?.updateSuccess
-      .pipe()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((dataStepForm) => {
         try {
           if (value) {
@@ -694,32 +708,35 @@ export class ModalUpdateTaskComponent
       return;
     }
     this.loading.createOrder = true;
-    this.autoTaskService.task.createOrder(this.sourceData?.id!).subscribe({
-      next: (res) => {
-        if (res.status === 200) {
-          this.commonService.handleResSuccess(
-            undefined,
-            'Tạo đơn hàng thành công',
-          );
-          this.updateSuccess.emit();
-          this.getDetailTask();
-        } else {
-          if (res.data as any) {
-            res.data?.forEach((err: any) => {
-              if (err.response) {
-                this.toastr.error(err.response.message);
-                return;
-              }
-            });
+    this.autoTaskService.task
+      .createOrder(this.sourceData?.id!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess(
+              undefined,
+              'Tạo đơn hàng thành công',
+            );
+            this.updateSuccess.emit();
+            this.getDetailTask();
           } else {
-            this.commonService.handleResErr(res);
+            if (res.data as any) {
+              res.data?.forEach((err: any) => {
+                if (err.response) {
+                  this.toastr.error(err.response.message);
+                  return;
+                }
+              });
+            } else {
+              this.commonService.handleResErr(res);
+            }
           }
-        }
-      },
-      error: (err) => {
-        this.commonService.handleErr(err);
-      },
-    });
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
   }
 
   handleCall() {
@@ -739,7 +756,7 @@ export class ModalUpdateTaskComponent
         ignoreBackdropClick: true,
         keyboard: false,
       });
-      modalCall.onHide?.pipe().subscribe(() => {
+      modalCall.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.isOpenBackDrop = false;
       });
     } catch (e) {

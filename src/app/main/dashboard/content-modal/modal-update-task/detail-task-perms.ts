@@ -1,9 +1,4 @@
-import {
-  EPerActFlow,
-  EPerActSetting,
-  EPerActTask,
-  EPerActType,
-} from '@app/types/setting';
+import {EPerActTask, EPerActType} from '@app/types/setting';
 import {DetailTaskData} from '@main/dashboard/content-modal/modal-update-task/detail-task-data';
 
 export class DetailTaskPerms extends DetailTaskData {
