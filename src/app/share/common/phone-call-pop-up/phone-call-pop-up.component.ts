@@ -78,7 +78,7 @@ export class PhoneCallPopUpComponent
 
     // setTimeout(() => {
     //   this.phoneCallService.setIncomingCall({number: '0123456789'});
-    // }, 10000);
+    // }, 5000);
   }
 
   handleChangePhoneStatus(status: 'answer' | 'end') {

@@ -69,7 +69,11 @@
           </button>
         </div>
       </div>
-      <div class="bubble-toggle" (click)="togglePopUp()">
+      <div
+        class="bubble-toggle"
+        [class.ringing]="!showPopup"
+        (click)="togglePopUp()"
+      >
         <div [class.show]="showPopup" class="bubble-icon">
           <i class="fa-solid fa-phone"></i>
           <i class="fa-solid fa-xmark"></i>
