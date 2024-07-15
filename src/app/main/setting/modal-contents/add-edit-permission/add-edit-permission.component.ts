@@ -269,9 +269,6 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   handleToggleGroup(group: IPermissionGroups) {
     group.isOpen = !group.isOpen;
-    const {key} = group;
-    this.updateForm.get(`permissionAction.${key}`)?.setValue(null);
-    this.cdr.detectChanges();
   }
 
   onCheckboxChange(
