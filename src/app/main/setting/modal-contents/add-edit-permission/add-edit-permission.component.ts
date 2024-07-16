@@ -37,7 +37,6 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   public tabs = [
     {key: ETabUpdatePermissionsModal.INFORMATION, name: 'Thông tin'},
-    {key: ETabUpdatePermissionsModal.EMPLOYEE, name: 'Danh sách nhân viên'},
   ];
   public activeTab: ETabUpdatePermissionsModal =
     ETabUpdatePermissionsModal.INFORMATION;
