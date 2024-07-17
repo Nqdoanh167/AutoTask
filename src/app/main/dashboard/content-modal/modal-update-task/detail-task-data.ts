@@ -172,6 +172,7 @@ export class DetailTaskData extends BaseComponentsComponent {
       value: ETabTaskDetail.ORDER,
     },
   ];
+  protected usersByRole = [];
 
   constructor() {
     super();

@@ -208,6 +208,14 @@ export class AuthService {
     return users?.filter((user) => colleagueIds.includes(user.id));
   }
 
+  // get user's permission in branch/department/team
+  getInfoInUnit(id?: string | null) {
+    if (!id) return;
+    const currentBiz = this.currentBizSubject.getValue();
+    const flatBranches = currentBiz.user?.flatBranches;
+    return flatBranches?.find((unit) => unit.id === id);
+  }
+
   isOwner(): boolean {
     return this.currentBizSubject?.value?.user.role == ERole.OWNER;
   }

@@ -1,5 +1,7 @@
 import {EPerActTask, EPerActType} from '@app/types/setting';
 import {DetailTaskData} from '@main/dashboard/content-modal/modal-update-task/detail-task-data';
+import {ERole, FlatBranch} from '@app/types/viewmodels';
+import {BehaviorSubject, Observable} from 'rxjs';
 
 export class DetailTaskPerms extends DetailTaskData {
   public permissions = {
@@ -10,6 +12,7 @@ export class DetailTaskPerms extends DetailTaskData {
     canEditTask: false,
     canGetTag: false,
   };
+  public infoUnit$ = new BehaviorSubject<FlatBranch | undefined>(undefined);
 
   constructor() {
     super();
@@ -17,6 +20,10 @@ export class DetailTaskPerms extends DetailTaskData {
 
   private hasPermission(permissions: any[], permission: any): boolean {
     return permissions?.some((per) => per === permission);
+  }
+
+  getInfoUnit(id?: string | null) {
+    this.infoUnit$.next(this.authService.getInfoInUnit(id));
   }
 
   handleCheckPermission() {

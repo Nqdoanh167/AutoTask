@@ -121,6 +121,12 @@ export interface IPosLastBranches {
   departments: string[];
   userIds: string[];
 }
+export interface FlatBranch {
+  id: string;
+  name: string;
+  role: ERole;
+  userIds: string[]; // all user in this unit
+}
 
 export interface User {
   id: string;
@@ -146,6 +152,7 @@ export interface User {
   branches: Branch[];
   roleBranches: Branch[];
   posLastBranches: IPosLastBranches[];
+  flatBranches: FlatBranch[];
   branchIds: string[];
   groups?: BizGroup[];
   roleIds?: string[];
@@ -828,6 +835,7 @@ export interface IColumns {
 export enum ERole {
   OWNER = 'OWNER',
   DEV = 'DEV',
+  MEMBER = 'MEMBER',
 }
 
 export interface AppointmentStatus {

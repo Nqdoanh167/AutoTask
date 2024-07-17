@@ -46,6 +46,8 @@
                       'is-invalid': submitted && f['branch'].errors
                     }"
                     placeholder="Chọn Đơn vị..."
+                    (onNodeSelect)="handleChangeUnit($event)"
+                    (onNodeUnselect)="handleChangeUnit($event)"
                   ></p-treeSelect>
                 </div>
                 <ng-select
@@ -243,41 +245,55 @@
                             role="menu"
                             aria-labelledby="button-select-role"
                           >
-                            <li
-                              role="menuitem"
-                              class="item-user-dropdown"
-                              [class.selected]="
-                                item.id === settingRole.value.userId
-                              "
-                              *ngFor="
-                                let item of listBizUsers
-                                  | getDataArray
-                                    : 'roleIds'
-                                    : settingRole.value.roleId
-                              "
-                              [class.disabled]="!item.isActive"
-                              (click)="
-                                item.id === settingRole.value.userId
-                                  ? onRemoveTeam(settingRoleIndex)
-                                  : onChooseTeam(settingRoleIndex, item)
-                              "
-                            >
-                              <div
-                                class="d-flex align-items-center p-3 cursor-pointer"
-                              >
-                                <div>
-                                  <img
-                                    class="avatar me-2"
-                                    src="{{ item.picture }}"
-                                    fallback="assets/images/avatar.svg"
-                                    alt=""
-                                  />
-                                </div>
-                                <div class="text-truncate">
-                                  {{ item.name }}
-                                </div>
-                              </div>
-                            </li>
+                            @if (infoUnit$ | async; as infoUnit) {
+                              @if (
+                                infoUnit?.role === ERole.OWNER
+                                  ? listBizUsers
+                                  : [currentUser];
+                                as users
+                              ) {
+                                @for (
+                                  item of users
+                                    | getDataArray
+                                      : 'id'
+                                      : infoUnit?.userIds || []
+                                    | getDataArray
+                                      : 'roleIds'
+                                      : settingRole.value.roleId;
+                                  track 'id'
+                                ) {
+                                  <li
+                                    role="menuitem"
+                                    class="item-user-dropdown"
+                                    [class.selected]="
+                                      item.id === settingRole.value.userId
+                                    "
+                                    [class.disabled]="!item.isActive"
+                                    (click)="
+                                      item.id === settingRole.value.userId
+                                        ? onRemoveTeam(settingRoleIndex)
+                                        : onChooseTeam(settingRoleIndex, item)
+                                    "
+                                  >
+                                    <div
+                                      class="d-flex align-items-center p-3 cursor-pointer"
+                                    >
+                                      <div>
+                                        <img
+                                          class="avatar me-2"
+                                          src="{{ item.picture }}"
+                                          fallback="assets/images/avatar.svg"
+                                          alt=""
+                                        />
+                                      </div>
+                                      <div class="text-truncate">
+                                        {{ item.name }}
+                                      </div>
+                                    </div>
+                                  </li>
+                                }
+                              }
+                            }
                           </ul>
                         </div>
                         <div class="action-reload">

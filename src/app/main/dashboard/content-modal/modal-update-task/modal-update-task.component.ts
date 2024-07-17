@@ -15,11 +15,12 @@ import {
   ITaskChain,
   ITaskChainResult,
   ITaskDto,
+  ModifiedUserUnit,
 } from '@app/types/flow';
 import {finalize, take, takeUntil} from 'rxjs';
 import {FormArray, FormGroup, ValidationErrors} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {ESocialPlatform, ITag, User} from '@app/types/viewmodels';
+import {ERole, ESocialPlatform, ITag, User} from '@app/types/viewmodels';
 import {intersection} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
@@ -33,6 +34,7 @@ import {NgSelectComponent} from '@ng-select/ng-select';
 import {ETabTaskDetail} from '@app/types/task';
 import {MainService} from '@app/services/api/main.service';
 import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
+import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -91,6 +93,10 @@ export class ModalUpdateTaskComponent
     this.handleCheckPermission();
     if (this.sourceData) {
       this.patchForm(this.sourceData);
+      if (this.sourceData.branch) {
+        const {branch} = this.sourceData;
+        this.getInfoUnit(branch?.team || branch?.department || branch?.id);
+      }
     } else {
       this.updateForm.patchValue({
         branch: this.autoTaskService.getFirstUnit(),
@@ -769,6 +775,11 @@ export class ModalUpdateTaskComponent
     this.toastr.success('Sao chép thành công');
   }
 
+  handleChangeUnit(value: TreeNodeSelectEvent | TreeNodeUnSelectEvent) {
+    const node = value.node as ModifiedUserUnit;
+    this.getInfoUnit(node?.team || node?.department || node?.id);
+  }
+
   handleChangeChatLink() {
     const chatLink = this.updateForm.value?.chatLink;
     if (chatLink) {
@@ -841,4 +852,6 @@ export class ModalUpdateTaskComponent
       }
     }
   }
+
+  protected readonly ERole = ERole;
 }
