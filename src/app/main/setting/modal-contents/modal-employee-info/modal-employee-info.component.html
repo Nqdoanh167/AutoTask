@@ -144,12 +144,11 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <ng-container
-                      *ngFor="
-                        let control of updateForm.get('branches')?.value;
-                        let index = index
-                      "
-                    >
+                    @for (
+                      control of $any(updateForm.get('branches')?.value);
+                      track index;
+                      let index = $index
+                    ) {
                       <tr>
                         <td>
                           <ng-template
@@ -160,70 +159,56 @@
                           ></ng-template>
                         </td>
                         <td>
-                          <ng-container
-                            *ngIf="
-                              control.role !== 'OWNER';
-                              else tempBranchOwner
-                            "
-                          >
-                            <ng-container
-                              *ngFor="
-                                let controlDepartment of control.departments;
-                                let deIndex = index
-                              "
-                            >
-                              <ng-container
-                                *ngIf="controlDepartment.teams.length"
-                              >
-                                <ng-container
-                                  *ngFor="
-                                    let controlTeam of controlDepartment.teams;
-                                    let teIndex = index
-                                  "
-                                >
-                                  <ng-container *ngIf="teIndex === 0">
-                                    <ng-template
-                                      *ngTemplateOutlet="
-                                        tdBranchDepartment;
-                                        context: {
-                                          control,
-                                          controlDepartment,
-                                          index,
-                                          deIndex,
-                                          teIndex
-                                        }
-                                      "
-                                    ></ng-template>
-                                  </ng-container>
+                          @if (control.role !== 'OWNER') {
+                            @for (
+                              controlDepartment of control.departments;
+                              track deIndex;
+                              let deIndex = $index
+                            ) {
+                              @if (controlDepartment.teams.length) {
+                                @for (
+                                  controlTeam of controlDepartment.teams;
+                                  track teIndex;
+                                  let teIndex = $index
+                                ) {
+                                  <ng-container>
+                                    @if (teIndex === 0) {
+                                      <ng-template
+                                        *ngTemplateOutlet="
+                                          tdBranchDepartment;
+                                          context: {
+                                            control,
+                                            controlDepartment,
+                                            index,
+                                            deIndex,
+                                            teIndex
+                                          }
+                                        "
+                                      ></ng-template>
+                                    }
 
-                                  <ng-container
-                                    *ngIf="controlDepartment.role !== 'OWNER'"
-                                  >
-                                    <ng-container
-                                      *ngIf="
+                                    @if (controlDepartment.role !== 'OWNER') {
+                                      @if (
                                         teIndex > 0 &&
                                         control.departments[deIndex + 1]
-                                      "
-                                    >
-                                      <div
-                                        class="td department frame"
-                                        [ngClass]="{
-                                          'end-frame':
-                                            teIndex ===
-                                            controlDepartment.teams.length - 1,
-                                          end:
-                                            teIndex ===
-                                            controlDepartment.teams.length - 1
-                                        }"
-                                      ></div>
-                                    </ng-container>
+                                      ) {
+                                        <div
+                                          class="td department frame"
+                                          [ngClass]="{
+                                            'end-frame':
+                                              teIndex ===
+                                              controlDepartment.teams.length -
+                                                1,
+                                            end:
+                                              teIndex ===
+                                              controlDepartment.teams.length - 1
+                                          }"
+                                        ></div>
+                                      }
+                                    }
                                   </ng-container>
-                                </ng-container>
-                              </ng-container>
-
-                              <ng-container
-                                *ngIf="!controlDepartment.teams.length"
-                              >
+                                }
+                              } @else {
                                 <ng-template
                                   *ngTemplateOutlet="
                                     tdBranchDepartment;
@@ -236,35 +221,27 @@
                                     }
                                   "
                                 ></ng-template>
-                              </ng-container>
-                            </ng-container>
-                          </ng-container>
+                              }
+                            }
+                          } @else {
+                            <ng-container
+                              [ngTemplateOutlet]="tempBranchOwner"
+                            ></ng-container>
+                          }
                         </td>
                         <td>
-                          <ng-container
-                            *ngIf="
-                              control.role !== 'OWNER';
-                              else tempBranchOwner
-                            "
-                          >
-                            <ng-container
-                              *ngFor="
-                                let controlDepartment of control.departments;
-                                let deIndex = index
-                              "
-                            >
-                              <ng-container
-                                *ngIf="
-                                  controlDepartment.role !== 'OWNER';
-                                  else tempBranchOwner
-                                "
-                              >
-                                <ng-container
-                                  *ngFor="
-                                    let controlTeam of controlDepartment.teams;
-                                    let teIndex = index
-                                  "
-                                >
+                          @if (control.role !== 'OWNER') {
+                            @for (
+                              controlDepartment of control.departments;
+                              track deIndex;
+                              let deIndex = $index
+                            ) {
+                              @if (controlDepartment.role !== 'OWNER') {
+                                @for (
+                                  controlTeam of controlDepartment.teams;
+                                  track teIndex;
+                                  let teIndex = $index
+                                ) {
                                   <div
                                     class="td department"
                                     [ngClass]="{
@@ -279,18 +256,20 @@
                                         controlDepartment.teams.length - 1
                                     }"
                                   >
-                                    <ng-container *ngIf="controlTeam.id">
+                                    @if (controlTeam.id) {
                                       <div class="dot"></div>
                                       <div class="d-flex align-items-center">
-                                        <div
-                                          *ngIf="controlTeam.role === 'OWNER'"
-                                          class="role me-1"
-                                          tooltip="Quản trị đội nhóm"
-                                        >
-                                          <i
-                                            class="fa-solid fa-user-shield text-primary"
-                                          ></i>
-                                        </div>
+                                        @if (controlTeam.role === 'OWNER') {
+                                          <div
+                                            class="role me-1"
+                                            tooltip="Quản trị đội nhóm"
+                                          >
+                                            <i
+                                              class="fa-solid fa-user-shield text-primary"
+                                            ></i>
+                                          </div>
+                                        }
+
                                         <div
                                           class="w-100"
                                           style="max-width: 350px"
@@ -304,30 +283,34 @@
                                           />
                                         </div>
                                       </div>
-                                    </ng-container>
+                                    }
                                   </div>
-                                </ng-container>
-                              </ng-container>
-                            </ng-container>
-                          </ng-container>
+                                }
+                              } @else {
+                                <ng-container
+                                  [ngTemplateOutlet]="tempBranchOwner"
+                                ></ng-container>
+                              }
+                            }
+                          } @else {
+                            <ng-container
+                              [ngTemplateOutlet]="tempBranchOwner"
+                            ></ng-container>
+                          }
                         </td>
                         <td>
-                          <ng-container *ngIf="control.role !== 'OWNER'">
-                            <ng-container
-                              *ngFor="
-                                let controlDepartment of control.departments;
-                                let deIndex = index
-                              "
-                            >
-                              <ng-container
-                                *ngIf="controlDepartment.role !== 'OWNER'"
-                              >
-                                <ng-container
-                                  *ngFor="
-                                    let controlTeam of controlDepartment.teams;
-                                    let teIndex = index
-                                  "
-                                >
+                          @if (control.role !== 'OWNER') {
+                            @for (
+                              controlDepartment of control.departments;
+                              track deIndex;
+                              let deIndex = $index
+                            ) {
+                              @if (controlDepartment.role !== 'OWNER') {
+                                @for (
+                                  controlTeam of controlDepartment.teams;
+                                  track teIndex;
+                                  let teIndex = $index
+                                ) {
                                   <ng-template
                                     *ngTemplateOutlet="
                                       tdPermission;
@@ -350,14 +333,12 @@
                                       }
                                     "
                                   ></ng-template>
-                                </ng-container>
-                              </ng-container>
-                              <ng-container
-                                *ngIf="
-                                  controlDepartment.role === 'OWNER' ||
-                                  !controlDepartment.teams.length
-                                "
-                              >
+                                }
+                              }
+                              @if (
+                                controlDepartment.role === 'OWNER' ||
+                                !controlDepartment.teams.length
+                              ) {
                                 <ng-template
                                   *ngTemplateOutlet="
                                     tdPermission;
@@ -373,15 +354,13 @@
                                     }
                                   "
                                 ></ng-template>
-                              </ng-container>
-                            </ng-container>
-                          </ng-container>
-                          <ng-container
-                            *ngIf="
-                              !control.departments?.length ||
-                              control.role === 'OWNER'
-                            "
-                          >
+                              }
+                            }
+                          }
+                          @if (
+                            !control.departments?.length ||
+                            control.role === 'OWNER'
+                          ) {
                             <ng-template
                               *ngTemplateOutlet="
                                 tdPermission;
@@ -397,10 +376,10 @@
                                 }
                               "
                             ></ng-template>
-                          </ng-container>
+                          }
                         </td>
                       </tr>
-                    </ng-container>
+                    }
                   </tbody>
                 </table>
               </div>
@@ -541,4 +520,11 @@
     <div class="dot"></div>
     Quản trị
   </div>
+</ng-template>
+
+<ng-template #tempNon>
+  <div
+    class="td department start end text-secondary"
+    style="padding-top: 13px; height: 43px"
+  ></div>
 </ng-template>

@@ -160,6 +160,7 @@ export class EmployeeComponent
       return {
         ...property,
         ...aclProperty,
+        role: property?.role || aclProperty?.role,
         departments: this.mapProperties<UserAclDepartment>(
           property?.departments,
           aclProperty?.departments,
