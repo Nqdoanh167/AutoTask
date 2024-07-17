@@ -285,12 +285,20 @@
                                       </div>
                                     }
                                   </div>
+                                } @empty {
+                                  <ng-container
+                                    [ngTemplateOutlet]="tempNon"
+                                  ></ng-container>
                                 }
                               } @else {
                                 <ng-container
                                   [ngTemplateOutlet]="tempBranchOwner"
                                 ></ng-container>
                               }
+                            } @empty {
+                              <ng-container
+                                [ngTemplateOutlet]="tempNon"
+                              ></ng-container>
                             }
                           } @else {
                             <ng-container
