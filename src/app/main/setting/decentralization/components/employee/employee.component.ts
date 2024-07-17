@@ -164,6 +164,10 @@ export class EmployeeComponent
           property?.departments,
           aclProperty?.departments,
         ),
+        teams: this.mapProperties<UserAclTeam>(
+          property?.teams,
+          aclProperty?.teams,
+        ),
       };
     });
   }
