@@ -150,18 +150,30 @@
                                 track $index
                               ) {
                                 <div class="col-4">
-                                  <label class="basic-checkbox">
+                                  <label
+                                    class="basic-checkbox"
+                                    [class.disabled]="
+                                      !permission.isRootPer &&
+                                      !formPermissionAction(group.key)?.value
+                                        ?.length
+                                    "
+                                  >
                                     <div class="ms-2">
                                       {{ permission['name'] }}
                                     </div>
                                     <input
-                                      [defaultChecked]="
+                                      [checked]="
                                         (
                                           formPermissionAction(group.key)
                                             ?.value || []
                                         ).includes(permission['key'])
                                       "
                                       [value]="permission['key']"
+                                      [disabled]="
+                                        !permission.isRootPer &&
+                                        !formPermissionAction(group.key)?.value
+                                          ?.length
+                                      "
                                       type="checkbox"
                                       (change)="
                                         onCheckboxChange(
@@ -182,10 +194,17 @@
                         <div class="row g-2">
                           @for (permission of group.permissions; track $index) {
                             <div class="col-6">
-                              <label class="basic-checkbox">
+                              <label
+                                class="basic-checkbox"
+                                [class.disabled]="
+                                  !permission.isRootPer &&
+                                  !formPermissionAction(group.key)?.value
+                                    ?.length
+                                "
+                              >
                                 <div class="ms-2">{{ permission['name'] }}</div>
                                 <input
-                                  [defaultChecked]="
+                                  [checked]="
                                     (
                                       formPermissionAction(group.key)?.value ||
                                       []
@@ -195,6 +214,11 @@
                                   type="checkbox"
                                   (change)="
                                     onCheckboxChange($event, permission, group)
+                                  "
+                                  [disabled]="
+                                    !permission.isRootPer &&
+                                    !formPermissionAction(group.key)?.value
+                                      ?.length
                                   "
                                 />
                                 <span class="checkmark"></span>

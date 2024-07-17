@@ -64,6 +64,7 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
             {
               key: EPerActTask.VIEW_TASK,
               name: 'Truy cập Menu Quản lý tác vụ + Xem Tác vụ',
+              isRootPer: true,
             },
             {
               key: EPerActTask.VIEW_TASK_SAME_LEVEL,
@@ -104,6 +105,7 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
         {
           key: EPerActFlow.VIEW_FLOW,
           name: 'Truy cập Menu Cấu hình quy tắc và dữ liệu và Xem Cấu hình quy tắc & Cấu hình dữ liệu',
+          isRootPer: true,
         },
         {
           key: EPerActFlow.UPDATE_FLOW,
@@ -122,6 +124,7 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
             {
               key: EPerActSetting.VIEW_MASTER_DATA,
               name: 'Truy cập Menu Cài đặt và Xem Nguồn dữ liệu, Tag, Phân quyền và Vai trò ',
+              isRootPer: true,
             },
             {
               key: EPerActSetting.UPDATE_SOURCE_SETTING,
@@ -275,20 +278,27 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
     permission: IPermissionItem,
     group: IPermissionGroups,
   ) {
-    const {checked} = event.target as HTMLInputElement;
-    const value: string[] =
-      this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
-    if (checked) {
-      value.push(permission.key);
-    } else {
-      const index = value.indexOf(permission.key);
-      if (index > -1) {
-        value.splice(index, 1);
+    try {
+      const {checked} = event.target as HTMLInputElement;
+      let value: string[] =
+        this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
+      if (checked) {
+        value.push(permission.key);
+      } else {
+        const index = value.indexOf(permission.key);
+        if (index > -1) {
+          value.splice(index, 1);
+        }
+        if (permission.isRootPer) {
+          value = [];
+        }
       }
+      this.updateForm
+        .get(`permissionAction.${group.key}`)
+        ?.setValue(value as any);
+    } catch (e) {
+      console.log(e);
     }
-    this.updateForm
-      .get(`permissionAction.${group.key}`)
-      ?.setValue(value as any);
   }
 
   ngOnDestroy() {

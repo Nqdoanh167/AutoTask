@@ -172,6 +172,7 @@ export enum EPerActType {
 export interface IPermissionItem {
   key: EPerActSetting | EPerActFlow | EPerActTask;
   name: string;
+  isRootPer?: boolean;
 }
 
 export interface IPermissionGroups {
