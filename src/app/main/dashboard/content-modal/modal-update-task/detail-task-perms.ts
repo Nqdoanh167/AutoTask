@@ -1,7 +1,7 @@
 import {EPerActTask, EPerActType} from '@app/types/setting';
 import {DetailTaskData} from '@main/dashboard/content-modal/modal-update-task/detail-task-data';
-import {ERole, FlatBranch} from '@app/types/viewmodels';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {FlatBranch} from '@app/types/viewmodels';
+import {BehaviorSubject} from 'rxjs';
 
 export class DetailTaskPerms extends DetailTaskData {
   public permissions = {

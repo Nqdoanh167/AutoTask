@@ -69,6 +69,8 @@ export class ModalUpdateTaskComponent
 
   protected readonly ETabTaskDetail = ETabTaskDetail;
   protected readonly ETaskChainType = ETaskChainType;
+  protected hasPermitSmsOttCall = false;
+  protected readonly ERole = ERole;
 
   constructor(
     private readonly modalRef: BsModalRef,
@@ -90,6 +92,9 @@ export class ModalUpdateTaskComponent
   }
 
   ngOnInit() {
+    this.hasPermitSmsOttCall = !!this.currentBiz?.modules?.find(
+      (el) => el.alias === 'sms-ott-call',
+    );
     this.handleCheckPermission();
     if (this.sourceData) {
       this.patchForm(this.sourceData);
@@ -746,6 +751,12 @@ export class ModalUpdateTaskComponent
   }
 
   handleCall() {
+    if (!this.hasPermitSmsOttCall) {
+      this.toastr.warning(
+        'Bạn không có quyền sử dụng module SMS-OTT-CALL. Vui lòng liên hệ quản trị viên để được hỗ trợ.',
+      );
+      return;
+    }
     try {
       const {phone} = this.formLeadDeal.value;
       if (!phone) {
@@ -852,6 +863,4 @@ export class ModalUpdateTaskComponent
       }
     }
   }
-
-  protected readonly ERole = ERole;
 }
