@@ -78,43 +78,6 @@
             </div>
             <div class="mb-3">
               <span class="headline">Chức năng</span>
-              <div class="state-warning">
-                <p class="fw-500 mb-2">Lưu ý:</p>
-                <ul [style.list-style-type]="'circle'" class="ps-3">
-                  <li>
-                    Các tính năng
-                    <b>Thêm, Sửa, Xóa</b>
-                    đã bao gồm tính năng
-                    <b>Xem</b>
-                    tương ứng. VD: Nhân sự có quyền Thêm Tác vụ sẽ có quyền Xem
-                    Tác vụ
-                  </li>
-                  <li>
-                    Đối với các
-                    <b>tính năng phụ thuộc vào nhau</b>
-                    , bạn cần chọn tất cả chúng để việc sử dụng không bị gián
-                    đoạn. VD: Để nhân sự thêm được Tag, Vai trò hoặc Nguồn dữ
-                    liệu vào trong Tác vụ, bạn cần chọn quyền Sửa Tác vụ, Xem
-                    Tag, Xem Nguồn dữ liệu, Xem Vai trò.
-                  </li>
-                  <li>
-                    Nếu nhân sự được trao quyền
-                    <b>Xem Tác vụ</b>
-                    thì mặc định, họ được xem những Tác vụ mà họ góp Vai trò
-                    trong đó. Những nhân sự quản trị của Chi nhánh/Phòng ban/Đội
-                    nhóm sẽ thấy toàn bộ Tác vụ của Chi nhánh/Phòng ban/Đội nhóm
-                    mà họ quản lý
-                  </li>
-                  <li>
-                    Nếu nhân sự được trao quyền
-                    <b>Xem Nhân viên</b>
-                    , thì mặc định, họ chỉ được xem thông tin của bản thân mình.
-                    Những nhân sự quản trị của Chi nhánh/Phòng ban/Đội nhóm sẽ
-                    thấy toàn bộ thông tin của nhân sự trong Chi nhánh/Phòng
-                    ban/Đội nhóm mà họ quản lý
-                  </li>
-                </ul>
-              </div>
             </div>
             <div class="functions">
               <accordion
@@ -160,6 +123,18 @@
                                   >
                                     <div class="ms-2">
                                       {{ permission['name'] }}
+                                      @if (!!permission?.tooltip) {
+                                        <i
+                                          class="fa fa-question-circle ms-2"
+                                          [tooltip]="popTemplate"
+                                          container=".modal-body"
+                                        ></i>
+                                        <ng-template #popTemplate>
+                                          <div
+                                            [innerHtml]="permission.tooltip"
+                                          ></div>
+                                        </ng-template>
+                                      }
                                     </div>
                                     <input
                                       [checked]="

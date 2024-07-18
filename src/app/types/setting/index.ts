@@ -173,6 +173,7 @@ export interface IPermissionItem {
   key: EPerActSetting | EPerActFlow | EPerActTask;
   name: string;
   isRootPer?: boolean;
+  tooltip?: string;
 }
 
 export interface IPermissionGroups {
