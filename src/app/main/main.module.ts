@@ -9,6 +9,7 @@ import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.c
 import {PhoneCallPopUpComponent} from '@share/common/phone-call-pop-up/phone-call-pop-up.component';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {ConnectPhoneComponent} from '@share/common/connect-phone/connect-phone.component';
 // component
 
 @NgModule({
@@ -24,6 +25,7 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
     PhoneCallPopUpComponent,
     TooltipModule,
     BsDropdownModule,
+    ConnectPhoneComponent,
   ],
 })
 export class MainModule {}
