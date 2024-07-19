@@ -36,13 +36,36 @@
         }
       </div>
     } @else {
-      <button
-        [tooltip]="'Ngắt kết nối đầu số'"
-        container="body"
-        class="btn button-status connected"
-      >
-        <i class="fa-solid fa-phone"></i>
-      </button>
+      <div class="d-flex gap-2 align-items-center">
+        <button
+          [tooltip]="'Ngắt kết nối đầu số'"
+          container="body"
+          class="btn button-status connected"
+        >
+          @if (loading.connectPhone) {
+            <i class="fa-solid fa-spin fa-spinner"></i>
+          } @else {
+            <i class="fa-solid fa-phone"></i>
+          }
+        </button>
+        <div class="d-flex gap-2">
+          @if (!loading.connectPhone && connectedPhone) {
+            @if (
+              getVoicePlatform(connectedPhone.platform.platform);
+              as voicePlatform
+            ) {
+              <img
+                height="20px"
+                *ngIf="voicePlatform.icon"
+                src="{{ voicePlatform.icon }}"
+                alt=""
+                class="icon-platform"
+              />
+            }
+            <span class="fw-500">{{ connectedPhone.hotline }}</span>
+          }
+        </div>
+      </div>
     }
   </div>
 }
