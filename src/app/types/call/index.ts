@@ -1,3 +1,4 @@
 export interface IncomingCall {
-  number: string;
+  from: string;
+  to: string;
 }

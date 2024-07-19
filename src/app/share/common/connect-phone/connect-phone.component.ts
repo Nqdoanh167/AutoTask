@@ -5,12 +5,18 @@ import {CommonService} from '@app/services/common/common.service';
 import {ToastrService} from 'ngx-toastr';
 import {VOICE_PLATFORMS} from '@app/utils/variables';
 import {ICommonDataSource, IQueryBase} from '@app/types/viewmodels';
-import {EVoicePlatform, ManageMappingPhone} from '@app/types/sms-ott-call';
+import {
+  EVoicePlatform,
+  ManageMappingPhone,
+  StringeeReceiveCallEvent,
+} from '@app/types/sms-ott-call';
 import {finalize, takeUntil} from 'rxjs';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {NgIf} from '@angular/common';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {StringeeClient} from 'stringee';
+import {PhoneCallService} from '@app/services/common/phone-call.service';
+import {IncomingCall} from '@app/types/call';
 
 @Component({
   selector: 'app-connect-phone',
@@ -44,6 +50,7 @@ export class ConnectPhoneComponent
     private readonly smsOttCallService: SmsOttCallService,
     private readonly commonService: CommonService,
     private readonly toarstService: ToastrService,
+    private readonly phoneCallService: PhoneCallService,
   ) {
     super();
     this.hasPermitSmsOttCall = !!this.currentBiz?.modules?.find(
@@ -132,11 +139,19 @@ export class ConnectPhoneComponent
       this.connectedPhone = undefined;
     });
 
-    this.stringeeClient.on('incomingcall', (incomingcall: any) => {
-      this.call = incomingcall;
-      this.settingCallEvents(incomingcall);
-      console.log('incomingcall: ', incomingcall);
-    });
+    this.stringeeClient.on(
+      'incomingcall',
+      (incomingcall: StringeeReceiveCallEvent) => {
+        console.log('incomingcall: ', incomingcall);
+        this.call = incomingcall;
+        this.settingCallEvents(incomingcall);
+        const incomingCallObj: IncomingCall = {
+          from: incomingcall.fromNumber,
+          to: incomingcall.toNumber,
+        };
+        this.phoneCallService.setIncomingCall(incomingCallObj);
+      },
+    );
 
     this.stringeeClient.on('requestnewtoken', () => {
       console.log(`request new token;
