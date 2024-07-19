@@ -55,6 +55,11 @@ export class PhoneCallService {
 
     call1.on('addremotestream', (stream: any) => {
       console.log('on addremotestream', stream);
+      const remoteVideo = document.getElementById(
+        'remoteVideoPopupCalling',
+      ) as HTMLVideoElement;
+      remoteVideo.srcObject = null;
+      remoteVideo.srcObject = stream;
     });
 
     call1.on('signalingstate', (state: {reason: StringeeSignalingState}) => {
@@ -144,6 +149,10 @@ export class PhoneCallService {
 
   handleHangup() {
     try {
+      const remoteVideo = document.getElementById(
+        'remoteVideoPopupCalling',
+      ) as HTMLVideoElement;
+      remoteVideo.srcObject = null;
       this.callStopped();
       this.call?.hangup((res: any) => {
         console.log('hangup res', res);

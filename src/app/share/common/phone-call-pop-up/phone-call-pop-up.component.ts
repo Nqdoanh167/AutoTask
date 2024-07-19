@@ -86,6 +86,11 @@ export class PhoneCallPopUpComponent
   }
 
   handleCheckCallStatus() {
+    // if (this.phoneStatus !== ECallStatus.RINGING) {
+    //   const media = this.audio?.nativeElement;
+    //   media.muted = false;
+    //   media.play();
+    // }
     if ([ECallStatus.ENDED, ECallStatus.REJECTED].includes(this.phoneStatus!)) {
       const subscribe = this.timer$.subscribe((val) => console.log(val));
       subscribe.unsubscribe();
