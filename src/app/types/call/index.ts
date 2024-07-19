@@ -13,5 +13,5 @@ export interface IncomingCall {
 }
 
 export enum StringeeSignalingState {
-  ENDED = 'ENDED',
+  ENDED = 'Ended',
 }

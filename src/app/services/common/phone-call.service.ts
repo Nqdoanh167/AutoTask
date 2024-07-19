@@ -57,9 +57,9 @@ export class PhoneCallService {
       console.log('on addremotestream', stream);
     });
 
-    call1.on('signalingstate', (state: StringeeSignalingState) => {
+    call1.on('signalingstate', (state: {reason: StringeeSignalingState}) => {
       console.log('signalingstate ', state);
-      if (state === StringeeSignalingState.ENDED) {
+      if (state.reason === StringeeSignalingState.ENDED) {
         this.updateStatusCall(ECallStatus.ENDED);
       }
     });
