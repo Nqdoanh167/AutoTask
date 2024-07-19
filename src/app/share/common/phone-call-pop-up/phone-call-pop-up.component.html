@@ -58,7 +58,11 @@
             </button>
           }
           <button
-            (click)="handleChangePhoneStatus('end')"
+            (click)="
+              handleChangePhoneStatus(
+                phoneStatus === 'ringing' ? 'reject' : 'end'
+              )
+            "
             type="button"
             class="btn button-end"
           >

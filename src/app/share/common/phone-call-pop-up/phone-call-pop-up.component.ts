@@ -28,7 +28,7 @@ export class PhoneCallPopUpComponent
   @ViewChild('phoneTemp') phoneTemp?: ElementRef;
 
   public incomingCall$ = this.phoneCallService.getIncomingCall();
-  public phoneStatus: 'ringing' | 'answer' | 'end' = 'ringing';
+  public phoneStatus: 'ringing' | 'answer' | 'end' | 'reject' = 'ringing';
   public showPopup = true;
   public isSilent = false;
   public isMute = false;
@@ -75,17 +75,22 @@ export class PhoneCallPopUpComponent
           }, 100);
         }
       });
-
-    // setTimeout(() => {
-    //   this.phoneCallService.setIncomingCall({number: '0123456789'});
-    // }, 5000);
   }
 
-  handleChangePhoneStatus(status: 'answer' | 'end') {
+  handleChangePhoneStatus(status: 'answer' | 'reject' | 'end') {
     this.phoneStatus = status;
     if (this.phoneStatus === 'end') {
-      this.showPopup = false;
-      this.phoneCallService.setIncomingCall(null);
+      this.phoneCallService.handleHangup();
+      const subscribe = this.timer$.subscribe((val) => console.log(val));
+      subscribe.unsubscribe();
+      setTimeout(() => {
+        this.showPopup = false;
+        this.phoneCallService.setIncomingCall(null);
+      }, 2000);
+    } else if (status === 'reject') {
+      this.phoneCallService.handleReject();
+    } else {
+      this.phoneCallService.handleAnswer();
     }
   }
 
