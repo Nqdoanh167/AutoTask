@@ -1,3 +1,6 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
 .wrapper {
   .content-wrapper {
     padding: 50px 0 0 50px;
@@ -10,5 +13,34 @@
       justify-content: center;
       flex-flow: column;
     }
+  }
+}
+
+.button-connect-phone {
+  .button-status {
+    border-radius: 50%;
+    border: 1px solid vars.$red-500;
+    width: 30px !important;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    i {
+      color: vars.$red-500;
+    }
+
+    &.connected {
+      border-color: vars.$green-500;
+      i {
+        color: vars.$green-500;
+      }
+    }
+  }
+}
+
+.dropdown-phones {
+  .icon-platform {
+    height: 16px;
+    width: auto;
   }
 }
