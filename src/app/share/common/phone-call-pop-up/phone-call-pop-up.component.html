@@ -2,7 +2,7 @@
   <div class="phone-call-pop-up" #phoneTemp>
     <div class="bubble-chat">
       <div class="chat-wrapper" [class.show]="showPopup">
-        @if (phoneStatus === 'ringing') {
+        @if (phoneStatus === ECallStatus.RINGING) {
           <audio autoplay loop muted #audio>
             <source src="assets/sounds/ringing-151670.mp3" type="audio/ogg" />
           </audio>
@@ -17,9 +17,9 @@
           <img alt="" src="assets/images/avatar.svg" class="avatar" />
           <div class="phone-number-incoming">{{ incomingCall.from }}</div>
           <div class="time-conversation">
-            @if (phoneStatus === 'ringing') {
+            @if (phoneStatus === ECallStatus.RINGING) {
               Incoming Call...
-            } @else if (phoneStatus === 'answer') {
+            } @else if (phoneStatus === ECallStatus.ANSWERED) {
               {{ timer$ | async | formatSeconds }}
             }
           </div>
@@ -33,7 +33,7 @@
                 <i [class.red]="isSilent" class="fa-solid fa-bell-slash"></i>
               </button>
             }
-            @if (phoneStatus === 'answer') {
+            @if (phoneStatus === ECallStatus.ANSWERED) {
               <button
                 (click)="toggleMute()"
                 type="button"
@@ -48,29 +48,36 @@
           </div>
         </div>
         <div class="control-buttons gap-3">
-          @if (phoneStatus === 'ringing') {
+          @if (phoneStatus === ECallStatus.RINGING) {
             <button
-              (click)="handleChangePhoneStatus('answer')"
+              (click)="handleChangePhoneStatus(ECallStatus.ANSWERED)"
               type="button"
               class="btn button-answer"
             >
               <i class="fa-solid fa-phone"></i>
             </button>
+            <button
+              (click)="handleChangePhoneStatus(ECallStatus.REJECTED)"
+              type="button"
+              class="btn button-end"
+            >
+              <i
+                class="fa-solid fa-phone fa-rotate-by"
+                style="--fa-rotate-angle: 135deg"
+              ></i>
+            </button>
+          } @else {
+            <button
+              (click)="handleChangePhoneStatus(ECallStatus.ENDED)"
+              type="button"
+              class="btn button-end"
+            >
+              <i
+                class="fa-solid fa-phone fa-rotate-by"
+                style="--fa-rotate-angle: 135deg"
+              ></i>
+            </button>
           }
-          <button
-            (click)="
-              handleChangePhoneStatus(
-                phoneStatus === 'ringing' ? 'reject' : 'end'
-              )
-            "
-            type="button"
-            class="btn button-end"
-          >
-            <i
-              class="fa-solid fa-phone fa-rotate-by"
-              style="--fa-rotate-angle: 135deg"
-            ></i>
-          </button>
         </div>
       </div>
       <div

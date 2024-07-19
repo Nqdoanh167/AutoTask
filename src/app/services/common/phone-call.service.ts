@@ -1,6 +1,10 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {IncomingCall} from '@app/types/call';
+import {
+  ECallStatus,
+  IncomingCall,
+  StringeeSignalingState,
+} from '@app/types/call';
 import {
   ManageMappingPhone,
   StringeeReceiveCallEvent,
@@ -32,6 +36,14 @@ export class PhoneCallService {
     this.incomingCallObj.next(incomingCall);
   }
 
+  updateStatusCall(status: ECallStatus) {
+    const currentCall = this.incomingCallObj.getValue();
+    if (currentCall) {
+      currentCall.status = status;
+      this.incomingCallObj.next(currentCall);
+    }
+  }
+
   settingCallEvents(call1: any) {
     call1.on('error', (info: any) => {
       console.log('on error: ' + JSON.stringify(info));
@@ -45,8 +57,11 @@ export class PhoneCallService {
       console.log('on addremotestream', stream);
     });
 
-    call1.on('signalingstate', (state: any) => {
+    call1.on('signalingstate', (state: StringeeSignalingState) => {
       console.log('signalingstate ', state);
+      if (state === StringeeSignalingState.ENDED) {
+        this.updateStatusCall(ECallStatus.ENDED);
+      }
     });
 
     call1.on('mediastate', (state: any) => {
@@ -91,6 +106,7 @@ export class PhoneCallService {
         const incomingCallObj: IncomingCall = {
           from: incomingcall.fromNumber,
           to: incomingcall.toNumber,
+          status: ECallStatus.RINGING,
         };
         this.setIncomingCall(incomingCallObj);
       },

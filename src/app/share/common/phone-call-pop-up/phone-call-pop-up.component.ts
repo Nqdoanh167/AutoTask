@@ -12,6 +12,7 @@ import {AsyncPipe, DatePipe} from '@angular/common';
 import {FormatSecondsModule} from '@share/pipe/format-seconds/format-seconds.module';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
+import {ECallStatus} from '@app/types/call';
 
 @Component({
   selector: 'app-phone-call-pop-up',
@@ -28,11 +29,13 @@ export class PhoneCallPopUpComponent
   @ViewChild('phoneTemp') phoneTemp?: ElementRef;
 
   public incomingCall$ = this.phoneCallService.getIncomingCall();
-  public phoneStatus: 'ringing' | 'answer' | 'end' | 'reject' = 'ringing';
+  public phoneStatus?: ECallStatus;
   public showPopup = true;
   public isSilent = false;
   public isMute = false;
   public timer$ = timer(0, 1000);
+
+  protected readonly ECallStatus = ECallStatus;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
@@ -66,7 +69,6 @@ export class PhoneCallPopUpComponent
         if (incomingCall) {
           this.phoneTemp?.nativeElement?.click();
           this.phoneTemp?.nativeElement?.focus();
-          this.phoneStatus = 'ringing';
           this.showPopup = true;
           setTimeout(() => {
             const media = this.audio?.nativeElement;
@@ -75,26 +77,47 @@ export class PhoneCallPopUpComponent
           }, 100);
         }
       });
+    this.incomingCall$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((incomingCall) => {
+        this.phoneStatus = incomingCall?.status;
+        this.handleCheckCallStatus();
+      });
   }
 
-  handleChangePhoneStatus(status: 'answer' | 'reject' | 'end') {
-    this.phoneStatus = status;
-    if (status === 'answer') {
+  handleCheckCallStatus() {
+    if ([ECallStatus.ENDED, ECallStatus.REJECTED].includes(this.phoneStatus!)) {
+      const subscribe = this.timer$.subscribe((val) => console.log(val));
+      subscribe.unsubscribe();
+      if (this.phoneStatus === ECallStatus.ENDED) {
+        setTimeout(() => {
+          this.showPopup = false;
+          this.phoneCallService.setIncomingCall(null);
+        }, 2000);
+      } else {
+        this.showPopup = false;
+        this.phoneCallService.setIncomingCall(null);
+      }
+    }
+  }
+
+  handleChangePhoneStatus(status: ECallStatus) {
+    this.phoneCallService.updateStatusCall(status);
+    if (status === ECallStatus.ANSWERED) {
       this.phoneCallService.handleAnswer();
       return;
     }
-
-    const subscribe = this.timer$.subscribe((val) => console.log(val));
-    subscribe.unsubscribe();
-    setTimeout(() => {
-      this.showPopup = false;
-      this.phoneCallService.setIncomingCall(null);
-    }, 2000);
-
-    if (this.phoneStatus === 'end') {
+    if (status === ECallStatus.HANGUP) {
       this.phoneCallService.handleHangup();
-    } else if (status === 'reject') {
+      return;
+    }
+    if (this.phoneStatus === ECallStatus.ENDED) {
+      this.phoneCallService.handleHangup();
+      return;
+    }
+    if (status === ECallStatus.REJECTED) {
       this.phoneCallService.handleReject();
+      return;
     }
   }
 
