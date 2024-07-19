@@ -103,9 +103,11 @@ export class ModalUpdateTaskComponent
         this.getInfoUnit(branch?.team || branch?.department || branch?.id);
       }
     } else {
+      const branch = this.autoTaskService.getFirstUnit();
       this.updateForm.patchValue({
-        branch: this.autoTaskService.getFirstUnit(),
+        branch,
       } as any);
+      this.getInfoUnit(branch?.team || branch?.department || branch?.id);
     }
     if (this.code) {
       this.getTaskByCode();

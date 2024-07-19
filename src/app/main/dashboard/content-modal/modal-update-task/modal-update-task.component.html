@@ -259,7 +259,10 @@
                                       : infoUnit?.userIds || []
                                     | getDataArray
                                       : 'roleIds'
-                                      : settingRole.value.roleId;
+                                      : settingRole.value.roleId
+                                      : 'role'
+                                      : 'OWNER'
+                                      : 'id';
                                   track 'id'
                                 ) {
                                   <li
