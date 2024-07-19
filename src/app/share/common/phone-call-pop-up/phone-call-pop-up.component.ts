@@ -79,18 +79,22 @@ export class PhoneCallPopUpComponent
 
   handleChangePhoneStatus(status: 'answer' | 'reject' | 'end') {
     this.phoneStatus = status;
+    if (status === 'answer') {
+      this.phoneCallService.handleAnswer();
+      return;
+    }
+
+    const subscribe = this.timer$.subscribe((val) => console.log(val));
+    subscribe.unsubscribe();
+    setTimeout(() => {
+      this.showPopup = false;
+      this.phoneCallService.setIncomingCall(null);
+    }, 2000);
+
     if (this.phoneStatus === 'end') {
       this.phoneCallService.handleHangup();
-      const subscribe = this.timer$.subscribe((val) => console.log(val));
-      subscribe.unsubscribe();
-      setTimeout(() => {
-        this.showPopup = false;
-        this.phoneCallService.setIncomingCall(null);
-      }, 2000);
     } else if (status === 'reject') {
       this.phoneCallService.handleReject();
-    } else {
-      this.phoneCallService.handleAnswer();
     }
   }
 
