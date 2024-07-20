@@ -5,6 +5,7 @@ import {filter, map} from 'rxjs';
 import {ISidebar} from '../types/viewmodels';
 import {MainService} from '@app/services/api/main.service';
 import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
+import {ECallType} from '@app/types/call';
 
 @Component({
   selector: 'app-main',
@@ -55,4 +56,6 @@ export class MainComponent extends BaseComponentsComponent implements OnInit {
       }
     });
   }
+
+  protected readonly ECallType = ECallType;
 }

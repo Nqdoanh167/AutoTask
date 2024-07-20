@@ -36,6 +36,7 @@ import {MainService} from '@app/services/api/main.service';
 import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
 import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {ModalConfirmCallComponent} from '@main/dashboard/content-modal/modal-confirm-call/modal-confirm-call.component';
+import {PhoneCallService} from '@app/services/common/phone-call.service';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -79,6 +80,7 @@ export class ModalUpdateTaskComponent
     private readonly modalConfirmService: ModalConfirmService,
     private readonly toastr: ToastrService,
     private readonly mainService: MainService,
+    private readonly phoneCallService: PhoneCallService,
   ) {
     super();
     this.authService.currentBiz
@@ -766,6 +768,11 @@ export class ModalUpdateTaskComponent
         this.toastr.warning('Không có số điện thoại của khách hàng');
         return;
       }
+      const connectedPhone = this.phoneCallService.getConnectedPhoneValue();
+      if (!connectedPhone) {
+        this.toastr.warning('Bạn chưa kết nối đầu số!');
+        return;
+      }
       this.isOpenBackDrop = true;
       // const modalCall = this.modalService.show(ModalCallComponent, {
       //   class: 'modal-dialog-centered',
@@ -779,8 +786,9 @@ export class ModalUpdateTaskComponent
       const modalCall = this.modalService.show(ModalConfirmCallComponent, {
         class: 'modal-dialog-centered',
         initialState: {
-          customerPhone: phone,
+          customer: this.formLeadDeal.value,
           task: this.sourceData,
+          connectedPhone,
         },
       });
       modalCall.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {

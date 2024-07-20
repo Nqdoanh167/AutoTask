@@ -5,7 +5,10 @@ import {
   ECallType,
   StringeeSignalingState,
 } from '@app/types/call';
-import {StringeeReceiveCallEvent} from '@app/types/sms-ott-call';
+import {
+  OutGoingCallEvent,
+  StringeeReceiveCallEvent,
+} from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 
@@ -15,6 +18,7 @@ import {PhoneCallService} from '@app/services/common/phone-call.service';
 export class StringeeService {
   protected stringeeClient: any;
   protected call: any;
+  protected type?: ECallType;
   protected authenticatedWithUserId: any;
 
   constructor(private readonly phoneCallService: PhoneCallService) {}
@@ -37,10 +41,28 @@ export class StringeeService {
       remoteVideo.srcObject = stream;
     });
 
-    call1.on('signalingstate', (state: {reason: StringeeSignalingState}) => {
+    call1.on('signalingstate', (state: {code: StringeeSignalingState}) => {
       console.log('signalingstate ', state);
-      if (state.reason === StringeeSignalingState.ENDED) {
-        this.phoneCallService.updateStatusCall(ECallStatus.ENDED);
+      let status: ECallStatus;
+      switch (state.code) {
+        case StringeeSignalingState.CALLING:
+          status = ECallStatus.CALLING;
+          break;
+        case StringeeSignalingState.RINGING:
+          status = ECallStatus.RINGING;
+          break;
+        case StringeeSignalingState.ANSWERED:
+          status = ECallStatus.ANSWERED;
+          break;
+        case StringeeSignalingState.ENDED:
+          status = ECallStatus.ENDED;
+          break;
+      }
+      if (this.type === ECallType.INCOMING) {
+        this.phoneCallService.updateStatusIncomingCall(status);
+      }
+      if (this.type === ECallType.OUTGOING) {
+        this.phoneCallService.updateStatusOutgoingCall(status);
       }
     });
 
@@ -75,12 +97,19 @@ export class StringeeService {
 
     this.stringeeClient.on('disconnect', () => {
       console.log('disconnected');
+      if (this.type === ECallType.INCOMING) {
+        this.phoneCallService.clearIncomingCall();
+      }
+      if (this.type === ECallType.OUTGOING) {
+        this.phoneCallService.clearOutgoingCall();
+      }
     });
 
     this.stringeeClient.on(
       'incomingcall',
       (incomingcall: StringeeReceiveCallEvent) => {
         console.log('incomingcall: ', incomingcall);
+        this.type = ECallType.INCOMING;
         this.call = incomingcall;
         this.settingCallEvents(incomingcall);
         const incomingCallObj: Call = {
@@ -90,7 +119,7 @@ export class StringeeService {
           status: ECallStatus.RINGING,
           type: ECallType.INCOMING,
         };
-        this.phoneCallService.setCall(incomingCallObj);
+        this.phoneCallService.setIncomingCall(incomingCallObj);
       },
     );
 
@@ -109,6 +138,10 @@ export class StringeeService {
     this.stringeeClient = new StringeeClient();
     this.settingClientEvents();
     this.stringeeClient.connect(token);
+  }
+
+  logoutStringee() {
+    this.stringeeClient.disconnect();
   }
 
   handleReject() {
@@ -149,8 +182,16 @@ export class StringeeService {
       false,
     );
     this.settingCallEvents(this.call);
-    this.call?.makeCall((res: any) => {
+    this.call?.makeCall((res: OutGoingCallEvent) => {
       console.log('make call callback: ', res);
+      this.type = ECallType.OUTGOING;
+      const outgoingCallObj: Call = {
+        from: res.fromNumber,
+        to: res.toNumber,
+        callId: res.callId,
+        type: ECallType.INCOMING,
+      };
+      this.phoneCallService.setOutgoingCall(outgoingCallObj);
     });
   }
 

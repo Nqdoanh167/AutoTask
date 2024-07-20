@@ -1,4 +1,5 @@
 export enum ECallStatus {
+  CALLING = 'calling',
   RINGING = 'ringing',
   ANSWERED = 'answered',
   REJECTED = 'rejected',
@@ -20,5 +21,8 @@ export interface Call {
 }
 
 export enum StringeeSignalingState {
-  ENDED = 'Ended',
+  ENDED = 6,
+  ANSWERED = 3,
+  CALLING = 1,
+  RINGING = 2,
 }

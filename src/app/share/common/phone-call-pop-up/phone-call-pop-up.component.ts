@@ -3,16 +3,17 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  Input,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {takeUntil, timer} from 'rxjs';
+import {Observable, takeUntil, timer} from 'rxjs';
 import {AsyncPipe, DatePipe} from '@angular/common';
 import {FormatSecondsModule} from '@share/pipe/format-seconds/format-seconds.module';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
-import {ECallStatus} from '@app/types/call';
+import {Call, ECallStatus, ECallType} from '@app/types/call';
 import {StringeeService} from '@app/services/common/stringee.service';
 
 @Component({
@@ -29,7 +30,9 @@ export class PhoneCallPopUpComponent
   @ViewChild('audio') audio?: ElementRef;
   @ViewChild('phoneTemp') phoneTemp?: ElementRef;
 
-  public incomingCall$ = this.phoneCallService.getCall();
+  @Input({required: true}) type!: ECallType;
+
+  public call$?: Observable<Call | null>;
   public phoneStatus?: ECallStatus;
   public showPopup = true;
   public isSilent = false;
@@ -37,6 +40,7 @@ export class PhoneCallPopUpComponent
   public timer$ = timer(0, 1000);
 
   protected readonly ECallStatus = ECallStatus;
+  protected readonly ECallType = ECallType;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
@@ -64,27 +68,14 @@ export class PhoneCallPopUpComponent
   }
 
   ngOnInit() {
-    this.phoneCallService
-      .getCall()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((call) => {
-        if (call) {
-          this.phoneTemp?.nativeElement?.click();
-          this.phoneTemp?.nativeElement?.focus();
-          this.showPopup = true;
-          setTimeout(() => {
-            const media = this.audio?.nativeElement;
-            media.muted = false;
-            media.play();
-          }, 100);
-        }
-      });
-    this.incomingCall$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((incomingCall) => {
-        this.phoneStatus = incomingCall?.status;
-        this.handleCheckCallStatus();
-      });
+    this.call$ =
+      this.type === ECallType.INCOMING
+        ? this.phoneCallService.getIncomingCall()
+        : this.phoneCallService.getOutgoingCall();
+    this.call$.pipe(takeUntil(this.destroy$)).subscribe((call) => {
+      this.phoneStatus = call?.status;
+      this.handleCheckCallStatus();
+    });
   }
 
   handleCheckCallStatus() {
@@ -94,17 +85,42 @@ export class PhoneCallPopUpComponent
       if (this.phoneStatus === ECallStatus.ENDED) {
         setTimeout(() => {
           this.showPopup = false;
-          this.phoneCallService.setCall(null);
+          if (this.type === ECallType.INCOMING) {
+            this.phoneCallService.setIncomingCall(null);
+          } else {
+            this.phoneCallService.setOutgoingCall(null);
+          }
         }, 2000);
       } else {
         this.showPopup = false;
-        this.phoneCallService.setCall(null);
+        if (this.type === ECallType.INCOMING) {
+          this.phoneCallService.setIncomingCall(null);
+        } else {
+          this.phoneCallService.setOutgoingCall(null);
+        }
       }
+    }
+    if (
+      this.phoneStatus === ECallStatus.RINGING &&
+      this.type === ECallType.INCOMING
+    ) {
+      this.phoneTemp?.nativeElement?.click();
+      this.phoneTemp?.nativeElement?.focus();
+      this.showPopup = true;
+      setTimeout(() => {
+        const media = this.audio?.nativeElement;
+        media.muted = false;
+        media.play();
+      }, 100);
     }
   }
 
   handleChangePhoneStatus(status: ECallStatus) {
-    this.phoneCallService.updateStatusCall(status);
+    if (this.type === ECallType.INCOMING) {
+      this.phoneCallService.updateStatusIncomingCall(status);
+    } else {
+      this.phoneCallService.updateStatusOutgoingCall(status);
+    }
     if (status === ECallStatus.ANSWERED) {
       this.stringeeService.handleAnswer();
       return;

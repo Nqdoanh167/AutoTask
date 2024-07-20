@@ -76,6 +76,16 @@ export interface StringeeReceiveCallEvent {
   videoResolution: any;
 }
 
+export interface OutGoingCallEvent {
+  callId: string;
+  customDataFromYourSever: string;
+  fromNumber: string;
+  toNumber: string;
+  toType: 'external';
+  peerToPeerCall: boolean;
+  message: string;
+}
+
 export enum EStatusVoice {
   NONE = 'NONE',
   RINGING = 'RINGING',

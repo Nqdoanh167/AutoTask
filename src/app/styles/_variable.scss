@@ -439,6 +439,14 @@ $pagination-height: 56;
       color: $white;
     }
   }
+  &.success-color {
+    background-color: $green-500;
+    color: $white;
+    &:hover {
+      background-color: $green-500;
+      color: $white;
+    }
+  }
   &.disabled {
     color: $neutral-300;
     background-color: $neutral-100;

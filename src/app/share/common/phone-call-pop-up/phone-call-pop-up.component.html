@@ -1,8 +1,15 @@
-@if (incomingCall$ | async; as incomingCall) {
-  <div class="phone-call-pop-up" #phoneTemp>
+@if (call$ | async; as call) {
+  <div
+    class="phone-call-pop-up {{
+      type === ECallType.INCOMING ? 'incoming' : 'outgoing'
+    }}"
+    #phoneTemp
+  >
     <div class="bubble-chat">
       <div class="chat-wrapper" [class.show]="showPopup">
-        @if (phoneStatus === ECallStatus.RINGING) {
+        @if (
+          phoneStatus === ECallStatus.RINGING && type === ECallType.INCOMING
+        ) {
           <audio autoplay loop muted #audio>
             <source src="assets/sounds/ringing-151670.mp3" type="audio/ogg" />
           </audio>
@@ -10,21 +17,35 @@
         <div class="header">
           <div class="current-phone-number">
             <i class="fa-solid fa-phone me-1"></i>
-            {{ incomingCall.to }}
+            {{ type === ECallType.INCOMING ? call.to : call.from }}
           </div>
         </div>
         <div class="content">
           <img alt="" src="assets/images/avatar.svg" class="avatar" />
-          <div class="phone-number-incoming">{{ incomingCall.from }}</div>
+          <div class="phone-number-incoming">
+            {{ type === ECallType.INCOMING ? call.from : call.to }}
+          </div>
           <div class="time-conversation">
-            @if (phoneStatus === ECallStatus.RINGING) {
-              Incoming Call...
-            } @else if (phoneStatus === ECallStatus.ANSWERED) {
+            @if (type === ECallType.INCOMING) {
+              @if (phoneStatus === ECallStatus.RINGING) {
+                Cuộc gọi đến ...
+              }
+            } @else {
+              @if (phoneStatus === ECallStatus.RINGING) {
+                Đang đổ chuông...
+              }
+            }
+            @if (phoneStatus === ECallStatus.ANSWERED) {
               {{ timer$ | async | formatSeconds }}
+            }
+            @if (phoneStatus === ECallStatus.ENDED) {
+              Cuộc gọi đã kết thúc
             }
           </div>
           <div class="action-buttons d-flex justify-content-center gap-2 mt-4">
-            @if (phoneStatus === 'ringing') {
+            @if (
+              phoneStatus === ECallStatus.RINGING && type === ECallType.INCOMING
+            ) {
               <button
                 (click)="toggleSilent()"
                 type="button"
@@ -48,7 +69,9 @@
           </div>
         </div>
         <div class="control-buttons gap-3">
-          @if (phoneStatus === ECallStatus.RINGING) {
+          @if (
+            phoneStatus === ECallStatus.RINGING && type === ECallType.INCOMING
+          ) {
             <button
               (click)="handleChangePhoneStatus(ECallStatus.ANSWERED)"
               type="button"
