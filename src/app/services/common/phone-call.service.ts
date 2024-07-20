@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {
+  Call,
   ECallStatus,
   ECallType,
-  IncomingCall,
   StringeeSignalingState,
 } from '@app/types/call';
 import {
@@ -17,7 +17,7 @@ import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
   providedIn: 'root',
 })
 export class PhoneCallService {
-  private incomingCallObj = new BehaviorSubject<IncomingCall | null>(null);
+  private callObj = new BehaviorSubject<Call | null>(null);
 
   public connectLoading$ = new BehaviorSubject(false);
   public connectedPhone$ = new BehaviorSubject<ManageMappingPhone | undefined>(
@@ -30,19 +30,19 @@ export class PhoneCallService {
 
   constructor(private readonly smsOttCallService: SmsOttCallService) {}
 
-  getIncomingCall() {
-    return this.incomingCallObj.asObservable();
+  getCall() {
+    return this.callObj.asObservable();
   }
 
-  setIncomingCall(incomingCall: IncomingCall | null) {
-    this.incomingCallObj.next(incomingCall);
+  setCall(incomingCall: Call | null) {
+    this.callObj.next(incomingCall);
   }
 
   updateStatusCall(status: ECallStatus) {
-    const currentCall = this.incomingCallObj.getValue();
+    const currentCall = this.callObj.getValue();
     if (currentCall) {
       currentCall.status = status;
-      this.incomingCallObj.next(currentCall);
+      this.callObj.next(currentCall);
     }
   }
 
@@ -110,14 +110,14 @@ export class PhoneCallService {
         console.log('incomingcall: ', incomingcall);
         this.call = incomingcall;
         this.settingCallEvents(incomingcall);
-        const incomingCallObj: IncomingCall = {
+        const incomingCallObj: Call = {
           from: incomingcall.fromNumber,
           to: incomingcall.toNumber,
           callId: incomingcall.callId,
           status: ECallStatus.RINGING,
           type: ECallType.INCOMING,
         };
-        this.setIncomingCall(incomingCallObj);
+        this.setCall(incomingCallObj);
       },
     );
 

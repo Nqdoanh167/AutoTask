@@ -28,7 +28,7 @@ export class PhoneCallPopUpComponent
   @ViewChild('audio') audio?: ElementRef;
   @ViewChild('phoneTemp') phoneTemp?: ElementRef;
 
-  public incomingCall$ = this.phoneCallService.getIncomingCall();
+  public incomingCall$ = this.phoneCallService.getCall();
   public phoneStatus?: ECallStatus;
   public showPopup = true;
   public isSilent = false;
@@ -63,10 +63,10 @@ export class PhoneCallPopUpComponent
 
   ngOnInit() {
     this.phoneCallService
-      .getIncomingCall()
+      .getCall()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((incomingCall) => {
-        if (incomingCall) {
+      .subscribe((call) => {
+        if (call) {
           this.phoneTemp?.nativeElement?.click();
           this.phoneTemp?.nativeElement?.focus();
           this.showPopup = true;
@@ -86,22 +86,17 @@ export class PhoneCallPopUpComponent
   }
 
   handleCheckCallStatus() {
-    // if (this.phoneStatus !== ECallStatus.RINGING) {
-    //   const media = this.audio?.nativeElement;
-    //   media.muted = false;
-    //   media.play();
-    // }
     if ([ECallStatus.ENDED, ECallStatus.REJECTED].includes(this.phoneStatus!)) {
       const subscribe = this.timer$.subscribe((val) => console.log(val));
       subscribe.unsubscribe();
       if (this.phoneStatus === ECallStatus.ENDED) {
         setTimeout(() => {
           this.showPopup = false;
-          this.phoneCallService.setIncomingCall(null);
+          this.phoneCallService.setCall(null);
         }, 2000);
       } else {
         this.showPopup = false;
-        this.phoneCallService.setIncomingCall(null);
+        this.phoneCallService.setCall(null);
       }
     }
   }

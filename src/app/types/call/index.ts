@@ -11,7 +11,7 @@ export enum ECallType {
   OUTGOING = 'OUTGOING',
 }
 
-export interface IncomingCall {
+export interface Call {
   from: string;
   to: string;
   status?: ECallStatus;
