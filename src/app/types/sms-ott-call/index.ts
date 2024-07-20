@@ -75,3 +75,24 @@ export interface StringeeReceiveCallEvent {
   videoDeviceId: any;
   videoResolution: any;
 }
+
+export enum EStatusVoice {
+  NONE = 'NONE',
+  RINGING = 'RINGING',
+  CONNECT = 'CONNECT',
+  SUCCESS = 'SUCCESS',
+  REJECT = 'REJECT',
+  FAIL = 'FAIL',
+}
+
+export interface HistoryUpdateDto {
+  status: EStatusVoice;
+  order?: {
+    id: string;
+    code: string;
+  };
+  task?: {
+    id: string;
+    code: string;
+  };
+}

@@ -5,7 +5,11 @@ import {EntityResult} from 'src/app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
-import {ManageMappingPhone, Platform} from '@app/types/sms-ott-call';
+import {
+  HistoryUpdateDto,
+  ManageMappingPhone,
+  Platform,
+} from '@app/types/sms-ott-call';
 import {OmiExtension} from '@app/types/omicall';
 
 @Injectable({
@@ -17,6 +21,7 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
   api = {
     platform: 'platforms',
     manage: 'manage',
+    history: 'histories',
   };
   private defaultParams: any = {};
   constructor(
@@ -83,6 +88,14 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
     getPhones: () =>
       this.httpClient.get<EntityResult<ManageMappingPhone[]>>(
         this.createUrl([this.api.manage, 'get-by-user']),
+      ),
+  };
+
+  history = {
+    updateStatusCall: (callId: string, body: HistoryUpdateDto) =>
+      this.httpClient.put<EntityResult<any>>(
+        this.createUrl([this.api.history, callId]),
+        body,
       ),
   };
 

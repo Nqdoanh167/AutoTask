@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {
   ECallStatus,
+  ECallType,
   IncomingCall,
   StringeeSignalingState,
 } from '@app/types/call';
@@ -10,6 +11,7 @@ import {
   StringeeReceiveCallEvent,
 } from '@app/types/sms-ott-call';
 import {StringeeClient} from 'stringee';
+import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +28,7 @@ export class PhoneCallService {
   protected call: any;
   protected authenticatedWithUserId: any;
 
-  constructor() {}
+  constructor(private readonly smsOttCallService: SmsOttCallService) {}
 
   getIncomingCall() {
     return this.incomingCallObj.asObservable();
@@ -111,7 +113,9 @@ export class PhoneCallService {
         const incomingCallObj: IncomingCall = {
           from: incomingcall.fromNumber,
           to: incomingcall.toNumber,
+          callId: incomingcall.callId,
           status: ECallStatus.RINGING,
+          type: ECallType.INCOMING,
         };
         this.setIncomingCall(incomingCallObj);
       },

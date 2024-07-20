@@ -6,10 +6,17 @@ export enum ECallStatus {
   ENDED = 'ended',
 }
 
+export enum ECallType {
+  INCOMING = 'INCOMING',
+  OUTGOING = 'OUTGOING',
+}
+
 export interface IncomingCall {
   from: string;
   to: string;
   status?: ECallStatus;
+  callId?: string;
+  type: ECallType;
 }
 
 export enum StringeeSignalingState {
