@@ -2,7 +2,12 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ETypeFilter, IFilterTopTable} from '@app/types/common';
 import {ICommonDataSource, IQueryBase} from '@app/types/viewmodels';
 import {finalize, Subject, takeUntil} from 'rxjs';
-import {ENextStepType, IBodyUpdateOrdering, IChainActRule, IUpdateChainActDto,} from '@app/types/flow';
+import {
+  ENextStepType,
+  IBodyUpdateOrdering,
+  IChainActRule,
+  IUpdateChainActDto,
+} from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';

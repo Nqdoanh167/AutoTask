@@ -90,6 +90,7 @@ export class PhoneCallPopUpComponent
           } else {
             this.phoneCallService.setOutgoingCall(null);
           }
+          this.stringeeService.callStopped();
         }, 2000);
       } else {
         this.showPopup = false;
@@ -98,7 +99,10 @@ export class PhoneCallPopUpComponent
         } else {
           this.phoneCallService.setOutgoingCall(null);
         }
+        this.stringeeService.callStopped();
       }
+    } else {
+      this.showPopup = true;
     }
     if (
       this.phoneStatus === ECallStatus.RINGING &&
@@ -106,7 +110,6 @@ export class PhoneCallPopUpComponent
     ) {
       this.phoneTemp?.nativeElement?.click();
       this.phoneTemp?.nativeElement?.focus();
-      this.showPopup = true;
       setTimeout(() => {
         const media = this.audio?.nativeElement;
         media.muted = false;

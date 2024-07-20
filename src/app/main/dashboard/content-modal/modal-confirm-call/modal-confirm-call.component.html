@@ -44,17 +44,19 @@
           >
             Đóng
           </button>
-          <button
-            class="btn button-medium button-fill success-color w-100"
-            type="button"
-            (click)="handleCall()"
-            [disabled]="loading"
-          >
-            @if (loading) {
-              <i class="fas fa-spinner fa-spin me-2"></i>
-            }
-            Gọi
-          </button>
+          @if ((outgoingCall$ | async) === null) {
+            <button
+              class="btn button-medium button-fill success-color w-100"
+              type="button"
+              (click)="handleCall()"
+              [disabled]="loading"
+            >
+              @if (loading) {
+                <i class="fas fa-spinner fa-spin me-2"></i>
+              }
+              Gọi
+            </button>
+          }
         </div>
       </div>
     </div>

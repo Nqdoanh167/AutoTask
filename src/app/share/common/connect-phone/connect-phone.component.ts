@@ -83,6 +83,9 @@ export class ConnectPhoneComponent
         next: (res) => {
           if (res.status === 200) {
             this.userPhones.rows = res.data;
+            if (res.data.length) {
+              this.handleConnectToPhone(res.data[0]);
+            }
           } else {
             this.commonService.handleResErr(res);
           }
@@ -118,6 +121,13 @@ export class ConnectPhoneComponent
       this.toarstService.info(
         'Chức năng này hiện chỉ hỗ trợ nền tảng Stringee!',
       );
+    }
+  }
+
+  handleDisconnectPhone() {
+    this.phoneCallService.connectedPhone$.next(undefined);
+    if (this.connectedPhone?.platform.platform === EVoicePlatform.STRINGEE) {
+      this.stringeeService.logoutStringee();
     }
   }
 }

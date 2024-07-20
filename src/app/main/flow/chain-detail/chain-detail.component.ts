@@ -36,7 +36,7 @@ import {ConfigurationService} from '@app/services/api/configuration.service';
 import {AutomationService} from '@app/services/api/automation.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {optionToCloneTask} from '@app/variable';
-import {ToastrService} from "ngx-toastr";
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-chain-detail',

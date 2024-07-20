@@ -21,8 +21,11 @@ export interface Call {
 }
 
 export enum StringeeSignalingState {
-  ENDED = 6,
-  ANSWERED = 3,
+  INIT = 0,
   CALLING = 1,
   RINGING = 2,
+  ANSWERED = 3,
+  CONNECTED = 4,
+  BUSY = 5,
+  ENDED = 6,
 }

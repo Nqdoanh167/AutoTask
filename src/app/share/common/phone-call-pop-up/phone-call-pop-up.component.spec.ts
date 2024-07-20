@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { PhoneCallPopUpComponent } from './phone-call-pop-up.component';
+import {PhoneCallPopUpComponent} from './phone-call-pop-up.component';
 
 describe('PhoneCallPopUpComponent', () => {
   let component: PhoneCallPopUpComponent;
@@ -8,10 +8,9 @@ describe('PhoneCallPopUpComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PhoneCallPopUpComponent]
-    })
-    .compileComponents();
-    
+      imports: [PhoneCallPopUpComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(PhoneCallPopUpComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -43,7 +43,7 @@ export class StringeeService {
 
     call1.on('signalingstate', (state: {code: StringeeSignalingState}) => {
       console.log('signalingstate ', state);
-      let status: ECallStatus;
+      let status: ECallStatus | undefined = undefined;
       switch (state.code) {
         case StringeeSignalingState.CALLING:
           status = ECallStatus.CALLING;
@@ -57,7 +57,10 @@ export class StringeeService {
         case StringeeSignalingState.ENDED:
           status = ECallStatus.ENDED;
           break;
+        default:
+          break;
       }
+      if (!status) return;
       if (this.type === ECallType.INCOMING) {
         this.phoneCallService.updateStatusIncomingCall(status);
       }
@@ -163,7 +166,6 @@ export class StringeeService {
         'remoteVideoPopupCalling',
       ) as HTMLVideoElement;
       remoteVideo.srcObject = null;
-      this.callStopped();
       this.call?.hangup((res: any) => {
         console.log('hangup res', res);
       });
@@ -195,5 +197,12 @@ export class StringeeService {
     });
   }
 
-  callStopped() {}
+  callStopped() {
+    if (this.type === ECallType.INCOMING) {
+      this.phoneCallService.clearIncomingCall();
+    }
+    if (this.type === ECallType.OUTGOING) {
+      this.phoneCallService.clearOutgoingCall();
+    }
+  }
 }

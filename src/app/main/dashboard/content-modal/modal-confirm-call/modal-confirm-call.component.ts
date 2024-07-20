@@ -8,11 +8,13 @@ import {finalize, takeUntil} from 'rxjs';
 import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 import {CommonService} from '@app/services/common/common.service';
 import {StringeeService} from '@app/services/common/stringee.service';
+import {PhoneCallService} from '@app/services/common/phone-call.service';
+import {AsyncPipe} from '@angular/common';
 
 @Component({
   selector: 'app-modal-confirm-call',
   standalone: true,
-  imports: [CustomModalComponent],
+  imports: [CustomModalComponent, AsyncPipe],
   templateUrl: './modal-confirm-call.component.html',
   styleUrl: './modal-confirm-call.component.scss',
 })
@@ -24,6 +26,7 @@ export class ModalConfirmCallComponent
   @Input({required: true}) task!: ITask;
   @Input({required: true}) connectedPhone!: ManageMappingPhone;
 
+  public outgoingCall$ = this.phoneCallService.getOutgoingCall();
   public loading = false;
 
   constructor(
@@ -31,6 +34,7 @@ export class ModalConfirmCallComponent
     private readonly smsOttCallService: SmsOttCallService,
     private readonly commonService: CommonService,
     private readonly stringeeService: StringeeService,
+    private readonly phoneCallService: PhoneCallService,
   ) {
     super();
   }

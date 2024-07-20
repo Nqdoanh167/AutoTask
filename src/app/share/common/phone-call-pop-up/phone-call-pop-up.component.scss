@@ -219,6 +219,7 @@
     .bubble-chat {
       align-items: flex-end !important;
       .bubble-toggle {
+        background-color: vars.$green-500;
         border-bottom-left-radius: 50% !important;
         border-bottom-right-radius: 8px !important;
 
