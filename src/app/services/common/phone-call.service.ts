@@ -10,7 +10,7 @@ import {
   ManageMappingPhone,
   StringeeReceiveCallEvent,
 } from '@app/types/sms-ott-call';
-import {StringeeClient} from 'stringee';
+import {StringeeCall, StringeeClient} from 'stringee';
 import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 
 @Injectable({
@@ -164,6 +164,21 @@ export class PhoneCallService {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  handleCall(phone: string, toPhone: string) {
+    const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
+    const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
+    this.call = new StringeeCall(
+      this.stringeeClient,
+      modifiedPhone,
+      modifiedToPhone,
+      false,
+    );
+    this.settingCallEvents(this.call);
+    this.call?.makeCall((res: any) => {
+      console.log('make call callback: ', res);
+    });
   }
 
   callStopped() {}

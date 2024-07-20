@@ -44,8 +44,8 @@ export class ConnectPhoneComponent
     private readonly phoneCallService: PhoneCallService,
   ) {
     super();
-    this.hasPermitSmsOttCall = !!this.currentBiz?.modules?.find(
-      (el) => el.alias === 'sms-ott-call',
+    this.hasPermitSmsOttCall = !!this.currentUser?.moduleAliases?.find(
+      (el) => el === 'sms-ott-call',
     );
   }
 

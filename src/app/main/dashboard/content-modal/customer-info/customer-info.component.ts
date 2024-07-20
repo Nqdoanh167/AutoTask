@@ -78,8 +78,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         this.currentBiz = biz.alias || '';
-        this.hasPermitCustomer = !!biz?.modules?.find(
-          (el) => el.alias === 'customers',
+        this.hasPermitCustomer = !!biz?.user?.moduleAliases?.find(
+          (el) => el === 'customers',
         );
       });
   }

@@ -92,8 +92,8 @@ export class ModalUpdateTaskComponent
   }
 
   ngOnInit() {
-    this.hasPermitSmsOttCall = !!this.currentBiz?.modules?.find(
-      (el) => el.alias === 'sms-ott-call',
+    this.hasPermitSmsOttCall = !!this.currentUser?.moduleAliases?.find(
+      (el) => el === 'sms-ott-call',
     );
     this.handleCheckPermission();
     if (this.sourceData) {
