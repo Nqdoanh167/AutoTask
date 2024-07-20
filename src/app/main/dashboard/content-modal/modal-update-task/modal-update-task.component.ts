@@ -35,6 +35,7 @@ import {ETabTaskDetail} from '@app/types/task';
 import {MainService} from '@app/services/api/main.service';
 import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
 import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
+import {ModalConfirmCallComponent} from '@main/dashboard/content-modal/modal-confirm-call/modal-confirm-call.component';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -766,14 +767,21 @@ export class ModalUpdateTaskComponent
         return;
       }
       this.isOpenBackDrop = true;
-      const modalCall = this.modalService.show(ModalCallComponent, {
+      // const modalCall = this.modalService.show(ModalCallComponent, {
+      //   class: 'modal-dialog-centered',
+      //   initialState: {
+      //     customerPhone: phone,
+      //     task: this.sourceData,
+      //   },
+      //   ignoreBackdropClick: true,
+      //   keyboard: false,
+      // });
+      const modalCall = this.modalService.show(ModalConfirmCallComponent, {
         class: 'modal-dialog-centered',
         initialState: {
           customerPhone: phone,
           task: this.sourceData,
         },
-        ignoreBackdropClick: true,
-        keyboard: false,
       });
       modalCall.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.isOpenBackDrop = false;

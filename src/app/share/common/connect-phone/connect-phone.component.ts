@@ -11,6 +11,7 @@ import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {NgIf} from '@angular/common';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
+import {StringeeService} from '@app/services/common/stringee.service';
 
 @Component({
   selector: 'app-connect-phone',
@@ -42,6 +43,7 @@ export class ConnectPhoneComponent
     private readonly commonService: CommonService,
     private readonly toarstService: ToastrService,
     private readonly phoneCallService: PhoneCallService,
+    private readonly stringeeService: StringeeService,
   ) {
     super();
     this.hasPermitSmsOttCall = !!this.currentUser?.moduleAliases?.find(
@@ -96,7 +98,7 @@ export class ConnectPhoneComponent
       .subscribe({
         next: (res) => {
           if (res.status === 200 && res.data.token) {
-            this.phoneCallService.loginStringee(res.data.token);
+            this.stringeeService.loginStringee(res.data.token);
           } else {
             this.commonService.handleResErr(res);
           }

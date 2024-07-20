@@ -13,6 +13,7 @@ import {FormatSecondsModule} from '@share/pipe/format-seconds/format-seconds.mod
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
 import {ECallStatus} from '@app/types/call';
+import {StringeeService} from '@app/services/common/stringee.service';
 
 @Component({
   selector: 'app-phone-call-pop-up',
@@ -40,6 +41,7 @@ export class PhoneCallPopUpComponent
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private readonly phoneCallService: PhoneCallService,
+    private readonly stringeeService: StringeeService,
   ) {
     super();
   }
@@ -104,19 +106,19 @@ export class PhoneCallPopUpComponent
   handleChangePhoneStatus(status: ECallStatus) {
     this.phoneCallService.updateStatusCall(status);
     if (status === ECallStatus.ANSWERED) {
-      this.phoneCallService.handleAnswer();
+      this.stringeeService.handleAnswer();
       return;
     }
     if (status === ECallStatus.HANGUP) {
-      this.phoneCallService.handleHangup();
+      this.stringeeService.handleHangup();
       return;
     }
     if (this.phoneStatus === ECallStatus.ENDED) {
-      this.phoneCallService.handleHangup();
+      this.stringeeService.handleHangup();
       return;
     }
     if (status === ECallStatus.REJECTED) {
-      this.phoneCallService.handleReject();
+      this.stringeeService.handleReject();
       return;
     }
   }
