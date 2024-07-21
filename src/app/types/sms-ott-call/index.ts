@@ -1,4 +1,4 @@
-import {BaseInterface} from '@app/types/viewmodels';
+import {AccountPublic, BaseInterface} from '@app/types/viewmodels';
 
 export interface Platform {
   id: string;
@@ -98,11 +98,12 @@ export enum EStatusVoice {
 export interface HistoryUpdateDto {
   status: EStatusVoice;
   order?: {
-    id: string;
-    code: string;
+    id?: string;
+    code?: string;
   };
   task?: {
-    id: string;
-    code: string;
+    id?: string;
+    code?: string;
   };
+  author: Pick<AccountPublic, 'id' | 'name' | 'email' | 'picture'>;
 }

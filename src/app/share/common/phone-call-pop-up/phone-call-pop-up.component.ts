@@ -15,6 +15,7 @@ import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
 import {Call, ECallStatus, ECallType} from '@app/types/call';
 import {StringeeService} from '@app/services/common/stringee.service';
+import {EStatusVoice} from '@app/types/sms-ott-call';
 
 @Component({
   selector: 'app-phone-call-pop-up',
@@ -126,6 +127,7 @@ export class PhoneCallPopUpComponent
     }
     if (status === ECallStatus.ANSWERED) {
       this.stringeeService.handleAnswer();
+      this.phoneCallService.updateHistoricalCallStatus(EStatusVoice.SUCCESS);
       return;
     }
     if (status === ECallStatus.HANGUP) {
@@ -138,6 +140,7 @@ export class PhoneCallPopUpComponent
     }
     if (status === ECallStatus.REJECTED) {
       this.stringeeService.handleReject();
+      this.phoneCallService.updateHistoricalCallStatus(EStatusVoice.REJECT);
       return;
     }
   }

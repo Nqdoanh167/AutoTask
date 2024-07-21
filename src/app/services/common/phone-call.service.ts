@@ -1,8 +1,13 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {Call, ECallStatus} from '@app/types/call';
-import {ManageMappingPhone} from '@app/types/sms-ott-call';
+import {
+  EStatusVoice,
+  HistoryUpdateDto,
+  ManageMappingPhone,
+} from '@app/types/sms-ott-call';
 import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +21,10 @@ export class PhoneCallService {
     undefined,
   );
 
-  constructor(private readonly smsOttCallService: SmsOttCallService) {}
+  constructor(
+    private readonly smsOttCallService: SmsOttCallService,
+    private readonly authService: AuthService,
+  ) {}
 
   getIncomingCall() {
     return this.incomingCallObj.asObservable();
@@ -60,5 +68,28 @@ export class PhoneCallService {
 
   clearOutgoingCall() {
     this.outgoingCallObj.next(null);
+  }
+
+  updateHistoricalCallStatus(status: EStatusVoice) {
+    const currentCall = this.incomingCallObj.getValue();
+    if (!currentCall) {
+      return;
+    }
+    const currentUser = this.authService.getCurrentUser();
+    const body: HistoryUpdateDto = {
+      status,
+      task: {},
+      author: {
+        id: currentUser.id,
+        name: currentUser.name,
+        email: currentUser.email,
+        picture: currentUser.picture,
+      },
+    };
+    this.smsOttCallService.history
+      .updateStatusCall(currentCall.callId!, body)
+      .subscribe((res) => {
+        console.log(res);
+      });
   }
 }

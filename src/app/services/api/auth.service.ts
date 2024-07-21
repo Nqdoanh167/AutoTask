@@ -66,6 +66,10 @@ export class AuthService {
     return this.currentBizSubject.getValue();
   }
 
+  getCurrentUser() {
+    return this.currentUserSubject.getValue();
+  }
+
   popular() {
     let alias = 'test';
 
