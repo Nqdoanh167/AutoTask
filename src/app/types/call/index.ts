@@ -29,3 +29,13 @@ export enum StringeeSignalingState {
   BUSY = 5,
   ENDED = 6,
 }
+
+export enum EStringeeOtherDeviceType {
+  CALL_STATE = 'CALL_STATE',
+  CALL_END = 'CALL_END',
+}
+
+export interface StringeeOtherDeviceState {
+  type: EStringeeOtherDeviceType;
+  code: number;
+}

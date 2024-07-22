@@ -3,6 +3,8 @@ import {
   Call,
   ECallStatus,
   ECallType,
+  EStringeeOtherDeviceType,
+  StringeeOtherDeviceState,
   StringeeSignalingState,
 } from '@app/types/call';
 import {
@@ -81,8 +83,14 @@ export class StringeeService {
       console.log('on info', info);
     });
 
-    call1.on('otherdevice', (data: any) => {
+    call1.on('otherdevice', (data: StringeeOtherDeviceState) => {
       console.log('on otherdevice', data);
+      if (
+        data.type === EStringeeOtherDeviceType.CALL_STATE &&
+        [200, 486].includes(data.code)
+      ) {
+        this.phoneCallService.clearIncomingCall();
+      }
     });
   }
 
