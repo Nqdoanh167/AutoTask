@@ -30,6 +30,10 @@ export class PhoneCallService {
     return this.incomingCallObj.asObservable();
   }
 
+  getIncomingCallValue() {
+    return this.incomingCallObj.getValue();
+  }
+
   setIncomingCall(incomingCall: Call | null) {
     this.incomingCallObj.next(incomingCall);
   }

@@ -11,6 +11,7 @@ import {
 } from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
+import {ToastrService} from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,10 @@ export class StringeeService {
   protected type?: ECallType;
   protected authenticatedWithUserId: any;
 
-  constructor(private readonly phoneCallService: PhoneCallService) {}
+  constructor(
+    private readonly phoneCallService: PhoneCallService,
+    private readonly toarst: ToastrService,
+  ) {}
 
   settingCallEvents(call1: any) {
     call1.on('error', (info: any) => {
@@ -112,6 +116,14 @@ export class StringeeService {
       'incomingcall',
       (incomingcall: StringeeReceiveCallEvent) => {
         console.log('incomingcall: ', incomingcall);
+        const currentIncomingCall =
+          this.phoneCallService.getIncomingCallValue();
+        if (currentIncomingCall) {
+          this.toarst.info(
+            'Bạn đang có cuộc gọi đến mới từ ' + incomingcall.fromNumber,
+          );
+          return;
+        }
         this.type = ECallType.INCOMING;
         this.call = incomingcall;
         this.settingCallEvents(incomingcall);
