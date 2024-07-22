@@ -66,6 +66,7 @@ export class PhoneCallPopUpComponent
 
   toggleMute() {
     this.isMute = !this.isMute;
+    this.stringeeService.handleMute(this.isMute);
   }
 
   ngOnInit() {

@@ -194,6 +194,10 @@ export class StringeeService {
     }
   }
 
+  handleMute(value: boolean) {
+    this.call?.mute(value);
+  }
+
   handleCall(phone: string, toPhone: string) {
     const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
     const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
