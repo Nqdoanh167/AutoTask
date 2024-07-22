@@ -92,9 +92,9 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
   };
 
   history = {
-    updateStatusCall: (callId: string, body: HistoryUpdateDto) =>
+    updateStatusCall: (uniqueCode: string, body: HistoryUpdateDto) =>
       this.httpClient.put<EntityResult<any>>(
-        this.createUrl([this.api.history, callId]),
+        this.createUrl([this.api.history, uniqueCode]),
         body,
       ),
   };

@@ -76,6 +76,9 @@ export class PhoneCallService {
       return;
     }
     const currentUser = this.authService.getCurrentUser();
+    const currentBiz = this.authService.getCurrentBiz();
+    const platformId = this.connectedPhone$.getValue()?.platform?.id || '';
+    const uniqCode = [currentBiz.id, platformId, currentCall.callId].join('_');
     const body: HistoryUpdateDto = {
       status,
       task: {},
@@ -87,9 +90,7 @@ export class PhoneCallService {
       },
     };
     this.smsOttCallService.history
-      .updateStatusCall(currentCall.callId!, body)
-      .subscribe((res) => {
-        console.log(res);
-      });
+      .updateStatusCall(uniqCode!, body)
+      .subscribe((res) => {});
   }
 }
