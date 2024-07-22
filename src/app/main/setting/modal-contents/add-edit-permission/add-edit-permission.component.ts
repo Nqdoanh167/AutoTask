@@ -4,9 +4,11 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {BsModalRef} from 'ngx-bootstrap/modal';
@@ -31,7 +33,9 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
   styleUrls: ['./add-edit-permission.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddEditPermissionComponent implements OnInit, OnDestroy {
+export class AddEditPermissionComponent
+  implements OnInit, OnDestroy, OnChanges
+{
   @Input() sourceData?: Permission;
   @Output() successEvent = new EventEmitter();
 
@@ -232,6 +236,10 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
       });
       this.pathForm(this.sourceData);
     }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.cdr.markForCheck();
   }
 
   pathForm(data?: Permission) {

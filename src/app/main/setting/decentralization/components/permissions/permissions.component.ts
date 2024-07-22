@@ -16,6 +16,7 @@ import {CommonService} from '@app/services/common/common.service';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {AdminService} from '@app/services/api/admin.service';
+import cloneDeep from 'lodash/cloneDeep';
 
 @Component({
   selector: 'app-permissions',
@@ -145,7 +146,7 @@ export class PermissionsComponent
     const modalAddEdit = this.modalService.show(AddEditPermissionComponent, {
       class: 'modal-xl modal-dialog-centered',
       initialState: {
-        sourceData: data,
+        sourceData: cloneDeep(data),
       },
     });
     modalAddEdit?.content?.successEvent
