@@ -282,7 +282,7 @@ export class DashboardData extends CheckboxSortTableComponent<
           if (res.status === 200) {
             this.tags.rows = uniqBy(this.tags.rows.concat(res.data), 'id');
             const configFilterTag = this.configFilters.find(
-              (filter) => filter.name === 'tagIds',
+              (filter) => filter.name === 'tags',
             );
             if (configFilterTag) {
               configFilterTag.options = this.tags.rows;

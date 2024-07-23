@@ -179,7 +179,7 @@ export const TASK_SOURCE_SETTING_CONFIG_FILTERS = [
 export const TASK_TAG_SETTING_CONFIG_FILTERS = [
   {
     type: ETypeFilter.SELECT,
-    name: 'tagIds',
+    name: 'tags',
     placeholder: 'Tag',
     options: [],
     bindLabel: 'name',
