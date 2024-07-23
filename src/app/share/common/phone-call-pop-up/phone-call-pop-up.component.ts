@@ -75,8 +75,13 @@ export class PhoneCallPopUpComponent
         ? this.phoneCallService.getIncomingCall()
         : this.phoneCallService.getOutgoingCall();
     this.call$.pipe(takeUntil(this.destroy$)).subscribe((call) => {
-      this.phoneStatus = call?.status;
-      this.handleCheckCallStatus();
+      if (call) {
+        this.phoneStatus = call?.status;
+        this.handleCheckCallStatus();
+      } else {
+        this.isSilent = false;
+        this.isMute = false;
+      }
     });
   }
 

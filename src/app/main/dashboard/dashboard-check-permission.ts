@@ -1,5 +1,4 @@
 import {DashboardData} from '@main/dashboard/dashboard-data';
-import {EPerActFlow, EPerActSetting, EPerActType} from '@app/types/setting';
 import {
   TASK_FLOWS_CONFIG_FILTERS,
   TASK_SOURCE_SETTING_CONFIG_FILTERS,
