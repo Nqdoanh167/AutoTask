@@ -137,7 +137,7 @@ export class StringeeService {
         this.settingCallEvents(incomingcall);
         const incomingCallObj: Call = {
           from: incomingcall.fromNumber,
-          to: incomingcall.toNumber,
+          to: incomingcall.toAlias,
           callId: incomingcall.callId,
           status: ECallStatus.RINGING,
           type: ECallType.INCOMING,
