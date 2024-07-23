@@ -66,7 +66,6 @@ export class ModalConfirmCallComponent
       )
       .subscribe({
         next: (res) => {
-          console.log(res);
           if (res.status === 200) {
             this.stringeeService.loginStringee(res.data.token);
           } else {

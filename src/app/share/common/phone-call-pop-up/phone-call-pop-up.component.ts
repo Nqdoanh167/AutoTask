@@ -89,29 +89,18 @@ export class PhoneCallPopUpComponent
     if ([ECallStatus.ENDED, ECallStatus.REJECTED].includes(this.phoneStatus!)) {
       const subscribe = this.timer$.subscribe((val) => console.log(val));
       subscribe.unsubscribe();
-      if (this.phoneStatus === ECallStatus.ENDED) {
-        setTimeout(() => {
-          this.showPopup = false;
-          this.isMute = false;
-          this.isSilent = false;
+      setTimeout(
+        () => {
+          this.showPopup = this.isMute = this.isSilent = false;
           if (this.type === ECallType.INCOMING) {
             this.phoneCallService.setIncomingCall(null);
           } else {
             this.phoneCallService.setOutgoingCall(null);
           }
           this.stringeeService.callStopped();
-        }, 2000);
-      } else {
-        this.showPopup = false;
-        this.isMute = false;
-        this.isSilent = false;
-        if (this.type === ECallType.INCOMING) {
-          this.phoneCallService.setIncomingCall(null);
-        } else {
-          this.phoneCallService.setOutgoingCall(null);
-        }
-        this.stringeeService.callStopped();
-      }
+        },
+        this.phoneStatus === ECallStatus.ENDED ? 2000 : 0,
+      );
     } else {
       this.showPopup = true;
     }
