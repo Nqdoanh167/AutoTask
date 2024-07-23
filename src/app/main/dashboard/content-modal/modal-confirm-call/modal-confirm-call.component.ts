@@ -55,7 +55,7 @@ export class ModalConfirmCallComponent
   }
 
   getTokenClient() {
-    const {platformId} = this.connectedPhone;
+    const platformId = this.connectedPhone?.platform?.id;
     if (!platformId) return;
     this.loading = true;
     this.smsOttCallService.platform
@@ -66,6 +66,7 @@ export class ModalConfirmCallComponent
       )
       .subscribe({
         next: (res) => {
+          console.log(res);
           if (res.status === 200) {
             this.stringeeService.loginStringee(res.data.token);
           } else {
