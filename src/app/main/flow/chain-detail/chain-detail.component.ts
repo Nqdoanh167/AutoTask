@@ -449,7 +449,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         (action) => action.id === selectedActionId,
       );
       const body = {
-        actionIds,
+        actionIds: actionIds.filter((el) => !!el),
       } as unknown as IUpdateChainActDto;
       this.autoTaskService.chainAction
         .update(this.detailChain.id, body)
