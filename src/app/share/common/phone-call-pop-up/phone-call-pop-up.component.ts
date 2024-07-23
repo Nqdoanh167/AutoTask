@@ -88,6 +88,7 @@ export class PhoneCallPopUpComponent
         setTimeout(() => {
           this.showPopup = false;
           this.isMute = false;
+          this.isSilent = false;
           if (this.type === ECallType.INCOMING) {
             this.phoneCallService.setIncomingCall(null);
           } else {
@@ -98,6 +99,7 @@ export class PhoneCallPopUpComponent
       } else {
         this.showPopup = false;
         this.isMute = false;
+        this.isSilent = false;
         if (this.type === ECallType.INCOMING) {
           this.phoneCallService.setIncomingCall(null);
         } else {
