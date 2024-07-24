@@ -125,8 +125,8 @@ export class PhoneCallPopUpComponent
       this.phoneCallService.updateStatusOutgoingCall(status);
     }
     if (status === ECallStatus.ANSWERED) {
-      this.stringeeService.handleAnswer();
       this.phoneCallService.updateHistoricalCallStatus(EStatusVoice.SUCCESS);
+      this.stringeeService.handleAnswer();
       return;
     }
     if (status === ECallStatus.HANGUP) {
@@ -138,8 +138,8 @@ export class PhoneCallPopUpComponent
       return;
     }
     if (status === ECallStatus.REJECTED) {
-      this.stringeeService.handleReject();
       this.phoneCallService.updateHistoricalCallStatus(EStatusVoice.REJECT);
+      this.stringeeService.handleReject();
       return;
     }
   }

@@ -85,7 +85,10 @@ export class PhoneCallService {
     const uniqCode = [currentBiz.id, platformId, currentCall.callId].join('_');
     const body: HistoryUpdateDto = {
       status,
-      task: {},
+      task: {
+        id: null,
+        code: null,
+      },
       author: {
         id: currentUser.id,
         name: currentUser.name,

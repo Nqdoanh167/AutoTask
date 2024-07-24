@@ -98,12 +98,12 @@ export enum EStatusVoice {
 export interface HistoryUpdateDto {
   status: EStatusVoice;
   order?: {
-    id?: string;
-    code?: string;
+    id?: string | null;
+    code?: string | null;
   };
   task?: {
-    id?: string;
-    code?: string;
+    id?: string | null;
+    code?: string | null;
   };
   author: Pick<AccountPublic, 'id' | 'name' | 'email' | 'picture'>;
 }
