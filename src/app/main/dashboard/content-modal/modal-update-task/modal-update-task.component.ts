@@ -773,15 +773,6 @@ export class ModalUpdateTaskComponent
         return;
       }
       this.isOpenBackDrop = true;
-      // const modalCall = this.modalService.show(ModalCallComponent, {
-      //   class: 'modal-dialog-centered',
-      //   initialState: {
-      //     customerPhone: phone,
-      //     task: this.sourceData,
-      //   },
-      //   ignoreBackdropClick: true,
-      //   keyboard: false,
-      // });
       const modalCall = this.modalService.show(ModalConfirmCallComponent, {
         class: 'modal-dialog-centered',
         initialState: {
