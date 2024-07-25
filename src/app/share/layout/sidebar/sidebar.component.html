@@ -3,7 +3,7 @@
     <smaxapp-logo
       [bizAlias]="biz.alias"
       [currentModule]="biz.module"
-      [modules]="biz.modules"
+      [modules]="biz.user.modules || []"
       [quickModules]="biz.user.quickModules"
       [menuPlacement]="'right'"
     ></smaxapp-logo>

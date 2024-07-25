@@ -159,6 +159,7 @@ export interface User {
   roles?: BizRole[];
   isActive: boolean;
   moduleAliases: string[];
+  modules: BizModule[];
   createdAt?: Date;
 }
 export interface Team {
