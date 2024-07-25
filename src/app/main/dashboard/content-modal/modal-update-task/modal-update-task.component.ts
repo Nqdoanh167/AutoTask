@@ -26,7 +26,6 @@ import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.co
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {environment} from '../../../../../environments/environment';
-import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal-call.component';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
 import {ISource, IUpdateSourceDto} from '@app/types/setting';
