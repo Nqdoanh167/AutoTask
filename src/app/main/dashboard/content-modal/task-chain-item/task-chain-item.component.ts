@@ -1,4 +1,6 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -13,7 +15,7 @@ import {
   FormGroup,
   FormGroupDirective,
 } from '@angular/forms';
-import {finalize, Subject} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {
   EActionType,
   EDelayType,
@@ -40,6 +42,7 @@ import {optionToCloneTask} from '@app/variable';
   selector: 'app-task-chain-item',
   templateUrl: './task-chain-item.component.html',
   styleUrls: ['./task-chain-item.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskChainItemComponent implements OnDestroy, OnInit {
   @Input() permissions: {
@@ -86,6 +89,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     private readonly fb: FormBuilder,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
@@ -106,9 +110,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    this.rootFormGroup.valueChanges?.subscribe((value) => {
-      // console.log(value);
-    });
+    this.formItem.valueChanges
+      ?.pipe(takeUntil(this.destroy$))
+      .subscribe((value: any) => {
+        this.cdr.detectChanges();
+      });
     this.staticDataChainItem?.taskChainResults?.forEach((taskChainResult) => {
       taskChainResult['isEdit'] = false;
     });
