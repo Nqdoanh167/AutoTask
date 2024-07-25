@@ -219,10 +219,13 @@ export class DetailTaskData extends BaseComponentsComponent {
     this.detailTask = dataSource;
     if (!dataSource) return;
     if (!this.tabs.find((tab) => tab.value === ETabTaskDetail.HISTORY)) {
-      this.tabs.push({
-        label: 'Lịch sử',
-        value: ETabTaskDetail.HISTORY,
-      });
+      this.tabs = [
+        ...this.tabs,
+        {
+          label: 'Lịch sử',
+          value: ETabTaskDetail.HISTORY,
+        },
+      ];
     }
 
     this.updateForm.patchValue({
