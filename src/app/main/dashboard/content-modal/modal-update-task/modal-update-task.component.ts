@@ -254,111 +254,83 @@ export class ModalUpdateTaskComponent
   async handleUpdate() {
     const branchForm = this.f['branch'].value;
     const sourceForm = this.f['sourceForm'].value;
+
     if (sourceForm) {
       const newSource = await this.handleCreateSourceForm();
-      if (newSource) {
-        this.updateForm.patchValue({
-          sourceId: newSource.id,
-          sourceForm: null,
-        } as any);
-      } else {
-        return;
-      }
+      if (!newSource) return;
+      this.updateForm.patchValue({
+        sourceId: newSource.id,
+        sourceForm: null,
+      } as any);
     }
+
+    const body: ITaskDto | any = {
+      ...this.updateForm.value,
+      branch: branchForm
+        ? {
+            unit: branchForm.level,
+            id: branchForm.id,
+            name: branchForm.name,
+            department: branchForm.department,
+            departmentName: branchForm.departmentName,
+            team: branchForm.team,
+            teamName: branchForm.teamName,
+          }
+        : null,
+    };
+
+    this.loading.submit = true;
+    const taskObservable = this.sourceData?.id
+      ? this.autoTaskService.task.update(this.sourceData.id, body)
+      : this.autoTaskService.task.create(body);
+
+    if (this.sourceData?.id) delete body.addChainActIds;
+    else delete body.taskChains;
+
     return new Promise((resolve, reject) => {
-      this.loading.submit = true;
-      const body = {
-        ...this.updateForm.value,
-        branch: !!branchForm
-          ? {
-              unit: branchForm?.level,
-              id: branchForm?.id,
-              name: branchForm?.name,
-              department: branchForm?.department,
-              departmentName: branchForm?.departmentName,
-              team: branchForm?.team,
-              teamName: branchForm?.teamName,
+      taskObservable
+        .pipe(
+          finalize(() => (this.loading.submit = false)),
+          takeUntil(this.destroy$),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess(
+                this.sourceData?.id ? 'update' : 'create',
+              );
+              this.updateSuccess.emit();
+              this.sourceData = res.data;
+              this.patchForm(res.data);
+              resolve(res.data);
+              this.getDetailTask();
+            } else {
+              this.handleErrorResponse(res, reject);
             }
-          : null,
-      } as unknown as ITaskDto as any;
-      if (this.sourceData?.id) {
-        delete body.addChainActIds;
-        this.autoTaskService.task
-          .update(this.sourceData.id, body)
-          .pipe(
-            finalize(() => (this.loading.submit = false)),
-            takeUntil(this.destroy$),
-          )
-          .subscribe({
-            next: (res) => {
-              if (res.status === 200) {
-                this.commonService.handleResSuccess('update');
-                this.updateSuccess.emit();
-                resolve(res.data);
-                this.getDetailTask();
-              } else {
-                reject(res);
-                if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
-                  (res.data as any as Array<any>)?.map((err: any) => {
-                    if (err?.response?.subStatus === 'CUSTOMER.ADD_LIMIT') {
-                      this.toastr.error(
-                        'Số lượng Khách hàng đã đạt giới hạn của gói cước. Không thể tạo thêm bản ghi mới.',
-                      );
-                    } else {
-                      this.commonService.handleResErr(res);
-                    }
-                  });
-                } else {
-                  this.commonService.handleResErr(res);
-                }
-              }
-            },
-            error: (err) => {
-              reject(err);
-              this.commonService.handleErr(err);
-            },
-          });
-      } else {
-        delete body.taskChains;
-        this.autoTaskService.task
-          .create(body)
-          .pipe(
-            finalize(() => (this.loading.submit = false)),
-            takeUntil(this.destroy$),
-          )
-          .subscribe({
-            next: (res) => {
-              if (res.status === 200) {
-                this.commonService.handleResSuccess('create');
-                this.updateSuccess.emit();
-                this.sourceData = res.data;
-                this.patchForm(res.data);
-                resolve(res.data);
-                this.getDetailTask();
-              } else {
-                reject(res);
-                if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
-                  (res.data as any as Array<any>)?.map((err: any) => {
-                    if (err?.response?.subStatus === 'CUSTOMER.ADD_LIMIT') {
-                      this.toastr.error(
-                        'Số lượng Khách hàng đã đạt giới hạn của gói cước. Không thể tạo thêm bản ghi mới.',
-                      );
-                    } else {
-                      this.commonService.handleResErr(res);
-                    }
-                  });
-                } else {
-                  this.commonService.handleResErr(res);
-                }
-              }
-            },
-            error: (err) => {
-              reject(err);
-              this.commonService.handleErr(err);
-            },
-          });
-      }
+          },
+          error: (err) => {
+            this.commonService.handleErr(err);
+            reject(err);
+          },
+        });
     });
+  }
+
+  private handleErrorResponse(res: any, reject: (reason?: any) => void) {
+    reject(res);
+    if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
+      (res.data as any[]).forEach((err) => {
+        if (err?.response?.subStatus === 'CUSTOMER.ADD_LIMIT') {
+          this.toastr.error(
+            'Số lượng Khách hàng đã đạt giới hạn của gói cước. Không thể tạo thêm bản ghi mới.',
+          );
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      });
+    } else {
+      this.commonService.handleResErr(res);
+    }
   }
 
   onSubmit(): void {
