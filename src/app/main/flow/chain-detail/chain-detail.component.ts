@@ -469,7 +469,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               this.removedChainActResultIds.filter((id) => {
                 id !== res.data.actionResults[index].id;
               });
-              this.clearRemovedActionInChainResult(chainActResult.id);
+              if (chainActResult.id) {
+                this.clearRemovedActionInChainResult(chainActResult.id);
+              }
             } else {
               this.commonService.handleResErr(res);
             }
