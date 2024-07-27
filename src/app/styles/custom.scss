@@ -42,6 +42,12 @@ input.custom-input-color {
   background: #e7e9ef;
 }
 
+.text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 // Form
 .custom-form {
   &.disabled {

@@ -69,7 +69,7 @@
                     [value]="item.id"
                     [disabled]="!item.isActive"
                   >
-                    <div>
+                    <div class="text-ellipsis" [title]="item.name">
                       @if (item.picture) {
                         <img
                           src="{{ item.picture }}"
