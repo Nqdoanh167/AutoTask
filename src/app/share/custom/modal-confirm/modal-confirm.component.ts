@@ -1,10 +1,8 @@
 import {
   Component,
-  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output,
   Renderer2,
   TemplateRef,
   ViewChild,
