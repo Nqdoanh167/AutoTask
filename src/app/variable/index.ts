@@ -38,9 +38,9 @@ export const listColumns: IDataColumns = {
       tooltip: 'Sản phẩm quan tâm',
     },
     {
-      name: 'Số lượng đơn hàng',
+      name: 'Đơn hàng đã tạo',
       value: 'orderIds',
-      tooltip: 'Số lượng đơn hàng',
+      tooltip: 'Đơn hàng đã tạo',
     },
     {
       name: 'Nhân viên phụ trách',

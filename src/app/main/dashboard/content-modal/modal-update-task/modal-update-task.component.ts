@@ -713,19 +713,23 @@ export class ModalUpdateTaskComponent
   }
 
   async handleCreateTaskOrder() {
-    if (!this.sourceData?.id) return;
+    if (!this.sourceData?.id || this.loading.createOrder) return;
+    this.loading.createOrder = true;
     try {
       this.submitted = true;
       if (this.updateForm.invalid) return;
       await this.handleUpdate();
     } catch (e) {
+      this.loading.createOrder = false;
       console.log(e);
       return;
     }
-    this.loading.createOrder = true;
     this.autoTaskService.task
       .createOrder(this.sourceData?.id!)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        finalize(() => (this.loading.createOrder = false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -733,6 +737,7 @@ export class ModalUpdateTaskComponent
               undefined,
               'Tạo đơn hàng thành công',
             );
+            this.orders.rows = [{} as any];
             this.updateSuccess.emit();
             this.getDetailTask();
           } else {
@@ -747,9 +752,6 @@ export class ModalUpdateTaskComponent
               this.commonService.handleResErr(res);
             }
           }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
         },
       });
   }
