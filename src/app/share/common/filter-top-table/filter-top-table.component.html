@@ -66,8 +66,9 @@
         type="button"
         (click)="handleOpenPopover($event)"
         [popover]="popTemplate"
-        [outsideClick]="true"
+        [outsideClick]="false"
         [placement]="'bottom left'"
+        #popFilter="bs-popover"
         containerClass="filter-advance-popover-tab custom-popover-tab"
       >
         <i class="fa-solid fa-sliders"></i>
@@ -81,6 +82,9 @@
       </button>
       <ng-template #popTemplate>
         <div class="popover-tab">
+          <button class="button-close btn" (click)="popFilter.hide()">
+            <i class="fa-solid fa-times"></i>
+          </button>
           <div class="row align-items-center my-2">
             <div class="fw-normal col-12">
               <i class="fa-solid fa-question-circle me-2"></i>
