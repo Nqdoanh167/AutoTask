@@ -301,6 +301,13 @@ export class DetailTaskData extends BaseComponentsComponent {
           branch: foundUnit as any,
         });
       }
+      if (dataSource.tags?.length) {
+        if (dataSource.tags.every((tag) => typeof tag === 'object')) {
+          this.updateForm.patchValue({
+            tags: dataSource.tags?.map((tag) => tag.id),
+          } as any);
+        }
+      }
       this.formTaskChains.clear();
       dataSource.taskChains?.forEach((taskChain) => {
         const taskChainForm = this.fb.group({
