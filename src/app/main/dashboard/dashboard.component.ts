@@ -237,6 +237,7 @@ export class DashboardComponent
     this.router.navigate([], {
       queryParams: {
         id: null,
+        code: null,
       },
       queryParamsHandling: 'merge',
     });
