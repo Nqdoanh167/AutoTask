@@ -96,15 +96,15 @@ export class ModalUpdateTaskComponent
 
   async ngOnInit() {
     this.loading.modal = true;
-    if (!this.sourceData && !this.taskId && !this.code) {
-      this.loading.modal = false;
-      this.patchForm();
-    }
     const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
     if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {
       this.autoTaskSetting = autoTaskSettingRes.data;
     } else {
       this.commonService.handleResErr(autoTaskSettingRes);
+    }
+    if (!this.sourceData && !this.taskId && !this.code) {
+      this.loading.modal = false;
+      this.patchForm();
     }
     this.hasPermitSmsOttCall = !!this.currentUser?.moduleAliases?.find(
       (el) => el === 'sms-ott-call',
