@@ -92,6 +92,7 @@ export class DetailTaskData extends BaseComponentsComponent {
     addTaskChain: false,
     createOrder: false,
     deleteTask: false,
+    modal: false,
   };
   protected tags: EntityPagination<ITag> = {
     rows: [],
@@ -452,6 +453,7 @@ export class DetailTaskData extends BaseComponentsComponent {
         });
         (<FormArray>this.updateForm.controls.taskChains).push(taskChainForm);
       });
+      this.loading.modal = false;
     } catch (e) {
       console.log(e);
     }

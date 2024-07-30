@@ -2,10 +2,12 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
   QueryList,
+  SimpleChanges,
   ViewChildren,
 } from '@angular/core';
 import {distinctUntilKeyChanged, finalize, Subject, takeUntil} from 'rxjs';
@@ -32,12 +34,14 @@ type ViewOrderType = 'completed' | 'cancelled';
   templateUrl: './customer-info.component.html',
   styleUrls: ['./customer-info.component.scss'],
 })
-export class CustomerInfoComponent implements OnDestroy, OnInit {
+export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   @ViewChildren(InputSuggestCustomerComponent)
   inputSuggestCustomers!: QueryList<InputSuggestCustomerComponent>;
   @Input() formGroup!: FormGroup;
   @Input() submitted: boolean = false;
   @Input() hasUpdateTaskPer: boolean = false;
+  @Input() selectedCustomerId: string = '';
+
   @Input() isOpenBackdrop: boolean = false;
   @Output() isOpenBackdropChange = new EventEmitter<boolean>();
 
@@ -88,27 +92,36 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     return this.formGroup.controls;
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (
+      changes?.['selectedCustomerId'] &&
+      changes?.['selectedCustomerId']?.currentValue
+    ) {
+      this.getCustomerDetail(this.selectedCustomerId);
+    }
+  }
+
   ngOnInit(): void {
     if (!this.hasUpdateTaskPer) {
       this.formGroup.disable();
     }
     this.getTag();
     this.getProvince();
-    this.formGroup.valueChanges
-      .pipe(distinctUntilKeyChanged('id'))
-      .subscribe((value) => {
-        if (value?.id) {
-          this.getCustomerDetail(value.id);
-          if (value?.provinceCode) {
-            this.getDistrict(value?.provinceCode);
-          }
-          if (value?.districtCode) {
-            this.getWard(value?.provinceCode, value?.districtCode);
-          }
-        } else {
-          this.selectedCustomer = null;
-        }
-      });
+    // this.formGroup.valueChanges
+    //   .pipe(distinctUntilKeyChanged('id'))
+    //   .subscribe((value) => {
+    //     if (value?.id) {
+    //       this.getCustomerDetail(value.id);
+    //       if (value?.provinceCode) {
+    //         this.getDistrict(value?.provinceCode);
+    //       }
+    //       if (value?.districtCode) {
+    //         this.getWard(value?.provinceCode, value?.districtCode);
+    //       }
+    //     } else {
+    //       this.selectedCustomer = null;
+    //     }
+    //   });
   }
 
   getCustomerDetail(id: string) {
@@ -124,6 +137,12 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
         next: (res) => {
           if (res && res.status === 200) {
             this.selectedCustomer = res.data;
+            if (res.data?.provinceCode) {
+              this.getDistrict(res.data?.provinceCode);
+            }
+            if (res.data?.districtCode) {
+              this.getWard(res.data?.provinceCode, res.data?.districtCode);
+            }
           } else {
             this.commonService.handleResErr(res);
           }
