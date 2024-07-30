@@ -1,11 +1,18 @@
 import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
-import {inject} from '@angular/core';
-import {finalize, takeUntil} from 'rxjs';
+import {ChangeDetectorRef, inject} from '@angular/core';
+import {
+  BehaviorSubject,
+  finalize,
+  forkJoin,
+  lastValueFrom,
+  takeUntil,
+} from 'rxjs';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import {uniqBy} from 'lodash';
+import {cloneDeep, uniqBy} from 'lodash';
 import {
   EntityPagination,
+  FlatBranch,
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
@@ -173,6 +180,8 @@ export class DetailTaskData extends BaseComponentsComponent {
     },
   ];
 
+  public infoUnit$ = new BehaviorSubject<FlatBranch | undefined>(undefined);
+
   constructor() {
     super();
   }
@@ -214,190 +223,252 @@ export class DetailTaskData extends BaseComponentsComponent {
     return this.addTaskChainForm.controls;
   }
 
-  patchForm(dataSource?: ITask) {
-    this.detailTask = dataSource;
-    if (!dataSource) return;
-    if (!this.tabs.find((tab) => tab.value === ETabTaskDetail.HISTORY)) {
-      this.tabs = [
-        ...this.tabs,
-        {
-          label: 'Lịch sử',
-          value: ETabTaskDetail.HISTORY,
-        },
-      ];
-    }
+  mappingTeams() {
+    this.formTeams.clear();
+    this.autoTaskSetting?.roles?.forEach((role) => {
+      const findRole = this.currentBiz!.roles.find((r) => r.id === role);
+      let initTeam = null;
+      if (
+        !this.detailTask &&
+        findRole?.id === this.autoTaskSetting.assignRole
+      ) {
+        initTeam = {
+          userId: this.currentBiz!.user.id,
+          userName: this.currentBiz!.user.name,
+          userPicture: this.currentBiz!.user.picture,
+          userEmail: this.currentBiz!.user.email,
+        };
+      }
 
-    this.updateForm.patchValue({
-      ...dataSource,
-      leadDeal: {
-        ...dataSource?.leadDeal,
-        id: dataSource?.leadDeal?.id,
-      },
-      counselorId: dataSource?.counselor?.id,
-    } as any);
-    if (dataSource.branch) {
-      const foundUnit = this.autoTaskService.findUnitFromData(
-        dataSource.branch,
+      const findTeam = this.detailTask?.teams?.find(
+        (team) => team.roleId === role,
       );
-      this.updateForm.patchValue({
-        branch: foundUnit as any,
-      });
-    }
-    this.formTaskChains.clear();
-    dataSource.taskChains?.forEach((taskChain) => {
-      const taskChainForm = this.fb.group({
-        id: taskChain.id,
-        name: taskChain.name,
-        status: taskChain.status,
-        chainActId: taskChain.chainActId,
-        taskChainResults: this.fb.array([]),
-      });
-      taskChain.taskChainResults?.forEach((taskChainResult) => {
-        let deadlineDay = 0;
-        let deadlineHour = 0;
-        let deadlineMinute = 0;
-        let typeOverDeadline = 'notOver';
-        if (taskChainResult.deadlineDate) {
-          const executedDate = taskChainResult.executedDate || new Date();
-          const subDate = calculateTime(
-            taskChainResult.deadlineDate,
-            executedDate,
-            'metrics',
-          ) as {days?: number; hours?: number; minutes?: number};
-          if (
-            subDate.days === 0 &&
-            subDate.hours === 0 &&
-            subDate.minutes === 0
-          ) {
-            typeOverDeadline = 'now';
-          } else if (
-            moment(executedDate).isAfter(taskChainResult.deadlineDate)
-          ) {
-            typeOverDeadline = 'over';
-          }
-          if (typeOverDeadline !== 'over') {
-            deadlineDay = subDate.days || 0;
-            deadlineHour = subDate.hours || 0;
-            deadlineMinute = subDate.minutes || 0;
-          }
-        }
-        const resultIndex = taskChainResult.results?.findIndex(
-          (result) => result.result?.id === taskChainResult.result?.id,
-        );
-        const reasonIndex = taskChainResult.action?.reasons?.findIndex(
-          (reason) => reason?.id === taskChainResult?.reason?.id,
-        );
-        const taskChainResultForm = this.fb.group({
-          id: taskChainResult?.id,
-          status: taskChainResult?.status,
-          deadlineDate: taskChainResult.deadlineDate,
-          executedDate: taskChainResult.executedDate,
-          deadlineDay: deadlineDay,
-          deadlineHour: deadlineHour,
-          deadlineMinute: deadlineMinute,
-          typeOverDeadline: typeOverDeadline,
-          action: this.fb.group({
-            id: taskChainResult?.action?.id,
-            name: taskChainResult?.action?.name,
-            type: taskChainResult?.action?.type,
-            reasons: this.fb.array([]),
-            callBlockAutomation: this.fb.group({
-              blockId: taskChainResult?.action?.callBlockAutomation?.blockId,
-            }),
-          }),
-          resultIndex: resultIndex >= 0 ? resultIndex : null,
-          reasonIndex:
-            reasonIndex !== undefined && reasonIndex >= 0 ? reasonIndex : null,
-          note: taskChainResult.note,
-          result: this.fb.group({
-            id: taskChainResult?.result?.id,
-            name: taskChainResult?.result?.name,
-          }),
-          reason: this.fb.group({
-            id: taskChainResult?.reason?.id,
-            name: taskChainResult?.reason?.name,
-          }),
-          results: this.fb.array([]),
-          nextActions: this.fb.array([]),
-          isEdit: false,
-        });
-        taskChainResult?.action?.reasons?.forEach((reason) => {
-          const reasonForm = this.fb.group({
-            id: reason.id,
-            name: reason.name,
-          });
-          (<FormArray>(
-            (<FormGroup>taskChainResultForm.controls.action).controls['reasons']
-          )).push(reasonForm);
-        });
-        taskChainResult.results?.forEach((result) => {
-          const resultForm = this.fb.group({
-            result: this.fb.group({
-              id: result.result?.id,
-              name: result.result?.name,
-            }),
-            nextActions: this.fb.array([]),
-          });
-          result.nextActions?.forEach((nextAction) => {
-            const nextActionForm = this.fb.group({
-              addNewChain: nextAction.addNewChain,
-              callBlockAutomation: nextAction.callBlockAutomation,
-              closeCloneTask: [nextAction.closeCloneTask],
-              delayType: nextAction.delayType,
-              delayValue: nextAction.delayValue,
-              moveToAction: nextAction.moveToAction,
-              nextAction: nextAction.nextAction,
-              type: nextAction.type,
-              status: nextAction.status,
-            });
-            (<FormArray>resultForm.controls.nextActions).push(nextActionForm);
-          });
-          (<FormArray>taskChainResultForm.controls.results).push(resultForm);
-        });
-        (<FormArray>taskChainForm.controls.taskChainResults).push(
-          taskChainResultForm,
-        );
 
-        taskChainResult.nextActions?.forEach((nextAction) => {
-          const nextActionForm = this.fb.group({
-            action: nextAction.action,
-            deadlineDate: nextAction.deadlineDate,
-            status: nextAction.status,
-            executedDate: nextAction.executedDate,
-            childNextAction: this.fb.group({
-              delayType: nextAction?.childNextAction?.delayType,
-              moveToAction: nextAction?.childNextAction?.moveToAction,
-              callBlockAutomation:
-                nextAction?.childNextAction?.callBlockAutomation,
-              closeCloneTask: [nextAction?.childNextAction?.closeCloneTask],
-              addNewChain: nextAction?.childNextAction?.addNewChain,
-              nextAction: nextAction?.childNextAction?.nextAction,
-              type: nextAction?.childNextAction?.type,
-              delayValue: nextAction?.childNextAction?.delayValue,
-            }),
-          });
-          (<FormArray>taskChainResultForm.controls.nextActions).push(
-            nextActionForm,
-          );
-        });
-      });
-      (<FormArray>this.updateForm.controls.taskChains).push(taskChainForm);
+      this.formTeams.push(
+        this.fb.group({
+          roleId: findRole?.id,
+          roleIcon: findRole?.icon,
+          roleName: findRole?.name,
+          userId: initTeam?.userId || findTeam?.userId || null,
+          userName: initTeam?.userName || findTeam?.userName || null,
+          userPicture: initTeam?.userPicture || findTeam?.userPicture || null,
+          userEmail: initTeam?.userEmail || findTeam?.userEmail || null,
+        }),
+      );
     });
   }
 
+  getInfoUnit(id?: string | null) {
+    this.infoUnit$.next(this.authService.getInfoInUnit(id));
+  }
+
+  patchForm(dataSource?: ITask) {
+    try {
+      this.detailTask = dataSource && cloneDeep(dataSource);
+      this.mappingTeams();
+      if (!dataSource) return;
+      if (dataSource.branch) {
+        const {branch} = dataSource;
+        this.getInfoUnit(branch?.team || branch?.department || branch?.id);
+      }
+      if (dataSource.orderIds?.length > 0) {
+        this.getOrderDetail(dataSource.orderIds);
+      }
+      if (!this.tabs.find((tab) => tab.value === ETabTaskDetail.HISTORY)) {
+        this.tabs = [
+          ...this.tabs,
+          {
+            label: 'Lịch sử',
+            value: ETabTaskDetail.HISTORY,
+          },
+        ];
+      }
+
+      this.updateForm.patchValue({
+        ...dataSource,
+        leadDeal: {
+          ...dataSource?.leadDeal,
+          id: dataSource?.leadDeal?.id,
+        },
+        counselorId: dataSource?.counselor?.id,
+        teams: null,
+      } as any);
+      if (dataSource.branch) {
+        const foundUnit = this.autoTaskService.findUnitFromData(
+          dataSource.branch,
+        );
+        this.updateForm.patchValue({
+          branch: foundUnit as any,
+        });
+      }
+      this.formTaskChains.clear();
+      dataSource.taskChains?.forEach((taskChain) => {
+        const taskChainForm = this.fb.group({
+          id: taskChain.id,
+          name: taskChain.name,
+          status: taskChain.status,
+          chainActId: taskChain.chainActId,
+          taskChainResults: this.fb.array([]),
+        });
+        taskChain.taskChainResults?.forEach((taskChainResult) => {
+          let deadlineDay = 0;
+          let deadlineHour = 0;
+          let deadlineMinute = 0;
+          let typeOverDeadline = 'notOver';
+          if (taskChainResult.deadlineDate) {
+            const executedDate = taskChainResult.executedDate || new Date();
+            const subDate = calculateTime(
+              taskChainResult.deadlineDate,
+              executedDate,
+              'metrics',
+            ) as {days?: number; hours?: number; minutes?: number};
+            if (
+              subDate.days === 0 &&
+              subDate.hours === 0 &&
+              subDate.minutes === 0
+            ) {
+              typeOverDeadline = 'now';
+            } else if (
+              moment(executedDate).isAfter(taskChainResult.deadlineDate)
+            ) {
+              typeOverDeadline = 'over';
+            }
+            if (typeOverDeadline !== 'over') {
+              deadlineDay = subDate.days || 0;
+              deadlineHour = subDate.hours || 0;
+              deadlineMinute = subDate.minutes || 0;
+            }
+          }
+          const resultIndex = taskChainResult.results?.findIndex(
+            (result) => result.result?.id === taskChainResult.result?.id,
+          );
+          const reasonIndex = taskChainResult.action?.reasons?.findIndex(
+            (reason) => reason?.id === taskChainResult?.reason?.id,
+          );
+          const taskChainResultForm = this.fb.group({
+            id: taskChainResult?.id,
+            status: taskChainResult?.status,
+            deadlineDate: taskChainResult.deadlineDate,
+            executedDate: taskChainResult.executedDate,
+            deadlineDay: deadlineDay,
+            deadlineHour: deadlineHour,
+            deadlineMinute: deadlineMinute,
+            typeOverDeadline: typeOverDeadline,
+            action: this.fb.group({
+              id: taskChainResult?.action?.id,
+              name: taskChainResult?.action?.name,
+              type: taskChainResult?.action?.type,
+              reasons: this.fb.array([]),
+              callBlockAutomation: this.fb.group({
+                blockId: taskChainResult?.action?.callBlockAutomation?.blockId,
+              }),
+            }),
+            resultIndex: resultIndex >= 0 ? resultIndex : null,
+            reasonIndex:
+              reasonIndex !== undefined && reasonIndex >= 0
+                ? reasonIndex
+                : null,
+            note: taskChainResult.note,
+            result: this.fb.group({
+              id: taskChainResult?.result?.id,
+              name: taskChainResult?.result?.name,
+            }),
+            reason: this.fb.group({
+              id: taskChainResult?.reason?.id,
+              name: taskChainResult?.reason?.name,
+            }),
+            results: this.fb.array([]),
+            nextActions: this.fb.array([]),
+            isEdit: false,
+          });
+          taskChainResult?.action?.reasons?.forEach((reason) => {
+            const reasonForm = this.fb.group({
+              id: reason.id,
+              name: reason.name,
+            });
+            (<FormArray>(
+              (<FormGroup>taskChainResultForm.controls.action).controls[
+                'reasons'
+              ]
+            )).push(reasonForm);
+          });
+          taskChainResult.results?.forEach((result) => {
+            const resultForm = this.fb.group({
+              result: this.fb.group({
+                id: result.result?.id,
+                name: result.result?.name,
+              }),
+              nextActions: this.fb.array([]),
+            });
+            result.nextActions?.forEach((nextAction) => {
+              const nextActionForm = this.fb.group({
+                addNewChain: nextAction.addNewChain,
+                callBlockAutomation: nextAction.callBlockAutomation,
+                closeCloneTask: [nextAction.closeCloneTask],
+                delayType: nextAction.delayType,
+                delayValue: nextAction.delayValue,
+                moveToAction: nextAction.moveToAction,
+                nextAction: nextAction.nextAction,
+                type: nextAction.type,
+                status: nextAction.status,
+              });
+              (<FormArray>resultForm.controls.nextActions).push(nextActionForm);
+            });
+            (<FormArray>taskChainResultForm.controls.results).push(resultForm);
+          });
+          (<FormArray>taskChainForm.controls.taskChainResults).push(
+            taskChainResultForm,
+          );
+
+          taskChainResult.nextActions?.forEach((nextAction) => {
+            const nextActionForm = this.fb.group({
+              action: nextAction.action,
+              deadlineDate: nextAction.deadlineDate,
+              status: nextAction.status,
+              executedDate: nextAction.executedDate,
+              childNextAction: this.fb.group({
+                delayType: nextAction?.childNextAction?.delayType,
+                moveToAction: nextAction?.childNextAction?.moveToAction,
+                callBlockAutomation:
+                  nextAction?.childNextAction?.callBlockAutomation,
+                closeCloneTask: [nextAction?.childNextAction?.closeCloneTask],
+                addNewChain: nextAction?.childNextAction?.addNewChain,
+                nextAction: nextAction?.childNextAction?.nextAction,
+                type: nextAction?.childNextAction?.type,
+                delayValue: nextAction?.childNextAction?.delayValue,
+              }),
+            });
+            (<FormArray>taskChainResultForm.controls.nextActions).push(
+              nextActionForm,
+            );
+          });
+        });
+        (<FormArray>this.updateForm.controls.taskChains).push(taskChainForm);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   getTag() {
-    this.autoTaskService.tag.get().subscribe({
-      next: (res) => {
-        if (res && res.status === 200) {
-          this.tags.rows = res.data;
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      error: (err) => {
-        this.commonService.handleErr(err);
-      },
-    });
+    this.autoTaskService.tag
+      .get()
+      .pipe(
+        finalize(() => {}),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            this.tags.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
   }
 
   getOrderDetail(orderIds: string[]) {
@@ -422,8 +493,8 @@ export class DetailTaskData extends BaseComponentsComponent {
     this.autoTaskService.chainAction
       .get(this.actionChains.paramsQuery)
       .pipe(
-        takeUntil(this.destroy$),
         finalize(() => (this.actionChains.loading = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
@@ -452,8 +523,8 @@ export class DetailTaskData extends BaseComponentsComponent {
     this.autoTaskService.source
       .get(this.sources.paramsQuery)
       .pipe(
-        takeUntil(this.destroy$),
         finalize(() => (this.sources.loading = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
@@ -482,8 +553,8 @@ export class DetailTaskData extends BaseComponentsComponent {
     this.autoTaskService.actionResult
       .get(this.results.paramsQuery)
       .pipe(
-        takeUntil(this.destroy$),
         finalize(() => (this.results.loading = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
@@ -512,8 +583,8 @@ export class DetailTaskData extends BaseComponentsComponent {
     this.autoTaskService.action
       .get(this.actions.paramsQuery)
       .pipe(
-        takeUntil(this.destroy$),
         finalize(() => (this.actions.loading = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
@@ -560,51 +631,6 @@ export class DetailTaskData extends BaseComponentsComponent {
   }
 
   getAutoTaskSetting() {
-    if (!this.currentBiz) return;
-    this.autoTaskService.setting
-      .retrieve({bizId: this.currentBiz?.id})
-      .subscribe({
-        next: (res) => {
-          if (res && res.status === 200) {
-            this.autoTaskSetting = res.data;
-            res.data.roles?.forEach((role) => {
-              const findRole = this.currentBiz!.roles.find(
-                (r) => r.id === role,
-              );
-              let initTeam = null;
-              if (!this.detailTask && findRole?.id === res.data.assignRole) {
-                initTeam = {
-                  userId: this.currentBiz!.user.id,
-                  userName: this.currentBiz!.user.name,
-                  userPicture: this.currentBiz!.user.picture,
-                  userEmail: this.currentBiz!.user.email,
-                };
-              }
-
-              const findTeam = this.detailTask?.teams?.find(
-                (team) => team.roleId === role,
-              );
-
-              this.formTeams.push(
-                this.fb.group({
-                  roleId: findRole?.id,
-                  roleIcon: findRole?.icon,
-                  roleName: findRole?.name,
-                  userId: initTeam?.userId || findTeam?.userId || null,
-                  userName: initTeam?.userName || findTeam?.userName || null,
-                  userPicture:
-                    initTeam?.userPicture || findTeam?.userPicture || null,
-                  userEmail: initTeam?.userEmail || findTeam?.userEmail || null,
-                }),
-              );
-            });
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
+    return this.autoTaskService.setting.retrieve({bizId: this.currentBiz?.id});
   }
 }

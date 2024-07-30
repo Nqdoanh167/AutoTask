@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -17,7 +18,7 @@ import {
   ITaskDto,
   ModifiedUserUnit,
 } from '@app/types/flow';
-import {finalize, take, takeUntil} from 'rxjs';
+import {finalize, lastValueFrom, take, takeUntil} from 'rxjs';
 import {FormArray, FormGroup, ValidationErrors} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ERole, ESocialPlatform, ITag, User} from '@app/types/viewmodels';
@@ -93,17 +94,21 @@ export class ModalUpdateTaskComponent
       });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
+    if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {
+      this.autoTaskSetting = autoTaskSettingRes.data;
+    } else {
+      this.commonService.handleResErr(autoTaskSettingRes);
+    }
     this.hasPermitSmsOttCall = !!this.currentUser?.moduleAliases?.find(
       (el) => el === 'sms-ott-call',
     );
     this.handleCheckPermission();
+    if (!this.sourceData && !this.taskId && !this.code) {
+      this.patchForm();
+    }
     if (this.sourceData) {
-      this.patchForm(this.sourceData);
-      if (this.sourceData.branch) {
-        const {branch} = this.sourceData;
-        this.getInfoUnit(branch?.team || branch?.department || branch?.id);
-      }
     } else {
       const branch = this.autoTaskService.getFirstUnit();
       this.updateForm.patchValue({
@@ -132,9 +137,6 @@ export class ModalUpdateTaskComponent
         next: (res) => {
           if (res.status === 200) {
             this.sourceData = res.data;
-            if (res.data.orderIds?.length > 0) {
-              this.getOrderDetail(res.data.orderIds);
-            }
             this.patchForm(res.data);
             if (isRefresh) {
               this.customerInfoComponent.handleClearSelectValue();
@@ -162,9 +164,6 @@ export class ModalUpdateTaskComponent
           const detailTask = res?.data?.[0];
           if (res.status === 200 && detailTask) {
             this.sourceData = detailTask;
-            if (detailTask.orderIds?.length > 0) {
-              this.getOrderDetail(detailTask.orderIds);
-            }
             this.patchForm(detailTask);
           } else {
             this.commonService.handleResErr(res);
@@ -747,15 +746,6 @@ export class ModalUpdateTaskComponent
         return;
       }
       this.isOpenBackDrop = true;
-      // const modalCall = this.modalService.show(ModalCallComponent, {
-      //   class: 'modal-dialog-centered',
-      //   initialState: {
-      //     customerPhone: phone,
-      //     task: this.sourceData,
-      //   },
-      //   ignoreBackdropClick: true,
-      //   keyboard: false,
-      // });
       const modalCall = this.modalService.show(ModalConfirmCallComponent, {
         class: 'modal-dialog-centered',
         initialState: {
