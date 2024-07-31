@@ -350,10 +350,6 @@ export class AddEditPermissionComponent
     group: IPermissionGroups,
   ) {
     try {
-      console.log({
-        permission,
-        group,
-      });
       const {checked} = event.target as HTMLInputElement;
       let value: string[] =
         this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
