@@ -174,6 +174,7 @@ export interface IPermissionItem {
   name: string;
   isRootPer?: boolean;
   tooltip?: string;
+  dependsOnPer?: EPerActTask | EPerActFlow | EPerActSetting;
 }
 
 export interface IPermissionGroups {

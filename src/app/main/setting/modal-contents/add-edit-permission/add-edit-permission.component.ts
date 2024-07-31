@@ -106,11 +106,18 @@ export class AddEditPermissionComponent
               key: EPerActTask.MANAGE_CHAIN,
               name: 'Quản lý chuỗi hành động',
               tooltip:
-                'Thêm Sửa/Xóa/Đóng chuỗi + Thêm/Sửa/Xóa hành động trong chuỗi (không bao gồm quyền chỉnh sửa thời gian kết thúc hành động) ',
+                'Thêm Sửa/Xóa/Đóng chuỗi + Thêm/Sửa/Xóa hành động trong chuỗi (không bao gồm quyền chỉnh sửa thời gian kết thúc hành động)' +
+                '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
+              dependsOnPer: EPerActTask.UPDATE_TASK,
             },
             {
               key: EPerActTask.EDIT_TIME_ACTION,
               name: 'Chỉnh thời gian kết thúc hành động',
+              tooltip:
+                '<div>Chỉnh sửa, gia hạn hoặc rút ngắn thời gian của 1 hành động trong tác vụ.' +
+                'Điều này có thể ảnh hưởng đến KPI/OKR của nhân viên.</div>' +
+                '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
+              dependsOnPer: EPerActTask.UPDATE_TASK,
             },
           ],
         },
@@ -121,7 +128,9 @@ export class AddEditPermissionComponent
               key: EPerActTask.CREATE_ORDER,
               name: 'Tạo đơn hàng từ Tác vụ',
               tooltip:
-                'Nhân viên có thể tạo Đơn hàng trong module Quản lý bán hàng kể cả khi không có quyền truy cập module này',
+                'Nhân viên có thể tạo Đơn hàng trong module Quản lý bán hàng kể cả khi không có quyền truy cập module này.' +
+                '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
+              dependsOnPer: EPerActTask.UPDATE_TASK,
             },
           ],
         },
@@ -324,6 +333,10 @@ export class AddEditPermissionComponent
     group: IPermissionGroups,
   ) {
     try {
+      console.log({
+        permission,
+        group,
+      });
       const {checked} = event.target as HTMLInputElement;
       let value: string[] =
         this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
@@ -341,9 +354,39 @@ export class AddEditPermissionComponent
       this.updateForm
         .get(`permissionAction.${group.key}`)
         ?.setValue(value as any);
+      if (permission.key === EPerActTask.UPDATE_TASK && !checked) {
+        const currentTaskPerms =
+          this.updateForm.get('permissionAction.task')?.value ||
+          ([] as string[]);
+        const filterTaskPerms = currentTaskPerms.filter((el) => {
+          return ![
+            EPerActTask.MANAGE_CHAIN,
+            EPerActTask.EDIT_TIME_ACTION,
+            EPerActTask.CREATE_ORDER,
+          ].includes(el as any);
+        });
+        this.updateForm
+          .get(`permissionAction.task`)
+          ?.setValue(filterTaskPerms as any);
+      }
     } catch (e) {
       console.log(e);
     }
+  }
+
+  checkDisable(permission: IPermissionItem, group: IPermissionGroups) {
+    if (permission?.dependsOnPer) {
+      const dependsOnPerValue = this.formPermissionAction(
+        group.key,
+      )?.value?.includes(permission?.dependsOnPer);
+      if (!dependsOnPerValue) {
+        return true;
+      }
+    }
+    return (
+      !permission.isRootPer &&
+      !this.formPermissionAction(group.key)?.value?.length
+    );
   }
 
   ngOnDestroy() {

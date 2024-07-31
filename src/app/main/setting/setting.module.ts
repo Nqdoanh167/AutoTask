@@ -32,6 +32,7 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {TreeSelectModule} from 'primeng/treeselect';
 import {TimeViewPipe} from '@share/pipe/timeView.pipe';
 import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
+import {LetDirective} from '@share/directive/ng-let.directive';
 
 @NgModule({
   declarations: [
@@ -71,6 +72,7 @@ import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
     TreeSelectModule,
     TimeViewPipe,
     GetDataArrayPipe,
+    LetDirective,
   ],
 })
 export class SettingModule {}

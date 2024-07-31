@@ -112,14 +112,18 @@
                                 permission of subGr.permissions;
                                 track $index
                               ) {
-                                <div class="col-4">
+                                <div
+                                  class="col-4"
+                                  *ngLet="
+                                    checkDisable(
+                                      permission,
+                                      group
+                                    ) as isDisabled
+                                  "
+                                >
                                   <label
                                     class="basic-checkbox"
-                                    [class.disabled]="
-                                      !permission.isRootPer &&
-                                      !formPermissionAction(group.key)?.value
-                                        ?.length
-                                    "
+                                    [class.disabled]="isDisabled"
                                   >
                                     <div class="ms-2">
                                       {{ permission['name'] }}
@@ -144,11 +148,7 @@
                                         ).includes(permission['key'])
                                       "
                                       [value]="permission['key']"
-                                      [disabled]="
-                                        !permission.isRootPer &&
-                                        !formPermissionAction(group.key)?.value
-                                          ?.length
-                                      "
+                                      [disabled]="isDisabled"
                                       type="checkbox"
                                       (change)="
                                         onCheckboxChange(
