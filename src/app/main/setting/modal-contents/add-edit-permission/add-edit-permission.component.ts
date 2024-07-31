@@ -76,12 +76,14 @@ export class AddEditPermissionComponent
                 <li>4. Quản trị chi nhánh xem được toàn bộ tác vụ của chi nhánh và phòng ban, đội nhóm trong đó</li>
                 <li>5. ROOT hoặc quản lý Biz xem được toàn bộ tác vụ của mọi người trong Biz</li>
                 </ul>`,
+              class: 'col-4',
             },
             {
               key: EPerActTask.VIEW_TASK_SAME_LEVEL,
               name: 'Xem tác vụ của nhân sự cùng cấp',
               tooltip:
                 'Nhân viên bình thường sẽ xem được tác vụ của các nhân sự cùng đội nhóm với họ',
+              class: 'col-8',
             },
             {
               key: EPerActTask.CREATE_TASK,
@@ -101,7 +103,11 @@ export class AddEditPermissionComponent
         {
           name: 'Chi tiết Tác vụ',
           permissions: [
-            {key: EPerActTask.VIEW_HISTORY_TASK, name: 'Xem tab lịch sử'},
+            {
+              key: EPerActTask.VIEW_HISTORY_TASK,
+              name: 'Xem tab lịch sử',
+              class: 'col-12',
+            },
             {
               key: EPerActTask.MANAGE_CHAIN,
               name: 'Quản lý chuỗi hành động',
@@ -109,6 +115,7 @@ export class AddEditPermissionComponent
                 'Thêm Sửa/Xóa/Đóng chuỗi + Thêm/Sửa/Xóa hành động trong chuỗi (không bao gồm quyền chỉnh sửa thời gian kết thúc hành động)' +
                 '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
               dependsOnPer: EPerActTask.UPDATE_TASK,
+              class: 'col-4',
             },
             {
               key: EPerActTask.EDIT_TIME_ACTION,
@@ -118,6 +125,7 @@ export class AddEditPermissionComponent
                 'Điều này có thể ảnh hưởng đến KPI/OKR của nhân viên.</div>' +
                 '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
               dependsOnPer: EPerActTask.UPDATE_TASK,
+              class: 'col-4',
             },
           ],
         },
@@ -145,10 +153,12 @@ export class AddEditPermissionComponent
           key: EPerActFlow.VIEW_FLOW,
           name: 'Truy cập Menu Cấu hình quy tắc và dữ liệu và Xem Cấu hình quy tắc & Cấu hình dữ liệu',
           isRootPer: true,
+          class: 'col-12',
         },
         {
           key: EPerActFlow.UPDATE_FLOW,
           name: 'Thêm, Sửa , Xóa Cấu hình quy tắc & Cấu hình dữ liệu',
+          class: 'col-12',
         },
       ],
     },
@@ -173,18 +183,22 @@ export class AddEditPermissionComponent
                 <li>4. Quản trị chi nhánh xem được toàn bộ nhân viên của họ trong chi nhánh, phòng ban và đội mà họ quản lý.</li>
                 <li>5. ROOT hoặc quản lý Biz xem được toàn bộ mọi người trong Biz.</li>
                 </ul>`,
+              class: 'col-12',
             },
             {
               key: EPerActSetting.UPDATE_SOURCE_SETTING,
               name: 'Thêm, Sửa, Xóa Nguồn dữ liệu',
+              class: 'col-4',
             },
             {
               key: EPerActSetting.UPDATE_TAG_SETTING,
               name: 'Thêm, Sửa, Xóa Tag',
+              class: 'col-4',
             },
             {
               key: EPerActSetting.UPDATE_ROLE_SETTING,
               name: 'Thêm, Sửa, Xóa Vai trò',
+              class: 'col-4',
             },
           ],
         },
@@ -196,14 +210,17 @@ export class AddEditPermissionComponent
               name: 'Xem nhân sự cùng cấp',
               tooltip:
                 'Nhân viên bình thường sẽ xem được các nhân sự cùng đội nhóm với họ trên danh sách nhân viên.',
+              class: 'col-4',
             },
             {
               key: EPerActSetting.UPDATE_USER_ACCESS,
               name: 'Gán quyền cho nhân sự',
+              class: 'col-4',
             },
             {
               key: EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
               name: 'Thêm, Sửa, Xóa Quyền',
+              class: 'col-12',
             },
           ],
         },

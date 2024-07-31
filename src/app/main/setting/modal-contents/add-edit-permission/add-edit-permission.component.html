@@ -113,7 +113,7 @@
                                 track $index
                               ) {
                                 <div
-                                  class="col-4"
+                                  class="col-4 {{ permission?.class }}"
                                   *ngLet="
                                     checkDisable(
                                       permission,
@@ -168,7 +168,7 @@
                       } @else {
                         <div class="row g-2">
                           @for (permission of group.permissions; track $index) {
-                            <div class="col-6">
+                            <div class="{{ permission?.class }}">
                               <label
                                 class="basic-checkbox"
                                 [class.disabled]="

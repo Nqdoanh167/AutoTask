@@ -175,6 +175,7 @@ export interface IPermissionItem {
   isRootPer?: boolean;
   tooltip?: string;
   dependsOnPer?: EPerActTask | EPerActFlow | EPerActSetting;
+  class?: string;
 }
 
 export interface IPermissionGroups {
@@ -183,6 +184,7 @@ export interface IPermissionGroups {
   isOpen: boolean;
   groups?: {name: string; permissions: IPermissionItem[]}[];
   permissions?: IPermissionItem[];
+  class?: string;
 }
 
 export interface PermissionAction {
