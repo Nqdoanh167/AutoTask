@@ -12,236 +12,248 @@
             <th class="column-result">Kết quả & Nguyên nhân</th>
             <th class="column-next-step">Bước tiếp theo</th>
             <th class="columns-desc">Ghi chú</th>
-            <th
-              *ngIf="f['status'].value !== ETaskChainType.CLOSED"
-              class="columns-action"
-            ></th>
+            @if (f['status'].value !== ETaskChainType.CLOSED) {
+              <th class="columns-action"></th>
+            }
           </tr>
         </thead>
         <tbody>
-          <tr class="text-center" *ngIf="!f['taskChainResults'].value?.length">
-            <td colspan="12">
-              <div>Không có dữ liệu</div>
-            </td>
-          </tr>
+          @if (!f['taskChainResults'].value?.length) {
+            <tr class="text-center">
+              <td colspan="12">
+                <div>Không có dữ liệu</div>
+              </td>
+            </tr>
+          }
           <ng-container formArrayName="taskChainResults">
-            <ng-container
-              *ngFor="
-                let taskChainResult of formTaskChainResults().controls;
-                let taskChainResultIndex = index
-              "
-            >
-              <tr [formGroupName]="taskChainResultIndex">
-                <td class="column-timer">
-                  <div
-                    class="done-time"
-                    *ngIf="taskChainResult.value?.executedDate"
-                  >
-                    {{
-                      taskChainResult.value?.executedDate
-                        | date: 'dd/MM/yyyy HH:mm'
-                    }}
-                  </div>
-                  <div
-                    class="timer fw-500"
-                    [popover]="
-                      !!staticDataChainItem?.taskChainResults?.[
-                        taskChainResultIndex
-                      ]?.['isEdit'] &&
-                      handleCheckIsAllowEdit(
-                        'timer',
-                        taskChainResult.value,
-                        taskChainResultIndex
-                      )
-                        ? popTemplate
-                        : ''
-                    "
-                    placement="right"
-                    [outsideClick]="true"
-                    *ngIf="
+            @for (
+              taskChainResult of formTaskChainResults().controls;
+              track taskChainResultIndex;
+              let taskChainResultIndex = $index
+            ) {
+              <ng-container>
+                <tr [formGroupName]="taskChainResultIndex">
+                  <td class="column-timer">
+                    @if (taskChainResult.value?.executedDate) {
+                      <div class="done-time">
+                        {{
+                          taskChainResult.value?.executedDate
+                            | date: 'dd/MM/yyyy HH:mm'
+                        }}
+                      </div>
+                    }
+                    @if (
                       !taskChainResult.value?.executedDate &&
                       taskChainResult.value?.deadlineDate
-                    "
-                    [ngClass]="{
-                      'text-danger':
-                        taskChainResult.value?.typeOverDeadline === 'over',
-                      editable:
-                        !!staticDataChainItem?.taskChainResults?.[
-                          taskChainResultIndex
-                        ]?.['isEdit']
-                    }"
-                  >
-                    <ng-container
-                      [ngSwitch]="taskChainResult.value?.typeOverDeadline"
-                    >
-                      <span *ngSwitchCase="'over'">
-                        <i
-                          class="fa-solid fa-triangle-exclamation"
-                          style="color: #ef6a6a"
-                        ></i>
-                      </span>
-                      <span *ngSwitchCase="'notOver'">
-                        <i
-                          class="fa-solid fa-stopwatch"
-                          style="color: #4277ff"
-                        ></i>
-                      </span>
-                      <span *ngSwitchCase="'now'">Ngay lập tức</span>
-                    </ng-container>
-                    <span
-                      *ngIf="taskChainResult.value?.typeOverDeadline !== 'now'"
-                    >
-                      {{
-                        renderDeadline(
-                          taskChainResult.value?.deadlineDate,
-                          taskChainResult.value?.executedDate
-                        )
-                      }}
-                    </span>
-                  </div>
-                  <ng-template #popTemplate>
-                    <div
-                      class="popover-timer align-items-center"
-                      style="width: 350px"
-                    >
-                      <label
-                        class="form-control-label d-flex align-items-center gap-2 mb-2"
-                      >
-                        <i class="fa-solid fa-clock"></i>
-                        <div class="fw-500">Chỉnh sửa thời gian hẹn giờ</div>
-                      </label>
-                      <div class="d-flex gap-2">
-                        <input
-                          (input)="handleChangeDeadline(taskChainResultIndex)"
-                          mask="000"
-                          [allowNegativeNumbers]="false"
-                          name="between_from"
-                          class="form-control text-right"
-                          placeholder="Ngày (0-999)"
-                          formControlName="deadlineDay"
-                        />
-                        <input
-                          (input)="handleChangeDeadline(taskChainResultIndex)"
-                          mask="Hh"
-                          name="between_from"
-                          class="form-control text-right"
-                          placeholder="Giờ (0-23)"
-                          formControlName="deadlineHour"
-                        />
-                        <input
-                          (input)="handleChangeDeadline(taskChainResultIndex)"
-                          mask="m0"
-                          name="between_from"
-                          class="form-control text-right"
-                          placeholder="Phút (0-59)"
-                          formControlName="deadlineMinute"
-                        />
-                      </div>
-                    </div>
-                  </ng-template>
-                </td>
-                <td class="columns-action-main">
-                  {{ taskChainResult.value.action?.name || '-' }}
-                </td>
-                <td class="column-take-action">
-                  <div formGroupName="action">
-                    <ng-container
-                      [ngSwitch]="taskChainResult?.value.action?.type"
-                    >
-                      <ng-container *ngSwitchCase="EActionType.CALL">
-                        <button
-                          (click)="handleCall()"
-                          type="button"
-                          class="btn button-medium button-sub-primary secondary-color"
-                          [disabled]="
-                            !handleCheckIsAllowEdit(
-                              'actionButton',
-                              taskChainResult.value,
-                              taskChainResultIndex
-                            )
-                          "
-                        >
-                          Gọi điện
-                          <i class="fa-solid fa-phone ms-2"></i>
-                        </button>
-                      </ng-container>
-                      <ng-container
-                        *ngSwitchCase="EActionType.SEND_BLOCK_AUTOMATION"
-                      >
-                        <button
-                          (click)="handleSendBlock(taskChainResult.value)"
-                          type="button"
-                          class="btn button-medium button-sub-primary secondary-color"
-                          [disabled]="
+                    ) {
+                      <div
+                        class="timer fw-500"
+                        [popover]="
+                          !!staticDataChainItem?.taskChainResults?.[
+                            taskChainResultIndex
+                          ]?.['isEdit'] &&
+                          handleCheckIsAllowEdit(
+                            'timer',
+                            taskChainResult.value,
+                            taskChainResultIndex
+                          )
+                            ? popTemplate
+                            : ''
+                        "
+                        placement="right"
+                        [outsideClick]="true"
+                        [ngClass]="{
+                          'text-danger':
+                            taskChainResult.value?.typeOverDeadline === 'over',
+                          editable:
                             !!staticDataChainItem?.taskChainResults?.[
                               taskChainResultIndex
-                            ]?.['isEdit'] ||
-                            !handleCheckIsAllowEdit(
-                              'actionButton',
-                              taskChainResult.value,
-                              taskChainResultIndex
-                            ) ||
-                            loading.sendBlock
-                          "
-                        >
-                          Gửi Block Automation
-                          <i
-                            *ngIf="!loading.sendBlock"
-                            class="fa-solid fa-robot ms-2 cursor-pointer"
-                          ></i>
-                          <span
-                            *ngIf="loading.sendBlock"
-                            class="spinner-border spinner-border-sm ms-2"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                        </button>
+                            ]?.['isEdit']
+                        }"
+                      >
+                        @switch (taskChainResult.value?.typeOverDeadline) {
+                          @case ('over') {
+                            <span>
+                              <i
+                                class="fa-solid fa-triangle-exclamation"
+                                style="color: #ef6a6a"
+                              ></i>
+                            </span>
+                          }
+                          @case ('notOver') {
+                            <span>
+                              <i
+                                class="fa-solid fa-stopwatch"
+                                style="color: #4277ff"
+                              ></i>
+                            </span>
+                          }
+                          @case ('now') {
+                            <span>Ngay lập tức</span>
+                          }
+                        }
+                        @if (
+                          taskChainResult.value?.typeOverDeadline !== 'now'
+                        ) {
+                          <span>
+                            {{
+                              renderDeadline(
+                                taskChainResult.value?.deadlineDate,
+                                taskChainResult.value?.executedDate
+                              )
+                            }}
+                          </span>
+                        }
+                      </div>
+                      <ng-template #popTemplate>
                         <div
-                          *ngIf="
+                          class="popover-timer align-items-center"
+                          style="width: 350px"
+                        >
+                          <label
+                            class="form-control-label d-flex align-items-center gap-2 mb-2"
+                          >
+                            <i class="fa-solid fa-clock"></i>
+                            <div class="fw-500">
+                              Chỉnh sửa thời gian hẹn giờ
+                            </div>
+                          </label>
+                          <div class="d-flex gap-2">
+                            <input
+                              (input)="
+                                handleChangeDeadline(taskChainResultIndex)
+                              "
+                              mask="000"
+                              [allowNegativeNumbers]="false"
+                              name="between_from"
+                              class="form-control text-right"
+                              placeholder="Ngày (0-999)"
+                              formControlName="deadlineDay"
+                            />
+                            <input
+                              (input)="
+                                handleChangeDeadline(taskChainResultIndex)
+                              "
+                              mask="Hh"
+                              name="between_from"
+                              class="form-control text-right"
+                              placeholder="Giờ (0-23)"
+                              formControlName="deadlineHour"
+                            />
+                            <input
+                              (input)="
+                                handleChangeDeadline(taskChainResultIndex)
+                              "
+                              mask="m0"
+                              name="between_from"
+                              class="form-control text-right"
+                              placeholder="Phút (0-59)"
+                              formControlName="deadlineMinute"
+                            />
+                          </div>
+                        </div>
+                      </ng-template>
+                    }
+                  </td>
+                  <td class="columns-action-main">
+                    {{ taskChainResult.value.action?.name || '-' }}
+                  </td>
+                  <td class="column-take-action">
+                    <div formGroupName="action">
+                      @switch (taskChainResult?.value.action?.type) {
+                        @case (EActionType.CALL) {
+                          <button
+                            (click)="handleCall()"
+                            type="button"
+                            class="btn button-medium button-sub-primary secondary-color"
+                            [disabled]="
+                              !handleCheckIsAllowEdit(
+                                'actionButton',
+                                taskChainResult.value,
+                                taskChainResultIndex
+                              )
+                            "
+                          >
+                            Gọi điện
+                            <i class="fa-solid fa-phone ms-2"></i>
+                          </button>
+                        }
+                        @case (EActionType.SEND_BLOCK_AUTOMATION) {
+                          <button
+                            (click)="handleSendBlock(taskChainResult.value)"
+                            type="button"
+                            class="btn button-medium button-sub-primary secondary-color"
+                            [disabled]="
+                              !!staticDataChainItem?.taskChainResults?.[
+                                taskChainResultIndex
+                              ]?.['isEdit'] ||
+                              !handleCheckIsAllowEdit(
+                                'actionButton',
+                                taskChainResult.value,
+                                taskChainResultIndex
+                              ) ||
+                              loading.sendBlock
+                            "
+                          >
+                            Gửi Block Automation
+                            @if (!loading.sendBlock) {
+                              <i
+                                class="fa-solid fa-robot ms-2 cursor-pointer"
+                              ></i>
+                            } @else {
+                              <span
+                                class="spinner-border spinner-border-sm ms-2"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
+                            }
+                          </button>
+                          @if (
                             f['status'].value !== ETaskChainType.CLOSED &&
                             !taskChainResult.value.executedDate
-                          "
-                          class="mt-2"
-                          formGroupName="callBlockAutomation"
-                        >
-                          <ng-container>
-                            <ng-select
-                              [readonly]="
-                                !staticDataChainItem?.taskChainResults?.[
-                                  taskChainResultIndex
-                                ]?.['isEdit'] ||
-                                !handleCheckIsAllowEdit(
-                                  'block',
-                                  taskChainResult.value,
-                                  taskChainResultIndex
-                                )
-                              "
-                              formControlName="blockId"
-                              [placeholder]="'Chọn Block'"
-                              [searchable]="true"
-                              [items]="blocks"
-                              [loading]="loadingData.blocks"
-                              [clearable]="false"
-                              class="ng-select-custom dropdown-auto-width input-medium"
-                              bindLabel="name"
-                              bindValue="id"
-                              appendTo=".modal-update-task"
-                            ></ng-select>
-                          </ng-container>
-                        </div>
-                      </ng-container>
-                      <ng-container *ngSwitchCase="EActionType.OTHER">
-                        <div>Khác</div>
-                      </ng-container>
-                      <ng-container *ngSwitchDefault>
-                        <div>-</div>
-                      </ng-container>
-                    </ng-container>
-                  </div>
-                </td>
-                <td class="column-result">
-                  <div
-                    *ngIf="
+                          ) {
+                            <div
+                              class="mt-2"
+                              formGroupName="callBlockAutomation"
+                            >
+                              <ng-container>
+                                <ng-select
+                                  [readonly]="
+                                    !staticDataChainItem?.taskChainResults?.[
+                                      taskChainResultIndex
+                                    ]?.['isEdit'] ||
+                                    !handleCheckIsAllowEdit(
+                                      'block',
+                                      taskChainResult.value,
+                                      taskChainResultIndex
+                                    )
+                                  "
+                                  formControlName="blockId"
+                                  [placeholder]="'Chọn Block'"
+                                  [searchable]="true"
+                                  [items]="blocks"
+                                  [loading]="loadingData.blocks"
+                                  [clearable]="false"
+                                  class="ng-select-custom dropdown-auto-width input-medium"
+                                  bindLabel="name"
+                                  bindValue="id"
+                                  appendTo=".modal-update-task"
+                                ></ng-select>
+                              </ng-container>
+                            </div>
+                          }
+                        }
+                        @case (EActionType.OTHER) {
+                          <div>Khác</div>
+                        }
+                        @default {
+                          <div>-</div>
+                        }
+                      }
+                    </div>
+                  </td>
+                  <td class="column-result">
+                    @if (
                       !!staticDataChainItem?.taskChainResults?.[
                         taskChainResultIndex
                       ]?.['isEdit'] &&
@@ -250,216 +262,220 @@
                         taskChainResult.value,
                         taskChainResultIndex
                       )
-                    "
-                  >
-                    <div formGroupName="result">
-                      <ng-select
-                        [placeholder]="'Chọn kết quả'"
-                        [searchable]="true"
-                        [items]="taskChainResult.value?.results || []"
-                        formControlName="id"
-                        (change)="
-                          handleChangeTaskChainResult(
-                            taskChainResultIndex,
-                            $event
-                          )
-                        "
-                        class="ng-select-custom dropdown-auto-width input-medium"
-                        bindLabel="result.name"
-                        bindValue="result.id"
-                        appendTo=".modal-update-task"
-                      ></ng-select>
-                    </div>
-                    <div class="mt-2" formGroupName="reason">
-                      <ng-select
-                        [placeholder]="'Chọn nguyên nhân'"
-                        [searchable]="true"
-                        [items]="taskChainResult.value?.action?.reasons || []"
-                        (change)="
-                          handleChangeTaskChainReason(
-                            taskChainResultIndex,
-                            $event
-                          )
-                        "
-                        formControlName="id"
-                        class="ng-select-custom dropdown-auto-width input-medium"
-                        bindLabel="name"
-                        bindValue="id"
-                        appendTo=".modal-update-task"
-                      ></ng-select>
-                    </div>
-                  </div>
-                  <div
-                    *ngIf="
+                    ) {
+                      <div>
+                        <div formGroupName="result">
+                          <ng-select
+                            [placeholder]="'Chọn kết quả'"
+                            [searchable]="true"
+                            [items]="taskChainResult.value?.results || []"
+                            formControlName="id"
+                            (change)="
+                              handleChangeTaskChainResult(
+                                taskChainResultIndex,
+                                $event
+                              )
+                            "
+                            class="ng-select-custom dropdown-auto-width input-medium"
+                            bindLabel="result.name"
+                            bindValue="result.id"
+                            appendTo=".modal-update-task"
+                          ></ng-select>
+                        </div>
+                        <div class="mt-2" formGroupName="reason">
+                          <ng-select
+                            [placeholder]="'Chọn nguyên nhân'"
+                            [searchable]="true"
+                            [items]="
+                              taskChainResult.value?.action?.reasons || []
+                            "
+                            (change)="
+                              handleChangeTaskChainReason(
+                                taskChainResultIndex,
+                                $event
+                              )
+                            "
+                            formControlName="id"
+                            class="ng-select-custom dropdown-auto-width input-medium"
+                            bindLabel="name"
+                            bindValue="id"
+                            appendTo=".modal-update-task"
+                          ></ng-select>
+                        </div>
+                      </div>
+                    }
+                    @if (
                       !handleCheckIsAllowEdit(
                         'result',
                         taskChainResult.value,
                         taskChainResultIndex
                       )
-                    "
-                    class="d-flex flex-column gap-2 data-result-reason"
-                  >
-                    <div class="result">
-                      {{ taskChainResult.value?.result.name || '-' }}
-                    </div>
-                    <div class="reason">
-                      {{ taskChainResult.value?.reason.name }}
-                    </div>
-                  </div>
-                </td>
-                <td
-                  class="column-next-step"
-                  [class.dontEdit]="
-                    taskChainResult.value.executedDate ||
-                    f['status'].value === ETaskChainType.CLOSED
-                  "
-                >
-                  <div>
-                    <ng-container
-                      *ngFor="
-                        let nextStep of formNextSteps(taskChainResultIndex)
-                          .controls;
-                        let nextStepIndex = index
-                      "
-                    >
-                      <div
-                        class="next-step-item d-flex gap-2 align-items-center"
-                      >
-                        <ng-container [ngSwitch]="nextStep.value.status">
-                          <img
-                            *ngSwitchCase="ETaskChainResultType.COMPLETED"
-                            width="10"
-                            height="10"
-                            alt=""
-                            src="assets/images/icon/check.svg"
-                          />
-                          <img
-                            *ngSwitchCase="ETaskChainResultType.CANCELED"
-                            width="10"
-                            height="10"
-                            alt=""
-                            src="assets/images/icon/not-check.svg"
-                          />
-                          <div
-                            *ngSwitchDefault
-                            style="width: 10px; height: 10px"
-                          ></div>
-                        </ng-container>
-                        <span
-                          [innerHTML]="renderNextStepData(nextStep.value)"
-                        ></span>
-                        <span
-                          (click)="
-                            handleUpdateNextStep(
-                              taskChainResultIndex,
-                              nextStepIndex,
-                              nextStep.value
-                            )
-                          "
-                          class="d-flex align-items-center button-edit-next-step"
-                        >
-                          <img src="./assets/images/icon/edit.svg" alt="" />
-                        </span>
+                    ) {
+                      <div class="d-flex flex-column gap-2 data-result-reason">
+                        <div class="result">
+                          {{ taskChainResult.value?.result.name || '-' }}
+                        </div>
+                        <div class="reason">
+                          {{ taskChainResult.value?.reason.name }}
+                        </div>
                       </div>
-                    </ng-container>
-                    <div
-                      *ngIf="taskChainResult.value?.result?.id"
-                      [style.width]="'150px'"
-                      class="d-flex align-items-center gap-2 button-add-step-action text-link"
-                      (click)="handleUpdateNextStep(taskChainResultIndex)"
-                    >
-                      <i class="fa-solid fa-plus me-1"></i>
-                      <span>Thêm hành động</span>
+                    }
+                  </td>
+                  <td
+                    class="column-next-step"
+                    [class.dontEdit]="
+                      taskChainResult.value.executedDate ||
+                      f['status'].value === ETaskChainType.CLOSED
+                    "
+                  >
+                    <div>
+                      @for (
+                        nextStep of formNextSteps(taskChainResultIndex)
+                          .controls;
+                        track nextStepIndex;
+                        let nextStepIndex = $index
+                      ) {
+                        <ng-container>
+                          <div
+                            class="next-step-item d-flex gap-2 align-items-center"
+                          >
+                            @switch (nextStep.value.status) {
+                              @case (ETaskChainResultType.COMPLETED) {
+                                <img
+                                  width="10"
+                                  height="10"
+                                  alt=""
+                                  src="assets/images/icon/check.svg"
+                                />
+                              }
+                              @case (ETaskChainResultType.CANCELED) {
+                                <img
+                                  width="10"
+                                  height="10"
+                                  alt=""
+                                  src="assets/images/icon/not-check.svg"
+                                />
+                              }
+                              @default {
+                                <div style="width: 10px; height: 10px"></div>
+                              }
+                            }
+                            <span
+                              [innerHTML]="renderNextStepData(nextStep.value)"
+                            ></span>
+                            <span
+                              (click)="
+                                handleUpdateNextStep(
+                                  taskChainResultIndex,
+                                  nextStepIndex,
+                                  nextStep.value
+                                )
+                              "
+                              class="d-flex align-items-center button-edit-next-step"
+                            >
+                              <img src="./assets/images/icon/edit.svg" alt="" />
+                            </span>
+                          </div>
+                        </ng-container>
+                      }
+                      @if (taskChainResult.value?.result?.id) {
+                        <div
+                          [style.width]="'150px'"
+                          class="d-flex align-items-center gap-2 button-add-step-action text-link"
+                          (click)="handleUpdateNextStep(taskChainResultIndex)"
+                        >
+                          <i class="fa-solid fa-plus me-1"></i>
+                          <span>Thêm hành động</span>
+                        </div>
+                      }
                     </div>
-                  </div>
-                </td>
-                <td class="columns-desc">
-                  <div
-                    *ngIf="
+                  </td>
+                  <td class="columns-desc">
+                    @if (
                       staticDataChainItem?.taskChainResults?.[
                         taskChainResultIndex
                       ]?.['isEdit']
-                    "
-                  >
-                    <app-textarea
-                      [readonly]="f['status'].value === ETaskChainType.CLOSED"
-                      inputClass="border-0"
-                      placeholder="Nhập ghi chú..."
-                      [value]="taskChainResult.value.note || ''"
-                      (valueChange)="taskChainResult.patchValue({note: $event})"
-                    ></app-textarea>
-                  </div>
-                  <div
-                    *ngIf="
-                      !staticDataChainItem?.taskChainResults?.[
-                        taskChainResultIndex
-                      ]?.['isEdit']
-                    "
-                  >
-                    {{ taskChainResult.value?.note || '-' }}
-                  </div>
-                </td>
-                <td
-                  *ngIf="f['status'].value !== ETaskChainType.CLOSED"
-                  class="columns-action"
-                >
-                  <div
-                    *ngIf="
-                      !staticDataChainItem?.taskChainResults?.[
-                        taskChainResultIndex
-                      ]?.['isEdit'] &&
-                      (permissions.canEditAction || permissions.canEditDeadline)
-                    "
-                  >
-                    <button
-                      style="width: 56px"
-                      type="button"
-                      (click)="
-                        staticDataChainItem!.taskChainResults[
+                    ) {
+                      <div>
+                        <app-textarea
+                          [readonly]="
+                            f['status'].value === ETaskChainType.CLOSED
+                          "
+                          inputClass="border-0"
+                          placeholder="Nhập ghi chú..."
+                          [value]="taskChainResult.value.note || ''"
+                          (valueChange)="
+                            taskChainResult.patchValue({note: $event})
+                          "
+                        ></app-textarea>
+                      </div>
+                    } @else {
+                      <div>
+                        {{ taskChainResult.value?.note || '-' }}
+                      </div>
+                    }
+                  </td>
+                  @if (f['status'].value !== ETaskChainType.CLOSED) {
+                    <td class="columns-action">
+                      @if (
+                        !staticDataChainItem?.taskChainResults?.[
                           taskChainResultIndex
-                        ]['isEdit'] = true
-                      "
-                      class="btn d-flex align-items-center btn-action-table"
-                    >
-                      <img src="./assets/images/icon/edit.svg" alt="" />
-                    </button>
-                  </div>
-                  <div
-                    *ngIf="
-                      staticDataChainItem?.taskChainResults?.[
-                        taskChainResultIndex
-                      ]?.['isEdit']
-                    "
-                    class="d-flex flex-column"
-                  >
-                    <button
-                      type="button"
-                      class="btn button-medium button-fill secondary-color"
-                      (click)="
-                        handleSaveTaskChainResult(
-                          taskChainResultIndex,
-                          taskChainResult.value
-                        )
-                      "
-                    >
-                      Lưu
-                    </button>
-                    <button
-                      type="button"
-                      class="btn button-medium button-outline mt-2"
-                      (click)="
-                        handleCancelSave(
-                          taskChainResultIndex,
-                          taskChainResult.value
-                        )
-                      "
-                    >
-                      Hủy
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </ng-container>
+                        ]?.['isEdit'] &&
+                        (permissions.canEditAction ||
+                          permissions.canEditDeadline)
+                      ) {
+                        <div>
+                          <button
+                            style="width: 56px"
+                            type="button"
+                            (click)="
+                              staticDataChainItem!.taskChainResults[
+                                taskChainResultIndex
+                              ]['isEdit'] = true
+                            "
+                            class="btn d-flex align-items-center btn-action-table"
+                          >
+                            <img src="./assets/images/icon/edit.svg" alt="" />
+                          </button>
+                        </div>
+                      }
+                      @if (
+                        staticDataChainItem?.taskChainResults?.[
+                          taskChainResultIndex
+                        ]?.['isEdit']
+                      ) {
+                        <div class="d-flex flex-column">
+                          <button
+                            type="button"
+                            class="btn button-medium button-fill secondary-color"
+                            (click)="
+                              handleSaveTaskChainResult(
+                                taskChainResultIndex,
+                                taskChainResult.value
+                              )
+                            "
+                          >
+                            Lưu
+                          </button>
+                          <button
+                            type="button"
+                            class="btn button-medium button-outline mt-2"
+                            (click)="
+                              handleCancelSave(
+                                taskChainResultIndex,
+                                taskChainResult.value
+                              )
+                            "
+                          >
+                            Hủy
+                          </button>
+                        </div>
+                      }
+                    </td>
+                  }
+                </tr>
+              </ng-container>
+            }
           </ng-container>
         </tbody>
       </table>

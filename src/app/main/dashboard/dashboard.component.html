@@ -116,6 +116,12 @@
                         appendTo="body"
                         class="ng-select ng-select-single"
                       ></ng-select>
+                      <button
+                        class="btn button-outline"
+                        (click)="handleRefreshRow()"
+                      >
+                        Bỏ chọn tất cả
+                      </button>
                     </div>
                   </th>
                 </tr>
@@ -435,12 +441,28 @@
                         <td>
                           <div
                             class="d-flex flex-column"
-                            *ngIf="item.orderIds"
-                            (click)="handleViewCreatedOrder(item)"
+                            *ngIf="item?.orders?.length; else nonContent"
                           >
-                            <span class="fw-500 text-nowrap text-link px-2">
-                              {{ item.orderIds?.length }} đơn hàng
-                            </span>
+                            <div class="list-order d-flex flex-column gap-2">
+                              <div
+                                *ngFor="let order of item.orders"
+                                class="order-item"
+                              >
+                                <div
+                                  (click)="handleViewCreatedOrder(order)"
+                                  class="d-flex gap-2 align-items-center cursor-pointer"
+                                >
+                                  <img
+                                    src="./assets/images/logo-modules/sale-center.svg"
+                                    alt=""
+                                    [style.height]="'25px'"
+                                  />
+                                  <div class="fw-500 text-link">
+                                    {{ order.code }}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </td>
                       </ng-container>
@@ -564,3 +586,5 @@
     </div>
   </div>
 </div>
+
+<ng-template #nonContent>-</ng-template>

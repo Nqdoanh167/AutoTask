@@ -206,7 +206,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     taskChainResult: ITaskChainResult,
   ) {
-    this.cancelUpdateTaskChainEvent.emit();
+    this.cancelUpdateTaskChainEvent.emit(taskChainResultIndex);
   }
 
   handleSaveTaskChainResult(

@@ -47,119 +47,144 @@
             </td>
           </tr>
         } @else {
-          <tr *ngFor="let item of history.rows; index as i">
-            <td>
-              <div class="fw-normal">
-                {{ item.createdAt | timeView }}
-              </div>
-            </td>
-            <td>
-              <div>
+          @for (item of history.rows; track $index) {
+            <tr>
+              <td>
                 <div class="fw-normal">
-                  {{ getTabKey(item.tabKey) }}
+                  {{ item.createdAt | timeView }}
                 </div>
-              </div>
-            </td>
-            <td>
-              <div class="content-history">
-                <ng-container [ngSwitch]="item.tabKey">
-                  <ul *ngSwitchCase="ETabHistoryKey.ORDER_PRODUCT">
-                    <li
-                      *ngFor="
-                        let contentHistory of item.content.orderProduct || []
-                      "
-                    >
-                      {{ getActionContent(contentHistory.key) }}
-                      <span class="text-link cursor-text">
-                        {{ contentHistory.value }}
-                      </span>
-                      <div *ngIf="contentHistory.sub?.length" class="ms-4">
-                        <ul>
-                          <li *ngFor="let sub of contentHistory.sub">
-                            {{ getActionContent(sub?.key) }}
-                            <span class="text-link cursor-text">
-                              {{ sub?.value }}
-                            </span>
-                          </li>
-                        </ul>
-                      </div>
-                    </li>
-                  </ul>
-
-                  <ul *ngSwitchCase="ETabHistoryKey.NOTE">
-                    <li *ngFor="let contentHistory of item.content.note || []">
-                      {{ getActionContent(contentHistory.key) }}
-                      <span class="text-link cursor-text">
-                        {{ contentHistory.value }}
-                      </span>
-                    </li>
-                  </ul>
-
-                  <ul *ngSwitchCase="ETabHistoryKey.INFORMATION">
-                    <li
-                      *ngFor="
-                        let contentHistory of item.content.information || []
-                      "
-                    >
-                      <div class="d-flex align-items-center gap-2">
-                        <div>
-                          {{ getActionContent(contentHistory.key) }}
-                        </div>
-                        <div *ngIf="contentHistory.key === CALL_PHONE_ACTION">
-                          <audio
-                            controls
-                            style="height: 35px"
-                            *ngIf="contentHistory.value"
-                          >
-                            <source
-                              [src]="contentHistory.value"
-                              type="audio/ogg"
-                            />
-                          </audio>
-                          <div *ngIf="!contentHistory.value">
-                            ---Không có file ghi âm---
-                          </div>
-                        </div>
-                        <div
-                          class="text-link cursor-text"
-                          *ngIf="contentHistory.key !== CALL_PHONE_ACTION"
-                        >
-                          {{ contentHistory.value }}
-                        </div>
-                      </div>
-                      <div *ngIf="contentHistory.sub?.length" class="ms-4">
-                        <ul>
-                          <li *ngFor="let sub of contentHistory.sub">
-                            {{ getActionContent(sub?.key) }}
-                            <span class="text-link cursor-text">
-                              {{ sub?.value }}
-                            </span>
-                          </li>
-                        </ul>
-                      </div>
-                    </li>
-                  </ul>
-                </ng-container>
-              </div>
-            </td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
+              </td>
+              <td>
                 <div>
-                  <img
-                    *ngIf="item.actionBy?.picture"
-                    width="30"
-                    height="30"
-                    class="rounded-pill"
-                    [src]="item.actionBy?.picture"
-                    alt="avatar"
-                  />
+                  <div class="fw-normal">
+                    {{ getTabKey(item.tabKey) }}
+                  </div>
                 </div>
-                <div class="fw-normal">
-                  {{ item.actionBy?.name }}
+              </td>
+              <td>
+                <div class="content-history">
+                  @switch (item.tabKey) {
+                    @case (ETabHistoryKey.ORDER_PRODUCT) {
+                      <ul>
+                        @for (
+                          contentHistory of item.content.orderProduct || [];
+                          track $index
+                        ) {
+                          <li>
+                            {{ getActionContent(contentHistory.key) }}
+                            <span class="text-link cursor-text">
+                              {{ contentHistory.value }}
+                            </span>
+                            @if (contentHistory.sub?.length) {
+                              <div class="ms-4">
+                                <ul>
+                                  @for (
+                                    sub of contentHistory.sub;
+                                    track $index
+                                  ) {
+                                    <li>
+                                      {{ getActionContent(sub?.key) }}
+                                      <span class="text-link cursor-text">
+                                        {{ sub?.value }}
+                                      </span>
+                                    </li>
+                                  }
+                                </ul>
+                              </div>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                    @case (ETabHistoryKey.NOTE) {
+                      <ul>
+                        @for (
+                          contentHistory of item.content.note || [];
+                          track $index
+                        ) {
+                          <li>
+                            {{ getActionContent(contentHistory.key) }}
+                            <span class="text-link cursor-text">
+                              {{ contentHistory.value }}
+                            </span>
+                          </li>
+                        }
+                      </ul>
+                    }
+                    @case (ETabHistoryKey.INFORMATION) {
+                      <ul>
+                        @for (
+                          contentHistory of item.content.information || [];
+                          track $index
+                        ) {
+                          <li>
+                            <div class="d-flex align-items-center gap-2">
+                              <div>
+                                {{ getActionContent(contentHistory.key) }}
+                              </div>
+                              @if (contentHistory.key === CALL_PHONE_ACTION) {
+                                <div>
+                                  @if (contentHistory.value) {
+                                    <a
+                                      href="tel:{{ contentHistory.value }}"
+                                      class="text-link cursor-text"
+                                    >
+                                      {{ contentHistory.value }}
+                                    </a>
+                                  } @else {
+                                    <div>---Không có file ghi âm---</div>
+                                  }
+                                </div>
+                              } @else {
+                                <div class="text-link cursor-text">
+                                  {{ contentHistory.value }}
+                                </div>
+                              }
+                            </div>
+                            @if (contentHistory.sub?.length) {
+                              <div class="ms-4">
+                                <ul>
+                                  @for (
+                                    sub of contentHistory.sub;
+                                    track $index
+                                  ) {
+                                    <li>
+                                      {{ getActionContent(sub?.key) }}
+                                      <span class="text-link cursor-text">
+                                        {{ sub?.value }}
+                                      </span>
+                                    </li>
+                                  }
+                                </ul>
+                              </div>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                  }
                 </div>
-              </div>
-            </td>
-          </tr>
+              </td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div>
+                    @if (item.actionBy?.picture) {
+                      <img
+                        width="30"
+                        height="30"
+                        class="rounded-pill"
+                        [src]="item.actionBy?.picture"
+                        alt="avatar"
+                      />
+                    }
+                  </div>
+                  <div class="fw-normal">
+                    {{ item.actionBy?.name }}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
         }
       </tbody>
     </table>

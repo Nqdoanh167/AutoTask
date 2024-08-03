@@ -1633,8 +1633,8 @@ export interface IPaginationStandard {
 }
 
 export interface IPageChange {
-  event: {page?: number; itemsPerPage?: number};
-  limit: any;
+  page?: number;
+  limit: number;
 }
 
 export interface BaseInterface {

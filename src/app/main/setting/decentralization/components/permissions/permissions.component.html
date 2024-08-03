@@ -3,7 +3,10 @@
     <div class="card-body">
       <div class="list-data">
         <app-standard-data-size
-          [item]="item"
+          [loading]="item.loading"
+          [limit]="item.paramsQuery.limit"
+          [page]="item.paramsQuery.page"
+          [total]="item.total"
           [configButtons]="configButtons"
           [configFilters]="configFilters"
           (searchEvent)="onSearch($event)"

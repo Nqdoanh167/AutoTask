@@ -1,12 +1,6 @@
 import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
-import {ChangeDetectorRef, inject} from '@angular/core';
-import {
-  BehaviorSubject,
-  finalize,
-  forkJoin,
-  lastValueFrom,
-  takeUntil,
-} from 'rxjs';
+import {inject} from '@angular/core';
+import {BehaviorSubject, finalize, takeUntil} from 'rxjs';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {cloneDeep, uniqBy} from 'lodash';
@@ -19,7 +13,13 @@ import {
   ITag,
   Order,
 } from '@app/types/viewmodels';
-import {IAction, IActResult, IChainAct, ITask} from '@app/types/flow';
+import {
+  IAction,
+  IActResult,
+  IChainAct,
+  ITask,
+  ITaskChain,
+} from '@app/types/flow';
 import {ISetting, ISource} from '@app/types/setting';
 import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
@@ -204,8 +204,10 @@ export class DetailTaskData extends BaseComponentsComponent {
     )) as FormArray;
   }
 
-  findTag(tagId: string) {
-    return this.tags.rows.find((tag) => tag.id === tagId);
+  formTaskChainResultItem(chainIndex: number, taskChainResultIndex: number) {
+    return (<FormGroup>(
+      this.formTaskChainResults(chainIndex).at(taskChainResultIndex)
+    )) as FormGroup;
   }
 
   formNextSteps(chainIndex: number, taskChainResultIndex: number) {
@@ -214,6 +216,10 @@ export class DetailTaskData extends BaseComponentsComponent {
         .at(taskChainResultIndex)
         .get('nextActions')
     )) as FormArray;
+  }
+
+  findTag(tagId: string) {
+    return this.tags.rows.find((tag) => tag.id === tagId);
   }
 
   get formLeadDeal() {
@@ -261,6 +267,25 @@ export class DetailTaskData extends BaseComponentsComponent {
 
   getInfoUnit(id?: string | null) {
     this.infoUnit$.next(this.authService.getInfoInUnit(id));
+  }
+
+  handleCancelUpdateChain(
+    chainIndex: number,
+    taskChainResultIndex: number,
+    staticDataChainItem: ITaskChain,
+  ) {
+    try {
+      const item = staticDataChainItem.taskChainResults[taskChainResultIndex];
+      item['isEdit'] = false;
+      this.formTaskChainResultItem(chainIndex, taskChainResultIndex).patchValue(
+        {
+          ...item,
+          note: item.note || null,
+        },
+      );
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   patchForm(dataSource?: ITask) {

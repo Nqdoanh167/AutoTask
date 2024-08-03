@@ -27,14 +27,16 @@
             id="name"
             type="text"
           />
-          <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
-            <div *ngIf="f['name'].errors?.['required']">
-              Tên khách hàng không được bỏ trống
-            </div>
-            <div *ngIf="f['name'].errors?.['maxlength']">
-              Tên khách hàng không hợp lệ
-            </div>
-          </div>
+          @if (submitted && f['name'].errors) {
+            @if (f['name'].errors?.['required']) {
+              <div class="invalid-feedback">
+                Tên khách hàng không được bỏ trống
+              </div>
+            }
+            @if (f['name'].errors?.['maxlength']) {
+              <div class="invalid-feedback">Tên khách hàng không hợp lệ</div>
+            }
+          }
         </div>
         <div class="mb-3">
           <label class="form-control-label" for="phone">Số điện thoại</label>

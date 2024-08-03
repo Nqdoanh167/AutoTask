@@ -115,210 +115,225 @@
                           class="d-flex justify-content-between align-items-center gap-2"
                         >
                           <div class="fw-bold me-1">TAG</div>
-                          <div *ngIf="!selectTag">
-                            <ng-container
-                              *ngFor="let tagId of updateForm.value.tags"
-                            >
-                              <div
-                                class="tag-item me-2"
-                                *ngIf="findTag(tagId)?.id"
-                                [ngClass]="{nonBack: !findTag(tagId)?.bgColor}"
-                                [ngStyle]="{
-                                  background: findTag(tagId)?.bgColor
-                                }"
-                              >
-                                {{ findTag(tagId)?.name }}
-                              </div>
-                            </ng-container>
-                            <span class="cursor-pointer ms-3">
-                              <i
-                                class="fa-solid fa-tags"
-                                (click)="changeSelectTag(true)"
-                              ></i>
-                            </span>
-                          </div>
-                          <ng-select
-                            *ngIf="selectTag"
-                            class="custom-input-tag"
-                            formControlName="tags"
-                            placeholder="Chọn tag..."
-                            (blur)="selectTag = !selectTag"
-                            [items]="tags.rows"
-                            appendTo=".modal"
-                            appearance="outline"
-                            [multiple]="true"
-                            [closeOnSelect]="false"
-                            bindValue="id"
-                            #ngSelectTagTask
-                          >
-                            <ng-template ng-option-tmp let-item="item">
-                              <div
-                                class="tag-item"
-                                [ngClass]="{nonBack: !item.bgColor}"
-                                [ngStyle]="{background: item.bgColor}"
-                              >
-                                {{ item.name }}
-                              </div>
-                            </ng-template>
-                            <ng-template
-                              ng-label-tmp
-                              let-item="item"
-                              let-clear="clear"
-                            >
-                              <span class="ng-value-icon" (click)="clear(item)">
-                                ×
+                          @if (!selectTag) {
+                            <div>
+                              @for (
+                                tagId of $any(updateForm.value.tags);
+                                track $index
+                              ) {
+                                @if (findTag(tagId)?.id) {
+                                  <div
+                                    class="tag-item me-2"
+                                    *ngIf="findTag(tagId)?.id"
+                                    [ngClass]="{
+                                      nonBack: !findTag(tagId)?.bgColor
+                                    }"
+                                    [ngStyle]="{
+                                      background: findTag(tagId)?.bgColor
+                                    }"
+                                  >
+                                    {{ findTag(tagId)?.name }}
+                                  </div>
+                                }
+                              }
+                              <span class="cursor-pointer ms-3">
+                                <i
+                                  class="fa-solid fa-tags"
+                                  (click)="changeSelectTag(true)"
+                                ></i>
                               </span>
-                              <div
-                                class="tag-item"
-                                [ngClass]="{nonBack: !item.bgColor}"
-                                [ngStyle]="{background: item.bgColor}"
-                              >
-                                {{ item.name }}
-                              </div>
-                            </ng-template>
-                            <ng-template
-                              ng-notfound-tmp
-                              let-searchTerm="searchTerm"
+                            </div>
+                          } @else {
+                            <ng-select
+                              class="custom-input-tag"
+                              formControlName="tags"
+                              placeholder="Chọn tag..."
+                              (blur)="selectTag = !selectTag"
+                              [items]="tags.rows"
+                              appendTo=".modal"
+                              appearance="outline"
+                              [multiple]="true"
+                              [closeOnSelect]="false"
+                              bindValue="id"
+                              #ngSelectTagTask
                             >
-                              <div
-                                class="ng-option fs-7"
-                                (click)="createNewTagAndChoose(searchTerm)"
+                              <ng-template ng-option-tmp let-item="item">
+                                <div
+                                  class="tag-item"
+                                  [ngClass]="{nonBack: !item.bgColor}"
+                                  [ngStyle]="{background: item.bgColor}"
+                                >
+                                  {{ item.name }}
+                                </div>
+                              </ng-template>
+                              <ng-template
+                                ng-label-tmp
+                                let-item="item"
+                                let-clear="clear"
                               >
-                                Không tìm thấy tag
-                                <span class="fw-bold">"{{ searchTerm }}"</span>
-                                Tạo mới?
-                              </div>
-                            </ng-template>
-                          </ng-select>
+                                <span
+                                  class="ng-value-icon"
+                                  (click)="clear(item)"
+                                >
+                                  ×
+                                </span>
+                                <div
+                                  class="tag-item"
+                                  [ngClass]="{nonBack: !item.bgColor}"
+                                  [ngStyle]="{background: item.bgColor}"
+                                >
+                                  {{ item.name }}
+                                </div>
+                              </ng-template>
+                              <ng-template
+                                ng-notfound-tmp
+                                let-searchTerm="searchTerm"
+                              >
+                                <div
+                                  class="ng-option fs-7"
+                                  (click)="createNewTagAndChoose(searchTerm)"
+                                >
+                                  Không tìm thấy tag
+                                  <span class="fw-bold">
+                                    "{{ searchTerm }}"
+                                  </span>
+                                  Tạo mới?
+                                </div>
+                              </ng-template>
+                            </ng-select>
+                          }
                         </div>
                         <div
                           class="d-flex align-items-center"
                           formArrayName="teams"
                         >
-                          <div
-                            class="fw-500 me-2 text-uppercase"
-                            *ngIf="autoTaskSetting?.roles?.length"
-                          >
-                            Nhân sự phụ trách/Vai trò:
-                          </div>
-                          <div
-                            *ngFor="
-                              let settingRole of formTeams.controls;
-                              let settingRoleIndex = index
-                            "
-                            class="btn-group mx-2"
-                            dropdown
-                            container=".modal-update-task"
-                            [autoClose]="true"
-                          >
-                            <button
-                              dropdownToggle
-                              type="button"
-                              class="btn btn-default border rounded-pill button-role"
-                              popoverTitle="Vai trò: {{
-                                settingRole.value?.roleName
-                              }}"
-                              popover="Thông tin: {{
-                                settingRole.value?.userName
-                              }} - {{ settingRole.value?.userEmail }}"
-                              triggers="mouseenter:mouseleave"
-                              placement="bottom"
+                          @if (autoTaskSetting?.roles?.length) {
+                            <div class="fw-500 me-2 text-uppercase">
+                              Nhân sự phụ trách/Vai trò:
+                            </div>
+                          }
+                          @for (
+                            settingRole of formTeams.controls;
+                            track settingRoleIndex;
+                            let settingRoleIndex = $index
+                          ) {
+                            <div
+                              class="btn-group mx-2"
+                              dropdown
                               container=".modal-update-task"
+                              [autoClose]="true"
                             >
-                              <i
-                                *ngIf="!settingRole.value.userId"
-                                class="fa-solid"
-                                [ngClass]="settingRole.value?.roleIcon"
-                              ></i>
-                              <img
-                                *ngIf="!!settingRole.value.userId"
-                                width="40"
-                                height="40"
-                                class="rounded-pill"
-                                [src]="settingRole.value?.userPicture"
-                                alt=""
-                              />
-                            </button>
-                            <ul
-                              id="dropdown-select-role{{
-                                settingRole.value.roleId
-                              }}"
-                              *dropdownMenu
-                              class="dropdown-menu"
-                              role="menu"
-                              aria-labelledby="button-select-role"
-                            >
-                              @if (infoUnit$ | async; as infoUnit) {
-                                @if (
-                                  infoUnit?.role === ERole.OWNER
-                                    ? listBizUsers
-                                    : [currentUser];
-                                  as users
-                                ) {
-                                  @for (
-                                    item of users
-                                      | getDataArray
-                                        : 'id'
-                                        : infoUnit?.userIds || []
-                                      | getDataArray
-                                        : 'roleIds'
-                                        : settingRole.value.roleId
-                                        : 'role'
-                                        : 'OWNER'
-                                        : 'id';
-                                    track 'id'
+                              <button
+                                dropdownToggle
+                                type="button"
+                                class="btn btn-default border rounded-pill button-role"
+                                popoverTitle="Vai trò: {{
+                                  settingRole.value?.roleName
+                                }}"
+                                popover="Thông tin: {{
+                                  settingRole.value?.userName
+                                }} - {{ settingRole.value?.userEmail }}"
+                                triggers="mouseenter:mouseleave"
+                                placement="bottom"
+                                container=".modal-update-task"
+                              >
+                                @if (settingRole.value.userId) {
+                                  <img
+                                    width="40"
+                                    height="40"
+                                    class="rounded-pill"
+                                    [src]="settingRole.value?.userPicture"
+                                    alt=""
+                                  />
+                                } @else {
+                                  <i
+                                    class="fa-solid"
+                                    [ngClass]="settingRole.value?.roleIcon"
+                                  ></i>
+                                }
+                              </button>
+                              <ul
+                                id="dropdown-select-role{{
+                                  settingRole.value.roleId
+                                }}"
+                                *dropdownMenu
+                                class="dropdown-menu"
+                                role="menu"
+                                aria-labelledby="button-select-role"
+                              >
+                                @if (infoUnit$ | async; as infoUnit) {
+                                  @if (
+                                    infoUnit?.role === ERole.OWNER
+                                      ? listBizUsers
+                                      : [currentUser];
+                                    as users
                                   ) {
-                                    <li
-                                      role="menuitem"
-                                      class="item-user-dropdown"
-                                      [class.selected]="
-                                        item.id === settingRole.value.userId
-                                      "
-                                      [class.disabled]="!item.isActive"
-                                      (click)="
-                                        item.id === settingRole.value.userId
-                                          ? onRemoveTeam(settingRoleIndex)
-                                          : onChooseTeam(settingRoleIndex, item)
-                                      "
-                                    >
-                                      <div
-                                        class="d-flex align-items-center p-3 cursor-pointer"
+                                    @for (
+                                      item of users
+                                        | getDataArray
+                                          : 'id'
+                                          : infoUnit?.userIds || []
+                                        | getDataArray
+                                          : 'roleIds'
+                                          : settingRole.value.roleId
+                                          : 'role'
+                                          : 'OWNER'
+                                          : 'id';
+                                      track 'id'
+                                    ) {
+                                      <li
+                                        role="menuitem"
+                                        class="item-user-dropdown"
+                                        [class.selected]="
+                                          item.id === settingRole.value.userId
+                                        "
+                                        [class.disabled]="!item.isActive"
+                                        (click)="
+                                          item.id === settingRole.value.userId
+                                            ? onRemoveTeam(settingRoleIndex)
+                                            : onChooseTeam(
+                                                settingRoleIndex,
+                                                item
+                                              )
+                                        "
                                       >
-                                        <div>
-                                          <img
-                                            class="avatar me-2"
-                                            src="{{ item.picture }}"
-                                            fallback="assets/images/avatar.svg"
-                                            alt=""
-                                          />
+                                        <div
+                                          class="d-flex align-items-center p-3 cursor-pointer"
+                                        >
+                                          <div>
+                                            <img
+                                              class="avatar me-2"
+                                              src="{{ item.picture }}"
+                                              fallback="assets/images/avatar.svg"
+                                              alt=""
+                                            />
+                                          </div>
+                                          <div class="text-truncate">
+                                            {{ item.name }}
+                                          </div>
                                         </div>
-                                        <div class="text-truncate">
-                                          {{ item.name }}
-                                        </div>
-                                      </div>
-                                    </li>
+                                      </li>
+                                    }
                                   }
                                 }
-                              }
-                            </ul>
-                          </div>
+                              </ul>
+                            </div>
+                          }
                           <div class="action-reload">
-                            <button
-                              *ngIf="sourceData?.id"
-                              (click)="getDetailTask(true)"
-                              class="btn button-medium button-outline"
-                              type="button"
-                              [disabled]="loading.getDetail"
-                            >
-                              <i
-                                *ngIf="!loading.getDetail"
-                                class="fa-solid fa-rotate"
-                              ></i>
-                              <i
-                                *ngIf="loading.getDetail"
-                                class="fas fa-spinner fa-spin"
-                              ></i>
-                            </button>
+                            @if (sourceData?.id) {
+                              <button
+                                (click)="getDetailTask(true)"
+                                class="btn button-medium button-outline"
+                                type="button"
+                                [disabled]="loading.getDetail"
+                              >
+                                @if (!loading.getDetail) {
+                                  <i class="fa-solid fa-rotate"></i>
+                                } @else {
+                                  <i class="fas fa-spinner fa-spin"></i>
+                                }
+                              </button>
+                            }
                           </div>
                         </div>
                       </div>
@@ -331,129 +346,141 @@
                           class="accordion-white mt-2"
                           [isAnimated]="true"
                         >
-                          <div
-                            *ngIf="!formTaskChains.controls?.length"
-                            class="text-center mt-3 mb-3"
-                          >
-                            <div>Không có dữ liệu chuỗi hành động</div>
-                          </div>
-                          <accordion-group
-                            [formGroupName]="chainIndex"
-                            [isOpen]="
-                              !!sourceData?.id &&
-                              taskChain.value.status !== ETaskChainType.CLOSED
-                            "
-                            [isDisabled]="!sourceData?.id"
-                            *ngFor="
-                              let taskChain of formTaskChains.controls;
-                              let chainIndex = index
-                            "
-                            #myGroup
-                          >
-                            <div
-                              accordion-heading
-                              class="header-item d-flex justify-content-between align-items-center"
+                          @if (!formTaskChains.controls?.length) {
+                            <div class="text-center mt-3 mb-3">
+                              <div>Không có dữ liệu chuỗi hành động</div>
+                            </div>
+                          }
+                          @for (
+                            taskChain of formTaskChains.controls;
+                            track chainIndex;
+                            let chainIndex = $index
+                          ) {
+                            <accordion-group
+                              [formGroupName]="chainIndex"
+                              [isOpen]="
+                                !!sourceData?.id &&
+                                taskChain.value.status !== ETaskChainType.CLOSED
+                              "
+                              [isDisabled]="!sourceData?.id"
+                              #myGroup
                             >
-                              <span class="fw-500">
-                                <i
-                                  *ngIf="!!sourceData?.id"
-                                  class="me-2 fas"
-                                  [ngClass]="{
-                                    'fa-chevron-down': myGroup?.isOpen,
-                                    'fa-chevron-up': !myGroup?.isOpen
-                                  }"
-                                ></i>
-                                {{ taskChain.value.name || '-' }}
-                              </span>
-                              <div class="d-flex gap-2 align-items-center">
-                                <button
-                                  *ngIf="
+                              <div
+                                accordion-heading
+                                class="header-item d-flex justify-content-between align-items-center"
+                              >
+                                <span class="fw-500">
+                                  @if (!!sourceData?.id) {
+                                    <i
+                                      *ngIf="!!sourceData?.id"
+                                      class="me-2 fas"
+                                      [ngClass]="{
+                                        'fa-chevron-down': myGroup?.isOpen,
+                                        'fa-chevron-up': !myGroup?.isOpen
+                                      }"
+                                    ></i>
+                                  }
+                                  {{ taskChain.value.name || '-' }}
+                                </span>
+                                <div class="d-flex gap-2 align-items-center">
+                                  @if (
                                     !!sourceData?.id &&
                                     taskChain.value.status !==
                                       ETaskChainType.CLOSED
-                                  "
-                                  (click)="
-                                    handleCloseChain($event, taskChain.value)
-                                  "
-                                  type="button"
-                                  class="btn btn button-medium button-sub-primary secondary-color d-flex align-items-center"
-                                >
-                                  Đóng chuỗi
-                                  <img
-                                    class="ms-1"
-                                    src="./assets/images/icon/blue-unlock.svg"
-                                    alt=""
-                                  />
-                                </button>
-                                <button
-                                  *ngIf="
+                                  ) {
+                                    <button
+                                      (click)="
+                                        handleCloseChain(
+                                          $event,
+                                          taskChain.value
+                                        )
+                                      "
+                                      type="button"
+                                      class="btn btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                                    >
+                                      Đóng chuỗi
+                                      <img
+                                        class="ms-1"
+                                        src="./assets/images/icon/blue-unlock.svg"
+                                        alt=""
+                                      />
+                                    </button>
+                                  }
+                                  @if (
                                     taskChain.value.status ===
                                     ETaskChainType.CLOSED
-                                  "
-                                  type="button"
-                                  class="btn btn button-medium d-flex align-items-center"
-                                >
-                                  Đã đóng
-                                  <img
-                                    class="ms-1"
-                                    src="./assets/images/icon/grey-lock.svg"
-                                    alt=""
-                                  />
-                                </button>
-                                <button
-                                  (click)="
-                                    handleDeleteChain(
-                                      $event,
-                                      taskChain.value,
-                                      chainIndex
-                                    )
-                                  "
-                                  type="button"
-                                  class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
-                                >
-                                  Xóa
-                                  <img
-                                    class="ms-1"
-                                    src="./assets/images/icon/red-x.svg"
-                                    alt=""
-                                  />
-                                </button>
+                                  ) {
+                                    <button
+                                      type="button"
+                                      class="btn btn button-medium d-flex align-items-center"
+                                    >
+                                      Đã đóng
+                                      <img
+                                        class="ms-1"
+                                        src="./assets/images/icon/grey-lock.svg"
+                                        alt=""
+                                      />
+                                    </button>
+                                  }
+                                  <button
+                                    (click)="
+                                      handleDeleteChain(
+                                        $event,
+                                        taskChain.value,
+                                        chainIndex
+                                      )
+                                    "
+                                    type="button"
+                                    class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
+                                  >
+                                    Xóa
+                                    <img
+                                      class="ms-1"
+                                      src="./assets/images/icon/red-x.svg"
+                                      alt=""
+                                    />
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                            <app-task-chain-item
-                              [permissions]="{
-                                canEditAction: permissions.canEditAction,
-                                canEditDeadline: permissions.canEditDeadline
-                              }"
-                              [submitted]="submitted"
-                              [formItem]="taskChain"
-                              [results]="results.rows"
-                              [blocks]="blocks.rows"
-                              [actionChains]="actionChains.rows"
-                              [loadingData]="{
-                                results: results.loading,
-                                blocks: blocks.loading,
-                                actionChains: actionChains.loading
-                              }"
-                              [staticDataChainItem]="
-                                sourceData?.taskChains?.[chainIndex]
-                              "
-                              (updateNextStepEvent)="
-                                handleUpdateNextStep(
-                                  $event,
-                                  taskChain.value,
-                                  chainIndex
-                                )
-                              "
-                              (updateTaskChainEvent)="
-                                getDetailTask(); updateSuccess.emit()
-                              "
-                              (cancelUpdateTaskChainEvent)="
-                                patchForm(sourceData)
-                              "
-                              (callEvent)="handleCall()"
-                            ></app-task-chain-item>
-                          </accordion-group>
+                              <app-task-chain-item
+                                [permissions]="{
+                                  canEditAction: permissions.canEditAction,
+                                  canEditDeadline: permissions.canEditDeadline
+                                }"
+                                [submitted]="submitted"
+                                [formItem]="taskChain"
+                                [results]="results.rows"
+                                [blocks]="blocks.rows"
+                                [actionChains]="actionChains.rows"
+                                [loadingData]="{
+                                  results: results.loading,
+                                  blocks: blocks.loading,
+                                  actionChains: actionChains.loading
+                                }"
+                                [staticDataChainItem]="
+                                  sourceData?.taskChains?.[chainIndex]
+                                "
+                                (updateNextStepEvent)="
+                                  handleUpdateNextStep(
+                                    $event,
+                                    taskChain.value,
+                                    chainIndex
+                                  )
+                                "
+                                (updateTaskChainEvent)="
+                                  getDetailTask(); updateSuccess.emit()
+                                "
+                                (cancelUpdateTaskChainEvent)="
+                                  handleCancelUpdateChain(
+                                    chainIndex,
+                                    $event,
+                                    sourceData!.taskChains[chainIndex]!
+                                  )
+                                "
+                                (callEvent)="handleCall()"
+                              ></app-task-chain-item>
+                            </accordion-group>
+                          }
                         </accordion>
                         <div class="mt-2">
                           <button
@@ -512,20 +539,23 @@
                             ></i>
                           </div>
                           <div class="d-flex gap-2">
-                            <button
-                              *ngIf="!!sourceData?.id"
-                              (click)="handleCreateTaskOrder()"
-                              [disabled]="loading.createOrder"
-                              class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
-                              type="button"
-                            >
-                              @if (loading.createOrder) {
-                                <i class="fa-solid fa-spin fa-spinner me-2"></i>
-                              } @else {
-                                <i class="fa-solid fa-plus me-2"></i>
-                              }
-                              Tạo đơn hàng cho Task
-                            </button>
+                            @if (!!sourceData?.id) {
+                              <button
+                                (click)="handleCreateTaskOrder()"
+                                [disabled]="loading.createOrder"
+                                class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                                type="button"
+                              >
+                                @if (loading.createOrder) {
+                                  <i
+                                    class="fa-solid fa-spin fa-spinner me-2"
+                                  ></i>
+                                } @else {
+                                  <i class="fa-solid fa-plus me-2"></i>
+                                }
+                                Tạo đơn hàng cho Task
+                              </button>
+                            }
                           </div>
                         </div>
                         <app-interested-products
@@ -540,19 +570,20 @@
                         >
                           <div class="headline">Đơn đã tạo</div>
                           <div class="d-flex gap-2">
-                            <button
-                              *ngIf="
-                                !!sourceData?.id &&
-                                sourceData?.orderIds &&
-                                sourceData!.orderIds.length
-                              "
-                              (click)="handleViewCreatedOrder()"
-                              class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
-                              type="button"
-                            >
-                              <i class="fa-solid fa-cart-shopping me-2"></i>
-                              Xem đơn đã tạo
-                            </button>
+                            @if (
+                              !!sourceData?.id &&
+                              sourceData?.orderIds &&
+                              sourceData!.orderIds.length
+                            ) {
+                              <button
+                                (click)="handleViewCreatedOrder()"
+                                class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                                type="button"
+                              >
+                                <i class="fa-solid fa-cart-shopping me-2"></i>
+                                Xem đơn đã tạo
+                              </button>
+                            }
                           </div>
                         </div>
                         <app-orders
@@ -586,14 +617,15 @@
         class="d-flex justify-content-between align-items-center"
       >
         <div>
-          <button
-            *ngIf="sourceData"
-            (click)="handleDeleteTask()"
-            class="btn button-delete-modal"
-            type="button"
-          >
-            Xóa
-          </button>
+          @if (sourceData) {
+            <button
+              (click)="handleDeleteTask()"
+              class="btn button-delete-modal"
+              type="button"
+            >
+              Xóa
+            </button>
+          }
         </div>
         <div class="d-flex gap-2">
           <button
@@ -651,24 +683,22 @@
             id="action-modal"
             appendTo=".modal-add-chain-action"
           >
-            <ng-option
-              [value]="option.id"
-              *ngFor="let option of actionChains.rows"
-            >
-              {{ option.name }}
-            </ng-option>
+            @for (option of actionChains.rows; track $index) {
+              <ng-option [value]="option.id">
+                {{ option.name }}
+              </ng-option>
+            }
           </ng-select>
-          <div
-            *ngIf="
-              submittedModal.addTaskChain &&
-              fAddChainModal['addChainActIds'].errors
-            "
-            class="invalid-feedback"
-          >
-            <div *ngIf="fAddChainModal['addChainActIds'].errors?.['required']">
-              Chuỗi không được bỏ trống
+          @if (
+            submittedModal.addTaskChain &&
+            fAddChainModal['addChainActIds'].errors
+          ) {
+            <div class="invalid-feedback">
+              @if (fAddChainModal['addChainActIds'].errors?.['required']) {
+                <div>Chuỗi không được bỏ trống</div>
+              }
             </div>
-          </div>
+          }
         </div>
       </form>
     </div>
@@ -693,7 +723,6 @@
   </div>
 </ng-template>
 
-<bs-modal-backdrop
-  *ngIf="isOpenBackDrop"
-  class="modal-backdrop fade in show"
-></bs-modal-backdrop>
+@if (isOpenBackDrop) {
+  <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
+}

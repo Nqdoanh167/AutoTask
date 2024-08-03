@@ -5,6 +5,8 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  TemplateRef,
+  ViewChild,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
@@ -37,6 +39,8 @@ import {specialQueryTaskKeys} from '@main/dashboard/dashboard-variables';
   styleUrls: ['./filter-top-table.component.scss'],
 })
 export class FilterTopTableComponent implements OnInit, OnDestroy {
+  @ViewChild('popFilter') popFilter?: any;
+
   @Output() pickerDateEvent = new EventEmitter<{
     value: IDateRange | Date;
     name: string;
@@ -66,6 +70,9 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((currentActiveViewMode) => {
         this.onSearchingAdvance = [];
+        if (this.popFilter) {
+          this.popFilter.hide();
+        }
         Object.keys(currentActiveViewMode?.options || {}).forEach(
           (key: any) => {
             if (this.configFilterAdvance.some((cA) => cA.name === key)) {

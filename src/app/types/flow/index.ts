@@ -4,6 +4,7 @@ import {
   Combo,
   CourseEvent,
   ITag,
+  Order,
   PrepaidCard,
   Product,
 } from '@app/types/viewmodels';
@@ -324,6 +325,7 @@ export interface ITask {
   tags?: ITag[];
   cart: ITaskCartDto;
   orderIds: string[];
+  orders: Pick<Order, 'code' | 'id'>[];
   counselor: AccountPublic;
   taskChainIds: string[];
   taskChains: ITaskChain[];

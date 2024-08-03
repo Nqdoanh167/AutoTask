@@ -24,29 +24,37 @@
           >
             <div class="d-flex align-items-center">
               <span class="text-secondary" style="width: auto">Hiển thị</span>
-              <select
-                class="form-select border-0 mx-2"
-                [(ngModel)]="item.paramsQuery!.limit"
-                style="width: 100px"
-                (change)="pageChanged({}, $event)"
-              >
-                <option [value]="10">10</option>
-                <option [value]="20">20</option>
-                <option [value]="50">50</option>
-                <option [value]="100">100</option>
-              </select>
+              <ng-select
+                class="mx-2"
+                [style.width]="'80px'"
+                [clearable]="false"
+                [searchable]="false"
+                [(ngModel)]="limit"
+                (change)="pageChanged({}, limit)"
+                appendTo="body"
+                [items]="[10, 20, 50, 100]"
+              ></ng-select>
+              <!--              <select-->
+              <!--                class="form-select border-0 mx-2"-->
+              <!--                [(ngModel)]="limit"-->
+              <!--                style="width: 100px"-->
+              <!--                (change)="pageChanged({}, limit)"-->
+              <!--              >-->
+              <!--                <option [value]="10">10</option>-->
+              <!--                <option [value]="20">20</option>-->
+              <!--                <option [value]="50">50</option>-->
+              <!--                <option [value]="100">100</option>-->
+              <!--              </select>-->
               <span class="text-secondary">trong tổng số</span>
-              <span class="text-secondary mx-1">{{ item.total || 0 }}</span>
+              <span class="text-secondary mx-1">{{ total }}</span>
               <span class="text-secondary">bản ghi</span>
             </div>
             <pagination
-              [disabled]="item.loading"
+              [disabled]="loading"
               [boundaryLinks]="true"
-              [totalItems]="item.total! || 0"
-              [itemsPerPage]="
-                (item.paramsQuery?.limit | convertType: 'number') || 10
-              "
-              [(ngModel)]="item.paramsQuery!.page"
+              [totalItems]="total"
+              [itemsPerPage]="limit"
+              [(ngModel)]="page"
               (pageChanged)="pageChanged($event, null)"
               [rotate]="false"
               [maxSize]="4"

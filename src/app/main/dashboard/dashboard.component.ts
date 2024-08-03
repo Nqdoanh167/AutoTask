@@ -1,7 +1,7 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {distinctUntilChanged, filter, finalize, takeUntil} from 'rxjs';
 import {ETypeBulkUpdate, ETypeButton, ETypeFilter} from '@app/types/common';
-import {IColumns, IDateRange} from '@app/types/viewmodels';
+import {IColumns, IDateRange, Order} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
@@ -27,6 +27,7 @@ import {
   TASK_MULTIPLE_ACTIONS,
 } from '@main/dashboard/dashboard-variables';
 import {DashboardCheckPermission} from '@main/dashboard/dashboard-check-permission';
+import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-task',
@@ -37,6 +38,8 @@ export class DashboardComponent
   extends DashboardCheckPermission
   implements OnInit, OnDestroy
 {
+  @ViewChild('selectBatchActions') selectBatchActions?: NgSelectComponent;
+
   private startX: number = 0;
   private startWidth: number = 0;
   private resizing: boolean = false;
@@ -117,6 +120,7 @@ export class DashboardComponent
   }
 
   showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
+    if (!action) return;
     try {
       const modalRef = this.modalService.show(ModalAssignTeamComponent, {
         class: 'modal-dialog-centered',
@@ -161,6 +165,8 @@ export class DashboardComponent
           takeUntil(this.destroy$),
         )
         .subscribe((currentActiveViewMode) => {
+          this.item.paramsQuery.filter = '{}';
+          this.selectedUnits = [];
           this.currentActiveViewMode = currentActiveViewMode;
           const objFilterQuery = JSON.parse(
             this.item.paramsQuery.filter || '{}',
@@ -300,12 +306,13 @@ export class DashboardComponent
         finalize(() => (this.item.loading = false)),
       )
       .subscribe({
-        next: () => {
-          this.commonService.handleResSuccess('clone');
-          this.getDataSource();
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
+        next: (res) => {
+          if (res.status === 200) {
+            this.toastrService.success('Sao chép tác vụ thành công');
+            this.getDataSource();
+          } else {
+            this.commonService.handleResErr(res);
+          }
         },
       });
   }
@@ -350,8 +357,8 @@ export class DashboardComponent
     this.getDataSource();
   }
 
-  handleViewCreatedOrder(item: ITask) {
-    let url = `${environment.urlDomain}/${this.bizAlias}/sale-center/?sourceId=${item.id}`;
+  handleViewCreatedOrder(order: Pick<Order, 'id' | 'code'>) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/sale-center/?code=${order.code}`;
     window.open(url, '_blank');
   }
 

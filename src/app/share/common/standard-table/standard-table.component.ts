@@ -92,15 +92,15 @@ export class StandardTableComponent<T, K extends any>
     return sortIcon(property, this.sortProperty, this.sortOrder);
   }
 
-  pageChanged(data: IPageChange | any): void {
-    const {event, limit} = data;
-    if (event.page) {
-      this.item.paramsQuery = {...this.item.paramsQuery, page: event.page};
+  pageChanged(data: IPageChange): void {
+    const {page, limit} = data;
+    if (page) {
+      this.item.paramsQuery = {...this.item.paramsQuery, page: page};
     }
-    if (limit?.target?.value) {
+    if (limit) {
       this.item.paramsQuery = {
         ...this.item.paramsQuery,
-        limit: Number(limit?.target?.value || 10),
+        limit: Number(limit),
         page: 1,
       };
     }

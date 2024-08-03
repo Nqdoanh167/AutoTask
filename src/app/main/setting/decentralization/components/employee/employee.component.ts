@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {
   ETypeButton,
   ETypeFilter,
@@ -27,6 +27,8 @@ import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {ToastrService} from 'ngx-toastr';
+import {EntityPagination} from '@app/types/viewmodels';
+import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-employee',
@@ -37,6 +39,8 @@ export class EmployeeComponent
   extends CheckboxSortTableComponent<CombinedUserAcl, any>
   implements OnDestroy, OnInit
 {
+  @ViewChild('selectBatchActions') selectBatchActions?: NgSelectComponent;
+
   @Input() isInPermissionModal = false;
   @Input() sourceData: UserAcl[] = [];
   @Input() permissionDetail?: Permission;
@@ -62,10 +66,15 @@ export class EmployeeComponent
     },
   ];
 
+  protected batchAction = null;
   public listBizUsers: CombinedUserAcl[] = [];
   public listFilteredBizUsers: CombinedUserAcl[] = [];
   public loading = {
     data: false,
+  };
+  public aclData: EntityPagination<UserAcl> = {
+    rows: [],
+    loading: false,
   };
 
   public permission = {
@@ -130,6 +139,7 @@ export class EmployeeComponent
       .subscribe((res) => {
         this.loading.data = false;
         if (res.status === 200) {
+          this.aclData.rows = res.data;
           this.handleMapData(res.data);
         } else {
           this.commonService.handleResErr(res);
@@ -174,24 +184,22 @@ export class EmployeeComponent
   }
 
   handleMapData(data: UserAcl[], onlyHasAcl = false) {
-    this.listBizUsers = this.listFilteredBizUsers =
-      this.listBizUsers?.map((user) => {
-        const userAcl = this.findAclById(data, user.id);
-        return {
-          ...user,
-          aclBranches: this.mapProperties<UserAclBranch>(
-            user.roleBranches,
-            userAcl?.branches || [],
-          ),
-          isActiveAcl: userAcl?.isActive,
-        } as CombinedUserAcl;
-      }) || ([] as CombinedUserAcl[]);
+    this.listFilteredBizUsers = data?.map((item) => {
+      const user = this.listBizUsers?.find((u) => u.id === item.userId);
+      if (user) {
+        user.aclBranches = this.mapProperties<UserAclBranch>(
+          user.roleBranches,
+          item.branches || [],
+        );
+        user.isActiveAcl = item.isActive;
+      }
+      return user as CombinedUserAcl;
+    });
 
     if (onlyHasAcl) {
-      this.listBizUsers = this.listFilteredBizUsers =
-        this.listFilteredBizUsers.filter(
-          (user) => user.isActiveAcl !== undefined,
-        );
+      this.listFilteredBizUsers = this.listFilteredBizUsers.filter(
+        (user) => user.isActiveAcl !== undefined,
+      );
     }
 
     if (this.isInPermissionModal) {
@@ -273,6 +281,7 @@ Nhân viên bị loại bỏ quyền có thể không được phép truy cập 
             this.listFilteredBizUsers = this.listFilteredBizUsers.filter(
               (row) => !userIds.includes(row.id),
             );
+            this.handleRefreshRow();
             this.cdr.detectChanges();
           } else {
             this.commonService.handleResErr(res);

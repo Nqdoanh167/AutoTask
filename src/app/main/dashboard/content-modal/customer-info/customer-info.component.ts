@@ -150,7 +150,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       });
   }
 
-  handleViewCustomer(customerId: string) {
+  handleViewCustomer(customerId?: string) {
+    if (!customerId) return;
     let url = `${environment.urlDomain}/${this.currentBiz}/customers/${customerId}`;
     window.open(url, '_blank');
   }

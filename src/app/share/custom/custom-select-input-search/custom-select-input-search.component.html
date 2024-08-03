@@ -12,8 +12,10 @@
     [placeholder]="'Search...'"
     (search)="onSearch($event)"
   >
-    <ng-template *ngIf="labelTemp" ng-label-tmp>
-      <ng-template *ngTemplateOutlet="labelTemp"></ng-template>
-    </ng-template>
+    @if (labelTemp) {
+      <ng-template ng-label-tmp>
+        <ng-template *ngTemplateOutlet="labelTemp"></ng-template>
+      </ng-template>
+    }
   </ng-select>
 </div>

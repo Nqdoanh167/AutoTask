@@ -33,12 +33,14 @@
           class="form-control"
           [class]="submitted && f['name'].errors ? 'is-invalid' : ''"
         />
-        <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
-          <div *ngIf="f['name'].errors?.['required']">
-            Tên không được bỏ trống
-          </div>
-          <div *ngIf="f['name'].errors?.['maxlength']">Tên không hợp lệ</div>
-        </div>
+        @if (submitted && f['name'].errors) {
+          @if (f['name'].errors?.['required']) {
+            <div class="invalid-feedback">Tên không được bỏ trống</div>
+          }
+          @if (f['name'].errors?.['maxlength']) {
+            <div class="invalid-feedback">Tên không hợp lệ</div>
+          }
+        }
       </div>
       <div class="col-3">
         <label class="form-control-label" for="leadDeal.gender">
@@ -262,14 +264,13 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
             (change)="handleChangeLocation($event, 'province')"
             appendTo=".modal"
           >
-            <ng-container *ngIf="listProvince.length > 0; else selectNoData">
-              <ng-option
-                *ngFor="let item of listProvince; index as i"
-                [value]="item?.provinceCode"
-              >
+            @for (item of listProvince; track $index) {
+              <ng-option [value]="item?.provinceCode">
                 {{ item?.province }}
               </ng-option>
-            </ng-container>
+            } @empty {
+              <ng-container [ngTemplateOutlet]="selectNoData"></ng-container>
+            }
           </ng-select>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
@@ -288,14 +289,13 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
             (change)="handleChangeLocation($event, 'district')"
             appendTo=".modal"
           >
-            <ng-container *ngIf="listDistrict.length > 0; else selectNoData">
-              <ng-option
-                *ngFor="let item of listDistrict; index as i"
-                [value]="item?.districtCode"
-              >
+            @for (item of listDistrict; track $index) {
+              <ng-option [value]="item?.districtCode">
                 {{ item?.district }}
               </ng-option>
-            </ng-container>
+            } @empty {
+              <ng-container [ngTemplateOutlet]="selectNoData"></ng-container>
+            }
           </ng-select>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
@@ -315,14 +315,13 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
             (change)="handleChangeLocation($event, 'ward')"
             appendTo=".modal"
           >
-            <ng-container *ngIf="listWard.length > 0; else selectNoData">
-              <ng-option
-                *ngFor="let item of listWard; index as i"
-                [value]="item?.wardCode"
-              >
+            @for (item of listWard; track $index) {
+              <ng-option [value]="item?.wardCode">
                 {{ item?.ward }}
               </ng-option>
-            </ng-container>
+            } @empty {
+              <ng-container [ngTemplateOutlet]="selectNoData"></ng-container>
+            }
           </ng-select>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
@@ -385,7 +384,7 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                 <div class="d-flex gap-3">
                   <span
                     class="account-name fw-500 text-link"
-                    (click)="handleViewCustomer(selectedCustomer.id)"
+                    (click)="handleViewCustomer(selectedCustomer?.id)"
                   >
                     {{ selectedCustomer?.name }}
                   </span>
@@ -412,20 +411,19 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
               </div>
             </div>
           </div>
-          <div
-            class="d-flex flex-row flex-wrap gap-2 mt-3"
-            *ngIf="selectedCustomer && !selectTag"
-          >
-            <div *ngFor="let tag of selectedCustomer?.tags">
-              <span
-                class="tag-item"
-                [ngClass]="{nonBack: !tag.bgColor}"
-                [ngStyle]="{background: tag.bgColor}"
-              >
-                <span>{{ tag.name }}</span>
-              </span>
+          @if (selectedCustomer && !selectTag) {
+            <div class="d-flex flex-row flex-wrap gap-2 mt-3">
+              @for (tag of selectedCustomer?.tags; track $index) {
+                <span
+                  class="tag-item"
+                  [ngClass]="{nonBack: !tag.bgColor}"
+                  [ngStyle]="{background: tag.bgColor}"
+                >
+                  <span>{{ tag.name }}</span>
+                </span>
+              }
             </div>
-          </div>
+          }
           @if (selectedCustomer?.saleCenter) {
             <div class="mt-3 sale-info">
               <div class="d-flex align-items-center">
@@ -482,23 +480,20 @@ Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua h�
                 <div class="custom-scrollbar" [style.max-height]="'500px'">
                   <table class="table transparent">
                     <tbody>
-                      <tr
-                        *ngFor="
-                          let order of viewOrCustomerOrders;
-                          let index = index
-                        "
-                      >
-                        <td>{{ order?.createdAt | timeView }}</td>
-                        <td>
-                          <div
-                            class="fw-500 cursor-pointer text-link"
-                            (click)="handleViewOrder(order?.id)"
-                          >
-                            {{ order?.code || '-' }}
-                          </div>
-                        </td>
-                        <td>{{ order?.amount ?? 0 | number }} VNĐ</td>
-                      </tr>
+                      @for (order of viewOrCustomerOrders; track $index) {
+                        <tr>
+                          <td>{{ order?.createdAt | timeView }}</td>
+                          <td>
+                            <div
+                              class="fw-500 cursor-pointer text-link"
+                              (click)="handleViewOrder(order?.id)"
+                            >
+                              {{ order?.code || '-' }}
+                            </div>
+                          </td>
+                          <td>{{ order?.amount ?? 0 | number }} VNĐ</td>
+                        </tr>
+                      }
                     </tbody>
                   </table>
                 </div>
