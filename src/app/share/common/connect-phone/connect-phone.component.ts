@@ -34,7 +34,8 @@ export class ConnectPhoneComponent
     paramsQuery: {},
     total: 0,
   };
-  protected hasPermitSmsOttCall = false;
+  protected hasPermitSmsOttCall =
+    this.authService.checkPermittedModule('sms-ott-call');
   protected connectedPhone: ManageMappingPhone | undefined;
   protected platforms = VOICE_PLATFORMS;
 
@@ -46,9 +47,6 @@ export class ConnectPhoneComponent
     private readonly stringeeService: StringeeService,
   ) {
     super();
-    this.hasPermitSmsOttCall = !!this.currentUser?.moduleAliases?.find(
-      (el) => el === 'sms-ott-call',
-    );
   }
 
   ngOnInit() {

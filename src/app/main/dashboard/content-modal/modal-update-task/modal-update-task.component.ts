@@ -70,7 +70,8 @@ export class ModalUpdateTaskComponent
 
   protected readonly ETabTaskDetail = ETabTaskDetail;
   protected readonly ETaskChainType = ETaskChainType;
-  protected hasPermitSmsOttCall = false;
+  protected hasPermitSmsOttCall =
+    this.authService.checkPermittedModule('sms-ott-call');
   protected readonly ERole = ERole;
 
   constructor(
@@ -105,9 +106,6 @@ export class ModalUpdateTaskComponent
       this.loading.modal = false;
       this.patchForm();
     }
-    this.hasPermitSmsOttCall = !!this.currentUser?.moduleAliases?.find(
-      (el) => el === 'sms-ott-call',
-    );
     this.handleCheckPermission();
     if (this.sourceData) {
     } else {

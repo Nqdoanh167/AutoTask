@@ -67,7 +67,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   public selectedCustomer: Customer | null = null;
   public selectTag: boolean = false;
 
-  protected hasPermitCustomer = false;
+  protected hasPermitCustomer =
+    this.authService.checkPermittedModule('customers');
 
   constructor(
     private readonly apiLocationService: ApiLocationService,
@@ -82,9 +83,6 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         this.currentBiz = biz.alias || '';
-        this.hasPermitCustomer = !!biz?.user?.moduleAliases?.find(
-          (el) => el === 'customers',
-        );
       });
   }
 

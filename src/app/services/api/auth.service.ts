@@ -112,6 +112,14 @@ export class AuthService {
     }
   }
 
+  checkPermittedModule(moduleAlias: string) {
+    return this.getPermittedModules().includes(moduleAlias);
+  }
+
+  getPermittedModules() {
+    return this.currentBizSubject.getValue()?.user?.moduleAliases || [];
+  }
+
   getAccessibleSite() {
     let accessibleSites: Record<EModule, string[]> = {
       [EModule.DASHBOARD]: [],
