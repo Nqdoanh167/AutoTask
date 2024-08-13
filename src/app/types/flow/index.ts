@@ -258,6 +258,14 @@ export enum ETaskChainResultType {
   CANCELED = 'CANCELED',
 }
 
+export interface ReasonEditedDate {
+  editedDate: Date;
+  deadDate: Date;
+  newDate: Date;
+  reason: string;
+  editedBy: AccountPublic;
+}
+
 export interface ITaskChainResult {
   id?: string;
   status: ETaskChainResultType;
@@ -272,6 +280,7 @@ export interface ITaskChainResult {
   nextActionIds: string[];
   nextActions: ITaskChainResult[];
   note: string;
+  reasonEditedDate: ReasonEditedDate[];
   backgroundProcessingActions: any;
   results: IChainResult[];
   childNextAction: IChainNextAction;
@@ -396,6 +405,11 @@ export enum EActionStates {
   DUE_SOON = 'DUE_SOON',
   EXECUTED = 'EXECUTED',
   HIDE_FULL_EXECUTED = 'HIDE_FULL_EXECUTED',
+}
+
+export enum EEditedDateState {
+  HAS_EDITED = 'HAS_EDITED',
+  NOT_EDITED = 'NOT_EDITED',
 }
 
 export interface ModifiedUserUnit {

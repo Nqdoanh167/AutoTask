@@ -661,6 +661,18 @@ ng-select.select-search-icon {
   }
 }
 
+.popover-change-histories {
+  white-space: wrap !important;
+  .table-change-histories {
+    .column-note {
+      width: 150px;
+      div {
+        @include limit-text-row(3);
+      }
+    }
+  }
+}
+
 .popover {
   white-space: nowrap;
   max-width: 100%;

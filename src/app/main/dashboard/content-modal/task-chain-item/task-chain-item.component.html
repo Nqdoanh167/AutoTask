@@ -34,126 +34,237 @@
               <ng-container>
                 <tr [formGroupName]="taskChainResultIndex">
                   <td class="column-timer">
-                    @if (taskChainResult.value?.executedDate) {
-                      <div class="done-time">
-                        {{
-                          taskChainResult.value?.executedDate
-                            | date: 'dd/MM/yyyy HH:mm'
-                        }}
-                      </div>
-                    }
-                    @if (
-                      !taskChainResult.value?.executedDate &&
-                      taskChainResult.value?.deadlineDate
-                    ) {
-                      <div
-                        class="timer fw-500"
-                        [popover]="
-                          !!staticDataChainItem?.taskChainResults?.[
-                            taskChainResultIndex
-                          ]?.['isEdit'] &&
-                          handleCheckIsAllowEdit(
-                            'timer',
-                            taskChainResult.value,
-                            taskChainResultIndex
-                          )
-                            ? popTemplate
-                            : ''
-                        "
-                        placement="right"
-                        [outsideClick]="true"
-                        [ngClass]="{
-                          'text-danger':
-                            taskChainResult.value?.typeOverDeadline === 'over',
-                          editable:
+                    <div class="d-flex gap-2 align-items-center">
+                      @if (taskChainResult.value?.executedDate) {
+                        <div class="done-time">
+                          {{
+                            taskChainResult.value?.executedDate
+                              | date: 'dd/MM/yyyy HH:mm'
+                          }}
+                        </div>
+                      }
+                      @if (
+                        !taskChainResult.value?.executedDate &&
+                        taskChainResult.value?.deadlineDate
+                      ) {
+                        <div
+                          class="timer fw-500"
+                          [popover]="
                             !!staticDataChainItem?.taskChainResults?.[
                               taskChainResultIndex
-                            ]?.['isEdit']
-                        }"
-                      >
-                        @switch (taskChainResult.value?.typeOverDeadline) {
-                          @case ('over') {
-                            <span>
-                              <i
-                                class="fa-solid fa-triangle-exclamation"
-                                style="color: #ef6a6a"
-                              ></i>
-                            </span>
-                          }
-                          @case ('notOver') {
-                            <span>
-                              <i
-                                class="fa-solid fa-stopwatch"
-                                style="color: #4277ff"
-                              ></i>
-                            </span>
-                          }
-                          @case ('now') {
-                            <span>Ngay lập tức</span>
-                          }
-                        }
-                        @if (
-                          taskChainResult.value?.typeOverDeadline !== 'now'
-                        ) {
-                          <span>
-                            {{
-                              renderDeadline(
-                                taskChainResult.value?.deadlineDate,
-                                taskChainResult.value?.executedDate
-                              )
-                            }}
-                          </span>
-                        }
-                      </div>
-                      <ng-template #popTemplate>
-                        <div
-                          class="popover-timer align-items-center"
-                          style="width: 350px"
+                            ]?.['isEdit'] &&
+                            handleCheckIsAllowEdit(
+                              'timer',
+                              taskChainResult.value,
+                              taskChainResultIndex
+                            )
+                              ? popTemplate
+                              : ''
+                          "
+                          placement="right"
+                          [outsideClick]="true"
+                          [ngClass]="{
+                            'text-danger':
+                              taskChainResult.value?.typeOverDeadline ===
+                              'over',
+                            editable:
+                              !!staticDataChainItem?.taskChainResults?.[
+                                taskChainResultIndex
+                              ]?.['isEdit']
+                          }"
                         >
-                          <label
-                            class="form-control-label d-flex align-items-center gap-2 mb-2"
-                          >
-                            <i class="fa-solid fa-clock"></i>
-                            <div class="fw-500">
-                              Chỉnh sửa thời gian hẹn giờ
-                            </div>
-                          </label>
-                          <div class="d-flex gap-2">
-                            <input
-                              (input)="
-                                handleChangeDeadline(taskChainResultIndex)
-                              "
-                              mask="000"
-                              [allowNegativeNumbers]="false"
-                              name="between_from"
-                              class="form-control text-right"
-                              placeholder="Ngày (0-999)"
-                              formControlName="deadlineDay"
-                            />
-                            <input
-                              (input)="
-                                handleChangeDeadline(taskChainResultIndex)
-                              "
-                              mask="Hh"
-                              name="between_from"
-                              class="form-control text-right"
-                              placeholder="Giờ (0-23)"
-                              formControlName="deadlineHour"
-                            />
-                            <input
-                              (input)="
-                                handleChangeDeadline(taskChainResultIndex)
-                              "
-                              mask="m0"
-                              name="between_from"
-                              class="form-control text-right"
-                              placeholder="Phút (0-59)"
-                              formControlName="deadlineMinute"
-                            />
-                          </div>
+                          @switch (taskChainResult.value?.typeOverDeadline) {
+                            @case ('over') {
+                              <span>
+                                <i
+                                  class="fa-solid fa-triangle-exclamation"
+                                  style="color: #ef6a6a"
+                                ></i>
+                              </span>
+                            }
+                            @case ('notOver') {
+                              <span>
+                                <i
+                                  class="fa-solid fa-stopwatch"
+                                  style="color: #4277ff"
+                                ></i>
+                              </span>
+                            }
+                            @case ('now') {
+                              <span>Ngay lập tức</span>
+                            }
+                          }
+                          @if (
+                            taskChainResult.value?.typeOverDeadline !== 'now'
+                          ) {
+                            <span>
+                              {{
+                                renderDeadline(
+                                  taskChainResult.value?.deadlineDate,
+                                  taskChainResult.value?.executedDate
+                                )
+                              }}
+                            </span>
+                          }
                         </div>
-                      </ng-template>
-                    }
+                        <ng-template #popTemplate>
+                          <div
+                            class="popover-timer align-items-center"
+                            style="width: 350px"
+                          >
+                            <label
+                              class="form-control-label d-flex align-items-center gap-2 mb-2"
+                            >
+                              <i class="fa-solid fa-clock"></i>
+                              <div class="fw-500">
+                                Chỉnh sửa thời gian hẹn giờ
+                              </div>
+                            </label>
+                            <div class="d-flex gap-2">
+                              <input
+                                (input)="
+                                  handleChangeDeadline(taskChainResultIndex)
+                                "
+                                mask="000"
+                                [allowNegativeNumbers]="false"
+                                name="between_from"
+                                class="form-control text-right"
+                                placeholder="Ngày (0-999)"
+                                formControlName="deadlineDay"
+                              />
+                              <input
+                                (input)="
+                                  handleChangeDeadline(taskChainResultIndex)
+                                "
+                                mask="Hh"
+                                name="between_from"
+                                class="form-control text-right"
+                                placeholder="Giờ (0-23)"
+                                formControlName="deadlineHour"
+                              />
+                              <input
+                                (input)="
+                                  handleChangeDeadline(taskChainResultIndex)
+                                "
+                                mask="m0"
+                                name="between_from"
+                                class="form-control text-right"
+                                placeholder="Phút (0-59)"
+                                formControlName="deadlineMinute"
+                              />
+                            </div>
+                            <div class="mt-2" formGroupName="reasonEditedDate">
+                              <textarea
+                                name="note-for-time"
+                                placeholder="Ghi chú/Lí do chỉnh sửa"
+                                formControlName="reason"
+                              ></textarea>
+                            </div>
+                          </div>
+                        </ng-template>
+                      }
+                      @if (taskChainResult.value?.reasonEditedDates?.length) {
+                        <i
+                          [popover]="changeHistoriesPop"
+                          placement="right"
+                          [outsideClick]="true"
+                          class="fa-solid fa-circle-exclamation warning-change-time"
+                          container=".modal"
+                        ></i>
+                        <ng-template #changeHistoriesPop>
+                          <div
+                            class="popover-change-histories align-items-center"
+                          >
+                            <div class="headline mb-2">
+                              Lịch sử chỉnh sửa thời gian
+                            </div>
+                            <table class="table table-change-histories">
+                              <thead>
+                                <tr>
+                                  <th>Thời gian chỉnh sửa</th>
+                                  <th>Trước khi chỉnh sửa</th>
+                                  <th>Sau khi chỉnh sửa</th>
+                                  <th>Người sửa</th>
+                                  <th>Ghi chú</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (
+                                  reasonEditedDate of taskChainResult.value
+                                    ?.reasonEditedDates;
+                                  track reasonEditedDateIndex;
+                                  let reasonEditedDateIndex = $index
+                                ) {
+                                  <tr>
+                                    <td>
+                                      {{
+                                        reasonEditedDate?.editedDate
+                                          | date: 'dd/MM/yyyy HH:mm'
+                                      }}
+                                    </td>
+                                    <td>
+                                      <div
+                                        *ngLet="
+                                          reasonEditedDate?.deadDate <
+                                          reasonEditedDate?.editedDate as outOfDeadline
+                                        "
+                                      >
+                                        <div
+                                          class="{{
+                                            outOfDeadline
+                                              ? 'text-danger'
+                                              : 'text-primary'
+                                          }}"
+                                        >
+                                          {{ outOfDeadline ? 'Trễ' : 'Còn' }}
+                                          {{
+                                            reasonEditedDate?.deadDate
+                                              | calculateDeadline
+                                                : reasonEditedDate?.editedDate
+                                          }}
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <div class="text-primary">
+                                        Còn
+                                        {{
+                                          reasonEditedDate?.newDate
+                                            | calculateDeadline
+                                              : reasonEditedDate?.editedDate
+                                        }}
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <div
+                                        class="d-flex gap-2 align-items-center"
+                                      >
+                                        <img
+                                          class="avatar"
+                                          src="{{
+                                            reasonEditedDate?.editedBy?.picture
+                                          }}"
+                                          alt=""
+                                        />
+                                        <span class="fw-500">
+                                          {{ reasonEditedDate?.editedBy?.name }}
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td class="column-note">
+                                      <div>
+                                        {{ reasonEditedDate?.reason || '-' }}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                }
+                                <tr></tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </ng-template>
+                      }
+                    </div>
                   </td>
                   <td class="columns-action-main">
                     {{ taskChainResult.value.action?.name || '-' }}

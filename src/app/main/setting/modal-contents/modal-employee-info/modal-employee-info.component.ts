@@ -91,7 +91,25 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
         ...this.sourceData,
         userId: this.sourceData?.id,
         isActive: this.sourceData?.isActiveAcl,
-        branches: this.sourceData?.aclBranches,
+        branches: this.sourceData?.aclBranches?.map((branch) => {
+          return {
+            ...branch,
+            departments: branch.departments?.map((department) => {
+              if (branch.permission && branch.role === 'OWNER') {
+                department.permission = branch.permission;
+              }
+              return {
+                ...department,
+                teams: department.teams?.map((team) => {
+                  if (department.permission && department.role === 'OWNER') {
+                    team.permission = department.permission;
+                  }
+                  return {...team};
+                }),
+              };
+            }),
+          };
+        }),
       } as any);
     }
   }
@@ -167,8 +185,21 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
       team.permission = data?.id ?? null;
     } else if (department?.id) {
       department.permission = data?.id ?? null;
+      if (department.role === 'OWNER') {
+        department.teams?.forEach((team) => {
+          team.permission = data?.id ?? null;
+        });
+      }
     } else if (branch?.id) {
       branch.permission = data?.id ?? null;
+      if (branch.role === 'OWNER') {
+        branch.departments?.forEach((department) => {
+          department.permission = data?.id ?? null;
+          department.teams?.forEach((team) => {
+            team.permission = data?.id ?? null;
+          });
+        });
+      }
     }
   }
 

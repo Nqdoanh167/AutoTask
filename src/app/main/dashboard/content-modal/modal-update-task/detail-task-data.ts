@@ -386,6 +386,10 @@ export class DetailTaskData extends BaseComponentsComponent {
             deadlineDay: deadlineDay,
             deadlineHour: deadlineHour,
             deadlineMinute: deadlineMinute,
+            reasonEditedDate: this.fb.group({
+              reason: null,
+            }),
+            reasonEditedDates: this.fb.array([]),
             typeOverDeadline: typeOverDeadline,
             action: this.fb.group({
               id: taskChainResult?.action?.id,
@@ -413,6 +417,18 @@ export class DetailTaskData extends BaseComponentsComponent {
             results: this.fb.array([]),
             nextActions: this.fb.array([]),
             isEdit: false,
+          });
+          taskChainResult?.reasonEditedDate?.forEach((reasonEditedDate) => {
+            const reasonEditedDateForm = this.fb.group({
+              editedDate: reasonEditedDate.editedDate,
+              deadDate: reasonEditedDate.deadDate,
+              newDate: reasonEditedDate.newDate,
+              reason: reasonEditedDate.reason,
+              editedBy: reasonEditedDate.editedBy,
+            });
+            (<FormArray>taskChainResultForm.controls.reasonEditedDates).push(
+              reasonEditedDateForm,
+            );
           });
           taskChainResult?.action?.reasons?.forEach((reason) => {
             const reasonForm = this.fb.group({
@@ -479,6 +495,7 @@ export class DetailTaskData extends BaseComponentsComponent {
         (<FormArray>this.updateForm.controls.taskChains).push(taskChainForm);
       });
       this.loading.modal = false;
+      console.log(this.updateForm.value);
     } catch (e) {
       console.log(e);
     }

@@ -4,7 +4,7 @@ import {
   ETypeButton,
   ETypeFilter,
 } from '@app/types/common';
-import {EActionStates} from '@app/types/flow';
+import {EActionStates, EEditedDateState} from '@app/types/flow';
 
 export enum ESpecialQueryTaskKey {
   BRANCH_IDS = 'branchIds',
@@ -97,6 +97,27 @@ export const TASK_CONFIG_FILTERS = [
     bindValue: 'id',
     clearable: true,
     searchable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SELECT,
+    name: 'editDateState',
+    placeholder: 'Chỉnh sửa thời gian',
+    options: [
+      {
+        label: 'Đã chỉnh sửa thời gian',
+        value: EEditedDateState.HAS_EDITED,
+      },
+      {
+        label: 'Chưa chỉnh sửa thời gian',
+        value: EEditedDateState.NOT_EDITED,
+      },
+    ],
+    bindLabel: 'label',
+    bindValue: 'value',
+    clearable: true,
+    multiple: false,
+    minWidth: '200px',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
   {

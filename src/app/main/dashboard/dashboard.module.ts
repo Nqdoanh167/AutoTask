@@ -42,6 +42,8 @@ import {CalculateTaskDeadlinePipe} from '@share/pipe/calculate-task-deadline/cal
 import {MycurrencyPipe} from '@share/pipe/mycurrency.pipe';
 import {TimeViewPipe} from '@share/pipe/timeView.pipe';
 import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
+import {CalculateDeadlinePipe} from '@share/pipe/calculate-deadline/calculate-deadline.pipe';
+import {LetDirective} from '@share/directive/ng-let.directive';
 
 @NgModule({
   declarations: [
@@ -92,6 +94,8 @@ import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
     MycurrencyPipe,
     TimeViewPipe,
     GetDataArrayPipe,
+    CalculateDeadlinePipe,
+    LetDirective,
   ],
 })
 export class DashboardModule {}

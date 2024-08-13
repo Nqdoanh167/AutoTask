@@ -220,8 +220,15 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResult: ITaskChainResult,
   ) {
     if (!taskChainResult.id) return;
-    const {note, resultIndex, reasonIndex, nextActions, deadlineDate, action} =
-      this.formTaskChainResults().at(taskChainResultIndex).value;
+    const {
+      note,
+      resultIndex,
+      reasonIndex,
+      nextActions,
+      deadlineDate,
+      action,
+      reasonEditedDate,
+    } = this.formTaskChainResults().at(taskChainResultIndex).value;
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
         const modify = {
@@ -286,6 +293,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       const body = {
         deadlineDate: deadlineDate.toISOString(),
         note,
+        reasonEditedDate,
       };
       this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
     } else {
