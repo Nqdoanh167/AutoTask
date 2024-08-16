@@ -495,7 +495,6 @@ export class DetailTaskData extends BaseComponentsComponent {
         (<FormArray>this.updateForm.controls.taskChains).push(taskChainForm);
       });
       this.loading.modal = false;
-      console.log(this.updateForm.value);
     } catch (e) {
       console.log(e);
     }

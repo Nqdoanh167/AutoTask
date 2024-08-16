@@ -138,7 +138,7 @@ export class ModalUpdateTaskComponent
             this.sourceData = res.data;
             this.patchForm(res.data);
             if (isRefresh) {
-              this.customerInfoComponent.handleClearSelectValue();
+              this.customerInfoComponent?.handleClearSelectValue();
             }
           } else {
             this.commonService.handleResErr(res);

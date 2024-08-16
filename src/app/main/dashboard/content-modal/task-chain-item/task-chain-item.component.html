@@ -178,89 +178,97 @@
                             <div class="headline mb-2">
                               Lịch sử chỉnh sửa thời gian
                             </div>
-                            <table class="table table-change-histories">
-                              <thead>
-                                <tr>
-                                  <th>Thời gian chỉnh sửa</th>
-                                  <th>Trước khi chỉnh sửa</th>
-                                  <th>Sau khi chỉnh sửa</th>
-                                  <th>Người sửa</th>
-                                  <th>Ghi chú</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                @for (
-                                  reasonEditedDate of taskChainResult.value
-                                    ?.reasonEditedDates;
-                                  track reasonEditedDateIndex;
-                                  let reasonEditedDateIndex = $index
-                                ) {
+                            <div
+                              class="table-responsive tableFixHead custom-scrollbar"
+                              [style.max-height]="'300px'"
+                            >
+                              <table class="table table-change-histories">
+                                <thead>
                                   <tr>
-                                    <td>
-                                      {{
-                                        reasonEditedDate?.editedDate
-                                          | date: 'dd/MM/yyyy HH:mm'
-                                      }}
-                                    </td>
-                                    <td>
-                                      <div
-                                        *ngLet="
-                                          reasonEditedDate?.deadDate <
-                                          reasonEditedDate?.editedDate as outOfDeadline
-                                        "
-                                      >
+                                    <th>Thời gian chỉnh sửa</th>
+                                    <th>Trước khi chỉnh sửa</th>
+                                    <th>Sau khi chỉnh sửa</th>
+                                    <th>Người sửa</th>
+                                    <th>Ghi chú</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  @for (
+                                    reasonEditedDate of taskChainResult.value
+                                      ?.reasonEditedDates;
+                                    track reasonEditedDateIndex;
+                                    let reasonEditedDateIndex = $index
+                                  ) {
+                                    <tr>
+                                      <td>
+                                        {{
+                                          reasonEditedDate?.editedDate
+                                            | date: 'dd/MM/yyyy HH:mm'
+                                        }}
+                                      </td>
+                                      <td>
                                         <div
-                                          class="{{
-                                            outOfDeadline
-                                              ? 'text-danger'
-                                              : 'text-primary'
-                                          }}"
+                                          *ngLet="
+                                            reasonEditedDate?.deadDate <
+                                            reasonEditedDate?.editedDate as outOfDeadline
+                                          "
                                         >
-                                          {{ outOfDeadline ? 'Trễ' : 'Còn' }}
+                                          <div
+                                            class="{{
+                                              outOfDeadline
+                                                ? 'text-danger'
+                                                : 'text-primary'
+                                            }}"
+                                          >
+                                            {{ outOfDeadline ? 'Trễ' : 'Còn' }}
+                                            {{
+                                              reasonEditedDate?.deadDate
+                                                | calculateDeadline
+                                                  : reasonEditedDate?.editedDate
+                                            }}
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td>
+                                        <div class="text-primary">
+                                          Còn
                                           {{
-                                            reasonEditedDate?.deadDate
+                                            reasonEditedDate?.newDate
                                               | calculateDeadline
                                                 : reasonEditedDate?.editedDate
                                           }}
                                         </div>
-                                      </div>
-                                    </td>
-                                    <td>
-                                      <div class="text-primary">
-                                        Còn
-                                        {{
-                                          reasonEditedDate?.newDate
-                                            | calculateDeadline
-                                              : reasonEditedDate?.editedDate
-                                        }}
-                                      </div>
-                                    </td>
-                                    <td>
-                                      <div
-                                        class="d-flex gap-2 align-items-center"
-                                      >
-                                        <img
-                                          class="avatar"
-                                          src="{{
-                                            reasonEditedDate?.editedBy?.picture
-                                          }}"
-                                          alt=""
-                                        />
-                                        <span class="fw-500">
-                                          {{ reasonEditedDate?.editedBy?.name }}
-                                        </span>
-                                      </div>
-                                    </td>
-                                    <td class="column-note">
-                                      <div>
-                                        {{ reasonEditedDate?.reason || '-' }}
-                                      </div>
-                                    </td>
-                                  </tr>
-                                }
-                                <tr></tr>
-                              </tbody>
-                            </table>
+                                      </td>
+                                      <td>
+                                        <div
+                                          class="d-flex gap-2 align-items-center"
+                                        >
+                                          <img
+                                            class="avatar"
+                                            src="{{
+                                              reasonEditedDate?.editedBy
+                                                ?.picture
+                                            }}"
+                                            alt=""
+                                          />
+                                          <span class="fw-500">
+                                            {{
+                                              reasonEditedDate?.editedBy?.name
+                                            }}
+                                          </span>
+                                        </div>
+                                      </td>
+                                      <td class="column-note">
+                                        <div>
+                                          {{ reasonEditedDate?.reason || '-' }}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  }
+                                  <tr></tr>
+                                </tbody>
+                              </table>
+                            </div>
                           </div>
                         </ng-template>
                       }

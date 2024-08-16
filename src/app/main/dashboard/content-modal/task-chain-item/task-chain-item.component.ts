@@ -293,7 +293,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       const body = {
         deadlineDate: deadlineDate.toISOString(),
         note,
-        reasonEditedDate,
+        reasonEditedDate: {
+          reason: reasonEditedDate?.reason || '',
+        },
       };
       this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
     } else {
@@ -310,6 +312,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     body: IUpdateDeadlineTaskResult,
   ) {
+    if (this.loading.submit) return;
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
       .updateDeadline(taskChainResultId, body)
@@ -336,6 +339,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     body: IUpdateTaskResultDto,
   ) {
+    if (this.loading.submit) return;
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
       .update(taskChainResultId, body)
