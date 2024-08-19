@@ -1,4 +1,6 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -6,7 +8,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {IChangePage, IMetaData, ITypePaginate} from '@app/types/viewmodels';
+import {IChangePage, ITypePaginate} from '@app/types/viewmodels';
 import {CommonModule} from '@angular/common';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {FormsModule} from '@angular/forms';
@@ -18,6 +20,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
   styleUrls: ['./custom-pagination.component.scss'],
   standalone: true,
   imports: [CommonModule, PaginationModule, FormsModule, NgSelectModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomPaginationComponent implements OnInit, OnChanges {
   @Input() metaData: any = {
@@ -37,9 +40,11 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
     end: 0,
   };
 
-  constructor() {}
+  constructor(private readonly cdr: ChangeDetectorRef) {}
 
-  ngOnChanges(changes: any) {}
+  ngOnChanges(changes: any) {
+    // this.cdr.detectChanges();
+  }
 
   ngOnInit(): void {}
 
@@ -51,17 +56,26 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
     this.dataInfo = {start, end, ...this.metaData};
   }
 
-  pageChanged(event: {page?: number; itemsPerPage?: number}, limit: any): void {
-    if (event.page) {
-      this.currentPage = event.page;
+  pageChanged(
+    event: {page?: number; itemsPerPage?: number},
+    limit: number | null,
+  ): void {
+    try {
+      if (event.page && !limit && event.page !== this.currentPage) {
+        this.changePageEvent.emit({
+          page: event.page,
+          limit: this.selectedSize,
+        });
+      }
+      if (limit && !event.page) {
+        this.changePageEvent.emit({
+          page: 1,
+          limit: limit,
+        });
+      }
+    } catch (error) {
+      console.log(error);
     }
-    if (limit?.target?.value) {
-      this.selectedSize = Number(limit?.target?.value || 20);
-    }
-    this.changePageEvent.emit({
-      page: this.currentPage,
-      limit: this.selectedSize,
-    });
   }
 
   changePageLazy(value: IChangePage): void {

@@ -75,7 +75,7 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
     },
     {
       value: ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK,
-      label: 'Đóng chuỗi HĐ và tạo bản sao công việc',
+      label: 'Đóng chuỗi HĐ và tạo bản sao Tác vụ',
     },
     {
       value: ENextStepType.ADD_CHAIN,

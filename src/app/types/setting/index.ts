@@ -1,4 +1,9 @@
-import {AccountPublic, BaseInterface, User} from '@app/types/viewmodels';
+import {
+  AccountPublic,
+  BaseInterface,
+  ESocialPlatform,
+  User,
+} from '@app/types/viewmodels';
 import {IBranchTaskDto, ITaskCartDto} from '@app/types/flow';
 
 export enum EDataSourceType {
@@ -48,6 +53,8 @@ export interface ISource {
   id: string;
   name: string;
   picture: string;
+  platform: ESocialPlatform;
+  platformId: string;
   type: EDataSourceType;
   dTask: ISourceDTask;
   isActive: boolean;
@@ -128,15 +135,13 @@ export enum ETabUpdatePermissionsModal {
 
 export enum EPerActTask {
   VIEW_TASK = 'VIEW_TASK',
-  VIEW_TASK_BIZ = 'VIEW_TASK_BIZ',
+  VIEW_TASK_SAME_LEVEL = 'VIEW_TASK_SAME_LEVEL',
   CREATE_TASK = 'CREATE_TASK',
   UPDATE_TASK = 'UPDATE_TASK',
   DELETE_TASK = 'DELETE_TASK',
-  VIEW_INFORMATION_TASK = 'VIEW_INFORMATION_TASK',
   VIEW_HISTORY_TASK = 'VIEW_HISTORY_TASK',
   CREATE_ORDER = 'CREATE_ORDER',
   MANAGE_CHAIN = 'MANAGE_CHAIN',
-  MANAGE_ACTION = 'MANAGE_ACTION',
   EDIT_TIME_ACTION = 'EDIT_TIME_ACTION',
 }
 
@@ -146,20 +151,15 @@ export enum EPerActFlow {
 }
 
 export enum EPerActSetting {
-  VIEW_SOURCE_SETTING = 'VIEW_SOURCE_SETTING',
+  VIEW_MASTER_DATA = 'VIEW_MASTER_DATA',
   UPDATE_SOURCE_SETTING = 'UPDATE_SOURCE_SETTING',
-
-  VIEW_TAG_SETTING = 'VIEW_TAG_SETTING',
   UPDATE_TAG_SETTING = 'UPDATE_TAG_SETTING',
-
-  VIEW_ROLE_SETTING = 'VIEW_ROLE_SETTING',
   UPDATE_ROLE_SETTING = 'UPDATE_ROLE_SETTING',
 
   VIEW_PERMISSION_SETTING_ACCESS = 'VIEW_PERMISSION_SETTING_ACCESS',
   UPDATE_PERMISSION_SETTING_ACCESS = 'UPDATE_PERMISSION_SETTING_ACCESS',
 
-  VIEW_USER_ACCESS = 'VIEW_USER_ACCESS',
-  VIEW_USER_ACCESS_BIZ = 'VIEW_USER_ACCESS_BIZ',
+  VIEW_USER_ACCESS_SAME_LEVEL = 'VIEW_USER_ACCESS_SAME_LEVEL',
   UPDATE_USER_ACCESS = 'UPDATE_USER_ACCESS',
 }
 
@@ -172,19 +172,30 @@ export enum EPerActType {
 export interface IPermissionItem {
   key: EPerActSetting | EPerActFlow | EPerActTask;
   name: string;
+  isRootPer?: boolean;
+  tooltip?: string;
+  dependsOnPer?: EPerActTask | EPerActFlow | EPerActSetting;
+  class?: string;
 }
 
 export interface IPermissionGroups {
   name: string;
   key: EPerActType;
   isOpen: boolean;
-  permissions: IPermissionItem[];
+  groups?: {name: string; permissions: IPermissionItem[]}[];
+  permissions?: IPermissionItem[];
+  class?: string;
 }
 
 export interface PermissionAction {
   [EPerActType.TASK]: EPerActTask[];
   [EPerActType.FLOW]: EPerActFlow[];
   [EPerActType.SETTING]: EPerActSetting[];
+}
+
+export enum EPermDefault {
+  MEMBER_PERMISSION = 'MEMBER_PERMISSION',
+  OWNER_PERMISSION = 'OWNER_PERMISSION',
 }
 
 export interface Permission extends BaseInterface {
@@ -194,6 +205,7 @@ export interface Permission extends BaseInterface {
   permissionAction: PermissionAction;
   userAclCount?: number;
   userAcls?: UserAcl[];
+  permDefault?: EPermDefault;
 }
 
 export interface PermissionDto

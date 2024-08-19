@@ -4,9 +4,11 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {BsModalRef} from 'ngx-bootstrap/modal';
@@ -31,13 +33,14 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
   styleUrls: ['./add-edit-permission.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddEditPermissionComponent implements OnInit, OnDestroy {
+export class AddEditPermissionComponent
+  implements OnInit, OnDestroy, OnChanges
+{
   @Input() sourceData?: Permission;
   @Output() successEvent = new EventEmitter();
 
   public tabs = [
     {key: ETabUpdatePermissionsModal.INFORMATION, name: 'Thông tin'},
-    {key: ETabUpdatePermissionsModal.EMPLOYEE, name: 'Danh sách nhân viên'},
   ];
   public activeTab: ETabUpdatePermissionsModal =
     ETabUpdatePermissionsModal.INFORMATION;
@@ -55,29 +58,89 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   public permissionGroups: IPermissionGroups[] = [
     {
-      name: 'Quản lý Task',
+      name: 'Quản lý Tác vụ',
       key: EPerActType.TASK,
       isOpen: false,
-      permissions: [
-        {key: EPerActTask.VIEW_TASK, name: 'Xem Task'},
-        {key: EPerActTask.VIEW_TASK_BIZ, name: 'Xem toàn bộ Task trong Biz'},
-        {key: EPerActTask.CREATE_TASK, name: 'Tạo Task'},
-        {key: EPerActTask.UPDATE_TASK, name: 'Cập nhật Task'},
-        {key: EPerActTask.DELETE_TASK, name: 'Xóa Task'},
-        {key: EPerActTask.VIEW_INFORMATION_TASK, name: 'Xem tab thông tin'},
-        {key: EPerActTask.VIEW_HISTORY_TASK, name: 'Xem tab lịch sử'},
-        {key: EPerActTask.CREATE_ORDER, name: 'Tạo đơn hàng'},
+      groups: [
         {
-          key: EPerActTask.MANAGE_CHAIN,
-          name: 'Quản lý chuỗi công việc',
+          name: 'Tính năng cơ bản',
+          permissions: [
+            {
+              key: EPerActTask.VIEW_TASK,
+              name: 'Truy cập Menu Quản lý tác vụ + Xem Tác vụ',
+              isRootPer: true,
+              tooltip: `<ul>
+                <li>1. Nhân viên bình thường chỉ được xem tác vụ được giao đúng cho Chi nhánh/Phòng ban/Đội nhóm của họ và phải được gán vai trò trên tác vụ.</li>
+                <li>2. Quản trị đội nhóm xem được toàn bộ tác vụ của đội.</li>
+                <li>3. Quản trị phòng ban xem được toàn bộ tác vụ của phòng và các đội trong đó</li>
+                <li>4. Quản trị chi nhánh xem được toàn bộ tác vụ của chi nhánh và phòng ban, đội nhóm trong đó</li>
+                <li>5. ROOT hoặc quản lý Biz xem được toàn bộ tác vụ của mọi người trong Biz</li>
+                </ul>`,
+              class: 'col-4',
+            },
+            {
+              key: EPerActTask.VIEW_TASK_SAME_LEVEL,
+              name: 'Xem tác vụ của nhân sự cùng cấp',
+              tooltip:
+                'Nhân viên bình thường sẽ xem được tác vụ của các nhân sự cùng đội nhóm với họ',
+              class: 'col-8',
+            },
+            {
+              key: EPerActTask.CREATE_TASK,
+              name: 'Thêm Tác vụ',
+              tooltip:
+                'Khi tạo tác vụ, nhân viên có thể điền và chỉnh sửa hầu hết các trường có trong tác vụ (tên, chi nhánh, vai trò, chuỗi hành động,...), kể cả khi họ không được cấp quyền sửa tác vụ ',
+            },
+            {
+              key: EPerActTask.UPDATE_TASK,
+              name: 'Sửa Tác vụ',
+              tooltip:
+                'Chỉnh sửa những thông tin cơ bản của tác vụ như Tên tác vụ, Chi nhánh, Nguồn dữ liệu, Vai trò, Thẻ Tag, Thông tin khách hàng, Ghi chú, Sản phẩm quan tâm\n',
+            },
+            {key: EPerActTask.DELETE_TASK, name: 'Xóa Tác vụ'},
+          ],
         },
         {
-          key: EPerActTask.EDIT_TIME_ACTION,
-          name: 'Chỉnh sửa thời gian hành động',
+          name: 'Chi tiết Tác vụ',
+          permissions: [
+            {
+              key: EPerActTask.VIEW_HISTORY_TASK,
+              name: 'Xem tab lịch sử',
+              class: 'col-12',
+            },
+            {
+              key: EPerActTask.MANAGE_CHAIN,
+              name: 'Quản lý chuỗi hành động',
+              tooltip:
+                'Thêm Sửa/Xóa/Đóng chuỗi + Thêm/Sửa/Xóa hành động trong chuỗi (không bao gồm quyền chỉnh sửa thời gian kết thúc hành động)' +
+                '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
+              dependsOnPer: EPerActTask.UPDATE_TASK,
+              class: 'col-4',
+            },
+            {
+              key: EPerActTask.EDIT_TIME_ACTION,
+              name: 'Chỉnh thời gian kết thúc hành động',
+              tooltip:
+                '<div>Chỉnh sửa, gia hạn hoặc rút ngắn thời gian của 1 hành động trong tác vụ.' +
+                'Điều này có thể ảnh hưởng đến KPI/OKR của nhân viên.</div>' +
+                '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
+              dependsOnPer: EPerActTask.UPDATE_TASK,
+              class: 'col-4',
+            },
+          ],
         },
         {
-          key: EPerActTask.MANAGE_ACTION,
-          name: 'Quản lý hành động trong chuỗi (Không chỉnh thời gian)',
+          name: 'Tính năng hô trợ',
+          permissions: [
+            {
+              key: EPerActTask.CREATE_ORDER,
+              name: 'Tạo đơn hàng từ Tác vụ',
+              tooltip:
+                'Nhân viên có thể tạo Đơn hàng trong module Quản lý bán hàng kể cả khi không có quyền truy cập module này.' +
+                '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
+              dependsOnPer: EPerActTask.UPDATE_TASK,
+            },
+          ],
         },
       ],
     },
@@ -86,46 +149,80 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
       key: EPerActType.FLOW,
       isOpen: false,
       permissions: [
-        {key: EPerActFlow.VIEW_FLOW, name: 'Xem Cấu hình quy tắc & dữ liệu'},
-        {key: EPerActFlow.UPDATE_FLOW, name: 'Sửa Cấu hình quy tắc & dữ liệu'},
+        {
+          key: EPerActFlow.VIEW_FLOW,
+          name: 'Truy cập Menu Cấu hình quy tắc và dữ liệu và Xem Cấu hình quy tắc & Cấu hình dữ liệu',
+          isRootPer: true,
+          class: 'col-12',
+        },
+        {
+          key: EPerActFlow.UPDATE_FLOW,
+          name: 'Thêm, Sửa , Xóa Cấu hình quy tắc & Cấu hình dữ liệu',
+          class: 'col-12',
+        },
       ],
     },
     {
       name: 'Cài đặt',
       key: EPerActType.SETTING,
       isOpen: false,
-      permissions: [
-        {key: EPerActSetting.VIEW_SOURCE_SETTING, name: 'Xem Nguồn dữ liệu'},
-        {key: EPerActSetting.VIEW_TAG_SETTING, name: 'Xem Tag'},
-        {key: EPerActSetting.VIEW_ROLE_SETTING, name: 'Xem Vai trò'},
+      groups: [
         {
-          key: EPerActSetting.UPDATE_SOURCE_SETTING,
-          name: 'Thêm, Sửa, Xóa Nguồn dữ liệu',
+          name: 'Tính năng cơ bản',
+          permissions: [
+            {
+              key: EPerActSetting.VIEW_MASTER_DATA,
+              name: 'Truy cập Menu Cài đặt và Xem Nguồn dữ liệu, Tag, Phân quyền và Vai trò ',
+              isRootPer: true,
+              tooltip: `<ul>
+                <li>- Nhân viên có thể được truy cập vào các menu con bên trong menu Cài đặt để xem các master data như Nguồn dữ liệu, Thẻ tag, Vai trò, Quyền.</li>
+                <li>- Đối với danh sách Nhân viên trong Phân quyền:</li>
+                <li>1. Nhân viên bình thường chỉ thấy được chính họ trên danh sách.</li>
+                <li>2. Quản trị đội nhóm xem được toàn bộ nhân viên trong đội mà họ trên danh sách.</li>
+                <li>3. Quản trị phòng ban xem được toàn bộ nhân viên của họ trong phòng và đội mà họ quản lý.</li>
+                <li>4. Quản trị chi nhánh xem được toàn bộ nhân viên của họ trong chi nhánh, phòng ban và đội mà họ quản lý.</li>
+                <li>5. ROOT hoặc quản lý Biz xem được toàn bộ mọi người trong Biz.</li>
+                </ul>`,
+              class: 'col-12',
+            },
+            {
+              key: EPerActSetting.UPDATE_SOURCE_SETTING,
+              name: 'Thêm, Sửa, Xóa Nguồn dữ liệu',
+              class: 'col-4',
+            },
+            {
+              key: EPerActSetting.UPDATE_TAG_SETTING,
+              name: 'Thêm, Sửa, Xóa Tag',
+              class: 'col-4',
+            },
+            {
+              key: EPerActSetting.UPDATE_ROLE_SETTING,
+              name: 'Thêm, Sửa, Xóa Vai trò',
+              class: 'col-4',
+            },
+          ],
         },
-        {key: EPerActSetting.UPDATE_TAG_SETTING, name: 'Thêm, Sửa, Xóa Tag'},
         {
-          key: EPerActSetting.UPDATE_ROLE_SETTING,
-          name: 'Thêm, Sửa, Xóa Vai trò',
-        },
-        {
-          key: EPerActSetting.VIEW_USER_ACCESS,
-          name: 'Xem Nhân viên',
-        },
-        {
-          key: EPerActSetting.VIEW_USER_ACCESS_BIZ,
-          name: 'Xem toàn bộ nhân sự trong Nhân viên',
-        },
-        {
-          key: EPerActSetting.UPDATE_USER_ACCESS,
-          name: 'Gán quyền cho nhân sự',
-        },
-        {
-          key: EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
-          name: 'Xem Quyền',
-        },
-        {
-          key: EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
-          name: 'Thêm, Sửa, Xóa Quyền',
+          name: 'Phân quyền',
+          permissions: [
+            {
+              key: EPerActSetting.VIEW_USER_ACCESS_SAME_LEVEL,
+              name: 'Xem nhân sự cùng cấp',
+              tooltip:
+                'Nhân viên bình thường sẽ xem được các nhân sự cùng đội nhóm với họ trên danh sách nhân viên.',
+              class: 'col-4',
+            },
+            {
+              key: EPerActSetting.UPDATE_USER_ACCESS,
+              name: 'Gán quyền cho nhân sự',
+              class: 'col-4',
+            },
+            {
+              key: EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
+              name: 'Thêm, Sửa, Xóa Quyền',
+              class: 'col-12',
+            },
+          ],
         },
       ],
     },
@@ -159,8 +256,16 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.sourceData) {
+      this.tabs.push({
+        key: ETabUpdatePermissionsModal.EMPLOYEE,
+        name: 'Danh sách nhân viên',
+      });
       this.pathForm(this.sourceData);
     }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.cdr.markForCheck();
   }
 
   pathForm(data?: Permission) {
@@ -237,9 +342,6 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
 
   handleToggleGroup(group: IPermissionGroups) {
     group.isOpen = !group.isOpen;
-    const {key} = group;
-    this.updateForm.get(`permissionAction.${key}`)?.setValue(null);
-    this.cdr.detectChanges();
   }
 
   onCheckboxChange(
@@ -247,20 +349,57 @@ export class AddEditPermissionComponent implements OnInit, OnDestroy {
     permission: IPermissionItem,
     group: IPermissionGroups,
   ) {
-    const {checked} = event.target as HTMLInputElement;
-    const value: string[] =
-      this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
-    if (checked) {
-      value.push(permission.key);
-    } else {
-      const index = value.indexOf(permission.key);
-      if (index > -1) {
-        value.splice(index, 1);
+    try {
+      const {checked} = event.target as HTMLInputElement;
+      let value: string[] =
+        this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
+      if (checked) {
+        value.push(permission.key);
+      } else {
+        const index = value.indexOf(permission.key);
+        if (index > -1) {
+          value.splice(index, 1);
+        }
+        if (permission.isRootPer) {
+          value = [];
+        }
+      }
+      this.updateForm
+        .get(`permissionAction.${group.key}`)
+        ?.setValue(value as any);
+      if (permission.key === EPerActTask.UPDATE_TASK && !checked) {
+        const currentTaskPerms =
+          this.updateForm.get('permissionAction.task')?.value ||
+          ([] as string[]);
+        const filterTaskPerms = currentTaskPerms.filter((el) => {
+          return ![
+            EPerActTask.MANAGE_CHAIN,
+            EPerActTask.EDIT_TIME_ACTION,
+            EPerActTask.CREATE_ORDER,
+          ].includes(el as any);
+        });
+        this.updateForm
+          .get(`permissionAction.task`)
+          ?.setValue(filterTaskPerms as any);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  checkDisable(permission: IPermissionItem, group: IPermissionGroups) {
+    if (permission?.dependsOnPer) {
+      const dependsOnPerValue = this.formPermissionAction(
+        group.key,
+      )?.value?.includes(permission?.dependsOnPer);
+      if (!dependsOnPerValue) {
+        return true;
       }
     }
-    this.updateForm
-      .get(`permissionAction.${group.key}`)
-      ?.setValue(value as any);
+    return (
+      !permission.isRootPer &&
+      !this.formPermissionAction(group.key)?.value?.length
+    );
   }
 
   ngOnDestroy() {

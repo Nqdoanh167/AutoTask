@@ -27,8 +27,7 @@ export class DecentralizationComponent implements OnInit, OnDestroy {
       permissions.find((p) =>
         [
           EPerActSetting.UPDATE_USER_ACCESS,
-          EPerActSetting.VIEW_USER_ACCESS_BIZ,
-          EPerActSetting.VIEW_USER_ACCESS,
+          EPerActSetting.VIEW_USER_ACCESS_SAME_LEVEL,
         ].includes(p as EPerActSetting),
       )
     ) {

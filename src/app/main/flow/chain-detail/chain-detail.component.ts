@@ -36,6 +36,7 @@ import {ConfigurationService} from '@app/services/api/configuration.service';
 import {AutomationService} from '@app/services/api/automation.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {optionToCloneTask} from '@app/variable';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-chain-detail',
@@ -150,6 +151,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     private readonly fb: FormBuilder,
     private readonly configurationService: ConfigurationService,
     private readonly automationService: AutomationService,
+    private readonly toarst: ToastrService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -310,7 +312,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   }
 
   async onSaveChainAct() {
-    if (!this.validateBeforeSubmit() || !this.detailChain?.id) return;
+    if (!this.detailChain?.id) return;
+    if (!this.validateBeforeSubmit()) {
+      this.toarst.warning('Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
     const bodyUpdateResults = this.detailChain?.actionResults?.map(
       (actResult, index) => {
         return {
@@ -335,6 +341,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                   delayValue: nextAction.delayValue
                     ? Number(nextAction.delayValue)
                     : null,
+                  addNewChain: {
+                    chainId: nextAction.addNewChainId,
+                    chainActResultId: nextAction.addNewChainActId,
+                  },
                 };
                 return {
                   ...nextAction,
@@ -443,7 +453,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         (action) => action.id === selectedActionId,
       );
       const body = {
-        actionIds,
+        actionIds: actionIds.filter((el) => !!el),
       } as unknown as IUpdateChainActDto;
       this.autoTaskService.chainAction
         .update(this.detailChain.id, body)
@@ -459,7 +469,9 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
               this.removedChainActResultIds.filter((id) => {
                 id !== res.data.actionResults[index].id;
               });
-              this.clearRemovedActionInChainResult(chainActResult.id);
+              if (chainActResult.id) {
+                this.clearRemovedActionInChainResult(chainActResult.id);
+              }
             } else {
               this.commonService.handleResErr(res);
             }

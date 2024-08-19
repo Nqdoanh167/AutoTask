@@ -1,6 +1,6 @@
 <div class="wrapper">
   <div class="content-wrapper">
-    <ng-container *ngIf="user; else nonUser">
+    @if (user) {
       <app-header>
         <div class="left">
           <ul class="nav">
@@ -18,14 +18,13 @@
         <div class="right"></div>
       </app-header>
       <router-outlet></router-outlet>
-    </ng-container>
-    <ng-template #nonUser>
+    } @else {
       <div class="loading">
         <div class="spinner-grow text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
         <div>Loading...</div>
       </div>
-    </ng-template>
+    }
   </div>
 </div>

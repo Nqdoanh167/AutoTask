@@ -15,7 +15,7 @@
   @include mixins.imageCircle(20px);
 }
 .avatar-selected {
-  @include mixins.imageCircle(30px);
+  @include mixins.imageCircle(35px);
 }
 
 .person-info {
@@ -23,4 +23,17 @@
     font-size: 12px;
     color: vars.$neutral-300;
   }
+}
+
+.corresponding-customer {
+  background-color: vars.$secondary-100;
+  padding: 10px;
+  border-radius: vars.$radius-s;
+}
+
+.separate {
+  width: 2px;
+  height: 13px;
+  background-color: vars.$neutral-400;
+  margin: 0 5px;
 }

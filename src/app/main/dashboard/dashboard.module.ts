@@ -5,7 +5,6 @@ import {DashboardRoutingModule} from './dashboard-routing.module';
 import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-pagination.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
-import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {ModalUpdateTaskComponent} from './content-modal/modal-update-task/modal-update-task.component';
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -33,11 +32,18 @@ import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-as
 import {OrderableTableModule} from '@app/share/orderable-table/orderable-table.module';
 import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
 import {OrdersComponent} from './content-modal/orders/orders.component';
-import {MycurrencyModule} from '@app/share/pipe/mycurrency.module';
 import {HistoryComponent} from './content-modal/history/history.component';
 import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
 import {InputMaskModule} from '@app/share/input/input-mask/input-mask.module';
 import {TreeSelectModule} from 'primeng/treeselect';
+import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
+import {CustomTabSetComponent} from '@share/common/custom-tab-set/custom-tab-set.component';
+import {CalculateTaskDeadlinePipe} from '@share/pipe/calculate-task-deadline/calculate-task-deadline.pipe';
+import {MycurrencyPipe} from '@share/pipe/mycurrency.pipe';
+import {TimeViewPipe} from '@share/pipe/timeView.pipe';
+import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
+import {CalculateDeadlinePipe} from '@share/pipe/calculate-deadline/calculate-deadline.pipe';
+import {LetDirective} from '@share/directive/ng-let.directive';
 
 @NgModule({
   declarations: [
@@ -55,13 +61,11 @@ import {TreeSelectModule} from 'primeng/treeselect';
   ],
   imports: [
     CommonModule,
-    MycurrencyModule,
     DashboardRoutingModule,
     OrderableTableModule,
     CustomPaginationComponent,
     FilterTopTableComponent,
     ModalConfirmComponent,
-    PipeTimeViewModule,
     CustomModalComponent,
     InputMaskModule,
     FormsModule,
@@ -84,6 +88,14 @@ import {TreeSelectModule} from 'primeng/treeselect';
     ViewModeTabComponent,
     CustomDatePickerComponent,
     TreeSelectModule,
+    CustomSelectSearchComponent,
+    CustomTabSetComponent,
+    CalculateTaskDeadlinePipe,
+    MycurrencyPipe,
+    TimeViewPipe,
+    GetDataArrayPipe,
+    CalculateDeadlinePipe,
+    LetDirective,
   ],
 })
 export class DashboardModule {}

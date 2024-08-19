@@ -1,7 +1,6 @@
-import {Component, ViewChild} from '@angular/core';
-import {CheckRowTable} from '@app/utils/checkRowTable';
+import {Component} from '@angular/core';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
-import {NgSelectComponent} from '@ng-select/ng-select';
+import {CheckBoxTable} from '@app/utils/checkBoxTable';
 
 @Component({
   selector: 'app-checkbox-table',
@@ -13,12 +12,9 @@ export class CheckboxSortTableComponent<
   T,
   K extends any,
 > extends StandardTableComponent<T, K> {
-  @ViewChild('selectBatchActions') selectBatchActions?: NgSelectComponent;
-
   protected fieldKey: string | keyof T = 'id';
-  protected batchAction = null;
 
-  public checkRow: CheckRowTable<T> = new CheckRowTable();
+  public checkRow: CheckBoxTable<T> = new CheckBoxTable();
   public isShift = false;
   public lastChecked: number = 0;
 
@@ -41,6 +37,11 @@ export class CheckboxSortTableComponent<
       ? this.checkRow.getRows()
       : this.item.rows;
   }
+
+  handleRefreshRow() {
+    this.checkRow.handleRefreshRow();
+  }
+
   handleSelectRow({
     item,
     type = '',
@@ -49,7 +50,6 @@ export class CheckboxSortTableComponent<
     item?: T;
     type?: string;
     event: Event | any;
-    rows?: T[];
   }) {
     const isChecked = event.target.checked;
     let indexCurrent: number = this.item.rows.findIndex(
@@ -82,15 +82,9 @@ export class CheckboxSortTableComponent<
   isAllChecked(): boolean {
     return this.checkRow.isAllChecked(this.item.rows);
   }
+
   filterSelectedRowsByIds(ids: string[]) {
-    this.checkRow.selectItems = this.checkRow.selectItems.filter(
-      (s: T | any) => {
-        return s?.['id'] && !ids.includes(s['id']);
-      },
-    );
-    this.checkRow.selectItemIds = this.checkRow.selectItemIds.filter(
-      (el) => !ids.includes(el),
-    );
+    this.checkRow.filterSelectedRowsByIds(ids);
   }
   // end send rows
 }

@@ -108,28 +108,43 @@
                       </div>
                     </td>
                     <td class="column-group">
-                      <div class="list-badge d-flex flex-wrap gap-1">
-                        <span *ngFor="let group of item.groups" class="badge">
-                          {{ group.name || '-' }}
-                        </span>
-                      </div>
+                      <ng-container *ngIf="item.role === 'OWNER'">
+                        <div class="fw-500">OWNER</div>
+                      </ng-container>
+                      <ng-container *ngIf="item.role !== 'OWNER'">
+                        <div class="list-badge d-flex flex-wrap gap-1">
+                          <span *ngFor="let group of item.groups" class="badge">
+                            {{ group.name || '-' }}
+                          </span>
+                        </div>
+                      </ng-container>
                     </td>
                     <td class="column-role">
-                      <div class="list-badge d-flex flex-wrap gap-1">
-                        <span *ngFor="let role of item.roles" class="badge">
-                          {{ role.name || '-' }}
-                        </span>
-                      </div>
+                      <ng-container *ngIf="item.role === 'OWNER'">
+                        <div class="fw-500">OWNER</div>
+                      </ng-container>
+                      <ng-container *ngIf="item.role !== 'OWNER'">
+                        <div class="list-badge d-flex flex-wrap gap-1">
+                          <span *ngFor="let role of item.roles" class="badge">
+                            {{ role.name || '-' }}
+                          </span>
+                        </div>
+                      </ng-container>
                     </td>
                     <td class="column-branch">
-                      <div class="list-badge d-flex flex-wrap gap-1">
-                        <span
-                          *ngFor="let branch of item.branches"
-                          class="badge"
-                        >
-                          {{ branch.name || '-' }}
-                        </span>
-                      </div>
+                      <ng-container *ngIf="item.role === 'OWNER'">
+                        <div class="fw-500">OWNER</div>
+                      </ng-container>
+                      <ng-container *ngIf="item.role !== 'OWNER'">
+                        <div class="list-badge d-flex flex-wrap gap-1">
+                          <span
+                            *ngFor="let branch of item.branches"
+                            class="badge"
+                          >
+                            {{ branch.name || '-' }}
+                          </span>
+                        </div>
+                      </ng-container>
                     </td>
                     <td class="column-status">
                       <div>

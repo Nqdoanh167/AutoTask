@@ -3,13 +3,13 @@ import {
   BeautyService,
   Combo,
   CourseEvent,
-  Customer,
   ITag,
   Order,
   PrepaidCard,
   Product,
 } from '@app/types/viewmodels';
 import {ELevelPer} from '@app/types/setting';
+import {Customer} from '@app/types/customer';
 
 export enum ETabConfigData {
   ACTION = 'action',
@@ -258,6 +258,14 @@ export enum ETaskChainResultType {
   CANCELED = 'CANCELED',
 }
 
+export interface ReasonEditedDate {
+  editedDate: Date;
+  deadDate: Date;
+  newDate: Date;
+  reason: string;
+  editedBy: AccountPublic;
+}
+
 export interface ITaskChainResult {
   id?: string;
   status: ETaskChainResultType;
@@ -272,6 +280,7 @@ export interface ITaskChainResult {
   nextActionIds: string[];
   nextActions: ITaskChainResult[];
   note: string;
+  reasonEditedDate: ReasonEditedDate[];
   backgroundProcessingActions: any;
   results: IChainResult[];
   childNextAction: IChainNextAction;
@@ -318,16 +327,19 @@ export interface ITeam {
 export interface ITask {
   checked?: boolean;
   id: string;
+  code?: string;
   name: string;
   note: string;
   leadDeal?: ILeadDealDto;
   tags?: ITag[];
   cart: ITaskCartDto;
   orderIds: string[];
+  orders: Pick<Order, 'code' | 'id'>[];
   counselor: AccountPublic;
   taskChainIds: string[];
   taskChains: ITaskChain[];
   teams?: ITeam[];
+  chatLink?: string;
   branch: IBranchTaskDto;
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
@@ -395,9 +407,20 @@ export enum EActionStates {
   HIDE_FULL_EXECUTED = 'HIDE_FULL_EXECUTED',
 }
 
+export enum EEditedDateState {
+  HAS_EDITED = 'HAS_EDITED',
+  NOT_EDITED = 'NOT_EDITED',
+}
+
 export interface ModifiedUserUnit {
   key: string;
   label: string;
   data: string;
+  id: string | null;
+  name: string | null;
+  department: null | string;
+  departmentName: null | string;
+  team: null | string;
+  teamName: null | string;
   children?: ModifiedUserUnit[];
 }

@@ -308,3 +308,38 @@
 
 @media (min-width: 1199.98px) and (max-width: 1630px) {
 }
+
+.cdk-drag-preview {
+  min-width: 1631px;
+  //background-color: #fff;
+  //height: 40px !important;
+  //box-shadow:
+  //        0 5px 5px -3px rgba(0, 0, 0, 0.2),
+  //        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+  //        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  .rootRow {
+    width: calc(100vw - 80px);
+  }
+  .columns-index {
+    width: 5%;
+  }
+  .columns-action {
+    width: 20%;
+    min-width: 320px;
+  }
+  .columns-result {
+    width: 20%;
+  }
+  .columns-duration {
+    width: 10%;
+  }
+  .columns-step-or-center {
+    width: 3%;
+  }
+  .columns-step-center {
+    width: 2%;
+  }
+  .columns-next-action {
+    width: 40%;
+  }
+}

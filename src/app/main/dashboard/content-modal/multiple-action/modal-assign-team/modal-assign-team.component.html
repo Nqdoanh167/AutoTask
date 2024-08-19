@@ -1,153 +1,165 @@
-<div class="modal-remove-team" *ngIf="action === ETypeBulkUpdate.REMOVE_TEAM">
-  <form [formGroup]="form">
-    <app-custom-modal (hideModal)="hideModal()">
-      <ng-container modalTitle>Bỏ nhân sự phụ trách</ng-container>
-      <ng-container modalBody>
-        <div class="mb-3">
-          Loại bỏ nhân sự phụ trách ra khỏi vai trò tương uwngss trong tất cả
-          những Task đã chọn. Nếu vai trò chưa được gán nhân sự thì sẽ không bị
-          ảnh hưởng
+@if (action === ETypeBulkUpdate.REMOVE_TEAM) {
+  <div class="modal-remove-team">
+    <form [formGroup]="form">
+      <app-custom-modal (hideModal)="hideModal()">
+        <ng-container modalTitle>Bỏ nhân sự phụ trách</ng-container>
+        <ng-container modalBody>
+          <div class="mb-3">
+            Loại bỏ nhân sự phụ trách ra khỏi vai trò tương ứng trong tất cả
+            những Tác vụ đã chọn. Nếu vai trò chưa được gán nhân sự thì sẽ không
+            bị ảnh hưởng
 
-          <hr class="border-white my-2" />
-          <span class="fw-bold">Lưu ý:</span>
-          Sau khi bỏ, Task có thể sẽ không có nhân sự phụ trách. Các hoạt động
-          chăm sóc khách hàng có thể bị đinh trệ
-        </div>
-        <div class="mb-2" formArrayName="teams">
-          <label for="assign-team" class="form-control-label">
-            Những vai trò cần bỏ nhân sự phụ trách
-          </label>
-          <div
-            *ngFor="let team of formTeams.controls; let teamIndex = index"
-            class="d-flex align-items-center my-2"
-          >
-            <label class="basic-checkbox">
-              <i [ngClass]="team.value.roleIcon" class="fa-solid ms-1"></i>
-              <span class="fw-500">
-                {{ team.value.roleName }}
-              </span>
-              <input
-                type="checkbox"
-                (change)="onRemoveTeam(teamIndex, $event)"
-              />
-              <span class="checkmark"></span>
-            </label>
+            <hr class="border-white my-2" />
+            <span class="fw-bold">Lưu ý:</span>
+            Sau khi bỏ, Tác vụ có thể sẽ không có nhân sự phụ trách. Các hoạt
+            động chăm sóc khách hàng có thể bị đình trệ
           </div>
-        </div>
-      </ng-container>
-      <div
-        modalFooter
-        class="d-flex justify-content-end align-items-center gap-2"
-        id="footer-modal-assign-team"
-      >
-        <button
-          (click)="hideModal()"
-          class="btn button-default-modal"
-          type="button"
-        >
-          Hủy
-        </button>
-        <button
-          (click)="onSubmit()"
-          [disabled]="!form.valid"
-          class="btn btn-primary text-white"
-          type="button"
-        >
-          Lưu
-        </button>
-      </div>
-    </app-custom-modal>
-  </form>
-</div>
-
-<div class="modal-assign-team" *ngIf="action === ETypeBulkUpdate.ASSIGN_TEAM">
-  <form [formGroup]="form">
-    <app-custom-modal (hideModal)="hideModal()">
-      <ng-container modalTitle>Gán nhân sự phụ trách</ng-container>
-      <ng-container modalBody>
-        <div class="mb-3">
-          Gán nhân sự phụ trách vào các vai trò tương ứng cho tất cả những Task
-          được chọn. Những nhân sự cũ đã gắn ( nếu có ) sẽ bị đè.
-
-          <hr class="border-white my-2" />
-          Để cấu hình vai trò nào sẽ xuất hiện trong Task, vui lòng truy cập
-          <span class="text-link" (click)="navigateSetting()">Cấu hình</span>
-        </div>
-        <div class="mb-2" formArrayName="teams">
-          <label for="assign-team" class="form-control-label">
-            Nhân viên phụ trách cần gán
-            <span class="text-danger">*</span>
-          </label>
-          <div
-            *ngFor="let team of formTeams.controls; let teamIndex = index"
-            class="d-flex align-items-center my-2"
-          >
-            <div class="w-25">
-              <div>
-                <i [ngClass]="team.value.roleIcon" class="fa-solid"></i>
-                <span class="fw-500 ms-2">
-                  {{ team.value.roleName }}
-                </span>
+          <div class="mb-2" formArrayName="teams">
+            <label class="form-control-label">
+              Những vai trò cần bỏ nhân sự phụ trách
+            </label>
+            @for (
+              team of formTeams.controls;
+              track teamIndex;
+              let teamIndex = $index
+            ) {
+              <div class="d-flex align-items-center my-2">
+                <label class="basic-checkbox">
+                  <i [ngClass]="team.value.roleIcon" class="fa-solid ms-1"></i>
+                  <span class="fw-500">
+                    {{ team.value.roleName }}
+                  </span>
+                  <input
+                    type="checkbox"
+                    (change)="onRemoveTeam(teamIndex, $event)"
+                  />
+                  <span class="checkmark"></span>
+                </label>
               </div>
-            </div>
-            <ng-select
-              [items]="biz.users"
-              (change)="onChangeTeam(teamIndex, $event)"
-              (clear)="onClearTeam(teamIndex)"
-              appearance="outline"
-              appendTo=".modal-assign-team"
-              class="w-75"
-              bindLabel="name"
-              bindValue="id"
-              placeholder="Gán nhân sự vào vai trò {{ team.value.roleName }}"
-              [multiple]="false"
-            >
-              <ng-template ng-option-tmp ng-label-tmp let-item="item">
-                <div class="d-flex align-items-center gap-3">
+            }
+          </div>
+        </ng-container>
+        <div
+          modalFooter
+          class="d-flex justify-content-end align-items-center gap-2"
+          id="footer-modal-assign-team"
+        >
+          <button
+            (click)="hideModal()"
+            class="btn button-default-modal"
+            type="button"
+          >
+            Hủy
+          </button>
+          <button
+            (click)="onSubmit()"
+            [disabled]="!form.valid"
+            class="btn btn-primary text-white"
+            type="button"
+          >
+            Lưu
+          </button>
+        </div>
+      </app-custom-modal>
+    </form>
+  </div>
+}
+
+@if (action === ETypeBulkUpdate.ASSIGN_TEAM) {
+  <div class="modal-assign-team">
+    <form [formGroup]="form">
+      <app-custom-modal (hideModal)="hideModal()">
+        <ng-container modalTitle>Gán nhân sự phụ trách</ng-container>
+        <ng-container modalBody>
+          <div class="mb-3">
+            Gán nhân sự phụ trách vào các vai trò tương ứng cho tất cả những Tác
+            vụ được chọn. Những nhân sự cũ đã gắn ( nếu có ) sẽ bị đè.
+
+            <hr class="border-white my-2" />
+            Để cấu hình vai trò nào sẽ xuất hiện trong Tác vụ, vui lòng truy cập
+            <span class="text-link" (click)="navigateSetting()">Cấu hình</span>
+          </div>
+          <div class="mb-2" formArrayName="teams">
+            <label class="form-control-label">
+              Nhân viên phụ trách cần gán
+              <span class="text-danger">*</span>
+            </label>
+            @for (
+              team of formTeams.controls;
+              track teamIndex;
+              let teamIndex = $index
+            ) {
+              <div class="d-flex align-items-center my-2">
+                <div class="w-25">
                   <div>
-                    <img
-                      width="30"
-                      height="30"
-                      class="rounded-pill"
-                      [src]="item.picture"
-                      alt=""
-                    />
-                  </div>
-                  <div>
-                    <div class="fw-bold">
-                      {{ item.name }}
-                    </div>
-                    <div class="fs-7">
-                      {{ item.email }}
-                    </div>
+                    <i [ngClass]="team.value.roleIcon" class="fa-solid"></i>
+                    <span class="fw-500 ms-2">
+                      {{ team.value.roleName }}
+                    </span>
                   </div>
                 </div>
-              </ng-template>
-            </ng-select>
+                <ng-select
+                  [items]="biz.users"
+                  (change)="onChangeTeam(teamIndex, $event)"
+                  (clear)="onClearTeam(teamIndex)"
+                  appearance="outline"
+                  appendTo=".modal-assign-team"
+                  class="w-75"
+                  bindLabel="name"
+                  bindValue="id"
+                  placeholder="Gán nhân sự vào vai trò {{
+                    team.value.roleName
+                  }}"
+                  [multiple]="false"
+                >
+                  <ng-template ng-option-tmp ng-label-tmp let-item="item">
+                    <div class="d-flex align-items-center gap-3">
+                      <div>
+                        <img
+                          width="30"
+                          height="30"
+                          class="rounded-pill"
+                          [src]="item.picture"
+                          alt=""
+                        />
+                      </div>
+                      <div>
+                        <div class="fw-bold">
+                          {{ item.name }}
+                        </div>
+                        <div class="fs-7">
+                          {{ item.email }}
+                        </div>
+                      </div>
+                    </div>
+                  </ng-template>
+                </ng-select>
+              </div>
+            }
           </div>
+        </ng-container>
+        <div
+          modalFooter
+          class="d-flex justify-content-end align-items-center gap-2"
+          id="footer-modal-assign-team2"
+        >
+          <button
+            (click)="hideModal()"
+            class="btn button-default-modal"
+            type="button"
+          >
+            Hủy
+          </button>
+          <button
+            (click)="onSubmit()"
+            [disabled]="!form.valid"
+            class="btn btn-primary text-white"
+            type="button"
+          >
+            Lưu
+          </button>
         </div>
-      </ng-container>
-      <div
-        modalFooter
-        class="d-flex justify-content-end align-items-center gap-2"
-        id="footer-modal-assign-team"
-      >
-        <button
-          (click)="hideModal()"
-          class="btn button-default-modal"
-          type="button"
-        >
-          Hủy
-        </button>
-        <button
-          (click)="onSubmit()"
-          [disabled]="!form.valid"
-          class="btn btn-primary text-white"
-          type="button"
-        >
-          Lưu
-        </button>
-      </div>
-    </app-custom-modal>
-  </form>
-</div>
+      </app-custom-modal>
+    </form>
+  </div>
+}

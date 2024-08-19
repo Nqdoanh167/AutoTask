@@ -129,6 +129,9 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
           'Bạn không có quyền truy cập vào mục này vì chưa kích hoạt module kho hoặc sản phẩm',
         );
       }
+      if (this.permitModules.includes('sale-center')) {
+        this.getListWarehouse();
+      }
     });
   }
 
@@ -141,14 +144,8 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   get formWarehouse() {
     return this.formGroup.get('cart').value?.warehouses;
   }
+
   ngOnInit(): void {
-    this.getListWarehouse();
-    // if (this.formGroup.get('cart').value) {
-    //   this.patchForm(this.formGroup.get('cart').value);
-    // }
-    // this.formGroup.get('cart').valueChanges.subscribe((value: any) => {
-    //   this.patchForm(value);
-    // });
     this.textSearchProduct
       .pipe(
         takeUntil(this.destroy$),
@@ -174,12 +171,14 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
         this.getListCombo();
       });
   }
+
   searchByCombo() {
     this.isCombo = !this.isCombo;
     if (this.isCombo && !this.combos.rows?.length) {
       this.getListCombo();
     }
   }
+
   getListWarehouse() {
     this.warehouses.loading = true;
     this.warehouseService.warehouse
@@ -205,11 +204,9 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
           }
           this.getInventoryByWarehouse();
         },
-        error: (err) => {
-          this.commonService.handleResErr(err);
-        },
       });
   }
+
   getListCombo() {
     this.combos.loading = true;
     this.comboService.combo
@@ -231,6 +228,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
         },
       });
   }
+
   getListProduct(isInit: boolean = false, isSearching: boolean = false) {
     if (isInit) this.firstCallRemaining.product = false;
     this.products.loading = true;
@@ -273,6 +271,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
         },
       });
   }
+
   handleChangeWarehouse(event: any) {
     this.formCart().patchValue({
       warehouses: [
@@ -286,6 +285,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     });
     this.getInventoryByWarehouse();
   }
+
   handleChangeProductsIntoCombo(same: any, index: number) {
     const valueProducts = this.formProducts || [];
     const fProduct = valueProducts[index];
@@ -302,6 +302,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     });
     this.getInventoryByWarehouse();
   }
+
   handleChangeProducts(event: any) {
     if (!event) return;
     const valueProducts = this.formGroup.get('cart').value?.products || [];
@@ -319,6 +320,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     this.getInventoryByWarehouse();
     this.selectProduct?.handleClearClick();
   }
+
   handleChangeCombo(event: any) {
     if (!event) return;
     const ids = event?.followProducts?.reduce((acc: string[], el: any) => {
@@ -332,9 +334,11 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     }
     this.selectCombo.handleClearClick();
   }
+
   matchingInventoryWithProduct(productId: string) {
     return this.inventories.rows?.[productId];
   }
+
   editVirtualProduct(index: number, event: any, property: string) {
     const valueProducts = this.formGroup.get('cart').value?.products || [];
     let value = null;
@@ -348,6 +352,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       products: valueProducts,
     });
   }
+
   addVirtualProduct() {
     const valueProducts = this.formGroup.get('cart').value?.products || [];
     valueProducts.push({
@@ -363,6 +368,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       products: valueProducts,
     });
   }
+
   getSameParentProduct(id: string) {
     this.sameProducts.loading = true;
     this.productService.product.sameParent(id).subscribe({
@@ -379,6 +385,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       },
     });
   }
+
   getInventoryByWarehouse() {
     const query = {
       warehouse: this.formWarehouse[0]?.id,
@@ -398,6 +405,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       },
     });
   }
+
   changeQuantity(event: any, index: number) {
     const valueProducts = this.formGroup.get('cart').value?.products || [];
     valueProducts[index].quantity = event;
@@ -405,6 +413,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       products: valueProducts,
     });
   }
+
   removeProduct(index: number) {
     const valueProducts = this.formGroup.get('cart').value?.products || [];
     valueProducts.splice(index, 1);
@@ -412,12 +421,14 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       products: valueProducts,
     });
   }
+
   totalPrice() {
     return this.formProducts.reduce(
       (acc: number, el: any) => acc + el.price * el.quantity,
       0,
     );
   }
+
   getAllProductByCombo(ids: string[], combo: Combo) {
     this.productService.product
       .all({isProduct: true, ids: ids.join(',')})
@@ -463,6 +474,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
         },
       });
   }
+
   compareFunction(item: Product, selected: any) {
     return item.id === selected.id;
   }

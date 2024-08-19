@@ -1,4 +1,4 @@
-import {Injectable, OnDestroy} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {EntityResult, ManageQueue} from 'src/app/types/viewmodels';
@@ -10,12 +10,21 @@ import {environment} from 'src/environments/environment';
 export class AdminService extends BaseApiService {
   api = {
     manageQueue: 'manage-queues',
+    permission: 'permission',
   };
   private defaultParams: any = {};
   constructor(httpClient: HttpClient) {
     super(httpClient);
     this.setApiAddress(environment.apiModule, `admin/${environment.module}`);
   }
+
+  permission = {
+    createDefaultPerms: (body = {}) =>
+      this.httpClient.post<EntityResult<{}>>(
+        this.createUrl([this.api.permission, 'insert-default']),
+        body,
+      ),
+  };
 
   manageQueue = {
     get: (params = {}) =>
@@ -54,6 +63,7 @@ export class AdminService extends BaseApiService {
         body,
       ),
   };
+
   copyText(text: string) {
     const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';

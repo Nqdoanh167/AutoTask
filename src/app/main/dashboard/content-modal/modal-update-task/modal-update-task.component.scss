@@ -62,3 +62,7 @@
     }
   }
 }
+
+::ng-deep bs-dropdown-container {
+  z-index: 1060 !important;
+}

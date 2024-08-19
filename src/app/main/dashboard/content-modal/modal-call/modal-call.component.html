@@ -24,83 +24,90 @@
             bindLabel="name"
             bindValue="id"
           ></ng-select>
-          <div
-            *ngIf="submitted && f['platformId'].errors"
-            class="invalid-feedback"
-          >
-            <div *ngIf="f['platformId'].errors?.['required']">
-              Platform không được bỏ trống
+          @if (submitted && f['platformId'].errors) {
+            <div class="invalid-feedback">
+              @if (submitted && f['platformId'].errors?.['required']) {
+                <div>Platform không được bỏ trống</div>
+              }
             </div>
-          </div>
+          }
         </div>
-        <div *ngIf="f['platform'].value === 'stringee'" class="mb-2">
-          <label class="form-control-label" for="phone">
-            Số điện thoại
-            <span class="required">*</span>
-          </label>
-          <ng-select
-            [ngClass]="{
-              'is-invalid': submitted && f['phone'].errors
-            }"
-            [readonly]="!f['platformId'].value"
-            [disabled]="!f['platformId'].value"
-            [placeholder]="'Chọn Số điện thoại'"
-            [searchable]="true"
-            [items]="phones.rows"
-            [loading]="phones.loading"
-            class="dropdown-auto-width"
-            appearance="outline"
-            formControlName="phone"
-            id="phone"
-            appendTo=".modal-call"
-            bindLabel="name"
-            bindValue="id"
-          ></ng-select>
-          <div *ngIf="submitted && f['phone'].errors" class="invalid-feedback">
-            <div *ngIf="f['phone'].errors?.['required']">
-              Số điện thoại không được bỏ trống
-            </div>
-          </div>
-        </div>
-        <div *ngIf="f['platform'].value === 'omicall'" class="mb-2">
-          <label class="form-control-label" for="omicallPhone">
-            Số điện thoại
-            <span class="required">*</span>
-          </label>
-          <ng-select
-            [ngClass]="{
-              'is-invalid': submitted && f['phone'].errors
-            }"
-            [readonly]="!f['platformId'].value"
-            [disabled]="!f['platformId'].value"
-            [placeholder]="'Chọn Số điện thoại'"
-            [searchable]="true"
-            (change)="handleChangeOmicallExtension($event)"
-            [items]="omicallExtensions.rows"
-            [loading]="omicallExtensions.loading"
-            class="dropdown-auto-width"
-            appearance="outline"
-            formControlName="phone"
-            id="omicallPhone"
-            appendTo=".modal-call"
-            bindLabel="phone"
-            bindValue="phone"
-          >
-            <ng-template ng-option-tmp ng-label-tmp let-item="item">
-              <div class="d-flex align-items-center">
-                <div class="label">
-                  {{ item.phone }}&nbsp;
-                  <span class="fw-500">({{ item.sipUser }})</span>
-                </div>
+        @if (f['platform'].value === 'stringee') {
+          <div class="mb-2">
+            <label class="form-control-label" for="phone">
+              Số điện thoại
+              <span class="required">*</span>
+            </label>
+            <ng-select
+              [ngClass]="{
+                'is-invalid': submitted && f['phone'].errors
+              }"
+              [readonly]="!f['platformId'].value"
+              [disabled]="!f['platformId'].value"
+              [placeholder]="'Chọn Số điện thoại'"
+              [searchable]="true"
+              [items]="phones.rows"
+              [loading]="phones.loading"
+              class="dropdown-auto-width"
+              appearance="outline"
+              formControlName="phone"
+              id="phone"
+              appendTo=".modal-call"
+              bindLabel="name"
+              bindValue="id"
+            ></ng-select>
+            @if (submitted && f['phone'].errors) {
+              <div class="invalid-feedback">
+                @if (submitted && f['phone'].errors?.['required']) {
+                  <div>Số điện thoại không được bỏ trống</div>
+                }
               </div>
-            </ng-template>
-          </ng-select>
-          <div *ngIf="submitted && f['phone'].errors" class="invalid-feedback">
-            <div *ngIf="f['phone'].errors?.['required']">
-              Số điện thoại không được bỏ trống
-            </div>
+            }
           </div>
-        </div>
+        }
+        @if (f['platform'].value === 'omicall') {
+          <div class="mb-2">
+            <label class="form-control-label" for="omicallPhone">
+              Số điện thoại
+              <span class="required">*</span>
+            </label>
+            <ng-select
+              [ngClass]="{
+                'is-invalid': submitted && f['phone'].errors
+              }"
+              [readonly]="!f['platformId'].value"
+              [disabled]="!f['platformId'].value"
+              [placeholder]="'Chọn Số điện thoại'"
+              [searchable]="true"
+              (change)="handleChangeOmicallExtension($event)"
+              [items]="omicallExtensions.rows"
+              [loading]="omicallExtensions.loading"
+              class="dropdown-auto-width"
+              appearance="outline"
+              formControlName="phone"
+              id="omicallPhone"
+              appendTo=".modal-call"
+              bindLabel="phone"
+              bindValue="phone"
+            >
+              <ng-template ng-option-tmp ng-label-tmp let-item="item">
+                <div class="d-flex align-items-center">
+                  <div class="label">
+                    {{ item.phone }}&nbsp;
+                    <span class="fw-500">({{ item.sipUser }})</span>
+                  </div>
+                </div>
+              </ng-template>
+            </ng-select>
+            @if (submitted && f['phone'].errors) {
+              <div class="invalid-feedback">
+                @if (f['phone'].errors?.['required']) {
+                  <div>Số điện thoại không được bỏ trống</div>
+                }
+              </div>
+            }
+          </div>
+        }
         <div class="mb-2">
           <label class="form-control-label" for="toPhone">
             Gọi đến
@@ -116,40 +123,43 @@
               'is-invalid': submitted && f['toPhone'].errors
             }"
           />
-          <div
-            *ngIf="submitted && f['toPhone'].errors"
-            class="invalid-feedback"
-          >
-            <div *ngIf="f['toPhone'].errors?.['required']">
-              Số điện thoại không được bỏ trống
+          @if (submitted && f['toPhone'].errors) {
+            <div class="invalid-feedback">
+              @if (f['toPhone'].errors?.['required']) {
+                <div>Số điện thoại không được bỏ trống</div>
+              }
+            </div>
+          }
+        </div>
+        @if (f['platform'].value === 'stringee') {
+          <div class="mb-5">
+            <div id="incomingCallDiv" [style.display]="'none'">
+              Incoming call from:
+              <span id="incomingCallFrom"></span>
+              <button (click)="handleAnswer()" id="answerBtn">Trả lời</button>
+              <button (click)="handleReject()" id="rejectBtn">Từ chối</button>
+            </div>
+            <div>
+              <br />
+              <p>
+                Trạng thái cuộc gọi:
+                <span id="callStatus" style="color: red">Not started</span>
+              </p>
+              <p>
+                Loại cuộc gọi:
+                <span id="callType" style="color: red">...</span>
+              </p>
+              <p>
+                Thời gian cuộc gọi:
+                @if (displayCallTime) {
+                  <span id="callTIme" class="fw-500">
+                    {{ displayCallTime }} giây
+                  </span>
+                }
+              </p>
             </div>
           </div>
-        </div>
-        <div *ngIf="f['platform'].value === 'stringee'" class="mb-5">
-          <div id="incomingCallDiv" [style.display]="'none'">
-            Incoming call from:
-            <span id="incomingCallFrom"></span>
-            <button (click)="handleAnswer()" id="answerBtn">Trả lời</button>
-            <button (click)="handleReject()" id="rejectBtn">Từ chối</button>
-          </div>
-          <div>
-            <br />
-            <p>
-              Trạng thái cuộc gọi:
-              <span id="callStatus" style="color: red">Not started</span>
-            </p>
-            <p>
-              Loại cuộc gọi:
-              <span id="callType" style="color: red">...</span>
-            </p>
-            <p>
-              Thời gian cuộc gọi:
-              <span *ngIf="displayCallTime" id="callTIme" class="fw-500">
-                {{ displayCallTime }} giây
-              </span>
-            </p>
-          </div>
-        </div>
+        }
         <div style="display: none" class="mb-5">
           <video id="remoteVideo" playsinline autoplay></video>
         </div>

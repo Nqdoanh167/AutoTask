@@ -1,27 +1,13 @@
 import {
   Component,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
-  QueryList,
   SimpleChanges,
-  ViewChildren,
-  OnChanges,
 } from '@angular/core';
 import {Subject, takeUntil} from 'rxjs';
-import {AbstractControl, FormGroup} from '@angular/forms';
-import {ApiLocationService} from '@app/services/api/location';
-import {IDistrict, IProvince, IWard} from '@app/types/location';
-import {
-  Biz,
-  Customer,
-  CustomerTag,
-  EntityPagination,
-  Order,
-} from '@app/types/viewmodels';
-import {CommonService} from '@app/services/common/common.service';
-import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
-import {CustomerService} from '@app/services/api/customer.service';
+import {Biz, Order} from '@app/types/viewmodels';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '@app/services/api/auth.service';
 
@@ -47,11 +33,13 @@ export class OrdersComponent implements OnDestroy, OnInit, OnChanges {
         this.currentBiz = biz || '';
       });
   }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['orders']) {
       this.ordersCopy = this.orders;
     }
   }
+
   ngOnInit(): void {}
 
   changeSort(sort: 'amount' | 'createdAt') {
@@ -80,10 +68,12 @@ export class OrdersComponent implements OnDestroy, OnInit, OnChanges {
         break;
     }
   }
+
   handleViewOrder(id: string) {
     let url = `${environment.urlDomain}/${this.currentBiz.alias}/sale-center/?code=${id}`;
     window.open(url, '_blank');
   }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();

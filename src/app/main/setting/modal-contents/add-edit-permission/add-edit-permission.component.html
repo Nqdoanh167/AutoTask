@@ -78,86 +78,130 @@
             </div>
             <div class="mb-3">
               <span class="headline">Chức năng</span>
-              <div class="state-warning">
-                <p class="fw-500 mb-2">Lưu ý:</p>
-                <ul [style.list-style-type]="'circle'" class="ps-3">
-                  <li>
-                    Các tính năng
-                    <b>Thêm, Sửa, Xóa</b>
-                    đã bao gồm tính năng
-                    <b>Xem</b>
-                    tương ứng. VD: Nhân sự có quyền Thêm Task sẽ có quyền Xem
-                    Task
-                  </li>
-                  <li>
-                    Đối với các
-                    <b>tính năng phụ thuộc vào nhau</b>
-                    , bạn cần chọn tất cả chúng để việc sử dụng không bị gián
-                    đoạn. VD: Để nhân sự thêm được Tag, Vai trò hoặc Nguồn dữ
-                    liệu vào trong Task, bạn cần chọn quyền Sửa Task, Xem Tag,
-                    Xem Nguồn dữ liệu, Xem Vai trò.
-                  </li>
-                  <li>
-                    Nếu nhân sự được trao quyền
-                    <b>Xem Task</b>
-                    thì mặc định, họ được xem những Task mà họ góp Vai trò trong
-                    đó. Những nhân sự quản trị của Chi nhánh/Phòng ban/Đội nhóm
-                    sẽ thấy toàn bộ Task của Chi nhánh/Phòng ban/Đội nhóm mà họ
-                    quản lý
-                  </li>
-                  <li>
-                    Nếu nhân sự được trao quyền
-                    <b>Xem Nhân viên</b>
-                    , thì mặc định, họ chỉ được xem thông tin của bản thân mình.
-                    Những nhân sự quản trị của Chi nhánh/Phòng ban/Đội nhóm sẽ
-                    thấy toàn bộ thông tin của nhân sự trong Chi nhánh/Phòng
-                    ban/Đội nhóm mà họ quản lý
-                  </li>
-                </ul>
-              </div>
             </div>
             <div class="functions">
-              <accordion class="accordion-white" [isAnimated]="true">
+              <accordion
+                class="accordion-white header-gray"
+                [isAnimated]="true"
+              >
                 @for (group of permissionGroups; track $index) {
                   <accordion-group [isOpen]="group.isOpen" [isDisabled]="true">
                     <div
+                      (click)="handleToggleGroup(group)"
                       accordion-heading
                       class="header-item d-flex justify-content-between align-items-center"
                     >
                       <span class="fw-bold">{{ group.name }}</span>
-                      <div class="form-check form-switch">
-                        <input
-                          checked="{{ group.isOpen ? 'checked' : null }}"
-                          class="form-check-input"
-                          type="checkbox"
-                          role="switch"
-                          (change)="handleToggleGroup(group)"
-                        />
-                      </div>
+                      <i
+                        class="me-2 fas"
+                        [ngClass]="{
+                          'fa-chevron-down': group?.isOpen,
+                          'fa-chevron-up': !group?.isOpen
+                        }"
+                      ></i>
                     </div>
                     <div class="content-group">
-                      <div class="row g-2">
-                        @for (permission of group.permissions; track $index) {
-                          <div class="col-4">
-                            <label class="basic-checkbox">
-                              <div class="ms-2">{{ permission['name'] }}</div>
-                              <input
-                                [defaultChecked]="
-                                  (
-                                    formPermissionAction(group.key)?.value || []
-                                  ).includes(permission['key'])
-                                "
-                                [value]="permission['key']"
-                                type="checkbox"
-                                (change)="
-                                  onCheckboxChange($event, permission, group)
-                                "
-                              />
-                              <span class="checkmark"></span>
-                            </label>
+                      @if (group.groups) {
+                        @for (subGr of group.groups; track $index) {
+                          <div class="sub-group mb-3">
+                            <div class="form-control-label mb-3">
+                              {{ subGr.name }}
+                            </div>
+                            <div class="row g-2">
+                              @for (
+                                permission of subGr.permissions;
+                                track $index
+                              ) {
+                                <div
+                                  class="col-4 {{ permission?.class }}"
+                                  *ngLet="
+                                    checkDisable(
+                                      permission,
+                                      group
+                                    ) as isDisabled
+                                  "
+                                >
+                                  <label
+                                    class="basic-checkbox"
+                                    [class.disabled]="isDisabled"
+                                  >
+                                    <div class="ms-2">
+                                      {{ permission['name'] }}
+                                      @if (!!permission?.tooltip) {
+                                        <i
+                                          class="fa fa-question-circle ms-2"
+                                          [tooltip]="popTemplate"
+                                          container=".modal-body"
+                                        ></i>
+                                        <ng-template #popTemplate>
+                                          <div
+                                            [innerHtml]="permission.tooltip"
+                                          ></div>
+                                        </ng-template>
+                                      }
+                                    </div>
+                                    <input
+                                      [checked]="
+                                        (
+                                          formPermissionAction(group.key)
+                                            ?.value || []
+                                        ).includes(permission['key'])
+                                      "
+                                      [value]="permission['key']"
+                                      [disabled]="isDisabled"
+                                      type="checkbox"
+                                      (change)="
+                                        onCheckboxChange(
+                                          $event,
+                                          permission,
+                                          group
+                                        )
+                                      "
+                                    />
+                                    <span class="checkmark"></span>
+                                  </label>
+                                </div>
+                              }
+                            </div>
                           </div>
                         }
-                      </div>
+                      } @else {
+                        <div class="row g-2">
+                          @for (permission of group.permissions; track $index) {
+                            <div class="{{ permission?.class }}">
+                              <label
+                                class="basic-checkbox"
+                                [class.disabled]="
+                                  !permission.isRootPer &&
+                                  !formPermissionAction(group.key)?.value
+                                    ?.length
+                                "
+                              >
+                                <div class="ms-2">{{ permission['name'] }}</div>
+                                <input
+                                  [checked]="
+                                    (
+                                      formPermissionAction(group.key)?.value ||
+                                      []
+                                    ).includes(permission['key'])
+                                  "
+                                  [value]="permission['key']"
+                                  type="checkbox"
+                                  (change)="
+                                    onCheckboxChange($event, permission, group)
+                                  "
+                                  [disabled]="
+                                    !permission.isRootPer &&
+                                    !formPermissionAction(group.key)?.value
+                                      ?.length
+                                  "
+                                />
+                                <span class="checkmark"></span>
+                              </label>
+                            </div>
+                          }
+                        </div>
+                      }
                     </div>
                   </accordion-group>
                 }

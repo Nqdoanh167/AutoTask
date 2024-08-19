@@ -2,7 +2,6 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   TemplateRef,
@@ -10,8 +9,6 @@ import {
 } from '@angular/core';
 import {
   ETaskChainType,
-  IAction,
-  IActResult,
   IAddTaskChainDto,
   IChainAct,
   ITask,
@@ -20,56 +17,35 @@ import {
   ITaskDto,
   ModifiedUserUnit,
 } from '@app/types/flow';
-import {finalize, Subject, take, takeUntil} from 'rxjs';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import {finalize, lastValueFrom, take, takeUntil} from 'rxjs';
+import {FormArray, FormGroup, ValidationErrors} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {
-  Biz,
-  EntityPagination,
-  ICommonDataLazy,
-  ICommonDataSource,
-  IQueryBase,
-  ITag,
-  Order,
-  User,
-} from '@app/types/viewmodels';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {CommonService} from '@app/services/common/common.service';
-import {AuthService} from '@app/services/api/auth.service';
-import {intersection, uniqBy} from 'lodash';
+import {ERole, ESocialPlatform, ITag, User} from '@app/types/viewmodels';
+import {intersection} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
-import {calculateTime} from '@app/utils/common';
-import moment from 'moment';
-import {IBlockAutomation} from '@app/types/automation';
-import {AutomationService} from '@app/services/api/automation.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {environment} from '../../../../../environments/environment';
-import {ModalCallComponent} from '@main/dashboard/content-modal/modal-call/modal-call.component';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
-import {
-  ELevelPer,
-  EPerActTask,
-  EPerActType,
-  ISetting,
-  ISource,
-} from '@app/types/setting';
+import {ISource, IUpdateSourceDto} from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
+import {ETabTaskDetail} from '@app/types/task';
+import {MainService} from '@app/services/api/main.service';
+import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
+import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
+import {ModalConfirmCallComponent} from '@main/dashboard/content-modal/modal-confirm-call/modal-confirm-call.component';
+import {PhoneCallService} from '@app/services/common/phone-call.service';
 
 @Component({
   selector: 'app-modal-update-task',
   templateUrl: './modal-update-task.component.html',
   styleUrls: ['./modal-update-task.component.scss'],
 })
-export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
+export class ModalUpdateTaskComponent
+  extends DetailTaskPerms
+  implements OnInit
+{
   @ViewChild('templateAddTaskChain') templateAddTaskChain!: TemplateRef<any>;
   public addTaskChainModalRef?: BsModalRef;
 
@@ -80,166 +56,33 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
 
   @Input() sourceData?: ITask;
   @Input() taskId?: string;
+  @Input() code?: string;
   @Output() updateSuccess = new EventEmitter();
 
-  public permissions = {
-    canEditAction: false,
-    canEditChain: false,
-    canEditDeadline: false,
-    canCreateOrder: false,
-  };
-
-  public tags: EntityPagination<ITag> = {
-    rows: [],
-    loading: false,
-  };
-  public orders: EntityPagination<Order> = {
-    rows: [],
-    loading: false,
-  };
   public selectTag: boolean = false;
   public submittedModal = {
     addTaskChain: false,
   };
-  private currentBiz!: Biz;
-  protected readonly ETaskChainType = ETaskChainType;
-  public submitted = false;
-  public updateForm = this.fb.group({
-    name: ['Task mới', [Validators.required]],
-    note: null,
-    leadDeal: this.fb.group({
-      id: null,
-      type: 'LEAD',
-      name: [null, [Validators.required]],
-      picture: null,
-      gender: 'other',
-      phone: null,
-      email: null,
-      address: null,
-      street: null,
-      tags: null,
-      ward: null,
-      wardCode: null,
-      district: null,
-      districtCode: null,
-      province: null,
-      provinceCode: null,
-    }),
-    tags: null,
-    taskChains: this.fb.array([]),
-    cart: this.fb.group({
-      products: null,
-      courseEvents: null,
-      beautyServices: null,
-      warehouses: null,
-      prepaidCards: null,
-      combos: null,
-    }),
-    counselorId: null,
-    teams: this.fb.array([]),
-    sourceId: null,
-    addChainActIds: null,
-    branch: [null],
-  });
-
-  public addTaskChainForm = this.fb.group({
-    addChainActIds: [null, [Validators.required]],
-  });
-
-  public results: ICommonDataLazy<IActResult, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-
-  public sources: ICommonDataLazy<ISource, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-
-  public actions: ICommonDataLazy<IAction, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-  public blocks: ICommonDataLazy<IBlockAutomation, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-
-  public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-      filter: JSON.stringify({isActive: true}),
-    },
-    isAllowLoadMore: false,
-  };
-
-  public dataSource: ICommonDataSource<any, any> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 20,
-      sort: '-createdAt',
-    },
-    total: 0,
-  };
-  public autoTaskSetting!: ISetting;
 
   public isOpenBackDrop: boolean = false;
-
-  private destroy$ = new Subject();
-
-  public loading = {
-    submit: false,
-    data: false,
-    getDetail: false,
-    addTaskChain: false,
-    createOrder: false,
-    deleteTask: false,
-  };
   public listBizUsers: User[] = [];
-  public triggerCallHistory!: any;
-  public units = this.autoTaskService.getUserUnits();
+  public units = this.autoTaskService.getUserUnits(false);
+
+  protected readonly ETabTaskDetail = ETabTaskDetail;
+  protected readonly ETaskChainType = ETaskChainType;
+  protected hasPermitSmsOttCall =
+    this.authService.checkPermittedModule('sms-ott-call');
+  protected readonly ERole = ERole;
 
   constructor(
-    private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
-    private readonly autoTaskService: AutoTaskService,
-    private readonly commonService: CommonService,
-    private readonly authService: AuthService,
     private readonly modalService: BsModalService,
     private readonly modalConfirmService: ModalConfirmService,
-    private readonly automationService: AutomationService,
     private readonly toastr: ToastrService,
+    private readonly mainService: MainService,
+    private readonly phoneCallService: PhoneCallService,
   ) {
+    super();
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
@@ -251,114 +94,52 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
   }
 
-  get f(): {[key: string]: AbstractControl} {
-    return this.updateForm.controls;
-  }
-
-  get formTaskChains() {
-    return <FormArray>this.updateForm.get('taskChains');
-  }
-  get formTeams() {
-    return <FormArray>this.updateForm.get('teams');
-  }
-
-  formTaskChainResults(chainIndex: number) {
-    return (<FormArray>(
-      this.formTaskChains.at(chainIndex).get('taskChainResults')
-    )) as FormArray;
-  }
-  findTag(tagId: string) {
-    return this.tags.rows.find((tag) => tag.id === tagId);
-  }
-  formNextSteps(chainIndex: number, taskChainResultIndex: number) {
-    return (<FormArray>(
-      this.formTaskChainResults(chainIndex)
-        .at(taskChainResultIndex)
-        .get('nextActions')
-    )) as FormArray;
-  }
-
-  get formLeadDeal() {
-    return <FormGroup>this.updateForm.get('leadDeal');
-  }
-
-  get fAddChainModal(): {[key: string]: AbstractControl} {
-    return this.addTaskChainForm.controls;
-  }
-
-  ngOnInit() {
-    this.checkPermission();
-    this.getDetailTask();
-    if (this.sourceData) {
-      this.patchForm(this.sourceData);
+  async ngOnInit() {
+    this.loading.modal = true;
+    const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
+    if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {
+      this.autoTaskSetting = autoTaskSettingRes.data;
+    } else {
+      this.commonService.handleResErr(autoTaskSettingRes);
     }
-    if (this.taskId) {
+    if (!this.sourceData && !this.taskId && !this.code) {
+      this.loading.modal = false;
+      this.patchForm();
+    }
+    this.handleCheckPermission();
+    if (this.sourceData) {
+    } else {
+      const branch = this.autoTaskService.getFirstUnit();
+      this.updateForm.patchValue({
+        branch,
+      } as any);
+      this.getInfoUnit(branch?.team || branch?.department || branch?.id);
+    }
+    if (this.code) {
+      this.getTaskByCode();
+    } else {
       this.getDetailTask();
     }
-    this.getActionChain();
-    this.getResult();
-    this.getAction();
     this.getBlock();
-    this.getSource();
-    this.getTag();
-    this.getAutoTaskSetting();
   }
 
-  private hasPermission(permissions: any[], permission: any): boolean {
-    return permissions?.some((per) => per === permission);
-  }
-
-  checkPermission() {
-    const permissions = this.authService.getUserPerByType(EPerActType.TASK);
-    this.permissions.canEditChain = this.hasPermission(
-      permissions,
-      EPerActTask.MANAGE_CHAIN,
-    );
-    this.permissions.canEditAction = this.hasPermission(
-      permissions,
-      EPerActTask.MANAGE_ACTION,
-    );
-    this.permissions.canEditDeadline = this.hasPermission(
-      permissions,
-      EPerActTask.EDIT_TIME_ACTION,
-    );
-  }
-  getAutoTaskSetting() {
-    this.autoTaskService.setting
-      .retrieve({bizId: this.currentBiz.id})
+  getDetailTask(isRefresh = false) {
+    if (!this.sourceData?.id && !this.taskId) return;
+    this.loading.getDetail = true;
+    this.autoTaskService.task
+      .getOne(this.sourceData?.id ?? this.taskId!)
+      .pipe(
+        finalize(() => (this.loading.getDetail = false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (res) => {
-          if (res && res.status === 200) {
-            this.autoTaskSetting = res.data;
-            res.data.roles?.forEach((role) => {
-              const findRole = this.currentBiz.roles.find((r) => r.id === role);
-              let initTeam = null;
-              if (!this.sourceData && findRole?.id === res.data.assignRole) {
-                initTeam = {
-                  userId: this.currentBiz.user.id,
-                  userName: this.currentBiz.user.name,
-                  userPicture: this.currentBiz.user.picture,
-                  userEmail: this.currentBiz.user.email,
-                };
-              }
-
-              const findTeam = this.sourceData?.teams?.find(
-                (team) => team.roleId === role,
-              );
-
-              this.formTeams.push(
-                this.fb.group({
-                  roleId: findRole?.id,
-                  roleIcon: findRole?.icon,
-                  roleName: findRole?.name,
-                  userId: initTeam?.userId || findTeam?.userId || null,
-                  userName: initTeam?.userName || findTeam?.userName || null,
-                  userPicture:
-                    initTeam?.userPicture || findTeam?.userPicture || null,
-                  userEmail: initTeam?.userEmail || findTeam?.userEmail || null,
-                }),
-              );
-            });
+          if (res.status === 200) {
+            this.sourceData = res.data;
+            this.patchForm(res.data);
+            if (isRefresh) {
+              this.customerInfoComponent?.handleClearSelectValue();
+            }
           } else {
             this.commonService.handleResErr(res);
           }
@@ -368,9 +149,28 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
       });
   }
-  // getRoleById(id: string) {
-  //   return this.currentBiz.roles.find((role) => role.id === id);
-  // }
+
+  getTaskByCode() {
+    this.loading.getDetail = true;
+    this.autoTaskService.task
+      .get({filter: JSON.stringify({codeIn: [this.code]}), page: 1, limit: 1})
+      .pipe(
+        finalize(() => (this.loading.getDetail = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          const detailTask = res?.data?.[0];
+          if (res.status === 200 && detailTask) {
+            this.sourceData = detailTask;
+            this.patchForm(detailTask);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
+  }
+
   onChooseTeam(index: number, user: User) {
     this.formTeams.at(index).patchValue({
       userId: user.id,
@@ -379,6 +179,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       userEmail: user.email,
     });
   }
+
   onRemoveTeam(index: number) {
     this.formTeams.at(index).patchValue({
       userId: null,
@@ -387,6 +188,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       userEmail: null,
     });
   }
+
   changeSelectTag(action: boolean) {
     this.selectTag = action;
     if (this.sourceData?.id) {
@@ -398,6 +200,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       });
     }
   }
+
   createNewTagAndChoose(tagName: string) {
     const body: ITag = {
       name: tagName,
@@ -422,464 +225,110 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         },
       });
   }
-  getTag() {
-    this.autoTaskService.tag.get().subscribe({
-      next: (res) => {
-        if (res && res.status === 200) {
-          this.tags.rows = res.data;
+
+  handleCreateSourceForm(): Promise<ISource | null> {
+    return new Promise((resolve, reject) => {
+      this.autoTaskService.source
+        .create(this.updateForm.value.sourceForm as unknown as IUpdateSourceDto)
+        .pipe(take(1), takeUntil(this.destroy$))
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.getSource();
+              resolve(res.data);
+            } else {
+              this.commonService.handleResErr(res);
+              reject(res);
+            }
+          },
+          error: (err) => {
+            this.commonService.handleErr(err);
+            reject(err);
+          },
+        });
+    });
+  }
+
+  async handleUpdate() {
+    const branchForm = this.f['branch'].value;
+    const sourceForm = this.f['sourceForm'].value;
+
+    if (sourceForm) {
+      const newSource = await this.handleCreateSourceForm();
+      if (!newSource) return;
+      this.updateForm.patchValue({
+        sourceId: newSource.id,
+        sourceForm: null,
+      } as any);
+    }
+
+    const body: ITaskDto | any = {
+      ...this.updateForm.value,
+      branch: branchForm
+        ? {
+            unit: branchForm.level,
+            id: branchForm.id,
+            name: branchForm.name,
+            department: branchForm.department,
+            departmentName: branchForm.departmentName,
+            team: branchForm.team,
+            teamName: branchForm.teamName,
+          }
+        : null,
+    };
+
+    this.loading.submit = true;
+    const taskObservable = this.sourceData?.id
+      ? this.autoTaskService.task.update(this.sourceData.id, body)
+      : this.autoTaskService.task.create(body);
+
+    if (this.sourceData?.id) delete body.addChainActIds;
+    else delete body.taskChains;
+
+    return new Promise((resolve, reject) => {
+      taskObservable
+        .pipe(
+          finalize(() => (this.loading.submit = false)),
+          takeUntil(this.destroy$),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.commonService.handleResSuccess(
+                this.sourceData?.id ? 'update' : 'create',
+              );
+              this.updateSuccess.emit();
+              this.sourceData = res.data;
+              this.patchForm(res.data);
+              resolve(res.data);
+              this.getDetailTask();
+            } else {
+              this.handleErrorResponse(res, reject);
+            }
+          },
+          error: (err) => {
+            this.commonService.handleErr(err);
+            reject(err);
+          },
+        });
+    });
+  }
+
+  private handleErrorResponse(res: any, reject: (reason?: any) => void) {
+    reject(res);
+    if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
+      (res.data as any[]).forEach((err) => {
+        if (err?.response?.subStatus === 'CUSTOMER.ADD_LIMIT') {
+          this.toastr.error(
+            'Số lượng Khách hàng đã đạt giới hạn của gói cước. Không thể tạo thêm bản ghi mới.',
+          );
         } else {
           this.commonService.handleResErr(res);
         }
-      },
-      error: (err) => {
-        this.commonService.handleErr(err);
-      },
-    });
-  }
-  getOrderDetail(orderIds: string[]) {
-    this.autoTaskService.task
-      .retrieveOrdersByTask({orderIds: orderIds})
-      .subscribe({
-        next: (res) => {
-          if (res && res.status === 200) {
-            this.orders.rows = res.data;
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
       });
-  }
-  getDetailTask(isRefresh = false) {
-    if (!this.sourceData?.id && !this.taskId) return;
-    this.loading.getDetail = true;
-    this.autoTaskService.task
-      .getOne(this.sourceData?.id ?? this.taskId!)
-      .pipe(finalize(() => (this.loading.getDetail = false)))
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.sourceData = res.data;
-            if (res.data.orderIds?.length > 0) {
-              this.getOrderDetail(res.data.orderIds);
-            }
-            this.patchForm(res.data);
-            if (isRefresh) {
-              this.customerInfoComponent.handleClearSelectValue();
-            }
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  patchForm(dataSource?: ITask) {
-    if (!dataSource) return;
-    this.updateForm.patchValue({
-      ...dataSource,
-      leadDeal: {
-        ...dataSource?.leadDeal,
-        id: dataSource?.leadDeal?.id,
-      },
-      counselorId: dataSource?.counselor?.id,
-    } as any);
-    if (dataSource.branch) {
-      const foundUnit = this.autoTaskService.findUnitFromData(
-        dataSource.branch,
-      );
-      this.updateForm.patchValue({
-        branch: foundUnit as any,
-      });
+    } else {
+      this.commonService.handleResErr(res);
     }
-    this.formTaskChains.clear();
-    dataSource.taskChains?.forEach((taskChain) => {
-      const taskChainForm = this.fb.group({
-        id: taskChain.id,
-        name: taskChain.name,
-        status: taskChain.status,
-        chainActId: taskChain.chainActId,
-        taskChainResults: this.fb.array([]),
-      });
-      taskChain.taskChainResults?.forEach((taskChainResult) => {
-        let deadlineDay = 0;
-        let deadlineHour = 0;
-        let deadlineMinute = 0;
-        let typeOverDeadline = 'notOver';
-        if (taskChainResult.deadlineDate) {
-          const executedDate = taskChainResult.executedDate || new Date();
-          const subDate = calculateTime(
-            taskChainResult.deadlineDate,
-            executedDate,
-            'metrics',
-          ) as {days?: number; hours?: number; minutes?: number};
-          if (
-            subDate.days === 0 &&
-            subDate.hours === 0 &&
-            subDate.minutes === 0
-          ) {
-            typeOverDeadline = 'now';
-          } else if (
-            moment(executedDate).isAfter(taskChainResult.deadlineDate)
-          ) {
-            typeOverDeadline = 'over';
-          }
-          if (typeOverDeadline !== 'over') {
-            deadlineDay = subDate.days || 0;
-            deadlineHour = subDate.hours || 0;
-            deadlineMinute = subDate.minutes || 0;
-          }
-        }
-        const resultIndex = taskChainResult.results?.findIndex(
-          (result) => result.result?.id === taskChainResult.result?.id,
-        );
-        const reasonIndex = taskChainResult.action?.reasons?.findIndex(
-          (reason) => reason?.id === taskChainResult?.reason?.id,
-        );
-        const taskChainResultForm = this.fb.group({
-          id: taskChainResult?.id,
-          status: taskChainResult?.status,
-          deadlineDate: taskChainResult.deadlineDate,
-          executedDate: taskChainResult.executedDate,
-          deadlineDay: deadlineDay,
-          deadlineHour: deadlineHour,
-          deadlineMinute: deadlineMinute,
-          typeOverDeadline: typeOverDeadline,
-          action: this.fb.group({
-            id: taskChainResult?.action?.id,
-            name: taskChainResult?.action?.name,
-            type: taskChainResult?.action?.type,
-            reasons: this.fb.array([]),
-            callBlockAutomation: this.fb.group({
-              blockId: taskChainResult?.action?.callBlockAutomation?.blockId,
-            }),
-          }),
-          resultIndex: resultIndex >= 0 ? resultIndex : null,
-          reasonIndex:
-            reasonIndex !== undefined && reasonIndex >= 0 ? reasonIndex : null,
-          note: taskChainResult.note,
-          result: this.fb.group({
-            id: taskChainResult?.result?.id,
-            name: taskChainResult?.result?.name,
-          }),
-          reason: this.fb.group({
-            id: taskChainResult?.reason?.id,
-            name: taskChainResult?.reason?.name,
-          }),
-          results: this.fb.array([]),
-          nextActions: this.fb.array([]),
-          isEdit: false,
-        });
-        taskChainResult?.action?.reasons?.forEach((reason) => {
-          const reasonForm = this.fb.group({
-            id: reason.id,
-            name: reason.name,
-          });
-          (<FormArray>(
-            (<FormGroup>taskChainResultForm.controls.action).controls['reasons']
-          )).push(reasonForm);
-        });
-        taskChainResult.results?.forEach((result) => {
-          const resultForm = this.fb.group({
-            result: this.fb.group({
-              id: result.result?.id,
-              name: result.result?.name,
-            }),
-            nextActions: this.fb.array([]),
-          });
-          result.nextActions?.forEach((nextAction) => {
-            const nextActionForm = this.fb.group({
-              addNewChain: nextAction.addNewChain,
-              callBlockAutomation: nextAction.callBlockAutomation,
-              closeCloneTask: [nextAction.closeCloneTask],
-              delayType: nextAction.delayType,
-              delayValue: nextAction.delayValue,
-              moveToAction: nextAction.moveToAction,
-              nextAction: nextAction.nextAction,
-              type: nextAction.type,
-              status: nextAction.status,
-            });
-            (<FormArray>resultForm.controls.nextActions).push(nextActionForm);
-          });
-          (<FormArray>taskChainResultForm.controls.results).push(resultForm);
-        });
-        (<FormArray>taskChainForm.controls.taskChainResults).push(
-          taskChainResultForm,
-        );
-
-        taskChainResult.nextActions?.forEach((nextAction) => {
-          const nextActionForm = this.fb.group({
-            action: nextAction.action,
-            deadlineDate: nextAction.deadlineDate,
-            status: nextAction.status,
-            executedDate: nextAction.executedDate,
-            childNextAction: this.fb.group({
-              delayType: nextAction?.childNextAction?.delayType,
-              moveToAction: nextAction?.childNextAction?.moveToAction,
-              callBlockAutomation:
-                nextAction?.childNextAction?.callBlockAutomation,
-              closeCloneTask: [nextAction?.childNextAction?.closeCloneTask],
-              addNewChain: nextAction?.childNextAction?.addNewChain,
-              nextAction: nextAction?.childNextAction?.nextAction,
-              type: nextAction?.childNextAction?.type,
-              delayValue: nextAction?.childNextAction?.delayValue,
-            }),
-          });
-          (<FormArray>taskChainResultForm.controls.nextActions).push(
-            nextActionForm,
-          );
-        });
-      });
-      (<FormArray>this.updateForm.controls.taskChains).push(taskChainForm);
-    });
-  }
-
-  getActionChain() {
-    this.actionChains.loading = true;
-    this.autoTaskService.chainAction
-      .get(this.actionChains.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.actionChains.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.actionChains.rows = uniqBy(
-              this.actionChains.rows.concat(res.data),
-              'id',
-            );
-            this.actionChains.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.actionChains.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.actionChains.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getSource() {
-    this.sources.loading = true;
-    this.autoTaskService.source
-      .get(this.sources.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.sources.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.sources.rows = uniqBy(
-              this.sources.rows.concat(res.data),
-              'id',
-            );
-            this.sources.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.sources.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.sources.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getResult() {
-    this.results.loading = true;
-    this.autoTaskService.actionResult
-      .get(this.results.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.results.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.results.rows = uniqBy(
-              this.results.rows.concat(res.data),
-              'id',
-            );
-            this.results.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.results.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.results.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getAction() {
-    this.actions.loading = true;
-    this.autoTaskService.action
-      .get(this.actions.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.actions.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.actions.rows = uniqBy(
-              this.actions.rows.concat(res.data),
-              'id',
-            );
-            this.actions.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.actions.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.actions.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getBlock() {
-    this.blocks.loading = true;
-    this.automationService.block
-      .getMany({})
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.blocks.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.blocks.rows = res.data;
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  handleUpdate() {
-    const branchForm = this.f['branch'].value;
-    return new Promise((resolve, reject) => {
-      this.loading.submit = true;
-      const body = {
-        ...this.updateForm.value,
-        branch: !!branchForm
-          ? {
-              unit: branchForm?.level,
-              id: branchForm?.id,
-              name: branchForm?.name,
-              department: branchForm?.department,
-              departmentName: branchForm?.departmentName,
-              team: branchForm?.team,
-              teamName: branchForm?.teamName,
-            }
-          : null,
-      } as unknown as ITaskDto as any;
-      if (this.sourceData?.id) {
-        delete body.addChainActIds;
-        this.autoTaskService.task
-          .update(this.sourceData.id, body)
-          .pipe(
-            takeUntil(this.destroy$),
-            finalize(() => (this.loading.submit = false)),
-          )
-          .subscribe({
-            next: (res) => {
-              if (res.status === 200) {
-                this.commonService.handleResSuccess('update');
-                this.updateSuccess.emit();
-                resolve(res.data);
-                this.getDetailTask();
-                this.triggerCallHistory = Math.random();
-              } else {
-                reject(res);
-                if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
-                  (res.data as any as Array<any>)?.map((err: any) => {
-                    if (err?.response?.subStatus === 'CUSTOMER.ADD_LIMIT') {
-                      this.toastr.error(
-                        'Số lượng Khách hàng đã đạt giới hạn của gói cước. Không thể tạo thêm bản ghi mới.',
-                      );
-                    } else {
-                      this.commonService.handleResErr(res);
-                    }
-                  });
-                } else {
-                  this.commonService.handleResErr(res);
-                }
-              }
-            },
-            error: (err) => {
-              reject(err);
-              this.commonService.handleErr(err);
-            },
-          });
-      } else {
-        delete body.taskChains;
-        this.autoTaskService.task
-          .create(body)
-          .pipe(
-            takeUntil(this.destroy$),
-            finalize(() => (this.loading.submit = false)),
-          )
-          .subscribe({
-            next: (res) => {
-              if (res.status === 200) {
-                this.commonService.handleResSuccess('create');
-                this.updateSuccess.emit();
-                this.sourceData = res.data;
-                this.patchForm(res.data);
-                this.triggerCallHistory = Math.random();
-                resolve(res.data);
-                this.getDetailTask();
-                // this.hideModal();
-              } else {
-                reject(res);
-                if (res.subStatus === 'CUSTOMER.DATA_ERROR') {
-                  (res.data as any as Array<any>)?.map((err: any) => {
-                    if (err?.response?.subStatus === 'CUSTOMER.ADD_LIMIT') {
-                      this.toastr.error(
-                        'Số lượng Khách hàng đã đạt giới hạn của gói cước. Không thể tạo thêm bản ghi mới.',
-                      );
-                    } else {
-                      this.commonService.handleResErr(res);
-                    }
-                  });
-                } else {
-                  this.commonService.handleResErr(res);
-                }
-              }
-            },
-            error: (err) => {
-              reject(err);
-              this.commonService.handleErr(err);
-            },
-          });
-      }
-    });
   }
 
   onSubmit(): void {
@@ -909,8 +358,8 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleDeleteTask() {
-    const title = 'Xóa Task';
-    const description = `Bạn sắp xóa task <b>${
+    const title = 'Xóa Tác vụ';
+    const description = `Bạn sắp xóa Tác vụ <b>${
       this.sourceData?.name || ''
     }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
@@ -923,7 +372,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       modalType: 'advance',
       context: this.sourceData,
       errorState:
-        'Cẩn trọng với thao tác xóa Task. Các module khác đang sử dụng dữ liệu của\n' +
+        'Cẩn trọng với thao tác xóa Tác vụ. Các module khác đang sử dụng dữ liệu của\n' +
         '      bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
@@ -935,19 +384,21 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   onDeleteTask(value: ITask) {
     if (!value?.id) return;
     this.loading.deleteTask = true;
-    this.autoTaskService.task.delete(value.id).subscribe({
-      next: (res) => {
-        if (res.status === 200) {
-          this.commonService.handleResSuccess('delete');
-          this.updateSuccess.emit();
-          this.triggerCallHistory = Math.random();
-          this.hideModal();
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      error: (err) => this.commonService.handleErr(err),
-    });
+    this.autoTaskService.task
+      .delete(value.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('delete');
+            this.updateSuccess.emit();
+            this.hideModal();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => this.commonService.handleErr(err),
+      });
   }
 
   hideModal(): void {
@@ -962,13 +413,15 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
         class: 'modal-dialog-centered modal-add-chain',
       },
     );
-    this.addTaskChainModalRef?.onHide?.pipe().subscribe(() => {
-      this.isOpenBackDrop = false;
-      this.submittedModal.addTaskChain = false;
-      this.addTaskChainForm.patchValue({
-        addChainActIds: null,
+    this.addTaskChainModalRef?.onHide
+      ?.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.isOpenBackDrop = false;
+        this.submittedModal.addTaskChain = false;
+        this.addTaskChainForm.patchValue({
+          addChainActIds: null,
+        });
       });
-    });
   }
 
   onAddTaskChain() {
@@ -983,13 +436,15 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       this.loading.addTaskChain = true;
       this.autoTaskService.task
         .updateTaskChain(this.sourceData.id!, body)
-        .pipe(finalize(() => (this.loading.addTaskChain = false)))
+        .pipe(
+          finalize(() => (this.loading.addTaskChain = false)),
+          takeUntil(this.destroy$),
+        )
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
               this.getDetailTask();
               this.updateSuccess.emit();
-              this.triggerCallHistory = Math.random();
               this.addTaskChainModalRef?.hide();
             } else {
               this.commonService.handleResErr(res);
@@ -1042,7 +497,7 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       modalType: 'advance',
       context: taskChain,
       errorState:
-        'Cẩn trọng với thao tác xóa chuỗi. Các module khác đang sử dụng dữ liệu của\n' +
+        'Cẩn trọng với thao tác đóng chuỗi. Các module khác đang sử dụng dữ liệu của\n' +
         '      bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
@@ -1054,12 +509,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   onCloseChain(value: ITaskChain) {
     this.autoTaskService.taskChain
       .closeChain(value.id)
-      .pipe()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
             this.getDetailTask();
-            this.triggerCallHistory = Math.random();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -1108,12 +562,11 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   onDeleteChain(value: ITaskChain) {
     this.autoTaskService.taskChain
       .delete(value.id)
-      .pipe()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
             this.getDetailTask();
-            this.triggerCallHistory = Math.random();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -1174,10 +627,10 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
       },
     );
     modalUpdateNextStep.onHide
-      ?.pipe()
+      ?.pipe(takeUntil(this.destroy$))
       .subscribe(() => (this.isOpenBackDrop = false));
     modalUpdateNextStep.content?.updateSuccess
-      .pipe()
+      .pipe(takeUntil(this.destroy$))
       .subscribe((dataStepForm) => {
         try {
           if (value) {
@@ -1223,81 +676,176 @@ export class ModalUpdateTaskComponent implements OnDestroy, OnInit {
   }
 
   handleViewCreatedOrder() {
-    let url = `${environment.urlDomain}/${this.currentBiz.alias}/sale-center/?sourceId=${this.sourceData?.id}`;
+    let url = `${environment.urlDomain}/${
+      this.currentBiz!.alias
+    }/sale-center/?sourceId=${this.sourceData?.id}`;
     window.open(url, '_blank');
   }
 
   async handleCreateTaskOrder() {
-    if (!this.sourceData?.id) return;
+    if (!this.sourceData?.id || this.loading.createOrder) return;
+    this.loading.createOrder = true;
     try {
       this.submitted = true;
       if (this.updateForm.invalid) return;
       await this.handleUpdate();
     } catch (e) {
+      this.loading.createOrder = false;
       console.log(e);
       return;
     }
-    this.loading.createOrder = true;
-    this.autoTaskService.task.createOrder(this.sourceData?.id!).subscribe({
-      next: (res) => {
-        if (res.status === 200) {
-          this.commonService.handleResSuccess(
-            undefined,
-            'Tạo đơn hàng thành công',
-          );
-          this.triggerCallHistory = Math.random();
-          this.updateSuccess.emit();
-          this.getDetailTask();
-        } else {
-          if (res.data as any) {
-            res.data?.forEach((err: any) => {
-              if (err.response) {
-                this.toastr.error(err.response.message);
-                return;
-              }
-            });
+    this.autoTaskService.task
+      .createOrder(this.sourceData?.id!)
+      .pipe(
+        finalize(() => (this.loading.createOrder = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess(
+              undefined,
+              'Tạo đơn hàng thành công',
+            );
+            this.orders.rows = [{} as any];
+            this.updateSuccess.emit();
+            this.getDetailTask();
           } else {
-            this.commonService.handleResErr(res);
+            if (res.data as any) {
+              res.data?.forEach((err: any) => {
+                if (err.response) {
+                  this.toastr.error(err.response.message);
+                  return;
+                }
+              });
+            } else {
+              this.commonService.handleResErr(res);
+            }
           }
-        }
-      },
-      error: (err) => {
-        this.commonService.handleErr(err);
-      },
-    });
+        },
+      });
   }
 
   handleCall() {
+    if (!this.hasPermitSmsOttCall) {
+      this.toastr.warning(
+        'Bạn không có quyền sử dụng module SMS-OTT-CALL. Vui lòng liên hệ quản trị viên để được hỗ trợ.',
+      );
+      return;
+    }
     try {
       const {phone} = this.formLeadDeal.value;
       if (!phone) {
         this.toastr.warning('Không có số điện thoại của khách hàng');
         return;
       }
+      const connectedPhone = this.phoneCallService.getConnectedPhoneValue();
+      if (!connectedPhone) {
+        this.toastr.warning('Bạn chưa kết nối đầu số!');
+        return;
+      }
       this.isOpenBackDrop = true;
-      const modalCall = this.modalService.show(ModalCallComponent, {
+      const modalCall = this.modalService.show(ModalConfirmCallComponent, {
         class: 'modal-dialog-centered',
         initialState: {
-          customerPhone: phone,
+          customer: this.formLeadDeal.value,
+          task: this.sourceData,
+          connectedPhone,
         },
-        ignoreBackdropClick: true,
-        keyboard: false,
       });
-      modalCall.onHide?.pipe().subscribe(() => {
+      modalCall.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.isOpenBackDrop = false;
-        this.triggerCallHistory = Math.random();
       });
     } catch (e) {
       console.log(e);
     }
   }
 
-  handleClickPTree(event: any) {
-    this.commonService.handleClickPTree(event);
+  copyText(text: string) {
+    this.mainService.copyText(text);
+    this.toastr.success('Sao chép thành công');
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
+  handleChangeUnit(value: TreeNodeSelectEvent | TreeNodeUnSelectEvent) {
+    const node = value.node as ModifiedUserUnit;
+    this.getInfoUnit(node?.team || node?.department || node?.id);
+    this.formTeams.controls?.forEach((form) => {
+      form.patchValue({
+        userId: null,
+      });
+    });
+  }
+
+  handleChangeChatLink() {
+    const chatLink = this.updateForm.value?.chatLink;
+    if (chatLink) {
+      let link = chatLink || '';
+      // for
+      const regexMessPancake = /(pancake).+\?c_id=([0-5][0-9]*_[0-9]*)/i;
+      const regexCommentSmaxAI =
+        /(smax\.ai).+(fb?[0-9]*)\?tid=(fb?[0-9]*_fb?[0-9]*)/i;
+      const regexMessSmaxAI = /(smax\.ai).+(fb?[0-9]*)\?tid=(fb?[0-9]*)/i;
+      const regexURLSmax = /(smax\.ai).+(fb?[0-9]*)/i;
+
+      let pageId: any = null;
+      let messId = null;
+      let platform = null;
+      if (regexURLSmax.test(link)) {
+        const matchSmaxAI = regexURLSmax.exec(link);
+        pageId = matchSmaxAI?.[2]?.replace(/[^\d]/gim, '');
+
+        if (regexMessSmaxAI.test(link)) {
+          const matchMessSmaxAI = regexMessSmaxAI.exec(link);
+          pageId = matchMessSmaxAI?.[2]?.replace(/[^\d]/gim, '');
+          messId = matchMessSmaxAI?.[3]?.replace(/[^\d]/gim, '');
+        }
+
+        if (regexCommentSmaxAI.test(link)) {
+          const matchCmtSmaxAI = regexCommentSmaxAI.exec(link);
+          let cmt = matchCmtSmaxAI?.[3];
+          if (cmt) {
+            cmt = cmt.split('_')?.[1];
+            messId = cmt?.replace(/[^\d]/gim, '');
+          }
+        }
+        platform = 'SMAXAI';
+      }
+
+      if (regexMessPancake.test(link)) {
+        const matchCmtPancake = regexMessPancake.exec(link);
+        let cmt = matchCmtPancake?.[2]?.split('_');
+        if (cmt?.length === 2) {
+          pageId = cmt[0].replace(/[^\d]/gim, '');
+          messId = cmt[1].replace(/[^\d]/gim, '');
+        }
+        platform = 'PANCAKE';
+      }
+
+      if (pageId) {
+        const hasPage = this.sources.rows.find((p) => p.platformId === pageId);
+        let platformSource: any = hasPage as ISource;
+        if (!hasPage) {
+          platformSource = {
+            id: pageId,
+            name: 'Facebook Page',
+            platform: ESocialPlatform.FACEBOOK,
+            platformId: pageId,
+            picture: `https://graph.facebook.com/${pageId}/picture?width=300&height=300`,
+          };
+          this.sources.rows.push(platformSource);
+          this.updateForm.patchValue({
+            sourceForm: platformSource,
+          });
+        } else {
+          this.updateForm.patchValue({
+            sourceForm: null,
+          });
+        }
+
+        this.updateForm.patchValue({
+          sourceId: platformSource.id,
+        });
+      }
+    }
   }
 }

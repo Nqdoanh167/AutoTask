@@ -1,10 +1,9 @@
 import {
   Component,
-  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output,
+  Renderer2,
   TemplateRef,
   ViewChild,
 } from '@angular/core';
@@ -58,6 +57,7 @@ export class ModalConfirmComponent implements OnInit, OnDestroy {
   constructor(
     private modalService: BsModalService,
     private modalConfirmService: ModalConfirmService,
+    private renderer: Renderer2,
   ) {}
 
   ngOnInit(): void {
@@ -117,6 +117,10 @@ export class ModalConfirmComponent implements OnInit, OnDestroy {
       backdrop: false,
       ignoreBackdropClick: true,
       keyboard: false,
+    });
+    const onHidden = this.modalService.onHidden.subscribe(() => {
+      this.renderer.removeStyle(document.body, 'overflow-y');
+      onHidden.unsubscribe();
     });
   }
 

@@ -350,6 +350,10 @@ $pagination-height: 56;
   color: $secondary-500;
 }
 
+.success-text {
+  color: $green-500;
+}
+
 .sub-text {
   color: $neutral-400;
 }
@@ -432,6 +436,14 @@ $pagination-height: 56;
     color: $white;
     &:hover {
       background-color: $secondary-600;
+      color: $white;
+    }
+  }
+  &.success-color {
+    background-color: $green-500;
+    color: $white;
+    &:hover {
+      background-color: $green-500;
       color: $white;
     }
   }
