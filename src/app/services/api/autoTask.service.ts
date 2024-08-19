@@ -1,11 +1,18 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, ITag} from 'src/app/types/viewmodels';
+import {
+  EntityResult,
+  ESocialPlatform,
+  IHistory,
+  ITag,
+  Order,
+} from 'src/app/types/viewmodels';
 import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {
+  CloneTaskDto,
   IAction,
   IActReason,
   IActResult,
@@ -14,6 +21,7 @@ import {
   IBodyChainResult,
   IBodyResultReason,
   IBodyUpdateOrdering,
+  IBranchTaskDto,
   IBulkTaskDto,
   IChainAct,
   IChainResult,
@@ -24,24 +32,35 @@ import {
   ITaskChainResult,
   ITaskDto,
   IUpdateChainActDto,
+  IUpdateDeadlineTaskResult,
   IUpdateTaskResultDto,
+  ModifiedUserUnit,
 } from '@app/types/flow';
 import {
+  BulkRemoveUserAcl,
+  ELevelPer,
+  ISetting,
   ISource,
-  ISourceDto,
   IUpdateSourceDto,
   IView,
   IViewDto,
   IViewModeDto,
+  Permission,
+  PermissionDto,
+  UpdatePermissionDto,
+  UpdateUserAclDto,
+  UserAcl,
+  UserPerAccess,
 } from '@app/types/setting';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AutoTaskService extends BaseApiService implements OnDestroy {
-  destroy = new Subject();
+  private destroy = new Subject();
+  private defaultParams: any = {};
 
-  api = {
+  public api = {
     action: 'action',
     actionResult: 'act-result',
     actionReason: 'act-reason',
@@ -51,10 +70,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     taskChain: 'task-chain',
     taskChainResult: 'task-chain-result',
     tag: 'tag',
+    history: 'task-history',
     source: 'source',
     settingView: 'setting-view',
+    setting: 'setting',
+    permission: 'permission',
+    userAcl: 'user-acl',
   };
-  private defaultParams: any = {};
 
   private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
   public dashboardViewModes = this.dashboardViewModes$.asObservable();
@@ -211,6 +233,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
+    retrieveOrdersByTask: (params = {}) =>
+      this.httpClient.get<EntityResult<Order[]>>(
+        this.createUrl([this.api.task, 'retrieve-order-by-task']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     getOne: (id: string) =>
       this.httpClient.get<EntityResult<ITask>>(
         this.createUrl([this.api.task, id]),
@@ -218,6 +247,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     create: (body: ITaskDto) =>
       this.httpClient.post<EntityResult<ITask>>(
         this.createUrl([this.api.task]),
+        body,
+      ),
+    clone: (id: string, body: CloneTaskDto) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, id, 'clone']),
         body,
       ),
     createOrder: (id: string) =>
@@ -270,6 +304,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.taskChainResult, id]),
         body,
       ),
+    updateDeadline: (id: string, body: IUpdateDeadlineTaskResult) =>
+      this.httpClient.patch<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'deadline']),
+        body,
+      ),
     sendBlock: (id: string) =>
       this.httpClient.post<EntityResult<ITaskChainResult>>(
         this.createUrl([this.api.taskChainResult, id, 'send-block']),
@@ -299,6 +338,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<ISource[]>>(
         this.createUrl([this.api.source]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    getOrderBySource: (params = {}) =>
+      this.httpClient.get<EntityResult<Record<ESocialPlatform, ISource[]>>>(
+        this.createUrl([this.api.source, 'group']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
@@ -342,6 +388,17 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.tag, id]),
       ),
   };
+
+  history = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<IHistory[]>>(
+        this.createUrl([this.api.history]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+  };
+
   settingView = {
     retrieve: (params = {}) =>
       this.httpClient.get<EntityResult<IView>>(
@@ -353,6 +410,70 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     update: (body: IViewDto) =>
       this.httpClient.put<EntityResult<IView>>(
         this.createUrl([this.api.settingView]),
+        body,
+      ),
+  };
+
+  setting = {
+    retrieve: (params = {}) =>
+      this.httpClient.get<EntityResult<ISetting>>(
+        this.createUrl([this.api.setting, 'retrieve']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    update: (body: IViewDto) =>
+      this.httpClient.put<EntityResult<IView>>(
+        this.createUrl([this.api.setting]),
+        body,
+      ),
+  };
+
+  permission = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<Permission[]>>(
+        this.createUrl([this.api.permission]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: PermissionDto) =>
+      this.httpClient.post<EntityResult<Permission>>(
+        this.createUrl([this.api.permission]),
+        body,
+      ),
+    update: (id: string, body: UpdatePermissionDto) =>
+      this.httpClient.patch<EntityResult<Permission>>(
+        this.createUrl([this.api.permission, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.permission, id]),
+      ),
+    getUserPermissions: () =>
+      this.httpClient.get<EntityResult<UserPerAccess>>(
+        this.createUrl([this.api.permission, 'user-access']),
+      ),
+  };
+
+  userAcl = {
+    get: () =>
+      this.httpClient.get<EntityResult<UserAcl[]>>(
+        this.createUrl([this.api.userAcl]),
+      ),
+    upsert: (body: UpdateUserAclDto) =>
+      this.httpClient.post<EntityResult<UserAcl>>(
+        this.createUrl([this.api.userAcl]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.userAcl, id]),
+      ),
+    bulkRemovePer: (body: BulkRemoveUserAcl) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.userAcl, 'bulk-remove']),
         body,
       ),
   };
@@ -384,6 +505,110 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   getCurrentActiveViewMode() {
     return this.currentActiveViewMode$.getValue();
+  }
+
+  findUnitsByIds(ids: string[]) {
+    const units = this.getUserUnits();
+    return units.flatMap((branch) => {
+      if (ids.includes(branch.data)) {
+        const departments = branch.children || [];
+        const teams = departments.flatMap(
+          (department) => department.children || [],
+        );
+        return [branch, ...departments, ...teams];
+      }
+      return (
+        branch.children?.flatMap((department) => {
+          if (ids.includes(department.data)) {
+            return [department, ...(department.children || [])];
+          }
+          return (
+            department.children?.filter((team) => ids.includes(team.data)) || []
+          );
+        }) || []
+      );
+    });
+  }
+
+  getFirstUnit() {
+    const units = this.getUserUnits();
+    const firstBranch = units?.[0];
+    const firstDepartment = units?.[0]?.children?.[0];
+    const firstTeam = units?.[0]?.children?.[0]?.children?.[0];
+    return firstTeam || firstDepartment || firstBranch;
+  }
+
+  findUnitFromData(data: IBranchTaskDto) {
+    const units = this.getUserUnits();
+    let res: ModifiedUserUnit | undefined = undefined;
+    units.forEach((branch) => {
+      if (branch.data === data?.id && !data.department) {
+        res = branch;
+      } else {
+        branch.children?.forEach((department) => {
+          if (department.data === data?.department && !data.team) {
+            res = department;
+          } else {
+            department.children?.forEach((team) => {
+              if (team.data === data?.team) {
+                res = team;
+              }
+            });
+          }
+        });
+      }
+    });
+    return res;
+  }
+
+  getUserUnits(isCheckSelectable = true) {
+    let units: ModifiedUserUnit[] = [];
+    const currentBiz = this.authService.getCurrentBiz();
+    if (currentBiz?.user?.roleBranches) {
+      units = currentBiz.user.roleBranches?.map((branch) => {
+        return {
+          key: branch.id,
+          data: branch.id,
+          label: branch.name,
+          selectable: isCheckSelectable ? !branch.departments?.length : true,
+          id: branch.id,
+          name: branch.name,
+          department: null,
+          departmentName: null,
+          team: null,
+          teamName: null,
+          children: branch.departments?.map((department) => {
+            return {
+              key: department.id,
+              data: department.id,
+              label: department.name,
+              selectable: isCheckSelectable ? !department.teams?.length : true,
+              id: branch.id,
+              name: branch.name,
+              department: department.id,
+              departmentName: department.name,
+              team: null,
+              teamName: null,
+              children: department.teams?.map((team) => {
+                return {
+                  key: team.id,
+                  data: team.id,
+                  label: team.name,
+                  selectable: true,
+                  id: branch.id,
+                  name: branch.name,
+                  department: department.id,
+                  departmentName: department.name,
+                  team: team.id,
+                  teamName: team.name,
+                };
+              }),
+            };
+          }),
+        };
+      });
+    }
+    return units;
   }
 
   ngOnDestroy(): void {

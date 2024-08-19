@@ -1,20 +1,23 @@
-<nav class="nav" aria-label="breadcrumb" *ngIf="breadcrumbList.length">
-  <ol class="breadcrumb m-0">
-    <li
-      class="breadcrumb-item"
-      *ngFor="let item of breadcrumbList; let i = index"
-      [class.active]="i === breadcrumbList.length - 1"
-    >
-      <a
-        class="nav-link"
-        [routerLink]="item.link"
-        *ngIf="i !== breadcrumbList.length - 1"
-      >
-        {{ item.name }}
-      </a>
-      <div class="nav-disable" *ngIf="i === breadcrumbList.length - 1">
-        {{ item.name }}
-      </div>
-    </li>
-  </ol>
-</nav>
+@if (breadcrumbList.length) {
+  <nav class="nav" aria-label="breadcrumb">
+    <ol class="breadcrumb m-0">
+      @for (item of breadcrumbList; track $index) {
+        <li
+          class="breadcrumb-item"
+          [class.active]="$index === breadcrumbList.length - 1"
+        >
+          @if ($index !== breadcrumbList.length - 1) {
+            <a class="nav-link" [routerLink]="item.link">
+              {{ item.name }}
+            </a>
+          }
+          @if ($index === breadcrumbList.length - 1) {
+            <div class="nav-disable">
+              {{ item.name }}
+            </div>
+          }
+        </li>
+      }
+    </ol>
+  </nav>
+}

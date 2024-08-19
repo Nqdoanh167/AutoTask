@@ -10,6 +10,7 @@ import {
   EChainNextActType,
   EDelayType,
   ENextStepType,
+  EOptionCloneTask,
   IAction,
   IActResult,
   IChainAct,
@@ -23,13 +24,11 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {CommonService} from '@app/services/common/common.service';
-import {AuthService} from '@app/services/api/auth.service';
+import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {removeCharacter} from '@app/utils/common';
+import {optionToCloneTask} from '@app/variable';
 
 @Component({
   selector: 'app-modal-update-task',
@@ -53,13 +52,13 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   @Output() updateSuccess = new EventEmitter<any>();
   @Output() deleteEvent = new EventEmitter<any>();
-
+  public optionToCloneTask = optionToCloneTask;
   public nextStepTypes = this.configurationService.nextStepTypes;
   public submitted = false;
   public updateForm = this.fb.group(
     {
       nextAction: [null, [Validators.required]],
-      type: [null, [Validators.required]],
+      type: [EChainNextActType.AUTO, [Validators.required]],
       moveToAction: this.fb.group({
         chainActResultId: null,
         chainActResult: null,
@@ -67,6 +66,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       callBlockAutomation: this.fb.group({
         blockId: null,
       }),
+      closeCloneTask: [null],
       addNewChain: this.fb.group({
         chainActResultId: null,
         chainActResult: null,
@@ -87,15 +87,10 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   };
   protected readonly ENextStepType = ENextStepType;
   protected readonly EDelayType = EDelayType;
-  protected readonly EChainNextActType = EChainNextActType;
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
-    private readonly autoTaskService: AutoTaskService,
-    private readonly commonService: CommonService,
-    private readonly authService: AuthService,
-    private readonly modalService: BsModalService,
     private readonly configurationService: ConfigurationService,
   ) {}
 
@@ -134,6 +129,14 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
         callBlockAutomation?.setErrors({required: true});
       } else {
         callBlockAutomation?.setErrors(null);
+      }
+    }
+    if (nextAction?.value === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
+      const closeCloneTask = form.get('closeCloneTask');
+      if (!closeCloneTask?.value?.length) {
+        closeCloneTask?.setErrors({required: true});
+      } else {
+        closeCloneTask?.setErrors(null);
       }
     }
     return null;
@@ -178,7 +181,11 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     this.hideModal();
   }
 
-  handleChangeTypeAction() {
+  handleChangeTypeAction(event: any) {
+    let optionClone: string[] = [];
+    if (event?.value === ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK) {
+      optionClone = Object.values(EOptionCloneTask);
+    }
     this.updateForm.patchValue({
       moveToAction: {
         chainActResultId: null,
@@ -187,6 +194,8 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
       callBlockAutomation: {
         blockId: null,
       },
+
+      closeCloneTask: optionClone,
       addNewChain: {
         chainActResultId: null,
         chainActResult: null,

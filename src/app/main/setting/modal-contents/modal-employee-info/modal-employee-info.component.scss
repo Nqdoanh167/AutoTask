@@ -1,0 +1,170 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.fa-link {
+  cursor: pointer;
+  &:hover {
+    color: vars.$secondary-500;
+  }
+}
+.table {
+  .columns-branch {
+    width: 25%;
+  }
+  .columns-department {
+    width: 25%;
+  }
+  .columns-team {
+    width: 25%;
+  }
+  .columns-role {
+    width: 25%;
+  }
+}
+
+.table-branch {
+  min-height: 250px;
+
+  tr {
+    border-bottom: 1px solid #eef0f3;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      vertical-align: top !important;
+      border-bottom: none;
+      padding: 0px;
+
+      .td {
+        padding: 0.5rem;
+
+        .role {
+          color: var(--bs-gray-500);
+
+          &.active {
+            color: var(--bs-primary);
+          }
+        }
+
+        &.department {
+          position: relative;
+          padding-left: 24px;
+
+          .dot {
+            position: absolute;
+            background: #eef0f3;
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+            left: 8px;
+            top: 18px;
+          }
+
+          &::after,
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 12px;
+            width: 1px;
+            height: 50%;
+            background: #eef0f3;
+          }
+
+          &::before {
+            top: 0;
+          }
+
+          &::after {
+            top: unset;
+            bottom: 0;
+          }
+        }
+      }
+    }
+
+    td {
+      .td {
+        &.start {
+          padding-bottom: 0;
+
+          &::before {
+            display: none;
+          }
+
+          &.line {
+            &::before {
+              display: block;
+            }
+          }
+        }
+      }
+    }
+
+    td {
+      .td {
+        &.continue {
+          padding-bottom: 0;
+        }
+      }
+    }
+
+    // &.end {
+
+    td {
+      .td {
+        &.end {
+          //padding-bottom: 5px;
+
+          &::after {
+            display: none;
+          }
+        }
+
+        &.end-frame {
+          &::after {
+            display: block;
+          }
+        }
+
+        &.frame {
+          height: 43px;
+
+          &.end {
+            height: 48px;
+          }
+        }
+
+        &.frame-plus {
+          height: 26px;
+        }
+      }
+    }
+
+    // }
+  }
+
+  td {
+    font-weight: inherit;
+    vertical-align: top;
+  }
+
+  .btn-remove {
+    display: none;
+    margin-left: 2px;
+    transform: rotate3d(0deg);
+
+    &:hover {
+      transition: 0.4s all ease;
+      transform: rotate3d(90deg);
+    }
+  }
+
+  &:hover {
+    .btn-remove {
+      display: block;
+    }
+  }
+}

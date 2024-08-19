@@ -1,0 +1,71 @@
+<div class="standard-table-data">
+  <div class="header-table" #headerTable>
+    <ng-content select="[headerTable]"></ng-content>
+    @if (!isHideFilter) {
+      <app-filter-top-table
+        [configFilters]="configFilters"
+        [configButtons]="configButtons"
+        (clickButtonEvent)="handleAction($event)"
+        (searchEvent)="onSearch($event)"
+        (selectEvent)="onSelectFilter($event)"
+      ></app-filter-top-table>
+    }
+  </div>
+  <div class="body-table">
+    <ng-content select="[bodyTable]"></ng-content>
+  </div>
+  @if (!isHidePaginate) {
+    <ng-container #footerTable>
+      <ng-content select="[footerTable]"></ng-content>
+      @if (!footerTable.children?.length) {
+        <ng-container>
+          <div
+            class="right d-flex justify-content-md-between justify-content-center mt-3 flex-wrap gap-2"
+          >
+            <div class="d-flex align-items-center">
+              <span class="text-secondary" style="width: auto">Hiển thị</span>
+              <ng-select
+                class="mx-2"
+                [style.width]="'80px'"
+                [clearable]="false"
+                [searchable]="false"
+                [(ngModel)]="limit"
+                (change)="pageChanged({}, limit)"
+                appendTo="body"
+                [items]="[10, 20, 50, 100]"
+              ></ng-select>
+              <!--              <select-->
+              <!--                class="form-select border-0 mx-2"-->
+              <!--                [(ngModel)]="limit"-->
+              <!--                style="width: 100px"-->
+              <!--                (change)="pageChanged({}, limit)"-->
+              <!--              >-->
+              <!--                <option [value]="10">10</option>-->
+              <!--                <option [value]="20">20</option>-->
+              <!--                <option [value]="50">50</option>-->
+              <!--                <option [value]="100">100</option>-->
+              <!--              </select>-->
+              <span class="text-secondary">trong tổng số</span>
+              <span class="text-secondary mx-1">{{ total }}</span>
+              <span class="text-secondary">bản ghi</span>
+            </div>
+            <pagination
+              [disabled]="loading"
+              [boundaryLinks]="true"
+              [totalItems]="total"
+              [itemsPerPage]="limit"
+              [(ngModel)]="page"
+              (pageChanged)="pageChanged($event, null)"
+              [rotate]="false"
+              [maxSize]="4"
+              previousText="&lsaquo;"
+              nextText="&rsaquo;"
+              firstText="Trang đầu"
+              lastText="Trang cuối"
+            ></pagination>
+          </div>
+        </ng-container>
+      }
+    </ng-container>
+  }
+</div>

@@ -1,11 +1,12 @@
 export enum ETypeFilter {
   SEARCH = 'search',
+  POPOVER = 'popover',
   SELECT = 'select',
   DATE = 'date',
 }
 export enum ETypeBulkUpdate {
-  REMOVE_COUNSELOR = 'REMOVE_COUNSELOR',
-  ASSIGN_COUNSELOR = 'ASSIGN_COUNSELOR',
+  REMOVE_TEAM = 'REMOVE_TEAM',
+  ASSIGN_TEAM = 'ASSIGN_TEAM',
 }
 export enum EBotherAdvanceBasicFilter {
   BASIC = 'basic',
@@ -14,6 +15,7 @@ export enum EBotherAdvanceBasicFilter {
 export enum ETypeButton {
   PRIMARY = 'primary',
   DEFAULT = 'default',
+  TOGGLE = 'toggle',
   SUB_PRIMARY = 'sub_primary',
 }
 export interface IOptionFilterTop {
@@ -50,6 +52,8 @@ export interface IFilterTopButton {
   activeIcon?: string;
   loading?: boolean;
   disabled?: boolean;
+  value?: any;
+  hidden?: boolean;
 }
 
 export interface ITabFilter {

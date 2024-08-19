@@ -1,7 +1,10 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
-    "analytics": false
+    "analytics": false,
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   },
   "version": 1,
   "newProjectRoot": "projects",
@@ -24,6 +27,7 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "baseHref": "/demo/auto-task/",
+            "outputHashing": "all",
             "outputPath": "dist/fontend",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -91,10 +95,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "fontend:build:production"
+              "buildTarget": "fontend:build:production"
             },
             "development": {
-              "browserTarget": "fontend:build:development"
+              "buildTarget": "fontend:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -102,7 +106,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "fontend:build"
+            "buildTarget": "fontend:build"
           }
         },
         "test": {
@@ -121,6 +125,15 @@
               "src/styles.scss"
             ],
             "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         }
       }

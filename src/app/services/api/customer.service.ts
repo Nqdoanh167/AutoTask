@@ -1,11 +1,11 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, Customer, Segment, CustomerTag} from 'src/app/types/viewmodels';
-import {BehaviorSubject, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
+import {EntityResult, Segment} from 'src/app/types/viewmodels';
+import {Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
-declare const FB: any;
+import {Customer, CustomerTag} from '@app/types/customer';
 
 @Injectable({
   providedIn: 'root',
@@ -62,6 +62,8 @@ export class CustomerService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
+    getById: (id: string) =>
+      this.httpClient.get<EntityResult<Customer>>(this.createUrl([id])),
     getSegment: (params = {}) =>
       this.httpClient.get<EntityResult<Segment[]>>(
         this.createUrl([this.api.segment]),
@@ -75,17 +77,10 @@ export class CustomerService extends BaseApiService implements OnDestroy {
         body,
       ),
     update: (id: string, body = {}) =>
-      this.httpClient.put<EntityResult<Customer>>(
-        this.createUrl([this.api.customer, id]),
-        body,
-      ),
+      this.httpClient.put<EntityResult<Customer>>(this.createUrl([id]), body),
     show: (id: string) =>
-      this.httpClient.get<EntityResult<Customer>>(
-        this.createUrl([this.api.customer, id]),
-      ),
+      this.httpClient.get<EntityResult<Customer>>(this.createUrl([id])),
     delete: (id: string) =>
-      this.httpClient.delete<EntityResult<Customer>>(
-        this.createUrl([this.api.customer, id]),
-      ),
+      this.httpClient.delete<EntityResult<Customer>>(this.createUrl([id])),
   };
 }

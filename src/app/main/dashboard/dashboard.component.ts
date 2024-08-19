@@ -1,346 +1,91 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {
-  distinctUntilChanged,
-  filter,
-  finalize,
-  interval,
-  Subject,
-  takeUntil,
-} from 'rxjs';
-import {
-  EBotherAdvanceBasicFilter,
-  ETypeBulkUpdate,
-  ETypeButton,
-  ETypeFilter,
-  IFilterTopButton,
-  IFilterTopTable,
-} from '@app/types/common';
-import {
-  IColumns,
-  ICommonDataLazy,
-  ICommonDataSource,
-  IDateRange,
-  IQueryBase,
-  ITag,
-  Source,
-} from '@app/types/viewmodels';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {distinctUntilChanged, filter, finalize, takeUntil} from 'rxjs';
+import {ETypeBulkUpdate, ETypeButton, ETypeFilter} from '@app/types/common';
+import {IColumns, IDateRange, Order} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
-import {CommonService} from '@app/services/common/common.service';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {calculateTime} from '@app/utils/common';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
-import {
-  EActionStates,
-  ETaskChainType,
-  IAction,
-  IActResult,
-  IChainAct,
-  ITask,
-  ITaskChain,
-} from '@app/types/flow';
+import {ETaskChainType, ITask, ModifiedUserUnit} from '@app/types/flow';
 import moment from 'moment/moment';
-import {cloneDeep, isEmpty, isEqual, uniqBy} from 'lodash';
-import {AuthService} from '@app/services/api/auth.service';
-import {EScreens, ISource, IViewModeDto} from '@app/types/setting';
+import {isEqual} from 'lodash';
+import {
+  EPerActTask,
+  EPerActType,
+  EScreens,
+  IViewModeDto,
+} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
-import {ModalAssignCounselorComponent} from './content-modal/multiple-action/modal-assign-counselor/modal-assign-counselor.component';
+import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
 import {environment} from 'src/environments/environment';
 import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 import {listColumnsDashboardDefault} from '@app/variable';
+import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
+import {
+  ESpecialQueryTaskKey,
+  TASK_MULTIPLE_ACTIONS,
+} from '@main/dashboard/dashboard-variables';
+import {DashboardCheckPermission} from '@main/dashboard/dashboard-check-permission';
+import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-task',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject();
-  public currentBiz: string = '';
-  protected readonly ETaskChainType = ETaskChainType;
-  public multipleAction = [
-    {
-      label: 'Gán nhân viên phụ trách',
-      value: ETypeBulkUpdate.ASSIGN_COUNSELOR,
-    },
-    {
-      label: 'Bỏ nhân viên phụ trách',
-      value: ETypeBulkUpdate.REMOVE_COUNSELOR,
-    },
-  ];
-  public configFilters: IFilterTopTable[] = [
-    {
-      type: ETypeFilter.SEARCH,
-      placeholder: 'Tìm kiếm...',
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'actionStates',
-      placeholder: 'Trạng thái hành động',
-      options: [
-        {
-          label: 'Hành động đã trễ',
-          value: EActionStates.OVERDUE,
-        },
-        {
-          label: 'Hành động hẹn giờ',
-          value: EActionStates.DUE_SOON,
-        },
-        {
-          label: 'Hành động hoàn thành',
-          value: EActionStates.EXECUTED,
-        },
-        {
-          label: 'Ẩn chuỗi đã đóng',
-          value: EActionStates.HIDE_FULL_EXECUTED,
-        },
-      ],
-      bindLabel: 'label',
-      bindValue: 'value',
-      clearable: true,
-      multiple: true,
-      minWidth: '200px',
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'chainActId',
-      placeholder: 'Chuỗi',
-      options: [
-        {
-          id: 'NONE',
-          name: 'Chưa gán chuỗi',
-        },
-      ],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: false,
-      onSearch: (event: any) => this.handleSearchActChain(event),
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'actionIds',
-      placeholder: 'Hành động',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'tags',
-      placeholder: 'Tag',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'resultIds',
-      placeholder: 'Kết quả',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'counselorId',
-      placeholder: 'Nv Phụ trách',
-      options: [],
-      bindLabel: 'label',
-      bindValue: 'value',
-      clearable: true,
-      searchable: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'sort',
-      placeholder: 'Sắp xếp',
-      options: [
-        {
-          label: 'Thời gian gần nhất',
-          value: 'deadlineDate',
-        },
-        {
-          label: 'Thời gian xa nhất',
-          value: '-deadlineDate',
-        },
-      ],
-      bindLabel: 'label',
-      bindValue: 'value',
-      clearable: true,
-    },
-    {
-      type: ETypeFilter.DATE,
-      name: 'createdAt',
-      placeholder: 'Ngày tạo',
-      subType: 'range',
-      clearable: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.DATE,
-      name: 'updatedAt',
-      placeholder: 'Ngày sửa',
-      subType: 'range',
-      clearable: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-    {
-      type: ETypeFilter.SELECT,
-      name: 'sourceIds',
-      placeholder: 'Nguồn tạo',
-      options: [],
-      bindLabel: 'name',
-      bindValue: 'id',
-      clearable: true,
-      searchable: true,
-      multiple: true,
-      botherType: EBotherAdvanceBasicFilter.ADVANCE,
-    },
-  ];
-  public configButtons: IFilterTopButton[] = [
-    {
-      name: 'reload',
-      type: ETypeButton.DEFAULT,
-      icon: './assets/images/icon/reload.svg',
-    },
-    {
-      name: 'add_new',
-      type: ETypeButton.PRIMARY,
-      label: 'Thêm task',
-      icon: './assets/images/icon/plus.svg',
-    },
-  ];
-  public dataSource: ICommonDataSource<ITask, any> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 20,
-    },
-    total: 0,
-  };
-
-  public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-      filter: JSON.stringify({isActive: true}),
-    },
-    isAllowLoadMore: false,
-  };
-
-  public results: ICommonDataLazy<IActResult, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-
-  public actions: ICommonDataLazy<IAction, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-  public tags: ICommonDataLazy<ITag, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-    },
-    isAllowLoadMore: false,
-  };
-  public sources: ICommonDataLazy<ISource, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-    },
-    isAllowLoadMore: false,
-  };
-
-  public currentActiveViewMode?: IViewModeDto;
-
-  // public dataSource$ = interval(10000)
-  //   .pipe(takeUntil(this.destroy$))
-  //   .subscribe(() => {
-  //     this.dataSource.rows = this.runTimer();
-  //   });
-  protected readonly EScreens = EScreens;
-  public taskChecked: string[] = [];
-  public headerCheckboxState: boolean[] = [];
+export class DashboardComponent
+  extends DashboardCheckPermission
+  implements OnInit, OnDestroy
+{
+  @ViewChild('selectBatchActions') selectBatchActions?: NgSelectComponent;
 
   private startX: number = 0;
   private startWidth: number = 0;
   private resizing: boolean = false;
   private resizingColumn: HTMLElement | null = null;
+
+  public multipleAction = TASK_MULTIPLE_ACTIONS;
+  public currentActiveViewMode?: IViewModeDto;
   public dataColumnsShow!: IColumns[];
-  public sort: any = {
-    updatedAt: 0,
-    createdAt: 0,
-  };
+  public units = this.autoTaskService.getUserUnits(false);
+  public selectedUnits: ModifiedUserUnit[] = [];
+
+  protected readonly EScreens = EScreens;
+  protected readonly ETaskChainType = ETaskChainType;
+
   constructor(
     private readonly modalService: BsModalService,
-    private readonly commonService: CommonService,
     private readonly modalConfirmService: ModalConfirmService,
-    private readonly autoTaskService: AutoTaskService,
-    private readonly authService: AuthService,
-    private route: ActivatedRoute,
+    private readonly route: ActivatedRoute,
     private readonly toastrService: ToastrService,
-    private router: Router,
+    private readonly router: Router,
   ) {
+    super();
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         if (biz) {
-          this.currentBiz = biz.alias || '';
-          this.configFilters[6].options = [
-            {label: 'Chưa gán nhân viên phụ trách', value: 'NONE'},
-          ].concat(
-            biz?.users?.map((user) => ({
-              label: user.name,
-              value: user.id as any,
-            })),
+          this.authService.getColleague();
+          const configFilterStaff = this.configFilters.find(
+            (filter) => filter.name === 'teamId',
           );
+          if (configFilterStaff) {
+            configFilterStaff.options = [
+              {name: 'Chưa gán nhân sự phụ trách', id: 'NONE'},
+            ].concat(this.authService.getColleague());
+          }
         }
       });
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((q) => {
       if (q['id']) {
         this.handleUpdate(undefined, q['id']);
       }
+      if (q['code']) {
+        this.handleUpdate(undefined, undefined, q['code']);
+      }
     });
-    const typeColumn = 'columnDashboard';
+    const typeColumn = 'columnDashboardAutoTask';
     const defaultColumn = listColumnsDashboardDefault;
     const dataColumns = JSON.parse(localStorage.getItem(typeColumn) as string);
     if (
@@ -353,24 +98,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.dataColumnsShow = dataColumns || defaultColumn;
   }
 
-  ngOnInit() {
-    this.getActionChain();
-    this.getResult();
-    this.getAction();
-    this.getTag();
-    this.getSource();
+  override ngOnInit() {
+    this.handleCheckPermission();
     this.handleActiveViewMode();
+    const permissions = this.authService.getUserPerByType(EPerActType.TASK);
+    this.permission.edit = this.hasPermission(
+      permissions,
+      EPerActTask.UPDATE_TASK,
+    );
+    this.permission.add = this.hasPermission(
+      permissions,
+      EPerActTask.CREATE_TASK,
+    );
+    this.permission.delete = this.hasPermission(
+      permissions,
+      EPerActTask.DELETE_TASK,
+    );
+    if (!this.permission.add) {
+      this.configButtons[2].hidden = true;
+    }
   }
-  showModalMultipleAction(action: any) {
-    if (action.value === ETypeBulkUpdate.ASSIGN_COUNSELOR) {
-      const modalRef = this.modalService.show(ModalAssignCounselorComponent, {
+
+  showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
+    if (!action) return;
+    try {
+      const modalRef = this.modalService.show(ModalAssignTeamComponent, {
         class: 'modal-dialog-centered',
+        initialState: {
+          action: action?.value,
+        },
       });
-      modalRef.content?.assignCounselor.subscribe((data) => {
+
+      modalRef.content?.assignTeams.subscribe((data) => {
         if (data) {
           const payload = {
-            taskIds: this.taskChecked,
-            counselorId: data.counselorId,
+            taskIds: this.getRowIds(),
+            teams: data.teams,
           };
           this.autoTaskService.task.bulkUpdate(payload).subscribe({
             next: (res) => {
@@ -387,86 +150,65 @@ export class DashboardComponent implements OnInit, OnDestroy {
           });
         }
       });
-    } else if (action.value === ETypeBulkUpdate.REMOVE_COUNSELOR) {
-      const title = 'Bỏ gán nhân viên phụ trách';
-      const description = `Loại bỏ nhân viên phụ trách ra khỏi  tất cả những Task đã được chọn. Task không có nhân viên phụ trách sẽ không bị ảnh hưởng.`;
-      const okText = 'Đồng ý';
-
-      const modalContent: IModalConfirmContent = {
-        title,
-        description,
-        okText,
-        type: 'warning',
-        modalType: 'advance',
-      };
-
-      this.modalConfirmService.openModal(
-        modalContent,
-        'remove-assign-counselor',
-      );
+      this.selectBatchActions?.handleClearClick();
+    } catch (e) {
+      console.log(e);
     }
   }
-  stateChecked(item: ITask, event: any): void {
-    const checked = event.target.checked;
-    if (checked) {
-      this.taskChecked.push(item.id);
-    } else {
-      this.taskChecked = this.taskChecked.filter((id) => id !== item.id);
-    }
 
-    this.headerCheckboxState[this.dataSource.paramsQuery.page] =
-      this.dataSource.rows.every((tId) => this.taskChecked.includes(tId.id));
-  }
-  toggleAllRows(event: any): void {
-    const checked = event.target.checked;
-
-    this.headerCheckboxState[this.dataSource.paramsQuery.page] = checked;
-
-    this.dataSource.rows.forEach((row) => {
-      if (checked) {
-        if (!this.taskChecked.includes(row.id)) {
-          this.taskChecked.push(row.id);
-        }
-      } else {
-        const index = this.taskChecked.indexOf(row.id);
-        if (index > -1) {
-          this.taskChecked.splice(index, 1);
-        }
-      }
-    });
-  }
   handleActiveViewMode() {
     try {
       this.autoTaskService.currentActiveViewMode
         .pipe(
-          takeUntil(this.destroy$),
           distinctUntilChanged(isEqual),
           filter((currentActiveViewMode) => currentActiveViewMode),
+          takeUntil(this.destroy$),
         )
         .subscribe((currentActiveViewMode) => {
+          this.item.paramsQuery.filter = '{}';
+          this.selectedUnits = [];
           this.currentActiveViewMode = currentActiveViewMode;
           const objFilterQuery = JSON.parse(
-            this.dataSource.paramsQuery.filter || '{}',
+            this.item.paramsQuery.filter || '{}',
           );
+          if (currentActiveViewMode?.options?.branchIds) {
+            objFilterQuery.branchIds = currentActiveViewMode?.options.branchIds;
+            this.selectedUnits = this.autoTaskService.findUnitsByIds(
+              currentActiveViewMode?.options.branchIds || [],
+            );
+          }
           // loop configFilters and update by value of object options in currentActiveViewMode
           this.configFilters.forEach((configFilter) => {
             if (
               configFilter.type === ETypeFilter.SELECT ||
+              configFilter.type === ETypeFilter.POPOVER ||
               configFilter.type === ETypeFilter.DATE
             ) {
-              configFilter.value =
-                currentActiveViewMode?.options[configFilter.name!];
               if (configFilter.name === 'sort') {
-                this.dataSource.paramsQuery.sort = currentActiveViewMode
-                  ?.options[configFilter.name!] as string;
+                configFilter.value =
+                  currentActiveViewMode?.options[configFilter.name!] ||
+                  '-createdAt';
+                this.item.paramsQuery.sort =
+                  currentActiveViewMode?.options[configFilter.name!] ||
+                  ('-createdAt' as string);
               } else {
+                configFilter.value =
+                  currentActiveViewMode?.options[configFilter.name!];
                 objFilterQuery[configFilter.name!] = configFilter.value;
               }
             }
           });
+
+          this.configButtons.forEach((configButton) => {
+            if (configButton.type === ETypeButton.TOGGLE) {
+              configButton.value =
+                currentActiveViewMode?.options[configButton.name!];
+              objFilterQuery[configButton.name!] = configButton.value;
+            }
+          });
           // update dataSource.paramsQuery.filter by objFilterQuery
-          this.dataSource.paramsQuery.filter = JSON.stringify(objFilterQuery);
-          this.getDataSource();
+          this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
+          this.getDataSource(true);
         });
     } catch (e) {
       console.log(e);
@@ -479,49 +221,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       ...this.currentActiveViewMode,
       hasChanged: hasChanged,
       options: {
-        ...JSON.parse(this.dataSource.paramsQuery.filter || '{}'),
-        sort: this.dataSource.paramsQuery.sort,
+        ...JSON.parse(this.item.paramsQuery.filter || '{}'),
+        sort: this.item.paramsQuery.sort,
       },
     };
     this.autoTaskService.setCurrentActiveViewMode(changedTab);
   }
 
-  handleSearchActChain(event: any) {}
-
-  runTimer() {
-    return cloneDeep(this.dataSource.rows);
-  }
-
-  calculateTimeLeft(date: Date, taskChain: ITaskChain) {
-    let data = {
-      timeLeft: '',
-      typeOverDeadline: 'notOver',
-    };
-    const subDate = calculateTime(date, new Date(), 'metrics') as {
-      days?: number;
-      hours?: number;
-      minutes?: number;
-    };
-    const isCloseTask = taskChain?.status === ETaskChainType.CLOSED;
-    if (subDate.days === 0 && subDate.hours === 0 && subDate.minutes === 0) {
-      data.typeOverDeadline = 'now';
-    } else if (moment().isAfter(date)) {
-      data.typeOverDeadline = 'over';
-
-      data.timeLeft = calculateTime(
-        isCloseTask ? taskChain.updatedAt : new Date(),
-        date,
-      ) as string;
-    }
-    if (data.typeOverDeadline !== 'over') {
-      data.timeLeft = calculateTime(
-        date,
-        isCloseTask ? taskChain.updatedAt : new Date(),
-      ) as string;
-    }
-
-    return data;
-  }
   changeSort(type: string) {
     if (this.sort[type] == 0) {
       this.sort[type] = 1;
@@ -532,206 +238,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     this.getDataSource();
   }
-  getDataSource(isReset?: boolean) {
-    let params = {...this.dataSource.paramsQuery};
-    if (isReset) {
-      params.page = 1;
-    }
-    Object.keys(this.sort).forEach((key) => {
-      if (this.sort[key] !== 0) {
-        let sortAll = params.sort?.split(',') || [];
-        sortAll.push(this.sort[key] === 1 ? `${key}` : `-${key}`);
-        params.sort = sortAll.join(',');
-      }
-    });
-    this.dataSource.loading = true;
-    this.autoTaskService.task
-      .get(params)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.dataSource.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.dataSource.rows = res.data;
-            this.dataSource.total = res.total;
-          }
-        },
-      });
-  }
-
-  getActionChain() {
-    this.actionChains.loading = true;
-    this.autoTaskService.chainAction
-      .get(this.actionChains.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.actionChains.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.actionChains.rows = uniqBy(
-              this.actionChains.rows.concat(res.data),
-              'id',
-            );
-            this.configFilters[2].options = [
-              ...(this.configFilters[2].options || []),
-              ...this.actionChains.rows,
-            ];
-            this.actionChains.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.actionChains.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.actionChains.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getResult() {
-    this.results.loading = true;
-    this.autoTaskService.actionResult
-      .get(this.results.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.results.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.results.rows = uniqBy(
-              this.results.rows.concat(res.data),
-              'id',
-            );
-            this.configFilters[5].options = this.results.rows;
-            this.results.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.results.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.results.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getAction() {
-    this.actions.loading = true;
-    this.autoTaskService.action
-      .get(this.actions.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.actions.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.actions.rows = uniqBy(
-              this.actions.rows.concat(res.data),
-              'id',
-            );
-            this.configFilters[3].options = this.actions.rows;
-            this.actions.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.actions.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.actions.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-  getSource() {
-    this.sources.loading = true;
-    this.autoTaskService.source
-      .get(this.sources.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.sources.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.sources.rows = uniqBy(
-              this.sources.rows.concat(res.data),
-              'id',
-            );
-            this.configFilters[10].options = this.sources.rows;
-            this.sources.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.sources.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.sources.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-  getTag() {
-    this.tags.loading = true;
-    this.autoTaskService.tag
-      .get(this.tags.paramsQuery)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.tags.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.tags.rows = uniqBy(this.tags.rows.concat(res.data), 'id');
-            this.configFilters[4].options = this.tags.rows;
-            this.tags.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.tags.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.tags.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
 
   handleClearQueryParams() {
     this.router.navigate([], {
       queryParams: {
         id: null,
+        code: null,
       },
       queryParamsHandling: 'merge',
     });
   }
 
-  handleUpdate(value?: any, taskId?: string) {
+  handleUpdate(value?: any, taskId?: string, code?: string) {
     if (value) {
       this.handleClearQueryParams();
+      if (!this.permission.edit) {
+        return;
+      }
     }
     try {
       const modalUpdate = this.modalService.show(ModalUpdateTaskComponent, {
         initialState: {
           sourceData: value,
           taskId,
+          code,
         },
         class: 'modal-xl',
         ignoreBackdropClick: true,
@@ -750,7 +280,44 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleAction(name: string) {
+  handleCopy(task: ITask) {
+    const modalClone = this.modalService.show(ModalCloneComponent, {
+      initialState: {
+        task: task,
+      },
+      ignoreBackdropClick: true,
+      keyboard: false,
+    });
+    modalClone.content?.submitEvent.subscribe((res) => {
+      if (res) {
+        modalClone.hide();
+        this.cloneTask(task.id, res);
+      }
+    });
+  }
+
+  cloneTask(id: string, options: string[]) {
+    this.autoTaskService.task
+      .clone(id, {
+        options: options,
+      })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.item.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toastrService.success('Sao chép tác vụ thành công');
+            this.getDataSource();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
+  }
+
+  override handleAction(name: string) {
     if (name === 'reload') {
       this.getDataSource(true);
     }
@@ -759,50 +326,47 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  pageChanged(dataPage: {page: number; limit: number}): void {
+  handleToggleAction(data: {name?: string; value: boolean}) {
+    const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
+    obj[data.name!] = data.value;
+    this.item.paramsQuery.filter = JSON.stringify(obj);
+    const configButton = this.configButtons.find((cf) => cf.name === data.name);
+    configButton!.value = data.value;
+
+    if (!isEqual(obj, this.currentActiveViewMode?.options)) {
+      this.handleViewModeChange(true);
+      return;
+    }
+  }
+
+  override pageChanged(dataPage: {page: number; limit: number}): void {
     const {page, limit} = dataPage;
     if (page) {
-      this.dataSource.paramsQuery = {
-        ...this.dataSource.paramsQuery,
+      this.item.paramsQuery = {
+        ...this.item.paramsQuery,
         page: page,
       };
     }
     if (limit) {
-      this.dataSource.paramsQuery = {
-        ...this.dataSource.paramsQuery,
+      this.item.paramsQuery = {
+        ...this.item.paramsQuery,
+        page: page,
         limit: Number(limit),
       };
     }
     this.getDataSource();
   }
-  handleViewCreatedOrder(item: ITask) {
-    let url = `${environment.urlDomain}/${this.currentBiz}/sale-center/?sourceId=${item.id}`;
+
+  handleViewCreatedOrder(order: Pick<Order, 'id' | 'code'>) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/sale-center/?code=${order.code}`;
     window.open(url, '_blank');
   }
+
   handleViewCustomer(item: ITask) {
-    let url = `${environment.urlDomain}/${this.currentBiz}/customers/${item.leadDeal?.id}`;
+    let url = `${environment.urlDomain}/${this.bizAlias}/customers/${item.leadDeal?.id}`;
     window.open(url, '_blank');
   }
-  onRemoveAssignCounselor(value: any) {
-    const payload = {
-      taskIds: this.taskChecked,
-      counselorId: null,
-    };
-    this.autoTaskService.task
-      .bulkUpdate(payload)
-      .pipe()
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.toastrService.success('Bỏ gán nhân viên phụ trách thành công');
-            this.getDataSource();
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => this.commonService.handleErr(err),
-      });
-  }
+
   startResizing(event: MouseEvent) {
     const header = event.currentTarget as HTMLElement;
     this.startX = event.pageX;
@@ -827,10 +391,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     document.removeEventListener('mousemove', this.handleMouseMove);
     document.removeEventListener('mouseup', this.handleMouseUp);
   };
+
   showModalOrderableTable() {
     const modalRef = this.modalService.show(OrderableTableComponent, {
       initialState: {
-        typeColumn: 'columnDashboard',
+        typeColumn: 'columnDashboardAutoTask',
       },
       class: 'modal-opacity-4 modal-lg modal-dialog-centered modal-default',
     });
@@ -841,6 +406,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.dataColumnsShow = [...sequenceColumns];
       });
   }
+
   onDelete(value: any) {
     this.autoTaskService.task
       .delete(value.id)
@@ -859,8 +425,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   handleDeleteAction(value: any) {
-    const title = 'Xóa hành động';
-    const description = `Bạn sắp xóa hành động <b>${
+    const title = 'Xóa Tác Vụ';
+    const description = `Bạn sắp xóa Tác Vụ <b>${
       value.name || ''
     }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
@@ -872,44 +438,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
       type: 'warning',
       modalType: 'advance',
       context: value,
+      errorState:
+        'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
+        '        của bản ghi cũng sẽ bị ảnh hưởng.',
     };
 
-    this.modalConfirmService.openModal(modalContent, 'delete');
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDelete(value);
+    });
   }
 
-  onSearch(value: {term: string; name: string}) {
-    const {term} = value;
-    this.dataSource.paramsQuery.q = term;
-    this.getDataSource(true);
+  onPopoverFilter(data: {value?: string | string[]; name: string}) {
+    if (data.value) {
+      this.item.paramsQuery.sort = data.value;
+    } else {
+      delete this.item.paramsQuery.sort;
+    }
+    const configFilterPopover = this.configFilters.find(
+      (filter) => filter.name === 'sort',
+    );
+    if (configFilterPopover) {
+      configFilterPopover.value = data.value;
+    }
+    if (data.value !== this.currentActiveViewMode?.options?.sort) {
+      this.handleViewModeChange(true);
+    }
   }
 
-  onSelectFilter(data: {value?: string | string[]; name: string}) {
+  override onSelectFilter(data: {value?: string | string[]; name: string}) {
     try {
       const {value, name} = data;
       if (name !== 'sort') {
-        const filter = this.dataSource.paramsQuery?.filter || '{}';
+        const filter = this.item.paramsQuery?.filter || '{}';
         let obj = JSON.parse(filter);
         if (Array.isArray(value) && value.length > 0) {
           obj[name] = value;
-          if (name === 'chainActIds') {
-            const selectedChains = this.actionChains.rows.filter((chain) =>
-              value.includes(chain.id),
-            );
-            const actions = selectedChains?.reduce((acc: any[], chain) => {
-              return uniqBy(
-                [
-                  ...acc,
-                  ...chain?.actionResults?.map((chainActResult) => {
-                    return chainActResult.action;
-                  }),
-                ],
-                'id',
-              );
-            }, []);
-            this.configFilters[3].options = actions?.filter(
-              (actions) => !!actions,
-            );
-          }
         } else if (
           typeof value === 'string' &&
           (!!value || Number(value) === 0)
@@ -918,19 +481,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
         } else {
           delete obj[name];
           if (name === 'chainActIds') {
-            this.configFilters[3].options = this.actions.rows;
+            const configFilterAction = this.configFilters.find(
+              (filter) => filter.name === 'actionIds',
+            );
+            if (configFilterAction) {
+              configFilterAction.options = this.actions.rows;
+            }
           }
         }
-        this.dataSource.paramsQuery.filter = JSON.stringify(obj);
+        this.item.paramsQuery.filter = JSON.stringify(obj);
         if (!isEqual(obj, this.currentActiveViewMode?.options)) {
           this.handleViewModeChange(true);
           return;
         }
       } else {
         if (value) {
-          this.dataSource.paramsQuery.sort = value;
+          this.item.paramsQuery.sort = value;
         } else {
-          delete this.dataSource.paramsQuery.sort;
+          delete this.item.paramsQuery.sort;
         }
         if (value !== this.currentActiveViewMode?.options?.sort) {
           this.handleViewModeChange(true);
@@ -941,10 +509,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       console.log(e);
     }
   }
+
   onPickerDateFilter(data: {value?: IDateRange | Date; name: string}) {
     try {
       const {value, name} = data;
-      const filter = this.dataSource.paramsQuery?.filter || '{}';
+      const filter = this.item.paramsQuery?.filter || '{}';
       let obj = JSON.parse(filter);
       const hValue = value as IDateRange;
       if (name === name) {
@@ -957,7 +526,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           delete obj[name];
         }
 
-        this.dataSource.paramsQuery.filter = JSON.stringify(obj);
+        this.item.paramsQuery.filter = JSON.stringify(obj);
         if (
           !isEqual(obj?.[name], this.currentActiveViewMode?.options?.[name])
         ) {
@@ -993,8 +562,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
+  handleChangeUnits(event: any) {
+    const ids: string[] = [];
+    this.selectedUnits.forEach((unit) => {
+      ids.push(unit?.team || unit?.department || unit?.id || '');
+    });
+    this.onSelectFilter({
+      name: ESpecialQueryTaskKey.BRANCH_IDS,
+      value: ids.filter((id) => !!id),
+    });
   }
 }

@@ -1,0 +1,538 @@
+<ng-container *ngIf="sourceData">
+  <div class="modal-employee-info">
+    <app-custom-modal
+      [isSubmitting]="loading.submit"
+      (submitModal)="onSubmit()"
+    >
+      <ng-container modalTitle>
+        Chỉnh sửa quyền của nhân viên ({{ sourceData.role }})
+      </ng-container>
+      <ng-container modalBody>
+        <form [formGroup]="updateForm">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="headline">Thông tin nhân viên</span>
+            <div class="d-flex align-items-center gap-2">
+              <label
+                class="form-check-label form-control-label mb-0"
+                for="isActive"
+              >
+                Trạng thái kích hoạt
+              </label>
+              <div class="form-check form-switch">
+                <input
+                  formControlName="isActive"
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="isActive"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-6">
+              <label class="form-control-label" for="name">Tên nhân viên</label>
+              <input
+                [readonly]="true"
+                class="form-control input-disabled"
+                [ngClass]="{'is-invalid': submitted && f['name'].errors}"
+                [placeholder]="'Tên nhân viên...'"
+                formControlName="name"
+                id="name"
+                type="text"
+              />
+            </div>
+            <div class="col-6">
+              <label class="form-control-label" for="email">Email</label>
+              <input
+                [readonly]="true"
+                class="form-control input-disabled"
+                [ngClass]="{'is-invalid': submitted && f['email'].errors}"
+                [placeholder]="'Email...'"
+                formControlName="email"
+                id="email"
+                type="text"
+              />
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-6">
+              <label class="form-control-label" for="groups">
+                Vùng chức năng
+                <i
+                  (click)="viewSetting('groups')"
+                  class="fa-solid fa-link ms-1"
+                ></i>
+              </label>
+              <ng-select
+                [disabled]="true"
+                [clearable]="false"
+                [placeholder]="'Vùng chức năng...'"
+                [searchable]="false"
+                [multiple]="true"
+                [items]="sourceData?.groups || []"
+                [isOpen]="false"
+                class="custom-input-multiple-round custom-input-multiple disabled input-disabled"
+                formControlName="groups"
+                [compareWith]="compareFunction"
+                id="groups"
+                appendTo=".modal-employee-info"
+                bindLabel="name"
+                bindValue="id"
+              ></ng-select>
+            </div>
+            <div class="col-6">
+              <label class="form-control-label" for="roles">
+                Vai trò
+                <i
+                  (click)="viewSetting('roles')"
+                  class="fa-solid fa-link ms-1"
+                ></i>
+              </label>
+              <ng-select
+                [disabled]="true"
+                [clearable]="false"
+                [placeholder]="'Vai trò...'"
+                [searchable]="false"
+                [multiple]="true"
+                [items]="sourceData?.roles || []"
+                [isOpen]="false"
+                class="custom-input-multiple-round custom-input-multiple disabled input-disabled"
+                formControlName="roles"
+                [compareWith]="compareFunction"
+                id="roles"
+                appendTo=".modal-employee-info"
+                bindLabel="name"
+                bindValue="id"
+              ></ng-select>
+            </div>
+          </div>
+          @if (sourceData.role === ERole.OWNER) {
+            <label class="form-control-label">Chi nhánh</label>
+            <ng-select
+              [multiple]="true"
+              [clearable]="false"
+              [readonly]="true"
+              [items]="f['branches'].value || []"
+              bindLabel="name"
+              bindValue="id"
+              placeholder="Chi nhánh"
+              formControlName="branchIds"
+              class="custom-input-multiple-round custom-input-multiple disabled input-disabled"
+            ></ng-select>
+          } @else {
+            <div class="mb-2 mt-3">
+              <span class="headline">Phân quyền</span>
+            </div>
+            <div class="decentralization">
+              <div class="table-responsive tableFixHead custom-scrollbar">
+                <table
+                  class="table table-none-border table-medium-head table-light table-branch"
+                >
+                  <thead>
+                    <tr>
+                      <th class="form-control-label columns-branch">
+                        Chi nhánh
+                      </th>
+                      <th class="form-control-label columns-department">
+                        Phòng ban
+                      </th>
+                      <th class="form-control-label columns-team">Đội nhóm</th>
+                      <th class="form-control-label columns-role">
+                        Phân quyền
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (
+                      control of $any(updateForm.get('branches')?.value);
+                      track index;
+                      let index = $index
+                    ) {
+                      <tr>
+                        <td>
+                          <ng-template
+                            *ngTemplateOutlet="
+                              tdBranch;
+                              context: {control, index}
+                            "
+                          ></ng-template>
+                        </td>
+                        <td>
+                          @if (control.role !== 'OWNER') {
+                            @for (
+                              controlDepartment of control.departments;
+                              track deIndex;
+                              let deIndex = $index
+                            ) {
+                              @if (controlDepartment.teams.length) {
+                                @for (
+                                  controlTeam of controlDepartment.teams;
+                                  track teIndex;
+                                  let teIndex = $index
+                                ) {
+                                  <ng-container>
+                                    @if (teIndex === 0) {
+                                      <ng-template
+                                        *ngTemplateOutlet="
+                                          tdBranchDepartment;
+                                          context: {
+                                            control,
+                                            controlDepartment,
+                                            index,
+                                            deIndex,
+                                            teIndex
+                                          }
+                                        "
+                                      ></ng-template>
+                                    }
+
+                                    @if (controlDepartment.role !== 'OWNER') {
+                                      @if (
+                                        teIndex > 0 &&
+                                        control.departments[deIndex + 1]
+                                      ) {
+                                        <div
+                                          class="td department frame"
+                                          [ngClass]="{
+                                            'end-frame':
+                                              teIndex ===
+                                              controlDepartment.teams.length -
+                                                1,
+                                            end:
+                                              teIndex ===
+                                              controlDepartment.teams.length - 1
+                                          }"
+                                        ></div>
+                                      }
+                                    }
+                                  </ng-container>
+                                }
+                              } @else {
+                                <ng-template
+                                  *ngTemplateOutlet="
+                                    tdBranchDepartment;
+                                    context: {
+                                      control,
+                                      controlDepartment,
+                                      index,
+                                      deIndex,
+                                      teIndex: deIndex
+                                    }
+                                  "
+                                ></ng-template>
+                              }
+                            }
+                          } @else {
+                            <ng-container
+                              [ngTemplateOutlet]="tempBranchOwner"
+                            ></ng-container>
+                          }
+                        </td>
+                        <td>
+                          @if (control.role !== 'OWNER') {
+                            @for (
+                              controlDepartment of control.departments;
+                              track deIndex;
+                              let deIndex = $index
+                            ) {
+                              @if (controlDepartment.role !== 'OWNER') {
+                                @for (
+                                  controlTeam of controlDepartment.teams;
+                                  track teIndex;
+                                  let teIndex = $index
+                                ) {
+                                  <div
+                                    class="td department"
+                                    [ngClass]="{
+                                      frame: !controlTeam.id,
+                                      start: teIndex === 0,
+                                      continue:
+                                        teIndex <
+                                          controlDepartment.teams.length - 1 &&
+                                        teIndex !== 0,
+                                      end:
+                                        teIndex ===
+                                        controlDepartment.teams.length - 1
+                                    }"
+                                  >
+                                    @if (controlTeam.id) {
+                                      <div class="dot"></div>
+                                      <div class="d-flex align-items-center">
+                                        @if (controlTeam.role === 'OWNER') {
+                                          <div
+                                            class="role me-1"
+                                            tooltip="Quản trị đội nhóm"
+                                          >
+                                            <i
+                                              class="fa-solid fa-user-shield text-primary"
+                                            ></i>
+                                          </div>
+                                        }
+
+                                        <div
+                                          class="w-100"
+                                          style="max-width: 350px"
+                                        >
+                                          <input
+                                            [readonly]="true"
+                                            class="form-control input-disabled"
+                                            [placeholder]="'Đội nhóm...'"
+                                            [value]="controlTeam.name || ''"
+                                            type="text"
+                                          />
+                                        </div>
+                                      </div>
+                                    }
+                                  </div>
+                                } @empty {
+                                  <ng-container
+                                    [ngTemplateOutlet]="tempNon"
+                                  ></ng-container>
+                                }
+                              } @else {
+                                <ng-container
+                                  [ngTemplateOutlet]="tempBranchOwner"
+                                ></ng-container>
+                              }
+                            } @empty {
+                              <ng-container
+                                [ngTemplateOutlet]="tempNon"
+                              ></ng-container>
+                            }
+                          } @else {
+                            <ng-container
+                              [ngTemplateOutlet]="tempBranchOwner"
+                            ></ng-container>
+                          }
+                        </td>
+                        <td>
+                          @if (control.role !== 'OWNER') {
+                            @for (
+                              controlDepartment of control.departments;
+                              track deIndex;
+                              let deIndex = $index
+                            ) {
+                              @if (controlDepartment.role !== 'OWNER') {
+                                @for (
+                                  controlTeam of controlDepartment.teams;
+                                  track teIndex;
+                                  let teIndex = $index
+                                ) {
+                                  <ng-template
+                                    *ngTemplateOutlet="
+                                      tdPermission;
+                                      context: {
+                                        control: controlTeam?.id
+                                          ? controlTeam
+                                          : controlDepartment,
+                                        start: teIndex === 0,
+                                        continue:
+                                          teIndex <
+                                            controlDepartment.teams.length -
+                                              1 && teIndex !== 0,
+                                        end:
+                                          teIndex ===
+                                          controlDepartment.teams.length - 1,
+                                        branch: control,
+                                        department: controlDepartment,
+                                        team: controlTeam,
+                                        value: controlTeam?.permission
+                                      }
+                                    "
+                                  ></ng-template>
+                                }
+                              }
+                              @if (
+                                controlDepartment.role === 'OWNER' ||
+                                !controlDepartment.teams.length
+                              ) {
+                                <ng-template
+                                  *ngTemplateOutlet="
+                                    tdPermission;
+                                    context: {
+                                      control: controlDepartment,
+                                      start: true,
+                                      continue: false,
+                                      end: true,
+                                      branch: control,
+                                      department: controlDepartment,
+                                      team: undefined,
+                                      value: controlDepartment?.permission
+                                    }
+                                  "
+                                ></ng-template>
+                              }
+                            }
+                          }
+                          @if (
+                            !control.departments?.length ||
+                            control.role === 'OWNER'
+                          ) {
+                            <ng-template
+                              *ngTemplateOutlet="
+                                tdPermission;
+                                context: {
+                                  control,
+                                  start: true,
+                                  continue: false,
+                                  end: true,
+                                  branch: control,
+                                  department: undefined,
+                                  team: undefined,
+                                  value: control?.permission
+                                }
+                              "
+                            ></ng-template>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </form>
+      </ng-container>
+    </app-custom-modal>
+  </div>
+</ng-container>
+
+<ng-template
+  #selectPermission
+  let-id="id"
+  let-branch="branch"
+  let-department="department"
+  let-team="team"
+  let-value="value"
+>
+  <ng-select
+    [ngModel]="value"
+    [loading]="permissions.loading"
+    [placeholder]="'Chọn Quyền'"
+    [searchable]="false"
+    [items]="permissions.rows"
+    class="dropdown-auto-width"
+    id="{{ id }}"
+    [notFoundText]="'Không có dữ liệu'"
+    (change)="handleChangePermission($event, team, department, branch)"
+    bindLabel="name"
+    bindValue="id"
+    appendTo=".modal-employee-info"
+  ></ng-select>
+</ng-template>
+
+<ng-template #tdBranch let-control="control" let-index="index">
+  <div class="td d-flex align-items-center">
+    <div
+      *ngIf="control.role === 'OWNER'"
+      class="role me-1"
+      tooltip="Quản lý chi nhánh"
+    >
+      <i class="fa-solid fa-user-shield text-primary"></i>
+    </div>
+    <div class="w-100" style="max-width: 350px">
+      <input
+        [readonly]="true"
+        class="form-control input-disabled"
+        [placeholder]="'Email...'"
+        [value]="control.name || control.id || ''"
+        type="text"
+      />
+    </div>
+  </div>
+</ng-template>
+
+<ng-template
+  #tdBranchDepartment
+  let-control="control"
+  let-controlDepartment="controlDepartment"
+  let-index="index"
+  let-deIndex="deIndex"
+  let-teIndex="teIndex"
+>
+  <div
+    class="td department"
+    [ngClass]="{
+      line: control.departments[deIndex - 1],
+      start: teIndex === 0,
+      continue: teIndex < controlDepartment.teams.length - 1 && teIndex !== 0,
+      end: teIndex === control.departments.length - 1
+    }"
+  >
+    <div class="dot"></div>
+    <div class="d-flex align-items-center">
+      <div
+        *ngIf="controlDepartment.role === 'OWNER'"
+        class="role me-1"
+        tooltip="Quản trị phòng ban"
+      >
+        <i class="fa-solid fa-user-shield text-primary"></i>
+      </div>
+      <div class="w-100" style="max-width: 350px">
+        <input
+          [readonly]="true"
+          class="form-control input-disabled"
+          [placeholder]="'Email...'"
+          [value]="controlDepartment.name || controlDepartment.id || ''"
+          type="text"
+        />
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template
+  #tdPermission
+  let-control="control"
+  let-index="index"
+  let-start="start"
+  let-continue="continue"
+  let-end="end"
+  let-branch="branch"
+  let-department="department"
+  let-team="team"
+  let-value="value"
+>
+  <div
+    class="td department"
+    [ngClass]="{
+      start: start,
+      continue: continue,
+      end: end
+    }"
+  >
+    <div class="dot"></div>
+    <ng-select
+      [ngModel]="value"
+      [loading]="permissions.loading"
+      [placeholder]="'Chọn Quyền'"
+      [searchable]="false"
+      [items]="permissions.rows"
+      class="dropdown-auto-width"
+      [notFoundText]="'Không có dữ liệu'"
+      (change)="handleChangePermission($event, team, department, branch)"
+      bindLabel="name"
+      bindValue="id"
+      appendTo=".modal-employee-info"
+    ></ng-select>
+  </div>
+</ng-template>
+
+<ng-template #tempBranchOwner>
+  <div
+    class="td department start end text-secondary"
+    style="padding-top: 13px; height: 43px"
+  >
+    <div class="dot"></div>
+    Quản trị
+  </div>
+</ng-template>
+
+<ng-template #tempNon>
+  <div
+    class="td department start end text-secondary"
+    style="padding-top: 13px; height: 43px"
+  ></div>
+</ng-template>

@@ -5,6 +5,11 @@ import {MainComponent} from './main.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HeaderModule} from '@share/layout/header/header.module';
 import {SidebarModule} from '@share/layout/sidebar/sidebar.module';
+import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {PhoneCallPopUpComponent} from '@share/common/phone-call-pop-up/phone-call-pop-up.component';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {ConnectPhoneComponent} from '@share/common/connect-phone/connect-phone.component';
 // component
 
 @NgModule({
@@ -16,6 +21,11 @@ import {SidebarModule} from '@share/layout/sidebar/sidebar.module';
     FormsModule,
     HeaderModule,
     SidebarModule,
+    ModalConfirmComponent,
+    PhoneCallPopUpComponent,
+    TooltipModule,
+    BsDropdownModule,
+    ConnectPhoneComponent,
   ],
 })
 export class MainModule {}

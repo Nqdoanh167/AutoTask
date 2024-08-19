@@ -2,24 +2,39 @@
   <div class="card">
     <div class="card-body">
       <div class="list-data">
-        <app-filter-top-table [configFilters]="configFilters" [configButtons]="configButtons"
-          (clickButtonEvent)="handleAction($event)" (searchEvent)="onSearch($event)"></app-filter-top-table>
+        <app-filter-top-table
+          [configFilters]="configFilters"
+          [configButtons]="configButtons"
+          (clickButtonEvent)="handleAction($event)"
+          (searchEvent)="onSearch($event)"
+        ></app-filter-top-table>
         <div class="table-responsive tableFixHead custom-scrollbar">
           <table class="table">
             <thead>
               <tr>
                 <th class="column-index">#</th>
-                <th class="column-source">Nguồn</th>
-                <th class="column-action text-center">Thao tác</th>
+                <th class="column-source">Tag</th>
+                @if (this.permission.edit || this.permission.delete) {
+                  <th class="column-action text-center">Thao tác</th>
+                }
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td colspan="3" *ngIf="isAdd.tag" class="form-add-tag pb-2 pt-2">
-                  <ng-container *ngTemplateOutlet="formAddEditTag"></ng-container>
+                <td
+                  colspan="3"
+                  *ngIf="isAdd.tag"
+                  class="form-add-tag pb-2 pt-2"
+                >
+                  <ng-container
+                    *ngTemplateOutlet="formAddEditTag"
+                  ></ng-container>
                 </td>
               </tr>
-              <tr class="text-center" *ngIf="!tags.rows.length && !loading.data && !isAdd.tag">
+              <tr
+                class="text-center"
+                *ngIf="!tags.rows.length && !loading.data && !isAdd.tag"
+              >
                 <td colspan="3">
                   <div>Không có dữ liệu</div>
                 </td>
@@ -38,26 +53,45 @@
                   <td class="column-index">{{ i + 1 }}</td>
                   <td>
                     <div>
-                      <span class="text-capitalize me-2 tag-item" [ngClass]="{nonBack: !tag.bgColor}"
-                        [ngStyle]="{background: tag.bgColor}">
+                      <span
+                        class="text-capitalize me-2 tag-item"
+                        [ngClass]="{nonBack: !tag.bgColor}"
+                        [ngStyle]="{background: tag.bgColor}"
+                      >
                         <span>{{ tag.name }}</span>
                       </span>
                     </div>
                   </td>
-                  <td class="columns-action">
-                    <div class="d-flex justify-content-center">
-                      <button class="btn p-1 me-1" type="button" (click)="addEdit(tag, i)">
-                        <img src="./assets/images/icon/edit.svg" alt="" />
-                      </button>
-                      <button (click)="onDeleteItem(tag)" class="btn button-delete p-1" type="button">
-                        <img src="./assets/images/icon/remove.svg" alt="" />
-                      </button>
-                    </div>
-                  </td>
+                  @if (this.permission.edit || this.permission.delete) {
+                    <td class="columns-action">
+                      <div class="d-flex justify-content-center">
+                        @if (this.permission.edit) {
+                          <button
+                            class="btn p-1 me-1"
+                            type="button"
+                            (click)="addEdit(tag, i)"
+                          >
+                            <img src="./assets/images/icon/edit.svg" alt="" />
+                          </button>
+                        }
+                        @if (this.permission.delete) {
+                          <button
+                            (click)="onDeleteItem(tag)"
+                            class="btn button-delete p-1"
+                            type="button"
+                          >
+                            <img src="./assets/images/icon/remove.svg" alt="" />
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  }
                 </ng-container>
                 <ng-template #otherEdit>
                   <td colspan="3" class="form-add-tag pb-2 pt-2">
-                    <ng-container *ngTemplateOutlet="formAddEditTag"></ng-container>
+                    <ng-container
+                      *ngTemplateOutlet="formAddEditTag"
+                    ></ng-container>
                   </td>
                 </ng-template>
               </tr>
@@ -68,25 +102,36 @@
     </div>
   </div>
 </div>
-<modal-confirm [key]="'delete'" (confirmEvent)="onDelete($event)">
-  <div class="state-warning d-flex gap-2" childContent>
-    <div><i class="fa-regular fa-circle-question"></i></div>
-    <div>
-      Bạn chắc chắn xóa tag này?
-    </div>
-  </div>
-</modal-confirm>
 <ng-template #formAddEditTag>
   <form [formGroup]="addEditForm.tag">
     <div class="d-flex justify-content-between align-items-center gap-2">
-      <input id="name" formControlName="name" class="input-name form-control" type="text" placeholder="Nhập tên" />
-      <input class="input-color" id="bgColor" type="color" formControlName="bgColor" />
+      <input
+        id="name"
+        formControlName="name"
+        class="input-name form-control"
+        type="text"
+        placeholder="Nhập tên"
+      />
+      <input
+        class="input-color"
+        id="bgColor"
+        type="color"
+        formControlName="bgColor"
+      />
       <div>
-        <button class="btn btn-default ms-1 button-cancel" type="button" (click)="cancelAddEdit()">
+        <button
+          class="btn btn-default ms-1 button-cancel"
+          type="button"
+          (click)="cancelAddEdit()"
+        >
           Huỷ
         </button>
-        <button (click)="onSubmit()" [disabled]="addEditForm.tag.invalid" class="btn btn-primary ms-1 button-save"
-          type="button">
+        <button
+          (click)="onSubmit()"
+          [disabled]="addEditForm.tag.invalid"
+          class="btn btn-primary ms-1 button-save"
+          type="button"
+        >
           Lưu
         </button>
       </div>

@@ -2,25 +2,25 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {
-  EntityResult,
-  Config,
-  SaleHistory,
+  AppointmentBooking,
   AppointmentRoom,
   AppointmentStatus,
-  AppointmentBooking,
-  Staff,
-  Status,
-  SaleReason,
   Biz,
-  Order,
+  Config,
+  EntityResult,
+  IRoleAct,
+  ISidebar,
+  SaleHistory,
+  SaleReason,
+  Staff,
   Tag,
   User,
-  IRoleAct,
 } from 'src/app/types/viewmodels';
 import {BehaviorSubject, distinctUntilChanged, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
-import {Router} from '@angular/router';
+import {ITask} from '@app/types/flow';
+
 declare const FB: any;
 
 @Injectable({
@@ -32,17 +32,16 @@ export class MainService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
 
+  private headerTabsSubject = new BehaviorSubject<ISidebar[]>([]);
+  public headerTab$ = this.headerTabsSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
   private currentConfigSubject = new BehaviorSubject<Config>(
     null as unknown as Config,
   );
-  private listTagSubject = new BehaviorSubject<Tag[]>(null as unknown as Tag[]);
-  private listStatusSubject = new BehaviorSubject<Status>(
-    null as unknown as Status,
-  );
+
   public currentConfig = this.currentConfigSubject
-    .asObservable()
-    .pipe(distinctUntilChanged());
-  public listTag = this.listTagSubject
     .asObservable()
     .pipe(distinctUntilChanged());
 
@@ -60,11 +59,11 @@ export class MainService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
 
-  destroy = new Subject();
-  biz!: Biz;
-  user!: User;
-  bizConfig!: Config;
-  api = {
+  private destroy = new Subject();
+  public biz!: Biz;
+  public user!: User;
+  public bizConfig!: Config;
+  public api = {
     tag: 'tags',
     shipper: 'shippers',
     config: 'config',
@@ -75,7 +74,9 @@ export class MainService extends BaseApiService implements OnDestroy {
     appointmentBooking: 'appointment-bookings',
     appointmentStatus: 'appointment-statuses',
   };
+
   private defaultParams: any = {};
+
   constructor(
     httpClient: HttpClient,
     private authService: AuthService,
@@ -108,12 +109,6 @@ export class MainService extends BaseApiService implements OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    // Called once, before the instance is destroyed.
-    // Add 'implements OnDestroy' to the class.
-    this.destroy.next(true);
-    this.destroy.complete();
-  }
   tag = {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<Tag[]>>(this.createUrl([this.api.tag]), {
@@ -138,6 +133,7 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.tag, id]),
       ),
   };
+
   config = {
     show: (params = {}) =>
       this.httpClient.get<EntityResult<Config>>(
@@ -176,6 +172,7 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.saleReason, id]),
       ),
   };
+
   saleHistory = {
     create: (body = {}) =>
       this.httpClient.post<EntityResult<SaleHistory>>(
@@ -200,6 +197,7 @@ export class MainService extends BaseApiService implements OnDestroy {
         },
       ),
   };
+
   appointmentStatus = {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<AppointmentStatus[]>>(
@@ -232,6 +230,7 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.appointmentStatus, id]),
       ),
   };
+
   appointmentRoom = {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<AppointmentRoom[]>>(
@@ -259,6 +258,7 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.appointmentRoom, id]),
       ),
   };
+
   appointmentBooking = {
     get: (params = {}) =>
       this.httpClient.get<EntityResult<AppointmentBooking[]>>(
@@ -331,6 +331,7 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.staff, id]),
       ),
   };
+
   copyText(text: string) {
     const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';
@@ -349,23 +350,21 @@ export class MainService extends BaseApiService implements OnDestroy {
   hasPermissionRole({
     type,
     role,
-    order,
+    task,
   }: {
     type: string;
     role: string;
-    order?: Order | null;
+    task?: ITask | null;
   }) {
-    // Nếu là người tạo biz | ADMIN | DEV => true
     if (
       this.biz?.user?.role === 'OWNER' ||
       ['ADMIN', 'DEV'].includes(this.user?.role)
     ) {
       return true;
     }
-    // Đơn có chi nhánh => Check quyền theo chi nhánh
-    if (type === 'order' && order?.['branch']) {
+    if (type === 'order' && task?.['branch']) {
       const branch = this.bizConfig?.staff?.branches.find(
-        (b: any) => b.id === order?.['branch'],
+        (b: any) => b.id === task?.['branch'],
       );
       if (branch?.role === 'LEADER') return true;
       return (
@@ -375,17 +374,17 @@ export class MainService extends BaseApiService implements OnDestroy {
         this.bizConfig.staff.roleAct[role]
       );
     }
-    // K có chi nhánh => check gom quyền
-    if (this.bizConfig.staff?.roleAct && this.bizConfig.staff.roleAct[role]) {
-      return true;
-    }
-    return false;
+    return !!(
+      this.bizConfig.staff?.roleAct && this.bizConfig.staff.roleAct[role]
+    );
   }
+
   isOwner() {
     return (
       this.biz?.user?.role === 'OWNER' || ['ADMIN'].includes(this.user?.role)
     );
   }
+
   isPerBranch(id: string | null, per?: string) {
     if (!id) {
       if (!per) return true;
@@ -408,6 +407,7 @@ export class MainService extends BaseApiService implements OnDestroy {
     if (this.isOwner()) return true;
     return this.isPerBranch(branch, per);
   }
+
   /**
    * Trả về toàn bộ chi nhánh theo User
    * @param pers : Danh sách quyền, Nếu có quyền cấp cao này sẽ trả về toàn bộ chi nhánh của Biz
@@ -447,22 +447,28 @@ export class MainService extends BaseApiService implements OnDestroy {
     return this.biz.users.filter((u: User) => checkboxUserIds.includes(u.id));
   }
 
-  setListStatus(statuses: Status[]) {
-    this.listStatusSubject.next(statuses);
-  }
-  setListTag(tags: Tag[]) {
-    this.listTagSubject.next(tags);
-  }
   setCurrentConfig(config: Config) {
     this.currentConfigSubject.next(config);
   }
-  setListAppointmentStatus(items: AppointmentStatus[]) {
-    this.listAppointmentStatusSubject.next(items);
-  }
-  setListAppointmentRoom(items: AppointmentRoom[]) {
-    this.listAppointmentRoomSubject.next(items);
-  }
+
   setHiddenSidebar(item: boolean) {
     this.isHiddenSidebarSubject.next(item);
+  }
+
+  setHeaderTabs(items: ISidebar[]) {
+    this.headerTabsSubject.next(items);
+  }
+
+  getHeaderTabs() {
+    return this.headerTabsSubject.value;
+  }
+
+  clearHeaderTabs() {
+    this.headerTabsSubject.next([]);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy.next(true);
+    this.destroy.complete();
   }
 }

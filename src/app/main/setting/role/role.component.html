@@ -1,0 +1,86 @@
+<div class="roles-site">
+  <div class="card" [formGroup]="settingForm">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="title fw-bold fs-5">Vai trò</div>
+        @if (this.permission.update) {
+          <div class="btn btn-primary" (click)="onsubmit()">Lưu</div>
+        } @else {
+          <div></div>
+        }
+      </div>
+      <div class="my-3 state-warning">
+        <div class="fw-500">Lưu ý</div>
+        <ul style="list-style: disc" class="ms-4">
+          <li>
+            Vai trò trong Tác vụ có thể khác với Vai trò trong Đơn hàng (module
+            Quản lý bán hàng)
+          </li>
+          <li>
+            Khi tạo Đơn hàng từ Tác vụ, những người đã được gán vai trò trên Tác
+            vụ sẽ được gán vào Đơn hàng, kể cả khi Đơn không có vai trò của
+            người đó.
+          </li>
+        </ul>
+      </div>
+      <div class="action-roles">
+        <label for="role">Vai trò trong Tác vụ</label>
+        <ng-select
+          id="role"
+          [items]="roles.rows"
+          bindLabel="name"
+          bindValue="id"
+          placeholder="Chọn vai trò"
+          [multiple]="true"
+          [closeOnSelect]="false"
+          [clearable]="true"
+          formControlName="roles"
+          class="dropdown-auto-width custom-input-multiple-round"
+        >
+          <ng-template ng-label-tmp let-item="item" let-clear="clear">
+            <span class="ng-value-icon" (click)="clear(item)">×</span>
+            <div class="ng-value-label">
+              <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+              <span class="ms-2">{{ item.name }}</span>
+            </div>
+          </ng-template>
+          <ng-template ng-option-tmp let-item="item">
+            <div class="ng-value-label">
+              <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+              <span class="ms-2">{{ item.name }}</span>
+            </div>
+          </ng-template>
+        </ng-select>
+      </div>
+
+      <div class="action-roles-assign mt-4">
+        <label for="role-auto">
+          Tự động gán người tạo Tác vụ vào vai trò
+          <i
+            class="fa-solid fa-question-circle me-1"
+            tooltipHtml="Khi Tác vụ được tạo thì hệ thông sẽ tự gán người đang tạo đơn vào vai trò bạn chọn trong này"
+          ></i>
+        </label>
+        <ng-select
+          id="role-auto"
+          [items]="roles.rows"
+          bindLabel="name"
+          bindValue="id"
+          placeholder="Chọn vai trò"
+          [multiple]="false"
+          [closeOnSelect]="false"
+          [clearable]="true"
+          formControlName="assignRole"
+          class="dropdown-auto-width custom-input-single-round"
+        >
+          <ng-template ng-option-tmp ng-label-tmp let-item="item">
+            <div class="ng-value-label">
+              <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+              <span class="ms-2">{{ item.name }}</span>
+            </div>
+          </ng-template>
+        </ng-select>
+      </div>
+    </div>
+  </div>
+</div>

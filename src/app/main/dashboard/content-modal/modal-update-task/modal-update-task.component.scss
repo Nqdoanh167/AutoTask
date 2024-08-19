@@ -16,14 +16,16 @@
   }
 }
 .content-tab {
-  max-height: 630px;
+  max-height: 70vh;
+  min-height: 50vh;
 }
 
 .avatar {
-  width: 30px;
-  height: 30px;
-  object-fit: cover;
-  border-radius: 50%;
+  @include mixins.imageCircle(30px);
+}
+
+.source-picture {
+  @include mixins.imageCircle(20px);
 }
 
 .button-header {
@@ -32,4 +34,35 @@
   right: 0;
   padding-bottom: 3px;
   border-bottom: 1px solid #dcdcdc;
+}
+.button-role {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+.dropdown-menu {
+  max-height: 40vh;
+  overflow: auto;
+  .item-user-dropdown {
+    &.disabled {
+      cursor: not-allowed;
+      color: #dcdcdc;
+    }
+    &:hover {
+      color: var(--bs-secondary);
+      border-radius: 6px;
+      background-color: #4277ff1a;
+      font-weight: 500;
+    }
+    &.selected {
+      color: var(--bs-secondary);
+      border-radius: 6px;
+      background-color: #4277ff1a;
+      font-weight: 500;
+    }
+  }
+}
+
+::ng-deep bs-dropdown-container {
+  z-index: 1060 !important;
 }

@@ -1,4 +1,6 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -13,7 +15,7 @@ import {
   FormGroup,
   FormGroupDirective,
 } from '@angular/forms';
-import {finalize, Subject} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {
   EActionType,
   EDelayType,
@@ -26,20 +28,30 @@ import {
   IChainResult,
   ITaskChain,
   ITaskChainResult,
+  IUpdateDeadlineTaskResult,
+  IUpdateTaskResultDto,
 } from '@app/types/flow';
 import {calculateTime} from '@app/utils/common';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IBlockAutomation} from '@app/types/automation';
-import {BsModalService} from 'ngx-bootstrap/modal';
 import moment from 'moment/moment';
+import {optionToCloneTask} from '@app/variable';
 
 @Component({
   selector: 'app-task-chain-item',
   templateUrl: './task-chain-item.component.html',
   styleUrls: ['./task-chain-item.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskChainItemComponent implements OnDestroy, OnInit {
+  @Input() permissions: {
+    canEditAction: boolean;
+    canEditDeadline: boolean;
+  } = {
+    canEditAction: false,
+    canEditDeadline: false,
+  };
   @Input() formItem!: FormGroup | any;
   @Input() submitted: boolean = false;
   @Input() results: IActResult[] = [];
@@ -60,7 +72,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   @Output() updateTaskChainEvent = new EventEmitter();
   @Output() cancelUpdateTaskChainEvent = new EventEmitter();
   @Output() callEvent = new EventEmitter();
-
+  public optionToCloneTask = optionToCloneTask;
   public loading = {
     submit: false,
     sendBlock: false,
@@ -69,7 +81,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   private destroy$ = new Subject();
   protected readonly EActionType = EActionType;
-  protected readonly ENextStepType = ENextStepType;
   protected readonly today = new Date();
   protected readonly ETaskChainResultType = ETaskChainResultType;
 
@@ -78,7 +89,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     private readonly fb: FormBuilder,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
-    private readonly modalService: BsModalService,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
@@ -99,9 +110,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    this.rootFormGroup.valueChanges?.subscribe((value) => {
-      // console.log(value);
-    });
+    this.formItem.valueChanges
+      ?.pipe(takeUntil(this.destroy$))
+      .subscribe((value: any) => {
+        this.cdr.detectChanges();
+      });
     this.staticDataChainItem?.taskChainResults?.forEach((taskChainResult) => {
       taskChainResult['isEdit'] = false;
     });
@@ -165,6 +178,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       )).clear();
     }
   }
+
   handleChangeTaskChainReason(
     taskChainResultIndex: number,
     value: {id: string; name: string},
@@ -198,7 +212,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     taskChainResult: ITaskChainResult,
   ) {
-    this.cancelUpdateTaskChainEvent.emit();
+    this.cancelUpdateTaskChainEvent.emit(taskChainResultIndex);
   }
 
   handleSaveTaskChainResult(
@@ -206,8 +220,15 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResult: ITaskChainResult,
   ) {
     if (!taskChainResult.id) return;
-    const {note, resultIndex, reasonIndex, nextActions, deadlineDate, action} =
-      this.formTaskChainResults().at(taskChainResultIndex).value;
+    const {
+      note,
+      resultIndex,
+      reasonIndex,
+      nextActions,
+      deadlineDate,
+      action,
+      reasonEditedDate,
+    } = this.formTaskChainResults().at(taskChainResultIndex).value;
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
         const modify = {
@@ -219,6 +240,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
             : null,
           addNewChain: nextAction?.childNextAction?.addNewChain
             ? nextAction?.childNextAction?.addNewChain
+            : null,
+          closeCloneTask: nextAction?.childNextAction?.closeCloneTask
+            ? nextAction?.childNextAction?.closeCloneTask
             : null,
           nextAction: nextAction?.childNextAction?.nextAction,
         };
@@ -239,6 +263,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
               chainActResultId: nextAction.moveToActionId,
             }
           : null,
+        closeCloneTask: nextAction.closeCloneTask || null,
       };
       return {
         ...nextAction,
@@ -251,13 +276,46 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
       nextActions: modifiedNextActions,
       deadlineDate: deadlineDate,
+      chain: this.staticDataChainItem,
       callBlockAutomation: action.callBlockAutomation.blockId
         ? action.callBlockAutomation
         : null,
     };
+
+    const originalDeadlineDate =
+      this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
+        ?.deadlineDate;
+    // check if deadlineDate is change
+    if (
+      new Date(originalDeadlineDate!).getTime() !==
+      new Date(deadlineDate).getTime()
+    ) {
+      const body = {
+        deadlineDate: deadlineDate.toISOString(),
+        note,
+        reasonEditedDate: {
+          reason: reasonEditedDate?.reason || '',
+        },
+      };
+      this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
+    } else {
+      this.handleUpdateTaskChainResult(
+        taskChainResult.id,
+        taskChainResultIndex,
+        body,
+      );
+    }
+  }
+
+  handleUpdateDeadline(
+    taskChainResultId: string,
+    taskChainResultIndex: number,
+    body: IUpdateDeadlineTaskResult,
+  ) {
+    if (this.loading.submit) return;
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
-      .update(taskChainResult.id, body)
+      .updateDeadline(taskChainResultId, body)
       .pipe(finalize(() => (this.loading.submit = false)))
       .subscribe({
         next: (res) => {
@@ -273,7 +331,33 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
             this.commonService.handleResErr(res);
           }
         },
-        error: (err) => this.commonService.handleErr(err),
+      });
+  }
+
+  handleUpdateTaskChainResult(
+    taskChainResultId: string,
+    taskChainResultIndex: number,
+    body: IUpdateTaskResultDto,
+  ) {
+    if (this.loading.submit) return;
+    this.loading.submit = true;
+    this.autoTaskService.taskChainResult
+      .update(taskChainResultId, body)
+      .pipe(finalize(() => (this.loading.submit = false)))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess('update');
+            if (res.data.executedDate) {
+              this.formTaskChainResults().at(taskChainResultIndex).patchValue({
+                executedDate: res.data.executedDate,
+              });
+            }
+            this.updateTaskChainEvent.emit();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
       });
   }
 
@@ -295,6 +379,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       case ENextStepType.CLOSE_CHAIN:
         string += 'Đóng chuỗi';
         break;
+      case ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK:
+        string += 'Đóng chuỗi và tạo bản sao công việc';
+        break;
       default:
         string += '-';
         break;
@@ -313,6 +400,16 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
           nextStep.childNextAction?.moveToAction?.chainActResult?.action
             ?.name || ''
         }</b>`;
+    }
+    if (nextStep.childNextAction?.closeCloneTask?.length) {
+      string +=
+        ': ' +
+        `<b>${this.optionToCloneTask
+          .filter(
+            (o) => nextStep.childNextAction?.closeCloneTask?.includes(o.value),
+          )
+          ?.map((o) => o.label)
+          ?.join(', ')}</b>`;
     }
     if (
       nextStep.childNextAction?.addNewChain?.chain &&
@@ -397,6 +494,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   ) {
     const staticTaskChain =
       this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex];
+    if (type !== 'timer' && !this.permissions.canEditAction) return false;
     if (type === 'result') {
       return (
         ((!staticTaskChain?.action?.callBlockAutomation?.blockId &&
@@ -409,6 +507,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'timer') {
+      if (!this.permissions.canEditDeadline) return false;
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&

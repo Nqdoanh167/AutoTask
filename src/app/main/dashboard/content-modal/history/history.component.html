@@ -1,0 +1,192 @@
+<div class="histories mt-2 overflow-x-hidden">
+  <div class="filter">
+    <app-filter-top-table
+      [configFilters]="configFilters"
+      [configButtons]="configButtons"
+      (clickButtonEvent)="handleAction($event)"
+      (selectEvent)="onSelectFilter($event)"
+      (pickerDateEvent)="onPickerDateFilter($event)"
+    ></app-filter-top-table>
+  </div>
+  <div
+    class="table-responsive tableFixHead custom-scrollbar"
+    style="min-height: 50vh"
+  >
+    <table class="table">
+      <thead>
+        <tr>
+          <th>
+            Thời gian cập nhật
+            <span
+              class="caret-wrapper justify-content-center"
+              (click)="changeSort('createdAt')"
+            >
+              <i
+                class="fa fa-caret-up asc"
+                [ngClass]="{'text-primary': sort.createdAt === 1}"
+              ></i>
+              <i
+                class="fa fa-caret-down desc"
+                [ngClass]="{'text-primary': sort.createdAt === -1}"
+              ></i>
+            </span>
+          </th>
+          <th>Tab</th>
+          <th>Nội dung thay đổi</th>
+          <th>Nhân sự thực hiện</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (history.loading) {
+          <tr class="text-center">
+            <td colspan="12">
+              <div class="spinner-grow text-primary" role="status">
+                <span class="visually-hidden">Loading</span>
+              </div>
+              <div>Loading</div>
+            </td>
+          </tr>
+        } @else {
+          @for (item of history.rows; track $index) {
+            <tr>
+              <td>
+                <div class="fw-normal">
+                  {{ item.createdAt | timeView }}
+                </div>
+              </td>
+              <td>
+                <div>
+                  <div class="fw-normal">
+                    {{ getTabKey(item.tabKey) }}
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="content-history">
+                  @switch (item.tabKey) {
+                    @case (ETabHistoryKey.ORDER_PRODUCT) {
+                      <ul>
+                        @for (
+                          contentHistory of item.content.orderProduct || [];
+                          track $index
+                        ) {
+                          <li>
+                            {{ getActionContent(contentHistory.key) }}
+                            <span class="text-link cursor-text">
+                              {{ contentHistory.value }}
+                            </span>
+                            @if (contentHistory.sub?.length) {
+                              <div class="ms-4">
+                                <ul>
+                                  @for (
+                                    sub of contentHistory.sub;
+                                    track $index
+                                  ) {
+                                    <li>
+                                      {{ getActionContent(sub?.key) }}
+                                      <span class="text-link cursor-text">
+                                        {{ sub?.value }}
+                                      </span>
+                                    </li>
+                                  }
+                                </ul>
+                              </div>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                    @case (ETabHistoryKey.NOTE) {
+                      <ul>
+                        @for (
+                          contentHistory of item.content.note || [];
+                          track $index
+                        ) {
+                          <li>
+                            {{ getActionContent(contentHistory.key) }}
+                            <span class="text-link cursor-text">
+                              {{ contentHistory.value }}
+                            </span>
+                          </li>
+                        }
+                      </ul>
+                    }
+                    @case (ETabHistoryKey.INFORMATION) {
+                      <ul>
+                        @for (
+                          contentHistory of item.content.information || [];
+                          track $index
+                        ) {
+                          <li>
+                            <div class="d-flex align-items-center gap-2">
+                              <div>
+                                {{ getActionContent(contentHistory.key) }}
+                              </div>
+                              @if (contentHistory.key === CALL_PHONE_ACTION) {
+                                <div>
+                                  @if (contentHistory.value) {
+                                    <a
+                                      href="tel:{{ contentHistory.value }}"
+                                      class="text-link cursor-text"
+                                    >
+                                      {{ contentHistory.value }}
+                                    </a>
+                                  } @else {
+                                    <div>---Không có file ghi âm---</div>
+                                  }
+                                </div>
+                              } @else {
+                                <div class="text-link cursor-text">
+                                  {{ contentHistory.value }}
+                                </div>
+                              }
+                            </div>
+                            @if (contentHistory.sub?.length) {
+                              <div class="ms-4">
+                                <ul>
+                                  @for (
+                                    sub of contentHistory.sub;
+                                    track $index
+                                  ) {
+                                    <li>
+                                      {{ getActionContent(sub?.key) }}
+                                      <span class="text-link cursor-text">
+                                        {{ sub?.value }}
+                                      </span>
+                                    </li>
+                                  }
+                                </ul>
+                              </div>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                  }
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div>
+                    @if (item.actionBy?.picture) {
+                      <img
+                        width="30"
+                        height="30"
+                        class="rounded-pill"
+                        [src]="item.actionBy?.picture"
+                        alt="avatar"
+                      />
+                    }
+                  </div>
+                  <div class="fw-normal">
+                    {{ item.actionBy?.name }}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

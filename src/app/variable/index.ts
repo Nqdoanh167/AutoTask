@@ -1,11 +1,21 @@
-import {IColumns, IDataColumns} from '../types/viewmodels';
+import {
+  EFlowTab,
+  EModule,
+  ESettingTab,
+  ESocialPlatform,
+  IColumns,
+  IDataColumns,
+  ISidebar,
+} from '../types/viewmodels';
+import {EPerActFlow, EPerActSetting, EPerActTask} from '@app/types/setting';
+import {EOptionCloneTask} from '@app/types/flow';
 
 export const listColumns: IDataColumns = {
-  columnDashboard: [
+  columnDashboardAutoTask: [
     {
-      name: 'Task',
+      name: 'Tác vụ',
       value: 'name',
-      tooltip: 'Task',
+      tooltip: 'Tác vụ',
     },
     {
       name: 'Hành động - Kết quả',
@@ -18,31 +28,36 @@ export const listColumns: IDataColumns = {
       tooltip: 'Khách hàng',
     },
     {
-      name: 'Sản phẩm quản tâm',
-      value: 'cart',
-      tooltip: 'Sản phẩm quản tâm',
+      name: 'Chi nhánh',
+      value: 'branch',
+      tooltip: 'Chi nhánh/Phòng ban/Nhóm',
     },
     {
-      name: 'Số lượng đơn hàng',
+      name: 'Sản phẩm quan tâm',
+      value: 'cart',
+      tooltip: 'Sản phẩm quan tâm',
+    },
+    {
+      name: 'Đơn hàng đã tạo',
       value: 'orderIds',
-      tooltip: 'Số lượng đơn hàng',
+      tooltip: 'Đơn hàng đã tạo',
     },
     {
       name: 'Nhân viên phụ trách',
-      value: 'counselor',
+      value: 'teams',
       tooltip: 'Nhân viên phụ trách',
     },
     {
       name: 'Ngày tạo',
       value: 'createdAt',
       tooltip: 'Ngày tạo',
-      fieldSort: 'createdAt',
+      // fieldSort: 'createdAt',
     },
     {
       name: 'Ngày cập nhật',
       value: 'updatedAt',
       tooltip: 'Ngày cập nhật',
-      fieldSort: 'updatedAt',
+      // fieldSort: 'updatedAt',
     },
     {
       name: 'Người tạo',
@@ -54,18 +69,135 @@ export const listColumns: IDataColumns = {
       value: 'updatedBy',
       tooltip: 'Người cập nhật',
     },
-   
   ],
 };
 export const listColumnsDashboardDefault: IColumns[] =
-  listColumns.columnDashboard.filter((el) =>
+  listColumns.columnDashboardAutoTask.filter((el) =>
     [
       'name',
       'taskChains',
-      'counselor',
+      'teams',
       'cart',
       'orderIds',
       'leadDeal',
       'createdAt',
     ].includes(el.value),
   );
+
+export const listSettingNavItems: ISidebar[] = [
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.SOURCE}`,
+    alias: ESettingTab.SOURCE,
+    name: 'Nguồn dữ liệu',
+    isActive: true,
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
+  },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.TAG}`,
+    alias: ESettingTab.TAG,
+    name: 'Tag',
+    isActive: true,
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
+  },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.DECENTRALIZATION}`,
+    alias: ESettingTab.DECENTRALIZATION,
+    name: 'Phân quyền',
+    isActive: true,
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
+  },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
+    alias: ESettingTab.ROLE,
+    name: 'Vai trò',
+    isActive: true,
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
+  },
+];
+
+export const listDashboardNavItems: ISidebar[] = [
+  {
+    link: `/${EModule.DASHBOARD}`,
+    alias: '',
+    name: 'Quản lý tác vụ',
+    isActive: true,
+    permissions: [EPerActTask.VIEW_TASK, EPerActTask.VIEW_TASK_SAME_LEVEL],
+  },
+];
+
+export const listConfigNavItems: ISidebar[] = [
+  {
+    link: `/${EModule.CONFIG}/${EFlowTab.RULE}`,
+    alias: EFlowTab.RULE,
+    name: 'Cấu hình quy tắc',
+    isActive: true,
+    permissions: [EPerActFlow.VIEW_FLOW],
+  },
+  {
+    link: `/${EModule.CONFIG}/${EFlowTab.DATA}`,
+    alias: EFlowTab.DATA,
+    name: 'Cấu hình dữ liệu',
+    isActive: true,
+    permissions: [EPerActFlow.VIEW_FLOW],
+  },
+];
+export const optionToCloneTask = [
+  {
+    label: 'Nguồn dữ liệu',
+    value: EOptionCloneTask.SOURCE,
+  },
+  {
+    label: 'Ghi chú',
+    value: EOptionCloneTask.NOTE,
+  },
+  {
+    label: 'Nhân sự phụ trách',
+    value: EOptionCloneTask.TEAM,
+  },
+  {
+    label: 'TAG',
+    value: EOptionCloneTask.TAG,
+  },
+  {
+    label: 'Chuỗi hiện tại',
+    value: EOptionCloneTask.CURRENT_CHAIN,
+  },
+  {
+    label: 'Thông tin khách hàng',
+    value: EOptionCloneTask.LEADDEAL,
+  },
+  {
+    label: 'Sản phẩm quan tâm',
+    value: EOptionCloneTask.PRODUCT,
+  },
+  {
+    label: 'Chi nhánh/Phòng ban/Nhóm',
+    value: EOptionCloneTask.BRANCH,
+  },
+];
+
+export const socialPlatforms: {
+  label: string;
+  value: ESocialPlatform;
+  image?: string;
+}[] = [
+  {
+    label: 'Facebook',
+    value: ESocialPlatform.FACEBOOK,
+    image: './assets/images/socials/facebook.svg',
+  },
+  {
+    label: 'Zalo',
+    value: ESocialPlatform.ZALO,
+    image: './assets/images/socials/zalo.svg',
+  },
+  {
+    label: 'LadiPage',
+    value: ESocialPlatform.LADIPAGE,
+    image: './assets/images/socials/landipage.svg',
+  },
+  {
+    label: 'Other',
+    value: ESocialPlatform.OTHER,
+  },
+];

@@ -3,11 +3,13 @@ import {
   BeautyService,
   Combo,
   CourseEvent,
-  Customer,
   ITag,
+  Order,
   PrepaidCard,
   Product,
 } from '@app/types/viewmodels';
+import {ELevelPer} from '@app/types/setting';
+import {Customer} from '@app/types/customer';
 
 export enum ETabConfigData {
   ACTION = 'action',
@@ -27,7 +29,19 @@ export enum ENextStepType {
   CREATE_ORDER = 'CREATE_ORDER',
   CALL_BLOCK_AUTOMATION = 'CALL_BLOCK_AUTOMATION',
   CLOSE_CHAIN = 'CLOSE_CHAIN',
+  CLOSE_CHAIN_AND_CLONE_TASK = 'CLOSE_CHAIN_AND_CLONE_TASK',
   ADD_CHAIN = 'ADD_CHAIN',
+}
+
+export enum EOptionCloneTask {
+  SOURCE = 'SOURCE',
+  TEAM = 'TEAM',
+  TAG = 'TAG',
+  CURRENT_CHAIN = 'CURRENT_CHAIN',
+  LEADDEAL = 'LEADDEAL',
+  NOTE = 'NOTE',
+  PRODUCT = 'PRODUCT',
+  BRANCH = 'BRANCH',
 }
 
 export enum EResultType {
@@ -121,6 +135,7 @@ export interface IChainNextAction {
   callBlockAutomation?: {
     blockId?: string;
   };
+  closeCloneTask?: string[];
   callToBlockId?: string;
   moveToActionId?: string;
   addNewChainId?: string;
@@ -222,6 +237,9 @@ export interface IProductDto {
   name: string;
   picture: string;
   quantity: number;
+  code: number;
+  price: number;
+  isVirtual?: boolean;
 }
 
 export interface ILeadDealDto extends Customer {
@@ -240,6 +258,14 @@ export enum ETaskChainResultType {
   CANCELED = 'CANCELED',
 }
 
+export interface ReasonEditedDate {
+  editedDate: Date;
+  deadDate: Date;
+  newDate: Date;
+  reason: string;
+  editedBy: AccountPublic;
+}
+
 export interface ITaskChainResult {
   id?: string;
   status: ETaskChainResultType;
@@ -254,6 +280,7 @@ export interface ITaskChainResult {
   nextActionIds: string[];
   nextActions: ITaskChainResult[];
   note: string;
+  reasonEditedDate: ReasonEditedDate[];
   backgroundProcessingActions: any;
   results: IChainResult[];
   childNextAction: IChainNextAction;
@@ -284,37 +311,66 @@ export interface ITaskCartDto {
   products: Product[];
   beautyServices: BeautyService[];
   combos: Combo[];
+  warehouse: string;
   prepaidCards: PrepaidCard[];
   courseEvents: CourseEvent[];
 }
-
+export interface ITeam {
+  roleId: string;
+  roleIcon: string;
+  roleName: string;
+  userId: string;
+  userName: string;
+  userPicture: string;
+  userEmail: string;
+}
 export interface ITask {
   checked?: boolean;
   id: string;
+  code?: string;
   name: string;
+  note: string;
   leadDeal?: ILeadDealDto;
   tags?: ITag[];
   cart: ITaskCartDto;
   orderIds: string[];
+  orders: Pick<Order, 'code' | 'id'>[];
   counselor: AccountPublic;
   taskChainIds: string[];
   taskChains: ITaskChain[];
+  teams?: ITeam[];
+  chatLink?: string;
+  branch: IBranchTaskDto;
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;
   updatedAt: Date;
 }
 
+export interface IBranchTaskDto {
+  unit: ELevelPer;
+  name: string;
+  id: string;
+  department: string;
+  departmentName: string;
+  team: string;
+  teamName: string;
+}
+
 export interface ITaskDto {
   name: string;
+  branch: IBranchTaskDto;
   leadDeal: ILeadDealDto;
   products: IProductDto[];
   counselorId: string;
   addChainActIds?: string[];
 }
+export interface CloneTaskDto {
+  options: string[];
+}
 export interface IBulkTaskDto {
   taskIds: string[];
-  counselorId: string | null;
+  teams: ITeam[];
 }
 
 export interface IAddTaskChainDto {
@@ -336,6 +392,9 @@ export interface IUpdateTaskResultDto {
   nextActions?: IChainNextAction[];
 }
 
+export interface IUpdateDeadlineTaskResult
+  extends Pick<IUpdateTaskResultDto, 'note' | 'deadlineDate'> {}
+
 export enum EStatusTaskChainResult {
   DONE = 'DONE',
   UNDONE = 'UNDONE',
@@ -346,4 +405,22 @@ export enum EActionStates {
   DUE_SOON = 'DUE_SOON',
   EXECUTED = 'EXECUTED',
   HIDE_FULL_EXECUTED = 'HIDE_FULL_EXECUTED',
+}
+
+export enum EEditedDateState {
+  HAS_EDITED = 'HAS_EDITED',
+  NOT_EDITED = 'NOT_EDITED',
+}
+
+export interface ModifiedUserUnit {
+  key: string;
+  label: string;
+  data: string;
+  id: string | null;
+  name: string | null;
+  department: null | string;
+  departmentName: null | string;
+  team: null | string;
+  teamName: null | string;
+  children?: ModifiedUserUnit[];
 }

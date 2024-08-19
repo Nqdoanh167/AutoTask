@@ -1,0 +1,15 @@
+.custom-tab-set {
+  position: relative;
+  .custom-tab-basic {
+  }
+  .right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: fit-content;
+    height: calc(100% - 1px); // tab border bottom 1px;
+    display: flex;
+    align-items: center;
+    background: #fff;
+  }
+}

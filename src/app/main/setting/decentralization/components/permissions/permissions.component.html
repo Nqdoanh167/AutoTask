@@ -1,0 +1,107 @@
+<div class="setting-permissions-site">
+  <div class="card">
+    <div class="card-body">
+      <div class="list-data">
+        <app-standard-data-size
+          [loading]="item.loading"
+          [limit]="item.paramsQuery.limit"
+          [page]="item.paramsQuery.page"
+          [total]="item.total"
+          [configButtons]="configButtons"
+          [configFilters]="configFilters"
+          (searchEvent)="onSearch($event)"
+          (pageChangeEvent)="pageChanged($event)"
+          (selectFilterEvent)="onSelectFilter($event)"
+          (actionEvent)="handleAction($event)"
+        >
+          <ng-container bodyTable>
+            <div class="table-responsive tableFixHead custom-scrollbar">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th class="">Quyền</th>
+                    <th class="">Mô tả</th>
+                    <th class="">Số người đã gán quyền</th>
+                    <th class="column-status">Trạng thái</th>
+                    @if (permission.edit) {
+                      <th class="column-action">Thao tác</th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    class="text-center"
+                    *ngIf="!item.rows.length && !item.loading"
+                  >
+                    <td colspan="12">
+                      <div>Không có dữ liệu</div>
+                    </td>
+                  </tr>
+                  <tr class="text-center" *ngIf="item.loading">
+                    <td colspan="12">
+                      <div class="spinner-grow text-primary" role="status">
+                        <span class="visually-hidden">Loading</span>
+                      </div>
+                      <div>Loading</div>
+                    </td>
+                  </tr>
+                  <tr *ngFor="let item of item.rows; index as i">
+                    <td class="column-name">
+                      <div
+                        class="fw-500 cursor-pointer"
+                        (click)="handleUpdate(item)"
+                      >
+                        {{ item.name || '-' }}
+                      </div>
+                    </td>
+                    <td class="column-desc">
+                      <div>{{ item.description || '-' }}</div>
+                    </td>
+                    <td class="column-count">
+                      {{ item?.userAclCount ?? '-' }}
+                    </td>
+                    <td class="column-status">
+                      <div>
+                        <img
+                          src="assets/images/icon/{{
+                            item.isActive ? 'check.svg' : 'not-check.svg'
+                          }}"
+                          width="10"
+                          height="10"
+                          alt=""
+                        />
+                      </div>
+                    </td>
+                    @if (permission.edit) {
+                      <td class="columns-action">
+                        @if (!item?.permDefault) {
+                          <div class="d-flex">
+                            <span
+                              (click)="handleUpdate(item)"
+                              class="d-flex align-items-center btn-action-table"
+                            >
+                              <img src="./assets/images/icon/edit.svg" alt="" />
+                            </span>
+                            <span
+                              (click)="handleDelete(item)"
+                              class="d-flex align-items-center btn-action-table"
+                            >
+                              <img
+                                src="./assets/images/icon/remove.svg"
+                                alt=""
+                              />
+                            </span>
+                          </div>
+                        }
+                      </td>
+                    }
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </app-standard-data-size>
+      </div>
+    </div>
+  </div>
+</div>

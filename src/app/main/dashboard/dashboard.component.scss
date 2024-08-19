@@ -23,7 +23,7 @@
       padding: 8px;
       border-radius: vars.$radius-l;
       position: relative;
-     
+
       .lock {
         display: none;
       }
@@ -57,6 +57,10 @@
   }
 }
 
+.column-branch {
+  width: 100px;
+}
+
 .column-interested-product {
   width: 15%;
   .list-product {
@@ -75,4 +79,9 @@
       }
     }
   }
+}
+
+.warning-change-time {
+  color: vars.$orange-500;
+  cursor: pointer;
 }

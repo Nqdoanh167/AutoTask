@@ -136,7 +136,7 @@
               "
             >
               <tr cdkDrag cdkDragLockAxis="y" class="rootRow">
-                <td class="" colspan="1">
+                <td class="columns-index" colspan="1">
                   <div class="d-flex align-items-center">
                     <span class="fw-500">#{{ i + 1 }}</span>
                   </div>
@@ -479,7 +479,7 @@
                           class="row result-item gx-2"
                           [class.mt-2]="!firstAction"
                         >
-                          <div class="col">
+                          <div class="col-6">
                             <ng-select
                               [ngClass]="{
                                 'is-invalid':
@@ -509,11 +509,49 @@
                               [
                                 ENextStepType.CALL_BLOCK_AUTOMATION,
                                 ENextStepType.CONTINUE_TO_NEXT_ACTION,
+                                ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK,
                                 ENextStepType.ADD_CHAIN
                               ].includes(nextAction.nextAction)
                             "
-                            class="col"
+                            class="col-6"
                           >
+                            <div
+                              *ngIf="
+                                nextAction.nextAction ===
+                                ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK
+                              "
+                            >
+                              <ng-select
+                                [ngClass]="{
+                                  'is-invalid':
+                                    submitted &&
+                                    ((result.resultId &&
+                                      !nextAction.closeCloneTask?.length) ||
+                                      !result.resultId)
+                                }"
+                                [(ngModel)]="nextAction.closeCloneTask"
+                                [placeholder]="'Chọn thông tin'"
+                                [searchable]="true"
+                                [closeOnSelect]="false"
+                                [items]="optionToCloneTask"
+                                [multiple]="true"
+                                [clearable]="false"
+                                class="dropdown-auto-width custom-input-multiple-round"
+                                id="clone-{{ nextActionIndex }}-{{
+                                  resultIndex
+                                }}"
+                                bindLabel="label"
+                                bindValue="value"
+                                appendTo="body"
+                              >
+                                <ng-template ng-multi-label-tmp>
+                                  <div class="mb-1">
+                                    {{ nextAction.closeCloneTask?.length }}
+                                    thông tin sẽ sao chép
+                                  </div>
+                                </ng-template>
+                              </ng-select>
+                            </div>
                             <div
                               *ngIf="
                                 nextAction.nextAction ===
@@ -633,33 +671,33 @@
                               </ng-select>
                             </div>
                           </div>
-                          <div class="col-2">
-                            <ng-select
-                              [ngClass]="{
-                                'is-invalid':
-                                  submitted &&
-                                  ((result.resultId &&
-                                    nextAction.type === undefined) ||
-                                    !result.resultId)
-                              }"
-                              [placeholder]="'Chọn loại'"
-                              (scrollToEnd)="handleLoadMore('action')"
-                              [(ngModel)]="nextAction.type"
-                              [clearable]="false"
-                              class="dropdown-auto-width"
-                              id="typeAction-{{ nextActionIndex }}-{{
-                                resultIndex
-                              }}"
-                              appendTo="body"
-                            >
-                              <ng-option [value]="EChainNextActType.AUTO">
-                                Tự động
-                              </ng-option>
-                              <ng-option [value]="EChainNextActType.MANUAL">
-                                Thủ công
-                              </ng-option>
-                            </ng-select>
-                          </div>
+                          <!--                          <div class="col-2">-->
+                          <!--                            <ng-select-->
+                          <!--                              [ngClass]="{-->
+                          <!--                                'is-invalid':-->
+                          <!--                                  submitted &&-->
+                          <!--                                  ((result.resultId &&-->
+                          <!--                                    nextAction.type === undefined) ||-->
+                          <!--                                    !result.resultId)-->
+                          <!--                              }"-->
+                          <!--                              [placeholder]="'Chọn loại'"-->
+                          <!--                              (scrollToEnd)="handleLoadMore('action')"-->
+                          <!--                              [(ngModel)]="nextAction.type"-->
+                          <!--                              [clearable]="false"-->
+                          <!--                              class="dropdown-auto-width"-->
+                          <!--                              id="typeAction-{{ nextActionIndex }}-{{-->
+                          <!--                                resultIndex-->
+                          <!--                              }}"-->
+                          <!--                              appendTo="body"-->
+                          <!--                            >-->
+                          <!--                              <ng-option [value]="EChainNextActType.AUTO">-->
+                          <!--                                Tự động-->
+                          <!--                              </ng-option>-->
+                          <!--                              <ng-option [value]="EChainNextActType.MANUAL">-->
+                          <!--                                Thủ công-->
+                          <!--                              </ng-option>-->
+                          <!--                            </ng-select>-->
+                          <!--                          </div>-->
                         </div>
                         <div
                           class="button-more-option d-flex justify-content-center align-items-center"
@@ -820,10 +858,23 @@
                                   !result.resultId)
                             }"
                             min="1"
-                            type="text"
+                            type="number"
                             mask="00000000"
                             [allowNegativeNumbers]="false"
                           />
+                          <!--                          <app-input-mask-->
+                          <!--                            id="from"-->
+                          <!--                            [isQuantity]="true"-->
+                          <!--                            [value]="nextAction.delayValue || 0"-->
+                          <!--                            (changeValue)="nextAction.delayValue = $event"-->
+                          <!--                            [class]="-->
+                          <!--                              submitted &&-->
+                          <!--                              ((result.resultId && !nextAction.delayValue) ||-->
+                          <!--                                !result.resultId)-->
+                          <!--                                ? 'is-invalid'-->
+                          <!--                                : ''-->
+                          <!--                            "-->
+                          <!--                          ></app-input-mask>-->
                         </div>
                       </div>
                     </div>
@@ -877,14 +928,14 @@
     <div class="modal-body">
       <ul class="list-unstyled">
         <li>
-          1. Module Auto Task phục vụ cho các ngành đặc thù có quy trình bán
-          hàng dài, cần sự can thiệp sâu của con người chứ không thể hoàn toàn
-          phụ thuộc Automation và bán nhanh như Thương mại điện tử.
+          1. Module Tác vụ tự động phục vụ cho các ngành đặc thù có quy trình
+          bán hàng dài, cần sự can thiệp sâu của con người chứ không thể hoàn
+          toàn phụ thuộc Automation và bán nhanh như Thương mại điện tử.
         </li>
         <li style="white-space: pre-line">
           2. Thứ tự của Chuỗi hành động thể hiện độ ưu tiên khi thực hiện hành
-          động có liên quan đến chuỗi. {{ '\n ' }} VD: Khi lên Task mới cho 1
-          Lead (khách hàng tiềm năng), thì mặc định task đó sẽ bắt đầu ở chuỗi
+          động có liên quan đến chuỗi. {{ '\n ' }} VD: Khi lên Tác vụ mới cho 1
+          Lead (khách hàng tiềm năng), thì mặc định Tác vụ đó sẽ bắt đầu ở chuỗi
           có độ ưu tiên cao nhất (thường sẽ là chuỗi chăm sóc để chốt được đơn)
         </li>
         <li>
@@ -912,7 +963,7 @@
         </li>
         <li>
           8. Đa số các hành động có thể cài đặt để thực hiện 1 cách tự động, như
-          Tạo đơn mới, Chạy kịch bản Automation, Thêm chuỗi khác vào task,...
+          Tạo đơn mới, Chạy kịch bản Automation, Thêm chuỗi khác vào Tác vụ,...
           Nhưng cũng có một số hành động cần phải thực hiện thủ công, và nên
           được thực hiện thủ công bởi con người như Gọi điện.
         </li>

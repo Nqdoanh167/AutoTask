@@ -21,7 +21,9 @@
             <span class="icon-sort" [innerHTML]="sortIcon('createdAt')"></span>
             Ngày tạo
           </th>
-          <th>Thao tác</th>
+          @if (hasEditPer) {
+            <th class="columns-action">Hành động</th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -45,22 +47,24 @@
           <td>{{ item.name || '-' }}</td>
           <td>{{ renderNameType(item.type) || '-' }}</td>
           <td>{{ item.createdAt | timeView }}</td>
-          <td class="columns-action">
-            <div class="d-flex">
-              <span
-                (click)="handleUpdate(item)"
-                class="d-flex align-items-center btn-action-table"
-              >
-                <img src="./assets/images/icon/edit.svg" alt="" />
-              </span>
-              <span
-                (click)="handleDeleteAction(item)"
-                class="d-flex align-items-center btn-action-table"
-              >
-                <img src="./assets/images/icon/remove.svg" alt="" />
-              </span>
-            </div>
-          </td>
+          @if (hasEditPer) {
+            <td class="columns-action">
+              <div class="d-flex">
+                <span
+                  (click)="handleUpdate(item)"
+                  class="d-flex align-items-center btn-action-table"
+                >
+                  <img src="./assets/images/icon/edit.svg" alt="" />
+                </span>
+                <span
+                  (click)="handleDeleteAction(item)"
+                  class="d-flex align-items-center btn-action-table"
+                >
+                  <img src="./assets/images/icon/remove.svg" alt="" />
+                </span>
+              </div>
+            </td>
+          }
         </tr>
       </tbody>
     </table>
@@ -71,14 +75,4 @@
     [total]="dataSource.total"
     (changePageEvent)="pageChanged($event)"
   ></custom-pagination>
-
-  <modal-confirm [key]="'delete'" (confirmEvent)="onDelete($event)">
-    <div class="state-warning d-flex gap-2" childContent>
-      <div><i class="fa-regular fa-circle-question"></i></div>
-      <div>
-        Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu
-        của bản ghi cũng sẽ bị ảnh hưởng.
-      </div>
-    </div>
-  </modal-confirm>
 </div>

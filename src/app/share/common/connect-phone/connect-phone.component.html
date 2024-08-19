@@ -1,0 +1,72 @@
+@if (hasPermitSmsOttCall) {
+  <div class="button-connect-phone">
+    @if (!connectedPhone) {
+      <div class="btn-group" dropdown placement="bottom right">
+        <button dropdownToggle class="btn button-status">
+          <i class="fa-solid fa-phone-slash"></i>
+        </button>
+        @if (!userPhones.loading && userPhones.rows.length) {
+          <ul
+            id="dropdown-alignment"
+            *dropdownMenu
+            class="dropdown-menu dropdown-menu-right dropdown-phones"
+            role="menu"
+            aria-labelledby="button-alignment"
+          >
+            @for (phone of userPhones.rows; track $index) {
+              <li (click)="handleConnectToPhone(phone)" role="menuitem">
+                <div class="dropdown-item d-flex gap-2">
+                  @if (
+                    getVoicePlatform(phone.platform.platform);
+                    as voicePlatform
+                  ) {
+                    <img
+                      height="20px"
+                      *ngIf="voicePlatform.icon"
+                      src="{{ voicePlatform.icon }}"
+                      alt=""
+                      class="icon-platform"
+                    />
+                  }
+                  <span class="fw-500">{{ phone.hotline }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    } @else {
+      <div class="d-flex gap-2 align-items-center">
+        <button
+          [tooltip]="'Ngắt kết nối đầu số'"
+          container="body"
+          class="btn button-status connected"
+          (click)="handleDisconnectPhone()"
+        >
+          @if (loading.connectPhone) {
+            <i class="fa-solid fa-spin fa-spinner"></i>
+          } @else {
+            <i class="fa-solid fa-phone"></i>
+          }
+        </button>
+        <div class="d-flex gap-2">
+          @if (!loading.connectPhone && connectedPhone) {
+            @if (
+              getVoicePlatform(connectedPhone.platform.platform);
+              as voicePlatform
+            ) {
+              <img
+                height="20px"
+                *ngIf="voicePlatform.icon"
+                src="{{ voicePlatform.icon }}"
+                alt=""
+                class="icon-platform"
+              />
+            }
+            <span class="fw-500">{{ connectedPhone.hotline }}</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

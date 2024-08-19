@@ -113,6 +113,21 @@ export interface ITag {
   createdBy?: Partial<AccountPublic>;
   updatedBy?: Partial<AccountPublic>;
 }
+export interface IPosLastBranches {
+  id: string;
+  name: string;
+  role: BizRole;
+  teams: string[];
+  departments: string[];
+  userIds: string[];
+}
+export interface FlatBranch {
+  id: string;
+  name: string;
+  role: ERole;
+  userIds: string[]; // all user in this unit
+}
+
 export interface User {
   id: string;
   name: string;
@@ -126,7 +141,7 @@ export interface User {
   picture: string;
   gender?: string;
   birthday?: string;
-  role: string;
+  role: ERole;
   biz: Biz;
   quickModules: string[];
   services: {
@@ -135,22 +150,32 @@ export interface User {
   };
   groupIds?: string[];
   branches: Branch[];
+  roleBranches: Branch[];
+  posLastBranches: IPosLastBranches[];
+  flatBranches: FlatBranch[];
   branchIds: string[];
   groups?: BizGroup[];
   roleIds?: string[];
   roles?: BizRole[];
   isActive: boolean;
+  moduleAliases: string[];
+  modules: BizModule[];
   createdAt?: Date;
 }
-export interface Branch {
-  address: string;
-  desc: string;
+export interface Team {
   id: string;
   name: string;
-  phone: string;
+  desc: string;
+  permission?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+export interface Department extends Team {
+  teams: Team[];
+}
+export interface Branch extends Team {
+  departments: Department[];
 }
 
 export interface BizDomain {
@@ -448,6 +473,39 @@ export interface ToppingValue {
   updatedAt?: Date;
 }
 
+export interface ProductWarehouse {
+  [key: string]: {
+    inventory: number;
+    qtyAvailable: number;
+    qtyInDamaged: number;
+    qtyInExpired: number;
+    qtyInHold: number;
+    qtyInTransfer: number;
+    qtyInDeposit: number;
+    qtyInTransit: number;
+  };
+}
+export interface Warehouse {
+  id: string;
+  name: string;
+  author: string;
+  updatedBy: AccountPublic;
+  bizId: string;
+  phone: string;
+  provinceCode: string;
+  districtCode: string;
+  wardCode: string;
+  province: string;
+  district: string;
+  ward: string;
+  street: string;
+  address: string;
+  description: string;
+  isDefault: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 export interface Product {
   id: string;
   author?: string;
@@ -528,41 +586,7 @@ export interface LoyaltyRank {
   createdAt: Date;
   updatedAt: Date;
 }
-export interface Customer {
-  saleCenter: any;
-  id: string;
-  bizId?: string;
-  fbId?: string;
-  zaloId?: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  gender?: 'male' | 'female' | 'other';
-  typePrice?: string;
-  code: string;
-  picture?: string;
-  pictures?: string[];
-  postcode: string;
-  provinceCode: string;
-  districtCode: string;
-  wardCode: string;
-  province: string;
-  district: string;
-  ward: string;
-  street: string;
-  address: string;
-  tags: CustomerTag[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-export interface CustomerTag {
-  bizId?: string;
-  bgColor?: string;
-  createdAt?: string;
-  name?: string;
-  updatedAt?: string;
-  id: string;
-}
+
 export interface Segment {
   id: string;
   bizId?: string;
@@ -770,6 +794,12 @@ export interface Combo {
   id: string;
   name: string;
   picture: string;
+  followProducts: {
+    quantity: number;
+    products: string[];
+    parent: string;
+  }[];
+  version: string;
   amount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -795,7 +825,7 @@ export enum ETypeAppointment {
   APPOINTMENT = 'APPOINTMENT',
 }
 export interface IDataColumns {
-  columnDashboard: IColumns[];
+  columnDashboardAutoTask: IColumns[];
 }
 export interface IColumns {
   name: string;
@@ -807,6 +837,7 @@ export interface IColumns {
 export enum ERole {
   OWNER = 'OWNER',
   DEV = 'DEV',
+  MEMBER = 'MEMBER',
 }
 
 export interface AppointmentStatus {
@@ -1381,7 +1412,120 @@ export interface SaleReason {
   distanceTime: any;
   isSchedule: any;
 }
+export interface SaleCenterStatus {
+  code: string;
+  bgColor: string;
+  name: string;
+  txtColor: string;
+  [name: string]: any;
+}
+export interface IHistory {
+  id: string;
+  bizId: string;
+  tabKey: ETabHistoryKey;
+  taskId: string;
+  actionBy: {
+    id: string;
+    name: string;
+    email: string;
+    picture: string;
+  };
+  content: IContentHistoryTask;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface INoteContentHistoryTask {
+  key: ENoteContentHistoryTask;
+  value: string;
+}
+export enum ENoteContentHistoryTask {
+  UPLOAD_FILE = 'UPLOAD_FILE',
+  REMOVE_FILE = 'REMOVE_FILE',
+  REMOVE_NOTE = 'REMOVE_NOTE',
+  CHANGE_NOTE = 'CHANGE_NOTE',
+  ADD_NOTE = 'ADD_NOTE',
+}
+export interface IOrderProductContentHistoryTask {
+  key: EOrderProductContentHistoryTask;
+  value: string;
+  sub?: {
+    key: ESubOrderProductHistoryTask;
+    value: string;
+  }[];
+}
+export enum EOrderProductContentHistoryTask {
+  CREATE_ORDER = 'CREATE_ORDER',
+  REMOVE_PRODUCTS = 'REMOVE_PRODUCTS',
+  ADD_PRODUCTS = 'ADD_PRODUCTS',
+  CHANGE_PRODUCTS = 'CHANGE_PRODUCTS',
+  REMOVE_COMBOS = 'REMOVE_COMBOS',
+  ADD_COMBOS = 'ADD_COMBOS',
+  CHANGE_COMBOS = 'CHANGE_COMBOS',
+  REMOVE_COURSEEVENTS = 'REMOVE_COURSEEVENTS',
+  ADD_COURSEEVENTS = 'ADD_COURSEEVENTS',
+  CHANGE_COURSEEVENTS = 'CHANGE_COURSEEVENTS',
+  REMOVE_BEAUTISERVICES = 'REMOVE_BEAUTISERVICES',
+  ADD_BEAUTISERVICES = 'ADD_BEAUTISERVICES',
+  CHANGE_BEAUTISERVICES = 'CHANGE_BEAUTISERVICES',
+  REMOVE_PREPAIDCARDS = 'REMOVE_PREPAIDCARDS',
+  ADD_PREPAIDCARDS = 'ADD_PREPAIDCARDS',
+  CHANGE_PREPAIDCARDS = 'CHANGE_PREPAIDCARDS',
+  CHANGE_WAREHOUSES = 'CHANGE_WAREHOUSES',
+}
+export interface IInformationContentHistoryTask {
+  key: EInformationContentHistoryTask;
+  value: string;
+  sub?: {
+    key: ESubInformationContentHistoryTask;
+    value: string;
+  }[];
+}
+export enum ESubInformationContentHistoryTask {
+  ACTION = 'ACTION',
+  NONE = 'NONE',
+}
+export enum ESubOrderProductHistoryTask {
+  NONE = 'NONE',
+  ACTION = 'ACTION',
+}
+export enum EInformationContentHistoryTask {
+  CREATE_TASK = 'CREATE_TASK',
+  NAME_TASK = 'NAME_TASK',
+  SOURCE = 'SOURCE',
+  CHANGE_SOURCE = 'CHANGE_SOURCE',
+  CUSTOMER = 'CUSTOMER',
+  CHANGE_CUSTOMER = 'CHANGE_CUSTOMER',
+  BRANCH = 'BRANCH',
+  CHANGE_BRANCH = 'CHANGE_BRANCH',
+  COUNSELOR = 'COUNSELOR',
+  REMOVE_TAG = 'REMOVE_TAG',
+  ADD_TAG = 'ADD_TAG',
+  CHANGE_TAG = 'CHANGE_TAG',
+  ADD_CHAIN = 'ADD_CHAIN',
+  LOCKED_CHAIN = 'LOCKED_CHAIN',
+  REMOVE_CHAIN = 'REMOVE_CHAIN',
+  CHANGE_CHAIN = 'CHANGE_CHAIN',
+  CHANGE_ACTION = 'CHANGE_ACTION',
+  INIT_PRODUCT = 'INIT_PRODUCT',
+  SEND_BLOCK_AUTOMATION = 'SEND_BLOCK_AUTOMATION',
+  CALL_PHONE = 'CALL_PHONE',
+  CHANGE_NOTE_I = 'CHANGE_NOTE_I',
+  ROLE = 'ROLE',
+  CHAT_LINK = 'CHAT_LINK',
+}
+export interface IContentHistoryTask {
+  orderProduct?: IOrderProductContentHistoryTask[];
+  information?: IInformationContentHistoryTask[];
+  note?: INoteContentHistoryTask[];
+}
 export interface Order {
+  status: string;
+  statusName: string;
+  dStatus: SaleCenterStatus;
+  id: string;
+  code: string;
+  createdAt: Date;
+  amount: number;
   [name: string]: any;
 }
 export interface Status {
@@ -1397,29 +1541,36 @@ export interface Source {
 
 export interface ISidebar {
   link: string;
+  alias: string;
   name: string;
   icon?: string;
   iconActive?: string;
   isActive: boolean;
   children?: ISidebar[];
   disabled?: boolean;
+  permissions?: any[];
 }
 
 export enum EModule {
-  TABLE = 'table',
   DASHBOARD = 'dashboard',
   CONFIG = 'config',
   SETTING = 'setting',
 }
-
+export enum ETabHistoryKey {
+  NOTE = 'note',
+  INFORMATION = 'information',
+  ORDER_PRODUCT = 'orderProduct',
+}
 export enum EFlowTab {
   RULE = 'rule',
   DATA = 'data',
 }
 
 export enum ESettingTab {
-  PERMISSION = 'permission',
-  NON = 'non',
+  SOURCE = 'source',
+  TAG = 'tag',
+  DECENTRALIZATION = 'decentralization',
+  ROLE = 'role',
 }
 
 export type ITypePaginate = 'number' | 'lazy';
@@ -1479,4 +1630,24 @@ export interface IPaginationStandard {
   limit: number;
   current: number;
   pageSize: number;
+}
+
+export interface IPageChange {
+  page?: number;
+  limit: number;
+}
+
+export interface BaseInterface {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy?: AccountPublic;
+  updatedBy?: AccountPublic;
+}
+
+export enum ESocialPlatform {
+  FACEBOOK = 'FACEBOOK',
+  ZALO = 'ZALO',
+  LADIPAGE = 'LADIPAGE',
+  OTHER = 'OTHER',
 }

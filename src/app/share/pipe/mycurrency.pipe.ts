@@ -1,6 +1,6 @@
 import {Pipe, PipeTransform} from '@angular/core';
 
-@Pipe({name: 'mycurrency'})
+@Pipe({name: 'mycurrency', standalone: true})
 export class MycurrencyPipe implements PipeTransform {
   option = {
     mask: 'separator.2',
@@ -10,7 +10,7 @@ export class MycurrencyPipe implements PipeTransform {
 
   transform(value: number): string | null {
     return value !== null && value !== undefined
-      ? value.toLocaleString('en-US', {
+      ? value.toLocaleString('it-IT', {
           style: 'currency',
           currency: 'VND',
         })

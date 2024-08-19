@@ -2,16 +2,24 @@ import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
-import {uniqBy} from 'lodash';
+import uniqBy from 'lodash/uniqBy';
 import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 import {CommonService} from '@app/services/common/common.service';
-import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
+import {ICommonDataLazy, IQueryBase, User} from '@app/types/viewmodels';
 import {Platform} from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
 import {OmiExtension} from '@app/types/omicall';
+import {AuthService} from '@app/services/api/auth.service';
+import {ITask} from '@app/types/flow';
 
 declare function omicallInit(dataConfig: OmiExtension): void;
-declare function omicallMakeCall(phoneNumber: string, hotline: string): void;
+declare function omicallMakeCall(
+  phoneNumber: string,
+  hotline: string,
+  user: User,
+  taskId: string,
+  taskCode: string,
+): void;
 
 @Component({
   selector: 'app-modal-call',
@@ -20,6 +28,7 @@ declare function omicallMakeCall(phoneNumber: string, hotline: string): void;
 })
 export class ModalCallComponent implements OnInit, OnDestroy {
   @Input() customerPhone: string = '';
+  @Input() task!: ITask;
 
   private destroy$ = new Subject();
   public loading = {
@@ -74,13 +83,20 @@ export class ModalCallComponent implements OnInit, OnDestroy {
   public time: number = 0;
   public displayCallTime: any;
   public interval: any;
-
+  public user!: User;
   constructor(
     private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
     private readonly modalRef: BsModalRef,
     private readonly commonService: CommonService,
     private readonly smsOttCallService: SmsOttCallService,
-  ) {}
+  ) {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.user = biz.user;
+      });
+  }
 
   get f(): {[key: string]: AbstractControl} {
     return this.form.controls;
@@ -226,7 +242,7 @@ export class ModalCallComponent implements OnInit, OnDestroy {
     if (!platformId) return;
     this.tokenClient.loading = true;
     this.smsOttCallService.platform
-      .getTokenClient(platformId, 'stringee')
+      .getTokenClient(platformId, 'stringee', this.task?.code!)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.tokenClient.loading = false)),
@@ -407,7 +423,13 @@ export class ModalCallComponent implements OnInit, OnDestroy {
           });
           break;
         case 'omicall':
-          omicallMakeCall(this.customerPhone, phone);
+          omicallMakeCall(
+            this.customerPhone,
+            phone,
+            this.user,
+            this.task?.id,
+            this.task?.code as string,
+          );
           break;
         default:
           return;

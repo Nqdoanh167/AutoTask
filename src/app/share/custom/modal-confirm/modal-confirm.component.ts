@@ -1,10 +1,9 @@
 import {
   Component,
-  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output,
+  Renderer2,
   TemplateRef,
   ViewChild,
 } from '@angular/core';
@@ -22,6 +21,7 @@ export interface IModalConfirmContent {
   type?: 'warning' | 'info' | string;
   modalType?: 'default' | 'advance' | string;
   context?: any;
+  errorState?: string;
 }
 
 @Component({
@@ -36,8 +36,6 @@ export class ModalConfirmComponent implements OnInit, OnDestroy {
   @ViewChild('template', {static: true}) template!: TemplateRef<any>;
   @ViewChild('templateAdvance', {static: true})
   protected templateAdvance!: TemplateRef<any>;
-  @Output() confirmEvent = new EventEmitter<any>();
-  @Output() declineEvent = new EventEmitter<any>();
   @Input() key?: string;
 
   public modalContent: IModalConfirmContent = {
@@ -53,13 +51,26 @@ export class ModalConfirmComponent implements OnInit, OnDestroy {
   protected modalRef?: BsModalRef;
   protected isOpenBackdrop = false;
   public isClickOverlay: boolean = false;
+  public okFunc?: Function | null;
+  public declineFunc?: Function | null;
 
   constructor(
     private modalService: BsModalService,
     private modalConfirmService: ModalConfirmService,
+    private renderer: Renderer2,
   ) {}
 
   ngOnInit(): void {
+    this.modalConfirmService?.okFunc
+      .pipe()
+      .subscribe((okFunc: Function | null) => {
+        this.okFunc = okFunc;
+      });
+    this.modalConfirmService?.declineFunc
+      .pipe()
+      .subscribe((declineFunc: Function | null) => {
+        this.declineFunc = declineFunc;
+      });
     this.modalConfirmService?.modalType
       .pipe()
       .subscribe((modalType: string) => {
@@ -107,19 +118,20 @@ export class ModalConfirmComponent implements OnInit, OnDestroy {
       ignoreBackdropClick: true,
       keyboard: false,
     });
+    const onHidden = this.modalService.onHidden.subscribe(() => {
+      this.renderer.removeStyle(document.body, 'overflow-y');
+      onHidden.unsubscribe();
+    });
   }
 
   confirm(): void {
-    this.confirmEvent.emit(this.modalContent?.context);
-    this.modalRef?.hide();
-    this.modalConfirmService.closeModal();
-    this.isOpenBackdrop = false;
+    this.okFunc?.();
+    this.hideModal();
   }
 
   decline(): void {
-    this.declineEvent.emit(this.modalContent?.context);
-    this.modalRef?.hide();
-    this.isOpenBackdrop = false;
+    this.declineFunc?.();
+    this.hideModal();
   }
 
   hideModal() {

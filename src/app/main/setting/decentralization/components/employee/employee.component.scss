@@ -1,0 +1,55 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.table-responsive {
+  @include mixins.calculateSize('max-height', '100vh', '240px');
+  .columns-action {
+    width: 5%;
+  }
+  .column-index {
+    width: 2%;
+  }
+
+  .column-status {
+    width: 3%;
+  }
+
+  .column-employee {
+    width: 20%;
+  }
+
+  .column-role {
+    width: 10%;
+  }
+
+  .column-group {
+    width: 30%;
+  }
+
+  .column-branch {
+    width: 30%;
+    .badge {
+      background-color: vars.$secondary-500 !important;
+      color: vars.$white !important;
+    }
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .list-badge {
+    .badge {
+      background-color: vars.$neutral-100;
+      color: vars.$neutral-400;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 14px;
+      font-weight: 400;
+    }
+  }
+}

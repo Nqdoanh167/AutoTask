@@ -2,13 +2,9 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {SettingComponent} from './setting.component';
 import {SettingRoutingModule} from './setting-routing.module';
-import {PermissionComponent} from './permission/permission.component';
-import {EmployeeComponent} from './employee/employee.component';
-import {BranchComponent} from './branch/branch.component';
+import {DecentralizationComponent} from '@main/setting/decentralization/decentralization.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
-import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {FallbackImageModule} from '@share/directive/fallback-image/fallback-image.module';
-import {ModalEmployeeInfoComponent} from './components/modal-employee-info/modal-employee-info.component';
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgSelectModule} from '@ng-select/ng-select';
@@ -19,24 +15,42 @@ import {UpdateSourceComponent} from '@main/setting/source/content-modal/update-s
 import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
-import { TagComponent } from './tag/tag.component';
+import {TagComponent} from './tag/tag.component';
+import {RoleComponent} from './role/role.component';
+import {EmployeeComponent} from '@main/setting/decentralization/components/employee/employee.component';
+import {TabsModule} from 'ngx-bootstrap/tabs';
+import {PermissionsComponent} from '@main/setting/decentralization/components/permissions/permissions.component';
+import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
+import {StandardDataSizeComponent} from '@share/common/standard-data-size/standard-data-size.component';
+import {CdkDropList} from '@angular/cdk/drag-drop';
+import {ModalEmployeeInfoComponent} from '@main/setting/modal-contents/modal-employee-info/modal-employee-info.component';
+import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-permission/add-edit-permission.component';
+import {AccordionModule} from 'ngx-bootstrap/accordion';
+import {InputUploadModule} from '@share/input/input-upload/input-upload.module';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {TreeSelectModule} from 'primeng/treeselect';
+import {TimeViewPipe} from '@share/pipe/timeView.pipe';
+import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
+import {LetDirective} from '@share/directive/ng-let.directive';
 
 @NgModule({
   declarations: [
     SettingComponent,
     TagComponent,
-    PermissionComponent,
-    EmployeeComponent,
-    BranchComponent,
+    DecentralizationComponent,
     ModalEmployeeInfoComponent,
     SourceComponent,
+    RoleComponent,
     UpdateSourceComponent,
+    PermissionsComponent,
+    EmployeeComponent,
+    AddEditPermissionComponent,
   ],
   imports: [
     CommonModule,
     SettingRoutingModule,
     FilterTopTableComponent,
-    PipeTimeViewModule,
     FallbackImageModule,
     CustomModalComponent,
     FormsModule,
@@ -47,6 +61,18 @@ import { TagComponent } from './tag/tag.component';
     CustomButtonLoadingComponent,
     TooltipModule,
     ConvertTypeModule,
+    TabsModule,
+    StandardTableComponent,
+    StandardDataSizeComponent,
+    CdkDropList,
+    AccordionModule,
+    InputUploadModule,
+    BsDropdownModule,
+    PopoverModule,
+    TreeSelectModule,
+    TimeViewPipe,
+    GetDataArrayPipe,
+    LetDirective,
   ],
 })
 export class SettingModule {}

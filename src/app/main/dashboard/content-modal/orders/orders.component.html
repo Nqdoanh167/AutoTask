@@ -1,0 +1,105 @@
+<div class="orders mt-2 overflow-x-hidden">
+  <div class="table-responsive tableFixHead custom-scrollbar">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Trạng thái</th>
+          <th>Mã đơn hàng</th>
+          <th>
+            Tổng tiền
+
+            <span
+              class="caret-wrapper justify-content-center"
+              (click)="changeSort('amount')"
+            >
+              <i
+                class="fa fa-caret-up asc"
+                [ngClass]="{'text-primary': sort.amount === 1}"
+              ></i>
+              <i
+                class="fa fa-caret-down desc"
+                [ngClass]="{'text-primary': sort.amount === -1}"
+              ></i>
+            </span>
+          </th>
+          <th>
+            Ngày tạo đơn
+            <span
+              class="caret-wrapper justify-content-center"
+              (click)="changeSort('createdAt')"
+            >
+              <i
+                class="fa fa-caret-up asc"
+                [ngClass]="{'text-primary': sort.createdAt === 1}"
+              ></i>
+              <i
+                class="fa fa-caret-down desc"
+                [ngClass]="{'text-primary': sort.createdAt === -1}"
+              ></i>
+            </span>
+          </th>
+          <th class="text-center">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (!loading) {
+          @for (item of ordersCopy; track i; let i = $index) {
+            <tr>
+              <td>
+                <span
+                  class="rounded-pill py-1 px-2 text-nowrap fw-500"
+                  [ngStyle]="{
+                    backgroundColor: item.dStatus?.bgColor,
+                    color: item.dStatus?.txtColor
+                  }"
+                >
+                  {{ item.statusName }}
+                </span>
+              </td>
+              <td>
+                <div class="text-link" (click)="handleViewOrder(item.id)">
+                  {{ item.code }}
+                </div>
+              </td>
+              <td>
+                <div class="fw-500">
+                  {{ item.amount || 0 | mycurrency }}
+                </div>
+              </td>
+              <td>
+                <div class="fw-normal">
+                  {{ item.createdAt | timeView }}
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-center justify-content-center">
+                  <button
+                    class="btn btn-light btn-sm p-1 me-1"
+                    (click)="handleViewOrder(item.id)"
+                  >
+                    <i class="fas fa-location-arrow"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr class="text-center">
+              <td colspan="12">
+                <div>Không có dữ liệu</div>
+              </td>
+            </tr>
+          }
+        } @else {
+          <tr class="text-center" *ngIf="loading">
+            <td colspan="12">
+              <div class="spinner-grow text-primary" role="status">
+                <span class="visually-hidden">Loading</span>
+              </div>
+              <div>Loading</div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

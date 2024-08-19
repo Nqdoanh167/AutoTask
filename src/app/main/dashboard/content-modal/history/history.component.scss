@@ -1,0 +1,11 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+table {
+  .content-history {
+    ul {
+      list-style: disc;
+      line-height: 150%;
+    }
+  }
+}
