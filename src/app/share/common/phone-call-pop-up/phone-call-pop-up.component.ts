@@ -99,7 +99,8 @@ export class PhoneCallPopUpComponent
           }
           this.stringeeService.callStopped();
         },
-        this.phoneStatus === ECallStatus.ENDED ? 2000 : 0,
+        // this.phoneStatus === ECallStatus.ENDED ? 2000 : 0,
+        1000,
       );
     } else {
       this.showPopup = true;

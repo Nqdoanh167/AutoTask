@@ -48,7 +48,7 @@ export class StringeeService {
     });
 
     call1.on('signalingstate', (state: {code: StringeeSignalingState}) => {
-      console.log('signalingstate ', state);
+      console.log('signalingstate thang test', state);
       let status: ECallStatus | undefined = undefined;
       switch (state.code) {
         case StringeeSignalingState.CALLING:
@@ -62,6 +62,9 @@ export class StringeeService {
           break;
         case StringeeSignalingState.ENDED:
           status = ECallStatus.ENDED;
+          break;
+        case StringeeSignalingState.BUSY:
+          status = ECallStatus.REJECTED;
           break;
         default:
           break;
@@ -207,6 +210,7 @@ export class StringeeService {
       modifiedToPhone,
       false,
     );
+
     this.settingCallEvents(this.call);
     this.call?.makeCall((res: OutGoingCallEvent) => {
       console.log('make call callback: ', res);
