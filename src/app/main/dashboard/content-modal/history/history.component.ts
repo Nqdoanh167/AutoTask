@@ -29,6 +29,7 @@ import {
 } from '@app/types/common';
 import moment from 'moment';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 
 @Component({
   selector: 'app-history',
@@ -108,6 +109,7 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
   constructor(
     private readonly authService: AuthService,
     private readonly autoTaskService: AutoTaskService,
+    private smsOttCallService: SmsOttCallService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -124,6 +126,15 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
 
   ngOnInit(): void {
     this.getHistory();
+    // this.getSmSOttCall();
+  }
+
+  getSmSOttCall() {
+    this.smsOttCallService.history.get().subscribe({
+      next: (res: any) => {
+        console.log('res snms', res);
+      },
+    });
   }
 
   onSelectFilter(data: {value?: string | string[]; name: string}) {
@@ -186,6 +197,7 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
   }
 
   getHistory() {
+    console.log('check voice history');
     this.history.loading = true;
     this.history.paramsQuery.filter = JSON.stringify({
       ...JSON.parse(this.history.paramsQuery.filter || '{}'),
@@ -196,6 +208,8 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       sortAll.push(this.sort.createdAt === 1 ? `createdAt` : `-createdAt`);
       this.history.paramsQuery.sort = sortAll.join(',');
     }
+
+    console.log('this.query', this.history.paramsQuery);
     this.autoTaskService.history
       .get(this.history.paramsQuery)
       .pipe(

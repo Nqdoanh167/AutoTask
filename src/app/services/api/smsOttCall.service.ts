@@ -32,6 +32,7 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
       next: (res) => {
         if (res) {
+          console.log('res alias', res);
           this.setApiAddress(
             environment.apiAddress,
             `bizs/${res.alias}/sms-ott-call`,
@@ -92,6 +93,14 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
   };
 
   history = {
+    get: (params = {filter: {taskId: '66ce9a271e6e8d6c1c95b3e3'}}) =>
+      this.httpClient.get<EntityResult<Platform[]>>(
+        this.createUrl([this.api.history]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+
     updateStatusCall: (uniqueCode: string, body: HistoryUpdateDto) =>
       this.httpClient.put<EntityResult<any>>(
         this.createUrl([this.api.history, uniqueCode]),

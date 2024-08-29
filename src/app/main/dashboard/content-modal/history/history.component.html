@@ -125,12 +125,16 @@
                               @if (contentHistory.key === CALL_PHONE_ACTION) {
                                 <div>
                                   @if (contentHistory.value) {
-                                    <a
-                                      href="tel:{{ contentHistory.value }}"
-                                      class="text-link cursor-text"
+                                    <audio
+                                      controls
+                                      class="mt-1"
+                                      style="max-width: 500px; height: 30px"
                                     >
-                                      {{ contentHistory.value }}
-                                    </a>
+                                      <source
+                                        [src]="contentHistory.value"
+                                        type="audio/ogg"
+                                      />
+                                    </audio>
                                   } @else {
                                     <div>---Không có file ghi âm---</div>
                                   }
