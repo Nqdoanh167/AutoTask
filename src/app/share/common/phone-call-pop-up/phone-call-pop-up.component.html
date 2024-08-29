@@ -41,6 +41,9 @@
             @if (phoneStatus === ECallStatus.ENDED) {
               Cuộc gọi đã kết thúc
             }
+            @if (phoneStatus === ECallStatus.REJECTED) {
+              Khách hàng không bắt máy
+            }
           </div>
           <div class="action-buttons d-flex justify-content-center gap-2 mt-4">
             @if (
