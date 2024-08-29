@@ -58,12 +58,13 @@ export class PhoneCallService {
     this.outgoingCallObj.next(outgoingCall);
   }
 
-  updateStatusOutgoingCall(status: ECallStatus) {
+  updateStatusOutgoingCall(status?: ECallStatus) {
     const currentCall = this.outgoingCallObj.getValue();
     if (currentCall) {
       currentCall.status = status;
       this.outgoingCallObj.next(currentCall);
     }
+    return status;
   }
 
   clearIncomingCall() {
