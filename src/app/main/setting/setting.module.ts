@@ -4,7 +4,6 @@ import {SettingComponent} from './setting.component';
 import {SettingRoutingModule} from './setting-routing.module';
 import {DecentralizationComponent} from '@main/setting/decentralization/decentralization.component';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
-import {PipeTimeViewModule} from '@share/pipe/timeView.module';
 import {FallbackImageModule} from '@share/directive/fallback-image/fallback-image.module';
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -31,6 +30,9 @@ import {InputUploadModule} from '@share/input/input-upload/input-upload.module';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {TreeSelectModule} from 'primeng/treeselect';
+import {TimeViewPipe} from '@share/pipe/timeView.pipe';
+import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
+import {LetDirective} from '@share/directive/ng-let.directive';
 
 @NgModule({
   declarations: [
@@ -49,7 +51,6 @@ import {TreeSelectModule} from 'primeng/treeselect';
     CommonModule,
     SettingRoutingModule,
     FilterTopTableComponent,
-    PipeTimeViewModule,
     FallbackImageModule,
     CustomModalComponent,
     FormsModule,
@@ -69,6 +70,9 @@ import {TreeSelectModule} from 'primeng/treeselect';
     BsDropdownModule,
     PopoverModule,
     TreeSelectModule,
+    TimeViewPipe,
+    GetDataArrayPipe,
+    LetDirective,
   ],
 })
 export class SettingModule {}

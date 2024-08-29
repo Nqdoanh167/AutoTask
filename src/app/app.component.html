@@ -1,1 +1,7 @@
-<router-outlet></router-outlet>
+@defer (when !loading) {
+  <router-outlet />
+} @placeholder (minimum 500ms) {
+  <div class="vw-100 vh-100 center-item home-loading">
+    <div class="spinner-custom"></div>
+  </div>
+}

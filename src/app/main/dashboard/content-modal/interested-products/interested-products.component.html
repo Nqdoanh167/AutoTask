@@ -1,147 +1,52 @@
-<form
-  (keydown.enter)="$event.preventDefault()"
-  [formGroup]="formGroup"
-  *ngIf="permitModules.includes('products')"
->
-  <div
-    class="list-product overflow-x-hidden mt-2 detail-order-product"
-    [ngClass]="{'px-2 py-3 rounded border': formProducts}"
-  >
-    <ng-container formGroupName="cart">
-      <div class="row g-2">
-        <div class="col-3">
-          <ng-select
-            [ngModel]="formWarehouse?.[0]?.id"
-            [ngModelOptions]="{standalone: true}"
-            (change)="handleChangeWarehouse($event)"
-            [placeholder]="'Chọn kho'"
-            [multiple]="false"
-            [items]="warehouses.rows"
-            [clearable]="false"
-            [loading]="warehouses.loading"
-            bindLabel="name"
-            bindValue="id"
-            class="dropdown-auto-width"
-            appearance="outline"
-            appendTo=".modal"
-          ></ng-select>
-        </div>
-        <div class="col-7" *ngIf="!isCombo">
-          <ng-select
-            [readonly]="!formWarehouse"
-            #selectProduct
-            (change)="handleChangeProducts($event)"
-            [placeholder]="'Chọn Sản phẩm'"
-            [searchable]="true"
-            (search)="handleSearchValue($event, ETypeProduct.PRODUCT)"
-            [clearSearchOnAdd]="true"
-            [multiple]="false"
-            [items]="products.rows"
-            bindLabel="name"
-            [compareWith]="compareFunction"
-            [virtualScroll]="true"
-            [clearable]="false"
-            [loading]="products.loading"
-            class="dropdown-auto-width custom-select-icon"
-            appearance="outline"
-            appendTo=".modal"
-            (open)="firstCallRemaining.product && getListProduct(true)"
-          >
-            <ng-template ng-option-tmp let-item="item">
-              <div class="d-flex align-items-center">
-                <img
-                  class="image-product-radius me-2"
-                  [src]="item.picture || 'assets/images/default-product.png'"
-                  fallback="assets/images/no-photo.jpeg"
-                  [alt]="item.name"
-                  width="20"
-                  height="20"
-                />
-                <div class="label">
-                  {{ item.name }}
-                </div>
-              </div>
-            </ng-template>
-          </ng-select>
-        </div>
-        <div class="col-7" *ngIf="isCombo">
-          <ng-select
-            [readonly]="!formWarehouse"
-            #selectCombo
-            (change)="handleChangeCombo($event)"
-            (search)="handleSearchValue($event, ETypeProduct.COMBO)"
-            [placeholder]="'Chọn Combo'"
-            [searchable]="true"
-            [items]="combos.rows"
-            bindLabel="name"
-            [clearable]="false"
-            [loading]="combos.loading"
-            class="dropdown-auto-width custom-select-icon"
-            appearance="outline"
-            appendTo=".modal"
-            (open)="firstCallRemaining.product && getListProduct(true)"
-          >
-            <ng-template ng-option-tmp let-item="item">
-              <div class="d-flex align-items-center">
-                <img
-                  class="image-product-radius me-2"
-                  [src]="item.picture || 'assets/images/default-product.png'"
-                  fallback="assets/images/no-photo.jpeg"
-                  [alt]="item.name"
-                  width="20"
-                  height="20"
-                />
-                <div class="label">
-                  {{ item.name }}
-                </div>
-              </div>
-            </ng-template>
-          </ng-select>
-        </div>
-        <div class="col-2">
-          <div class="d-flex justify-content-end gap-2">
-            <button
-              class="btn btn-primary"
-              [class.btn-outline-blue]="!isCombo"
-              style="width: 60%"
-              type="button"
-              (click)="searchByCombo()"
-            >
-              Combo
-            </button>
-            <button
-              class="btn btn-primary"
-              style="width: 40%"
-              (click)="addVirtualProduct()"
-            >
-              <i class="fa-solid fa-file-archive"></i>
-            </button>
+@if (permitModules.includes('products')) {
+  <form (keydown.enter)="$event.preventDefault()" [formGroup]="formGroup">
+    <div
+      class="list-product overflow-x-hidden mt-2 detail-order-product"
+      [ngClass]="{'px-2 py-3 rounded border': formProducts}"
+    >
+      <ng-container formGroupName="cart">
+        <div class="row g-2">
+          <div class="col-3">
+            <ng-select
+              [ngModel]="formWarehouse?.[0]?.id"
+              [ngModelOptions]="{standalone: true}"
+              (change)="handleChangeWarehouse($event)"
+              [placeholder]="'Chọn kho'"
+              [multiple]="false"
+              [items]="warehouses.rows"
+              [clearable]="false"
+              [loading]="warehouses.loading"
+              bindLabel="name"
+              bindValue="id"
+              class="dropdown-auto-width"
+              appearance="outline"
+              appendTo=".modal"
+            ></ng-select>
           </div>
-        </div>
-      </div>
-      <div class="show-products" *ngIf="formProducts">
-        <div class="table-responsive tableFixHead custom-scrollbar">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Mã SP</th>
-                <th>Sản phẩm</th>
-                <th>Trạng thái tồn</th>
-                <th>Giá bán lẻ</th>
-                <th>Số lượng</th>
-                <th>Tổng tiền</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of formProducts; index as i">
-                <td>
-                  <div class="text-secondary">
-                    {{ item.code }}
-                  </div>
-                </td>
-                <td>
-                  <div class="fw-normal">
+          @if (!isCombo) {
+            <div class="col-7">
+              <ng-select
+                [readonly]="!formWarehouse"
+                #selectProduct
+                (change)="handleChangeProducts($event)"
+                [placeholder]="'Chọn Sản phẩm'"
+                [searchable]="true"
+                (search)="handleSearchValue($event, ETypeProduct.PRODUCT)"
+                [clearSearchOnAdd]="true"
+                [multiple]="false"
+                [items]="products.rows"
+                bindLabel="name"
+                [compareWith]="compareFunction"
+                [virtualScroll]="true"
+                [clearable]="false"
+                [loading]="products.loading"
+                class="dropdown-auto-width custom-select-icon"
+                appearance="outline"
+                appendTo=".modal"
+                (open)="firstCallRemaining.product && getListProduct(true)"
+              >
+                <ng-template ng-option-tmp let-item="item">
+                  <div class="d-flex align-items-center">
                     <img
                       class="image-product-radius me-2"
                       [src]="
@@ -152,195 +57,312 @@
                       width="20"
                       height="20"
                     />
-                    <span>
+                    <div class="label">
                       {{ item.name }}
-                    </span>
-                    <span
-                      *ngIf="item.combo"
-                      [popover]="popoverSameProduct"
-                      container=".detail-order-product"
-                      placement="bottom"
-                      [popoverContext]="{item}"
-                      [outsideClick]="true"
-                      [placement]="'bottom left'"
-                      class="fs-7 badge bg-orange text-white cursor-pointer"
-                      tooltipHtml="Chọn sản phẩm có thuộc tính khác"
-                      (click)="getSameParentProduct(item.id)"
-                    >
-                      {{ item.comboName }}
-                    </span>
-                    <ng-template #popoverSameProduct let-item="item">
-                      <div class="popover-tab">
-                        <div *ngIf="sameProducts.loading; else other">
-                          <i class="fa-solid fa-spin fa-spinner"></i>
-                        </div>
-                        <ng-template #other>
-                          <div
-                            *ngFor="let same of sameProducts.rows"
-                            class="popover-tab-item"
-                            (click)="handleChangeProductsIntoCombo(same, i)"
-                          >
-                            <img
-                              class="image-product-radius me-2"
-                              [src]="
-                                same.picture ||
-                                'assets/images/default-product.png'
-                              "
-                              fallback="assets/images/no-photo.jpeg"
-                              [alt]="same.name"
-                              width="30"
-                              height="30"
-                            />
-                            <span>
-                              {{ same.name }}
-                            </span>
-                          </div>
-                          <div *ngIf="!sameProducts.rows.length">
-                            Không có biến thể nào!!!
-                          </div>
-                        </ng-template>
-                      </div>
-                    </ng-template>
-                    <span
-                      [popover]="popoverEditName"
-                      [popoverContext]="{item: item, index: i}"
-                      [outsideClick]="true"
-                      [placement]="'bottom left'"
-                      class="cursor-pointer ms-1"
-                      *ngIf="item.isVirtual"
-                    >
-                      <i class="fa-solid fa-pencil fs-7"></i>
-                    </span>
-                    <ng-template
-                      #popoverEditName
-                      let-item="item"
-                      let-index="index"
-                    >
-                      <div class="popover-tab">
-                        <input
-                          type="text"
-                          placeholder="Tên sản phẩm ảo"
-                          required
-                          [value]="item?.name"
-                          (keyup.enter)="
-                            editVirtualProduct(index, $event, 'name')
-                          "
-                          (change)="editVirtualProduct(index, $event, 'name')"
-                        />
-                      </div>
-                    </ng-template>
-                  </div>
-                </td>
-                <td>
-                  <div *ngIf="inventories.loading">
-                    <i class="fa-solid fa-spin fa-spinner text-secondary"></i>
-                  </div>
-                  <div *ngIf="!inventories.loading">
-                    <div
-                      class="fw-normal"
-                      *ngIf="matchingInventoryWithProduct(item.id)"
-                    >
-                      <span>
-                        Khả dụng:
-                        {{
-                          matchingInventoryWithProduct(item.id)?.qtyAvailable
-                        }}
-                      </span>
-                      |
-                      <span class="text-orange">
-                        Ship:
-                        {{
-                          matchingInventoryWithProduct(item.id)?.qtyInTransfer
-                        }}
-                      </span>
-                      |
-                      <span class="text-primary">
-                        Đặt cọc:
-                        {{
-                          matchingInventoryWithProduct(item.id)?.qtyInDeposit
-                        }}
-                      </span>
-                      |
-                      <span class="text-secondary">
-                        Tạm giữ:
-                        {{ matchingInventoryWithProduct(item.id)?.qtyInHold }}
-                      </span>
-                    </div>
-                    <div
-                      class="fw-normal"
-                      *ngIf="!matchingInventoryWithProduct(item.id)"
-                    >
-                      <span class="text-secondary">Chưa nhập kho</span>
                     </div>
                   </div>
-                </td>
-                <td>
-                  <div class="text-start">
-                    {{ item.price | currency: 'VND' }}
-                    <span
-                      [popover]="popoverEditPrice"
-                      [popoverContext]="{item: item, index: i}"
-                      [outsideClick]="true"
-                      [placement]="'bottom left'"
-                      class="cursor-pointer ms-1"
-                      *ngIf="item.isVirtual"
-                    >
-                      <i class="fa-solid fa-pencil fs-7"></i>
-                    </span>
-                    <ng-template
-                      #popoverEditPrice
-                      let-item="item"
-                      let-index="index"
-                    >
-                      <div class="popover-tab">
-                        <app-input-mask
-                          className="text-end"
-                          [isQuantity]="false"
-                          [value]="item.price"
-                          (changeValue)="
-                            editVirtualProduct(index, $event, 'price')
-                          "
-                        ></app-input-mask>
-                      </div>
-                    </ng-template>
+                </ng-template>
+              </ng-select>
+            </div>
+          } @else {
+            <div class="col-7">
+              <ng-select
+                [readonly]="!formWarehouse"
+                #selectCombo
+                (change)="handleChangeCombo($event)"
+                (search)="handleSearchValue($event, ETypeProduct.COMBO)"
+                [placeholder]="'Chọn Combo'"
+                [searchable]="true"
+                [items]="combos.rows"
+                bindLabel="name"
+                [clearable]="false"
+                [loading]="combos.loading"
+                class="dropdown-auto-width custom-select-icon"
+                appearance="outline"
+                appendTo=".modal"
+                (open)="firstCallRemaining.product && getListProduct(true)"
+              >
+                <ng-template ng-option-tmp let-item="item">
+                  <div class="d-flex align-items-center">
+                    <img
+                      class="image-product-radius me-2"
+                      [src]="
+                        item.picture || 'assets/images/default-product.png'
+                      "
+                      fallback="assets/images/no-photo.jpeg"
+                      [alt]="item.name"
+                      width="20"
+                      height="20"
+                    />
+                    <div class="label">
+                      {{ item.name }}
+                    </div>
                   </div>
-                </td>
-                <td>
-                  <div class="w-50">
-                    <app-input-mask
-                      className="text-end"
-                      [isQuantity]="true"
-                      [value]="item.quantity"
-                      (changeValue)="changeQuantity($event, i)"
-                      [min]="1"
-                    ></app-input-mask>
-                  </div>
-                </td>
-                <td>
-                  <div class="text-start">
-                    {{ item.price * item.quantity | currency: 'VND' }}
-                  </div>
-                </td>
-                <td>
-                  <button
-                    class="btn text-center btn-outline-danger btn-sm"
-                    (click)="removeProduct(i)"
-                  >
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="7">
-                  <div class="text-end fw-bold text-success me-5">
-                    Tổng tiền: {{ totalPrice() | currency: 'VND' }}
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </ng-template>
+              </ng-select>
+            </div>
+          }
+
+          <div class="col-2">
+            <div class="d-flex justify-content-end gap-2">
+              <button
+                class="btn btn-primary"
+                [class.btn-outline-blue]="!isCombo"
+                style="width: 60%"
+                type="button"
+                (click)="searchByCombo()"
+              >
+                Combo
+              </button>
+              <button
+                class="btn btn-primary"
+                style="width: 40%"
+                (click)="addVirtualProduct()"
+              >
+                <i class="fa-solid fa-file-archive"></i>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </ng-container>
-  </div>
-</form>
+        @if (formProducts) {
+          <div class="show-products">
+            <div class="table-responsive tableFixHead custom-scrollbar">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Mã SP</th>
+                    <th>Sản phẩm</th>
+                    <th>Trạng thái tồn</th>
+                    <th>Giá bán lẻ</th>
+                    <th>Số lượng</th>
+                    <th>Tổng tiền</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of formProducts; track i; let i = $index) {
+                    <tr>
+                      <td>
+                        <div class="text-secondary">
+                          {{ item.code }}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="fw-normal">
+                          <img
+                            class="image-product-radius me-2"
+                            [src]="
+                              item.picture ||
+                              'assets/images/default-product.png'
+                            "
+                            fallback="assets/images/no-photo.jpeg"
+                            [alt]="item.name"
+                            width="20"
+                            height="20"
+                          />
+                          <span class="product-name">
+                            {{ item.name }}
+                          </span>
+                          @if (item.combo) {
+                            <span
+                              [popover]="popoverSameProduct"
+                              container=".detail-order-product"
+                              placement="bottom"
+                              [popoverContext]="{item}"
+                              [outsideClick]="true"
+                              [placement]="'bottom left'"
+                              class="fs-7 badge bg-orange text-white cursor-pointer"
+                              tooltipHtml="Chọn sản phẩm có thuộc tính khác"
+                              (click)="getSameParentProduct(item.id)"
+                            >
+                              {{ item.comboName }}
+                            </span>
+                          }
+
+                          <ng-template #popoverSameProduct let-item="item">
+                            <div class="popover-tab">
+                              @if (sameProducts.loading) {
+                                <i class="fa-solid fa-spin fa-spinner"></i>
+                              } @else {
+                                @for (same of sameProducts.rows; track $index) {
+                                  <div
+                                    class="popover-tab-item"
+                                    (click)="
+                                      handleChangeProductsIntoCombo(same, i)
+                                    "
+                                  >
+                                    <img
+                                      class="image-product-radius me-2"
+                                      [src]="
+                                        same.picture ||
+                                        'assets/images/default-product.png'
+                                      "
+                                      fallback="assets/images/no-photo.jpeg"
+                                      [alt]="same.name"
+                                      width="30"
+                                      height="30"
+                                    />
+                                    <span>
+                                      {{ same.name }}
+                                    </span>
+                                  </div>
+                                } @empty {
+                                  <div>Không có biến thể nào!!!</div>
+                                }
+                              }
+                            </div>
+                          </ng-template>
+                          @if (item.isVirtual) {
+                            <span
+                              [popover]="popoverEditName"
+                              [popoverContext]="{item: item, index: i}"
+                              [outsideClick]="true"
+                              [placement]="'bottom left'"
+                              class="cursor-pointer ms-1"
+                            >
+                              <i class="fa-solid fa-pencil fs-7"></i>
+                            </span>
+                            <ng-template
+                              #popoverEditName
+                              let-item="item"
+                              let-index="index"
+                            >
+                              <div class="popover-tab">
+                                <input
+                                  type="text"
+                                  placeholder="Tên sản phẩm ảo"
+                                  required
+                                  [value]="item?.name"
+                                  (keyup.enter)="
+                                    editVirtualProduct(index, $event, 'name')
+                                  "
+                                  (change)="
+                                    editVirtualProduct(index, $event, 'name')
+                                  "
+                                />
+                              </div>
+                            </ng-template>
+                          }
+                        </div>
+                      </td>
+                      <td>
+                        @if (inventories.loading) {
+                          <i
+                            class="fa-solid fa-spin fa-spinner text-secondary"
+                          ></i>
+                        } @else {
+                          @if (matchingInventoryWithProduct(item.id)) {
+                            <div class="fw-normal">
+                              <span>
+                                Khả dụng:
+                                {{
+                                  matchingInventoryWithProduct(item.id)
+                                    ?.qtyAvailable
+                                }}
+                              </span>
+                              |
+                              <span class="text-orange">
+                                Ship:
+                                {{
+                                  matchingInventoryWithProduct(item.id)
+                                    ?.qtyInTransfer
+                                }}
+                              </span>
+                              |
+                              <span class="text-primary">
+                                Đặt cọc:
+                                {{
+                                  matchingInventoryWithProduct(item.id)
+                                    ?.qtyInDeposit
+                                }}
+                              </span>
+                              |
+                              <span class="text-secondary">
+                                Tạm giữ:
+                                {{
+                                  matchingInventoryWithProduct(item.id)
+                                    ?.qtyInHold
+                                }}
+                              </span>
+                            </div>
+                          } @else {
+                            <div class="fw-normal">
+                              <span class="text-secondary">Chưa nhập kho</span>
+                            </div>
+                          }
+                        }
+                      </td>
+                      <td>
+                        <div class="text-start">
+                          {{ item.price | currency: 'VND' }}
+                          @if (item.isVirtual) {
+                            <span
+                              [popover]="popoverEditPrice"
+                              [popoverContext]="{item: item, index: i}"
+                              [outsideClick]="true"
+                              [placement]="'bottom left'"
+                              class="cursor-pointer ms-1"
+                            >
+                              <i class="fa-solid fa-pencil fs-7"></i>
+                            </span>
+                            <ng-template
+                              #popoverEditPrice
+                              let-item="item"
+                              let-index="index"
+                            >
+                              <div class="popover-tab">
+                                <app-input-mask
+                                  className="text-end"
+                                  [isQuantity]="false"
+                                  [value]="item.price"
+                                  (changeValue)="
+                                    editVirtualProduct(index, $event, 'price')
+                                  "
+                                ></app-input-mask>
+                              </div>
+                            </ng-template>
+                          }
+                        </div>
+                      </td>
+                      <td>
+                        <div class="w-50">
+                          <app-input-mask
+                            className="text-end"
+                            [isQuantity]="true"
+                            [value]="item.quantity"
+                            (changeValue)="changeQuantity($event, i)"
+                            [min]="1"
+                          ></app-input-mask>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="text-start">
+                          {{ item.price * item.quantity | currency: 'VND' }}
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          class="btn text-center btn-outline-danger btn-sm"
+                          (click)="removeProduct(i)"
+                        >
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                  <tr>
+                    <td colspan="7">
+                      <div class="text-end fw-bold text-success me-5">
+                        Tổng tiền: {{ totalPrice() | currency: 'VND' }}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      </ng-container>
+    </div>
+  </form>
+}

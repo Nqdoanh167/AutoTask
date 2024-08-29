@@ -1,11 +1,20 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {ICommonDataSource, IPageChange} from '@app/types/viewmodels';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+} from '@angular/core';
+import {IPageChange} from '@app/types/viewmodels';
 import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {IFilterTopButton, IFilterTopTable} from '@app/types/common';
 import {CommonModule} from '@angular/common';
+import {NgSelectModule} from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-standard-data-size',
@@ -17,26 +26,22 @@ import {CommonModule} from '@angular/common';
     ReactiveFormsModule,
     FormsModule,
     CommonModule,
+    NgSelectModule,
   ],
   templateUrl: './standard-data-size.component.html',
   styleUrl: './standard-data-size.component.scss',
 })
-export class StandardDataSizeComponent<T, K extends any> {
+export class StandardDataSizeComponent<T, K extends any> implements OnChanges {
+  private readonly cdr = inject(ChangeDetectorRef);
+
   @Input() isHidePaginate: boolean = false;
   @Input() isHideFilter: boolean = false;
   @Input() configFilters: IFilterTopTable[] = [];
   @Input() configButtons: IFilterTopButton[] = [];
-  @Input() item: ICommonDataSource<T, K | any> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      limit: 20,
-      page: 1,
-      q: '',
-      sort: '-createdAt',
-    },
-    total: 0,
-  };
+  @Input() total: number = 0;
+  @Input() loading: boolean = false;
+  @Input() limit: number = 20;
+  @Input() page: number = 1;
 
   @Output() searchEvent = new EventEmitter<{term: string; name: string}>();
   @Output() pageChangeEvent = new EventEmitter<IPageChange>();
@@ -47,6 +52,8 @@ export class StandardDataSizeComponent<T, K extends any> {
   @Output() actionEvent = new EventEmitter<string>();
 
   constructor() {}
+
+  ngOnChanges() {}
 
   handleAction(name: string) {
     this.actionEvent.emit(name);
@@ -59,7 +66,8 @@ export class StandardDataSizeComponent<T, K extends any> {
   }
 
   pageChanged(event: {page?: number; itemsPerPage?: number}, limit: any): void {
-    this.pageChangeEvent.emit({event, limit});
+    this.pageChangeEvent.emit({page: event.page, limit});
+    this.cdr.detectChanges();
   }
 
   onSelectFilter(data: {value?: string; name: string}) {

@@ -1,4 +1,4 @@
-import {Injectable, Injector} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
@@ -12,7 +12,6 @@ import {
   User,
 } from 'src/app/types/viewmodels';
 import {environment} from 'src/environments/environment';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {
   EPerActFlow,
   EPerActSetting,
@@ -25,7 +24,6 @@ import {
   listDashboardNavItems,
   listSettingNavItems,
 } from '@app/variable';
-import uniq from 'lodash/uniq';
 
 @Injectable({
   providedIn: 'root',
@@ -62,11 +60,14 @@ export class AuthService {
   constructor(
     private bizService: BizService,
     protected httpClient: HttpClient,
-    private injector: Injector,
   ) {}
 
   getCurrentBiz() {
     return this.currentBizSubject.getValue();
+  }
+
+  getCurrentUser() {
+    return this.currentUserSubject.getValue();
   }
 
   popular() {
@@ -90,12 +91,11 @@ export class AuthService {
             this.modules.next(res.data.modules);
             this.refToken = res.refToken || null;
             this.isLoggedInSubject.next(true);
-            this.getUserPerAccess();
           } else {
             window.location.href = parsedURL.origin;
           }
         },
-        error: (error) => {
+        error: () => {
           if (environment.production) {
             window.location.href = '/';
           } else {
@@ -112,49 +112,12 @@ export class AuthService {
     }
   }
 
-  getUserPerAccess() {
-    this.userAccessPerSubject.next({
-      [EPerActType.TASK]: [
-        EPerActTask.VIEW_TASK,
-        EPerActTask.VIEW_TASK_BIZ,
-        EPerActTask.CREATE_TASK,
-        EPerActTask.UPDATE_TASK,
-        EPerActTask.DELETE_TASK,
-        EPerActTask.VIEW_INFORMATION_TASK,
-        EPerActTask.VIEW_HISTORY_TASK,
-        EPerActTask.CREATE_ORDER,
-        EPerActTask.MANAGE_CHAIN,
-        EPerActTask.MANAGE_ACTION,
-        EPerActTask.EDIT_TIME_ACTION,
-      ],
-      [EPerActType.FLOW]: [EPerActFlow.VIEW_FLOW, EPerActFlow.UPDATE_FLOW],
-      [EPerActType.SETTING]: [
-        EPerActSetting.VIEW_SOURCE_SETTING,
-        EPerActSetting.UPDATE_SOURCE_SETTING,
-        EPerActSetting.VIEW_TAG_SETTING,
-        EPerActSetting.UPDATE_TAG_SETTING,
-        EPerActSetting.VIEW_ROLE_SETTING,
-        EPerActSetting.UPDATE_ROLE_SETTING,
-        EPerActSetting.VIEW_PERMISSION_SETTING_ACCESS,
-        EPerActSetting.UPDATE_PERMISSION_SETTING_ACCESS,
-        EPerActSetting.VIEW_USER_ACCESS,
-        EPerActSetting.VIEW_USER_ACCESS_BIZ,
-        EPerActSetting.UPDATE_USER_ACCESS,
-      ],
-    } as any);
-    // const autoTaskService = this.injector.get(AutoTaskService);
-    // autoTaskService.permission.getUserPermissions().subscribe({
-    //   next: (res) => {
-    //     if (res.status === 200) {
-    //       this.userAccessPerSubject.next(res.data);
-    //     } else {
-    //       window.location.href = '/';
-    //     }
-    //   },
-    //   error: (error) => {
-    //     window.location.href = '/';
-    //   },
-    // });
+  checkPermittedModule(moduleAlias: string) {
+    return this.getPermittedModules().includes(moduleAlias);
+  }
+
+  getPermittedModules() {
+    return this.currentBizSubject.getValue()?.user?.moduleAliases || [];
   }
 
   getAccessibleSite() {
@@ -217,11 +180,13 @@ export class AuthService {
     if (!userPer) return false;
     switch (module) {
       case EModule.DASHBOARD:
-        return !!userPer[EPerActType.TASK].length;
+        return userPer[EPerActType.TASK].includes(EPerActTask.VIEW_TASK);
       case EModule.CONFIG:
-        return !!userPer[EPerActType.FLOW].length;
+        return userPer[EPerActType.FLOW].includes(EPerActFlow.VIEW_FLOW);
       case EModule.SETTING:
-        return !!userPer[EPerActType.SETTING].length;
+        return userPer[EPerActType.SETTING].includes(
+          EPerActSetting.VIEW_MASTER_DATA,
+        );
       default:
         return false;
     }
@@ -255,6 +220,14 @@ export class AuthService {
     return users?.filter((user) => colleagueIds.includes(user.id));
   }
 
+  // get user's permission in branch/department/team
+  getInfoInUnit(id?: string | null) {
+    if (!id) return;
+    const currentBiz = this.currentBizSubject.getValue();
+    const flatBranches = currentBiz.user?.flatBranches;
+    return flatBranches?.find((unit) => unit.id === id);
+  }
+
   isOwner(): boolean {
     return this.currentBizSubject?.value?.user.role == ERole.OWNER;
   }
@@ -270,6 +243,14 @@ export class AuthService {
 
   setUser(user: User) {
     this.currentUserSubject.next(user);
+  }
+
+  getUserAccessPerSubject() {
+    return this.userAccessPerSubject.getValue();
+  }
+
+  setUserAccessPerSubject(userPer: UserPerAccess) {
+    this.userAccessPerSubject.next(userPer);
   }
 
   logout() {
@@ -300,10 +281,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    // get the token
     const token = this.getToken();
-    // return a boolean reflecting
-    // whether or not the token is expired
     return !!token;
   }
 }

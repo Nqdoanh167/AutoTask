@@ -4,16 +4,16 @@ import {ICommonDataSource, IQueryBase} from '@app/types/viewmodels';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {
   ENextStepType,
-  IUpdateChainActDto,
   IBodyUpdateOrdering,
   IChainActRule,
+  IUpdateChainActDto,
 } from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {AuthService} from '@app/services/api/auth.service';
-import {EPerActFlow, EPerActSetting, EPerActType} from '@app/types/setting';
+import {EPerActFlow, EPerActType} from '@app/types/setting';
 
 @Component({
   selector: 'app-rule',

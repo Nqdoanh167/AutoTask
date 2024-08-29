@@ -1,3 +1,5 @@
+import {AccountPublic, BaseInterface} from '@app/types/viewmodels';
+
 export interface Platform {
   id: string;
   author: string;
@@ -10,7 +12,7 @@ export interface Platform {
   bizId: string;
   name: string;
   platformType: string;
-  platform: string;
+  platform: EVoicePlatform;
   stringee?: {
     key: string;
     secret: string;
@@ -18,4 +20,90 @@ export interface Platform {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ManageMappingPhone extends BaseInterface {
+  platformId: string;
+  hotline: string;
+  sip: number;
+  counselor: any;
+  userIds: string;
+  isActive: boolean;
+  platform: Platform;
+}
+
+export enum EVoicePlatform {
+  STRINGEE = 'stringee',
+  VFONE = 'vfone',
+  OMICALL = 'omicall',
+  PORTSIP = 'portsip',
+  ESMS = 'esms',
+  ZNS = 'zns',
+  SMAX_SMS = 'smax_sms',
+  SMAX_ZNS = 'smax_zns',
+  SMAX_PORTSIP = 'smax_portsip',
+}
+
+export enum EVoicePlatformType {
+  VOICE = 'voice',
+  SMS = 'sms',
+  SMAX_AGENCY = 'smax_agency',
+}
+
+export interface StringeeReceiveCallEvent {
+  answeredOnAnotherDevice: boolean;
+  audioDeviceId: any;
+  callId: string;
+  client: any;
+  custom: any;
+  ended: boolean;
+  fromAlias: string;
+  fromInternal: boolean;
+  fromNumber: string;
+  isAnswered: boolean;
+  isIncomingCall: boolean;
+  isOnHold: boolean;
+  isVideoCall: boolean;
+  localVideoEnabled: boolean;
+  microphones: any[];
+  muted: boolean;
+  reasonEndall: string;
+  speakers: any[];
+  toAlias: string;
+  toNumber: string;
+  toType: string;
+  videoDeviceId: any;
+  videoResolution: any;
+}
+
+export interface OutGoingCallEvent {
+  callId: string;
+  customDataFromYourSever: string;
+  fromNumber: string;
+  toNumber: string;
+  toType: 'external';
+  peerToPeerCall: boolean;
+  message: string;
+}
+
+export enum EStatusVoice {
+  NONE = 'NONE',
+  RINGING = 'RINGING',
+  CONNECT = 'CONNECT',
+  SUCCESS = 'SUCCESS',
+  REJECT = 'REJECT',
+  FAIL = 'FAIL',
+}
+
+export interface HistoryUpdateDto {
+  status: EStatusVoice;
+  order?: {
+    id?: string | null;
+    code?: string | null;
+  };
+  task?: {
+    id?: string | null;
+    code?: string | null;
+  };
+  author: Pick<AccountPublic, 'id' | 'name' | 'email' | 'picture'>;
 }

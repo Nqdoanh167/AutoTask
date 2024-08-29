@@ -1,8 +1,7 @@
 // custom pipe
-import {PipeTransform, Pipe} from '@angular/core';
-import {MainService} from 'src/app/services/api/main.service';
+import {Pipe, PipeTransform} from '@angular/core';
 
-@Pipe({name: 'filterColorGlobal'})
+@Pipe({name: 'filterColorGlobal', standalone: true})
 export class FilterColorGlobalPipe implements PipeTransform {
   statuses = [
     {label: 'New', value: 'new', bgColor: '#e53935', txtColor: '#17234e'},

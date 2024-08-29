@@ -13,104 +13,130 @@
           (popoverEvent)="onPopoverFilter($event)"
           (pickerDateEvent)="onPickerDateFilter($event)"
           (scrollToEndEvent)="handleLoadMoreData($event)"
-        ></app-filter-top-table>
+        >
+          <ng-container specificAdvanceFilter>
+            <div class="fw-normal col-4">Chi nhánh</div>
+            <div class="col-8">
+              <p-treeSelect
+                [filter]="true"
+                [options]="units"
+                [(ngModel)]="selectedUnits"
+                (onNodeSelect)="handleChangeUnits($event)"
+                (onNodeUnselect)="handleChangeUnits($event)"
+                [metaKeySelection]="false"
+                selectionMode="checkbox"
+                class="w-100"
+                containerStyleClass="w-100 input-medium custom-tree-select fw-normal"
+                placeholder="Chọn Chi nhánh..."
+              ></p-treeSelect>
+            </div>
+          </ng-container>
+        </app-filter-top-table>
         <div class="table-responsive tableFixHead custom-scrollbar">
           <table class="table col-resizable">
             <thead>
-              <tr *ngIf="!taskChecked.length">
-                @if (permission.edit) {
+              @if (!getLengthCheckRow()) {
+                <tr>
+                  @if (permission.edit) {
+                    <th scope="col" style="width: 40px" class="column-checkbox">
+                      <label class="basic-checkbox standalone">
+                        <input
+                          type="checkbox"
+                          (change)="
+                            handleSelectRow({type: 'all', event: $event})
+                          "
+                          [checked]="isAllChecked()"
+                        />
+                        <span class="checkmark"></span>
+                      </label>
+                    </th>
+                  }
+                  <ng-container
+                    *ngFor="let columns of dataColumnsShow; index as i"
+                  >
+                    <th (mousedown)="startResizing($event)">
+                      <i
+                        *ngIf="columns.showTooltip"
+                        class="fa fa-question-circle"
+                        [tooltipHtml]="columns.tooltip || ''"
+                      ></i>
+                      {{ columns.name }}
+                      <span
+                        *ngIf="columns.fieldSort"
+                        class="caret-wrapper justify-content-center"
+                        (click)="changeSort(columns.fieldSort)"
+                      >
+                        <i
+                          class="fa fa-caret-up asc"
+                          [ngClass]="{
+                            'text-primary': sort[columns.fieldSort] === 1
+                          }"
+                        ></i>
+                        <i
+                          class="fa fa-caret-down desc"
+                          [ngClass]="{
+                            'text-primary': sort[columns.fieldSort] === -1
+                          }"
+                        ></i>
+                      </span>
+                    </th>
+                  </ng-container>
+                  <th scope="col">
+                    <div
+                      class="btn button-cog-table text-center"
+                      (click)="showModalOrderableTable()"
+                    >
+                      <img src="./assets/images/icon/table.svg" alt="" />
+                    </div>
+                  </th>
+                </tr>
+              } @else {
+                <tr>
                   <th scope="col" style="width: 40px" class="column-checkbox">
                     <label class="basic-checkbox standalone">
                       <input
                         type="checkbox"
-                        [checked]="
-                          headerCheckboxState[dataSource.paramsQuery.page]
-                        "
-                        (change)="toggleAllRows($event)"
+                        (change)="handleSelectRow({type: 'all', event: $event})"
+                        [checked]="isAllChecked()"
                       />
                       <span class="checkmark"></span>
                     </label>
                   </th>
-                }
-                <ng-container
-                  *ngFor="let columns of dataColumnsShow; index as i"
-                >
-                  <th (mousedown)="startResizing($event)">
-                    <i
-                      *ngIf="columns.showTooltip"
-                      class="fa fa-question-circle"
-                      [tooltipHtml]="columns.tooltip || ''"
-                    ></i>
-                    {{ columns.name }}
-                    <span
-                      *ngIf="columns.fieldSort"
-                      class="caret-wrapper justify-content-center"
-                      (click)="changeSort(columns.fieldSort)"
-                    >
-                      <i
-                        class="fa fa-caret-up asc"
-                        [ngClass]="{
-                          'text-primary': sort[columns.fieldSort] === 1
-                        }"
-                      ></i>
-                      <i
-                        class="fa fa-caret-down desc"
-                        [ngClass]="{
-                          'text-primary': sort[columns.fieldSort] === -1
-                        }"
-                      ></i>
-                    </span>
+                  <th colspan="12">
+                    <div class="d-flex align-items-center gap-3">
+                      <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
+                      <ng-select
+                        #selectBatchActions
+                        appearance="outline"
+                        [clearable]="false"
+                        placeholder="Thao tác hàng loạt"
+                        style="width: 250px"
+                        [items]="multipleAction"
+                        (change)="showModalMultipleAction($event)"
+                        appendTo="body"
+                        class="ng-select ng-select-single"
+                      ></ng-select>
+                      <button
+                        class="btn button-outline"
+                        (click)="handleRefreshRow()"
+                      >
+                        Bỏ chọn tất cả
+                      </button>
+                    </div>
                   </th>
-                </ng-container>
-                <th scope="col">
-                  <div
-                    class="btn button-cog-table text-center"
-                    (click)="showModalOrderableTable()"
-                  >
-                    <img src="./assets/images/icon/table.svg" alt="" />
-                  </div>
-                </th>
-              </tr>
-              <tr *ngIf="taskChecked.length">
-                <th scope="col" style="width: 40px" class="column-checkbox">
-                  <label class="basic-checkbox standalone">
-                    <input
-                      type="checkbox"
-                      [checked]="
-                        headerCheckboxState[dataSource.paramsQuery.page]
-                      "
-                      (change)="toggleAllRows($event)"
-                    />
-                    <span class="checkmark"></span>
-                  </label>
-                </th>
-                <th colspan="12">
-                  <div class="d-flex align-items-center gap-3">
-                    <span>Đã chọn {{ taskChecked.length }} bản ghi</span>
-                    <ng-select
-                      appearance="outline"
-                      [clearable]="false"
-                      placeholder="Thao tác hàng loạt"
-                      style="width: 250px"
-                      [items]="multipleAction"
-                      (change)="showModalMultipleAction($event)"
-                      appendTo="body"
-                      class="ng-select ng-select-single"
-                    ></ng-select>
-                  </div>
-                </th>
-              </tr>
+                </tr>
+              }
             </thead>
             <tbody>
               <tr
                 class="text-center"
-                *ngIf="!dataSource.rows.length && !dataSource.loading"
+                *ngIf="!item.rows.length && !item.loading"
               >
                 <td colspan="12">
                   <div>Không có dữ liệu</div>
                 </td>
               </tr>
-              <tr class="text-center" *ngIf="dataSource.loading">
+              <tr class="text-center" *ngIf="item.loading">
                 <td colspan="12">
                   <div class="spinner-grow text-primary" role="status">
                     <span class="visually-hidden">Loading</span>
@@ -118,15 +144,18 @@
                   <div>Loading</div>
                 </td>
               </tr>
-              <ng-container *ngIf="!dataSource.loading">
-                <tr *ngFor="let item of dataSource.rows; index as i">
+              <ng-container *ngIf="!item.loading">
+                <tr *ngFor="let item of item.rows; index as i">
                   @if (permission.edit) {
                     <td>
                       <label class="basic-checkbox">
                         <input
+                          value="{{ item.id }}"
+                          [checked]="isCheckRow(item)"
+                          (change)="handleSelectRow({item, event: $event})"
+                          (keydown)="isShift = true"
+                          (keyup)="isShift = false"
                           type="checkbox"
-                          [checked]="taskChecked.includes(item.id)"
-                          (change)="stateChecked(item, $event)"
                         />
                         <span class="checkmark"></span>
                       </label>
@@ -144,7 +173,13 @@
                           >
                             {{ item.name || '-' }}
                           </div>
-                          <div class="d-flex flex-row flex-wrap gap-1">
+                          <div
+                            class="fw-500 cursor-pointer text-link mt-1"
+                            (click)="handleUpdate(item)"
+                          >
+                            {{ item.code || '-' }}
+                          </div>
+                          <div class="d-flex flex-row flex-wrap gap-1 mt-1">
                             <div *ngFor="let tag of item.tags">
                               <span
                                 class="text-capitalize me-2 tag-item"
@@ -168,7 +203,7 @@
                                   taskChain.status === ETaskChainType.CLOSED
                                 "
                               >
-                                <div class="lock" tooltipHtml="Chuỗi đã đóng">
+                                <div class="lock" tooltip="Chuỗi đã đóng">
                                   <img
                                     src="./assets/images/icon/grey-lock.svg"
                                     alt=""
@@ -205,12 +240,154 @@
                                         <ng-container
                                           [ngTemplateOutlet]="timeLeft"
                                           [ngTemplateOutletContext]="{
-                                            dataTimeLeft: calculateTimeLeft(
-                                              taskChainResult.deadlineDate,
-                                              taskChain
-                                            )
+                                            dataTimeLeft:
+                                              (taskChainResult.deadlineDate
+                                              | calculateTaskDeadline
+                                                : taskChain)
                                           }"
                                         ></ng-container>
+                                        @if (
+                                          taskChainResult?.reasonEditedDate
+                                            ?.length
+                                        ) {
+                                          <i
+                                            [popover]="changeHistoriesPop"
+                                            placement="right"
+                                            [outsideClick]="true"
+                                            class="fa-solid fa-circle-exclamation warning-change-time"
+                                            container="body"
+                                          ></i>
+                                          <ng-template #changeHistoriesPop>
+                                            <div
+                                              class="popover-change-histories align-items-center"
+                                            >
+                                              <div class="headline mb-2">
+                                                Lịch sử chỉnh sửa thời gian
+                                              </div>
+                                              <div
+                                                class="table-responsive tableFixHead custom-scrollbar"
+                                                [style.max-height]="'300px'"
+                                              >
+                                                <table
+                                                  class="table table-change-histories"
+                                                >
+                                                  <thead>
+                                                    <tr>
+                                                      <th>
+                                                        Thời gian chỉnh sửa
+                                                      </th>
+                                                      <th>
+                                                        Trước khi chỉnh sửa
+                                                      </th>
+                                                      <th>Sau khi chỉnh sửa</th>
+                                                      <th>Người sửa</th>
+                                                      <th>Ghi chú</th>
+                                                    </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                    @for (
+                                                      reasonEditedDate of taskChainResult?.reasonEditedDate;
+                                                      track reasonEditedDateIndex;
+                                                      let reasonEditedDateIndex = $index
+                                                    ) {
+                                                      <tr>
+                                                        <td>
+                                                          {{
+                                                            reasonEditedDate?.editedDate
+                                                              | date
+                                                                : 'dd/MM/yyyy HH:mm'
+                                                          }}
+                                                        </td>
+                                                        <td>
+                                                          @if (
+                                                            reasonEditedDate?.deadDate &&
+                                                            reasonEditedDate?.editedDate
+                                                          ) {
+                                                            <div
+                                                              *ngLet="
+                                                                reasonEditedDate.deadDate <
+                                                                reasonEditedDate.editedDate as outOfDeadline
+                                                              "
+                                                            >
+                                                              <div
+                                                                class="{{
+                                                                  outOfDeadline
+                                                                    ? 'text-danger'
+                                                                    : 'text-primary'
+                                                                }}"
+                                                              >
+                                                                {{
+                                                                  outOfDeadline
+                                                                    ? 'Trễ'
+                                                                    : 'Còn'
+                                                                }}
+                                                                {{
+                                                                  reasonEditedDate.deadDate
+                                                                    | calculateDeadline
+                                                                      : reasonEditedDate.editedDate
+                                                                }}
+                                                              </div>
+                                                            </div>
+                                                          }
+                                                        </td>
+                                                        <td>
+                                                          @if (
+                                                            reasonEditedDate?.newDate &&
+                                                            reasonEditedDate?.editedDate
+                                                          ) {
+                                                            <div
+                                                              class="text-primary"
+                                                            >
+                                                              Còn
+                                                              {{
+                                                                reasonEditedDate.newDate
+                                                                  | calculateDeadline
+                                                                    : reasonEditedDate.editedDate
+                                                              }}
+                                                            </div>
+                                                          }
+                                                        </td>
+                                                        <td>
+                                                          <div
+                                                            class="d-flex gap-2 align-items-center"
+                                                          >
+                                                            <img
+                                                              class="avatar"
+                                                              src="{{
+                                                                reasonEditedDate
+                                                                  ?.editedBy
+                                                                  ?.picture
+                                                              }}"
+                                                              alt=""
+                                                            />
+                                                            <span
+                                                              class="fw-500"
+                                                            >
+                                                              {{
+                                                                reasonEditedDate
+                                                                  ?.editedBy
+                                                                  ?.name
+                                                              }}
+                                                            </span>
+                                                          </div>
+                                                        </td>
+                                                        <td class="column-note">
+                                                          <div>
+                                                            {{
+                                                              reasonEditedDate?.reason ||
+                                                                '-'
+                                                            }}
+                                                          </div>
+                                                        </td>
+                                                      </tr>
+                                                    }
+                                                    <tr></tr>
+                                                  </tbody>
+                                                </table>
+                                              </div>
+                                            </div>
+                                          </ng-template>
+                                        }
                                         <ng-template
                                           #timeLeft
                                           let-dataTimeLeft="dataTimeLeft"
@@ -377,6 +554,7 @@
                                   }}"
                                   fallback="assets/images/avatar.svg"
                                   class="product-item-image me-2"
+                                  alt=""
                                 />
                                 <div class="product-item-name">
                                   {{ product.name || '-' }}
@@ -386,16 +564,47 @@
                           </div>
                         </td>
                       </ng-container>
+                      <ng-container *ngSwitchCase="'branch'">
+                        <td class="column-branch">
+                          <div>
+                            {{
+                              item?.branch?.teamName &&
+                                item?.branch?.teamName + ', '
+                            }}
+                            {{
+                              item?.branch?.departmentName &&
+                                item?.branch?.departmentName + ', '
+                            }}
+                            {{ item?.branch?.name || '-' }}
+                          </div>
+                        </td>
+                      </ng-container>
                       <ng-container *ngSwitchCase="'orderIds'">
                         <td>
                           <div
                             class="d-flex flex-column"
-                            *ngIf="item.orderIds"
-                            (click)="handleViewCreatedOrder(item)"
+                            *ngIf="item?.orders?.length; else nonContent"
                           >
-                            <span class="fw-500 text-nowrap text-link px-2">
-                              {{ item.orderIds?.length }} đơn hàng
-                            </span>
+                            <div class="list-order d-flex flex-column gap-2">
+                              <div
+                                *ngFor="let order of item.orders"
+                                class="order-item"
+                              >
+                                <div
+                                  (click)="handleViewCreatedOrder(order)"
+                                  class="d-flex gap-2 align-items-center cursor-pointer"
+                                >
+                                  <img
+                                    src="./assets/images/logo-modules/sale-center.svg"
+                                    alt=""
+                                    [style.height]="'25px'"
+                                  />
+                                  <div class="fw-500 text-link">
+                                    {{ order.code }}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </td>
                       </ng-container>
@@ -407,6 +616,7 @@
                                 src="{{ team.userPicture }}"
                                 fallback="assets/images/avatar.svg"
                                 class="avatar me-2"
+                                alt=""
                               />
                               <div class="d-flex flex-column">
                                 <span class="fw-500">
@@ -509,12 +719,14 @@
           </table>
         </div>
         <custom-pagination
-          [selectedSize]="dataSource.paramsQuery.limit"
-          [currentPage]="dataSource.paramsQuery.page"
+          [selectedSize]="item.paramsQuery.limit"
+          [currentPage]="item.paramsQuery.page"
           (changePageEvent)="pageChanged($event)"
-          [total]="dataSource.total"
+          [total]="item.total"
         ></custom-pagination>
       </div>
     </div>
   </div>
 </div>
+
+<ng-template #nonContent>-</ng-template>

@@ -1,15 +1,37 @@
 <div class="input-suggest-customer">
-  <input
-    autocomplete="off"
-    class="form-control input-main {{ className }}"
-    (input)="onSearch($event)"
-    (blur)="trigger.name = false"
-    (focus)="trigger.name = true"
-    [placeholder]="placeholder"
-    [(ngModel)]="value"
-    id="{{ inputId }}"
-    type="text"
-  />
+  @if (uiType === 'text') {
+    <input
+      autocomplete="off"
+      class="form-control input-main {{ className }}"
+      (input)="onSearch($event)"
+      (blur)="trigger.name = false"
+      (focus)="trigger.name = true"
+      [placeholder]="placeholder"
+      [(ngModel)]="value"
+      id="{{ inputId }}"
+      type="text"
+    />
+  } @else {
+    <div class="input-search-main form-control {{ className }}">
+      <div class="input-search-icon">
+        @if (customers.loading) {
+          <i class="fas fa-spinner fa-spin"></i>
+        } @else {
+          <i class="fa-solid fa-magnifying-glass"></i>
+        }
+      </div>
+      <input
+        autocomplete="off"
+        (input)="onSearch($event)"
+        (blur)="trigger.name = false"
+        (focus)="trigger.name = true"
+        [placeholder]="placeholder"
+        [(ngModel)]="value"
+        id="{{ inputId }}"
+        type="text"
+      />
+    </div>
+  }
   <ng-select
     [(ngModel)]="selectedCustomer"
     class="suggest-select"

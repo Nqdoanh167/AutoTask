@@ -121,6 +121,12 @@ export interface IPosLastBranches {
   departments: string[];
   userIds: string[];
 }
+export interface FlatBranch {
+  id: string;
+  name: string;
+  role: ERole;
+  userIds: string[]; // all user in this unit
+}
 
 export interface User {
   id: string;
@@ -135,7 +141,7 @@ export interface User {
   picture: string;
   gender?: string;
   birthday?: string;
-  role: string;
+  role: ERole;
   biz: Biz;
   quickModules: string[];
   services: {
@@ -146,11 +152,14 @@ export interface User {
   branches: Branch[];
   roleBranches: Branch[];
   posLastBranches: IPosLastBranches[];
+  flatBranches: FlatBranch[];
   branchIds: string[];
   groups?: BizGroup[];
   roleIds?: string[];
   roles?: BizRole[];
   isActive: boolean;
+  moduleAliases: string[];
+  modules: BizModule[];
   createdAt?: Date;
 }
 export interface Team {
@@ -577,41 +586,7 @@ export interface LoyaltyRank {
   createdAt: Date;
   updatedAt: Date;
 }
-export interface Customer {
-  saleCenter: any;
-  id: string;
-  bizId?: string;
-  fbId?: string;
-  zaloId?: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  gender?: 'male' | 'female' | 'other';
-  typePrice?: string;
-  code: string;
-  picture?: string;
-  pictures?: string[];
-  postcode: string;
-  provinceCode: string;
-  districtCode: string;
-  wardCode: string;
-  province: string;
-  district: string;
-  ward: string;
-  street: string;
-  address: string;
-  tags: CustomerTag[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-export interface CustomerTag {
-  bizId?: string;
-  bgColor?: string;
-  createdAt?: string;
-  name?: string;
-  updatedAt?: string;
-  id: string;
-}
+
 export interface Segment {
   id: string;
   bizId?: string;
@@ -862,6 +837,7 @@ export interface IColumns {
 export enum ERole {
   OWNER = 'OWNER',
   DEV = 'DEV',
+  MEMBER = 'MEMBER',
 }
 
 export interface AppointmentStatus {
@@ -1519,6 +1495,8 @@ export enum EInformationContentHistoryTask {
   CHANGE_SOURCE = 'CHANGE_SOURCE',
   CUSTOMER = 'CUSTOMER',
   CHANGE_CUSTOMER = 'CHANGE_CUSTOMER',
+  BRANCH = 'BRANCH',
+  CHANGE_BRANCH = 'CHANGE_BRANCH',
   COUNSELOR = 'COUNSELOR',
   REMOVE_TAG = 'REMOVE_TAG',
   ADD_TAG = 'ADD_TAG',
@@ -1533,6 +1511,7 @@ export enum EInformationContentHistoryTask {
   CALL_PHONE = 'CALL_PHONE',
   CHANGE_NOTE_I = 'CHANGE_NOTE_I',
   ROLE = 'ROLE',
+  CHAT_LINK = 'CHAT_LINK',
 }
 export interface IContentHistoryTask {
   orderProduct?: IOrderProductContentHistoryTask[];
@@ -1654,8 +1633,8 @@ export interface IPaginationStandard {
 }
 
 export interface IPageChange {
-  event: {page?: number; itemsPerPage?: number};
-  limit: any;
+  page?: number;
+  limit: number;
 }
 
 export interface BaseInterface {

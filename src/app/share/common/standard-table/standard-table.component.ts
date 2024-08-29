@@ -13,6 +13,7 @@ import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {IFilterTopButton, IFilterTopTable} from '@app/types/common';
 import {CommonModule} from '@angular/common';
+import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
 
 @Component({
   selector: 'app-standard-table',
@@ -28,7 +29,10 @@ import {CommonModule} from '@angular/common';
   templateUrl: './standard-table.component.html',
   styleUrl: './standard-table.component.scss',
 })
-export class StandardTableComponent<T, K extends any> implements OnInit {
+export class StandardTableComponent<T, K extends any>
+  extends BaseComponentsComponent
+  implements OnInit
+{
   @Input() isHidePaginate: boolean = false;
   @Input() isHideFilter: boolean = false;
 
@@ -52,7 +56,9 @@ export class StandardTableComponent<T, K extends any> implements OnInit {
     total: 0,
   };
 
-  constructor() {}
+  constructor() {
+    super();
+  }
 
   ngOnInit() {
     this.getDataSource();
@@ -87,14 +93,14 @@ export class StandardTableComponent<T, K extends any> implements OnInit {
   }
 
   pageChanged(data: IPageChange): void {
-    const {event, limit} = data;
-    if (event.page) {
-      this.item.paramsQuery = {...this.item.paramsQuery, page: event.page};
+    const {page, limit} = data;
+    if (page) {
+      this.item.paramsQuery = {...this.item.paramsQuery, page: page};
     }
-    if (limit?.target?.value) {
+    if (limit) {
       this.item.paramsQuery = {
         ...this.item.paramsQuery,
-        limit: Number(limit?.target?.value || 10),
+        limit: Number(limit),
         page: 1,
       };
     }

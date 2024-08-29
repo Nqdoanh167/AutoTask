@@ -42,6 +42,22 @@ input.custom-input-color {
   background: #e7e9ef;
 }
 
+.text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Form
+.custom-form {
+  &.disabled {
+    .form-control {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
 //button
 button:disabled,
 button[disabled] {
@@ -175,11 +191,54 @@ button[disabled] {
 }
 
 //ng-select
-.ng-select.ng-select-multiple
-  .ng-select-container
-  .ng-value-container
-  .ng-value {
-  //background-color: unset !important;
+//.ng-select ::ng-deep .ng-arrow-wrapper {
+//  .ng-arrow {
+//    display: none;
+//  }
+//
+//  height: 14px;
+//  width: 14px;
+//  background-image: url('/assets/images/icon-caret-down.svg') !important;
+//  background-repeat: no-repeat;
+//  margin-right: 12px;
+//  margin-left: 10px;
+//  margin-top: 5px;
+//}
+//.ng-select.ng-select-multiple
+//  .ng-select-container
+//  .ng-value-container
+//  .ng-value {
+//  //background-color: unset !important;
+//}
+
+.ng-select {
+  .ng-arrow-wrapper {
+    //padding-right: 10px;
+    padding-bottom: 3px;
+  }
+  .ng-arrow {
+    border-color: inherit !important;
+    border-width: 0 !important;
+    font-size: 16px;
+    top: 0 !important;
+    left: -6px;
+    color: inherit;
+    text-align: center;
+    transform: rotate(0deg);
+    transform-origin: 8px 12px;
+    transition: transform 0.2s ease;
+    &:before {
+      content: url('../../assets/images/icon-caret-down.svg') !important;
+    }
+  }
+
+  &.ng-select-opened {
+    .ng-arrow {
+      transform: rotate(180deg);
+      top: 1px !important;
+      left: -8px !important;
+    }
+  }
 }
 
 .ng-select .ng-optgroup {
@@ -493,8 +552,6 @@ ng-select.custom-input-multiple-round {
 
 ng-select.custom-input-tag {
   .ng-select-container {
-    background: unset !important;
-    box-shadow: none !important;
     width: 300px;
     .ng-value-container {
       .ng-value {
@@ -514,6 +571,11 @@ ng-select.custom-input-tag {
           }
         }
       }
+    }
+  }
+  &.full-width {
+    .ng-select-container {
+      width: 100%;
     }
   }
 }
@@ -599,6 +661,18 @@ ng-select.select-search-icon {
   }
 }
 
+.popover-change-histories {
+  white-space: wrap !important;
+  .table-change-histories {
+    .column-note {
+      width: 150px;
+      div {
+        @include limit-text-row(3);
+      }
+    }
+  }
+}
+
 .popover {
   white-space: nowrap;
   max-width: 100%;
@@ -658,6 +732,18 @@ ng-select.select-search-icon {
   }
 
   &.filter-advance-popover-tab {
+    position: relative;
+    .button-close {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      cursor: pointer;
+      background: $neutral-200;
+      border-radius: 50%;
+      width: 25px !important;
+      height: 25px !important;
+      padding: 0;
+    }
     .popover-body {
       width: 450px;
     }
@@ -1278,6 +1364,14 @@ accordion.accordion-white {
       background-color: $white;
     }
   }
+  &.header-gray {
+    .panel {
+      border-radius: 9px;
+      .card-header {
+        background-color: $neutral-100;
+      }
+    }
+  }
 }
 
 // Other
@@ -1497,6 +1591,9 @@ i {
   align-items: center;
   border: none;
   background-color: #e7e9ef;
+  .p-overlay {
+    z-index: 1052 !important;
+  }
 
   .p-treeselect-label.p-placeholder {
     font-family: Roboto;
@@ -1546,6 +1643,16 @@ i {
       border: 1px solid #dc3545;
     }
   }
+
+  &.fw-normal {
+    .p-treeselect-label {
+      font-size: 12px;
+    }
+
+    .p-placeholder {
+      font-size: 12px;
+    }
+  }
 }
 
 // COMMON STYLE
@@ -1562,6 +1669,41 @@ i {
 //.modal + .modal {
 //  background: rgba(0, 0, 0, 0.6);
 //}
+.spinner-custom {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  border: 4.5px solid #0000;
+  border-radius: 50%;
+  border-color: #dbdcef #0000;
+  animation: spinner-custom 1s infinite linear;
+
+  &:before,
+  &:after {
+    content: '';
+    grid-area: 1/1;
+    margin: 2.2px;
+    border: inherit;
+    border-radius: 50%;
+  }
+
+  &:before {
+    border-color: $neutral-600 #0000;
+    animation: inherit;
+    animation-duration: 0.5s;
+    animation-direction: reverse;
+  }
+
+  &:after {
+    border-color: #0000 $neutral-600;
+  }
+}
+
+@keyframes spinner-custom {
+  100% {
+    transform: rotate(1turn);
+  }
+}
 .center-item {
   display: flex;
   justify-content: center;

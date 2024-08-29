@@ -23,3 +23,9 @@ export interface IParamsSearchLocation {
   searchField?: string;
   q?: string;
 }
+
+export interface ISelectedLocation {
+  province?: Pick<IProvince, 'provinceCode' | 'province'>;
+  district?: Pick<IDistrict, 'districtCode' | 'district'>;
+  ward?: Pick<IWard, 'wardCode' | 'ward'>;
+}

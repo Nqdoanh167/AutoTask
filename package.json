@@ -12,7 +12,7 @@
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "check-types": "tsc --pretty --noEmit",
-    "pre-commit": "npm run check-types && npm run lint:fix && npm run prettier:fix",
+    "pre-commit": "npm run lint:fix && npm run prettier:fix",
     "test-all": "npm run check-types && npm run lint:fix && npm run prettier && npm run build ",
     "prepare": "husky install"
   },
@@ -56,7 +56,7 @@
     "primeng": "17.13.0",
     "rxjs": "7.8.0",
     "slug": "5.2.0",
-    "smaxapp": "17.0.2",
+    "smaxapp": "17.0.4",
     "stringee": "2.9.3",
     "stringee-chat-js-sdk": "0.2.0",
     "tslib": "2.3.0",

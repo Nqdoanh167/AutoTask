@@ -5,7 +5,11 @@ import {EntityResult} from 'src/app/types/viewmodels';
 import {Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
-import {Platform} from '@app/types/sms-ott-call';
+import {
+  HistoryUpdateDto,
+  ManageMappingPhone,
+  Platform,
+} from '@app/types/sms-ott-call';
 import {OmiExtension} from '@app/types/omicall';
 
 @Injectable({
@@ -16,6 +20,8 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
 
   api = {
     platform: 'platforms',
+    manage: 'manage',
+    history: 'histories',
   };
   private defaultParams: any = {};
   constructor(
@@ -57,12 +63,39 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
           params: {},
         },
       ),
-    getTokenClient: (id: string, platform: string) =>
+    getTokenClient: (id: string, platform: string, taskCode: string) =>
       this.httpClient.get<EntityResult<{token: string}>>(
         this.createUrl([this.api.platform, id, platform, 'token-client']),
         {
-          params: this.createParams({moduleAlias: 'auto-task'}),
+          params: this.createParams({
+            moduleAlias: 'auto-task',
+            taskCode: taskCode,
+          }),
         },
+      ),
+    getTokenReceiveCall: (platformId: string) =>
+      this.httpClient.get<EntityResult<{token: string}>>(
+        this.createUrl([
+          this.api.platform,
+          platformId,
+          'stringee',
+          'token-client-receive-call-event',
+        ]),
+      ),
+  };
+
+  manageConnect = {
+    getPhones: () =>
+      this.httpClient.get<EntityResult<ManageMappingPhone[]>>(
+        this.createUrl([this.api.manage, 'get-by-user']),
+      ),
+  };
+
+  history = {
+    updateStatusCall: (uniqueCode: string, body: HistoryUpdateDto) =>
+      this.httpClient.put<EntityResult<any>>(
+        this.createUrl([this.api.history, uniqueCode]),
+        body,
       ),
   };
 

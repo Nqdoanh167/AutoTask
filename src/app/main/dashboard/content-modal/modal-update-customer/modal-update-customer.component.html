@@ -1,0 +1,98 @@
+<div class="modal-update-action">
+  <app-custom-modal [isSubmitting]="loading.submit" (submitModal)="onSubmit()">
+    <ng-container modalTitle>Cập nhật thông tin khách hàng</ng-container>
+    <ng-container modalBody>
+      <form [formGroup]="updateForm">
+        <div class="mb-3">
+          <label class="form-control-label" for="id">Mã khách hàng</label>
+          <input
+            class="form-control disabled"
+            [readonly]="true"
+            [placeholder]="'Mã Khách hàng...'"
+            formControlName="id"
+            id="id"
+            type="text"
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-control-label" for="name">
+            Tên khách hàng
+            <span class="required">*</span>
+          </label>
+          <input
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && f['name'].errors}"
+            [placeholder]="'Nhập Kết quả...'"
+            formControlName="name"
+            id="name"
+            type="text"
+          />
+          @if (submitted && f['name'].errors) {
+            @if (f['name'].errors?.['required']) {
+              <div class="invalid-feedback">
+                Tên khách hàng không được bỏ trống
+              </div>
+            }
+            @if (f['name'].errors?.['maxlength']) {
+              <div class="invalid-feedback">Tên khách hàng không hợp lệ</div>
+            }
+          }
+        </div>
+        <div class="mb-3">
+          <label class="form-control-label" for="phone">Số điện thoại</label>
+          <input
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && f['phone'].errors}"
+            [placeholder]="'Nhập Số điện thoại...'"
+            formControlName="phone"
+            id="phone"
+            type="text"
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-control-label" for="email">Email</label>
+          <input
+            class="form-control"
+            [ngClass]="{'is-invalid': submitted && f['email'].errors}"
+            [placeholder]="'Nhập Email...'"
+            formControlName="email"
+            id="email"
+            type="text"
+          />
+        </div>
+        <div class="mb-3">
+          <select-location
+            [selected]="selectedLocation"
+            (emitData)="handleEmittedEvent($event)"
+            [type]="'wardCode'"
+            [showLabel]="true"
+          ></select-location>
+        </div>
+        <div>
+          <label class="form-control-label" for="street">
+            Số nhà, đường/phố
+          </label>
+          <input
+            class="form-control"
+            [ngClass]="{
+              'is-invalid': submitted && f['street'].errors
+            }"
+            (change)="handleCombineAddress()"
+            [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
+            formControlName="street"
+            id="street"
+            type="text"
+          />
+        </div>
+      </form>
+    </ng-container>
+  </app-custom-modal>
+</div>
+
+<ng-template #loadingTemp>
+  <div class="w-100 text-center">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading</span>
+    </div>
+  </div>
+</ng-template>

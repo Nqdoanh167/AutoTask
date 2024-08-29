@@ -13,18 +13,18 @@
         <div class="fw-500">Lưu ý</div>
         <ul style="list-style: disc" class="ms-4">
           <li>
-            Vai trò trong Task có thể khác với Vai trò trong Đơn hàng (module
+            Vai trò trong Tác vụ có thể khác với Vai trò trong Đơn hàng (module
             Quản lý bán hàng)
           </li>
           <li>
-            Khi tạo Đơn hàng từ Task, những người đã được gán vai trò trên Task
-            sẽ được gán vào Đơn hàng, kể cả khi Đơn không có vai trò của người
-            đó.
+            Khi tạo Đơn hàng từ Tác vụ, những người đã được gán vai trò trên Tác
+            vụ sẽ được gán vào Đơn hàng, kể cả khi Đơn không có vai trò của
+            người đó.
           </li>
         </ul>
       </div>
       <div class="action-roles">
-        <label for="role">Vai trò trong task</label>
+        <label for="role">Vai trò trong Tác vụ</label>
         <ng-select
           id="role"
           [items]="roles.rows"
@@ -55,10 +55,10 @@
 
       <div class="action-roles-assign mt-4">
         <label for="role-auto">
-          Tự động gán người tạo Task vào vai trò
+          Tự động gán người tạo Tác vụ vào vai trò
           <i
             class="fa-solid fa-question-circle me-1"
-            tooltipHtml="Khi task được tạo thì hệ thông sẽ tự gán người đang tạo đơn vào vai trò bạn chọn trong này"
+            tooltipHtml="Khi Tác vụ được tạo thì hệ thông sẽ tự gán người đang tạo đơn vào vai trò bạn chọn trong này"
           ></i>
         </label>
         <ng-select

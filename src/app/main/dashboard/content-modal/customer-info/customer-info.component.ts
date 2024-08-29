@@ -1,34 +1,51 @@
 import {
   Component,
+  EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
+  Output,
   QueryList,
+  SimpleChanges,
   ViewChildren,
 } from '@angular/core';
-import {Subject, takeUntil} from 'rxjs';
+import {distinctUntilKeyChanged, finalize, Subject, takeUntil} from 'rxjs';
 import {AbstractControl, FormGroup} from '@angular/forms';
 import {ApiLocationService} from '@app/services/api/location';
 import {IDistrict, IProvince, IWard} from '@app/types/location';
-import {Customer, CustomerTag, EntityPagination} from '@app/types/viewmodels';
+import {EntityPagination, ITag} from '@app/types/viewmodels';
 import {CommonService} from '@app/services/common/common.service';
 import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
 import {CustomerService} from '@app/services/api/customer.service';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '@app/services/api/auth.service';
+import {Customer, CustomerTag, IOrderCustomer} from '@app/types/customer';
+import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
+import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {ToastrService} from 'ngx-toastr';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {ModalUpdateCustomerComponent} from '@main/dashboard/content-modal/modal-update-customer/modal-update-customer.component';
+
+type ViewOrderType = 'completed' | 'cancelled';
 
 @Component({
   selector: 'app-customer-info',
   templateUrl: './customer-info.component.html',
   styleUrls: ['./customer-info.component.scss'],
 })
-export class CustomerInfoComponent implements OnDestroy, OnInit {
+export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   @ViewChildren(InputSuggestCustomerComponent)
   inputSuggestCustomers!: QueryList<InputSuggestCustomerComponent>;
-  private currentBiz = '';
   @Input() formGroup!: FormGroup;
   @Input() submitted: boolean = false;
+  @Input() hasUpdateTaskPer: boolean = false;
+  @Input() selectedCustomerId: string = '';
 
+  @Input() isOpenBackdrop: boolean = false;
+  @Output() isOpenBackdropChange = new EventEmitter<boolean>();
+
+  private currentBiz = '';
   private destroy$ = new Subject();
 
   public listProvince: IProvince[] = [];
@@ -41,13 +58,26 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     rows: [],
     loading: false,
   };
+  public loading = {
+    customer: false,
+    updateCustomer: false,
+  };
+  public viewOrderType?: ViewOrderType;
+  public viewOrCustomerOrders: IOrderCustomer[] = [];
   public selectedCustomer: Customer | null = null;
   public selectTag: boolean = false;
+
+  protected hasPermitCustomer =
+    this.authService.checkPermittedModule('customers');
+
   constructor(
     private readonly apiLocationService: ApiLocationService,
     private readonly commonService: CommonService,
     private readonly customerService: CustomerService,
     private readonly authService: AuthService,
+    private readonly modalConfirmService: ModalConfirmService,
+    private readonly toarst: ToastrService,
+    private readonly modalService: BsModalService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -60,30 +90,80 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
     return this.formGroup.controls;
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (
+      changes?.['selectedCustomerId'] &&
+      changes?.['selectedCustomerId']?.currentValue
+    ) {
+      this.getCustomerDetail(this.selectedCustomerId);
+    }
+  }
+
   ngOnInit(): void {
+    if (!this.hasUpdateTaskPer) {
+      this.formGroup.disable();
+    }
     this.getTag();
     this.getProvince();
-    this.formGroup.valueChanges.subscribe((value) => {
-      if (value?.id) {
-        this.selectedCustomer = {...value};
-        if (value?.provinceCode) {
-          this.getDistrict(value?.provinceCode);
-        }
-        if (value?.districtCode) {
-          this.getWard(value?.provinceCode, value?.districtCode);
-        }
-      } else {
-        this.selectedCustomer = null;
-      }
-    });
+    // this.formGroup.valueChanges
+    //   .pipe(distinctUntilKeyChanged('id'))
+    //   .subscribe((value) => {
+    //     if (value?.id) {
+    //       this.getCustomerDetail(value.id);
+    //       if (value?.provinceCode) {
+    //         this.getDistrict(value?.provinceCode);
+    //       }
+    //       if (value?.districtCode) {
+    //         this.getWard(value?.provinceCode, value?.districtCode);
+    //       }
+    //     } else {
+    //       this.selectedCustomer = null;
+    //     }
+    //   });
   }
-  handleViewCustomer(customerId: string) {
+
+  getCustomerDetail(id: string) {
+    if (!this.hasPermitCustomer) return;
+    this.loading.customer = true;
+    this.customerService.customer
+      .getById(id)
+      .pipe(
+        finalize(() => (this.loading.customer = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            this.selectedCustomer = res.data;
+            if (res.data?.provinceCode) {
+              this.getDistrict(res.data?.provinceCode);
+            }
+            if (res.data?.districtCode) {
+              this.getWard(res.data?.provinceCode, res.data?.districtCode);
+            }
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
+  }
+
+  handleViewCustomer(customerId?: string) {
+    if (!customerId) return;
     let url = `${environment.urlDomain}/${this.currentBiz}/customers/${customerId}`;
     window.open(url, '_blank');
   }
+
+  handleViewOrder(orderId?: string) {
+    if (!orderId) return;
+    let url = `${environment.urlDomain}/${this.currentBiz}/sale-center/?code=${orderId}`;
+    window.open(url, '_blank');
+  }
+
   compareFunction(item: CustomerTag, selected: any) {
     return item.id === selected.id;
   }
+
   getProvince() {
     this.apiLocationService
       .getProvince({
@@ -131,7 +211,9 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
         },
       });
   }
+
   getTag() {
+    if (!this.hasPermitCustomer) return;
     this.customerService.tag.get().subscribe({
       next: (res) => {
         if (res && res.status === 200) {
@@ -194,9 +276,17 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
           ward: this.listWard.find((el) => el.wardCode === value)?.ward,
         });
         break;
-      default:
-        return;
     }
+    this.handleCombineAddress();
+  }
+
+  handleCombineAddress() {
+    const {street, district, ward, province} = this.formGroup.value;
+    const addressParts = [street, ward, district, province];
+    const address = addressParts.filter((part) => part).join(', ');
+    this.formGroup.patchValue({
+      address,
+    });
   }
 
   handleChooseCustomer(customer?: Customer) {
@@ -228,28 +318,109 @@ export class CustomerInfoComponent implements OnDestroy, OnInit {
       el.selectedCustomer = undefined;
     });
   }
+
+  updateCustomer() {
+    if (!this.hasPermitCustomer) return;
+    if (!this.formGroup?.value?.id) {
+      this.toarst.warning('Không tìm thấy khách hàng được tham chiếu');
+    }
+    this.loading.updateCustomer = true;
+    const body = {
+      ...this.formGroup.value,
+      tagIds: this.formGroup?.value?.tags?.map((tag: ITag) => tag.id) || null,
+    };
+    this.customerService.customer
+      .update(this.formGroup.value.id, body)
+      .pipe(
+        finalize(() => (this.loading.updateCustomer = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        if (res.status === 200) {
+          this.selectedCustomer = res.data;
+          this.commonService.handleResSuccess('update');
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      });
+  }
+
+  handleSyncCustomer() {
+    const title = 'Cập nhật cho bản ghi Khách hàng';
+    const description = `Bạn sắp cập nhật ngược thông tin của Khách hàng từ Tác vụ này qua module <b>Khách Hàng</b>, hành động này không thể hoàn tác. 
+Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT, Loại khách hàng và Địa chỉ sẽ được cập nhật vào bản ghi tương ứng trong module <b>Khách Hàng</b>.`;
+    const okText = 'Đồng ý';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'info',
+      modalType: 'advance',
+    };
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.updateCustomer();
+    });
+  }
+
+  handleUpdateCustomer() {
+    this.isOpenBackdropChange.emit(true);
+    const modalUpdateCustomer = this.modalService.show(
+      ModalUpdateCustomerComponent,
+      {
+        class: 'modal-dialog-centered',
+        initialState: {
+          dataDetail: this.selectedCustomer!,
+        },
+      },
+    );
+    modalUpdateCustomer.content?.updateSuccessEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res) => {
+        this.selectedCustomer = res;
+        modalUpdateCustomer.hide();
+      });
+    modalUpdateCustomer.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isOpenBackdropChange.emit(false);
+    });
+  }
+
   handleClearSelectedCustomer() {
-    this.handleClearSelectValue();
-    this.selectedCustomer = null;
-    this.formGroup.patchValue({
-      id: null,
-      name: null,
-      phone: null,
-      email: null,
-      province: null,
-      provinceCode: null,
-      tags: null,
-      district: null,
-      districtCode: null,
-      ward: null,
-      wardCode: null,
-      address: null,
-      gender: null,
-      street: null,
+    const title = 'Bỏ chọn khách hàng';
+    const description = `Bạn có chắc muốn bỏ tham chiếu khách hàng <b>${
+      this.selectedCustomer?.name || ''
+    }</b> với module <b>Khách Hàng</b> không?`;
+    const okText = 'Đồng ý';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'warning',
+      modalType: 'advance',
+    };
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.selectedCustomer = null;
+      this.formGroup.patchValue({
+        id: null,
+      });
     });
   }
 
   onChangeInputSuggestCustomer(value: any) {}
+
+  handleViewOrderType(type: ViewOrderType) {
+    if (!this.viewOrderType || this.viewOrderType !== type) {
+      this.viewOrderType = type;
+      this.viewOrCustomerOrders =
+        this.selectedCustomer?.orders?.filter((order) => {
+          return order.status === type;
+        }) || [];
+    } else {
+      this.viewOrderType = undefined;
+      this.viewOrCustomerOrders = [];
+    }
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next(true);

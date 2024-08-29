@@ -1,8 +1,8 @@
 <div class="wrapper">
   <!-- <app-sidebar></app-sidebar> -->
-  <app-sidebar *ngIf="biz && !isHiddenSidebar"></app-sidebar>
+  <app-sidebar *ngIf="currentBiz && !isHiddenSidebar"></app-sidebar>
   <div class="content-wrapper" [ngClass]="{'ps-0': isHiddenSidebar}">
-    <ng-container *ngIf="biz; else nonBiz">
+    <ng-container *ngIf="currentBiz; else nonBiz">
       <app-header>
         <div class="left">
           <ul class="nav flex-nowrap">
@@ -17,7 +17,9 @@
             </li>
           </ul>
         </div>
-        <div class="right"></div>
+        <div class="right d-flex align-items-center">
+          <app-connect-phone></app-connect-phone>
+        </div>
       </app-header>
       <router-outlet></router-outlet>
     </ng-container>
@@ -31,5 +33,7 @@
     </ng-template>
   </div>
 </div>
-
 <modal-confirm></modal-confirm>
+
+<app-phone-call-pop-up [type]="ECallType.INCOMING"></app-phone-call-pop-up>
+<app-phone-call-pop-up [type]="ECallType.OUTGOING"></app-phone-call-pop-up>

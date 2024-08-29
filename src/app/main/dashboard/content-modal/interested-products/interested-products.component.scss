@@ -25,3 +25,6 @@
     background-color: vars.$neutral-100;
   }
 }
+.product-name {
+  overflow-wrap: break-word;
+}

@@ -1,37 +1,24 @@
 import {
   Component,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
-  QueryList,
   SimpleChanges,
-  ViewChildren,
-  OnChanges,
 } from '@angular/core';
-import {Subject, takeUntil} from 'rxjs';
-import {AbstractControl, FormGroup} from '@angular/forms';
-import {ApiLocationService} from '@app/services/api/location';
-import {IDistrict, IProvince, IWard} from '@app/types/location';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {
   Biz,
-  Customer,
-  CustomerTag,
   EInformationContentHistoryTask,
   ENoteContentHistoryTask,
   EOrderProductContentHistoryTask,
   ESubInformationContentHistoryTask,
   ESubOrderProductHistoryTask,
   ETabHistoryKey,
-  EntityPagination,
   ICommonDataSource,
-  IContentHistoryTask,
   IDateRange,
   IHistory,
-  Order,
 } from '@app/types/viewmodels';
-import {CommonService} from '@app/services/common/common.service';
-import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
-import {CustomerService} from '@app/services/api/customer.service';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '@app/services/api/auth.service';
 import {
@@ -50,7 +37,6 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 })
 export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
   @Input() taskId!: string;
-  @Input() triggerCall!: any;
   public currentBiz!: Biz;
   public history: ICommonDataSource<IHistory, any> = {
     rows: [],
@@ -67,6 +53,7 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
     createdAt: 0,
   };
   public ETabHistoryKey = ETabHistoryKey;
+  public CALL_PHONE_ACTION = EInformationContentHistoryTask.CALL_PHONE;
   public configButtons: IFilterTopButton[] = [
     {
       name: 'reload',
@@ -132,14 +119,13 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
         }));
       });
   }
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['taskId'] || changes['triggerCall']) {
-      this.getHistory();
-    }
-  }
+
+  ngOnChanges(changes: SimpleChanges): void {}
+
   ngOnInit(): void {
-    // this.getHistory();
+    this.getHistory();
   }
+
   onSelectFilter(data: {value?: string | string[]; name: string}) {
     const filter = this.history.paramsQuery?.filter || '{}';
     let obj = JSON.parse(filter);
@@ -151,11 +137,13 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
     this.history.paramsQuery.filter = JSON.stringify(obj);
     this.getHistory();
   }
+
   handleAction(name: string) {
     if (name === 'reload') {
       this.getHistory();
     }
   }
+  handleAudioCallPhone(link: string) {}
   onPickerDateFilter(data: {value?: IDateRange | Date; name: string}) {
     try {
       const {value, name} = data;
@@ -179,6 +167,7 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       console.log(e);
     }
   }
+
   changeSort(sort: 'createdAt') {
     switch (this.sort[sort]) {
       case 0:
@@ -195,7 +184,9 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
     }
     this.getHistory();
   }
+
   getHistory() {
+    this.history.loading = true;
     this.history.paramsQuery.filter = JSON.stringify({
       ...JSON.parse(this.history.paramsQuery.filter || '{}'),
       taskId: this.taskId,
@@ -205,13 +196,28 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       sortAll.push(this.sort.createdAt === 1 ? `createdAt` : `-createdAt`);
       this.history.paramsQuery.sort = sortAll.join(',');
     }
-    this.autoTaskService.history.get(this.history.paramsQuery).subscribe({
-      next: (res) => {
-        this.history.rows = res.data;
-        this.history.total = res.total;
-      },
-      error: (err) => {},
-    });
+    this.autoTaskService.history
+      .get(this.history.paramsQuery)
+      .pipe(
+        finalize(() => (this.history.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          this.history.rows = res.data?.map((item) => {
+            return {
+              ...item,
+              actionBy:
+                this.currentBiz.users?.find(
+                  (user) => user.id === item.actionBy.id,
+                ) ||
+                item.actionBy ||
+                {},
+            };
+          });
+          this.history.total = res.total;
+        },
+      });
   }
 
   getTabKey(tab: ETabHistoryKey) {
@@ -273,7 +279,7 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
       case EInformationContentHistoryTask.REMOVE_TAG:
         return `Xóa tag`;
       case EInformationContentHistoryTask.CREATE_TASK:
-        return `Khởi tạo task`;
+        return `Tác vụ được tạo`;
       case EInformationContentHistoryTask.CHANGE_CUSTOMER:
         return `Thay đổi khách hàng`;
       case EInformationContentHistoryTask.NAME_TASK:
@@ -306,6 +312,12 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
         return `Khóa chuỗi hành động`;
       case EInformationContentHistoryTask.ROLE:
         return `Vai trò`;
+      case EInformationContentHistoryTask.BRANCH:
+        return `Gán chi nhánh`;
+      case EInformationContentHistoryTask.CHANGE_BRANCH:
+        return `Thay đổi chi nhánh`;
+      case EInformationContentHistoryTask.CHAT_LINK:
+        return `Thay đổi Link Cuộc hội thoại`;
       case ESubInformationContentHistoryTask.ACTION:
         return `Hành động`;
       case ESubInformationContentHistoryTask.NONE:

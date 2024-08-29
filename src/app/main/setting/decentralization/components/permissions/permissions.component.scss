@@ -2,7 +2,7 @@
 @use 'src/app/styles/mixins' as mixins;
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '150px');
+  @include mixins.calculateSize('max-height', '100vh', '285px');
 
   .column-index {
     width: 50px;
@@ -13,7 +13,7 @@
 
   .column-desc {
     div {
-      @include mixins.limit-text-row(2);
+      @include mixins.limit-text-row(5);
     }
   }
 

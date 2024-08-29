@@ -23,9 +23,10 @@ import {
   Subject,
   takeUntil,
 } from 'rxjs';
-import {Customer, ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
+import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {CustomerService} from '@app/services/api/customer.service';
 import {CommonService} from '@app/services/common/common.service';
+import {Customer} from '@app/types/customer';
 
 @Component({
   selector: 'app-input-suggest-customer',
@@ -52,6 +53,7 @@ export class InputSuggestCustomerComponent
 {
   @ViewChild(NgSelectComponent) select!: NgSelectComponent;
 
+  @Input() uiType: 'search' | 'text' = 'text';
   @Input() submitted: boolean = false;
   @Input() value: string | undefined = undefined;
   @Input() inputId: string = '';
@@ -128,7 +130,6 @@ export class InputSuggestCustomerComponent
           next: (res) => {
             if (res && res.status === 200) {
               this.customers.rows = res.data;
-              console.log(this.select);
             } else {
               this.commonService.handleResErr(res);
             }

@@ -1,4 +1,6 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -13,7 +15,7 @@ import {
   FormGroup,
   FormGroupDirective,
 } from '@angular/forms';
-import {finalize, Subject} from 'rxjs';
+import {finalize, Subject, takeUntil} from 'rxjs';
 import {
   EActionType,
   EDelayType,
@@ -40,6 +42,7 @@ import {optionToCloneTask} from '@app/variable';
   selector: 'app-task-chain-item',
   templateUrl: './task-chain-item.component.html',
   styleUrls: ['./task-chain-item.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskChainItemComponent implements OnDestroy, OnInit {
   @Input() permissions: {
@@ -86,6 +89,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     private readonly fb: FormBuilder,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
@@ -106,9 +110,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    this.rootFormGroup.valueChanges?.subscribe((value) => {
-      // console.log(value);
-    });
+    this.formItem.valueChanges
+      ?.pipe(takeUntil(this.destroy$))
+      .subscribe((value: any) => {
+        this.cdr.detectChanges();
+      });
     this.staticDataChainItem?.taskChainResults?.forEach((taskChainResult) => {
       taskChainResult['isEdit'] = false;
     });
@@ -206,7 +212,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     taskChainResult: ITaskChainResult,
   ) {
-    this.cancelUpdateTaskChainEvent.emit();
+    this.cancelUpdateTaskChainEvent.emit(taskChainResultIndex);
   }
 
   handleSaveTaskChainResult(
@@ -214,8 +220,15 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResult: ITaskChainResult,
   ) {
     if (!taskChainResult.id) return;
-    const {note, resultIndex, reasonIndex, nextActions, deadlineDate, action} =
-      this.formTaskChainResults().at(taskChainResultIndex).value;
+    const {
+      note,
+      resultIndex,
+      reasonIndex,
+      nextActions,
+      deadlineDate,
+      action,
+      reasonEditedDate,
+    } = this.formTaskChainResults().at(taskChainResultIndex).value;
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
         const modify = {
@@ -268,27 +281,30 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         ? action.callBlockAutomation
         : null,
     };
-    this.handleUpdateTaskChainResult(
-      taskChainResult.id,
-      taskChainResultIndex,
-      body,
-    );
-    // const originalDeadlineDate =
-    //   this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
-    //     ?.deadlineDate;
-    // // check if deadlineDate is change
-    // if (
-    //   new Date(originalDeadlineDate!).getTime() !==
-    //   new Date(deadlineDate).getTime()
-    // ) {
-    //   const body = {
-    //     deadlineDate: deadlineDate.toISOString(),
-    //     note,
-    //   };
-    //   this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
-    // } else {
-    //
-    // }
+
+    const originalDeadlineDate =
+      this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex]
+        ?.deadlineDate;
+    // check if deadlineDate is change
+    if (
+      new Date(originalDeadlineDate!).getTime() !==
+      new Date(deadlineDate).getTime()
+    ) {
+      const body = {
+        deadlineDate: deadlineDate.toISOString(),
+        note,
+        reasonEditedDate: {
+          reason: reasonEditedDate?.reason || '',
+        },
+      };
+      this.handleUpdateDeadline(taskChainResult.id, taskChainResultIndex, body);
+    } else {
+      this.handleUpdateTaskChainResult(
+        taskChainResult.id,
+        taskChainResultIndex,
+        body,
+      );
+    }
   }
 
   handleUpdateDeadline(
@@ -296,6 +312,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     body: IUpdateDeadlineTaskResult,
   ) {
+    if (this.loading.submit) return;
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
       .updateDeadline(taskChainResultId, body)
@@ -322,6 +339,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     body: IUpdateTaskResultDto,
   ) {
+    if (this.loading.submit) return;
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
       .update(taskChainResultId, body)
