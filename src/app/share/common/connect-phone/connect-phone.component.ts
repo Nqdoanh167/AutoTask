@@ -122,6 +122,10 @@ export class ConnectPhoneComponent
       if (data.platform?.id) {
         this.phoneCallService.connectedPhone$.next(data);
         this.getTokenStringee(data.platform.id);
+        const popupomicall = document.getElementById('omi_sdk_d49');
+        if (popupomicall) {
+          popupomicall!.hidden = true;
+        }
       } else {
         this.toarstService.warning('Không tìm thấy ID của nền tảng!');
       }
