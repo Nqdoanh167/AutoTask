@@ -4,7 +4,7 @@ import {SmsOttCallService} from '@app/services/api/smsOttCall.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ToastrService} from 'ngx-toastr';
 import {VOICE_PLATFORMS} from '@app/utils/variables';
-import {ICommonDataSource, IQueryBase} from '@app/types/viewmodels';
+import {ICommonDataSource, IQueryBase, User} from '@app/types/viewmodels';
 import {EVoicePlatform, ManageMappingPhone} from '@app/types/sms-ott-call';
 import {finalize, takeUntil} from 'rxjs';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
@@ -12,6 +12,16 @@ import {NgIf} from '@angular/common';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {StringeeService} from '@app/services/common/stringee.service';
+import {OmiExtension} from '@app/types/omicall';
+
+declare function omicallInit(dataConfig: OmiExtension): void;
+declare function omicallMakeCall(
+  phoneNumber: string,
+  hotline: string,
+  user: User,
+  taskId: string,
+  taskCode: string,
+): void;
 
 @Component({
   selector: 'app-connect-phone',
@@ -115,11 +125,29 @@ export class ConnectPhoneComponent
       } else {
         this.toarstService.warning('Không tìm thấy ID của nền tảng!');
       }
+    } else if (data.platform.platform === EVoicePlatform.OMICALL) {
+      const {fullName, email, phone, domain, sipUser, password} =
+        data?.counselor;
+      const bodyOmicall = {
+        fullName,
+        email,
+        phone,
+        domain,
+        sipUser,
+        password,
+      };
+      this.phoneCallService.connectedPhone$.next(data);
+      this.handleChangeOmicallExtension(bodyOmicall);
     } else {
       this.toarstService.info(
-        'Chức năng này hiện chỉ hỗ trợ nền tảng Stringee!',
+        'Chức năng này hiện chỉ hỗ trợ nền tảng Stringee và Omicall!',
       );
     }
+  }
+
+  // OMICALL
+  handleChangeOmicallExtension(dataConfig: OmiExtension) {
+    omicallInit(dataConfig);
   }
 
   handleDisconnectPhone() {

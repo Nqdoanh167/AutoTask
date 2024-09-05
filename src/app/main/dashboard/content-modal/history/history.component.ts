@@ -126,6 +126,15 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
 
   ngOnInit(): void {
     this.getHistory();
+    // this.getSmSOttCall();
+  }
+
+  getSmSOttCall() {
+    this.smsOttCallService.history.get().subscribe({
+      next: (res: any) => {
+        console.log('res snms', res);
+      },
+    });
   }
 
   onSelectFilter(data: {value?: string | string[]; name: string}) {
