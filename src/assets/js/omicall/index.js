@@ -71,8 +71,8 @@ function omicallInit(dataConfig) {
 
 function omicallMakeCall(phoneNumber, hotline, user, taskId, taskCode) {
     try {
-        const footerModalCall = document.getElementById('footer-modal-call');
-        footerModalCall.style.visibility = 'hidden';
+        // const footerModalCall = document.getElementById('footer-modal-call');
+        // footerModalCall.style.visibility = 'hidden';
         omiSDK.makeCall(phoneNumber, {sipNumber: hotline, datas: {'User-Data': JSON.stringify({module: 'auto-task', userId: user.id, taskId, taskCode})}});
     } catch (e) {
         console.log(e)

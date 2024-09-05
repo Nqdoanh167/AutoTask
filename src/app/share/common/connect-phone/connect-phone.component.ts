@@ -122,6 +122,7 @@ export class ConnectPhoneComponent
       if (data.platform?.id) {
         this.phoneCallService.connectedPhone$.next(data);
         this.getTokenStringee(data.platform.id);
+        this.isHiddenOmicallPopUp(true);
       } else {
         this.toarstService.warning('Không tìm thấy ID của nền tảng!');
       }
@@ -138,6 +139,7 @@ export class ConnectPhoneComponent
       };
       this.phoneCallService.connectedPhone$.next(data);
       this.handleChangeOmicallExtension(bodyOmicall);
+      this.isHiddenOmicallPopUp(false);
     } else {
       this.toarstService.info(
         'Chức năng này hiện chỉ hỗ trợ nền tảng Stringee và Omicall!',
@@ -154,6 +156,14 @@ export class ConnectPhoneComponent
     this.phoneCallService.connectedPhone$.next(undefined);
     if (this.connectedPhone?.platform.platform === EVoicePlatform.STRINGEE) {
       this.stringeeService.logoutStringee();
+    }
+    this.isHiddenOmicallPopUp(true);
+  }
+
+  isHiddenOmicallPopUp(isHidden: boolean) {
+    const popupomicall = document.getElementById('omi_sdk_d49');
+    if (popupomicall) {
+      popupomicall!.hidden = isHidden;
     }
   }
 }

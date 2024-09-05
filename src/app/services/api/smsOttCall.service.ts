@@ -17,7 +17,6 @@ import {OmiExtension} from '@app/types/omicall';
 })
 export class SmsOttCallService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
-
   api = {
     platform: 'platforms',
     manage: 'manage',
