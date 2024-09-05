@@ -71,7 +71,8 @@ export class AuthService {
   }
 
   popular() {
-    let alias = 'test';
+    //TODO: đang fix tạm 1
+    let alias = 'fashion';
 
     const parsedURL = new URL(location.href);
     if (!environment.production && !this.isAuthenticated) {

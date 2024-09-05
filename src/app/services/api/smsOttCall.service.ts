@@ -17,7 +17,6 @@ import {OmiExtension} from '@app/types/omicall';
 })
 export class SmsOttCallService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
-
   api = {
     platform: 'platforms',
     manage: 'manage',
@@ -93,14 +92,6 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
   };
 
   history = {
-    get: (params = {filter: {taskId: '66ce9a271e6e8d6c1c95b3e3'}}) =>
-      this.httpClient.get<EntityResult<Platform[]>>(
-        this.createUrl([this.api.history]),
-        {
-          params: this.createParams(Object.assign(params, this.defaultParams)),
-        },
-      ),
-
     updateStatusCall: (uniqueCode: string, body: HistoryUpdateDto) =>
       this.httpClient.put<EntityResult<any>>(
         this.createUrl([this.api.history, uniqueCode]),
