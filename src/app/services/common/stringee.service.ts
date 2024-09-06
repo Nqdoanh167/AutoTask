@@ -3,6 +3,7 @@ import {
   Call,
   ECallStatus,
   ECallType,
+  EPlatformVoice,
   EStringeeOtherDeviceType,
   StringeeOtherDeviceState,
   StringeeSignalingState,
@@ -144,6 +145,7 @@ export class StringeeService {
           callId: incomingcall.callId,
           status: ECallStatus.RINGING,
           type: ECallType.INCOMING,
+          platform: EPlatformVoice.STRINGEE,
         };
         this.phoneCallService.setIncomingCall(incomingCallObj);
       },
@@ -220,6 +222,7 @@ export class StringeeService {
         to: res.toNumber,
         callId: res.callId,
         type: ECallType.INCOMING,
+        platform: EPlatformVoice.STRINGEE,
       };
       this.phoneCallService.setOutgoingCall(outgoingCallObj);
     });

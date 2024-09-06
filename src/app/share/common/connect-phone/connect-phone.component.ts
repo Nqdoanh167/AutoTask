@@ -13,15 +13,16 @@ import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {StringeeService} from '@app/services/common/stringee.service';
 import {OmiExtension} from '@app/types/omicall';
+import {OmicallService} from '@app/services/common/omicall.service';
 
-declare function omicallInit(dataConfig: OmiExtension): void;
-declare function omicallMakeCall(
-  phoneNumber: string,
-  hotline: string,
-  user: User,
-  taskId: string,
-  taskCode: string,
-): void;
+// declare function omicallInit(dataConfig: OmiExtension): void;
+// declare function omicallMakeCall(
+//   phoneNumber: string,
+//   hotline: string,
+//   user: User,
+//   taskId: string,
+//   taskCode: string,
+// ): void;
 
 @Component({
   selector: 'app-connect-phone',
@@ -55,6 +56,7 @@ export class ConnectPhoneComponent
     private readonly toarstService: ToastrService,
     private readonly phoneCallService: PhoneCallService,
     private readonly stringeeService: StringeeService,
+    private readonly omicallService: OmicallService,
   ) {
     super();
   }
@@ -147,7 +149,7 @@ export class ConnectPhoneComponent
 
   // OMICALL
   handleChangeOmicallExtension(dataConfig: OmiExtension) {
-    omicallInit(dataConfig);
+    this.omicallService.omicallInit(dataConfig);
   }
 
   handleDisconnectPhone() {
