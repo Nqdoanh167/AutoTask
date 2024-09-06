@@ -15,15 +15,6 @@ import {StringeeService} from '@app/services/common/stringee.service';
 import {OmiExtension} from '@app/types/omicall';
 import {OmicallService} from '@app/services/common/omicall.service';
 
-// declare function omicallInit(dataConfig: OmiExtension): void;
-// declare function omicallMakeCall(
-//   phoneNumber: string,
-//   hotline: string,
-//   user: User,
-//   taskId: string,
-//   taskCode: string,
-// ): void;
-
 @Component({
   selector: 'app-connect-phone',
   standalone: true,

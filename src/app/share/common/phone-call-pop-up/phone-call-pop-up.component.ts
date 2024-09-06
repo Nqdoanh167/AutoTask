@@ -76,6 +76,7 @@ export class PhoneCallPopUpComponent
         : this.phoneCallService.getOutgoingCall();
     this.call$.pipe(takeUntil(this.destroy$)).subscribe((call) => {
       if (call && call.platform === EPlatformVoice.STRINGEE) {
+        console.log('call', call);
         this.phoneStatus = call?.status;
         this.handleCheckCallStatus();
       } else {
@@ -86,6 +87,7 @@ export class PhoneCallPopUpComponent
   }
 
   handleCheckCallStatus() {
+    console.trace('handleCheckCallStatus');
     if ([ECallStatus.ENDED, ECallStatus.REJECTED].includes(this.phoneStatus!)) {
       const subscribe = this.timer$.subscribe((val) => console.log(val));
       subscribe.unsubscribe();
@@ -146,4 +148,6 @@ export class PhoneCallPopUpComponent
   }
 
   ngAfterViewInit() {}
+
+  protected readonly EPlatformVoice = EPlatformVoice;
 }

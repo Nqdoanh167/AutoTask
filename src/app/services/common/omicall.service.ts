@@ -65,7 +65,7 @@ export class OmicallService {
         ended: (data: any) => {
           // Sự kiện xảy ra khi cuộc gọi kết thúc
           console.log('ended:', data);
-          if (data.direction === 'inbound' && !data.isAccepted) {
+          if (data.direction === 'inbound' && data.endCause === 'UNKNOWN') {
             this.phoneCallService.updateHistoricalCallStatus(
               EStatusVoice.REJECT,
             );
