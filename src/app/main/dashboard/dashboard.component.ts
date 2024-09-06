@@ -250,7 +250,6 @@ export class DashboardComponent
   }
 
   handleUpdate(value?: any, taskId?: string, code?: string) {
-    console.log('thang ne', value, taskId, code);
     if (value) {
       this.handleClearQueryParams();
       if (!this.permission.edit) {

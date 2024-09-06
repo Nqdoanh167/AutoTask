@@ -42,6 +42,7 @@ export class PhoneCallPopUpComponent
 
   protected readonly ECallStatus = ECallStatus;
   protected readonly ECallType = ECallType;
+  protected readonly EPlatformVoice = EPlatformVoice;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
@@ -87,7 +88,6 @@ export class PhoneCallPopUpComponent
   }
 
   handleCheckCallStatus() {
-    console.trace('handleCheckCallStatus');
     if ([ECallStatus.ENDED, ECallStatus.REJECTED].includes(this.phoneStatus!)) {
       const subscribe = this.timer$.subscribe((val) => console.log(val));
       subscribe.unsubscribe();
@@ -148,6 +148,4 @@ export class PhoneCallPopUpComponent
   }
 
   ngAfterViewInit() {}
-
-  protected readonly EPlatformVoice = EPlatformVoice;
 }

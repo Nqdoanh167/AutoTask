@@ -10,6 +10,7 @@ import {CommonService} from '@app/services/common/common.service';
 import {StringeeService} from '@app/services/common/stringee.service';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {AsyncPipe} from '@angular/common';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-modal-confirm-call',
@@ -35,6 +36,7 @@ export class ModalConfirmCallComponent
     private readonly commonService: CommonService,
     private readonly stringeeService: StringeeService,
     private readonly phoneCallService: PhoneCallService,
+    private readonly toast: ToastrService,
   ) {
     super();
   }
@@ -76,9 +78,15 @@ export class ModalConfirmCallComponent
   }
 
   handleCall() {
-    const phone = this.connectedPhone.hotline;
-    const toPhone = this.customer.phone;
-    if (!phone || !toPhone) return;
-    this.stringeeService.handleCall(phone, toPhone);
+    if (this.connectedPhone?.platform?.platform === 'stringee') {
+      const phone = this.connectedPhone.hotline;
+      const toPhone = this.customer.phone;
+      if (!phone || !toPhone) return;
+      this.stringeeService.handleCall(phone, toPhone);
+    } else if (!!this.connectedPhone?.platform?.platform) {
+      this.toast.warning('Chức năng này chưa được hỗ trợ cho tổng đài này');
+    } else {
+      this.toast.warning('Không tìm thấy tổng đài');
+    }
   }
 }
