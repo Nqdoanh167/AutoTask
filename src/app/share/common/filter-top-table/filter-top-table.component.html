@@ -116,6 +116,23 @@
                   </div>
                 </div>
               }
+              @case (ETypeFilter.SELECT) {
+                <div class="row align-items-center my-2">
+                  <div class="fw-500 col-4">
+                    {{ filter.placeholder }}
+                  </div>
+                  <div class="col-8">
+                    <custom-select-search
+                      [value]="filter?.value"
+                      [minWidth]="filter?.minWidth"
+                      [className]="''"
+                      [selectData]="filter"
+                      (selectEvent)="onSelectValueAdvance($event, filter.name)"
+                      (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"
+                    ></custom-select-search>
+                  </div>
+                </div>
+              }
               @case (ETypeFilter.DATE) {
                 <div class="row align-items-center my-2">
                   <div class="fw-500 col-4">
@@ -136,23 +153,6 @@
                       [placeholder]="filter.placeholder || 'Picker Date'"
                       [showClearButton]="true"
                     ></custom-date-picker>
-                  </div>
-                </div>
-              }
-              @case (ETypeFilter.SELECT) {
-                <div class="row align-items-center my-2">
-                  <div class="fw-500 col-4">
-                    {{ filter.placeholder }}
-                  </div>
-                  <div class="col-8">
-                    <custom-select-search
-                      [value]="filter?.value"
-                      [minWidth]="filter?.minWidth"
-                      [className]="''"
-                      [selectData]="filter"
-                      (selectEvent)="onSelectValueAdvance($event, filter.name)"
-                      (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"
-                    ></custom-select-search>
                   </div>
                 </div>
               }

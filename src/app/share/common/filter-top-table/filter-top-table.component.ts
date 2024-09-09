@@ -94,6 +94,8 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
     this.configFilterBasic = this.configFilters.filter(
       (item) => item.botherType !== EBotherAdvanceBasicFilter.ADVANCE,
     );
+
+    console.log('configFilterAdvance', this.configFilterAdvance);
   }
 
   getDefaultValuePopover(name?: string) {
