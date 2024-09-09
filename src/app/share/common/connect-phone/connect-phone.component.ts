@@ -92,7 +92,18 @@ export class ConnectPhoneComponent
           if (res.status === 200) {
             this.userPhones.rows = res.data;
             if (res.data.length) {
-              this.handleConnectToPhone(res.data[0]);
+              const {data} = res;
+              const id = localStorage.getItem('SMAX_PHONE_CONNECT');
+              if (!id) {
+                this.handleConnectToPhone(res.data[0]);
+              } else {
+                const currentPhone = data.filter((e) => {
+                  return e.id === id;
+                });
+                if (currentPhone) {
+                  this.handleConnectToPhone(currentPhone[0] as any);
+                }
+              }
             }
           } else {
             this.commonService.handleResErr(res);
@@ -118,11 +129,13 @@ export class ConnectPhoneComponent
   }
 
   handleConnectToPhone(data: ManageMappingPhone) {
+    const StringData = data.id;
+    localStorage.setItem('SMAX_PHONE_CONNECT', StringData);
     if (data.platform.platform === EVoicePlatform.STRINGEE) {
       if (data.platform?.id) {
+        this.isHiddenOmicallPopUp(true);
         this.phoneCallService.connectedPhone$.next(data);
         this.getTokenStringee(data.platform.id);
-        this.isHiddenOmicallPopUp(true);
       } else {
         this.toarstService.warning('Không tìm thấy ID của nền tảng!');
       }
@@ -137,9 +150,9 @@ export class ConnectPhoneComponent
         sipUser,
         password,
       };
+      this.isHiddenOmicallPopUp(false);
       this.phoneCallService.connectedPhone$.next(data);
       this.handleChangeOmicallExtension(bodyOmicall);
-      this.isHiddenOmicallPopUp(false);
     } else {
       this.toarstService.info(
         'Chức năng này hiện chỉ hỗ trợ nền tảng Stringee và Omicall!',
@@ -153,15 +166,19 @@ export class ConnectPhoneComponent
   }
 
   handleDisconnectPhone() {
-    this.phoneCallService.connectedPhone$.next(undefined);
+    this.isHiddenOmicallPopUp(true);
+    localStorage.removeItem('SMAX_PHONE_CONNECT');
     if (this.connectedPhone?.platform.platform === EVoicePlatform.STRINGEE) {
       this.stringeeService.logoutStringee();
+    } else {
+      console.log('hahaahaha');
     }
-    this.isHiddenOmicallPopUp(true);
+    this.phoneCallService.connectedPhone$.next(undefined);
   }
 
   isHiddenOmicallPopUp(isHidden: boolean) {
-    const popupomicall = document.getElementById('omi_sdk_d49');
+    const popupomicall = document.getElementById('omi_sdk_qew');
+    console.log('popupomicall', popupomicall);
     if (popupomicall) {
       popupomicall!.hidden = isHidden;
     }
