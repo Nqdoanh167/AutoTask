@@ -15,6 +15,7 @@ import {StringeeService} from '@app/services/common/stringee.service';
 import {OmiExtension} from '@app/types/omicall';
 
 declare function omicallInit(dataConfig: OmiExtension): void;
+declare function omicallUnregister(): void;
 declare function omicallMakeCall(
   phoneNumber: string,
   hotline: string,
@@ -171,6 +172,7 @@ export class ConnectPhoneComponent
     if (this.connectedPhone?.platform.platform === EVoicePlatform.STRINGEE) {
       this.stringeeService.logoutStringee();
     } else {
+      omicallUnregister();
       console.log('hahaahaha');
     }
     this.phoneCallService.connectedPhone$.next(undefined);

@@ -1,6 +1,6 @@
 
 function omicallInit(dataConfig) {
-    omiSDK.unregister()
+    // omiSDK.unregister()
     const { domain, sipUser, password} = dataConfig;
     let config = {
         theme: 'default',
@@ -78,3 +78,9 @@ function omicallMakeCall(phoneNumber, hotline, user, taskId, taskCode) {
         console.log(e)
     }
 }
+
+function omicallUnregister(){
+    omiSDK.unregister()
+}
+
+
