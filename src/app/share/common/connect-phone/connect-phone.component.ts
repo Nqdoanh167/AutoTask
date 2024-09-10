@@ -173,7 +173,6 @@ export class ConnectPhoneComponent
       this.stringeeService.logoutStringee();
     } else {
       omicallUnregister();
-      console.log('hahaahaha');
     }
     this.phoneCallService.connectedPhone$.next(undefined);
   }
