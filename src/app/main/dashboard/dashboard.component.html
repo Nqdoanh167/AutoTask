@@ -10,12 +10,14 @@
           (toggleButtonEvent)="handleToggleAction($event)"
           (searchEvent)="onSearch($event)"
           (selectEvent)="onSelectFilter($event)"
+          (eventApply)="onApply($event)"
+          (eventReset)="onReset($event)"
           (popoverEvent)="onPopoverFilter($event)"
           (pickerDateEvent)="onPickerDateFilter($event)"
           (scrollToEndEvent)="handleLoadMoreData($event)"
         >
           <ng-container specificAdvanceFilter>
-            <div class="fw-normal col-4">Chi nhánh</div>
+            <div class="fw-500 col-4">Chi nhánh</div>
             <div class="col-8">
               <p-treeSelect
                 [filter]="true"

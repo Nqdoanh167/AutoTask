@@ -54,7 +54,7 @@ export const listColumns: IDataColumns = {
       // fieldSort: 'createdAt',
     },
     {
-      name: 'Ngày cập nhật',
+      name: 'Ngày cập nhật cuối',
       value: 'updatedAt',
       tooltip: 'Ngày cập nhật',
       // fieldSort: 'updatedAt',
@@ -65,7 +65,7 @@ export const listColumns: IDataColumns = {
       tooltip: 'Người tạo',
     },
     {
-      name: 'Người cập nhật',
+      name: 'Người cập nhật cuối',
       value: 'updatedBy',
       tooltip: 'Người cập nhật',
     },

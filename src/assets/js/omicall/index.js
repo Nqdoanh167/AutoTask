@@ -78,3 +78,9 @@ function omicallMakeCall(phoneNumber, hotline, user, taskId, taskCode) {
         console.log(e)
     }
 }
+
+function omicallUnregister(){
+    omiSDK.unregister()
+}
+
+
