@@ -54,6 +54,8 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
     value: boolean;
     name?: string;
   }>();
+  @Output() eventApply = new EventEmitter<any>();
+  @Output() eventReset = new EventEmitter<any>();
 
   @Input() configFilters: IFilterTopTable[] = [];
   @Input() configButtons: IFilterTopButton[] = [];
@@ -92,6 +94,8 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
     this.configFilterBasic = this.configFilters.filter(
       (item) => item.botherType !== EBotherAdvanceBasicFilter.ADVANCE,
     );
+
+    console.log('configFilterAdvance', this.configFilterAdvance);
   }
 
   getDefaultValuePopover(name?: string) {
@@ -171,6 +175,16 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
   handleToggleAction(event: any, name?: string) {
     const checked = !!event.target?.checked;
     this.toggleButtonEvent.emit({value: checked, name});
+  }
+
+  handleApply() {
+    this.eventApply.emit('FILTER');
+    this.popFilter.hide();
+  }
+
+  reset() {
+    this.eventReset.emit('RESET');
+    this.popFilter.hide();
   }
 
   ngOnDestroy(): void {
