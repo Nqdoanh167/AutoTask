@@ -2,7 +2,7 @@
   <div class="button-connect-phone">
     @if (!connectedPhone) {
       <div class="btn-group" dropdown placement="bottom right">
-        <button dropdownToggle class="btn button-status">
+        <button dropdownToggle class="button-status">
           <i class="fa-solid fa-phone-slash"></i>
         </button>
         @if (!userPhones.loading && userPhones.rows.length) {
@@ -15,20 +15,27 @@
           >
             @for (phone of userPhones.rows; track $index) {
               <li (click)="handleConnectToPhone(phone)" role="menuitem">
-                <div class="dropdown-item d-flex gap-2">
+                <div class="dropdown-item d-flex gap-2 align-items-center">
                   @if (
                     getVoicePlatform(phone.platform.platform);
                     as voicePlatform
                   ) {
-                    <img
-                      height="20px"
-                      *ngIf="voicePlatform.icon"
-                      src="{{ voicePlatform.icon }}"
-                      alt=""
-                      class="icon-platform"
-                    />
+                    <div
+                      class="border rounded-pill d-flex align-items-center justify-content-center shadow-sm"
+                      style="width: 25px; height: 25px"
+                    >
+                      <img
+                        *ngIf="voicePlatform.icon"
+                        src="{{ voicePlatform.icon }}"
+                        alt=""
+                        class="icon-platform object-cover"
+                        style="scale: 0.75"
+                      />
+                    </div>
                   }
-                  <span class="fw-500">{{ phone.hotline }}</span>
+                  <span class="fw-500">
+                    {{ phone.hotline }} - ({{ phone.sip }})
+                  </span>
                 </div>
               </li>
             }
@@ -40,7 +47,7 @@
         <button
           [tooltip]="'Ngắt kết nối đầu số'"
           container="body"
-          class="btn button-status connected"
+          class="button-status connected"
           (click)="handleDisconnectPhone()"
         >
           @if (loading.connectPhone) {
@@ -49,21 +56,29 @@
             <i class="fa-solid fa-phone"></i>
           }
         </button>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 align-items-center">
           @if (!loading.connectPhone && connectedPhone) {
             @if (
               getVoicePlatform(connectedPhone.platform.platform);
               as voicePlatform
             ) {
-              <img
-                height="20px"
-                *ngIf="voicePlatform.icon"
-                src="{{ voicePlatform.icon }}"
-                alt=""
-                class="icon-platform"
-              />
+              <div
+                class="border rounded-pill d-flex align-items-center justify-content-center shadow-sm"
+                style="width: 30px; height: 30px"
+              >
+                <img
+                  height="20px"
+                  *ngIf="voicePlatform.icon"
+                  src="{{ voicePlatform.icon }}"
+                  alt=""
+                  class="icon-platform object-cover"
+                  style="scale: 0.6"
+                />
+              </div>
             }
-            <span class="fw-500">{{ connectedPhone.hotline }}</span>
+            <span class="fw-500">
+              {{ connectedPhone.hotline }} - ({{ connectedPhone.sip }})
+            </span>
           }
         </div>
       </div>
