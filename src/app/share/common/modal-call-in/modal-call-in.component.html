@@ -1,0 +1,40 @@
+<div class="modal-call-in" [ngClass]="collapsed ? 'modal-call-collapse' : ''">
+    <div class="modal-call-in-header" *ngIf="!collapsed">
+        <img src="./assets/images/call/icon-call-in.png" alt="" class="icon-call-in" />
+
+        <span class="title-5">Cuộc gọi đến</span>
+    </div>
+    <div class="modal-call-in-body">
+        <div class="d-flex align-items-center justify-content-between" [ngClass]="collapsed ? 'modal-call-collapse' : 'mb-5'">
+            <div class="d-flex align-items-center">
+                <div class="customer-avatar" *ngIf="customer?.picture">
+                    <img src="{{customer?.picture}}" alt="" class="" />
+                </div>
+                <div class="customer-info">
+                    <div class="title-5">{{customer?.name ? customer?.name : 'Chưa có thông tin khách hàng'}}</div>
+                    <div>0975842740</div>
+                </div>
+            </div>
+            <img *ngIf="customer" src="./assets/images/call/icon-caret-right.svg" alt="" class="icon-caret-right" (click)="showInfo = !showInfo" />
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <div class="call-btn call-btn-collapse" (click)="changeCollapse()">
+                <img src="./assets/images/call/icon-collapse-close.svg" alt="">
+            </div>
+            <div class="call-btn call-btn-answer">
+                <img src="./assets/images/call/icon-call.svg" alt="">
+            </div>
+            <div class="call-btn call-btn-cancel">
+                <img src="./assets/images/call/icon-cancel-call.svg" alt="">
+            </div>
+        </div>
+    </div>
+    <div class="position-relative" *ngIf="showInfo && customer">
+        <div class="call-customer-info">
+            <app-common-call-customer-info
+                    [customer]="customer"
+                    (onClose)="showInfo = false"></app-common-call-customer-info>
+        </div>
+    </div>
+</div>

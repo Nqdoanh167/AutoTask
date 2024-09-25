@@ -28,6 +28,7 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
     countRows: 0,
   };
   @Input() total: number = 0;
+  @Input('showConfig') showConfig = true;
   @Input() type: ITypePaginate = 'number';
   @Input() selectedSize = 20;
   @Input() currentPage = 1;

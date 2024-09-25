@@ -1,0 +1,101 @@
+<div class="modal-header px-3 py-2 border-bottom">
+    <div class="title-5">Thông tin khách hàng</div>
+    <button aria-label="Close" class="btn btn-close close" type="button" (click)="close()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+</div>
+<div class="modal-body px-3 py-2 f-s-12">
+    <div class="mb-2">
+        <div class="f-s-14 f-w-b mb-1">Thông tin định danh</div>
+        <div class="d-flex mb-1">
+            <div class="customer-label">Tên khách hàng</div>
+            <div class="flex-grow-1 text-link f-w-b cursor-pointer" (click)="viewCustomer()">{{customer?.name}}</div>
+        </div>
+        <div class="d-flex mb-1">
+            <div class="customer-label">Số điện thoại</div>
+            <div class="flex-grow-1">{{customer?.phone}}</div>
+        </div>
+        <div class="d-flex mb-1">
+            <div class="customer-label">Giới tính</div>
+            <div class="flex-grow-1">{{customer?.gender == 'male' ? 'Nam' : (customer?.gender == 'female' ? 'Nữ' : 'Khác')}}</div>
+        </div>
+<!--        <div class="d-flex mb-1">-->
+<!--            <div class="customer-label">Ngày sinh</div>-->
+<!--            <div class="flex-grow-1"></div>-->
+<!--        </div>-->
+        <div class="d-flex mb-1">
+            <div class="customer-label">Email</div>
+            <div class="flex-grow-1">{{customer?.email}}</div>
+        </div>
+        <div class="d-flex mb-1">
+            <div class="customer-label">Địa chỉ</div>
+            <div class="flex-grow-1">{{customer?.address}}</div>
+        </div>
+        <div class="d-flex flex-row flex-wrap mb-1">
+            <div *ngFor="let tag of customer?.tags">
+              <span
+                      class="text-capitalize me-2 tag-item"
+                      [ngClass]="{nonBack: !tag.bgColor}"
+                      [ngStyle]="{background: tag.bgColor}"
+              >
+                <span>{{ tag.name }}</span>
+              </span>
+            </div>
+        </div>
+    </div>
+    <div class="mb-2">
+        <div class="f-s-14 f-w-b mb-1">Loyalty</div>
+        <div class="row">
+            <div class="col-6 d-flex justify-content-between mb-1">
+                <div class="">Điểm hạng</div>
+                <div class="">{{customer?.loyalty?.pointRank}} điểm</div>
+            </div>
+            <div class="col-6 d-flex mb-1 justify-content-between">
+                <div class="">Hạng</div>
+                <div>{{customer?.loyalty?.rankName}}</div>
+            </div>
+            <div class="col-6 d-flex justify-content-between mb-1">
+                <div class="">Điểm để thăng hạng</div>
+                <div class="">{{customer?.loyalty?.missingPointNextRank}} điểm</div>
+            </div>
+            <div class="col-6 d-flex justify-content-between mb-1">
+                <div class="">Điểm tích lũy hiện tại</div>
+                <div>{{customer?.loyalty?.totalPoint}} điểm</div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="f-s-14 f-w-b mb-1">Hành vi mua sắm</div>
+        <div class="d-flex mb-1">
+            <div class="order-label">Số đơn thành công</div>
+            <div class="flex-grow-1">{{customer?.saleCenter?.totalOrderCompleted}}</div>
+        </div>
+        <div class="d-flex mb-1">
+            <div class="order-label">Giá trị đơn thành công</div>
+            <div class="flex-grow-1">{{customer?.saleCenter?.moneyCompleted | number}} VNĐ</div>
+        </div>
+
+        <div class="table-fixed-height overflow-auto custom-scrollbar">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Mã ĐH</th>
+                    <th>Giá trị</th>
+                    <th>Trạng thái đơn</th>
+                    <th>Ngày tạo</th>
+                </tr>
+                </thead>
+                <tbody>
+                <ng-container *ngFor="let item of customer?.orders">
+                    <tr>
+                        <td class="f-w-b text-link" (click)="viewOrder(item.code)">{{item.code}}</td>
+                        <td>{{item?.amount | number}} VNĐ</td>
+                        <td class="order-status">{{item.statusName}}</td>
+                        <td>{{item.createdAt | date : 'dd/MM/yyyy'}}</td>
+                    </tr>
+                </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

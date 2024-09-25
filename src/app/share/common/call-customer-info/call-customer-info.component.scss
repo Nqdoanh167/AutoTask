@@ -1,0 +1,34 @@
+.f-s-12 {
+  font-size: 12px;
+}
+
+.f-s-14 {
+  font-size: 14px;
+}
+
+.f-w-b {
+  font-weight: 600;
+}
+
+.customer-label {
+  width: 110px;
+  min-width: 110px;
+}
+
+.order-label {
+  width: 130px;
+  min-width: 130px;
+}
+
+.table-fixed-height {
+  max-height: 250px;
+
+  th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  td {
+    font-size: 12px;
+  }
+}
