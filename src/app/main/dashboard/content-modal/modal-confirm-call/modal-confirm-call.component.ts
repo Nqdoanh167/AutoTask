@@ -71,8 +71,20 @@ export class ModalConfirmCallComponent
     const platformId = this.connectedPhone?.platform?.id;
     if (!platformId) return;
     this.loading = true;
-    this.smsOttCallService.platform
-      .getTokenClient(platformId, 'stringee', this.task?.code!, this.connectedPhone?.counselor?.isPcc)
+    const smsOttServiceRef = this.connectedPhone.counselor.isPcc
+      ? this.smsOttCallService.platform.getTokenReceiveCallForOnlyPcc(
+          platformId,
+          {
+            userId: this.connectedPhone.counselor?.['stringee_user_id'],
+          },
+        )
+      : this.smsOttCallService.platform.getTokenClient(
+          platformId,
+          'stringee',
+          this.task?.code!,
+        );
+
+    smsOttServiceRef
       .pipe(
         finalize(() => (this.loading = false)),
         takeUntil(this.destroy$),

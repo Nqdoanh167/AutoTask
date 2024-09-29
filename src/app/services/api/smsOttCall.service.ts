@@ -17,6 +17,7 @@ import {OmiExtension} from '@app/types/omicall';
 })
 export class SmsOttCallService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
+
   api = {
     platform: 'platforms',
     manage: 'manage',
@@ -33,7 +34,7 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
         if (res) {
           console.log('res alias', res);
           this.setApiAddress(
-            'http://localhost:8035/api',
+            environment.apiAddress,
             `bizs/${res.alias}/sms-ott-call`,
           );
         }
@@ -70,7 +71,7 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
           params: this.createParams({
             moduleAlias: 'auto-task',
             taskCode: taskCode,
-            isOutbondPcc: isOutbondPcc,
+            isOutbondPcc: isOutbondPcc
           }),
         },
       ),

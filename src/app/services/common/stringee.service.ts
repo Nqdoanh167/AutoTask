@@ -206,15 +206,15 @@ export class StringeeService {
   }
 
   handleCall(phone: string, toPhone: string) {
-    const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
-    const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
+    const modifiedPhone = String(phone).replace(/^0+|\+84|\+/, '84');
+    const modifiedToPhone = String(toPhone).replace(/^0+|\+84|\+/, '84');
     this.call = new StringeeCall(
       this.stringeeClient,
       modifiedPhone,
       modifiedToPhone,
       false,
     );
-
+    
     this.settingCallEvents(this.call);
     this.call?.makeCall((res: OutGoingCallEvent) => {
       console.log('make call callback: ', res);
