@@ -61,7 +61,7 @@ export class ModalConfirmCallComponent
     if (!platformId) return;
     this.loading = true;
     this.smsOttCallService.platform
-      .getTokenClient(platformId, 'stringee', this.task?.code!)
+      .getTokenClient(platformId, 'stringee', this.task?.code!, this.connectedPhone?.counselor?.isPcc)
       .pipe(
         finalize(() => (this.loading = false)),
         takeUntil(this.destroy$),

@@ -29,6 +29,12 @@
                     />
                   }
                   <span class="fw-500">{{ phone.hotline }}</span>
+                  <span class="fw-500" *ngIf="phone.sip">
+                    - {{ phone.sip }}
+                  </span>
+                  <span class="fw-500" *ngIf="phone.counselor?.['name']">
+                    - {{ phone.counselor?.['name'] }}
+                  </span>
                 </div>
               </li>
             }
@@ -63,7 +69,15 @@
                 class="icon-platform"
               />
             }
-            <span class="fw-500">{{ connectedPhone.hotline }}</span>
+            <span class="fw-500">
+              {{ connectedPhone.hotline }}
+            </span>
+            <span class="fw-500" *ngIf="connectedPhone.sip">
+              - {{ connectedPhone.sip }}
+            </span>
+            <span class="fw-500" *ngIf="connectedPhone.counselor?.['name']">
+              - {{ connectedPhone.counselor?.['name'] }}
+            </span>
           }
         </div>
       </div>

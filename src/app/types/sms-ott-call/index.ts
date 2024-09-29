@@ -26,7 +26,10 @@ export interface ManageMappingPhone extends BaseInterface {
   platformId: string;
   hotline: string;
   sip: number;
-  counselor: any;
+  counselor: {
+    isPcc?: boolean;
+    [T: string]: any
+  };
   userIds: string;
   isActive: boolean;
   platform: Platform;
