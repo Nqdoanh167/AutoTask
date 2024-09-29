@@ -56,6 +56,7 @@ export class ConnectPhoneComponent
     private readonly toarstService: ToastrService,
     private readonly phoneCallService: PhoneCallService,
     private readonly stringeeService: StringeeService,
+    private readonly omicallService: OmicallService,
   ) {
     super();
   }
@@ -113,20 +114,23 @@ export class ConnectPhoneComponent
       });
   }
 
-  getTokenStringee(platformId: string) {
+  getTokenStringee(platformId: string, counselor?: any) {
     this.phoneCallService.connectLoading$.next(true);
-    this.smsOttCallService.platform
-      .getTokenReceiveCall(platformId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200 && res.data.token) {
-            this.stringeeService.loginStringee(res.data.token);
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-      });
+    const smsOttCallServiceRef = counselor?.isPcc
+      ? this.smsOttCallService.platform.getTokenReceiveCallForOnlyPcc(
+          platformId,
+          {userId: counselor?.stringee_user_id},
+        )
+      : this.smsOttCallService.platform.getTokenReceiveCall(platformId);
+    smsOttCallServiceRef.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        if (res.status === 200 && res.data.token) {
+          this.stringeeService.loginStringee(res.data.token);
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+    });
   }
 
   handleConnectToPhone(data: ManageMappingPhone) {
@@ -136,7 +140,7 @@ export class ConnectPhoneComponent
       if (data.platform?.id) {
         this.isHiddenOmicallPopUp(true);
         this.phoneCallService.connectedPhone$.next(data);
-        this.getTokenStringee(data.platform.id);
+        this.getTokenStringee(data.platform.id, data.counselor);
       } else {
         this.toarstService.warning('Không tìm thấy ID của nền tảng!');
       }
@@ -163,7 +167,7 @@ export class ConnectPhoneComponent
 
   // OMICALL
   handleChangeOmicallExtension(dataConfig: OmiExtension) {
-    omicallInit(dataConfig);
+    this.omicallService.omicallInit(dataConfig);
   }
 
   handleDisconnectPhone() {

@@ -28,9 +28,7 @@ export class CustomTabSetComponent<T extends any> implements OnInit, OnChanges {
 
   constructor(private readonly cdr: ChangeDetectorRef) {}
 
-  ngOnInit(): void {
-    console.log('thang ne', this.tabs);
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges) {
     this.cdr.detectChanges();

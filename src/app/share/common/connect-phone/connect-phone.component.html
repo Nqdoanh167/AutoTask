@@ -33,8 +33,12 @@
                       />
                     </div>
                   }
-                  <span class="fw-500">
-                    {{ phone.hotline }} - ({{ phone.sip }})
+                  <span class="fw-500">{{ phone.hotline }}</span>
+                  <span class="fw-500" *ngIf="phone.sip">
+                    - {{ phone.sip }}
+                  </span>
+                  <span class="fw-500" *ngIf="phone.counselor?.['name']">
+                    - {{ phone.counselor?.['name'] }}
                   </span>
                 </div>
               </li>
@@ -77,7 +81,13 @@
               </div>
             }
             <span class="fw-500">
-              {{ connectedPhone.hotline }} - ({{ connectedPhone.sip }})
+              {{ connectedPhone.hotline }}
+            </span>
+            <span class="fw-500" *ngIf="connectedPhone.sip">
+              - {{ connectedPhone.sip }}
+            </span>
+            <span class="fw-500" *ngIf="connectedPhone.counselor?.['name']">
+              - {{ connectedPhone.counselor?.['name'] }}
             </span>
           }
         </div>

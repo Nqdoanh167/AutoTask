@@ -21,6 +21,7 @@ declare function omicallMakeCall(
   taskId?: string,
   taskCode?: string,
 ): void;
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-modal-confirm-call',
@@ -46,6 +47,7 @@ export class ModalConfirmCallComponent
     private readonly commonService: CommonService,
     private readonly stringeeService: StringeeService,
     private readonly phoneCallService: PhoneCallService,
+    private readonly toast: ToastrService,
   ) {
     super();
   }
@@ -70,7 +72,7 @@ export class ModalConfirmCallComponent
     if (!platformId) return;
     this.loading = true;
     this.smsOttCallService.platform
-      .getTokenClient(platformId, 'stringee', this.task?.code!)
+      .getTokenClient(platformId, 'stringee', this.task?.code!, this.connectedPhone?.counselor?.isPcc)
       .pipe(
         finalize(() => (this.loading = false)),
         takeUntil(this.destroy$),

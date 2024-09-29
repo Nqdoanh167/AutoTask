@@ -3,17 +3,20 @@ import {
   Call,
   ECallStatus,
   ECallType,
+  EPlatformVoice,
   EStringeeOtherDeviceType,
   StringeeOtherDeviceState,
   StringeeSignalingState,
 } from '@app/types/call';
 import {
+  EStringeeErrorCode,
   OutGoingCallEvent,
   StringeeReceiveCallEvent,
 } from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {ToastrService} from 'ngx-toastr';
+import {mappingStringeeCallStatus} from '@app/variable';
 
 @Injectable({
   providedIn: 'root',
@@ -48,7 +51,7 @@ export class StringeeService {
     });
 
     call1.on('signalingstate', (state: {code: StringeeSignalingState}) => {
-      console.log('signalingstate thang test', state);
+      console.log('signalingstate', state);
       let status: ECallStatus | undefined = undefined;
       switch (state.code) {
         case StringeeSignalingState.CALLING:
@@ -144,6 +147,7 @@ export class StringeeService {
           callId: incomingcall.callId,
           status: ECallStatus.RINGING,
           type: ECallType.INCOMING,
+          platform: EPlatformVoice.STRINGEE,
         };
         this.phoneCallService.setIncomingCall(incomingCallObj);
       },
@@ -214,12 +218,17 @@ export class StringeeService {
     this.settingCallEvents(this.call);
     this.call?.makeCall((res: OutGoingCallEvent) => {
       console.log('make call callback: ', res);
+      if (res.r !== EStringeeErrorCode.SUCCESS) {
+        this.toarst.error(mappingStringeeCallStatus[res.r]);
+        return;
+      }
       this.type = ECallType.OUTGOING;
       const outgoingCallObj: Call = {
         from: res.fromNumber,
         to: res.toNumber,
         callId: res.callId,
         type: ECallType.INCOMING,
+        platform: EPlatformVoice.STRINGEE,
       };
       this.phoneCallService.setOutgoingCall(outgoingCallObj);
     });
