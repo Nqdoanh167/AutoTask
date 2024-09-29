@@ -29,6 +29,14 @@
                                 <span aria-hidden="true" class="visually-hidden">&times;</span>
                             </button>
                         </div>
+                        <div *ngIf="task" class="mb-3 task-box">
+                            <span class="text-link me-1">Nguồn cuộc gọi</span>
+                            <img src="./assets/images/call/icon-autotask.png" alt="" class="icon-autotask me-1">
+                            <span class="text-link fw-bold me-1">{{task.code}}</span>
+
+<!--                            <img src="./assets/images/call/icon-close-task.svg" class="cursor-pointer" (click)="removeTask()" alt="" style="width: 16px">-->
+                        </div>
+
                         <div class="d-flex justify-content-between">
                             <div class="keyboard-number" (click)="addNum('1')">1</div>
                             <div class="keyboard-number" (click)="addNum('2')">2</div>

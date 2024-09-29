@@ -120,3 +120,18 @@ $call-box-width: 260px;
     padding-bottom: 12px;
   }
 }
+
+.task-box {
+  width: calc(100% + 100px);
+  transform: translateX(-50px);
+  padding: 8px 16px;
+  background-color: #EEF3FF;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .icon-autotask {
+    width: 113px;
+  }
+}

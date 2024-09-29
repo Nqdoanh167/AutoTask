@@ -17,6 +17,8 @@ import {OmiExtension} from "@app/types/omicall";
 import {User} from "@app/types/viewmodels";
 import {ToastrService} from "ngx-toastr";
 import {STATUS_VOICE, CALL_EVENT, ECallEvent} from "@app/types/call";
+import {IModalConfirmContent} from "@share/custom/modal-confirm/modal-confirm.component";
+import {ModalConfirmService} from "@share/custom/modal-confirm/modal-confirm.service";
 
 
 declare function omicallInit(dataConfig: OmiExtension): void;
@@ -36,7 +38,7 @@ declare function omicallMakeCall(
     styleUrls: ['./quick-call.component.scss'],
 })
 export class QuickCallComponent extends BaseComponentsComponent implements OnInit, OnDestroy {
-    showCall = false;
+    showCall = true;
     showInfo = false;
     tab = 1;
     mobile: string | undefined = '';
@@ -71,6 +73,7 @@ export class QuickCallComponent extends BaseComponentsComponent implements OnIni
         private readonly smsOttCallService: SmsOttCallService,
         private readonly stringeeService: StringeeService,
         private readonly toastr: ToastrService,
+        private readonly modalConfirmService: ModalConfirmService
     ) {
         super();
     }
@@ -141,6 +144,12 @@ export class QuickCallComponent extends BaseComponentsComponent implements OnIni
         const phone = this.connectedPhone.hotline;
         const toPhone = this.mobile;
         if (!phone || !toPhone) return;
+
+        if (!this.isVietnamesePhoneNumber(toPhone)) {
+            this.toastr.warning('Số điện thoại không đúng định dạng');
+            return;;
+        }
+
         const {platform} = this.connectedPhone;
         if (platform.platform === 'stringee') {
             this.stringeeService.handleCall(phone, toPhone);
@@ -149,6 +158,11 @@ export class QuickCallComponent extends BaseComponentsComponent implements OnIni
             omicallMakeCall(toPhone, phone, leadDeal as any, id, code);
         }
     }
+
+    isVietnamesePhoneNumber(number: string) {
+        return /([\+84|84|0]+(3|5|7|8|9|1[2|6|8|9]))+([0-9]{8})\b/.test(number);
+    }
+
 
     onSelectHistory(history: any) {
         if (history.typeCallEvent == ECallEvent.outbound) {
@@ -280,5 +294,8 @@ export class QuickCallComponent extends BaseComponentsComponent implements OnIni
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    removeTask() {
     }
 }
