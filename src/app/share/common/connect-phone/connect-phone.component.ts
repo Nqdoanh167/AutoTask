@@ -23,6 +23,7 @@ declare function omicallMakeCall(
   taskId: string,
   taskCode: string,
 ): void;
+import {OmicallService} from '@app/services/common/omicall.service';
 
 @Component({
   selector: 'app-connect-phone',
