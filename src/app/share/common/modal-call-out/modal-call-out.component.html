@@ -1,4 +1,4 @@
-<div class="modal-call-in" [ngClass]="collapsed ? 'modal-call-collapse' : ''">
+<div *ngIf="call" class="modal-call-in" [ngClass]="collapsed ? 'modal-call-collapse' : ''">
     <div class="modal-call-in-header" *ngIf="!collapsed">
         <img src="./assets/images/call/icon-call-out.png" alt="" class="icon-call-in" />
 
@@ -13,7 +13,7 @@
                     </div>
                     <div class="customer-info">
                         <div class="title-5">{{customer?.name ? customer?.name : 'Chưa có thông tin khách hàng'}}</div>
-                        <div>0975842740</div>
+                        <div>{{mobile}}</div>
                     </div>
                 </div>
                 <img *ngIf="customer" src="./assets/images/call/icon-caret-right.svg" alt="" class="icon-caret-right" (click)="showInfo = !showInfo" />
@@ -21,15 +21,19 @@
             <ng-container *ngIf="!collapsed">
                 <div class="mb-3">
                     <span class="me-1">Trạng thái kết nối</span>
-                    <span class="text-success">Thành công</span>
+                    <span class="text-success">
+                        <span *ngIf="!phoneStatus || phoneStatus === ECallStatus.RINGING">Đang đổ chuông...</span>
+                        <span *ngIf="phoneStatus === ECallStatus.ENDED">Cuộc gọi đã kết thúc</span>
+                        <span *ngIf="phoneStatus === ECallStatus.REJECTED">Khách hàng không bắt máy</span>
+                    </span>
                 </div>
                 <div class="mb-3">
                     <div class="mb-1">Ghi chú</div>
                     <textarea class="form-control note-box" rows="10"></textarea>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" *ngIf="phoneStatus === ECallStatus.ANSWERED">
                     <span class="me-1">Thời lượng cuộc gọi</span>
-                    <span class="text-success">02:39</span>
+                    <span class="text-success">{{ timer$ | async | formatSeconds }}</span>
                 </div>
             </ng-container>
         </div>
@@ -41,7 +45,7 @@
             <div class="call-btn" (click)="changeMute()" [ngClass]="muted ? 'call-btn-collapse' : 'call-btn-cancel'">
                 <img src="./assets/images/call/icon-mic.svg" alt="">
             </div>
-            <div class="call-btn call-btn-cancel">
+            <div class="call-btn call-btn-cancel" (click)="handleChangePhoneStatus(ECallStatus.ENDED)">
                 <img src="./assets/images/call/icon-cancel-call.svg" alt="">
             </div>
         </div>

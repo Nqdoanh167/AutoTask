@@ -1,4 +1,4 @@
-<div class="modal-call-in" [ngClass]="collapsed ? 'modal-call-collapse' : ''">
+<div *ngIf="call" class="modal-call-in" [ngClass]="collapsed ? 'modal-call-collapse' : ''">
     <div class="modal-call-in-header" *ngIf="!collapsed">
         <img src="./assets/images/call/icon-call-in.png" alt="" class="icon-call-in" />
 
@@ -12,7 +12,7 @@
                 </div>
                 <div class="customer-info">
                     <div class="title-5">{{customer?.name ? customer?.name : 'Chưa có thông tin khách hàng'}}</div>
-                    <div>0975842740</div>
+                    <div>{{mobile}}</div>
                 </div>
             </div>
             <img *ngIf="customer" src="./assets/images/call/icon-caret-right.svg" alt="" class="icon-caret-right" (click)="showInfo = !showInfo" />
@@ -22,12 +22,19 @@
             <div class="call-btn call-btn-collapse" (click)="changeCollapse()">
                 <img src="./assets/images/call/icon-collapse-close.svg" alt="">
             </div>
-            <div class="call-btn call-btn-answer">
-                <img src="./assets/images/call/icon-call.svg" alt="">
-            </div>
-            <div class="call-btn call-btn-cancel">
-                <img src="./assets/images/call/icon-cancel-call.svg" alt="">
-            </div>
+            <ng-container *ngIf="phoneStatus === ECallStatus.RINGING; else endCall">
+                <div  class="call-btn call-btn-answer" (click)="handleChangePhoneStatus(ECallStatus.ANSWERED)">
+                    <img src="./assets/images/call/icon-call.svg" alt="">
+                </div>
+                <div *ngIf="phoneStatus === ECallStatus.RINGING" class="call-btn call-btn-cancel" (click)="handleChangePhoneStatus(ECallStatus.REJECTED)">
+                    <img src="./assets/images/call/icon-cancel-call.svg" alt="">
+                </div>
+            </ng-container>
+            <ng-template #endCall>
+                <div class="call-btn call-btn-cancel" (click)="handleChangePhoneStatus(ECallStatus.ENDED)">
+                    <img src="./assets/images/call/icon-cancel-call.svg" alt="">
+                </div>
+            </ng-template>
         </div>
     </div>
     <div class="position-relative" *ngIf="showInfo && customer">

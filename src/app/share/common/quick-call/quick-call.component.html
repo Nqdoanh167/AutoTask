@@ -17,7 +17,7 @@
             <div class="call-box-body">
                 <div class="nav-tab mb-3">
                     <div class="nav-tab-item" (click)="tab = 1" [ngClass]="tab == 1 ? 'active' : ''">Quay số</div>
-                    <div class="nav-tab-item" (click)="tab = 2" [ngClass]="tab == 2 ? 'active' : ''">Lịch sử</div>
+                    <div class="nav-tab-item" (click)="tab = 2; getCallHistory()" [ngClass]="tab == 2 ? 'active' : ''">Lịch sử</div>
                 </div>
 
                 <ng-container *ngIf="tab ==1">
@@ -50,7 +50,7 @@
                             <div class="keyboard-number" (click)="addNum('#')">#</div>
                         </div>
 
-                        <div class="btn-call" (click)="onCall()">
+                        <div class="btn-call" (click)="handleCall()">
                             <img src="./assets/images/call/icon-call.svg" alt="" class="icon-call">
                             <span class="text-uppercase title-5 ms-1">Gọi</span>
                         </div>
@@ -61,15 +61,13 @@
                         <div class="col-6">
                             <select class="form-control" [(ngModel)]="conditions.type">
                                 <option value="">Loại</option>
-                                <option value="outbound">Gọi đi</option>
-                                <option value="inbound">Gọi đến</option>
+                                <option *ngFor="let item of CALL_EVENT" [value]="item.value">{{item.label}}</option>
                             </select>
                         </div>
                         <div class="col-6">
                             <select class="form-control" [(ngModel)]="conditions.status">
                                 <option value="">Trạng thái</option>
-                                <option value="SUCCESS">Nghe máy</option>
-                                <option value="FAIL">Không nghe máy</option>
+                                <option *ngFor="let item of STATUS_VOICE" [value]="item.value">{{item.label}}</option>
                             </select>
                         </div>
                     </div>
@@ -90,10 +88,10 @@
                                     <td>{{(pagination.page - 1) * pagination.limit + 1 + i}}</td>
                                     <td>
                                         <div>
-                                            <div class="fw-bold text-link mb-1">Cuộc gọi đi</div>
+                                            <div class="fw-bold text-link mb-1">{{item.typeCallEvent == ECallEvent.inbound ? 'Cuộc gọi đến' : 'Cuộc gọi đi'}}</div>
                                             <div class="mb-1">
                                                 <span class="me-1">Trạng thái:</span>
-                                                <span class="text-danger">{{item.status}}</span>
+                                                <span>{{item.status}}</span>
                                             </div>
                                             <div class="mb-1">
                                                 <span class="me-1">Gọi từ</span>
@@ -125,6 +123,7 @@
                     <custom-pagination
                             [showConfig]="false"
                             [selectedSize]="pagination.limit"
+                            [maxSize]="2"
                             [currentPage]="pagination.page"
                             (changePageEvent)="pageChanged($event)"
                             [total]="pagination.total"

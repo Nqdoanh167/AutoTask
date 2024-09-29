@@ -776,21 +776,26 @@ export class ModalUpdateTaskComponent
               this.toastr.warning('Bạn chưa kết nối đầu số!');
               return;
             }
-            this.isOpenBackDrop = true;
-            const modalCall = this.modalService.show(
-              ModalConfirmCallComponent,
-              {
-                class: 'modal-dialog-centered',
-                initialState: {
-                  customer: this.formLeadDeal.value,
-                  task: this.sourceData,
-                  connectedPhone,
-                },
-              },
-            );
-            modalCall.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
-              this.isOpenBackDrop = false;
-            });
+            // this.isOpenBackDrop = true;
+            // const modalCall = this.modalService.show(
+            //   ModalConfirmCallComponent,
+            //   {
+            //     class: 'modal-dialog-centered',
+            //     initialState: {
+            //       customer: this.formLeadDeal.value,
+            //       task: this.sourceData,
+            //       connectedPhone,
+            //     },
+            //   },
+            // );
+            // modalCall.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            //   this.isOpenBackDrop = false;
+            // });
+            this.phoneCallService.setMakeCall({
+              customer: this.formLeadDeal.value,
+              task: this.sourceData,
+              connectedPhone
+            })
           }
         })
         .catch((e) => console.log(e));
