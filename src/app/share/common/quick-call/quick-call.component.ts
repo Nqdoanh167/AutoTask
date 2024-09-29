@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from "@angular/core";
+import {Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {CallCustomerInfoComponent} from "@share/common/call-customer-info/call-customer-info.component";
 import {BaseComponentsComponent} from "@share/common/base-components/base-components.component";
@@ -58,6 +58,10 @@ export class QuickCallComponent extends BaseComponentsComponent implements OnIni
     CALL_EVENT = CALL_EVENT;
     ECallEvent = ECallEvent;
     customerMobile: string | undefined = '';
+    audioUrl = 'https://samplelib.com/lib/preview/mp3/sample-3s.mp3';
+    audio = new Audio();
+    currentHistory = '';
+    playAudioPlaying = false;
 
     constructor(
         private readonly customerService: CustomerService,
@@ -247,5 +251,34 @@ export class QuickCallComponent extends BaseComponentsComponent implements OnIni
                 }
             },
         });
+    }
+
+    playAudio(url: string, id: string) {
+        if (this.currentHistory == id) {
+            if (this.playAudioPlaying) {
+                this.playAudioPlaying = false;
+                this.audio.pause();
+            } else {
+                this.playAudioPlaying = true;
+                this.audio.play();
+            }
+        } else {
+            this.currentHistory = id;
+            this.playAudioPlaying = true;
+            this.audio.src = url;
+            this.audio.load();
+            this.audio.play();
+        }
+        this.currentHistory = id;
+    }
+
+    downloadAudio(url: string) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.download = 'audio';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 }

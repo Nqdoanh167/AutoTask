@@ -101,12 +101,12 @@
                                                 <span class="me-1">Gọi đến</span>
                                                 <span class="text-link">{{item.voice?.toPhone}}</span>
                                             </div>
-                                            <div class="mb-1 d-flex">
+                                            <div *ngIf="item.voice.radioLink" class="mb-1 d-flex">
                                                 <span class="me-1">File ghi âm</span>
 
                                                 <div class="d-flex align-items-center">
-                                                    <img src="./assets/images/call/icon-play-audio.svg" alt="" class="cursor-pointer me-1" style="width: 16px">
-                                                    <img src="./assets/images/call/icon-download-audio.svg" alt="" class="cursor-pointer" style="width: 16px">
+                                                    <img src="./assets/images/call/icon-play-audio.svg" (click)="$event.stopPropagation(); playAudio(item.voice.radioLink, item.id)" alt="" class="cursor-pointer me-1" style="width: 16px">
+                                                    <img src="./assets/images/call/icon-download-audio.svg" (click)="downloadAudio(item.voice.radioLink)" alt="" class="cursor-pointer" style="width: 16px">
                                                 </div>
                                             </div>
                                         </div>
@@ -139,3 +139,4 @@
         </div>
     </ng-template>
 </div>
+
