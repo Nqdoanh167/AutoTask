@@ -396,8 +396,8 @@ export class ModalCallComponent implements OnInit, OnDestroy {
       if (!platformId || !phone || !toPhone || !platform) return;
       switch (platform) {
         case 'stringee':
-          const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
-          const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
+          const modifiedPhone = String(phone).replace(/^0+|\+84|\+/, '84');
+          const modifiedToPhone = String(toPhone).replace(/^0+|\+84|\+/, '84');
           this.call = new StringeeCall(
             this.stringeeClient,
             modifiedPhone,

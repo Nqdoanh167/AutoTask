@@ -12,12 +12,18 @@ export enum ECallType {
   OUTGOING = 'OUTGOING',
 }
 
+export enum EPlatformVoice {
+  OMICALL = 'omicall',
+  STRINGEE = 'stringee',
+}
+
 export interface Call {
   from: string;
   to: string;
   status?: ECallStatus;
   callId?: string;
   type: ECallType;
+  platform: EPlatformVoice;
 }
 
 export enum StringeeSignalingState {

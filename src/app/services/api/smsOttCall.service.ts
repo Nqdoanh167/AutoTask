@@ -17,6 +17,7 @@ import {OmiExtension} from '@app/types/omicall';
 })
 export class SmsOttCallService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
+
   api = {
     platform: 'platforms',
     manage: 'manage',
@@ -63,13 +64,14 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
           params: {},
         },
       ),
-    getTokenClient: (id: string, platform: string, taskCode: string) =>
+    getTokenClient: (id: string, platform: string, taskCode: string, isOutbondPcc?: boolean) =>
       this.httpClient.get<EntityResult<{token: string}>>(
         this.createUrl([this.api.platform, id, platform, 'token-client']),
         {
           params: this.createParams({
             moduleAlias: 'auto-task',
             taskCode: taskCode,
+            isOutbondPcc: isOutbondPcc
           }),
         },
       ),
@@ -81,6 +83,18 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
           'stringee',
           'token-client-receive-call-event',
         ]),
+      ),
+    getTokenReceiveCallForOnlyPcc: (platformId: string, params: any) =>
+      this.httpClient.get<EntityResult<{token: string}>>(
+        this.createUrl([
+          this.api.platform,
+          platformId,
+          'stringee',
+          'token-client-for-only-pcc',
+        ]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        }
       ),
   };
 
