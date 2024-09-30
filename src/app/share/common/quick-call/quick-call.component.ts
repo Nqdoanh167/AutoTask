@@ -38,7 +38,7 @@ declare function omicallMakeCall(
     styleUrls: ['./quick-call.component.scss'],
 })
 export class QuickCallComponent extends BaseComponentsComponent implements OnInit, OnDestroy {
-    showCall = true;
+    showCall = false;
     showInfo = false;
     tab = 1;
     mobile: string | undefined = '';
@@ -118,13 +118,25 @@ export class QuickCallComponent extends BaseComponentsComponent implements OnIni
     getTokenClient() {
         const platformId = this.connectedPhone?.platform?.id;
         if (!platformId) return;
-        this.smsOttCallService.platform
-            .getTokenClient(platformId, 'stringee', this.task?.code!)
+        const smsOttServiceRef = this.connectedPhone?.counselor.isPcc
+            ? this.smsOttCallService.platform.getTokenReceiveCallForOnlyPcc(
+                platformId,
+                {
+                    userId: this.connectedPhone?.counselor?.['stringee_user_id'],
+                },
+            )
+            : this.smsOttCallService.platform.getTokenClient(
+                platformId,
+                'stringee',
+                this.task?.code!,
+            );
+
+        smsOttServiceRef
             .pipe(
-                takeUntil(this.destroy$)
+                takeUntil(this.destroy$),
             )
             .subscribe({
-                next: (res : any) => {
+                next: (res) => {
                     if (res.status === 200) {
                         this.stringeeService.loginStringee(res.data.token);
                     } else {
