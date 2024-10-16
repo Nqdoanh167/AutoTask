@@ -37,6 +37,8 @@ import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {ModalConfirmCallComponent} from '@main/dashboard/content-modal/modal-confirm-call/modal-confirm-call.component';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 
+declare function smaxCallSdkMakeCall(callInfo: any): void;
+
 @Component({
   selector: 'app-modal-update-task',
   templateUrl: './modal-update-task.component.html',
@@ -791,11 +793,20 @@ export class ModalUpdateTaskComponent
             // modalCall.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
             //   this.isOpenBackDrop = false;
             // });
-            this.phoneCallService.setMakeCall({
-              customer: this.formLeadDeal.value,
-              task: this.sourceData,
-              connectedPhone
-            })
+
+            smaxCallSdkMakeCall({
+              phone: this.formLeadDeal.value,
+              data: {
+                id: this.sourceData ? this.sourceData.id : '',
+                module: 'auto-task',
+                code: this.sourceData ? this.sourceData.code : '',
+              }
+            });
+            // this.phoneCallService.setMakeCall({
+            //   customer: this.formLeadDeal.value,
+            //   task: this.sourceData,
+            //   connectedPhone
+            // })
           }
         })
         .catch((e) => console.log(e));
