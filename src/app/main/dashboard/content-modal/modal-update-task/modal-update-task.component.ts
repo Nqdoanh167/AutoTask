@@ -772,12 +772,12 @@ export class ModalUpdateTaskComponent
               this.toastr.warning('Không có số điện thoại của khách hàng');
               return;
             }
-            const connectedPhone =
-              this.phoneCallService.getConnectedPhoneValue();
-            if (!connectedPhone) {
-              this.toastr.warning('Bạn chưa kết nối đầu số!');
-              return;
-            }
+            // const connectedPhone =
+            //   this.phoneCallService.getConnectedPhoneValue();
+            // if (!connectedPhone) {
+            //   this.toastr.warning('Bạn chưa kết nối đầu số!');
+            //   return;
+            // }
             // this.isOpenBackDrop = true;
             // const modalCall = this.modalService.show(
             //   ModalConfirmCallComponent,
@@ -798,7 +798,7 @@ export class ModalUpdateTaskComponent
               phone: this.formLeadDeal.value,
               data: {
                 id: this.sourceData ? this.sourceData.id : '',
-                module: 'auto-task',
+                module: environment.module,
                 code: this.sourceData ? this.sourceData.code : '',
               }
             });
