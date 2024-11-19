@@ -795,7 +795,7 @@ export class ModalUpdateTaskComponent
             // });
 
             smaxCallSdkMakeCall({
-              phone: this.formLeadDeal.value,
+              phone: phone,
               data: {
                 id: this.sourceData ? this.sourceData.id : '',
                 module: environment.module,
