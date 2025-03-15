@@ -142,7 +142,7 @@
                   </div>
                 </td>
                 <td class="columns-action">
-                  <div class="d-flex gap-2">
+                  <div class="d-flex align-items-center gap-2">
                     <div
                       cdkDragHandle
                       (click)="$event.preventDefault()"
@@ -229,6 +229,14 @@
                         </div>
                       </div>
                     </div>
+                    <div
+                      [ngStyle]="{
+                        visibility:
+                          item.results.length > 1 ? 'visible' : 'hidden'
+                      }"
+                    >
+                      <img src="./assets/images/icon/step-join.svg" alt="" />
+                    </div>
                   </div>
                 </td>
                 <td class="columns-step-or-center content">
@@ -253,9 +261,38 @@
                           !lastResult &&
                           item.results.length !== 1
                       }"
+                      [ngStyle]="{
+                        '--before-height':
+                          item.results.length !== 1 && lastResult
+                            ? 22 * (result['nextActions'].length - 1) + 'px'
+                            : null,
+                        '--after-height':
+                          item.results.length !== 1 && firstResult
+                            ? 22 * (result['nextActions'].length - 1) + 'px'
+                            : null,
+                        paddingBottom:
+                          result['nextActions'].length !== 1 && firstResult
+                            ? 22 * (result['nextActions'].length - 1) + 'px'
+                            : null,
+                        marginTop:
+                          result['nextActions'].length !== 1 &&
+                          (firstResult || lastResult)
+                            ? 22 * (result['nextActions'].length - 1) + 'px'
+                            : null,
+                        padding:
+                          result['nextActions'].length !== 1 &&
+                          !firstResult &&
+                          !lastResult
+                            ? 22 * (result['nextActions'].length - 1) + 'px 0px'
+                            : null,
+                        boxSizing:
+                          result['nextActions'].length !== 1
+                            ? 'content-box'
+                            : 'border-box'
+                      }"
                       class="columns-step-item"
                     ></div>
-                    <div
+                    <!-- <div
                       *ngFor="
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
@@ -267,7 +304,7 @@
                         *ngIf="!firstAction"
                         [class.padding-temp]="!lastResult"
                       ></div>
-                    </div>
+                    </div> -->
                     <div [class.padding-button-temp]="!lastResult"></div>
                   </div>
                 </td>
@@ -285,7 +322,17 @@
                       let lastResult = last
                     "
                   >
-                    <div cdkDrag cdkDragLockAxis="y" class="row result-item">
+                    <div
+                      cdkDrag
+                      cdkDragLockAxis="y"
+                      class="row result-item"
+                      [ngStyle]="{
+                        padding:
+                          result['nextActions'].length !== 1
+                            ? 22 * (result['nextActions'].length - 1) + 'px 0px'
+                            : null
+                      }"
+                    >
                       <div class="d-flex align-items-center">
                         <div
                           cdkDragHandle
@@ -369,9 +416,22 @@
                             </div>
                           </div>
                         </div>
+                        <div
+                          [ngStyle]="{
+                            visibility:
+                              result['nextActions'].length > 1
+                                ? 'visible'
+                                : 'hidden'
+                          }"
+                        >
+                          <img
+                            src="./assets/images/icon/step-join.svg"
+                            alt=""
+                          />
+                        </div>
                       </div>
                     </div>
-                    <div
+                    <!-- <div
                       *ngFor="
                         let nextAction of result['nextActions'];
                         let nextActionIndex = index;
@@ -383,7 +443,7 @@
                         class=""
                         [class.padding-temp]="!lastResult"
                       ></div>
-                    </div>
+                    </div> -->
                     <div
                       class=""
                       [class.padding-button-temp]="!lastResult"

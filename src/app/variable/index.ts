@@ -19,9 +19,9 @@ export const listColumns: IDataColumns = {
       tooltip: 'Tác vụ',
     },
     {
-      name: 'Hành động - Kết quả',
+      name: 'Chuỗi chăm sóc',
       value: 'taskChains',
-      tooltip: 'Hành động - Kết quả',
+      tooltip: 'Chuỗi chăm sóc',
     },
     {
       name: 'Khách hàng',
