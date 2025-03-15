@@ -151,7 +151,7 @@
                       <img src="./assets/images/icon/dragDrop.svg" alt="" />
                     </div>
                     <ng-select
-                      [style.width]="'95%'"
+                      [style]="{width: '95%', 'min-width': '0'}"
                       [placeholder]="'Chọn hành động'"
                       [searchable]="false"
                       (open)="!actions.rows.length && getAction()"
@@ -270,19 +270,27 @@
                           item.results.length !== 1 && firstResult
                             ? 22 * (result['nextActions'].length - 1) + 'px'
                             : null,
-                        paddingBottom:
-                          result['nextActions'].length !== 1 && firstResult
+                        '--one-padding':
+                          result['nextActions'].length !== 1 &&
+                          item.results.length === 1
                             ? 22 * (result['nextActions'].length - 1) + 'px'
                             : null,
+
                         marginTop:
                           result['nextActions'].length !== 1 &&
-                          (firstResult || lastResult)
+                          (firstResult || lastResult) &&
+                          item.results.length !== 1
+                            ? 22 * (result['nextActions'].length - 1) + 'px'
+                            : null,
+                        paddingBottom:
+                          result['nextActions'].length !== 1 && firstResult
                             ? 22 * (result['nextActions'].length - 1) + 'px'
                             : null,
                         padding:
                           result['nextActions'].length !== 1 &&
                           !firstResult &&
-                          !lastResult
+                          !lastResult &&
+                          item.results.length !== 1
                             ? 22 * (result['nextActions'].length - 1) + 'px 0px'
                             : null,
                         boxSizing:
@@ -342,7 +350,7 @@
                           <img src="./assets/images/icon/dragDrop.svg" alt="" />
                         </div>
                         <ng-select
-                          [style.width]="'95%'"
+                          [style]="{width: '95%', 'min-width': '0'}"
                           [placeholder]="'Chọn kết quả'"
                           [searchable]="false"
                           [items]="results.rows"

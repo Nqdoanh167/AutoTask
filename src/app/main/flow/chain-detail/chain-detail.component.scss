@@ -131,6 +131,7 @@
       }
       &--one {
         background: url(^assets/images/icon/step-once.svg) center no-repeat;
+        padding: var(--one-padding, 0) 0 0 0;
       }
     }
     .padding-temp {
