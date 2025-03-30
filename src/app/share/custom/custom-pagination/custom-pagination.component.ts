@@ -28,9 +28,11 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
     countRows: 0,
   };
   @Input() total: number = 0;
+  @Input('showConfig') showConfig = true;
   @Input() type: ITypePaginate = 'number';
   @Input() selectedSize = 20;
   @Input() currentPage = 1;
+  @Input() maxSize = 3;
   @Input() optionSize = [10, 20, 50, 100];
   @Output() changePageEvent = new EventEmitter<{page: number; limit: number}>();
   @Output() changePageLazyEvent = new EventEmitter<IChangePage>();

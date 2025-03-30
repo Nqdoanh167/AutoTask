@@ -106,7 +106,7 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
   };
 
   history = {
-    get: (params = {filter: {taskId: '66ce9a271e6e8d6c1c95b3e3'}}) =>
+    get: (params: any = {filter: {taskId: '66ce9a271e6e8d6c1c95b3e3'}}) =>
       this.httpClient.get<EntityResult<Platform[]>>(
         this.createUrl([this.api.history]),
         {

@@ -15,6 +15,7 @@ import {AuthService} from '@app/services/api/auth.service';
 export class PhoneCallService {
   private incomingCallObj = new BehaviorSubject<Call | null>(null);
   private outgoingCallObj = new BehaviorSubject<Call | null>(null);
+  private makeCallObj = new BehaviorSubject<any>(null);
 
   public connectLoading$ = new BehaviorSubject(false);
   public connectedPhone$ = new BehaviorSubject<ManageMappingPhone | undefined>(
@@ -25,6 +26,14 @@ export class PhoneCallService {
     private readonly smsOttCallService: SmsOttCallService,
     private readonly authService: AuthService,
   ) {}
+
+  getMakeCall() {
+    return this.makeCallObj.asObservable();
+  }
+
+  setMakeCall(callInfo: any) {
+    this.makeCallObj.next(callInfo);
+  }
 
   getIncomingCall() {
     return this.incomingCallObj.asObservable();
