@@ -1112,9 +1112,9 @@ span.required {
   }
   .button-next {
     z-index: 1;
-    position: absolute;
-    right: 180px;
-    top: 0;
+    // position: absolute;
+    // right: 180px;
+    // top: 0;
     width: 50px;
     background: linear-gradient(270deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
     &.hide {
@@ -1176,9 +1176,9 @@ span.required {
       justify-content: flex-end;
     }
   }
-  .content-tab-filter {
-    width: calc(100% - 180px);
-  }
+  // .content-tab-filter {
+  //   width: calc(100% - 700px);
+  // }
 }
 
 bs-tooltip-container.custom-tooltip-tab-filter {
@@ -1187,6 +1187,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
 
 .custom-tab-basic.tab-filter-data {
   .nav-tabs {
+    max-width: 800px;
     //height: $input-medium;
     display: flex;
     flex-wrap: nowrap;
@@ -1318,8 +1319,8 @@ bs-tooltip-container.custom-tooltip-tab-filter {
         padding: 5px 10px 5px 20px;
         background-color: unset !important;
         border: none;
-        color: $neutral !important;
-        border-bottom: 3px solid $neutral;
+        color: $secondary-500 !important;
+        border-bottom: 3px solid $secondary-500;
         .button-edit-tab {
           display: flex;
         }

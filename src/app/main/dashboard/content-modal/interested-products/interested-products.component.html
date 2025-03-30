@@ -44,6 +44,7 @@
                 appearance="outline"
                 appendTo=".modal"
                 (open)="firstCallRemaining.product && getListProduct(true)"
+                (scroll)="scrollLoadData({event: $event, dataName: 'products'})"
               >
                 <ng-template ng-option-tmp let-item="item">
                   <div class="d-flex align-items-center">

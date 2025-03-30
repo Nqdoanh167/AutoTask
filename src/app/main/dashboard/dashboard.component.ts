@@ -99,7 +99,7 @@ export class DashboardComponent
   }
 
   override ngOnInit() {
-    this.handleCheckPermission();
+    // this.handleCheckPermission();
     this.handleActiveViewMode();
     const permissions = this.authService.getUserPerByType(EPerActType.TASK);
     this.permission.edit = this.hasPermission(
@@ -161,7 +161,7 @@ export class DashboardComponent
       this.autoTaskService.currentActiveViewMode
         .pipe(
           distinctUntilChanged(isEqual),
-          filter((currentActiveViewMode) => currentActiveViewMode),
+          filter((currentActiveViewMode) => !!currentActiveViewMode),
           takeUntil(this.destroy$),
         )
         .subscribe((currentActiveViewMode) => {
@@ -205,7 +205,14 @@ export class DashboardComponent
                 currentActiveViewMode?.options[configButton.name!];
               objFilterQuery[configButton.name!] = configButton.value;
             }
+
+            if (configButton.type === ETypeButton.DEFAULT) {
+              configButton.isActive =
+                currentActiveViewMode?.options[configButton.name!];
+              objFilterQuery[configButton.name!] = configButton.isActive;
+            }
           });
+
           // update dataSource.paramsQuery.filter by objFilterQuery
           this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
           this.getDataSource(true);
@@ -335,20 +342,36 @@ export class DashboardComponent
     if (name === 'add_new') {
       this.handleUpdate();
     }
-  }
-
-  handleToggleAction(data: {name?: string; value: boolean}) {
-    const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
-    obj[data.name!] = data.value;
-    this.item.paramsQuery.filter = JSON.stringify(obj);
-    const configButton = this.configButtons.find((cf) => cf.name === data.name);
-    configButton!.value = data.value;
-
-    if (!isEqual(obj, this.currentActiveViewMode?.options)) {
-      this.handleViewModeChange(true);
-      return;
+    if (name === 'orderableTable') {
+      this.showModalOrderableTable();
+    }
+    if (name === 'isHideExecute') {
+      const configButton = this.configButtons.find(
+        (cf) => cf.name === 'isHideExecute',
+      );
+      const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
+      obj['isHideExecute'] = !configButton?.isActive;
+      this.item.paramsQuery.filter = JSON.stringify(obj);
+      configButton!.isActive = !configButton?.isActive;
+      if (!isEqual(obj, this.currentActiveViewMode?.options)) {
+        this.handleViewModeChange(true);
+        return;
+      }
     }
   }
+
+  // handleToggleAction(data: {name?: string; value: boolean}) {
+  //   const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
+  //   obj[data.name!] = data.value;
+  //   this.item.paramsQuery.filter = JSON.stringify(obj);
+  //   const configButton = this.configButtons.find((cf) => cf.name === data.name);
+  //   configButton!.value = data.value;
+
+  //   if (!isEqual(obj, this.currentActiveViewMode?.options)) {
+  //     this.handleViewModeChange(true);
+  //     return;
+  //   }
+  // }
 
   override pageChanged(dataPage: {page: number; limit: number}): void {
     const {page, limit} = dataPage;

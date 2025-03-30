@@ -2,38 +2,40 @@
   <div class="card">
     <div class="card-body">
       <div class="content-site">
-        <app-view-mode-tab [key]="EScreens.DASHBOARD"></app-view-mode-tab>
-        <app-filter-top-table
-          [configFilters]="configFilters"
-          [configButtons]="configButtons"
-          (clickButtonEvent)="handleAction($event)"
-          (toggleButtonEvent)="handleToggleAction($event)"
-          (searchEvent)="onSearch($event)"
-          (selectEvent)="onSelectFilter($event)"
-          (eventApply)="onApply($event)"
-          (eventReset)="onReset($event)"
-          (popoverEvent)="onPopoverFilter($event)"
-          (pickerDateEvent)="onPickerDateFilter($event)"
-          (scrollToEndEvent)="handleLoadMoreData($event)"
-        >
-          <ng-container specificAdvanceFilter>
-            <div class="fw-500 col-4">Chi nhánh</div>
-            <div class="col-8">
-              <p-treeSelect
-                [filter]="true"
-                [options]="units"
-                [(ngModel)]="selectedUnits"
-                (onNodeSelect)="handleChangeUnits($event)"
-                (onNodeUnselect)="handleChangeUnits($event)"
-                [metaKeySelection]="false"
-                selectionMode="checkbox"
-                class="w-100"
-                containerStyleClass="w-100 input-medium custom-tree-select fw-normal"
-                placeholder="Chọn Chi nhánh..."
-              ></p-treeSelect>
-            </div>
-          </ng-container>
-        </app-filter-top-table>
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <app-view-mode-tab [key]="EScreens.DASHBOARD"></app-view-mode-tab>
+          <app-filter-top-table
+            [configFilters]="configFilters"
+            [configButtons]="configButtons"
+            (clickButtonEvent)="handleAction($event)"
+            (searchEvent)="onSearch($event)"
+            (selectEvent)="onSelectFilter($event)"
+            (eventApply)="onApply($event)"
+            (eventReset)="onReset($event)"
+            (popoverEvent)="onPopoverFilter($event)"
+            (pickerDateEvent)="onPickerDateFilter($event)"
+            (scrollToEndEvent)="handleLoadMoreData($event)"
+          >
+            <ng-container specificAdvanceFilter>
+              <div class="fw-500 col-4">Chi nhánh</div>
+              <div class="col-8">
+                <p-treeSelect
+                  [filter]="true"
+                  [options]="units"
+                  [(ngModel)]="selectedUnits"
+                  (onNodeSelect)="handleChangeUnits($event)"
+                  (onNodeUnselect)="handleChangeUnits($event)"
+                  [metaKeySelection]="false"
+                  selectionMode="checkbox"
+                  class="w-100"
+                  containerStyleClass="w-100 input-medium custom-tree-select fw-normal"
+                  placeholder="Chọn Chi nhánh..."
+                ></p-treeSelect>
+              </div>
+            </ng-container>
+          </app-filter-top-table>
+        </div>
+
         <div class="table-responsive tableFixHead custom-scrollbar">
           <table class="table col-resizable">
             <thead>
@@ -83,14 +85,15 @@
                       </span>
                     </th>
                   </ng-container>
-                  <th scope="col">
+                  <!-- <th scope="col">
                     <div
                       class="btn button-cog-table text-center"
                       (click)="showModalOrderableTable()"
                     >
                       <img src="./assets/images/icon/table.svg" alt="" />
                     </div>
-                  </th>
+                  </th> -->
+                  <th class="columns-action">Hành động</th>
                 </tr>
               } @else {
                 <tr>
@@ -473,7 +476,7 @@
                       <ng-container *ngSwitchCase="'leadDeal'">
                         <td>
                           <div class="d-flex flex-column" *ngIf="item.leadDeal">
-                            <span
+                            <!-- <span
                               class="fw-500 text-link"
                               (click)="handleViewCustomer(item)"
                             >
@@ -484,7 +487,36 @@
                             </span>
                             <span *ngIf="item.leadDeal?.address">
                               {{ item.leadDeal?.address || '-' }}
-                            </span>
+                            </span> -->
+                            <div class="d-flex">
+                              <img
+                                height="30px"
+                                width="30px"
+                                class="me-2 rounded-circle"
+                                [src]="
+                                  item.leadDeal?.picture ||
+                                  './assets/images/noavatar.png'
+                                "
+                                style="line-height: 130%"
+                              />
+                              <div class="d-flex flex-column">
+                                <span class="fw-500">
+                                  {{ item.leadDeal?.name || '-' }}
+                                </span>
+                                <span
+                                  class="fs-7 text-link"
+                                  *ngIf="item.leadDeal?.phone"
+                                >
+                                  {{ item.leadDeal?.phone || '-' }}
+                                </span>
+                                <span
+                                  class="fs-7"
+                                  *ngIf="item.leadDeal?.address"
+                                >
+                                  {{ item.leadDeal?.address || '-' }}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                           <div class="d-flex flex-row flex-wrap gap-1">
                             <div *ngFor="let tag of item.leadDeal?.tags">

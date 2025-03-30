@@ -20,8 +20,8 @@
   .list-chain {
     .chain-item {
       border: 1px solid vars.$secondary-500;
-      padding: 8px;
-      border-radius: vars.$radius-l;
+      padding: 12px;
+      border-radius: vars.$radius-s;
       position: relative;
 
       .lock {

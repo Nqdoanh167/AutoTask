@@ -502,7 +502,7 @@ export class DetailTaskData extends BaseComponentsComponent {
 
   getTag() {
     this.autoTaskService.tag
-      .get()
+      .get({}, {cache: true})
       .pipe(
         finalize(() => {}),
         takeUntil(this.destroy$),
@@ -541,7 +541,7 @@ export class DetailTaskData extends BaseComponentsComponent {
   getActionChain() {
     this.actionChains.loading = true;
     this.autoTaskService.chainAction
-      .get(this.actionChains.paramsQuery)
+      .get(this.actionChains.paramsQuery, {cache: true})
       .pipe(
         finalize(() => (this.actionChains.loading = false)),
         takeUntil(this.destroy$),
@@ -571,7 +571,7 @@ export class DetailTaskData extends BaseComponentsComponent {
   getSource() {
     this.sources.loading = true;
     this.autoTaskService.source
-      .get(this.sources.paramsQuery)
+      .get(this.sources.paramsQuery, {cache: true})
       .pipe(
         finalize(() => (this.sources.loading = false)),
         takeUntil(this.destroy$),
@@ -601,7 +601,7 @@ export class DetailTaskData extends BaseComponentsComponent {
   getResult() {
     this.results.loading = true;
     this.autoTaskService.actionResult
-      .get(this.results.paramsQuery)
+      .get(this.results.paramsQuery, {cache: true})
       .pipe(
         finalize(() => (this.results.loading = false)),
         takeUntil(this.destroy$),
@@ -631,7 +631,7 @@ export class DetailTaskData extends BaseComponentsComponent {
   getAction() {
     this.actions.loading = true;
     this.autoTaskService.action
-      .get(this.actions.paramsQuery)
+      .get(this.actions.paramsQuery, {cache: true})
       .pipe(
         finalize(() => (this.actions.loading = false)),
         takeUntil(this.destroy$),
@@ -661,7 +661,7 @@ export class DetailTaskData extends BaseComponentsComponent {
   getBlock() {
     this.blocks.loading = true;
     this.automationService.block
-      .getMany({})
+      .getMany({}, {cache: true})
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.blocks.loading = false)),

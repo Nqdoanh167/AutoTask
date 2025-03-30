@@ -214,20 +214,32 @@ export const TASK_TAG_SETTING_CONFIG_FILTERS = [
 
 export const TASK_CONFIG_BUTTON = [
   {
-    name: 'isHideExecute',
-    type: ETypeButton.TOGGLE,
-    label: 'Ẩn chuỗi đã đóng',
-    value: true,
-  },
-  {
     name: 'reload',
     type: ETypeButton.DEFAULT,
     icon: './assets/images/icon/reload.svg',
+    tooltip: 'Tải lại trang',
+  },
+  {
+    name: 'orderableTable',
+    type: ETypeButton.DEFAULT,
+    // label: 'Thêm tác vụ',
+    icon: './assets/images/icon/table.svg',
+    tooltip: 'Tùy chỉnh bảng',
+  },
+  {
+    name: 'isHideExecute',
+    type: ETypeButton.DEFAULT,
+    // label: 'Ẩn chuỗi đã đóng',
+    // value: true,
+    icon: './assets/images/icon/keychain.svg',
+    tooltip: 'Ẩn chuỗi đã đóng',
+    isActive: false,
   },
   {
     name: 'add_new',
     type: ETypeButton.PRIMARY,
-    label: 'Thêm tác vụ',
+    label: 'Thêm',
     icon: './assets/images/icon/plus.svg',
+    tooltip: 'Thêm mới tác vụ',
   },
 ];

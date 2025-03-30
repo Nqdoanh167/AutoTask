@@ -182,7 +182,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   getListWarehouse() {
     this.warehouses.loading = true;
     this.warehouseService.warehouse
-      .get(this.warehouses.paramsQuery)
+      .get(this.warehouses.paramsQuery, {cache: true})
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.warehouses.loading = false)),
@@ -229,7 +229,11 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       });
   }
 
-  getListProduct(isInit: boolean = false, isSearching: boolean = false) {
+  getListProduct(
+    isInit: boolean = false,
+    isSearching: boolean = false,
+    cache: boolean = true,
+  ) {
     if (isInit) this.firstCallRemaining.product = false;
     this.products.loading = true;
     const ids: string[] = [];
@@ -242,7 +246,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
     }
 
     this.productService.product
-      .get(query)
+      .get(query, {cache})
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.products.loading = false)),
@@ -250,6 +254,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
+            console.log({res});
             let newData: any[] = [];
             newData = [
               ...this.products.rows,
@@ -259,7 +264,10 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
               })),
             ];
             this.products.rows = uniqBy(newData, 'id');
-            this.products.isAllowLoadMore = true;
+            this.productService.setListProduct({
+              ...res,
+              data: this.products.rows,
+            });
           } else {
             this.products.isAllowLoadMore = false;
             this.commonService.handleResErr(res);
@@ -489,6 +497,29 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
         break;
       default:
         break;
+    }
+  }
+
+  scrollLoadData({
+    event,
+    dataName,
+  }: {
+    event: {start: number; end: number};
+    dataName: 'products';
+  }) {
+    if (
+      !this[dataName].loading &&
+      event.end + 4 >
+        this[dataName].paramsQuery.limit! * this[dataName].paramsQuery.page!
+    ) {
+      const currentPage = Math.ceil(
+        this[dataName].rows.length / this[dataName].paramsQuery.limit!,
+      );
+
+      this[dataName].paramsQuery.page! = currentPage + 1;
+      if (dataName === 'products') {
+        this.getListProduct(false, false, false);
+      }
     }
   }
 

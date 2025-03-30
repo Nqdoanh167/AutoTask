@@ -107,7 +107,9 @@ export class ViewModeTabComponent
       };
     });
     if (isInit) {
-      this.autoTaskService.setCurrentActiveViewMode(modifiedTabs[0]);
+      this.autoTaskService.setCurrentActiveViewMode(
+        this.autoTaskService.getCurrentActiveViewMode() || modifiedTabs[0],
+      );
     }
     return modifiedTabs;
   }
@@ -115,9 +117,12 @@ export class ViewModeTabComponent
   handleGetTab() {
     this.loading = true;
     this.autoTaskService.settingView
-      .retrieve({
-        screen: this.key,
-      })
+      .retrieve(
+        {
+          screen: this.key,
+        },
+        {cache: true},
+      )
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.loading = false)),
