@@ -214,11 +214,7 @@
                                     alt=""
                                   />
                                 </div>
-                                <div>
-                                  <span class="fw-500">
-                                    {{ taskChain?.name || '-' }}
-                                  </span>
-                                </div>
+
                                 <div class="list-act">
                                   <div
                                     *ngFor="
@@ -452,7 +448,7 @@
                                         <span *ngSwitchCase="'Close chain'">
                                           Đóng chuỗi
                                         </span>
-                                        <span *ngSwitchDefault>
+                                        <span *ngSwitchDefault class="fw-500">
                                           {{ taskChainResult?.action?.name }}
                                         </span>
                                       </ng-container>
@@ -464,6 +460,12 @@
                                       {{ taskChainResult?.result?.name || '-' }}
                                     </span>
                                   </div>
+                                </div>
+
+                                <div>
+                                  <span>
+                                    {{ taskChain?.name || '-' }}
+                                  </span>
                                 </div>
                               </div>
                             </ng-container>
@@ -644,29 +646,30 @@
                       </ng-container>
                       <ng-container *ngSwitchCase="'teams'">
                         <td>
-                          <ng-container *ngFor="let team of item.teams">
-                            <div class="d-flex my-2" *ngIf="team.userId">
-                              <img
-                                src="{{ team.userPicture }}"
-                                fallback="assets/images/avatar.svg"
-                                class="avatar me-2"
-                                alt=""
-                              />
-                              <div class="d-flex flex-column">
-                                <span class="fw-500">
-                                  {{ team.userName }}
-                                </span>
-                                <span>{{ team.userEmail }}</span>
-                                <span class="fw-normal fs-7">
+                          <div class="d-flex align-items-center flex-wrap">
+                            <ng-container *ngFor="let team of item.teams">
+                              <div
+                                class="ms-1 mt-1 team-img"
+                                *ngIf="team?.userId"
+                              >
+                                <img
+                                  src="{{ team.userPicture }}"
+                                  fallback="assets/images/avatar.svg"
+                                  loading="lazy"
+                                  height="20px"
+                                  width="20px"
+                                  class="rounded-circle"
+                                />
+                                <div class="icon-add">
                                   <i
                                     class="fa-solid"
                                     [ngClass]="team.roleIcon"
                                   ></i>
-                                  {{ team.roleName }}
-                                </span>
+                                </div>
                               </div>
-                            </div>
-                          </ng-container>
+                            </ng-container>
+                          </div>
+
                           <div *ngIf="!item.teams?.length">-</div>
                         </td>
                       </ng-container>
