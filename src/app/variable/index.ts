@@ -34,17 +34,17 @@ export const listColumns: IDataColumns = {
       tooltip: 'Chi nhánh/Phòng ban/Nhóm',
     },
     {
-      name: 'Sản phẩm quan tâm',
+      name: 'Sản phẩm',
       value: 'cart',
       tooltip: 'Sản phẩm quan tâm',
     },
     {
-      name: 'Đơn hàng đã tạo',
+      name: 'Đơn hàng',
       value: 'orderIds',
-      tooltip: 'Đơn hàng đã tạo',
+      tooltip: 'Đơn hàng',
     },
     {
-      name: 'Nhân viên phụ trách',
+      name: 'Nhân viên',
       value: 'teams',
       tooltip: 'Nhân viên phụ trách',
     },

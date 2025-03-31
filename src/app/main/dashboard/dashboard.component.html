@@ -511,19 +511,19 @@
                                 >
                                   {{ item.leadDeal?.phone || '-' }}
                                 </span>
-                                <span
+                                <!-- <span
                                   class="fs-7"
                                   *ngIf="item.leadDeal?.address"
                                 >
                                   {{ item.leadDeal?.address || '-' }}
-                                </span>
+                                </span> -->
                               </div>
                             </div>
                           </div>
                           <div class="d-flex flex-row flex-wrap gap-1">
                             <div *ngFor="let tag of item.leadDeal?.tags">
                               <span
-                                class="text-capitalize me-2 tag-item"
+                                class="text-capitalize tag-item"
                                 [ngClass]="{nonBack: !tag.bgColor}"
                                 [ngStyle]="{background: tag.bgColor}"
                               >
@@ -656,8 +656,8 @@
                                   src="{{ team.userPicture }}"
                                   fallback="assets/images/avatar.svg"
                                   loading="lazy"
-                                  height="20px"
-                                  width="20px"
+                                  height="30px"
+                                  width="30px"
                                   class="rounded-circle"
                                 />
                                 <div class="icon-add">
@@ -696,9 +696,9 @@
                               [src]="item.updatedBy?.picture"
                               alt=""
                             />
-                            <div class="ms-2 text-secondary name">
+                            <!-- <div class="ms-2 text-secondary name">
                               {{ item.updatedBy?.name }}
-                            </div>
+                            </div> -->
                           </div>
                         </td>
                       </ng-container>
@@ -715,9 +715,9 @@
                               [src]="item.createdBy?.picture"
                               alt=""
                             />
-                            <div class="ms-2 text-secondary name">
+                            <!-- <div class="ms-2 text-secondary name">
                               {{ item.createdBy?.name }}
-                            </div>
+                            </div> -->
                           </div>
                         </td>
                       </ng-container>
