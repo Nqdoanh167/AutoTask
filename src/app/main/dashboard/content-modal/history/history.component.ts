@@ -173,7 +173,9 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
 
         this.history.paramsQuery.filter = JSON.stringify(obj);
       }
-      this.getHistory();
+      if (obj[name]?.length) {
+        this.getHistory();
+      }
     } catch (e) {
       console.log(e);
     }

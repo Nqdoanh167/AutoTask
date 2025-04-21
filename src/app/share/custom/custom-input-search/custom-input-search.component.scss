@@ -8,6 +8,32 @@
   i {
     color: vars.$neutral-400;
   }
+  &.collapsed {
+    border-radius: vars.$radius-s;
+    color: vars.$neutral-400;
+    background-color: vars.$white;
+    border: 1px solid #e8ecf2;
+    cursor: pointer;
+    padding: 6px 16px;
+    &:hover {
+      border: 1px solid #e8ecf2;
+      background-color: vars.$neutral-50;
+    }
+    &.disabled {
+      color: vars.$neutral-300;
+      background-color: vars.$neutral-100;
+      &:hover {
+        color: vars.$neutral-300;
+        background-color: vars.$neutral-100;
+      }
+    }
+
+    i {
+      margin-right: 0;
+      max-width: 16px;
+      max-height: 16px;
+    }
+  }
   //&:hover {
   //  outline: 2px solid #E0E9FF;
   //}

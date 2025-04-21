@@ -2,7 +2,7 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {EntityResult, CourseEvent, Warehouse} from 'src/app/types/viewmodels';
-import {Subject, takeUntil} from 'rxjs';
+import {BehaviorSubject, of, Subject, takeUntil, tap} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 
@@ -11,6 +11,10 @@ import {AuthService} from './auth.service';
 })
 export class WarehouseService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
+
+  private listWarehouseSubject = new BehaviorSubject<EntityResult<Warehouse[]>>(
+    null as unknown as EntityResult<Warehouse[]>,
+  );
 
   api = {
     warehouse: '',
@@ -40,12 +44,29 @@ export class WarehouseService extends BaseApiService implements OnDestroy {
     this.destroy.complete();
   }
   warehouse = {
-    get: (params = {}) =>
-      this.httpClient.get<EntityResult<Warehouse[]>>(
-        this.createUrl([this.api.warehouse]),
-        {
+    get: (
+      params = {},
+      options?: {
+        cache?: boolean;
+      },
+    ) => {
+      const getData = this.httpClient
+        .get<EntityResult<Warehouse[]>>(this.createUrl([this.api.warehouse]), {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        },
-      ),
+        })
+        .pipe(tap((res) => res?.status === 200 && this.setListWarehouse(res)));
+
+      if (options?.cache) {
+        if (!this.listWarehouseSubject.getValue()) {
+          return getData;
+        }
+        return of(this.listWarehouseSubject.getValue());
+      }
+      return getData;
+    },
   };
+
+  setListWarehouse(items: EntityResult<Warehouse[]>) {
+    this.listWarehouseSubject.next(items);
+  }
 }

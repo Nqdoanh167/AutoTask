@@ -108,18 +108,19 @@
 
   th {
     color: var(--bs-gray-500);
-    padding-top: 28px;
-    padding-bottom: 28px;
+    padding-top: 12px;
+    padding-bottom: 12px;
     font-weight: 600;
     font-size: 12px;
     line-height: 15px;
     vertical-align: middle;
+    background-color: $neutral-50 !important;
   }
 
   td {
     line-height: 18px;
     vertical-align: middle;
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.5rem;
   }
 
   & > :not(:first-child) {
@@ -876,4 +877,12 @@ a {
 
 [id^='omi_sdk_'] {
   z-index: 99999 !important;
+}
+
+
+.invalid-feedback-select {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
 }
