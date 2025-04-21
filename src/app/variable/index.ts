@@ -9,6 +9,7 @@ import {
 } from '../types/viewmodels';
 import {EPerActFlow, EPerActSetting, EPerActTask} from '@app/types/setting';
 import {EOptionCloneTask} from '@app/types/flow';
+import {EStringeeErrorCode} from '@app/types/sms-ott-call';
 
 export const listColumns: IDataColumns = {
   columnDashboardAutoTask: [
@@ -18,9 +19,9 @@ export const listColumns: IDataColumns = {
       tooltip: 'Tác vụ',
     },
     {
-      name: 'Hành động - Kết quả',
+      name: 'Chuỗi chăm sóc',
       value: 'taskChains',
-      tooltip: 'Hành động - Kết quả',
+      tooltip: 'Chuỗi chăm sóc',
     },
     {
       name: 'Khách hàng',
@@ -54,7 +55,7 @@ export const listColumns: IDataColumns = {
       // fieldSort: 'createdAt',
     },
     {
-      name: 'Ngày cập nhật',
+      name: 'Ngày cập nhật cuối',
       value: 'updatedAt',
       tooltip: 'Ngày cập nhật',
       // fieldSort: 'updatedAt',
@@ -65,7 +66,7 @@ export const listColumns: IDataColumns = {
       tooltip: 'Người tạo',
     },
     {
-      name: 'Người cập nhật',
+      name: 'Người cập nhật cuối',
       value: 'updatedBy',
       tooltip: 'Người cập nhật',
     },
@@ -201,3 +202,44 @@ export const socialPlatforms: {
     value: ESocialPlatform.OTHER,
   },
 ];
+
+export const mappingStringeeCallStatus: Record<EStringeeErrorCode, string> = {
+  [EStringeeErrorCode.NOT_INIT]: 'Chưa khởi tạo kết nối đến server',
+  [EStringeeErrorCode.SUCCESS]: 'Thành công',
+  [EStringeeErrorCode.ANSWER_URL_EMPTY]: 'Answer URL trống',
+  [EStringeeErrorCode.ANSWER_URL_SCCO_INCORRECT_FORMAT]:
+    'Chưa khởi tạo kết nối đến server',
+  [EStringeeErrorCode.TO_TYPE_IS_NOT_INTERNAL_OR_EXTERNAL]:
+    'To type không phải là Internal hoặc External',
+  [EStringeeErrorCode.FROM_NUMBER_NOT_FOUND]:
+    'Không tìm thấy số điện thoại người gọi',
+  [EStringeeErrorCode.FROM_NUMBER_NOT_BELONG_YOUR_ACCOUNT]:
+    'Số điện thoại người gọi không thuộc tài khoản của bạn',
+  [EStringeeErrorCode.SIP_TRUNK_NOT_FOUND]: 'Không tìm thấy SIP Trunk',
+  [EStringeeErrorCode.SIP_TRUNK_NOT_BELONG_YOUR_ACCOUNT]:
+    'SIP Trunk không thuộc tài khoản của bạn',
+  [EStringeeErrorCode.NOT_ENOUGH_MONEY]:
+    'Không đủ tiền trong tài khoản để thực hiện cuộc gọi',
+  [EStringeeErrorCode.UNKNOW_ERROR_1]: 'Lỗi không xác định',
+  [EStringeeErrorCode.FROM_NUMBER_OR_TO_NUMBER_INVALID_FORMAT]:
+    'Số điện thoại người gọi hoặc người nhận không đúng định dạng',
+  [EStringeeErrorCode.CALL_NOT_ALLOWED_BY_YOUR_SERVER]:
+    'Cuộc gọi không được phép bởi server của bạn',
+  [EStringeeErrorCode.MAX_CONCURRENT_CALL]:
+    'Số cuộc gọi đồng thời đã đạt giới hạn',
+  [EStringeeErrorCode.WAIT_TEXT_TO_SPEECH]: 'Đang chờ Text to Speech',
+  [EStringeeErrorCode.TO_NUMBER_INVALID]:
+    'Số điện thoại người nhận không hợp lệ',
+  [EStringeeErrorCode.FROM_NUMBER_NOT_BELONG_YOUR_PROJECT]:
+    'Số điện thoại người gọi không thuộc Stringee Project của bạn',
+  [EStringeeErrorCode.NOT_ALLOW_CHAT_USER]:
+    'Không cho phép chat với người dùng',
+  [EStringeeErrorCode.NOT_ALLOW_CALLOUT]:
+    'Không cho phép thực hiện cuộc gọi ra',
+  [EStringeeErrorCode.REQUEST_ANSWER_URL_ERROR]: 'Lỗi khi yêu cầu Answer URL',
+  [EStringeeErrorCode.ACCOUNT_LOCKED]: 'Tài khoản bị khóa',
+  [EStringeeErrorCode.CREATE_PEER_CONNECTION_ERROR]:
+    'Lỗi khi tạo Peer Connection',
+  [EStringeeErrorCode.GET_USER_MEDIA_ERROR]:
+    'Quyền sử dụng Camera /Mic or WebRTC chưa được kích hoạt',
+};

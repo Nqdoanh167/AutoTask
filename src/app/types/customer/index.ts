@@ -51,6 +51,7 @@ export interface IOrderCustomer {
   bizId: string;
   author?: string;
   status: EStatusOrderCustomer;
+  statusName?: string;
   code?: string;
   customer?: any;
   tags?: string[];
@@ -108,7 +109,23 @@ export interface Customer {
   orders: IOrderCustomer[];
   createdAt: Date;
   updatedAt: Date;
+  loyalty?: CustomerLoyalty;
 }
+
+export interface CustomerLoyalty {
+  point?: number;
+  nextRankPoint?: number;
+  pointHang?: number;
+  pointMoney?: number;
+  pointRank?: number;
+  totalPoint?: number;
+  missingPointNextRank?: number;
+  pointUse?: number;
+  rank?: string;
+  rankName?: string;
+
+}
+
 export interface CustomerTag {
   bizId?: string;
   bgColor?: string;

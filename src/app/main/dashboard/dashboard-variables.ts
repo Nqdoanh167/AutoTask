@@ -102,7 +102,7 @@ export const TASK_CONFIG_FILTERS = [
   {
     type: ETypeFilter.SELECT,
     name: 'editDateState',
-    placeholder: 'Chỉnh sửa thời gian',
+    placeholder: 'Từng chỉnh sửa deadline',
     options: [
       {
         label: 'Đã chỉnh sửa thời gian',
@@ -131,7 +131,7 @@ export const TASK_CONFIG_FILTERS = [
   {
     type: ETypeFilter.DATE,
     name: 'updatedAt',
-    placeholder: 'Ngày sửa',
+    placeholder: 'Ngày cập nhật cuối',
     subType: 'range',
     clearable: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,

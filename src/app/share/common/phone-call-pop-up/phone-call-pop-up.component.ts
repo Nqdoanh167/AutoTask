@@ -13,7 +13,7 @@ import {AsyncPipe, DatePipe} from '@angular/common';
 import {FormatSecondsModule} from '@share/pipe/format-seconds/format-seconds.module';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
-import {Call, ECallStatus, ECallType} from '@app/types/call';
+import {Call, ECallStatus, ECallType, EPlatformVoice} from '@app/types/call';
 import {StringeeService} from '@app/services/common/stringee.service';
 import {EStatusVoice} from '@app/types/sms-ott-call';
 
@@ -42,6 +42,7 @@ export class PhoneCallPopUpComponent
 
   protected readonly ECallStatus = ECallStatus;
   protected readonly ECallType = ECallType;
+  protected readonly EPlatformVoice = EPlatformVoice;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
@@ -75,7 +76,8 @@ export class PhoneCallPopUpComponent
         ? this.phoneCallService.getIncomingCall()
         : this.phoneCallService.getOutgoingCall();
     this.call$.pipe(takeUntil(this.destroy$)).subscribe((call) => {
-      if (call) {
+      if (call && call.platform === EPlatformVoice.STRINGEE) {
+        console.log('call', call);
         this.phoneStatus = call?.status;
         this.handleCheckCallStatus();
       } else {
@@ -99,7 +101,8 @@ export class PhoneCallPopUpComponent
           }
           this.stringeeService.callStopped();
         },
-        this.phoneStatus === ECallStatus.ENDED ? 2000 : 0,
+        // this.phoneStatus === ECallStatus.ENDED ? 2000 : 0,
+        1000,
       );
     } else {
       this.showPopup = true;

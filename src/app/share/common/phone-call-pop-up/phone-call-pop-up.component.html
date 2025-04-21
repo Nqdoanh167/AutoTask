@@ -1,121 +1,129 @@
 @if (call$ | async; as call) {
-  <div
-    class="phone-call-pop-up {{
-      type === ECallType.INCOMING ? 'incoming' : 'outgoing'
-    }}"
-    #phoneTemp
-  >
-    <div class="bubble-chat">
-      <div class="chat-wrapper" [class.show]="showPopup">
-        @if (
-          phoneStatus === ECallStatus.RINGING && type === ECallType.INCOMING
-        ) {
-          <audio autoplay loop muted #audio>
-            <source src="assets/sounds/ringing-151670.mp3" type="audio/ogg" />
-          </audio>
-        }
-        <div class="header">
-          <div class="current-phone-number">
-            <i class="fa-solid fa-phone me-1"></i>
-            {{ type === ECallType.INCOMING ? call.to : call.from }}
+  @if (call.platform === EPlatformVoice.STRINGEE) {
+    <div
+      class="phone-call-pop-up {{
+        type === ECallType.INCOMING ? 'incoming' : 'outgoing'
+      }}"
+      #phoneTemp
+    >
+      <div class="bubble-chat">
+        <div class="chat-wrapper" [class.show]="showPopup">
+          @if (
+            phoneStatus === ECallStatus.RINGING && type === ECallType.INCOMING
+          ) {
+            <audio autoplay loop muted #audio>
+              <source src="assets/sounds/ringing-151670.mp3" type="audio/ogg" />
+            </audio>
+          }
+          <div class="header">
+            <div class="current-phone-number">
+              <i class="fa-solid fa-phone me-1"></i>
+              {{ type === ECallType.INCOMING ? call.to : call.from }}
+            </div>
           </div>
-        </div>
-        <div class="content">
-          <img alt="" src="assets/images/avatar.svg" class="avatar" />
-          <div class="phone-number-incoming">
-            {{ type === ECallType.INCOMING ? call.from : call.to }}
-          </div>
-          <div class="time-conversation">
-            @if (type === ECallType.INCOMING) {
-              @if (phoneStatus === ECallStatus.RINGING) {
-                Cuộc gọi đến ...
+          <div class="content">
+            <img alt="" src="assets/images/avatar.svg" class="avatar" />
+            <div class="phone-number-incoming">
+              {{ type === ECallType.INCOMING ? call.from : call.to }}
+            </div>
+            <div class="time-conversation">
+              @if (type === ECallType.INCOMING) {
+                @if (phoneStatus === ECallStatus.RINGING) {
+                  Cuộc gọi đến ...
+                }
+              } @else {
+                @if (phoneStatus === ECallStatus.RINGING) {
+                  Đang đổ chuông...
+                }
               }
-            } @else {
-              @if (phoneStatus === ECallStatus.RINGING) {
-                Đang đổ chuông...
+              @if (phoneStatus === ECallStatus.ANSWERED) {
+                {{ timer$ | async | formatSeconds }}
               }
-            }
-            @if (phoneStatus === ECallStatus.ANSWERED) {
-              {{ timer$ | async | formatSeconds }}
-            }
-            @if (phoneStatus === ECallStatus.ENDED) {
-              Cuộc gọi đã kết thúc
-            }
+              @if (phoneStatus === ECallStatus.ENDED) {
+                Cuộc gọi đã kết thúc
+              }
+              @if (phoneStatus === ECallStatus.REJECTED) {
+                Khách hàng không bắt máy
+              }
+            </div>
+            <div
+              class="action-buttons d-flex justify-content-center gap-2 mt-4"
+            >
+              @if (
+                phoneStatus === ECallStatus.RINGING &&
+                type === ECallType.INCOMING
+              ) {
+                <button
+                  (click)="toggleSilent()"
+                  type="button"
+                  class="btn button-outline"
+                >
+                  <i [class.red]="isSilent" class="fa-solid fa-bell-slash"></i>
+                </button>
+              }
+              @if (phoneStatus === ECallStatus.ANSWERED) {
+                <button
+                  (click)="toggleMute()"
+                  type="button"
+                  class="btn button-outline"
+                >
+                  <i
+                    [class.red]="isMute"
+                    class="fa-solid fa-microphone-slash"
+                  ></i>
+                </button>
+              }
+            </div>
           </div>
-          <div class="action-buttons d-flex justify-content-center gap-2 mt-4">
+          <div class="control-buttons gap-3">
             @if (
               phoneStatus === ECallStatus.RINGING && type === ECallType.INCOMING
             ) {
               <button
-                (click)="toggleSilent()"
+                (click)="handleChangePhoneStatus(ECallStatus.ANSWERED)"
                 type="button"
-                class="btn button-outline"
+                class="btn button-answer"
               >
-                <i [class.red]="isSilent" class="fa-solid fa-bell-slash"></i>
+                <i class="fa-solid fa-phone"></i>
               </button>
-            }
-            @if (phoneStatus === ECallStatus.ANSWERED) {
               <button
-                (click)="toggleMute()"
+                (click)="handleChangePhoneStatus(ECallStatus.REJECTED)"
                 type="button"
-                class="btn button-outline"
+                class="btn button-end"
               >
                 <i
-                  [class.red]="isMute"
-                  class="fa-solid fa-microphone-slash"
+                  class="fa-solid fa-phone fa-rotate-by"
+                  style="--fa-rotate-angle: 135deg"
+                ></i>
+              </button>
+            } @else {
+              <button
+                (click)="handleChangePhoneStatus(ECallStatus.ENDED)"
+                type="button"
+                class="btn button-end"
+              >
+                <i
+                  class="fa-solid fa-phone fa-rotate-by"
+                  style="--fa-rotate-angle: 135deg"
                 ></i>
               </button>
             }
           </div>
         </div>
-        <div class="control-buttons gap-3">
-          @if (
-            phoneStatus === ECallStatus.RINGING && type === ECallType.INCOMING
-          ) {
-            <button
-              (click)="handleChangePhoneStatus(ECallStatus.ANSWERED)"
-              type="button"
-              class="btn button-answer"
-            >
-              <i class="fa-solid fa-phone"></i>
-            </button>
-            <button
-              (click)="handleChangePhoneStatus(ECallStatus.REJECTED)"
-              type="button"
-              class="btn button-end"
-            >
-              <i
-                class="fa-solid fa-phone fa-rotate-by"
-                style="--fa-rotate-angle: 135deg"
-              ></i>
-            </button>
-          } @else {
-            <button
-              (click)="handleChangePhoneStatus(ECallStatus.ENDED)"
-              type="button"
-              class="btn button-end"
-            >
-              <i
-                class="fa-solid fa-phone fa-rotate-by"
-                style="--fa-rotate-angle: 135deg"
-              ></i>
-            </button>
-          }
-        </div>
-      </div>
-      <div
-        class="bubble-toggle"
-        [class.ringing]="!showPopup"
-        (click)="togglePopUp()"
-      >
-        <div [class.show]="showPopup" class="bubble-icon">
-          <i class="fa-solid fa-phone"></i>
-          <i class="fa-solid fa-xmark"></i>
+        <div
+          class="bubble-toggle"
+          [class.ringing]="!showPopup"
+          (click)="togglePopUp()"
+        >
+          <div [class.show]="showPopup" class="bubble-icon">
+            <i class="fa-solid fa-phone"></i>
+            <i class="fa-solid fa-xmark"></i>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div style="display: none" class="mb-5">
-    <video id="remoteVideoPopupCalling" playsinline autoplay></video>
-  </div>
+    <div style="display: none" class="mb-5">
+      <video id="remoteVideoPopupCalling" playsinline autoplay></video>
+    </div>
+  }
 }

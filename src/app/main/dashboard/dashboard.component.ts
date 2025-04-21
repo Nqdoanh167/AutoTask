@@ -215,6 +215,16 @@ export class DashboardComponent
     }
   }
 
+  onApply(e: any) {
+    this.handleViewModeChange(true);
+  }
+
+  onReset(e: any) {
+    this.item.paramsQuery.filter = '{}';
+    this.getDataSource(true);
+    this.handleViewModeChange(true);
+  }
+
   handleViewModeChange(hasChanged: boolean) {
     // change hasChanged of currentActiveViewMode to true and update currentActiveViewMode to dashboardViewModes by emit new value
     const changedTab = {
@@ -225,6 +235,7 @@ export class DashboardComponent
         sort: this.item.paramsQuery.sort,
       },
     };
+    console.log('changedTab', changedTab);
     this.autoTaskService.setCurrentActiveViewMode(changedTab);
   }
 
@@ -461,7 +472,7 @@ export class DashboardComponent
       configFilterPopover.value = data.value;
     }
     if (data.value !== this.currentActiveViewMode?.options?.sort) {
-      this.handleViewModeChange(true);
+      // this.handleViewModeChange(true);
     }
   }
 
@@ -490,8 +501,9 @@ export class DashboardComponent
           }
         }
         this.item.paramsQuery.filter = JSON.stringify(obj);
+        // console.log('filter', this.item.paramsQuery.filter);
         if (!isEqual(obj, this.currentActiveViewMode?.options)) {
-          this.handleViewModeChange(true);
+          // this.handleViewModeChange(true);
           return;
         }
       } else {
@@ -501,7 +513,7 @@ export class DashboardComponent
           delete this.item.paramsQuery.sort;
         }
         if (value !== this.currentActiveViewMode?.options?.sort) {
-          this.handleViewModeChange(true);
+          // this.handleViewModeChange(true);
         }
       }
       this.getDataSource(true);
@@ -530,7 +542,7 @@ export class DashboardComponent
         if (
           !isEqual(obj?.[name], this.currentActiveViewMode?.options?.[name])
         ) {
-          this.handleViewModeChange(true);
+          // this.handleViewModeChange(true);
           return;
         }
       }

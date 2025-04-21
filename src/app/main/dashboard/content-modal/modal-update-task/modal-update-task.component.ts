@@ -37,6 +37,8 @@ import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {ModalConfirmCallComponent} from '@main/dashboard/content-modal/modal-confirm-call/modal-confirm-call.component';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 
+declare function smaxCallSdkMakeCall(callInfo: any): void;
+
 @Component({
   selector: 'app-modal-update-task',
   templateUrl: './modal-update-task.component.html',
@@ -734,28 +736,80 @@ export class ModalUpdateTaskComponent
       return;
     }
     try {
-      const {phone} = this.formLeadDeal.value;
-      if (!phone) {
-        this.toastr.warning('Không có số điện thoại của khách hàng');
-        return;
-      }
-      const connectedPhone = this.phoneCallService.getConnectedPhoneValue();
-      if (!connectedPhone) {
-        this.toastr.warning('Bạn chưa kết nối đầu số!');
-        return;
-      }
-      this.isOpenBackDrop = true;
-      const modalCall = this.modalService.show(ModalConfirmCallComponent, {
-        class: 'modal-dialog-centered',
-        initialState: {
-          customer: this.formLeadDeal.value,
-          task: this.sourceData,
-          connectedPhone,
-        },
-      });
-      modalCall.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
-        this.isOpenBackDrop = false;
-      });
+      var stream: any;
+      navigator.mediaDevices
+        .getUserMedia({audio: true})
+        .then(
+          (s) => (stream = s),
+          (e) => {
+            console.log(e);
+            this.toastr.warning(
+              'Vui lòng cho phép cuộc gọi kết nối vào thiết bị nghe gọi',
+            );
+          },
+        )
+        .then(() => navigator.mediaDevices.enumerateDevices())
+        .then((devices) => {
+          console.log('devices', devices);
+          if (!devices.length) {
+            this.toastr.warning('Vui lòng kết nối thiết bị nghe gọi');
+            return;
+          } else {
+            const audio = devices.filter((e) => {
+              return e.kind === 'audioinput';
+            });
+
+            const result = audio.every((e) => {
+              return e.label !== '';
+            });
+
+            console.log('result', result);
+            if (!result) {
+              return;
+            }
+            const {phone} = this.formLeadDeal.value;
+            if (!phone) {
+              this.toastr.warning('Không có số điện thoại của khách hàng');
+              return;
+            }
+            // const connectedPhone =
+            //   this.phoneCallService.getConnectedPhoneValue();
+            // if (!connectedPhone) {
+            //   this.toastr.warning('Bạn chưa kết nối đầu số!');
+            //   return;
+            // }
+            // this.isOpenBackDrop = true;
+            // const modalCall = this.modalService.show(
+            //   ModalConfirmCallComponent,
+            //   {
+            //     class: 'modal-dialog-centered',
+            //     initialState: {
+            //       customer: this.formLeadDeal.value,
+            //       task: this.sourceData,
+            //       connectedPhone,
+            //     },
+            //   },
+            // );
+            // modalCall.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            //   this.isOpenBackDrop = false;
+            // });
+
+            smaxCallSdkMakeCall({
+              phone: phone,
+              data: {
+                id: this.sourceData ? this.sourceData.id : '',
+                module: environment.module,
+                code: this.sourceData ? this.sourceData.code : '',
+              }
+            });
+            // this.phoneCallService.setMakeCall({
+            //   customer: this.formLeadDeal.value,
+            //   task: this.sourceData,
+            //   connectedPhone
+            // })
+          }
+        })
+        .catch((e) => console.log(e));
     } catch (e) {
       console.log(e);
     }
