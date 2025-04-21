@@ -28,6 +28,7 @@ import {
 } from '@main/dashboard/dashboard-variables';
 import {DashboardCheckPermission} from '@main/dashboard/dashboard-check-permission';
 import {NgSelectComponent} from '@ng-select/ng-select';
+import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
 
 @Component({
   selector: 'app-task',
@@ -50,6 +51,7 @@ export class DashboardComponent
   public dataColumnsShow!: IColumns[];
   public units = this.autoTaskService.getUserUnits(false);
   public selectedUnits: ModifiedUserUnit[] = [];
+  public selectedTasks: ITask[] = [];
 
   protected readonly EScreens = EScreens;
   protected readonly ETaskChainType = ETaskChainType;
@@ -146,7 +148,7 @@ export class DashboardComponent
                 this.commonService.handleResErr(res);
               }
             },
-            error: (err) => this.commonService.handleErr(err),
+            error: (err: any) => this.commonService.handleErr(err),
           });
         }
       });
@@ -161,7 +163,7 @@ export class DashboardComponent
       this.autoTaskService.currentActiveViewMode
         .pipe(
           distinctUntilChanged(isEqual),
-          filter((currentActiveViewMode) => currentActiveViewMode),
+          filter((currentActiveViewMode) => !!currentActiveViewMode),
           takeUntil(this.destroy$),
         )
         .subscribe((currentActiveViewMode) => {
@@ -205,7 +207,14 @@ export class DashboardComponent
                 currentActiveViewMode?.options[configButton.name!];
               objFilterQuery[configButton.name!] = configButton.value;
             }
+
+            if (configButton.type === ETypeButton.DEFAULT) {
+              configButton.isActive =
+                currentActiveViewMode?.options[configButton.name!];
+              objFilterQuery[configButton.name!] = configButton.isActive;
+            }
           });
+
           // update dataSource.paramsQuery.filter by objFilterQuery
           this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
           this.getDataSource(true);
@@ -335,20 +344,36 @@ export class DashboardComponent
     if (name === 'add_new') {
       this.handleUpdate();
     }
-  }
-
-  handleToggleAction(data: {name?: string; value: boolean}) {
-    const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
-    obj[data.name!] = data.value;
-    this.item.paramsQuery.filter = JSON.stringify(obj);
-    const configButton = this.configButtons.find((cf) => cf.name === data.name);
-    configButton!.value = data.value;
-
-    if (!isEqual(obj, this.currentActiveViewMode?.options)) {
-      this.handleViewModeChange(true);
-      return;
+    if (name === 'orderableTable') {
+      this.showModalOrderableTable();
+    }
+    if (name === 'isHideExecute') {
+      const configButton = this.configButtons.find(
+        (cf) => cf.name === 'isHideExecute',
+      );
+      const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
+      obj['isHideExecute'] = !configButton?.isActive;
+      this.item.paramsQuery.filter = JSON.stringify(obj);
+      configButton!.isActive = !configButton?.isActive;
+      if (!isEqual(obj, this.currentActiveViewMode?.options)) {
+        this.handleViewModeChange(true);
+        return;
+      }
     }
   }
+
+  // handleToggleAction(data: {name?: string; value: boolean}) {
+  //   const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
+  //   obj[data.name!] = data.value;
+  //   this.item.paramsQuery.filter = JSON.stringify(obj);
+  //   const configButton = this.configButtons.find((cf) => cf.name === data.name);
+  //   configButton!.value = data.value;
+
+  //   if (!isEqual(obj, this.currentActiveViewMode?.options)) {
+  //     this.handleViewModeChange(true);
+  //     return;
+  //   }
+  // }
 
   override pageChanged(dataPage: {page: number; limit: number}): void {
     const {page, limit} = dataPage;
@@ -583,5 +608,33 @@ export class DashboardComponent
       name: ESpecialQueryTaskKey.BRANCH_IDS,
       value: ids.filter((id) => !!id),
     });
+  }
+
+  showModalAssignTeamV2() {
+    // Sort rows by createdAt descending
+    const rows = this.getCheckRows().sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    const taskCodes = rows.map((row) => row.code).filter(Boolean) as string[];
+    const taskIds = rows.map((row) => row.id);
+
+    const modalRef = this.modalService.show(ModalAssignTeamV2Component, {
+      class: 'modal-dialog-centered modal-lg',
+      initialState: {
+        action: ETypeBulkUpdate.ASSIGN_TEAM,
+        selectedTaskIds: taskIds,
+        selectedTaskCodes: taskCodes,
+        selectedTasks: rows,
+      },
+      backdrop: 'static',
+    });
+
+    modalRef.content?.assignTeams.subscribe((data) => {
+      if (data) {
+        this.getDataSource();
+      }
+    });
+    modalRef.onHide?.pipe(takeUntil(this.destroy$));
   }
 }

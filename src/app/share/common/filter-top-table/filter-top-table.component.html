@@ -1,5 +1,5 @@
 <div
-  class="filter-top-table d-flex flex-wrap justify-content-between align-items-center gap-2"
+  class="filter-top-table d-flex flex-wrap align-items-center justify-content-end gap-2"
 >
   <div class="left d-flex flex-wrap align-items-center gap-2">
     @for (filter of configFilterBasic; track $index) {
@@ -9,6 +9,7 @@
             [className]="'input-medium'"
             (searchEvent)="onSearch($event, filter.name)"
             [placeholder]="filter.placeholder || 'Search...'"
+            [isCollapsible]="true"
           ></custom-input-search>
         }
         @case (ETypeFilter.DATE) {
@@ -41,7 +42,7 @@
             containerClass="custom-popover-dropdown"
           >
             <i class="fa-solid fa-sort-amount-desc"></i>
-            Sắp xếp
+            <!-- Sắp xếp -->
             {{ filter.value ? getDefaultValuePopover(filter.name) : '' }}
           </button>
           <ng-template #popoverTemplate>
@@ -71,12 +72,13 @@
         (click)="handleOpenPopover($event)"
         [popover]="popTemplate"
         [outsideClick]="false"
-        [placement]="'bottom left'"
+        [placement]="'bottom'"
         #popFilter="bs-popover"
         containerClass="filter-advance-popover-tab custom-popover-tab"
+        [tooltip]="'Bộ lọc'"
       >
         <i class="fa-solid fa-sliders"></i>
-        Bộ lọc
+        <!-- Bộ lọc -->
         @if (onSearchingAdvance.length) {
           <span
             class="ms-1 bg-danger px-1 rounded-circle text-white fw-500 fs-7"
@@ -215,6 +217,10 @@
             }"
             (click)="onClick(filter.name || 'button')"
             [disabled]="filter.disabled"
+            [tooltip]="filter.tooltip"
+            [ngStyle]="{
+              'background-color': filter.isActive ? '#f18658' : null
+            }"
           >
             @if (!filter.loading) {
               @if (filter.icon || filter.activeIcon) {

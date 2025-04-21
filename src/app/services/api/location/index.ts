@@ -1,7 +1,14 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {EntityResult} from '@app/types/viewmodels';
-import {Subject, takeUntil} from 'rxjs';
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  of,
+  Subject,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {
   IDistrict,
@@ -17,6 +24,9 @@ import {AuthService} from '@app/services/api/auth.service';
 })
 export class ApiLocationService extends BaseApiService implements OnDestroy {
   private destroy = new Subject();
+  private listProvinceSubject = new BehaviorSubject<EntityResult<IProvince[]>>(
+    null as unknown as EntityResult<IProvince[]>,
+  );
 
   private defaultParams = {};
   private url = {
@@ -42,13 +52,20 @@ export class ApiLocationService extends BaseApiService implements OnDestroy {
     });
   }
 
-  getProvince(params: IParamsSearchLocation = {}) {
-    return this.httpClient.get<EntityResult<IProvince[]>>(
-      this.createUrl([this.url.province]),
-      {
+  getProvince(params: IParamsSearchLocation = {}, options?: {cache?: boolean}) {
+    const getData = this.httpClient
+      .get<EntityResult<IProvince[]>>(this.createUrl([this.url.province]), {
         params: this.createParams(Object.assign(params, this.defaultParams)),
-      },
-    );
+      })
+      .pipe(tap((res) => res?.status === 200 && this.setListProvince(res)));
+
+    if (options?.cache) {
+      if (!this.listProvinceSubject.getValue()) {
+        return getData;
+      }
+      return of(this.listProvinceSubject.getValue());
+    }
+    return getData;
   }
 
   getDistrict(params: IParamsSearchLocation = {}) {
@@ -73,6 +90,10 @@ export class ApiLocationService extends BaseApiService implements OnDestroy {
     return this.httpClient.get<EntityResult<IWard[]>>(this.createUrl([]), {
       params: this.createParams(Object.assign(params, this.defaultParams)),
     });
+  }
+
+  setListProvince(items: EntityResult<IProvince[]>) {
+    this.listProvinceSubject.next(items);
   }
 
   ngOnDestroy(): void {

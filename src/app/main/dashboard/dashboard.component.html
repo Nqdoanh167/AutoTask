@@ -2,38 +2,40 @@
   <div class="card">
     <div class="card-body">
       <div class="content-site">
-        <app-view-mode-tab [key]="EScreens.DASHBOARD"></app-view-mode-tab>
-        <app-filter-top-table
-          [configFilters]="configFilters"
-          [configButtons]="configButtons"
-          (clickButtonEvent)="handleAction($event)"
-          (toggleButtonEvent)="handleToggleAction($event)"
-          (searchEvent)="onSearch($event)"
-          (selectEvent)="onSelectFilter($event)"
-          (eventApply)="onApply($event)"
-          (eventReset)="onReset($event)"
-          (popoverEvent)="onPopoverFilter($event)"
-          (pickerDateEvent)="onPickerDateFilter($event)"
-          (scrollToEndEvent)="handleLoadMoreData($event)"
-        >
-          <ng-container specificAdvanceFilter>
-            <div class="fw-500 col-4">Chi nhánh</div>
-            <div class="col-8">
-              <p-treeSelect
-                [filter]="true"
-                [options]="units"
-                [(ngModel)]="selectedUnits"
-                (onNodeSelect)="handleChangeUnits($event)"
-                (onNodeUnselect)="handleChangeUnits($event)"
-                [metaKeySelection]="false"
-                selectionMode="checkbox"
-                class="w-100"
-                containerStyleClass="w-100 input-medium custom-tree-select fw-normal"
-                placeholder="Chọn Chi nhánh..."
-              ></p-treeSelect>
-            </div>
-          </ng-container>
-        </app-filter-top-table>
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <app-view-mode-tab [key]="EScreens.DASHBOARD"></app-view-mode-tab>
+          <app-filter-top-table
+            [configFilters]="configFilters"
+            [configButtons]="configButtons"
+            (clickButtonEvent)="handleAction($event)"
+            (searchEvent)="onSearch($event)"
+            (selectEvent)="onSelectFilter($event)"
+            (eventApply)="onApply($event)"
+            (eventReset)="onReset($event)"
+            (popoverEvent)="onPopoverFilter($event)"
+            (pickerDateEvent)="onPickerDateFilter($event)"
+            (scrollToEndEvent)="handleLoadMoreData($event)"
+          >
+            <ng-container specificAdvanceFilter>
+              <div class="fw-500 col-4">Chi nhánh</div>
+              <div class="col-8">
+                <p-treeSelect
+                  [filter]="true"
+                  [options]="units"
+                  [(ngModel)]="selectedUnits"
+                  (onNodeSelect)="handleChangeUnits($event)"
+                  (onNodeUnselect)="handleChangeUnits($event)"
+                  [metaKeySelection]="false"
+                  selectionMode="checkbox"
+                  class="w-100"
+                  containerStyleClass="w-100 input-medium custom-tree-select fw-normal"
+                  placeholder="Chọn Chi nhánh..."
+                ></p-treeSelect>
+              </div>
+            </ng-container>
+          </app-filter-top-table>
+        </div>
+
         <div class="table-responsive tableFixHead custom-scrollbar">
           <table class="table col-resizable">
             <thead>
@@ -83,14 +85,15 @@
                       </span>
                     </th>
                   </ng-container>
-                  <th scope="col">
+                  <!-- <th scope="col">
                     <div
                       class="btn button-cog-table text-center"
                       (click)="showModalOrderableTable()"
                     >
                       <img src="./assets/images/icon/table.svg" alt="" />
                     </div>
-                  </th>
+                  </th> -->
+                  <th class="columns-action">Hành động</th>
                 </tr>
               } @else {
                 <tr>
@@ -211,11 +214,7 @@
                                     alt=""
                                   />
                                 </div>
-                                <div>
-                                  <span class="fw-500">
-                                    {{ taskChain?.name || '-' }}
-                                  </span>
-                                </div>
+
                                 <div class="list-act">
                                   <div
                                     *ngFor="
@@ -449,7 +448,7 @@
                                         <span *ngSwitchCase="'Close chain'">
                                           Đóng chuỗi
                                         </span>
-                                        <span *ngSwitchDefault>
+                                        <span *ngSwitchDefault class="fw-500">
                                           {{ taskChainResult?.action?.name }}
                                         </span>
                                       </ng-container>
@@ -462,6 +461,12 @@
                                     </span>
                                   </div>
                                 </div>
+
+                                <div>
+                                  <span>
+                                    {{ taskChain?.name || '-' }}
+                                  </span>
+                                </div>
                               </div>
                             </ng-container>
                             <ng-container *ngIf="!item?.taskChains?.length">
@@ -473,7 +478,7 @@
                       <ng-container *ngSwitchCase="'leadDeal'">
                         <td>
                           <div class="d-flex flex-column" *ngIf="item.leadDeal">
-                            <span
+                            <!-- <span
                               class="fw-500 text-link"
                               (click)="handleViewCustomer(item)"
                             >
@@ -484,12 +489,41 @@
                             </span>
                             <span *ngIf="item.leadDeal?.address">
                               {{ item.leadDeal?.address || '-' }}
-                            </span>
+                            </span> -->
+                            <div class="d-flex">
+                              <img
+                                height="30px"
+                                width="30px"
+                                class="me-2 rounded-circle"
+                                [src]="
+                                  item.leadDeal?.picture ||
+                                  './assets/images/noavatar.png'
+                                "
+                                style="line-height: 130%"
+                              />
+                              <div class="d-flex flex-column">
+                                <span class="fw-500">
+                                  {{ item.leadDeal?.name || '-' }}
+                                </span>
+                                <span
+                                  class="fs-7 text-link"
+                                  *ngIf="item.leadDeal?.phone"
+                                >
+                                  {{ item.leadDeal?.phone || '-' }}
+                                </span>
+                                <!-- <span
+                                  class="fs-7"
+                                  *ngIf="item.leadDeal?.address"
+                                >
+                                  {{ item.leadDeal?.address || '-' }}
+                                </span> -->
+                              </div>
+                            </div>
                           </div>
                           <div class="d-flex flex-row flex-wrap gap-1">
                             <div *ngFor="let tag of item.leadDeal?.tags">
                               <span
-                                class="text-capitalize me-2 tag-item"
+                                class="text-capitalize tag-item"
                                 [ngClass]="{nonBack: !tag.bgColor}"
                                 [ngStyle]="{background: tag.bgColor}"
                               >
@@ -612,29 +646,30 @@
                       </ng-container>
                       <ng-container *ngSwitchCase="'teams'">
                         <td>
-                          <ng-container *ngFor="let team of item.teams">
-                            <div class="d-flex my-2" *ngIf="team.userId">
-                              <img
-                                src="{{ team.userPicture }}"
-                                fallback="assets/images/avatar.svg"
-                                class="avatar me-2"
-                                alt=""
-                              />
-                              <div class="d-flex flex-column">
-                                <span class="fw-500">
-                                  {{ team.userName }}
-                                </span>
-                                <span>{{ team.userEmail }}</span>
-                                <span class="fw-normal fs-7">
+                          <div class="d-flex align-items-center flex-wrap">
+                            <ng-container *ngFor="let team of item.teams">
+                              <div
+                                class="ms-1 mt-1 team-img"
+                                *ngIf="team?.userId"
+                              >
+                                <img
+                                  src="{{ team.userPicture }}"
+                                  fallback="assets/images/avatar.svg"
+                                  loading="lazy"
+                                  height="30px"
+                                  width="30px"
+                                  class="rounded-circle"
+                                />
+                                <div class="icon-add">
                                   <i
                                     class="fa-solid"
                                     [ngClass]="team.roleIcon"
                                   ></i>
-                                  {{ team.roleName }}
-                                </span>
+                                </div>
                               </div>
-                            </div>
-                          </ng-container>
+                            </ng-container>
+                          </div>
+
                           <div *ngIf="!item.teams?.length">-</div>
                         </td>
                       </ng-container>
@@ -661,9 +696,9 @@
                               [src]="item.updatedBy?.picture"
                               alt=""
                             />
-                            <div class="ms-2 text-secondary name">
+                            <!-- <div class="ms-2 text-secondary name">
                               {{ item.updatedBy?.name }}
-                            </div>
+                            </div> -->
                           </div>
                         </td>
                       </ng-container>
@@ -680,9 +715,9 @@
                               [src]="item.createdBy?.picture"
                               alt=""
                             />
-                            <div class="ms-2 text-secondary name">
+                            <!-- <div class="ms-2 text-secondary name">
                               {{ item.createdBy?.name }}
-                            </div>
+                            </div> -->
                           </div>
                         </td>
                       </ng-container>
@@ -720,12 +755,36 @@
             </tbody>
           </table>
         </div>
-        <custom-pagination
-          [selectedSize]="item.paramsQuery.limit"
-          [currentPage]="item.paramsQuery.page"
-          (changePageEvent)="pageChanged($event)"
-          [total]="item.total"
-        ></custom-pagination>
+        <div class="d-flex">
+          <!-- Icon List -->
+          <div
+            class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2"
+            style="width: 40%"
+          >
+            <button class="btn btn-icon-light btn-icon-light-lg">
+              <img src="./assets/images/icon/reload.svg" alt="reload" />
+            </button>
+            <button
+              class="btn btn-icon-light btn-icon-light-lg"
+              (click)="showModalAssignTeamV2()"
+            >
+              <img src="./assets/images/icon/split.svg" alt="split-tasks" />
+            </button>
+          </div>
+          <!-- Pagination -->
+          <div
+            class="d-flex align-items-center flex-grow-0 flex-shrink-0 justify-content-end"
+            style="width: 60%"
+          >
+            <custom-pagination
+              [showConfig]="true"
+              [selectedSize]="item.paramsQuery.limit"
+              [currentPage]="item.paramsQuery.page"
+              (changePageEvent)="pageChanged($event)"
+              [total]="item.total"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>

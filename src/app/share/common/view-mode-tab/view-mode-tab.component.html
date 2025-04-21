@@ -10,7 +10,7 @@
       </button>
     </div>
   </div>
-  <div class="content-tab-filter">
+  <div class="content-tab-filter d-flex align-items-center">
     <tabset class="custom-tab-basic tab-filter-data" #staticTabs>
       <tab
         *ngFor="
@@ -32,9 +32,14 @@
             placement="bottom"
             container="body"
             containerClass="custom-tooltip-tab-filter"
-            class="tab-name fw-500"
+            class="tab-name fw-500 d-flex align-items-start gap-2"
             *ngIf="!tabz.isEdit"
           >
+            <i
+              class="fa-solid fa-home"
+              *ngIf="tabz.isDefault"
+              [ngStyle]="{color: tabz.isActive ? '#4277FF' : '#afb2bd'}"
+            ></i>
             {{ tabz.name }}
           </div>
           <div *ngIf="tabz.isEdit">
@@ -128,95 +133,105 @@
       </button>
     </div>
   </div>
-  <div class="list-button-header d-flex align-items-center">
-    <div class="d-flex me-2">
-      <button
-        type="button"
-        class="button-all-view fw-500"
-        (click)="handleOpenPopover($event)"
-        [popover]="!loading ? popTemplate : ''"
-        [outsideClick]="true"
-        [placement]="'bottom right'"
-        containerClass="custom-popover-tab"
-      >
-        Tất cả chế độ xem
-      </button>
-      <div class="separate"></div>
-      <button
-        type="button"
-        class="button-scroll-tab button-add-tab"
-        (click)="!loading && addNewTab()"
-      >
-        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
-        <i *ngIf="!loading" class="fa-solid fa-plus"></i>
-      </button>
-      <ng-template #popTemplate>
-        <div class="popover-tab">
-          <custom-input-search
-            [className]="'input-medium'"
-            [placeholder]="'Search...'"
-            (searchEvent)="onSearch($event)"
-          ></custom-input-search>
-          <div class="list-tab mt-2">
-            <div class="text-center" *ngIf="!filteredTabs.length">
-              Không có dữ liệu
-            </div>
-            <div
-              class="tab-item d-flex align-items-center"
-              *ngFor="let tabz of filteredTabs; let index = index"
-              (click)="handleChangeActive(tabz, index, true)"
-            >
-              <div class="tab-item-title">{{ tabz.name }}</div>
-              <div class="tab-item-action">
-                <div class="d-flex gap">
-                  <div class="ms-1">
-                    <div
-                      class="px-2"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <i class="fa-solid fa-ellipsis-vertical"></i>
+
+  <div
+    type="button"
+    class="button-scroll-tab button-add-tab ms-3"
+    (click)="!loading && addNewTab()"
+    [tooltip]="'Thêm chế độ xem'"
+  >
+    <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+    <i *ngIf="!loading" class="fa-solid fa-plus"></i>
+  </div>
+  <!-- <div class="list-button-header d-flex align-items-center">
+      <div class="d-flex me-2">
+        <button
+          type="button"
+          class="button-all-view fw-500"
+          (click)="handleOpenPopover($event)"
+          [popover]="!loading ? popTemplate : ''"
+          [outsideClick]="true"
+          [placement]="'bottom right'"
+          containerClass="custom-popover-tab"
+        >
+          Tất cả chế độ xem
+        </button>
+        <div class="separate"></div>
+        <button
+          type="button"
+          class="button-scroll-tab button-add-tab"
+          (click)="!loading && addNewTab()"
+        >
+          <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+          <i *ngIf="!loading" class="fa-solid fa-plus"></i>
+        </button>
+        <ng-template #popTemplate>
+          <div class="popover-tab">
+            <custom-input-search
+              [className]="'input-medium'"
+              [placeholder]="'Search...'"
+              (searchEvent)="onSearch($event)"
+            ></custom-input-search>
+            <div class="list-tab mt-2">
+              <div class="text-center" *ngIf="!filteredTabs.length">
+                Không có dữ liệu
+              </div>
+              <div
+                class="tab-item d-flex align-items-center"
+                *ngFor="let tabz of filteredTabs; let index = index"
+                (click)="handleChangeActive(tabz, index, true)"
+              >
+                <div class="tab-item-title">{{ tabz.name }}</div>
+                <div class="tab-item-action">
+                  <div class="d-flex gap">
+                    <div class="ms-1">
+                      <div
+                        class="px-2"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                      </div>
+                      <ul
+                        id="dropdown-alignment2"
+                        class="dropdown-menu"
+                        role="menu"
+                      >
+                        <li role="menuitem">
+                          <div
+                            (click)="handleEditTab(tabz, $event, index)"
+                            class="dropdown-item d-flex align-items-center gap-2"
+                          >
+                            <img src="./assets/images/icon/edit.svg" alt="" />
+                            Đổi tên chế độ xem
+                          </div>
+                        </li>
+                        <li role="menuitem">
+                          <div
+                            (click)="handleCloneTab(tabz, $event)"
+                            class="dropdown-item d-flex align-items-center gap-2"
+                          >
+                            <img src="./assets/images/icon/copy.svg" alt="" />
+                            Sao chép chế độ xem
+                          </div>
+                        </li>
+                        <li *ngIf="!tabz.isDefault" role="menuitem">
+                          <div
+                            (click)="handleDeleteViewMode(tabz)"
+                            class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                          >
+                            <img src="./assets/images/icon/remove.svg" alt="" />
+                            Xóa chế độ xem
+                          </div>
+                        </li>
+                      </ul>
                     </div>
-                    <ul
-                      id="dropdown-alignment2"
-                      class="dropdown-menu"
-                      role="menu"
-                    >
-                      <li role="menuitem">
-                        <div
-                          (click)="handleEditTab(tabz, $event, index)"
-                          class="dropdown-item d-flex align-items-center gap-2"
-                        >
-                          <img src="./assets/images/icon/edit.svg" alt="" />
-                          Đổi tên chế độ xem
-                        </div>
-                      </li>
-                      <li role="menuitem">
-                        <div
-                          (click)="handleCloneTab(tabz, $event)"
-                          class="dropdown-item d-flex align-items-center gap-2"
-                        >
-                          <img src="./assets/images/icon/copy.svg" alt="" />
-                          Sao chép chế độ xem
-                        </div>
-                      </li>
-                      <li *ngIf="!tabz.isDefault" role="menuitem">
-                        <div
-                          (click)="handleDeleteViewMode(tabz)"
-                          class="dropdown-item d-flex align-items-center gap-2 text-danger"
-                        >
-                          <img src="./assets/images/icon/remove.svg" alt="" />
-                          Xóa chế độ xem
-                        </div>
-                      </li>
-                    </ul>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </ng-template>
-    </div>
-  </div>
+        </ng-template>
+      </div>
+    </div> -->
 </div>

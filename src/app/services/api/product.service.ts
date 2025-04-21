@@ -2,7 +2,7 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {Category, EntityResult, Group, Product} from 'src/app/types/viewmodels';
-import {Subject, takeUntil} from 'rxjs';
+import {BehaviorSubject, of, Subject, takeUntil, tap} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 
@@ -13,6 +13,10 @@ declare const FB: any;
 })
 export class ProductService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
+
+  private listProductSubject = new BehaviorSubject<EntityResult<Product[]>>(
+    null as unknown as EntityResult<Product[]>,
+  );
 
   api = {
     product: '',
@@ -47,13 +51,21 @@ export class ProductService extends BaseApiService implements OnDestroy {
     this.destroy.complete();
   }
   product = {
-    get: (params = {}) =>
-      this.httpClient.get<EntityResult<Product[]>>(
-        this.createUrl([this.api.product]),
-        {
+    get: (params = {}, options?: {cache?: boolean}) => {
+      const getData = this.httpClient
+        .get<EntityResult<Product[]>>(this.createUrl([this.api.product]), {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        },
-      ),
+        })
+        .pipe(tap((res) => res.status === 200 && this.setListProduct(res)));
+
+      if (options?.cache) {
+        if (!this.listProductSubject.getValue()) {
+          return getData;
+        }
+        return of(this.listProductSubject.getValue());
+      }
+      return getData;
+    },
     all: (params = {}) =>
       this.httpClient.get<EntityResult<Product[]>>(
         this.createUrl([this.api.product, 'all']),
@@ -141,4 +153,8 @@ export class ProductService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.group, id]),
       ),
   };
+
+  setListProduct(items: EntityResult<Product[]>) {
+    this.listProductSubject.next(items);
+  }
 }

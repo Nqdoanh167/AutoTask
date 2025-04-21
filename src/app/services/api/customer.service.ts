@@ -2,7 +2,7 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {EntityResult, Segment} from 'src/app/types/viewmodels';
-import {Subject, takeUntil} from 'rxjs';
+import {BehaviorSubject, of, Subject, takeUntil, tap} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {Customer, CustomerTag} from '@app/types/customer';
@@ -12,6 +12,10 @@ import {Customer, CustomerTag} from '@app/types/customer';
 })
 export class CustomerService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
+
+  private listTagSubject = new BehaviorSubject<EntityResult<CustomerTag[]>>(
+    null as unknown as EntityResult<CustomerTag[]>,
+  );
 
   api = {
     customer: '',
@@ -46,13 +50,26 @@ export class CustomerService extends BaseApiService implements OnDestroy {
     this.destroy.complete();
   }
   tag = {
-    get: (params = {}) =>
-      this.httpClient.get<EntityResult<CustomerTag[]>>(
-        this.createUrl([this.api.tag]),
-        {
+    get: (
+      params = {},
+      options?: {
+        cache?: boolean;
+      },
+    ) => {
+      const getData = this.httpClient
+        .get<EntityResult<CustomerTag[]>>(this.createUrl([this.api.tag]), {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        },
-      ),
+        })
+        .pipe(tap((res) => res?.status === 200 && this.setListTag(res)));
+
+      if (options?.cache) {
+        if (!this.listTagSubject.getValue()) {
+          return getData;
+        }
+        return of(this.listTagSubject.getValue());
+      }
+      return getData;
+    },
   };
   customer = {
     get: (params = {}) =>
@@ -83,4 +100,8 @@ export class CustomerService extends BaseApiService implements OnDestroy {
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<Customer>>(this.createUrl([id])),
   };
+
+  setListTag(items: EntityResult<CustomerTag[]>) {
+    this.listTagSubject.next(items);
+  }
 }

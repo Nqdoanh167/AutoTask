@@ -166,9 +166,12 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
 
   getProvince() {
     this.apiLocationService
-      .getProvince({
-        location: 'VN',
-      })
+      .getProvince(
+        {
+          location: 'VN',
+        },
+        {cache: true},
+      )
       .subscribe({
         next: (res) => {
           this.listProvince = res.data;
@@ -214,7 +217,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
 
   getTag() {
     if (!this.hasPermitCustomer) return;
-    this.customerService.tag.get().subscribe({
+    this.customerService.tag.get({}, {cache: true}).subscribe({
       next: (res) => {
         if (res && res.status === 200) {
           this.tags.rows = res.data;
