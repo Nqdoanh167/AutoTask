@@ -45,7 +45,7 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
         <ng-option
           *ngFor="let item of selectData?.options; index as i"
           [value]="item[selectData.bindValue!]"
-          ><div [ngStyle]="item['style']">
+          ><div [ngStyle]="item['style']" style="line-height: normal;">
             {{ item[selectData.bindLabel!] }}
           </div></ng-option
         >
@@ -89,5 +89,6 @@ export class CustomSelectSearchComponent implements OnInit, OnChanges {
 
   handleChangeValue(value?: string) {
     this.selectEvent.emit(value);
+    console.log('value ne', value);
   }
 }

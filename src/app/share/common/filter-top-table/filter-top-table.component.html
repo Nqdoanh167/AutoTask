@@ -76,10 +76,10 @@
         containerClass="filter-advance-popover-tab custom-popover-tab"
       >
         <i class="fa-solid fa-sliders"></i>
-        Lọc nâng cao
+        Bộ lọc
         @if (onSearchingAdvance.length) {
           <span
-            class="ms-1 bg-danger px-1 rounded-circle text-white fw-normal fs-7"
+            class="ms-1 bg-danger px-1 rounded-circle text-white fw-500 fs-7"
           >
             {{ onSearchingAdvance.length }}
           </span>
@@ -87,22 +87,24 @@
       </button>
       <ng-template #popTemplate>
         <div class="popover-tab">
-          <button class="button-close btn" (click)="popFilter.hide()">
-            <i class="fa-solid fa-times"></i>
-          </button>
           <div class="row align-items-center my-2">
-            <div class="fw-normal col-12">
+            <div class="fw-500 col-10">
               <i class="fa-solid fa-question-circle me-2"></i>
               Lọc những bản ghi đáp ứng
               <span class="fw-bold">TẤT CẢ</span>
               các điều kiện bên dưới
+            </div>
+            <div class="col-2 d-flex justify-content-end">
+              <button class="border-0 bg-light" (click)="popFilter.hide()">
+                <i class="fa-solid fa-times fa-xl"></i>
+              </button>
             </div>
           </div>
           @for (filter of configFilterAdvance; track $index) {
             @switch (filter.type) {
               @case (ETypeFilter.SEARCH) {
                 <div class="row align-items-center my-2">
-                  <div class="fw-normal col-4">
+                  <div class="fw-500 col-4">
                     {{ filter.placeholder }}
                   </div>
                   <div class="col-8">
@@ -114,9 +116,26 @@
                   </div>
                 </div>
               }
+              @case (ETypeFilter.SELECT) {
+                <div class="row align-items-center my-2">
+                  <div class="fw-500 col-4">
+                    {{ filter.placeholder }}
+                  </div>
+                  <div class="col-8">
+                    <custom-select-search
+                      [value]="filter?.value"
+                      [minWidth]="filter?.minWidth"
+                      [className]="''"
+                      [selectData]="filter"
+                      (selectEvent)="onSelectValueAdvance($event, filter.name)"
+                      (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"
+                    ></custom-select-search>
+                  </div>
+                </div>
+              }
               @case (ETypeFilter.DATE) {
                 <div class="row align-items-center my-2">
-                  <div class="fw-normal col-4">
+                  <div class="fw-500 col-4">
                     {{ filter.placeholder }}
                   </div>
                   <div class="col-8">
@@ -137,27 +156,27 @@
                   </div>
                 </div>
               }
-              @case (ETypeFilter.SELECT) {
-                <div class="row align-items-center my-2">
-                  <div class="fw-normal col-4">
-                    {{ filter.placeholder }}
-                  </div>
-                  <div class="col-8">
-                    <custom-select-search
-                      [value]="filter?.value"
-                      [minWidth]="filter?.minWidth"
-                      [className]="''"
-                      [selectData]="filter"
-                      (selectEvent)="onSelectValueAdvance($event, filter.name)"
-                      (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"
-                    ></custom-select-search>
-                  </div>
-                </div>
-              }
             }
           }
           <div class="row align-items-center my-2">
             <ng-content select="[specificAdvanceFilter]"></ng-content>
+          </div>
+          <div class="d-flex justify-content-between mt-3">
+            <button class="btn filter-btn border text-danger" (click)="reset()">
+              <i class="fa-solid fa-rotate me-1"></i>
+              Đặt lại
+            </button>
+            <div class="d-flex gap-2">
+              <button class="btn filter-btn border" (click)="popFilter.hide()">
+                Huỷ
+              </button>
+              <button
+                class="btn btn-primary filter-btn"
+                (click)="handleApply()"
+              >
+                Áp dụng
+              </button>
+            </div>
           </div>
         </div>
       </ng-template>

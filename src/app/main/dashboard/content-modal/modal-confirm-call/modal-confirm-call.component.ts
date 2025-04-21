@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, SimpleChange} from '@angular/core';
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {ILeadDealDto, ITask} from '@app/types/flow';
 import {ManageMappingPhone} from '@app/types/sms-ott-call';
@@ -10,6 +10,18 @@ import {CommonService} from '@app/services/common/common.service';
 import {StringeeService} from '@app/services/common/stringee.service';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {AsyncPipe} from '@angular/common';
+import {OmiExtension} from '@app/types/omicall';
+import {User} from '@app/types/viewmodels';
+
+declare function omicallInit(dataConfig: OmiExtension): void;
+declare function omicallMakeCall(
+  phoneNumber: string,
+  hotline: any,
+  user?: User,
+  taskId?: string,
+  taskCode?: string,
+): void;
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-modal-confirm-call',
@@ -35,6 +47,7 @@ export class ModalConfirmCallComponent
     private readonly commonService: CommonService,
     private readonly stringeeService: StringeeService,
     private readonly phoneCallService: PhoneCallService,
+    private readonly toast: ToastrService,
   ) {
     super();
   }
@@ -58,8 +71,20 @@ export class ModalConfirmCallComponent
     const platformId = this.connectedPhone?.platform?.id;
     if (!platformId) return;
     this.loading = true;
-    this.smsOttCallService.platform
-      .getTokenClient(platformId, 'stringee', this.task?.code!)
+    const smsOttServiceRef = this.connectedPhone.counselor.isPcc
+      ? this.smsOttCallService.platform.getTokenReceiveCallForOnlyPcc(
+          platformId,
+          {
+            userId: this.connectedPhone.counselor?.['stringee_user_id'],
+          },
+        )
+      : this.smsOttCallService.platform.getTokenClient(
+          platformId,
+          'stringee',
+          this.task?.code!,
+        );
+
+    smsOttServiceRef
       .pipe(
         finalize(() => (this.loading = false)),
         takeUntil(this.destroy$),
@@ -79,6 +104,12 @@ export class ModalConfirmCallComponent
     const phone = this.connectedPhone.hotline;
     const toPhone = this.customer.phone;
     if (!phone || !toPhone) return;
-    this.stringeeService.handleCall(phone, toPhone);
+    const {platform} = this.connectedPhone;
+    if (platform.platform === 'stringee') {
+      this.stringeeService.handleCall(phone, toPhone);
+    } else {
+      const {id, code, leadDeal} = this.task;
+      omicallMakeCall(toPhone, phone, leadDeal as any, id, code);
+    }
   }
 }

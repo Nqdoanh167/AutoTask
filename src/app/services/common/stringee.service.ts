@@ -3,17 +3,20 @@ import {
   Call,
   ECallStatus,
   ECallType,
+  EPlatformVoice,
   EStringeeOtherDeviceType,
   StringeeOtherDeviceState,
   StringeeSignalingState,
 } from '@app/types/call';
 import {
+  EStringeeErrorCode,
   OutGoingCallEvent,
   StringeeReceiveCallEvent,
 } from '@app/types/sms-ott-call';
 import {StringeeCall, StringeeClient} from 'stringee';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {ToastrService} from 'ngx-toastr';
+import {mappingStringeeCallStatus} from '@app/variable';
 
 @Injectable({
   providedIn: 'root',
@@ -48,7 +51,7 @@ export class StringeeService {
     });
 
     call1.on('signalingstate', (state: {code: StringeeSignalingState}) => {
-      console.log('signalingstate ', state);
+      console.log('signalingstate', state);
       let status: ECallStatus | undefined = undefined;
       switch (state.code) {
         case StringeeSignalingState.CALLING:
@@ -62,6 +65,9 @@ export class StringeeService {
           break;
         case StringeeSignalingState.ENDED:
           status = ECallStatus.ENDED;
+          break;
+        case StringeeSignalingState.BUSY:
+          status = ECallStatus.REJECTED;
           break;
         default:
           break;
@@ -141,6 +147,7 @@ export class StringeeService {
           callId: incomingcall.callId,
           status: ECallStatus.RINGING,
           type: ECallType.INCOMING,
+          platform: EPlatformVoice.STRINGEE,
         };
         this.phoneCallService.setIncomingCall(incomingCallObj);
       },
@@ -199,23 +206,29 @@ export class StringeeService {
   }
 
   handleCall(phone: string, toPhone: string) {
-    const modifiedPhone = String(phone).replace(/^0+|\+/, '84');
-    const modifiedToPhone = String(toPhone).replace(/^0+|\+/, '84');
+    const modifiedPhone = String(phone).replace(/^0+|\+84|\+/, '84');
+    const modifiedToPhone = String(toPhone).replace(/^0+|\+84|\+/, '84');
     this.call = new StringeeCall(
       this.stringeeClient,
       modifiedPhone,
       modifiedToPhone,
       false,
     );
+    
     this.settingCallEvents(this.call);
     this.call?.makeCall((res: OutGoingCallEvent) => {
       console.log('make call callback: ', res);
+      if (res.r !== EStringeeErrorCode.SUCCESS) {
+        this.toarst.error(mappingStringeeCallStatus[res.r]);
+        return;
+      }
       this.type = ECallType.OUTGOING;
       const outgoingCallObj: Call = {
         from: res.fromNumber,
         to: res.toNumber,
         callId: res.callId,
         type: ECallType.INCOMING,
+        platform: EPlatformVoice.STRINGEE,
       };
       this.phoneCallService.setOutgoingCall(outgoingCallObj);
     });

@@ -32,6 +32,7 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
       next: (res) => {
         if (res) {
+          console.log('res alias', res);
           this.setApiAddress(
             environment.apiAddress,
             `bizs/${res.alias}/sms-ott-call`,
@@ -63,13 +64,14 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
           params: {},
         },
       ),
-    getTokenClient: (id: string, platform: string, taskCode: string) =>
+    getTokenClient: (id: string, platform: string, taskCode: string, isOutbondPcc?: boolean) =>
       this.httpClient.get<EntityResult<{token: string}>>(
         this.createUrl([this.api.platform, id, platform, 'token-client']),
         {
           params: this.createParams({
             moduleAlias: 'auto-task',
             taskCode: taskCode,
+            isOutbondPcc: isOutbondPcc
           }),
         },
       ),
@@ -82,6 +84,18 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
           'token-client-receive-call-event',
         ]),
       ),
+    getTokenReceiveCallForOnlyPcc: (platformId: string, params: any) =>
+      this.httpClient.get<EntityResult<{token: string}>>(
+        this.createUrl([
+          this.api.platform,
+          platformId,
+          'stringee',
+          'token-client-for-only-pcc',
+        ]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        }
+      ),
   };
 
   manageConnect = {
@@ -92,6 +106,14 @@ export class SmsOttCallService extends BaseApiService implements OnDestroy {
   };
 
   history = {
+    get: (params: any = {filter: {taskId: '66ce9a271e6e8d6c1c95b3e3'}}) =>
+      this.httpClient.get<EntityResult<Platform[]>>(
+        this.createUrl([this.api.history]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+
     updateStatusCall: (uniqueCode: string, body: HistoryUpdateDto) =>
       this.httpClient.put<EntityResult<any>>(
         this.createUrl([this.api.history, uniqueCode]),
