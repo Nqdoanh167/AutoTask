@@ -54,6 +54,7 @@ import {
 } from '@app/types/setting';
 import {omitBy} from 'lodash';
 import {ISubmitPayload} from '@app/main/dashboard/content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
+import {IFeedback} from '@app/types/feedback';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -426,6 +427,18 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.post<EntityResult<ITaskChainResult>>(
         this.createUrl([this.api.taskChainResult, id, 'send-block']),
         {},
+      ),
+
+    sendFeedback: (id: string, body: IFeedback) =>
+      this.httpClient.post<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'send-feedback']),
+        body,
+      ),
+
+    manualCreateOrder: (id: string, body: {orderId: string}) =>
+      this.httpClient.post<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'manual-create-order']),
+        body,
       ),
   };
 

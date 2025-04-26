@@ -274,9 +274,13 @@
                       }
                     </div>
                   </td>
+
+                  <!--Tên hành động -->
                   <td class="columns-action-main">
                     {{ taskChainResult.value.action?.name || '-' }}
                   </td>
+
+                  <!-- Thực hiện hành động -->
                   <td class="column-take-action">
                     <div formGroupName="action">
                       @switch (taskChainResult?.value.action?.type) {
@@ -296,6 +300,75 @@
                             Gọi điện
                             <i class="fa-solid fa-phone ms-2"></i>
                           </button>
+                        }
+                        @case (EActionType.FEEDBACK) {
+                          <button
+                            (click)="handleFeedback(taskChainResult.value)"
+                            type="button"
+                            class="btn button-medium button-sub-primary secondary-color"
+                            [disabled]="
+                              !handleCheckIsAllowEdit(
+                                'actionButton',
+                                taskChainResult.value,
+                                taskChainResultIndex
+                              ) || !hasPermitFeedback
+                            "
+                          >
+                            Đánh giá
+                            <i class="fa-solid fa-comment ms-2"></i>
+                          </button>
+
+                          <div
+                            class="d-flex align-items-center gap-2 mt-2"
+                            *ngIf="taskChainResult.value?.feedback?.id"
+                          >
+                            <span class="fw-500">Đánh giá</span>
+                            <ngx-stars
+                              [readonly]="true"
+                              [size]="1"
+                              [maxStars]="5"
+                              [color]="'#FFD700'"
+                              [initialStars]="
+                                taskChainResult.value?.feedback?.rate
+                              "
+                            ></ngx-stars>
+                          </div>
+                        }
+                        @case (EActionType.MANUAL_CREATE_ORDER) {
+                          <button
+                            (click)="handleCreateOrder(taskChainResult.value)"
+                            type="button"
+                            class="btn button-medium button-sub-primary secondary-color"
+                            [disabled]="
+                              !handleCheckIsAllowEdit(
+                                'actionButton',
+                                taskChainResult.value,
+                                taskChainResultIndex
+                              )
+                            "
+                          >
+                            Tạo đơn hàng
+                            <i class="fa-solid fa-cart-shopping"></i>
+                          </button>
+
+                          <div
+                            class="d-flex align-items-center gap-2 mt-2"
+                            *ngIf="taskChainResult.value?.order?.id"
+                          >
+                            <span class="fw-500">Đơn hàng</span>
+                            <span
+                              class="text-primary fs-7 fst-italic"
+                              style="cursor: pointer"
+                              (click)="
+                                handleViewOrder(taskChainResult.value?.order)
+                              "
+                            >
+                              {{
+                                taskChainResult.value?.order?.code ||
+                                  taskChainResult.value?.order?.id
+                              }}
+                            </span>
+                          </div>
                         }
                         @case (EActionType.SEND_BLOCK_AUTOMATION) {
                           <button
@@ -371,6 +444,8 @@
                       }
                     </div>
                   </td>
+
+                  <!-- Kết quả hành động -->
                   <td class="column-result">
                     @if (
                       !!staticDataChainItem?.taskChainResults?.[
@@ -440,6 +515,8 @@
                       </div>
                     }
                   </td>
+
+                  <!-- Bước tiếp theo -->
                   <td
                     class="column-next-step"
                     [class.dontEdit]="
@@ -509,6 +586,8 @@
                       }
                     </div>
                   </td>
+
+                  <!-- Ghi chú -->
                   <td class="columns-desc">
                     @if (
                       staticDataChainItem?.taskChainResults?.[
@@ -534,6 +613,7 @@
                       </div>
                     }
                   </td>
+
                   @if (f['status'].value !== ETaskChainType.CLOSED) {
                     <td class="columns-action">
                       @if (
@@ -601,3 +681,8 @@
     </div>
   </div>
 </form>
+
+<bs-modal-backdrop
+  *ngIf="showModal"
+  class="modal-backdrop fade in show"
+></bs-modal-backdrop>

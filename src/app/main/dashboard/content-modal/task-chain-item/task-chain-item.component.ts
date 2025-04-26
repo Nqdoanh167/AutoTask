@@ -15,7 +15,7 @@ import {
   FormGroup,
   FormGroupDirective,
 } from '@angular/forms';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {
   EActionType,
   EDelayType,
@@ -37,6 +37,12 @@ import {CommonService} from '@app/services/common/common.service';
 import {IBlockAutomation} from '@app/types/automation';
 import moment from 'moment/moment';
 import {optionToCloneTask} from '@app/variable';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {ModalFeedbackComponent} from '../modal-feedback/modal-feedback.component';
+import {IFeedback} from '@app/types/feedback';
+import {AuthService} from '@app/services/api/auth.service';
+import {ModalCreateOrderComponent} from '../modal-create-order/modal-create-order.component';
+import {environment} from 'src/environments/environment';
 
 @Component({
   selector: 'app-task-chain-item',
@@ -72,11 +78,14 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   @Output() updateTaskChainEvent = new EventEmitter();
   @Output() cancelUpdateTaskChainEvent = new EventEmitter();
   @Output() callEvent = new EventEmitter();
+  protected bizAlias?: string;
   public optionToCloneTask = optionToCloneTask;
   public loading = {
     submit: false,
     sendBlock: false,
   };
+  protected hasPermitFeedback =
+    this.authService.checkPermittedModule('feedback');
   protected readonly ETaskChainType = ETaskChainType;
 
   private destroy$ = new Subject();
@@ -84,13 +93,22 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   protected readonly today = new Date();
   protected readonly ETaskChainResultType = ETaskChainResultType;
 
+  public showModal = false;
+
   constructor(
-    private rootFormGroup: FormGroupDirective,
+    private authService: AuthService,
     private readonly fb: FormBuilder,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly cdr: ChangeDetectorRef,
-  ) {}
+    private modalService: BsModalService,
+  ) {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.bizAlias = biz.alias;
+      });
+  }
 
   get f(): {[key: string]: AbstractControl} {
     return this.formItem.controls;
@@ -110,6 +128,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
+    console.log('check', this.formItem);
     this.formItem.valueChanges
       ?.pipe(takeUntil(this.destroy$))
       .subscribe((value: any) => {
@@ -552,6 +571,53 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         },
         error: (err) => this.commonService.handleErr(err),
       });
+  }
+
+  handleFeedback(taskChainResult: ITaskChainResult) {
+    if (!taskChainResult.id) return;
+    this.showModal = true;
+    const modal = this.modalService.show(ModalFeedbackComponent, {
+      class: 'modal-lg modal-dialog-centered',
+      initialState: {
+        taskChainResultId: taskChainResult.id,
+      },
+    });
+
+    modal.content?.successEvent.pipe(take(1)).subscribe(() => {
+      this.updateTaskChainEvent.emit();
+    });
+
+    modal.onHidden?.pipe(take(1)).subscribe(() => {
+      this.showModal = false;
+      this.cdr.markForCheck();
+    });
+  }
+
+  handleCreateOrder(taskChainResult: ITaskChainResult) {
+    if (!taskChainResult.id) return;
+    this.showModal = true;
+    const modal = this.modalService.show(ModalCreateOrderComponent, {
+      class: 'modal-xl modal-dialog-centered',
+      initialState: {
+        taskChainResultId: taskChainResult.id,
+      },
+    });
+
+    modal.content?.successEvent.pipe(take(1)).subscribe(() => {
+      this.updateTaskChainEvent.emit();
+    });
+
+    modal.onHidden?.pipe(take(1)).subscribe(() => {
+      this.showModal = false;
+      this.cdr.markForCheck();
+    });
+  }
+
+  handleViewOrder({id, code}: {id: string; code?: string}) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/sale-center/?code=${
+      code || id
+    }`;
+    window.open(url, '_blank');
   }
 
   ngOnDestroy(): void {

@@ -35,6 +35,18 @@ export class StorageService extends BaseApiService implements OnDestroy {
     this.destroy.next(true);
     this.destroy.complete();
   }
+
+  uploadFiles(files: File[]) {
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append('files', file);
+    }
+    return this.httpClient.post<EntityResult<string[]>>(
+      this.createUrl(['quick-upload']),
+      formData,
+    );
+  }
+
   attach(
     accept: 'image/x-png,image/gif,image/jpeg,image/x-icon' | 'audio/mp3',
     size = 2,

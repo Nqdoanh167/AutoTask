@@ -27,6 +27,14 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
       label: 'Gửi Block Automation',
     },
     {
+      value: EActionType.FEEDBACK,
+      label: 'Đánh giá',
+    },
+    {
+      value: EActionType.MANUAL_CREATE_ORDER,
+      label: 'Tạo đơn hàng thủ công',
+    },
+    {
       value: EActionType.OTHER,
       label: 'Khác',
     },
