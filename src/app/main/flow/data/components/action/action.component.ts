@@ -210,7 +210,7 @@ export class ActionComponent implements OnInit, OnDestroy {
 
   renderNameType(value: EActionType) {
     return (
-      this.actionTypes?.find((type: any) => type.value == value).label ?? '-'
+      this.actionTypes?.find((type: any) => type.value == value)?.label ?? '-'
     );
   }
 

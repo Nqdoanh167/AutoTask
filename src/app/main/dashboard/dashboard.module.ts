@@ -45,7 +45,10 @@ import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
 import {CalculateDeadlinePipe} from '@share/pipe/calculate-deadline/calculate-deadline.pipe';
 import {LetDirective} from '@share/directive/ng-let.directive';
 import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
-import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
+import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
+import {ModalFeedbackComponent} from './content-modal/modal-feedback/modal-feedback.component';
+import {NgxStarsModule} from 'ngx-stars';
+import {InputUploadPreviewComponent} from '../../share/input/input-upload-preview/input-upload-preview.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -60,6 +63,7 @@ import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
     OrdersComponent,
     HistoryComponent,
     ModalAssignTeamV2Component,
+    ModalFeedbackComponent,
   ],
   imports: [
     CommonModule,
@@ -99,6 +103,8 @@ import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
     CalculateDeadlinePipe,
     LetDirective,
     ProgressbarModule.forRoot(),
+    NgxStarsModule,
+    InputUploadPreviewComponent,
   ],
 })
 export class DashboardModule {}
