@@ -21,6 +21,8 @@ export enum ETabConfigData {
 export enum EActionType {
   CALL = 'CALL',
   SEND_BLOCK_AUTOMATION = 'SEND_BLOCK_AUTOMATION',
+  FEEDBACK = 'FEEDBACK',
+  MANUAL_CREATE_ORDER = 'MANUAL_CREATE_ORDER',
   OTHER = 'OTHER',
 }
 
@@ -289,6 +291,15 @@ export interface ITaskChainResult {
   createdAt: Date;
   updatedAt: Date;
   [key: string]: any;
+  order?: {
+    id: string;
+    code: string;
+  };
+  feedback?: {
+    id: string;
+    rate: string;
+    comment: string;
+  };
 }
 
 export interface ITaskChain {

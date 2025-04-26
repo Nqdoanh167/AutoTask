@@ -732,14 +732,15 @@ $pagination-height: 56;
   outline: none;
   border-radius: $radius-s;
   background-color: $white;
-  border: 2px solid transparent;
-  &:hover {
-    border: 2px solid $secondary-300;
-  }
+  // border: 2px solid transparent;
+  border: 2px solid $secondary-300;
+  // &:hover {
+  //   border: 2px solid $secondary-300;
+  // }
   &:active,
-  &:focus {
-    border: 2px solid $secondary-300;
-  }
+  // &:focus {
+  //   border: 2px solid $secondary-300;
+  // }
   &.grey-bg {
     background-color: $neutral-100;
   }

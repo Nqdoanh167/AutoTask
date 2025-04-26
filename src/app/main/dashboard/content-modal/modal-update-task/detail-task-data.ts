@@ -417,6 +417,15 @@ export class DetailTaskData extends BaseComponentsComponent {
             results: this.fb.array([]),
             nextActions: this.fb.array([]),
             isEdit: false,
+            order: this.fb.group({
+              id: taskChainResult.order?.id,
+              code: taskChainResult.order?.code,
+            }),
+            feedback: this.fb.group({
+              id: taskChainResult.feedback?.id,
+              comment: taskChainResult.feedback?.comment,
+              rate: taskChainResult.feedback?.rate,
+            }),
           });
           taskChainResult?.reasonEditedDate?.forEach((reasonEditedDate) => {
             const reasonEditedDateForm = this.fb.group({
