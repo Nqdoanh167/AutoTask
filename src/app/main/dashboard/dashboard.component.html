@@ -755,12 +755,36 @@
             </tbody>
           </table>
         </div>
-        <custom-pagination
-          [selectedSize]="item.paramsQuery.limit"
-          [currentPage]="item.paramsQuery.page"
-          (changePageEvent)="pageChanged($event)"
-          [total]="item.total"
-        ></custom-pagination>
+        <div class="d-flex">
+          <!-- Icon List -->
+          <div
+            class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2"
+            style="width: 40%"
+          >
+            <button class="btn btn-icon-light btn-icon-light-lg">
+              <img src="./assets/images/icon/reload.svg" alt="reload" />
+            </button>
+            <button
+              class="btn btn-icon-light btn-icon-light-lg"
+              (click)="showModalAssignTeamV2()"
+            >
+              <img src="./assets/images/icon/split.svg" alt="split-tasks" />
+            </button>
+          </div>
+          <!-- Pagination -->
+          <div
+            class="d-flex align-items-center flex-grow-0 flex-shrink-0 justify-content-end"
+            style="width: 60%"
+          >
+            <custom-pagination
+              [showConfig]="true"
+              [selectedSize]="item.paramsQuery.limit"
+              [currentPage]="item.paramsQuery.page"
+              (changePageEvent)="pageChanged($event)"
+              [total]="item.total"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -28,6 +28,7 @@ import {
 } from '@main/dashboard/dashboard-variables';
 import {DashboardCheckPermission} from '@main/dashboard/dashboard-check-permission';
 import {NgSelectComponent} from '@ng-select/ng-select';
+import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
 
 @Component({
   selector: 'app-task',
@@ -50,6 +51,7 @@ export class DashboardComponent
   public dataColumnsShow!: IColumns[];
   public units = this.autoTaskService.getUserUnits(false);
   public selectedUnits: ModifiedUserUnit[] = [];
+  public selectedTasks: ITask[] = [];
 
   protected readonly EScreens = EScreens;
   protected readonly ETaskChainType = ETaskChainType;
@@ -146,7 +148,7 @@ export class DashboardComponent
                 this.commonService.handleResErr(res);
               }
             },
-            error: (err) => this.commonService.handleErr(err),
+            error: (err: any) => this.commonService.handleErr(err),
           });
         }
       });
@@ -606,5 +608,33 @@ export class DashboardComponent
       name: ESpecialQueryTaskKey.BRANCH_IDS,
       value: ids.filter((id) => !!id),
     });
+  }
+
+  showModalAssignTeamV2() {
+    // Sort rows by createdAt descending
+    const rows = this.getCheckRows().sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    const taskCodes = rows.map((row) => row.code).filter(Boolean) as string[];
+    const taskIds = rows.map((row) => row.id);
+
+    const modalRef = this.modalService.show(ModalAssignTeamV2Component, {
+      class: 'modal-dialog-centered modal-lg',
+      initialState: {
+        action: ETypeBulkUpdate.ASSIGN_TEAM,
+        selectedTaskIds: taskIds,
+        selectedTaskCodes: taskCodes,
+        selectedTasks: rows,
+      },
+      backdrop: 'static',
+    });
+
+    modalRef.content?.assignTeams.subscribe((data) => {
+      if (data) {
+        this.getDataSource();
+      }
+    });
+    modalRef.onHide?.pipe(takeUntil(this.destroy$));
   }
 }

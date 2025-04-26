@@ -128,7 +128,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     this.customerService.customer
       .getById(id)
       .pipe(
-        finalize(() => (this.loading.customer = false)),
+          finalize(() => (this.loading.customer = false)),
         takeUntil(this.destroy$),
       )
       .subscribe({

@@ -6,7 +6,7 @@
 }
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '230px');
+  @include mixins.calculateSize('max-height', '100vh', '227px');
 }
 
 .avatar {
@@ -104,4 +104,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn-icon-light {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #e7e9ef;
+  box-sizing: border-box;
+  border-radius: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
 }

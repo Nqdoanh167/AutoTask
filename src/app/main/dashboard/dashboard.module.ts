@@ -44,7 +44,8 @@ import {TimeViewPipe} from '@share/pipe/timeView.pipe';
 import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
 import {CalculateDeadlinePipe} from '@share/pipe/calculate-deadline/calculate-deadline.pipe';
 import {LetDirective} from '@share/directive/ng-let.directive';
-
+import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
+import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -58,6 +59,7 @@ import {LetDirective} from '@share/directive/ng-let.directive';
     ModalCallComponent,
     OrdersComponent,
     HistoryComponent,
+    ModalAssignTeamV2Component,
   ],
   imports: [
     CommonModule,
@@ -96,6 +98,7 @@ import {LetDirective} from '@share/directive/ng-let.directive';
     GetDataArrayPipe,
     CalculateDeadlinePipe,
     LetDirective,
+    ProgressbarModule.forRoot(),
   ],
 })
 export class DashboardModule {}

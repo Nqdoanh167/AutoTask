@@ -878,3 +878,11 @@ a {
 [id^='omi_sdk_'] {
   z-index: 99999 !important;
 }
+
+
+.invalid-feedback-select {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}

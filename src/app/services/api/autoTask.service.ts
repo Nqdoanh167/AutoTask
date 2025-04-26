@@ -52,6 +52,14 @@ import {
   UserAcl,
   UserPerAccess,
 } from '@app/types/setting';
+import {omitBy} from 'lodash';
+import {ISubmitPayload} from '@app/main/dashboard/content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
+
+interface IFilterCanSplitTask {
+  roleId: string;
+  branchId?: string;
+  createdAt?: string[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -366,6 +374,22 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<null>>(
         this.createUrl([this.api.task, id]),
+      ),
+    canSplit: (filter: IFilterCanSplitTask) => {
+      return this.httpClient.get<
+        EntityResult<{
+          count: number;
+          taskIds: string[];
+          totalWithoutLimit: number;
+        }>
+      >(this.createUrl([this.api.task, `can-split`]), {
+        params: this.createParams(filter),
+      });
+    },
+    bulkAssignTeam: (body: ISubmitPayload) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, 'bulk-assign']),
+        body,
       ),
   };
 
