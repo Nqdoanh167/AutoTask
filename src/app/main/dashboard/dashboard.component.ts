@@ -46,6 +46,7 @@ export class DashboardComponent
   private resizing: boolean = false;
   private resizingColumn: HTMLElement | null = null;
 
+  public isOpenBackDrop: boolean = false;
   public multipleAction = TASK_MULTIPLE_ACTIONS;
   public currentActiveViewMode?: IViewModeDto;
   public dataColumnsShow!: IColumns[];
@@ -277,6 +278,7 @@ export class DashboardComponent
       }
     }
     try {
+      this.isOpenBackDrop = true;
       const modalUpdate = this.modalService.show(ModalUpdateTaskComponent, {
         initialState: {
           sourceData: value,
@@ -285,7 +287,8 @@ export class DashboardComponent
         },
         class: 'modal-xl',
         ignoreBackdropClick: true,
-        keyboard: false,
+        keyboard: true,
+        backdrop: false,
       });
       modalUpdate?.content?.updateSuccess
         .pipe(takeUntil(this.destroy$))
@@ -293,6 +296,7 @@ export class DashboardComponent
           this.getDataSource();
         });
       modalUpdate?.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.isOpenBackDrop = false;
         this.handleClearQueryParams();
       });
     } catch (e) {
@@ -300,42 +304,42 @@ export class DashboardComponent
     }
   }
 
-  handleCopy(task: ITask) {
-    const modalClone = this.modalService.show(ModalCloneComponent, {
-      initialState: {
-        task: task,
-      },
-      ignoreBackdropClick: true,
-      keyboard: false,
-    });
-    modalClone.content?.submitEvent.subscribe((res) => {
-      if (res) {
-        modalClone.hide();
-        this.cloneTask(task.id, res);
-      }
-    });
-  }
+  // handleCopy(task: ITask) {
+  //   const modalClone = this.modalService.show(ModalCloneComponent, {
+  //     initialState: {
+  //       task: task,
+  //     },
+  //     ignoreBackdropClick: true,
+  //     keyboard: false,
+  //   });
+  //   modalClone.content?.submitEvent.subscribe((res) => {
+  //     if (res) {
+  //       modalClone.hide();
+  //       this.cloneTask(task.id, res);
+  //     }
+  //   });
+  // }
 
-  cloneTask(id: string, options: string[]) {
-    this.autoTaskService.task
-      .clone(id, {
-        options: options,
-      })
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.item.loading = false)),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.toastrService.success('Sao chép tác vụ thành công');
-            this.getDataSource();
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-      });
-  }
+  // cloneTask(id: string, options: string[]) {
+  //   this.autoTaskService.task
+  //     .clone(id, {
+  //       options: options,
+  //     })
+  //     .pipe(
+  //       takeUntil(this.destroy$),
+  //       finalize(() => (this.item.loading = false)),
+  //     )
+  //     .subscribe({
+  //       next: (res) => {
+  //         if (res.status === 200) {
+  //           this.toastrService.success('Sao chép tác vụ thành công');
+  //           this.getDataSource();
+  //         } else {
+  //           this.commonService.handleResErr(res);
+  //         }
+  //       },
+  //     });
+  // }
 
   override handleAction(name: string) {
     if (name === 'reload') {
@@ -443,46 +447,46 @@ export class DashboardComponent
       });
   }
 
-  onDelete(value: any) {
-    this.autoTaskService.task
-      .delete(value.id)
-      .pipe()
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.commonService.handleResSuccess('delete');
-            this.getDataSource();
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => this.commonService.handleErr(err),
-      });
-  }
+  // onDelete(value: any) {
+  //   this.autoTaskService.task
+  //     .delete(value.id)
+  //     .pipe()
+  //     .subscribe({
+  //       next: (res) => {
+  //         if (res.status === 200) {
+  //           this.commonService.handleResSuccess('delete');
+  //           this.getDataSource();
+  //         } else {
+  //           this.commonService.handleResErr(res);
+  //         }
+  //       },
+  //       error: (err) => this.commonService.handleErr(err),
+  //     });
+  // }
 
-  handleDeleteAction(value: any) {
-    const title = 'Xóa Tác Vụ';
-    const description = `Bạn sắp xóa Tác Vụ <b>${
-      value.name || ''
-    }</b>, hành động này không thể hoàn tác.`;
-    const okText = 'Xóa';
+  // handleDeleteAction(value: any) {
+  //   const title = 'Xóa Tác Vụ';
+  //   const description = `Bạn sắp xóa Tác Vụ <b>${
+  //     value.name || ''
+  //   }</b>, hành động này không thể hoàn tác.`;
+  //   const okText = 'Xóa';
 
-    const modalContent: IModalConfirmContent = {
-      title,
-      description,
-      okText,
-      type: 'warning',
-      modalType: 'advance',
-      context: value,
-      errorState:
-        'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
-        '        của bản ghi cũng sẽ bị ảnh hưởng.',
-    };
+  //   const modalContent: IModalConfirmContent = {
+  //     title,
+  //     description,
+  //     okText,
+  //     type: 'warning',
+  //     modalType: 'advance',
+  //     context: value,
+  //     errorState:
+  //       'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
+  //       '        của bản ghi cũng sẽ bị ảnh hưởng.',
+  //   };
 
-    this.modalConfirmService.openModal(modalContent, undefined, () => {
-      this.onDelete(value);
-    });
-  }
+  //   this.modalConfirmService.openModal(modalContent, undefined, () => {
+  //     this.onDelete(value);
+  //   });
+  // }
 
   onPopoverFilter(data: {value?: string | string[]; name: string}) {
     if (data.value) {

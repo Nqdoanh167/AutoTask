@@ -1,6 +1,6 @@
 <div class="modal-update-task">
   <form [formGroup]="updateForm">
-    <app-custom-modal>
+    <app-custom-modal [showBtnClose]="false">
       <ng-container modalTitle>
         <div class="d-flex align-items-center justify-content-between">
           <input
@@ -15,15 +15,56 @@
         </div>
       </ng-container>
       <ng-container modalTitleRight>
-        <div
-          class="d-flex align-items-center justify-content-between gap-3 me-2"
-        >
+        <div class="d-flex align-items-center justify-content-between">
           @if (f['code'].value) {
             <div
               (click)="copyText(f['code'].value)"
               class="subhead cursor-pointer"
             >
               Mã tác vụ:&nbsp; #{{ f['code'].value }}
+            </div>
+          }
+          @if (f['id'].value && sourceData) {
+            <div
+              class="btn-group cursor-pointer btn-dropdown"
+              dropdown
+              placement="bottom right"
+              dropdownToggle
+            >
+              <div id="button-alignment">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+              <ul
+                id="dropdown-basic"
+                *dropdownMenu
+                class="dropdown-menu dropdown-menu-right"
+                role="menu"
+              >
+                <li role="menuitem" (click)="copyText(f['id'].value)">
+                  <div href="#" class="dropdown-item cursor-pointer">
+                    <i
+                      class="fa-regular fa-clipboard me-2"
+                      style="width: 14px"
+                    ></i>
+                    Sao chép ID
+                  </div>
+                </li>
+                <li
+                  role="menuitem"
+                  (click)="handleCopy(sourceData); isOpenBackDrop = true"
+                >
+                  <div href="#" class="dropdown-item cursor-pointer">
+                    <i class="far fa-clone me-2"></i>
+                    Tạo bản sao
+                  </div>
+                </li>
+                <li role="menuitem" (click)="handleDeleteTask()">
+                  <div href="#" class="dropdown-item cursor-pointer">
+                    <i class="far fa-trash-alt me-2"></i>
+                    Xóa task
+                  </div>
+                </li>
+              </ul>
             </div>
           }
         </div>
@@ -88,13 +129,17 @@
                   </ng-select>
                   <div class="input-group" [style.width]="'250px !important'">
                     <input
-                      [style.width]="'170px !important'"
                       formControlName="chatLink"
                       type="text"
                       class="input-medium"
                       placeholder="Gán Link cuộc hội thoại"
+                      [tooltip]="
+                        'Gán link cuộc hội thoại để hệ thống có thể tự động kiểm tra và bổ sung thông tin Nguồn dữ liệu vào Tác vụ'
+                      "
+                      [placement]="'bottom'"
+                      (change)="handleChangeChatLink()"
                     />
-                    <span
+                    <!-- <span
                       class="input-group-text cursor-pointer button-fill secondary-color fw-500"
                       id="basic-addon2"
                       tooltip="Gán link cuộc hội thoại để hệ thống có thể tự động kiểm tra và bổ sung thông tin Nguồn dữ liệu vào Tác vụ"
@@ -102,7 +147,7 @@
                       (click)="handleChangeChatLink()"
                     >
                       Áp dụng
-                    </span>
+                    </span> -->
                   </div>
                 </div>
               </ng-container>
@@ -483,6 +528,7 @@
                                   )
                                 "
                                 (callEvent)="handleCall()"
+                                [task]="sourceData"
                               ></app-task-chain-item>
                             </accordion-group>
                           }
@@ -621,11 +667,8 @@
           </div>
         }
       </ng-container>
-      <div
-        modalFooter
-        class="d-flex justify-content-between align-items-center"
-      >
-        <div>
+      <div modalFooter class="d-flex justify-content-end align-items-center">
+        <!-- <div>
           @if (sourceData) {
             <button
               (click)="handleDeleteTask()"
@@ -635,7 +678,7 @@
               Xóa
             </button>
           }
-        </div>
+        </div> -->
         <div class="d-flex gap-2">
           <button
             (click)="hideModal()"

@@ -3,7 +3,7 @@
   class="custom-form"
   [class.disabled]="!hasUpdateTaskPer"
 >
-  <div class="information mt-2 overflow-x-hidden">
+  <div class="information mt-2">
     @if (hasPermitCustomer && hasUpdateTaskPer) {
       <div class="mb-3">
         <app-input-suggest-customer
@@ -47,8 +47,9 @@
           Loại khách hàng
           <i
             class="fa-regular fa-circle-question ms-1"
-            tooltip="Lead: Khách hàng tiềm năng, có khả năng sẽ mua hàng của doanh nghiệp sau khi được chăm sóc
-Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua hàng (thường đã được chăm sóc hoặc lên hợp đồng)"
+            [tooltip]="
+              'Lead: Khách hàng tiềm năng, có khả năng sẽ mua hàng của doanh nghiệp sau khi được chăm sóc Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua hàng (thường đã được chăm sóc hoặc lên hợp đồng)'
+            "
             placement="right"
           ></i>
         </label>

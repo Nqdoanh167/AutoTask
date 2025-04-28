@@ -21,9 +21,11 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 export class ModalCreateOrderComponent implements OnInit, OnDestroy {
   @Output() successEvent = new EventEmitter();
   @Input() taskChainResultId!: string;
+  @Input() taskId!: string;
 
   protected url?: string;
   private messageHandler: any;
+  private bizAlias?: string;
   private destroy$ = new Subject<void>();
 
   protected safeUrl?: SafeResourceUrl;
@@ -39,16 +41,15 @@ export class ModalCreateOrderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((res) => {
         if (res?.alias) {
-          this.url = `${environment.urlDomain}/${res?.alias}/sale-center/order/create?taskId=${this.taskChainResultId}`;
-          this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-            this.url,
-          );
+          this.bizAlias = res?.alias;
         }
       });
   }
 
   ngOnInit() {
-    console.log({url: this.url});
+    this.url = `${environment.urlDomain}/${this.bizAlias}/sale-center/order/create?taskId=${this.taskId}`;
+    this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
+
     this.messageHandler = (event: MessageEvent) => {
       if (event.origin !== environment.urlDomain) return;
 

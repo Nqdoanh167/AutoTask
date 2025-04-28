@@ -43,6 +43,7 @@ export class DetailTaskData extends BaseComponentsComponent {
   protected detailTask?: ITask;
   protected submitted = false;
   protected updateForm = this.fb.group({
+    id: null,
     name: [null, [Validators.required]],
     note: null,
     code: null,
