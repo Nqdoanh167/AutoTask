@@ -36,6 +36,7 @@ import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/d
 import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {ModalConfirmCallComponent} from '@main/dashboard/content-modal/modal-confirm-call/modal-confirm-call.component';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
+import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 
@@ -83,6 +84,7 @@ export class ModalUpdateTaskComponent
     private readonly toastr: ToastrService,
     private readonly mainService: MainService,
     private readonly phoneCallService: PhoneCallService,
+    private readonly toastrService: ToastrService,
   ) {
     super();
     this.authService.currentBiz
@@ -800,7 +802,7 @@ export class ModalUpdateTaskComponent
                 id: this.sourceData ? this.sourceData.id : '',
                 module: environment.module,
                 code: this.sourceData ? this.sourceData.code : '',
-              }
+              },
             });
             // this.phoneCallService.setMakeCall({
             //   customer: this.formLeadDeal.value,
@@ -901,5 +903,44 @@ export class ModalUpdateTaskComponent
         });
       }
     }
+  }
+
+  handleCopy(task: ITask) {
+    const modalClone = this.modalService.show(ModalCloneComponent, {
+      initialState: {
+        task: task,
+      },
+      ignoreBackdropClick: true,
+      keyboard: false,
+    });
+    modalClone.content?.submitEvent.subscribe((res) => {
+      if (res) {
+        modalClone.hide();
+        this.cloneTask(task.id, res);
+      }
+    });
+
+    modalClone.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isOpenBackDrop = false;
+    });
+  }
+
+  cloneTask(id: string, options: string[]) {
+    this.autoTaskService.task
+      .clone(id, {
+        options: options,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toastrService.success('Sao chép tác vụ thành công');
+
+            this.updateSuccess.emit();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
   }
 }

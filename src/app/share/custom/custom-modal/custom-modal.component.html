@@ -5,17 +5,19 @@
         <span class="modal-title pull-left">
           <ng-content select="[modalTitle]"></ng-content>
         </span>
-        <span class="pull-right d-flex align-items-center">
+        <div class="d-flex align-items-center">
           <ng-content select="[modalTitleRight]"></ng-content>
-          <button
-            (click)="onHideModal()"
-            aria-label="Close"
-            class="btn btn-close close"
-            type="button"
-          >
-            <span aria-hidden="true" class="visually-hidden">&times;</span>
-          </button>
-        </span>
+          @if (showBtnClose) {
+            <button
+              (click)="onHideModal()"
+              aria-label="Close"
+              class="btn btn-close close"
+              type="button"
+            >
+              <span aria-hidden="true" class="visually-hidden">&times;</span>
+            </button>
+          }
+        </div>
       </div>
     }
     <div class="modal-body" [class.pb-0]="!hideFooter && type === 'standard'">
