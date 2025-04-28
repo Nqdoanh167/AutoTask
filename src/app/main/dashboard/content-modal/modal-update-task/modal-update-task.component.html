@@ -253,7 +253,7 @@
                           }
                         </div>
                         <div
-                          class="d-flex align-items-center"
+                          class="d-flex align-items-center gap-2"
                           formArrayName="teams"
                         >
                           @if (autoTaskSetting?.roles?.length) {
@@ -267,7 +267,7 @@
                             let settingRoleIndex = $index
                           ) {
                             <div
-                              class="btn-group mx-2"
+                              class="btn-group"
                               dropdown
                               container=".modal-update-task"
                               [autoClose]="true"
@@ -545,7 +545,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="group-content mt-2">
+                    <div class="group-content mt-2 overflow-hidden">
                       <div class="headline">
                         Thông tin khách hàng
                         <i
