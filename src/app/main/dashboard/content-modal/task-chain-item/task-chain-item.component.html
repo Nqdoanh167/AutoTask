@@ -319,19 +319,24 @@
                           </button>
 
                           <div
-                            class="d-flex align-items-center gap-2 mt-2"
+                            class="d-flex align-items-start gap-2 mt-2"
                             *ngIf="taskChainResult.value?.feedback?.id"
                           >
-                            <span class="fw-500">Đánh giá</span>
-                            <ngx-stars
-                              [readonly]="true"
-                              [size]="1"
-                              [maxStars]="5"
-                              [color]="'#FFD700'"
-                              [initialStars]="
-                                taskChainResult.value?.feedback?.rate
-                              "
-                            ></ngx-stars>
+                            <span class="fw-500">Đánh giá:</span>
+                            <div>
+                              <ngx-stars
+                                [readonly]="true"
+                                [size]="1"
+                                [maxStars]="5"
+                                [color]="'#FFD700'"
+                                [initialStars]="
+                                  taskChainResult.value?.feedback?.rate
+                                "
+                              ></ngx-stars>
+                              <span class="fs-7">
+                                {{ taskChainResult.value?.feedback?.comment }}
+                              </span>
+                            </div>
                           </div>
                         }
                         @case (EActionType.MANUAL_CREATE_ORDER) {
@@ -355,7 +360,7 @@
                             class="d-flex align-items-center gap-2 mt-2"
                             *ngIf="taskChainResult.value?.order?.id"
                           >
-                            <span class="fw-500">Đơn hàng</span>
+                            <span class="fw-500">Đơn hàng:</span>
                             <span
                               class="text-primary fs-7 fst-italic"
                               style="cursor: pointer"

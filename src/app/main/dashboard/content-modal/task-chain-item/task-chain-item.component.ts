@@ -26,6 +26,7 @@ import {
   IActResult,
   IChainAct,
   IChainResult,
+  ITask,
   ITaskChain,
   ITaskChainResult,
   IUpdateDeadlineTaskResult,
@@ -58,6 +59,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     canEditAction: false,
     canEditDeadline: false,
   };
+
   @Input() formItem!: FormGroup | any;
   @Input() submitted: boolean = false;
   @Input() results: IActResult[] = [];
@@ -69,6 +71,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     actionChains: false,
   };
   @Input() staticDataChainItem?: ITaskChain;
+  @Input() task?: ITask;
 
   @Output() updateNextStepEvent = new EventEmitter<{
     taskChainResultIndex: number;
@@ -600,6 +603,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       class: 'modal-xl modal-dialog-centered',
       initialState: {
         taskChainResultId: taskChainResult.id,
+        taskId: this.task?.id,
       },
     });
 

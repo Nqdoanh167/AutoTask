@@ -1,4 +1,4 @@
-<div class="input-suggest-customer">
+<!-- <div class="input-suggest-customer">
   @if (uiType === 'text') {
     <input
       autocomplete="off"
@@ -66,4 +66,56 @@
       </div>
     </ng-template>
   </ng-select>
+</div> -->
+
+<div class="input-suggest-customer">
+  <div class="input-suffix input-prefix">
+    @if (customers.loading) {
+      <div style="z-index: 2; left: 14px; top: 9px" class="position-absolute">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+    } @else {
+      <div style="z-index: 2; left: 14px; top: 9px" class="position-absolute">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+    }
+    <ng-select
+      [(ngModel)]="selectedCustomer"
+      class="suggest-select"
+      (change)="handleChooseCustomer($event)"
+      (blur)="handleBlur($event)"
+      [items]="customers.rows"
+      [trackByFn]="trackByFn"
+      bindLabel="name"
+      bindValue="id"
+      [clearable]="false"
+      [closeOnSelect]="true"
+      [placeholder]="placeholder"
+      (click)="clickLoadData()"
+      #select
+      (scroll)="scrollLoadData($event)"
+      (search)="searchFn($event)"
+      [loading]="customers.loading"
+      [notFoundText]="'Không có khách hàng'"
+    >
+      <ng-template ng-option-tmp let-item="item">
+        <div
+          class="person-info d-flex justify-content-between align-items-center p-1"
+        >
+          <div class="d-flex justify-content-between align-items-center">
+            <img
+              class="avatar"
+              alt=""
+              fallback="assets/images/avatar.svg"
+              src="{{ item?.picture }}"
+            />
+            <div class="d-flex flex-column mx-3">
+              <span class="account-name fw-500">{{ item?.name }}</span>
+              <span class="account-phone">{{ item?.phone }}</span>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </ng-select>
+  </div>
 </div>

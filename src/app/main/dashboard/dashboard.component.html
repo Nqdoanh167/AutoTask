@@ -93,7 +93,7 @@
                       <img src="./assets/images/icon/table.svg" alt="" />
                     </div>
                   </th> -->
-                  <th class="columns-action">Hành động</th>
+                  <!-- <th class="columns-action">Hành động</th> -->
                 </tr>
               } @else {
                 <tr>
@@ -110,7 +110,7 @@
                   <th colspan="12">
                     <div class="d-flex align-items-center gap-3">
                       <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
-                      <ng-select
+                      <!-- <ng-select
                         #selectBatchActions
                         appearance="outline"
                         [clearable]="false"
@@ -120,7 +120,7 @@
                         (change)="showModalMultipleAction($event)"
                         appendTo="body"
                         class="ng-select ng-select-single"
-                      ></ng-select>
+                      ></ng-select> -->
                       <button
                         class="btn button-outline"
                         (click)="handleRefreshRow()"
@@ -723,7 +723,7 @@
                       </ng-container>
                     </ng-container>
                   </ng-container>
-                  <td class="columns-action">
+                  <!-- <td class="columns-action">
                     <div class="d-flex">
                       @if (permission.edit) {
                         <span
@@ -749,20 +749,21 @@
                         </span>
                       }
                     </div>
-                  </td>
+                  </td> -->
                 </tr>
               </ng-container>
             </tbody>
           </table>
         </div>
-        <div class="d-flex">
+        <div class="d-flex align-items-end">
           <!-- Icon List -->
           <div
             class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2"
             style="width: 40%"
           >
             <button
-              class="btn btn-icon-light btn-icon-light-lg"
+              class="btn button-outline"
+              [tooltip]="'Chia tác vụ'"
               (click)="showModalAssignTeamV2()"
             >
               <img src="./assets/images/icon/split.svg" alt="split-tasks" />
@@ -788,3 +789,7 @@
 </div>
 
 <ng-template #nonContent>-</ng-template>
+
+@if (isOpenBackDrop) {
+  <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
+}

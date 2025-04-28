@@ -78,6 +78,8 @@ export class InputSuggestCustomerComponent
       page: 1,
       limit: 20,
       sort: '-createdAt',
+      timeout: 300,
+      debounce: 600,
     },
     isAllowLoadMore: false,
   };
@@ -146,6 +148,7 @@ export class InputSuggestCustomerComponent
   handleBlur($event: any) {}
 
   handleChooseCustomer(customer: Customer) {
+    this.select.handleClearClick();
     this.trigger.name = false;
     this.selectCustomer.emit(customer);
   }
@@ -180,4 +183,29 @@ export class InputSuggestCustomerComponent
     this.disabled = disabled;
   }
   // End: for FormControl
+
+  clickLoadData() {
+    if (!this.customers.rows.length) {
+      this.customers.paramsQuery.page = 1;
+      this.getListCustomer(true, true);
+    }
+  }
+
+  scrollLoadData(event: {start: number; end: number}) {
+    if (
+      !this.customers.loading &&
+      event.end + 4 >
+        this.customers.paramsQuery.limit! * this.customers.paramsQuery.page!
+    ) {
+      this.customers.paramsQuery.page! += 1;
+      this.getListCustomer();
+    }
+  }
+  searchFn(event: {term: string}) {
+    clearTimeout(this.customers.paramsQuery['timeout']);
+    this.customers.paramsQuery['timeout'] = setTimeout(() => {
+      this.customers.paramsQuery.q = event.term;
+      this.getListCustomer(false, true);
+    }, this.customers.paramsQuery['debounce']);
+  }
 }
