@@ -41,16 +41,41 @@
                           {{ criteria.get('name')?.value }}
                         </label>
                       </div>
-                      <div class="criteria-rating">
-                        <ngx-stars
-                          [readonly]="false"
-                          [size]="2"
-                          [maxStars]="5"
-                          [color]="'#FFD700'"
-                          [initialStars]="criteria.get('rating')?.value || 5"
-                          (ratingOutput)="onCriteriaRatingSet($event, i)"
-                        ></ngx-stars>
-                      </div>
+                      <ng-container
+                        *ngIf="criteria.get('type')?.value === 'rating_star'"
+                      >
+                        <div class="criteria-rating">
+                          <ngx-stars
+                            [readonly]="false"
+                            [size]="2"
+                            [maxStars]="5"
+                            [color]="'#FFD700'"
+                            [initialStars]="criteria.get('rating')?.value || 5"
+                            (ratingOutput)="
+                              criteria.get('rating')?.setValue($event)
+                            "
+                          ></ngx-stars>
+                        </div>
+                      </ng-container>
+
+                      <ng-container
+                        *ngIf="criteria.get('type')?.value === 'rating_text'"
+                      >
+                        <ng-select
+                          class="ng-select-custom"
+                          style="width: 176px"
+                          [placeholder]="'Chọn đánh giá'"
+                          [clearable]="false"
+                          formControlName="rating"
+                        >
+                          <ng-option
+                            *ngFor="let option of criteria.get('config')?.value"
+                            [value]="option.star"
+                          >
+                            {{ option.text }}
+                          </ng-option>
+                        </ng-select>
+                      </ng-container>
                     </div>
 
                     <div class="d-flex align-items-baseline gap-2 mt-2">
@@ -86,7 +111,7 @@
                           [maxStars]="5"
                           [initialStars]="form.value.rate || 5"
                           [color]="'#FFD700'"
-                          (ratingOutput)="onRatingSet($event)"
+                          (ratingOutput)="form.get('rate')?.setValue($event)"
                         ></ngx-stars>
                       </div>
                       <div

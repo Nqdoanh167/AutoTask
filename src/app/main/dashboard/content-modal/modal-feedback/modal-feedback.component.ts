@@ -101,6 +101,9 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
               name: [criteria.name],
               density: [criteria.density],
               rating: [5],
+              config: [criteria.config],
+              type: [criteria.type],
+              text: [criteria.text],
             }),
           );
         });
@@ -203,19 +206,6 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
   }
 
   handleUrlMediaChanges(urls: string[]) {}
-
-  onRatingSet(value: number) {
-    this.form.patchValue({
-      rate: value,
-    });
-  }
-
-  onCriteriaRatingSet(value: number, index: number) {
-    const criteria = this.criteriaArray.at(index) as FormGroup;
-    criteria.patchValue({
-      rating: value,
-    });
-  }
 
   getAverageRating() {
     const criterias = this.criteriaArray.controls.map((item) => {
