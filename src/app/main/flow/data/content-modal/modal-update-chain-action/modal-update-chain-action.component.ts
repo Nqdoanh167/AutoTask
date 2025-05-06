@@ -174,8 +174,18 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     const {actions, name, isActive, fistActionDelay} = this.updateForm.value;
     const actionIds: string[] =
       actions?.map((action: any) => action.value) || [];
+
+    // expected format: [[subActionId1, subActionId2], [subActionId3, subActionId4]]
+    const subActionIds: string[][] = (actions?.map((action: any) => {
+      const subActions = action.subActions?.map((subAction: any) => {
+        return subAction.value;
+      });
+      return subActions || [];
+    }) || []) as string[][];
+
     const body = {
       actionIds,
+      subActionIds,
       name,
       isActive,
       fistActionDelay,
@@ -261,5 +271,45 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
   ngOnDestroy(): void {
     this.destroy$.next({});
     this.destroy$.complete();
+  }
+
+  getSubActionsControls(actionIndex: number): AbstractControl[] {
+    const subActionsFormArray = this.formActions
+      .at(actionIndex)
+      .get('subActions') as FormArray;
+    return subActionsFormArray?.controls || [];
+  }
+
+  createAction(action?: IAction): FormGroup {
+    return this.fb.group({
+      value: [action?.id || null],
+      subActions: this.fb.array(
+        action?.subActions?.map((sub: IAction) => this.createSubAction(sub)) ||
+          [],
+      ),
+    });
+  }
+
+  createSubAction(subAction?: IAction): FormGroup {
+    return this.fb.group({
+      value: [subAction?.id || null],
+    });
+  }
+
+  addSubAction(actionIndex: number): void {
+    const action = this.formActions.at(actionIndex) as FormGroup;
+
+    if (!action.get('subActions')) {
+      action.addControl('subActions', this.fb.array([]));
+    }
+
+    const subActions = action.get('subActions') as FormArray;
+    subActions.push(this.createSubAction());
+  }
+
+  removeSubAction(actionIndex: number, subActionIndex: number): void {
+    const action = this.formActions.at(actionIndex) as FormGroup;
+    const subActions = action.get('subActions') as FormArray;
+    subActions.removeAt(subActionIndex);
   }
 }

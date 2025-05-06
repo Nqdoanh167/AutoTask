@@ -117,6 +117,62 @@
                   <img src="./assets/images/icon/x.svg" alt="" />
                 </span>
               </div>
+
+              <div class="sub-actions ms-5 mt-2" *ngIf="action?.value?.value">
+                <ng-container
+                  formArrayName="subActions"
+                  *ngIf="action.get('subActions')"
+                >
+                  <div
+                    *ngFor="
+                      let subAction of getSubActionsControls(i);
+                      let j = index
+                    "
+                    [formGroupName]="j"
+                    class="mb-2"
+                  >
+                    <label
+                      class="form-control-label small"
+                      for="subAction{{ i }}_{{ j }}"
+                    >
+                      Hành động phụ {{ j + 1 }}
+                    </label>
+                    <div class="d-flex">
+                      <ng-select
+                        [placeholder]="'Chọn Hành động phụ'"
+                        [searchable]="false"
+                        [items]="actions.rows"
+                        [style.width]="'90%'"
+                        [loading]="actions.loading"
+                        (scrollToEnd)="handleLoadMore()"
+                        class="dropdown-auto-width input-medium"
+                        formControlName="value"
+                        id="subAction{{ i }}_{{ j }}"
+                        bindValue="id"
+                        bindLabel="name"
+                        appendTo=".modal"
+                      ></ng-select>
+                      <span
+                        (click)="removeSubAction(i, j)"
+                        class="d-flex align-items-center btn-action-table"
+                      >
+                        <img src="./assets/images/icon/x.svg" alt="" />
+                      </span>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+
+              <div class="mt-2 ms-5" *ngIf="action?.value?.value">
+                <button
+                  type="button"
+                  (click)="addSubAction(i)"
+                  class="btn btn-sm text-link button-sub-primary secondary-color"
+                >
+                  <i class="fas fa-plus me-1"></i>
+                  Thêm hành động phụ
+                </button>
+              </div>
             </div>
           </ng-container>
         </div>
