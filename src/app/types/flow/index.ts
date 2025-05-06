@@ -88,6 +88,7 @@ export interface IAction {
   updatedBy: AccountPublic;
   createdAt: Date;
   updatedAt: Date;
+  subActions?: IAction[];
 }
 
 export interface IBodyAction {
