@@ -503,6 +503,8 @@ export class DashboardComponent
     if (data.value !== this.currentActiveViewMode?.options?.sort) {
       // this.handleViewModeChange(true);
     }
+
+    this.getDataSource(true);
   }
 
   override onSelectFilter(data: {value?: string | string[]; name: string}) {

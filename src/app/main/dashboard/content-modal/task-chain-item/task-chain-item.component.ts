@@ -26,6 +26,8 @@ import {
   IActResult,
   IChainAct,
   IChainResult,
+  IFeedback,
+  IOrderManual,
   ITask,
   ITaskChain,
   ITaskChainResult,
@@ -40,7 +42,6 @@ import moment from 'moment/moment';
 import {optionToCloneTask} from '@app/variable';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalFeedbackComponent} from '../modal-feedback/modal-feedback.component';
-import {IFeedback} from '@app/types/feedback';
 import {AuthService} from '@app/services/api/auth.service';
 import {ModalCreateOrderComponent} from '../modal-create-order/modal-create-order.component';
 import {environment} from 'src/environments/environment';
@@ -118,6 +119,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   formTaskChainResults() {
+    console.log('formItem', this.formItem);
     return (<FormArray>this.formItem.get('taskChainResults')) as FormArray;
   }
 
@@ -576,13 +578,14 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       });
   }
 
-  handleFeedback(taskChainResult: ITaskChainResult) {
+  handleFeedback(taskChainResult: ITaskChainResult, subActionId: string) {
     if (!taskChainResult.id) return;
     this.showModal = true;
     const modal = this.modalService.show(ModalFeedbackComponent, {
       class: 'modal-lg modal-dialog-centered',
       initialState: {
         taskChainResultId: taskChainResult.id,
+        subActionId,
       },
     });
 
@@ -596,7 +599,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     });
   }
 
-  handleCreateOrder(taskChainResult: ITaskChainResult) {
+  handleCreateOrder(taskChainResult: ITaskChainResult, subActionId: string) {
     if (!taskChainResult.id) return;
     this.showModal = true;
     const modal = this.modalService.show(ModalCreateOrderComponent, {
@@ -604,6 +607,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       initialState: {
         taskChainResultId: taskChainResult.id,
         taskId: this.task?.id,
+        subActionId,
       },
     });
 
@@ -622,6 +626,20 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       code || id
     }`;
     window.open(url, '_blank');
+  }
+
+  getSubActionFeedback(feedbacks: IFeedback[], subActionId?: string) {
+    if (!feedbacks || !subActionId) return null;
+    return feedbacks.find(
+      (feedback: IFeedback) => feedback.subActionId === subActionId,
+    );
+  }
+
+  getSubActionOrder(orders: IOrderManual[], subActionId?: string) {
+    if (!orders || !subActionId) return null;
+    return orders.find(
+      (order: IOrderManual) => order.subActionId === subActionId,
+    );
   }
 
   ngOnDestroy(): void {

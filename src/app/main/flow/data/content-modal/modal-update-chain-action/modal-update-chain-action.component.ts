@@ -22,6 +22,7 @@ import {
   IUpdateChainActDto,
   IChainAct,
   EDelayType,
+  EActionType,
 } from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
@@ -60,12 +61,31 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 20,
+      limit: 100,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
   };
+
+  public subActions: ICommonDataLazy<IAction, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+      filter: JSON.stringify({
+        type: [EActionType.FEEDBACK, EActionType.MANUAL_CREATE_ORDER],
+      }),
+    },
+    isAllowLoadMore: false,
+  };
   public selectedActionIds: string[] = [];
+
+  // Map of selected sub-action IDs for each action ID
+  public selectedSubActionObject: {
+    [key: string]: string[];
+  } = {};
   protected readonly EDelayType = EDelayType;
 
   constructor(
@@ -116,6 +136,21 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
               label: actionResult.action?.name,
             }),
           );
+
+          if (actionResult?.subActions?.length) {
+            const subActions = this.fb.array([]) as FormArray;
+            actionResult.subActions.forEach((subAction: any) => {
+              subActions.push(
+                this.fb.group({
+                  value: subAction.id,
+                  label: subAction.name,
+                }),
+              );
+            });
+            (
+              this.formActions.at(this.formActions.length - 1) as FormGroup
+            ).addControl('subActions', subActions);
+          }
         });
       }
     } else {
@@ -129,6 +164,22 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
           return action.value;
         })
         .map((action: any) => action.value) as string[];
+
+      // expect selectedSubActionObject[actionId] = [subActionId1, subActionId2]
+      this.selectedSubActionObject = actions?.reduce(
+        (acc: any, action: any) => {
+          if (action.value) {
+            const subActions = action.subActions || [];
+            acc[action.value] = subActions
+              .filter((subAction: any) => subAction.value)
+              .map((subAction: any) => subAction.value);
+          }
+          return acc;
+        },
+        {},
+      ) as {
+        [key: string]: string[];
+      };
     });
   }
 
@@ -162,10 +213,47 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
       });
   }
 
+  getSubActions() {
+    this.subActions.loading = true;
+    this.autoTaskService.action
+      .get(this.subActions.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.subActions.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.subActions.rows = uniqBy(
+              this.subActions.rows.concat(res.data),
+              'id',
+            );
+            this.subActions.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.subActions.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.subActions.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
   handleLoadMore() {
     if (this.actions.isAllowLoadMore) {
       this.actions.paramsQuery!.page! += 1;
       this.getAction();
+    }
+  }
+
+  handleLoadMoreSubActions() {
+    if (this.subActions.isAllowLoadMore) {
+      this.subActions.paramsQuery!.page! += 1;
+      this.getSubActions();
     }
   }
 

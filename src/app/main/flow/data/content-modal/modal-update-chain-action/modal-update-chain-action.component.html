@@ -91,7 +91,7 @@
                   [items]="
                     actions.rows | filterData: selectedActionIds : ['id']
                   "
-                  [style.width]="'90%'"
+                  [style.width]="'100%'"
                   [ngClass]="{'is-invalid': submitted && !action?.value?.value}"
                   (open)="!actions.rows.length && getAction()"
                   [loading]="actions.loading"
@@ -135,23 +135,35 @@
                       class="form-control-label small"
                       for="subAction{{ i }}_{{ j }}"
                     >
-                      Hành động phụ {{ j + 1 }}
+                      Hành động phụ {{ i + 1 }}.{{ j + 1 }}
                     </label>
                     <div class="d-flex">
                       <ng-select
+                        (open)="!subActions.rows.length && getSubActions()"
                         [placeholder]="'Chọn Hành động phụ'"
                         [searchable]="false"
-                        [items]="actions.rows"
-                        [style.width]="'90%'"
-                        [loading]="actions.loading"
-                        (scrollToEnd)="handleLoadMore()"
+                        [items]="
+                          subActions.rows
+                            | filterData
+                              : selectedSubActionObject[action?.value?.value]
+                              : ['id']
+                        "
+                        [style.width]="'100%'"
+                        [loading]="subActions.loading"
+                        (scrollToEnd)="handleLoadMoreSubActions()"
                         class="dropdown-auto-width input-medium"
                         formControlName="value"
                         id="subAction{{ i }}_{{ j }}"
                         bindValue="id"
                         bindLabel="name"
                         appendTo=".modal"
-                      ></ng-select>
+                      >
+                        <ng-template ng-label-tmp let-item="item">
+                          <div>
+                            {{ item.name ?? subAction?.value?.label ?? '-' }}
+                          </div>
+                        </ng-template>
+                      </ng-select>
                       <span
                         (click)="removeSubAction(i, j)"
                         class="d-flex align-items-center btn-action-table"
