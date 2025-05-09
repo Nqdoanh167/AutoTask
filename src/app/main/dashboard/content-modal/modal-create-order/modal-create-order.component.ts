@@ -22,6 +22,7 @@ export class ModalCreateOrderComponent implements OnInit, OnDestroy {
   @Output() successEvent = new EventEmitter();
   @Input() taskChainResultId!: string;
   @Input() taskId!: string;
+  @Input() subActionId!: string;
 
   protected url?: string;
   private messageHandler: any;
@@ -76,6 +77,7 @@ export class ModalCreateOrderComponent implements OnInit, OnDestroy {
     this.autoTaskService.taskChainResult
       .manualCreateOrder(this.taskChainResultId, {
         orderId: id,
+        subActionId: this.subActionId,
       })
       .pipe(
         finalize(() => {

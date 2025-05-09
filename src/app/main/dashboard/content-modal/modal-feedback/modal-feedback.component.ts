@@ -23,10 +23,9 @@ import {
 } from 'rxjs';
 import {StorageService} from '@app/services/api/storage.service';
 import {FeedbackService} from '@app/services/api/feeback.service';
-import {IFeedback} from '@app/types/feedback';
+import {IFeedback, Template} from '@app/types/feedback';
 import {ToastrService} from 'ngx-toastr';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {ITaskChainResult} from '@app/types/flow';
 
 @Component({
   selector: 'app-modal-feedback',
@@ -35,6 +34,7 @@ import {ITaskChainResult} from '@app/types/flow';
 })
 export class ModalFeedbackComponent implements OnInit, OnDestroy {
   @Input() taskChainResultId!: string;
+  @Input() subActionId!: string;
   @Output() successEvent = new EventEmitter();
 
   public loading = {
@@ -49,12 +49,14 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
     pictures: [null],
     videos: [null],
     criterias: this.fb.array([]),
+    templateId: [null as null | string],
   });
 
   public isOpenBackdrop = false;
 
   private criteriaSubject = new BehaviorSubject<any | undefined>(undefined);
   private destroy$ = new Subject<void>();
+  public templates: Template[] = [];
 
   constructor(
     private readonly fb: FormBuilder,
@@ -93,17 +95,21 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
     this.criteriaSubject
       .pipe(takeUntil(this.destroy$), distinctUntilChanged())
       .subscribe((data) => {
+        if (!data) return;
         this.criteriaArray.clear();
-        const criterias = data || [];
-        criterias.forEach((criteria: any) => {
+        data.forEach((criteria: any) => {
+          if (!criteria.rating && criteria.type === 'rating_star') {
+            criteria.rating = 5;
+          }
           this.criteriaArray.push(
             this.fb.group({
               name: [criteria.name],
               density: [criteria.density],
-              rating: [5],
-              config: [criteria.config],
+              rating: [criteria.rating],
               type: [criteria.type],
-              text: [criteria.text],
+              multi_options: [criteria.multi_options || []],
+              multi_star: [criteria.multi_star],
+              star: [criteria.star],
             }),
           );
         });
@@ -127,7 +133,17 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.criteriaSubject.next(res.data.criterias);
+            this.templates = res?.data.templates || [];
+            const template = this.templates.find(
+              (template) => template.isDefault,
+            );
+            if (template) {
+              this.form.patchValue({
+                templateId: template.id,
+              });
+
+              this.criteriaSubject.next(template.criterias);
+            }
           }
         },
       });
@@ -138,7 +154,9 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
     if (this.form.valid && !this.loading.submit) {
       this.loading.submit = true;
       const body = {
+        subActionId: this.subActionId,
         ...this.form.value,
+        criterias: this.criteriaArray.value.filter((item: any) => item.rating),
         rate: this.criteriaArray.length
           ? this.getAverageRating()
           : this.form.value.rate,
@@ -214,16 +232,65 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
       return rating * density;
     });
 
-    const totalDensity = this.criteriaArray.controls.reduce(
-      (acc, item) => acc + (item.get('density')?.value || 0),
-      0,
-    );
-    const totalRating = criterias.reduce((acc, item) => acc + item, 0);
+    const totalDensity = this.criteriaArray.controls.reduce((acc, item) => {
+      if (!item.get('rating')?.value) return acc;
+      const density = item.get('density')?.value || 0;
+      return acc + density;
+    }, 0);
+    const totalRating = criterias.reduce((acc, item) => {
+      if (item === 0) return acc;
+      return acc + item;
+    }, 0);
     if (!totalDensity) {
       return 0;
     }
 
     const result = Number((totalRating / totalDensity).toFixed(2));
     return result % 1 === 0 ? Math.floor(result) : result;
+  }
+
+  getIsMultiSelect(index: number) {
+    const template = this.templates.find(
+      (template) => template.id === this.form.value.templateId,
+    );
+    return template?.criterias?.[index]?.isMultiSelect || false;
+  }
+
+  onRatingChange(selectedStars: number[] | number, criteriaIndex: number) {
+    const selectedCriteria = this.criteriaArray.at(criteriaIndex);
+    const ratingControl = selectedCriteria.get('rating');
+    const multiOptionsControl = selectedCriteria.get('multi_options');
+
+    const stars = Array.isArray(selectedStars)
+      ? selectedStars
+      : [selectedStars];
+
+    const avg = stars.length
+      ? stars.reduce((sum, s) => sum + s, 0) / stars.length
+      : 0;
+
+    ratingControl?.setValue(avg);
+
+    const options = stars.map((star) => {
+      const matched = this.getConfigRating(criteriaIndex)?.find(
+        (item) => item.star === star,
+      );
+      return {
+        text: matched?.text || null,
+        star: star,
+      };
+    });
+
+    multiOptionsControl?.setValue(options);
+  }
+
+  getConfigRating(index: number) {
+    return this.templates
+      .find((template) => template.id === this.form.value.templateId)
+      ?.criterias[index]?.configs.filter((item) => !!item.text);
+  }
+
+  handleChangeTemplate(template: Template) {
+    this.criteriaSubject.next(template.criterias);
   }
 }
