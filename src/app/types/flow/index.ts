@@ -164,6 +164,7 @@ export interface IChainActResult {
   updatedAt?: Date;
   createdBy?: AccountPublic;
   updatedBy?: AccountPublic;
+  subActions?: IAction[];
 }
 
 export interface IFistActionDelayDto {
@@ -269,6 +270,19 @@ export interface ReasonEditedDate {
   editedBy: AccountPublic;
 }
 
+export interface IFeedback {
+  id: string;
+  rate: number;
+  comment: string;
+  subActionId: string;
+}
+
+export interface IOrderManual {
+  id: string;
+  code: string;
+  subActionId: string;
+}
+
 export interface ITaskChainResult {
   id?: string;
   status: ETaskChainResultType;
@@ -292,15 +306,9 @@ export interface ITaskChainResult {
   createdAt: Date;
   updatedAt: Date;
   [key: string]: any;
-  order?: {
-    id: string;
-    code: string;
-  };
-  feedback?: {
-    id: string;
-    rate: string;
-    comment: string;
-  };
+  orders?: IOrderManual[];
+  feedbacks?: IFeedback[];
+  subActions?: IAction[];
 }
 
 export interface ITaskChain {

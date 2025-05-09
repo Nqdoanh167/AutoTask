@@ -282,7 +282,7 @@
 
                   <!-- Thực hiện hành động -->
                   <td class="column-take-action">
-                    <div formGroupName="action">
+                    <div class="d-flex flex-column mb-3" formGroupName="action">
                       @switch (taskChainResult?.value.action?.type) {
                         @case (EActionType.CALL) {
                           <button
@@ -300,80 +300,6 @@
                             Gọi điện
                             <i class="fa-solid fa-phone ms-2"></i>
                           </button>
-                        }
-                        @case (EActionType.FEEDBACK) {
-                          <button
-                            (click)="handleFeedback(taskChainResult.value)"
-                            type="button"
-                            class="btn button-medium button-sub-primary secondary-color"
-                            [disabled]="
-                              !handleCheckIsAllowEdit(
-                                'actionButton',
-                                taskChainResult.value,
-                                taskChainResultIndex
-                              ) || !hasPermitFeedback
-                            "
-                          >
-                            Đánh giá
-                            <i class="fa-solid fa-comment ms-2"></i>
-                          </button>
-
-                          <div
-                            class="d-flex align-items-start gap-2 mt-2"
-                            *ngIf="taskChainResult.value?.feedback?.id"
-                          >
-                            <span class="fw-500">Đánh giá:</span>
-                            <div>
-                              <ngx-stars
-                                [readonly]="true"
-                                [size]="1"
-                                [maxStars]="5"
-                                [color]="'#FFD700'"
-                                [initialStars]="
-                                  taskChainResult.value?.feedback?.rate
-                                "
-                              ></ngx-stars>
-                              <span class="fs-7">
-                                {{ taskChainResult.value?.feedback?.comment }}
-                              </span>
-                            </div>
-                          </div>
-                        }
-                        @case (EActionType.MANUAL_CREATE_ORDER) {
-                          <button
-                            (click)="handleCreateOrder(taskChainResult.value)"
-                            type="button"
-                            class="btn button-medium button-sub-primary secondary-color"
-                            [disabled]="
-                              !handleCheckIsAllowEdit(
-                                'actionButton',
-                                taskChainResult.value,
-                                taskChainResultIndex
-                              )
-                            "
-                          >
-                            Tạo đơn hàng
-                            <i class="fa-solid fa-cart-shopping"></i>
-                          </button>
-
-                          <div
-                            class="d-flex align-items-center gap-2 mt-2"
-                            *ngIf="taskChainResult.value?.order?.id"
-                          >
-                            <span class="fw-500">Đơn hàng:</span>
-                            <span
-                              class="text-primary fs-7 fst-italic"
-                              style="cursor: pointer"
-                              (click)="
-                                handleViewOrder(taskChainResult.value?.order)
-                              "
-                            >
-                              {{
-                                taskChainResult.value?.order?.code ||
-                                  taskChainResult.value?.order?.id
-                              }}
-                            </span>
-                          </div>
                         }
                         @case (EActionType.SEND_BLOCK_AUTOMATION) {
                           <button
@@ -448,6 +374,121 @@
                         }
                       }
                     </div>
+
+                    @if ((taskChainResult.value?.subActions || []).length > 0) {
+                      @for (
+                        subAction of taskChainResult.value?.subActions || [];
+                        track subActionIndex;
+                        let subActionIndex = $index
+                      ) {
+                        <div class="d-flex flex-column mb-2 ms-5">
+                          @switch (subAction.type) {
+                            @case (EActionType.FEEDBACK) {
+                              <div
+                                *ngIf="
+                                  getSubActionFeedback(
+                                    taskChainResult.value?.feedbacks,
+                                    subAction.id
+                                  ) as feedback;
+                                  else noFeedback
+                                "
+                              >
+                                <b>Đánh giá:</b>
+                                <span>
+                                  {{ feedback.comment }}
+                                </span>
+                                (
+                                <div class="d-inline-flex align-items-center">
+                                  <span>
+                                    {{ feedback.rate }}
+                                  </span>
+                                  <ngx-stars
+                                    [readonly]="true"
+                                    [size]="1"
+                                    [maxStars]="1"
+                                    [color]="'#FFD700'"
+                                    [initialStars]="1"
+                                  ></ngx-stars>
+                                </div>
+                                )
+                              </div>
+
+                              <ng-template #noFeedback>
+                                <button
+                                  (click)="
+                                    handleFeedback(
+                                      taskChainResult.value,
+                                      subAction.id
+                                    )
+                                  "
+                                  type="button"
+                                  class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+                                  [disabled]="
+                                    !handleCheckIsAllowEdit(
+                                      'actionButton',
+                                      taskChainResult.value,
+                                      taskChainResultIndex
+                                    ) || !hasPermitFeedback
+                                  "
+                                >
+                                  Đánh giá
+                                  <i class="fa-solid fa-comment ms-2"></i>
+                                </button>
+                              </ng-template>
+                            }
+                            @case (EActionType.MANUAL_CREATE_ORDER) {
+                              <div
+                                *ngIf="
+                                  getSubActionOrder(
+                                    taskChainResult.value?.orders,
+                                    subAction.id
+                                  ) as order;
+                                  else noOrder
+                                "
+                              >
+                                <b>Đơn hàng:</b>
+                                <span
+                                  class="text-primary fs-7 fst-italic"
+                                  style="cursor: pointer"
+                                  (click)="handleViewOrder(order)"
+                                >
+                                  {{ order?.code || order?.id }}
+                                </span>
+                              </div>
+
+                              <ng-template #noOrder>
+                                <button
+                                  (click)="
+                                    handleCreateOrder(
+                                      taskChainResult.value,
+                                      subAction.id
+                                    )
+                                  "
+                                  type="button"
+                                  class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+                                  [disabled]="
+                                    !handleCheckIsAllowEdit(
+                                      'actionButton',
+                                      taskChainResult.value,
+                                      taskChainResultIndex
+                                    )
+                                  "
+                                >
+                                  Tạo đơn hàng
+                                  <i class="fa-solid fa-cart-shopping ms-2"></i>
+                                </button>
+                              </ng-template>
+                            }
+                            @case (EActionType.OTHER) {
+                              <div>Khác</div>
+                            }
+                            @default {
+                              <div>-</div>
+                            }
+                          }
+                        </div>
+                      }
+                    }
                   </td>
 
                   <!-- Kết quả hành động -->

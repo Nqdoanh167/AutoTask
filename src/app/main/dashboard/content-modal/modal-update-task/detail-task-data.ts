@@ -418,15 +418,40 @@ export class DetailTaskData extends BaseComponentsComponent {
             results: this.fb.array([]),
             nextActions: this.fb.array([]),
             isEdit: false,
-            order: this.fb.group({
-              id: taskChainResult.order?.id,
-              code: taskChainResult.order?.code,
-            }),
-            feedback: this.fb.group({
-              id: taskChainResult.feedback?.id,
-              comment: taskChainResult.feedback?.comment,
-              rate: taskChainResult.feedback?.rate,
-            }),
+            orders: this.fb.array([]),
+            feedbacks: this.fb.array([]),
+            subActions: this.fb.array([]),
+          });
+
+          taskChainResult?.orders?.forEach((order) => {
+            const orderForm = this.fb.group({
+              id: order.id,
+              code: order.code,
+              subActionId: order.subActionId,
+            });
+            (<FormArray>taskChainResultForm.controls.orders).push(orderForm);
+          });
+          taskChainResult?.feedbacks?.forEach((feedback) => {
+            const feedbackForm = this.fb.group({
+              id: feedback.id,
+              rate: feedback.rate,
+              comment: feedback.comment,
+              subActionId: feedback.subActionId,
+            });
+            (<FormArray>taskChainResultForm.controls.feedbacks).push(
+              feedbackForm,
+            );
+          });
+
+          taskChainResult?.subActions?.forEach((subAction) => {
+            const subActionForm = this.fb.group({
+              id: subAction.id,
+              name: subAction.name,
+              type: subAction.type,
+            });
+            (<FormArray>taskChainResultForm.controls.subActions).push(
+              subActionForm,
+            );
           });
           taskChainResult?.reasonEditedDate?.forEach((reasonEditedDate) => {
             const reasonEditedDateForm = this.fb.group({

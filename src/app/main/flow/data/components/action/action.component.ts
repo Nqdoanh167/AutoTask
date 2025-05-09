@@ -197,7 +197,7 @@ export class ActionComponent implements OnInit, OnDestroy {
       const filter = this.dataSource.paramsQuery?.filter || '{}';
       let obj = JSON.parse(filter);
       if (value || Number(value) === 0) {
-        obj[name] = value;
+        obj[name] = [value];
       } else {
         delete obj[name];
       }
