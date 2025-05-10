@@ -13,183 +13,158 @@
     </div>
     @if (!loading.getConfig) {
       <div class="modal-body">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="card p-0">
-              <div class="card-body bg-white">
-                <ng-container *ngIf="templates.length > 0; else noTemplate">
-                  <div class="mb-3">
-                    <label class="form-control-label" for="templateId">
-                      Chọn template
-                    </label>
-                    <ng-select
-                      id="templateId"
-                      [placeholder]="'Chọn template'"
-                      [clearable]="false"
-                      formControlName="templateId"
-                      class="custom-select-icon"
-                      (change)="handleChangeTemplate($event)"
-                      [virtualScroll]="true"
-                    >
-                      <ng-option
-                        *ngFor="let item of templates"
-                        [value]="item.id"
-                      >
-                        <div>
-                          <div class="d-flex align-items-center">
-                            <img
-                              *ngIf="item.picture"
-                              [src]="item.picture"
-                              alt=""
-                              class="avatar me-1"
-                              width="24"
-                              height="24"
-                              [ngClass]="{
-                                'rounded-circle': true
-                              }"
-                            />
-                            <div class="label">
-                              {{ item.name }}
-                            </div>
-                          </div>
-                        </div>
-                      </ng-option>
-                    </ng-select>
-                  </div>
-
-                  <div class="mb-3" *ngIf="form.value.templateId">
-                    <label class="form-control-label">Tiêu chí đánh giá</label>
-                    <div class="criteria-container" formArrayName="criterias">
-                      <div
-                        *ngFor="
-                          let criteria of criteriaArray.controls;
-                          let i = index
-                        "
-                        class="d-flex align-items-center justify-content-between mb-2"
-                        [formGroupName]="i"
-                      >
-                        <div class="criteria-info">
-                          <label class="form-control-label">
-                            {{ criteria.get('name')?.value }}
-                          </label>
-                        </div>
-
-                        <ng-container
-                          *ngIf="criteria.get('type')?.value === 'rating_star'"
-                        >
-                          <div class="criteria-rating">
-                            <ngx-stars
-                              [readonly]="false"
-                              [size]="2"
-                              [maxStars]="5"
-                              [color]="'#FFD700'"
-                              [initialStars]="
-                                criteria.get('rating')?.value || 0
-                              "
-                              (ratingOutput)="
-                                criteria.get('rating')?.setValue($event)
-                              "
-                            ></ngx-stars>
-                          </div>
-                        </ng-container>
-
-                        <ng-container
-                          *ngIf="criteria.get('type')?.value === 'rating_text'"
-                        >
-                          <ng-select
-                            class="ng-select-custom bg-white"
-                            [placeholder]="'Chọn đánh giá'"
-                            [clearable]="false"
-                            [multiple]="getIsMultiSelect(i)"
-                            (change)="onRatingChange($event, i)"
-                            [formControlName]="
-                              getIsMultiSelect(i) ? 'multi_star' : 'star'
-                            "
-                            [virtualScroll]="true"
-                            style="min-width: 200px; height: 35px"
-                          >
-                            <ng-option
-                              *ngFor="let option of getConfigRating(i)"
-                              [value]="option.star"
-                            >
-                              <div class="d-flex align-items-center gap-1">
-                                <span class="ms-2">{{ option.text }}</span>
-                                (
-                                <div class="d-flex align-items-center gap-1">
-                                  <span>{{ option.star }}</span>
-                                  <ngx-stars
-                                    [readonly]="true"
-                                    [size]="1"
-                                    [initialStars]="1"
-                                    [color]="'#FFD700'"
-                                    [maxStars]="1"
-                                  ></ngx-stars>
-                                </div>
-                                )
-                              </div>
-                            </ng-option>
-                          </ng-select>
-                        </ng-container>
-                      </div>
-
-                      <div class="d-flex align-items-baseline gap-2">
-                        <label class="form-control-label">
-                          Điểm trung bình:
-                        </label>
-                        <div class="d-flex align-items-center gap-2">
-                          {{ getAverageRating() | number: '1.1-1' }} / 5
-                          <ngx-stars
-                            [readonly]="true"
-                            [size]="1"
-                            [maxStars]="1"
-                            [color]="'#FFD700'"
-                            [initialStars]="1"
-                          ></ngx-stars>
+        <div class="card p-0">
+          <div class="card-body bg-white">
+            <ng-container *ngIf="templates.length > 0; else noTemplate">
+              <div class="mb-2">
+                <label class="form-control-label" for="templateId">
+                  Chọn template
+                </label>
+                <ng-select
+                  id="templateId"
+                  [placeholder]="'Chọn template'"
+                  [clearable]="false"
+                  formControlName="templateId"
+                  class="custom-select-icon"
+                  (change)="handleChangeTemplate($event)"
+                  [virtualScroll]="true"
+                >
+                  <ng-option *ngFor="let item of templates" [value]="item.id">
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <img
+                          *ngIf="item.picture"
+                          [src]="item.picture"
+                          alt=""
+                          class="avatar me-1"
+                          width="24"
+                          height="24"
+                          [ngClass]="{
+                            'rounded-circle': true
+                          }"
+                        />
+                        <div class="label">
+                          {{ item.name }}
                         </div>
                       </div>
                     </div>
-                  </div>
-                </ng-container>
+                  </ng-option>
+                </ng-select>
+              </div>
 
-                <!-- Comment Section -->
-                <div class="mb-2">
-                  <label class="form-control-label fw-bold mb-2" for="feedback">
-                    Mô tả đánh giá
-                  </label>
-                  <textarea
-                    id="feedback"
-                    name="customerFeedback"
-                    placeholder="Chi tiết đánh giá"
-                    formControlName="comment"
-                    rows="3"
-                  ></textarea>
+              <div class="mb-2" *ngIf="form.value.templateId">
+                <label class="form-control-label">Tiêu chí đánh giá</label>
+                <div class="criteria-container" formArrayName="criterias">
                   <div
-                    class="invalid-feedback d-block"
-                    *ngIf="isFieldInvalid('comment')"
+                    *ngFor="
+                      let criteria of criteriaArray.controls;
+                      let i = index
+                    "
+                    class="d-flex align-items-center justify-content-between mb-2"
+                    [formGroupName]="i"
                   >
-                    Vui lòng nhập chi tiết đánh giá
-                  </div>
-                </div>
+                    <div class="criteria-info">
+                      <label class="form-control-label">
+                        {{ criteria.get('name')?.value }}
+                      </label>
+                    </div>
 
-                <!-- Images Section -->
-                <div>
-                  <label class="form-control-label fw-bold mb-2">
-                    Hình ảnh
-                  </label>
-                  <div id="media">
-                    <app-input-upload-preview
-                      [immediateUpload]="true"
-                      [multiple]="true"
-                      [width]="80"
-                      [height]="80"
-                      [showButtonRight]="false"
-                      [urls]="f['pictures'].value"
-                      (filesChanges)="handleChangeMedia($event)"
-                      (urlsChanges)="handleUrlMediaChanges($event)"
-                      [loadingUpload]="loading.upload"
-                    ></app-input-upload-preview>
+                    <ng-container
+                      *ngIf="criteria.get('type')?.value === 'rating_star'"
+                    >
+                      <div class="criteria-rating">
+                        <ngx-stars
+                          [readonly]="false"
+                          [size]="2"
+                          [maxStars]="5"
+                          [color]="'#FFD700'"
+                          [initialStars]="criteria.get('rating')?.value || 0"
+                          (ratingOutput)="
+                            criteria.get('rating')?.setValue($event)
+                          "
+                        ></ngx-stars>
+                      </div>
+                    </ng-container>
+
+                    <ng-container
+                      *ngIf="criteria.get('type')?.value === 'rating_text'"
+                    >
+                      <ng-select
+                        class="ng-select-custom bg-white"
+                        [placeholder]="'Chọn đánh giá'"
+                        [clearable]="false"
+                        [multiple]="getIsMultiSelect(i)"
+                        (change)="onRatingChange($event, i)"
+                        [formControlName]="
+                          getIsMultiSelect(i) ? 'multi_star' : 'star'
+                        "
+                        [virtualScroll]="true"
+                        style="min-width: 300px; height: 35px"
+                      >
+                        <ng-option
+                          *ngFor="let option of getConfigRating(i)"
+                          [value]="option.star"
+                        >
+                          <div class="d-flex align-items-center gap-1">
+                            <span>{{ option.text }}</span>
+                          </div>
+                        </ng-option>
+                      </ng-select>
+                    </ng-container>
+                  </div>
+
+                  <div class="d-flex align-items-baseline gap-2">
+                    <label class="form-control-label">Điểm trung bình:</label>
+                    <div class="d-flex align-items-center gap-2">
+                      {{ getAverageRating() | number: '1.1-1' }} / 5
+                      <ngx-stars
+                        [readonly]="true"
+                        [size]="1"
+                        [maxStars]="1"
+                        [color]="'#FFD700'"
+                        [initialStars]="1"
+                      ></ngx-stars>
+                    </div>
                   </div>
                 </div>
+              </div>
+            </ng-container>
+
+            <!-- Comment Section -->
+            <div class="mb-2">
+              <label class="form-control-label fw-bold mb-2" for="feedback">
+                Mô tả đánh giá
+              </label>
+              <textarea
+                id="feedback"
+                name="customerFeedback"
+                placeholder="Chi tiết đánh giá"
+                formControlName="comment"
+                rows="3"
+              ></textarea>
+              <div
+                class="invalid-feedback d-block"
+                *ngIf="isFieldInvalid('comment')"
+              >
+                Vui lòng nhập chi tiết đánh giá
+              </div>
+            </div>
+
+            <!-- Images Section -->
+            <div>
+              <label class="form-control-label fw-bold mb-2">Hình ảnh</label>
+              <div id="media">
+                <app-input-upload-preview
+                  [immediateUpload]="true"
+                  [multiple]="true"
+                  [width]="80"
+                  [height]="80"
+                  [showButtonRight]="false"
+                  [urls]="f['pictures'].value"
+                  (filesChanges)="handleChangeMedia($event)"
+                  (urlsChanges)="handleUrlMediaChanges($event)"
+                  [loadingUpload]="loading.upload"
+                ></app-input-upload-preview>
               </div>
             </div>
           </div>
@@ -233,7 +208,7 @@
 </form>
 
 <ng-template #noTemplate>
-  <div class="mb-3">
+  <div class="mb-2">
     <div>
       <label class="form-control-label">Đánh giá</label>
     </div>

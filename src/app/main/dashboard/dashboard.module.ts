@@ -49,6 +49,7 @@ import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 import {ModalFeedbackComponent} from './content-modal/modal-feedback/modal-feedback.component';
 import {NgxStarsModule} from 'ngx-stars';
 import {InputUploadPreviewComponent} from '../../share/input/input-upload-preview/input-upload-preview.component';
+import {TaskCreateSourceComponent} from './content-modal/task-create-source/task-create-source.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -64,6 +65,7 @@ import {InputUploadPreviewComponent} from '../../share/input/input-upload-previe
     HistoryComponent,
     ModalAssignTeamV2Component,
     ModalFeedbackComponent,
+    TaskCreateSourceComponent,
   ],
   imports: [
     CommonModule,

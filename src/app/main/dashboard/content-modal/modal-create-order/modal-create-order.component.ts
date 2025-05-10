@@ -60,6 +60,7 @@ export class ModalCreateOrderComponent implements OnInit, OnDestroy {
           case 'HIDE':
             console.log('Received HIDE action', message.data);
             const {order} = message.data;
+            console.log({order});
 
             if (order?.id) {
               this.handleCreateOrder(order?.id);
