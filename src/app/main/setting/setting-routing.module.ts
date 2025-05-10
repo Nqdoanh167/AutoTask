@@ -3,7 +3,7 @@ import {RouterModule, Routes} from '@angular/router';
 import {NotfoundComponent} from '@app/notfound/notfound.component';
 import {SettingComponent} from './setting.component';
 import {DecentralizationComponent} from '@main/setting/decentralization/decentralization.component';
-import {SourceComponent} from '@main/setting/source-v2/source.component';
+import {SourceComponent} from '@main/setting/source/source.component';
 import {TagComponent} from './tag/tag.component';
 import {RoleComponent} from './role/role.component';
 import {HasPermissionAccessModuleGuard} from '@app/services/guard/hasPermissionAccessSubModule.guard';
@@ -25,11 +25,7 @@ const routes: Routes = [
           mainModule: EModule.SETTING,
         },
         canActivate: [HasPermissionAccessModuleGuard],
-        // component: SourceComponent,
-        loadChildren: () =>
-          import('@main/setting/source-v2/source.module').then(
-            (m) => m.SourceModule,
-          ),
+        component: SourceComponent,
       },
       {
         path: ESettingTab.DECENTRALIZATION,
