@@ -341,3 +341,20 @@ export function removeCharacter(str: string): string {
   str = str.replace(/Đ/g, 'D');
   return str;
 }
+
+export function filterItems<T>(
+  items: T[],
+  fields: (keyof T)[],
+  value: string,
+): T[] {
+  const lowerValue = value.toLowerCase();
+  return items.filter((item) =>
+    fields.some((field) => {
+      const fieldValue = item[field];
+      return (
+        typeof fieldValue === 'string' &&
+        fieldValue.toLowerCase().includes(lowerValue)
+      );
+    }),
+  );
+}

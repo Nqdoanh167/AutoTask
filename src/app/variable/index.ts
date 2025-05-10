@@ -185,18 +185,40 @@ export const socialPlatforms: {
   {
     label: 'Facebook',
     value: ESocialPlatform.FACEBOOK,
-    image: './assets/images/socials/facebook.svg',
+    image: './assets/images/platform_facebook.png',
   },
   {
-    label: 'Zalo',
-    value: ESocialPlatform.ZALO,
-    image: './assets/images/socials/zalo.svg',
+    label: 'Shopee',
+    value: ESocialPlatform.SHOPEE,
+    image: './assets/images/platform_shopee.png',
+  },
+  {
+    label: 'TikTok',
+    value: ESocialPlatform.TIKTOK,
+    image: './assets/images/platform_tiktok.png',
+  },
+  {
+    label: 'Lazada',
+    value: ESocialPlatform.LAZADA,
+    image: './assets/images/platform_lazada.png',
   },
   {
     label: 'LadiPage',
     value: ESocialPlatform.LADIPAGE,
-    image: './assets/images/socials/landipage.svg',
+    image: './assets/images/platform_ladipage.png',
   },
+  {
+    label: 'Tiki',
+    value: ESocialPlatform.TIKI,
+    image: './assets/images/platform_tiki.png',
+  },
+
+  {
+    label: 'Zalo',
+    value: ESocialPlatform.ZALO,
+    image: './assets/images/platform_zalo.png',
+  },
+
   {
     label: 'Other',
     value: ESocialPlatform.OTHER,
