@@ -33,6 +33,7 @@ import {TreeSelectModule} from 'primeng/treeselect';
 import {TimeViewPipe} from '@share/pipe/timeView.pipe';
 import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
 import {LetDirective} from '@share/directive/ng-let.directive';
+import {SourceModule} from './source-v2/source.module';
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import {LetDirective} from '@share/directive/ng-let.directive';
     TimeViewPipe,
     GetDataArrayPipe,
     LetDirective,
+    SourceModule,
   ],
 })
 export class SettingModule {}
