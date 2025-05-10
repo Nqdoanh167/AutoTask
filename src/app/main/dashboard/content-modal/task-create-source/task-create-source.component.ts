@@ -10,6 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {filterItems} from '@app/utils/common';
 import {Subject, takeUntil} from 'rxjs';
 import {
   EntityPagination,
@@ -225,6 +226,7 @@ export class TaskCreateSourceComponent implements OnInit, OnDestroy {
           });
         });
         // this._filteredItems = new SearchHelper(['name', 'platformId']).filter(rows, value);
+        this._filteredItems = filterItems(rows, ['name', 'platformId'], value);
       }, this.search.debounce);
     } else {
       this._filteredItems = [...this.listTypeSource];

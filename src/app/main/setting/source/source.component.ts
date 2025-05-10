@@ -20,9 +20,7 @@ import {
 } from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
-import {AuthService} from '@app/services/api/auth.service';
 import {socialPlatforms} from '@app/variable';
-import {ETaskChainType} from '@app/types/flow';
 
 @Component({
   selector: 'app-source',
@@ -41,8 +39,12 @@ export class SourceComponent
   };
   public dataSources: Record<ESocialPlatform, ISource[]> = {
     [ESocialPlatform.FACEBOOK]: [],
-    [ESocialPlatform.ZALO]: [],
+    [ESocialPlatform.SHOPEE]: [],
+    [ESocialPlatform.TIKTOK]: [],
+    [ESocialPlatform.LAZADA]: [],
     [ESocialPlatform.LADIPAGE]: [],
+    [ESocialPlatform.TIKI]: [],
+    [ESocialPlatform.ZALO]: [],
     [ESocialPlatform.OTHER]: [],
   };
   public override configFilters: IFilterTopTable[] = [
@@ -137,6 +139,10 @@ export class SourceComponent
               [ESocialPlatform.LADIPAGE]:
                 res.data[ESocialPlatform.LADIPAGE] ?? [],
               [ESocialPlatform.OTHER]: res.data[ESocialPlatform.OTHER] ?? [],
+              [ESocialPlatform.SHOPEE]: res.data[ESocialPlatform.SHOPEE] ?? [],
+              [ESocialPlatform.TIKTOK]: res.data[ESocialPlatform.TIKTOK] ?? [],
+              [ESocialPlatform.LAZADA]: res.data[ESocialPlatform.LAZADA] ?? [],
+              [ESocialPlatform.TIKI]: res.data[ESocialPlatform.TIKI] ?? [],
             };
           }
         },

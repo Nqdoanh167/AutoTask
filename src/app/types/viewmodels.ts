@@ -1647,7 +1647,11 @@ export interface BaseInterface {
 
 export enum ESocialPlatform {
   FACEBOOK = 'FACEBOOK',
-  ZALO = 'ZALO',
+  SHOPEE = 'SHOPEE',
+  TIKTOK = 'TIKTOK',
+  LAZADA = 'LAZADA',
   LADIPAGE = 'LADIPAGE',
+  TIKI = 'TIKI',
+  ZALO = 'ZALO',
   OTHER = 'OTHER',
 }
