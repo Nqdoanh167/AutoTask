@@ -7,6 +7,7 @@ import {
   IHistory,
   ITag,
   Order,
+  SplitConfig,
 } from 'src/app/types/viewmodels';
 import {BehaviorSubject, of, Subject, takeUntil, tap} from 'rxjs';
 import {environment} from 'src/environments/environment';
@@ -85,6 +86,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     setting: 'setting',
     permission: 'permission',
     userAcl: 'user-acl',
+    splitConfig: 'split-config',
   };
 
   private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
@@ -646,6 +648,30 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.userAcl, 'bulk-remove']),
         body,
+      ),
+  };
+
+  splitConfig = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<SplitConfig[]>>(
+        this.createUrl([this.api.splitConfig]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: IBodyResultReason) =>
+      this.httpClient.post<EntityResult<SplitConfig>>(
+        this.createUrl([this.api.splitConfig]),
+        body,
+      ),
+    update: (id: string, body: IBodyResultReason) =>
+      this.httpClient.patch<EntityResult<SplitConfig>>(
+        this.createUrl([this.api.splitConfig, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.splitConfig, id]),
       ),
   };
 

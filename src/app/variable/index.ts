@@ -114,6 +114,13 @@ export const listSettingNavItems: ISidebar[] = [
     isActive: true,
     permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.DIVIDE}`,
+    alias: ESettingTab.DIVIDE,
+    name: 'Chia số',
+    isActive: true,
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
+  },
 ];
 
 export const listDashboardNavItems: ISidebar[] = [

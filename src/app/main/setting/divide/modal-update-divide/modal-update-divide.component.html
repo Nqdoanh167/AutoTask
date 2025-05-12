@@ -1,0 +1,291 @@
+<div class="modal-header">
+  <h4 class="modal-title pull-left">
+    {{ sourceData ? 'Cập nhật' : 'Thêm mới' }} cấu hình chia số
+  </h4>
+  <button
+    type="button"
+    class="btn-close close pull-right"
+    aria-label="Close"
+    (click)="bsModalRef.hide()"
+  >
+    <span aria-hidden="true" class="visually-hidden">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <div class="col-12 mb-3">
+        <label class="form-label">
+          Tên cấu hình
+          <span class="text-danger">*</span>
+        </label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="name"
+          placeholder="Nhập tên cấu hình"
+        />
+        <div
+          *ngIf="
+            formGroup.get('name')?.invalid &&
+            (formGroup.get('name')?.dirty || formGroup.get('name')?.touched)
+          "
+          class="text-danger mt-1"
+        >
+          <div *ngIf="formGroup.get('name')?.errors?.['required']">
+            Vui lòng nhập tên cấu hình
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 mb-3">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            formControlName="applyToOnline"
+            id="applyToOnline"
+          />
+          <label class="form-check-label" for="applyToOnline">
+            Áp dụng cho nhân viên đang online
+          </label>
+        </div>
+      </div>
+
+      <div class="col-6 mb-3">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            formControlName="applyToWorkHours"
+            id="applyToWorkHours"
+          />
+          <label class="form-check-label" for="applyToWorkHours">
+            Áp dụng theo giờ làm việc
+          </label>
+        </div>
+      </div>
+
+      <div class="col-12 mb-3">
+        <label class="form-label fw-bold">Cấu hình tỉ lệ chia</label>
+        <div formArrayName="roleRatios">
+          <div class="table-responsive tableFixHead custom-scrollbar">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Vai trò</th>
+                  <th>Số lượng nhân viên</th>
+                  <th class="columns-action text-end">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  class="text-center"
+                  *ngIf="!roles.rows.length && roles.loading"
+                >
+                  <td colspan="4">
+                    <div>Không có dữ liệu</div>
+                  </td>
+                </tr>
+                <tr class="text-center" *ngIf="loading">
+                  <td colspan="4">
+                    <div class="spinner-grow text-primary" role="status">
+                      <span class="visually-hidden">Loading</span>
+                    </div>
+                    <div>Loading</div>
+                  </td>
+                </tr>
+                <tr *ngFor="let role of roles.rows; let i = index">
+                  <td>
+                    {{ role.name }}
+                  </td>
+                  <td>
+                    {{ getUserByRole(role.id)?.length }}
+                  </td>
+                  <td class="columns-action">
+                    <div class="d-flex justify-content-end">
+                      <span
+                        (click)="editRoleRatio(role.id)"
+                        class="d-flex align-items-center btn-action-table"
+                      >
+                        <img src="./assets/images/icon/edit.svg" alt="" />
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 mb-3">
+        <label class="form-label fw-bold">Cấu hình chia lại</label>
+        <div class="d-flex align-items-center justify-content-between">
+          <div>Chọn vai trò áp dụng chia lại</div>
+          <ng-select
+            id="role"
+            [items]="roles.rows"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Chọn vai trò"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [clearable]="true"
+            formControlName="reassignRoles"
+            class="dropdown-auto-width"
+            style="width: 500px"
+          >
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon" (click)="clear(item)">×</span>
+              <div class="ng-value-label">
+                <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+                <span class="ms-2">{{ item.name }}</span>
+              </div>
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item">
+              <div class="ng-value-label">
+                <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+                <span class="ms-2">{{ item.name }}</span>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3 gap-1">
+      <button
+        type="button"
+        class="btn button-default-modal"
+        (click)="bsModalRef.hide()"
+      >
+        Hủy
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        <span
+          *ngIf="loading"
+          class="spinner-border spinner-border-sm me-1"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        {{ sourceData ? 'Cập nhật' : 'Thêm mới' }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<div
+  bsModal
+  #itemModal="bs-modal"
+  class="modal fade"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="dialog-sizes-name2"
+>
+  <div class="modal-dialog modal-xs">
+    <div class="modal-content" *ngIf="formGroup.get('roleRatios')">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          Chỉnh sửa vai trò {{ selectedRole?.name }}
+        </h4>
+        <button
+          type="button"
+          class="btn-close close pull-right"
+          aria-label="Close"
+          (click)="itemModal.hide()"
+        >
+          <span aria-hidden="true" class="visually-hidden">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="roleRatioForm" *ngIf="roleRatioForm">
+          <div class="row">
+            <div class="col-12 mb-3">
+              <label class="form-label fw-bold">Danh sách nhân viên</label>
+              <div
+                class="alert alert-info"
+                *ngIf="configRatioFormArray.length === 0"
+              >
+                Không có nhân viên nào thuộc vai trò này
+              </div>
+
+              <div *ngIf="configRatioFormArray.length > 0">
+                <div class="user-list-header d-flex">
+                  <span class="form-control-label m-0 flex-grow-1">
+                    Nhân viên
+                  </span>
+                  <span class="form-control-label m-0" style="width: 150px">
+                    Tỉ lệ chia
+                  </span>
+                </div>
+
+                <div class="user-list-container" formArrayName="configRatio">
+                  <div
+                    class="d-flex align-items-center"
+                    *ngFor="
+                      let userControl of configRatioFormArray.controls;
+                      let i = index
+                    "
+                    [formGroupName]="i"
+                  >
+                    <div class="d-flex align-items-center flex-grow-1">
+                      <div class="avatar me-2">
+                        <img
+                          [src]="
+                            userControl.get('userPicture')?.value ||
+                            './assets/images/avatar.png'
+                          "
+                          alt="Avatar"
+                          class="img-fluid rounded-circle"
+                          style="width: 32px; height: 32px"
+                        />
+                      </div>
+                      <div>
+                        <div class="fw-bold">
+                          {{ userControl.get('userName')?.value }}
+                        </div>
+                        <div class="text-muted small">
+                          {{ userControl.get('userEmail')?.value }}
+                        </div>
+                      </div>
+                    </div>
+                    <div style="width: 150px">
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="ratio"
+                        min="0"
+                        placeholder="Nhập tỉ lệ"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="d-flex justify-content-end mt-3 gap-1">
+          <button
+            type="button"
+            class="btn button-default-modal"
+            (click)="itemModal.hide()"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="saveRoleRatio()"
+          >
+            Lưu lại
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (isOpenBackdrop) {
+  <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
+}

@@ -1,0 +1,108 @@
+<div class="card">
+  <div class="card-body">
+    <div class="divide-tab">
+      <app-filter-top-table
+        [configFilters]="configFilters"
+        [configButtons]="configButtons"
+        (clickButtonEvent)="handleAction($event)"
+        (searchEvent)="onSearch($event)"
+      ></app-filter-top-table>
+      <div class="table-responsive tableFixHead custom-scrollbar mt-3">
+        <table class="table">
+          <thead>
+            <tr>
+              <th (click)="sortBy('name')" class="th-allow-sort">
+                <span class="icon-sort" [innerHTML]="sortIcon('name')"></span>
+                Tên cấu hình
+              </th>
+              <th class="text-center">Áp dụng chia cho nhân viên online</th>
+              <th class="text-center">Áp dụng chia theo giờ làm việc</th>
+              <th class="text-center">Số vai trò</th>
+              <th (click)="sortBy('createdAt')" class="th-allow-sort">
+                <span
+                  class="icon-sort"
+                  [innerHTML]="sortIcon('createdAt')"
+                ></span>
+                Ngày tạo
+              </th>
+              @if (hasEditPer) {
+                <th class="columns-action">Hành động</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              class="text-center"
+              *ngIf="!dataSource.rows.length && !dataSource.loading"
+            >
+              <td colspan="12">
+                <div>Không có dữ liệu</div>
+              </td>
+            </tr>
+            <tr class="text-center" *ngIf="dataSource.loading">
+              <td colspan="12">
+                <div class="spinner-grow text-primary" role="status">
+                  <span class="visually-hidden">Loading</span>
+                </div>
+                <div>Loading</div>
+              </td>
+            </tr>
+            <tr *ngFor="let item of dataSource.rows; index as i">
+              <td>{{ item.name || '-' }}</td>
+              <td class="text-center">
+                <div>
+                  <img
+                    src="assets/images/icon/{{
+                      item.applyToOnline ? 'check.svg' : 'not-check.svg'
+                    }}"
+                    width="10"
+                    height="10"
+                    alt=""
+                  />
+                </div>
+              </td>
+              <td class="text-center">
+                <div>
+                  <img
+                    src="assets/images/icon/{{
+                      item.applyToWorkHours ? 'check.svg' : 'not-check.svg'
+                    }}"
+                    width="10"
+                    height="10"
+                    alt=""
+                  />
+                </div>
+              </td>
+              <td class="text-center">{{ item.roleRatios?.length || 0 }}</td>
+              <td>{{ item.createdAt | timeView }}</td>
+              @if (hasEditPer) {
+                <td class="columns-action">
+                  <div class="d-flex">
+                    <span
+                      (click)="handleUpdate(item)"
+                      class="d-flex align-items-center btn-action-table"
+                    >
+                      <img src="./assets/images/icon/edit.svg" alt="" />
+                    </span>
+                    <span
+                      (click)="handleDeleteAction(item)"
+                      class="d-flex align-items-center btn-action-table"
+                    >
+                      <img src="./assets/images/icon/remove.svg" alt="" />
+                    </span>
+                  </div>
+                </td>
+              }
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <custom-pagination
+        [selectedSize]="dataSource.paramsQuery!.limit!"
+        [currentPage]="dataSource.paramsQuery!.page!"
+        [total]="dataSource.total"
+        (changePageEvent)="pageChanged($event)"
+      ></custom-pagination>
+    </div>
+  </div>
+</div>

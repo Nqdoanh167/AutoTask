@@ -172,10 +172,10 @@ export class AddEditPermissionComponent
           permissions: [
             {
               key: EPerActSetting.VIEW_MASTER_DATA,
-              name: 'Truy cập Menu Cài đặt và Xem Nguồn dữ liệu, Tag, Phân quyền và Vai trò ',
+              name: 'Truy cập Menu Cài đặt và Xem Nguồn dữ liệu, Tag, Phân quyền, Vai trò và Cấu hình chia số ',
               isRootPer: true,
               tooltip: `<ul>
-                <li>- Nhân viên có thể được truy cập vào các menu con bên trong menu Cài đặt để xem các master data như Nguồn dữ liệu, Thẻ tag, Vai trò, Quyền.</li>
+                <li>- Nhân viên có thể được truy cập vào các menu con bên trong menu Cài đặt để xem các master data như Nguồn dữ liệu, Thẻ tag, Vai trò, Quyền, Chia số.</li>
                 <li>- Đối với danh sách Nhân viên trong Phân quyền:</li>
                 <li>1. Nhân viên bình thường chỉ thấy được chính họ trên danh sách.</li>
                 <li>2. Quản trị đội nhóm xem được toàn bộ nhân viên trong đội mà họ trên danh sách.</li>
@@ -198,6 +198,11 @@ export class AddEditPermissionComponent
             {
               key: EPerActSetting.UPDATE_ROLE_SETTING,
               name: 'Thêm, Sửa, Xóa Vai trò',
+              class: 'col-4',
+            },
+            {
+              key: EPerActSetting.UPDATE_DIVIDE_SETTING,
+              name: 'Thêm, Sửa, Xóa Cấu hình chia số',
               class: 'col-4',
             },
           ],
