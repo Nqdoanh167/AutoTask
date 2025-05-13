@@ -82,6 +82,8 @@ export class DetailTaskData extends BaseComponentsComponent {
     addChainActIds: null,
     branch: [null],
     chatLink: null,
+    platformSourceIds: [null],
+    platformSources: [null],
   });
   protected addTaskChainForm = this.fb.group({
     addChainActIds: [null, [Validators.required]],
