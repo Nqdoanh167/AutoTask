@@ -1,16 +1,25 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {BsModalRef, BsModalService, ModalDirective} from 'ngx-bootstrap/modal';
 import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {finalize, takeUntil} from 'rxjs/operators';
 import {
   BizRole,
   EntityPagination,
   RoleRatio,
-  SplitConfig,
+  TaskDistributionConfig,
   User,
 } from 'src/app/types/viewmodels';
 import {AuthService} from '@app/services/api/auth.service';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
 
 @Component({
   selector: 'app-modal-update-divide',
@@ -19,11 +28,19 @@ import {AuthService} from '@app/services/api/auth.service';
 })
 export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   @ViewChild('itemModal') itemModal!: ModalDirective;
+  @Output() addItem: EventEmitter<TaskDistributionConfig> = new EventEmitter();
+  @Output() updateItem: EventEmitter<TaskDistributionConfig> =
+    new EventEmitter();
 
-  public sourceData?: SplitConfig;
-  public updateSuccess = new Subject();
+  public submitted = false;
+
+  public sourceData?: TaskDistributionConfig;
   public formGroup!: FormGroup;
-  public loading = false;
+  public loading = {
+    roles: false,
+    submit: false,
+    modal: true,
+  };
   public users!: User[];
   private destroy$ = new Subject();
 
@@ -44,6 +61,8 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     public bsModalRef: BsModalRef,
     private fb: FormBuilder,
     private readonly authService: AuthService,
+    private readonly autoTaskService: AutoTaskService,
+    private readonly commonService: CommonService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -64,8 +83,8 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     this.formGroup = this.fb.group({
       id: [null],
       name: ['', Validators.required],
-      applyToOnline: [false],
-      applyToWorkHours: [false],
+      applyForOnlineEmployee: [false],
+      isWorkHourBased: [false],
       roleRatios: this.fb.array([]),
       reassignRoles: [null],
     });
@@ -79,71 +98,99 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     return this.formGroup.get('roleRatios') as FormArray;
   }
 
-  get configRatioFormArray(): FormArray {
-    return this.roleRatioForm?.get('configRatio') as FormArray;
+  get ratioByEmployeesArray(): FormArray {
+    return this.roleRatioForm?.get('ratioByEmployees') as FormArray;
   }
 
   patchFormValue(): void {
     if (!this.sourceData) return;
 
+    const roleRatiosFormArray = this.fb.array([]);
+
+    this.roles.rows.forEach((role) => {
+      const existingRoleRatio = this.sourceData?.roleRatios?.find(
+        (r: RoleRatio) => r.roleId === role.id,
+      );
+
+      const roleRatio = existingRoleRatio || {
+        roleId: role.id,
+        roleName: role.name,
+        ratioByEmployees: [],
+      };
+
+      roleRatiosFormArray.push(
+        this.fb.control({
+          roleId: roleRatio.roleId,
+          roleName: roleRatio.roleName,
+          ratioByEmployees: roleRatio.ratioByEmployees,
+        }),
+      );
+    });
+
     this.formGroup.patchValue({
       id: this.sourceData.id,
       name: this.sourceData.name,
-      applyToOnline: this.sourceData.applyToOnline,
-      applyToWorkHours: this.sourceData.applyToWorkHours,
-      roleRatios: this.sourceData.roleRatios,
+      applyForOnlineEmployee: this.sourceData.applyForOnlineEmployee,
+      isWorkHourBased: this.sourceData.isWorkHourBased,
       reassignRoles: this.sourceData.reassignRoles,
     });
+
+    this.formGroup.setControl('roleRatios', roleRatiosFormArray);
+  }
+
+  isFieldInvalid(field: string): boolean {
+    const control = this.formGroup.get(field);
+    return (
+      !!control &&
+      control.invalid &&
+      (control.dirty || control.touched || this.submitted)
+    );
   }
 
   onSubmit(): void {
-    console.log('Form Value:', this.formGroup.value);
-    // if (this.formGroup.invalid) {
-    //   this.commonService.markFormGroupTouched(this.formGroup);
-    //   return;
-    // }
-    // const formValue = this.formGroup.value;
-    // this.loading = true;
-    // if (formValue.id) {
-    //   // Update existing config
-    //   this.autoTaskService.splitConfig
-    //     .update(formValue.id, formValue)
-    //     .pipe(
-    //       takeUntil(this.destroy$),
-    //       finalize(() => (this.loading = false))
-    //     )
-    //     .subscribe({
-    //       next: (res) => {
-    //         if (res.status === 200) {
-    //           this.commonService.showSuccess('Cập nhật cấu hình thành công');
-    //           this.updateSuccess.next(true);
-    //           this.bsModalRef.hide();
-    //         }
-    //       },
-    //     });
-    // } else {
-    //   // Create new config
-    //   delete formValue.id;
-    //   this.autoTaskService.splitConfig
-    //     .create(formValue)
-    //     .pipe(
-    //       takeUntil(this.destroy$),
-    //       finalize(() => (this.loading = false))
-    //     )
-    //     .subscribe({
-    //       next: (res) => {
-    //         if (res.status === 200) {
-    //           this.commonService.showSuccess('Tạo cấu hình thành công');
-    //           this.updateSuccess.next(true);
-    //           this.bsModalRef.hide();
-    //         }
-    //       },
-    //     });
-    // }
+    this.submitted = true;
+    if (this.formGroup.valid && !this.loading.submit) {
+      this.loading.submit = true;
+
+      const action = this.formGroup.value.id
+        ? this.autoTaskService.taskDistributionConfig.update(
+            this.formGroup.value.id,
+            this.formGroup.value,
+          )
+        : this.autoTaskService.taskDistributionConfig.create(
+            this.formGroup.value,
+          );
+
+      action
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => {
+            this.loading.submit = false;
+            this.bsModalRef.hide();
+            this.submitted = false;
+          }),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              if (this.formGroup.value.id) {
+                this.commonService.handleResSuccess('update');
+                this.updateItem.emit(res.data);
+              } else {
+                this.commonService.handleResSuccess('create');
+                this.addItem.emit(res.data);
+              }
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+        });
+    }
   }
 
   editRoleRatio(roleId: string): void {
     this.isOpenBackdrop = true;
+    this.loading.modal = true;
 
     const role = this.roles.rows.find((i) => i.id === roleId);
     if (!role) return;
@@ -157,23 +204,19 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     this.roleRatioForm = this.fb.group({
       roleId: [role.id],
       roleName: [role.name],
-      configRatio: this.fb.array([]),
+      ratioByEmployees: this.fb.array([]),
     });
 
     const roleUsers = this.getUserByRole(roleId);
 
-    const configRatioArray = this.roleRatioForm.get('configRatio') as FormArray;
-
-    while (configRatioArray.length) {
-      configRatioArray.removeAt(0);
-    }
+    // this.roleRatiosFormArray.clear();
 
     roleUsers.forEach((user) => {
-      const existingConfig = existingRoleRatio?.configRatio?.find(
+      const existingConfig = existingRoleRatio?.ratioByEmployees?.find(
         (c: any) => c.userId === user.id,
       );
 
-      configRatioArray.push(
+      this.ratioByEmployeesArray.push(
         this.fb.group({
           userId: [user.id],
           userName: [user.name],
@@ -185,6 +228,9 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     });
 
     this.itemModal.show();
+    setTimeout(() => {
+      this.loading.modal = false;
+    }, 500);
 
     this.itemModal.onHide.subscribe(() => {
       this.isOpenBackdrop = false;
@@ -205,7 +251,9 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     const newRoleRatio: RoleRatio = {
       roleId: formValue.roleId,
       roleName: formValue.roleName,
-      configRatio: formValue.configRatio.filter((c: any) => c.ratio > 0), // Only include users with ratio > 0
+      ratioByEmployees: formValue.ratioByEmployees.filter(
+        (c: any) => c.ratio > 0,
+      ),
     };
 
     const roleRatiosArray = this.roleRatiosFormArray;

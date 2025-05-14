@@ -1,6 +1,6 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {Subject} from 'rxjs';
+import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 
 import {sortIcon} from 'src/app/utils/common';
@@ -13,15 +13,13 @@ import {
 import {
   ICommonDataSource,
   IQueryBase,
-  SplitConfig,
+  TaskDistributionConfig,
 } from '@app/types/viewmodels';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {CommonService} from '@app/services/common/common.service';
 import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
 import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
-import {splitConfigs} from '@app/utils/mock-data';
 import {ModalUpdateDivideComponent} from './modal-update-divide/modal-update-divide.component';
-import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-divide',
@@ -51,7 +49,7 @@ export class DivideComponent implements OnInit, OnDestroy {
       icon: './assets/images/icon/plus.svg',
     },
   ];
-  public dataSource: ICommonDataSource<SplitConfig, IQueryBase> = {
+  public dataSource: ICommonDataSource<TaskDistributionConfig, IQueryBase> = {
     rows: [],
     loading: false,
     paramsQuery: {
@@ -83,52 +81,65 @@ export class DivideComponent implements OnInit, OnDestroy {
   }
 
   getDataSource(isReset?: boolean) {
-    // let params = {...this.dataSource.paramsQuery};
-    // if (isReset) {
-    //   params.limit = 20;
-    //   params.page = 1;
-    // }
-    // this.dataSource.loading = true;
-    // this.autoTaskService.splitConfig
-    //   .get(params)
-    //   .pipe(
-    //     takeUntil(this.destroy$),
-    //     finalize(() => (this.dataSource.loading = false)),
-    //   )
-    //   .subscribe({
-    //     next: (res) => {
-    //       if (res.status === 200) {
-    //         this.dataSource.rows = res.data;
-    //         this.dataSource.total = res.total;
-    //       }
-    //     },
-    //   });
-    // return splitConfigs
-    this.dataSource.rows = splitConfigs;
-    this.dataSource.total = splitConfigs.length;
+    let params = {...this.dataSource.paramsQuery};
+    if (isReset) {
+      params.limit = 20;
+      params.page = 1;
+    }
+    this.dataSource.loading = true;
+    this.autoTaskService.taskDistributionConfig
+      .get(params)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.dataSource.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.dataSource.rows = res.data;
+            this.dataSource.total = res.total;
+          }
+        },
+      });
   }
 
-  handleUpdate(value?: SplitConfig) {
+  handleUpdate(value?: TaskDistributionConfig) {
     const modalUpdate = this.modalService.show(ModalUpdateDivideComponent, {
       initialState: {
         sourceData: value,
       },
       class: 'modal-lg',
     });
-    modalUpdate?.content?.updateSuccess
-      .pipe()
-      .subscribe(() => this.getDataSource());
+    modalUpdate.content?.updateItem.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (item) => {
+        const has = this.dataSource.rows.find((r) => r.id === item.id);
+        if (has) Object.assign(has, item);
+      },
+    });
+
+    modalUpdate.content?.addItem.pipe(take(1)).subscribe({
+      next: (item) => {
+        if (item) {
+          this.dataSource.rows.unshift(item);
+          this.dataSource.total! += 1;
+          if (this.dataSource.rows.length > this.dataSource.paramsQuery.limit!)
+            this.dataSource.rows.pop();
+        }
+      },
+    });
   }
 
-  onDelete(value: SplitConfig) {
-    this.autoTaskService.splitConfig
+  onDelete(value: TaskDistributionConfig) {
+    this.autoTaskService.taskDistributionConfig
       .delete(value.id)
       .pipe()
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
             this.commonService.handleResSuccess('delete');
-            this.getDataSource();
+            this.dataSource.rows = this.dataSource.rows.filter(
+              (item) => item.id !== value.id,
+            );
           } else {
             this.commonService.handleResErr(res);
           }
@@ -137,7 +148,7 @@ export class DivideComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleDeleteAction(value: SplitConfig) {
+  handleDeleteAction(value: TaskDistributionConfig) {
     const title = 'Xóa cấu hình chia số';
     const description = `Bạn sắp cấu hình chia số <b>${
       value.name || ''

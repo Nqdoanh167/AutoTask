@@ -24,17 +24,13 @@
           class="form-control"
           formControlName="name"
           placeholder="Nhập tên cấu hình"
+          required
+          [ngClass]="{
+            'is-invalid': isFieldInvalid('name')
+          }"
         />
-        <div
-          *ngIf="
-            formGroup.get('name')?.invalid &&
-            (formGroup.get('name')?.dirty || formGroup.get('name')?.touched)
-          "
-          class="text-danger mt-1"
-        >
-          <div *ngIf="formGroup.get('name')?.errors?.['required']">
-            Vui lòng nhập tên cấu hình
-          </div>
+        <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('name')">
+          Vui lòng nhập tên cấu hình
         </div>
       </div>
 
@@ -43,10 +39,10 @@
           <input
             class="form-check-input"
             type="checkbox"
-            formControlName="applyToOnline"
-            id="applyToOnline"
+            formControlName="applyForOnlineEmployee"
+            id="applyForOnlineEmployee"
           />
-          <label class="form-check-label" for="applyToOnline">
+          <label class="form-check-label" for="applyForOnlineEmployee">
             Áp dụng cho nhân viên đang online
           </label>
         </div>
@@ -57,10 +53,10 @@
           <input
             class="form-check-input"
             type="checkbox"
-            formControlName="applyToWorkHours"
-            id="applyToWorkHours"
+            formControlName="isWorkHourBased"
+            id="isWorkHourBased"
           />
-          <label class="form-check-label" for="applyToWorkHours">
+          <label class="form-check-label" for="isWorkHourBased">
             Áp dụng theo giờ làm việc
           </label>
         </div>
@@ -79,20 +75,9 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  class="text-center"
-                  *ngIf="!roles.rows.length && roles.loading"
-                >
+                <tr class="text-center" *ngIf="!roles.rows.length">
                   <td colspan="4">
                     <div>Không có dữ liệu</div>
-                  </td>
-                </tr>
-                <tr class="text-center" *ngIf="loading">
-                  <td colspan="4">
-                    <div class="spinner-grow text-primary" role="status">
-                      <span class="visually-hidden">Loading</span>
-                    </div>
-                    <div>Loading</div>
                   </td>
                 </tr>
                 <tr *ngFor="let role of roles.rows; let i = index">
@@ -121,35 +106,55 @@
 
       <div class="col-12 mb-3">
         <label class="form-label fw-bold">Cấu hình chia lại</label>
-        <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex justify-content-between">
           <div>Chọn vai trò áp dụng chia lại</div>
-          <ng-select
-            id="role"
-            [items]="roles.rows"
-            bindLabel="name"
-            bindValue="id"
-            placeholder="Chọn vai trò"
-            [multiple]="true"
-            [closeOnSelect]="false"
-            [clearable]="true"
-            formControlName="reassignRoles"
-            class="dropdown-auto-width"
-            style="width: 500px"
-          >
-            <ng-template ng-label-tmp let-item="item" let-clear="clear">
-              <span class="ng-value-icon" (click)="clear(item)">×</span>
-              <div class="ng-value-label">
-                <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
-                <span class="ms-2">{{ item.name }}</span>
-              </div>
-            </ng-template>
-            <ng-template ng-option-tmp let-item="item">
-              <div class="ng-value-label">
-                <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
-                <span class="ms-2">{{ item.name }}</span>
-              </div>
-            </ng-template>
-          </ng-select>
+          <div class="d-flex gap-1 flex-column">
+            <ng-select
+              id="role"
+              [items]="roles.rows"
+              bindLabel="name"
+              bindValue="id"
+              placeholder="Chọn vai trò"
+              [multiple]="true"
+              [closeOnSelect]="false"
+              [clearable]="true"
+              formControlName="reassignRoles"
+              class="dropdown-auto-width"
+              style="width: 500px; height: auto"
+              [ngClass]="{
+                'is-invalid': isFieldInvalid('reassignRoles')
+              }"
+              required
+            >
+              <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                <span class="ng-value-icon" (click)="clear(item)">×</span>
+                <div class="ng-value-label">
+                  <i
+                    class="fa-solid"
+                    *ngIf="item.icon"
+                    [ngClass]="item.icon"
+                  ></i>
+                  <span class="ms-2">{{ item.name }}</span>
+                </div>
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item">
+                <div class="ng-value-label">
+                  <i
+                    class="fa-solid"
+                    *ngIf="item.icon"
+                    [ngClass]="item.icon"
+                  ></i>
+                  <span class="ms-2">{{ item.name }}</span>
+                </div>
+              </ng-template>
+            </ng-select>
+            <div
+              class="invalid-feedback d-block"
+              *ngIf="isFieldInvalid('reassignRoles')"
+            >
+              Chọn ít nhất 1 vai trò
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -162,9 +167,9 @@
       >
         Hủy
       </button>
-      <button type="submit" class="btn btn-primary" [disabled]="loading">
+      <button type="submit" class="btn btn-primary" [disabled]="loading.submit">
         <span
-          *ngIf="loading"
+          *ngIf="loading.submit"
           class="spinner-border spinner-border-sm me-1"
           role="status"
           aria-hidden="true"
@@ -205,12 +210,12 @@
               <label class="form-label fw-bold">Danh sách nhân viên</label>
               <div
                 class="alert alert-info"
-                *ngIf="configRatioFormArray.length === 0"
+                *ngIf="ratioByEmployeesArray.length === 0"
               >
                 Không có nhân viên nào thuộc vai trò này
               </div>
 
-              <div *ngIf="configRatioFormArray.length > 0">
+              <div *ngIf="ratioByEmployeesArray.length > 0">
                 <div class="user-list-header d-flex">
                   <span class="form-control-label m-0 flex-grow-1">
                     Nhân viên
@@ -219,52 +224,63 @@
                     Tỉ lệ chia
                   </span>
                 </div>
-
-                <div class="user-list-container" formArrayName="configRatio">
+                @defer (when !loading.modal) {
                   <div
-                    class="d-flex align-items-center"
-                    *ngFor="
-                      let userControl of configRatioFormArray.controls;
-                      let i = index
-                    "
-                    [formGroupName]="i"
+                    class="user-list-container"
+                    formArrayName="ratioByEmployees"
                   >
-                    <div class="d-flex align-items-center flex-grow-1">
-                      <div class="avatar me-2">
-                        <img
-                          [src]="
-                            userControl.get('userPicture')?.value ||
-                            './assets/images/avatar.png'
+                    <div
+                      class="d-flex align-items-center"
+                      *ngFor="
+                        let userControl of ratioByEmployeesArray.controls;
+                        let i = index
+                      "
+                      [formGroupName]="i"
+                    >
+                      <div class="d-flex align-items-center flex-grow-1">
+                        <div class="avatar me-2">
+                          <img
+                            [src]="
+                              userControl.get('userPicture')?.value ||
+                              './assets/images/avatar.png'
+                            "
+                            alt="Avatar"
+                            class="img-fluid rounded-circle"
+                            style="width: 32px; height: 32px"
+                          />
+                        </div>
+                        <div>
+                          <div class="fw-bold">
+                            {{ userControl.get('userName')?.value }}
+                          </div>
+                          <div class="text-muted small">
+                            {{ userControl.get('userEmail')?.value }}
+                          </div>
+                        </div>
+                      </div>
+                      <div style="width: 150px">
+                        <app-input-mask
+                          [isQuantity]="true"
+                          [min]="0"
+                          [max]="1000"
+                          [value]="userControl.get('ratio')?.value"
+                          (changeValue)="
+                            userControl.get('ratio')?.setValue($event)
                           "
-                          alt="Avatar"
-                          class="img-fluid rounded-circle"
-                          style="width: 32px; height: 32px"
-                        />
+                        ></app-input-mask>
                       </div>
-                      <div>
-                        <div class="fw-bold">
-                          {{ userControl.get('userName')?.value }}
-                        </div>
-                        <div class="text-muted small">
-                          {{ userControl.get('userEmail')?.value }}
-                        </div>
-                      </div>
-                    </div>
-                    <div style="width: 150px">
-                      <input
-                        type="number"
-                        class="form-control"
-                        formControlName="ratio"
-                        min="0"
-                        placeholder="Nhập tỉ lệ"
-                      />
                     </div>
                   </div>
-                </div>
+                } @placeholder (minimum 100ms) {
+                  <div class="center-item" [style.height]="'300px'">
+                    <div class="spinner-custom"></div>
+                  </div>
+                }
               </div>
             </div>
           </div>
         </form>
+
         <div class="d-flex justify-content-end mt-3 gap-1">
           <button
             type="button"

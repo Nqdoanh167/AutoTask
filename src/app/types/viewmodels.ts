@@ -1657,11 +1657,11 @@ export enum ESocialPlatform {
   OTHER = 'OTHER',
 }
 
-export interface SplitConfig {
+export interface TaskDistributionConfig {
   id: string; // Mã cấu hình (tùy chọn, dùng khi chỉnh sửa)
   name: string; // Tên cấu hình chia số
-  applyToOnline: boolean; // Có áp dụng cho nhân viên đang online không
-  applyToWorkHours: boolean; // Có áp dụng theo giờ làm việc không
+  applyForOnlineEmployee: boolean; // Có áp dụng cho nhân viên đang online không
+  isWorkHourBased: boolean; // Có áp dụng theo giờ làm việc không
   roleRatios: RoleRatio[]; // Danh sách vai trò và tỉ lệ chia tương ứng
   reassignRoles: string[]; // Cấu hình chia lại cho vai trò khác
   createdAt: Date; // Ngày tạo cấu hình
@@ -1678,7 +1678,7 @@ export interface RoleRatio {
   roleId: string;
   roleName: string; // Tên vai trò (VD: Sale, Marketing)
   //cấu hình tỉ lệ chia cho từng vai trò
-  configRatio: {
+  ratioByEmployees: {
     userId: string;
     ratio: number;
   }[];

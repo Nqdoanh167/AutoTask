@@ -17,7 +17,6 @@
               </th>
               <th class="text-center">Áp dụng chia cho nhân viên online</th>
               <th class="text-center">Áp dụng chia theo giờ làm việc</th>
-              <th class="text-center">Số vai trò</th>
               <th (click)="sortBy('createdAt')" class="th-allow-sort">
                 <span
                   class="icon-sort"
@@ -53,7 +52,9 @@
                 <div>
                   <img
                     src="assets/images/icon/{{
-                      item.applyToOnline ? 'check.svg' : 'not-check.svg'
+                      item.applyForOnlineEmployee
+                        ? 'check.svg'
+                        : 'not-check.svg'
                     }}"
                     width="10"
                     height="10"
@@ -65,7 +66,7 @@
                 <div>
                   <img
                     src="assets/images/icon/{{
-                      item.applyToWorkHours ? 'check.svg' : 'not-check.svg'
+                      item.isWorkHourBased ? 'check.svg' : 'not-check.svg'
                     }}"
                     width="10"
                     height="10"
@@ -73,7 +74,6 @@
                   />
                 </div>
               </td>
-              <td class="text-center">{{ item.roleRatios?.length || 0 }}</td>
               <td>{{ item.createdAt | timeView }}</td>
               @if (hasEditPer) {
                 <td class="columns-action">
