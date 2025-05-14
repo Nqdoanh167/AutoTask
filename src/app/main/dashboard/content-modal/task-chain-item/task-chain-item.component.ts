@@ -628,6 +628,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     window.open(url, '_blank');
   }
 
+  handleViewFeedback(id: string) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/feedback/list?id=${id}`;
+    window.open(url, '_blank');
+  }
+
   getSubActionFeedback(feedbacks: IFeedback[], subActionId?: string) {
     if (!feedbacks || !subActionId) return null;
     return feedbacks.find(

@@ -397,7 +397,7 @@
                                 <span>
                                   {{ feedback.comment }}
                                 </span>
-                                (
+
                                 <div class="d-inline-flex align-items-center">
                                   <span>
                                     {{ feedback.rate }}
@@ -410,7 +410,13 @@
                                     [initialStars]="1"
                                   ></ngx-stars>
                                 </div>
-                                )
+
+                                <div
+                                  class="fst-italic text-primary fs-7 cursor-pointer"
+                                  (click)="handleViewFeedback(feedback.id)"
+                                >
+                                  Xem đánh giá
+                                </div>
                               </div>
 
                               <ng-template #noFeedback>
