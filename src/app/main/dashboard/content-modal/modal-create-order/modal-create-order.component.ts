@@ -12,7 +12,6 @@ import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
-import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-modal-create-order',
@@ -24,19 +23,16 @@ export class ModalCreateOrderComponent implements OnInit, OnDestroy {
   @Input() taskId!: string;
   @Input() subActionId!: string;
 
-  protected url?: string;
+  protected url!: string;
   private messageHandler: any;
   private bizAlias?: string;
   private destroy$ = new Subject<void>();
-
-  protected safeUrl?: SafeResourceUrl;
 
   constructor(
     public bsModalRef: BsModalRef,
     private readonly autoTaskService: AutoTaskService,
     private readonly toastr: ToastrService,
     private authService: AuthService,
-    private sanitizer: DomSanitizer,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -49,7 +45,6 @@ export class ModalCreateOrderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.url = `${environment.urlDomain}/${this.bizAlias}/sale-center/order/create?taskId=${this.taskId}`;
-    this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
 
     this.messageHandler = (event: MessageEvent) => {
       if (event.origin !== environment.urlDomain) return;

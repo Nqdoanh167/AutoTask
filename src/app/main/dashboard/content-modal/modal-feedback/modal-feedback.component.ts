@@ -10,7 +10,6 @@ import {
   AbstractControl,
   FormArray,
   FormBuilder,
-  FormGroup,
   Validators,
 } from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
@@ -26,6 +25,7 @@ import {FeedbackService} from '@app/services/api/feeback.service';
 import {IFeedback, Template} from '@app/types/feedback';
 import {ToastrService} from 'ngx-toastr';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {normalizeToNumberArray} from '@app/utils/common';
 
 @Component({
   selector: 'app-modal-feedback',
@@ -103,13 +103,13 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
           }
           this.criteriaArray.push(
             this.fb.group({
+              id: [criteria.id],
               name: [criteria.name],
               density: [criteria.density],
               rating: [criteria.rating],
               type: [criteria.type],
               multi_options: [criteria.multi_options || []],
-              multi_star: [criteria.multi_star],
-              star: [criteria.star],
+              answer: [criteria.answer],
             }),
           );
         });
@@ -156,7 +156,13 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
       const body = {
         subActionId: this.subActionId,
         ...this.form.value,
-        criterias: this.criteriaArray.value.filter((item: any) => item.rating),
+        criterias: this.criteriaArray.value
+          .filter((item: any) => item.rating)
+          .map((item: any) => ({
+            id: item.id,
+            rating: item.rating,
+            answer: normalizeToNumberArray(item.answer),
+          })),
         rate: this.criteriaArray.length
           ? this.getAverageRating()
           : this.form.value.rate,
@@ -290,7 +296,10 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
       ?.criterias[index]?.configs.filter((item) => !!item.text);
   }
 
-  handleChangeTemplate(template: Template) {
-    this.criteriaSubject.next(template.criterias);
+  handleChangeTemplate(templateId: string) {
+    const template = this.templates.find(
+      (template) => template.id === templateId,
+    );
+    this.criteriaSubject.next(template?.criterias);
   }
 }

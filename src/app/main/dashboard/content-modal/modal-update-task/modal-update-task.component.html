@@ -15,7 +15,11 @@
         </div>
       </ng-container>
       <ng-container modalTitleRight>
-        <app-order-create-source></app-order-create-source>
+        <app-order-create-source
+          (changePlatformSource)="handleChangePlatFormSource($event)"
+          [values]="f['platformSources'].value || []"
+          [valueIds]="f['platformSourceIds'].value || []"
+        ></app-order-create-source>
         <div class="d-flex align-items-center justify-content-between">
           @if (f['code'].value) {
             <div
@@ -97,7 +101,7 @@
                       (onNodeUnselect)="handleChangeUnit($event)"
                     ></p-treeSelect>
                   </div>
-                  <ng-select
+                  <!-- <ng-select
                     [style.width]="'200px'"
                     [clearable]="false"
                     [searchable]="true"
@@ -127,7 +131,7 @@
                         {{ item.name }}
                       </div>
                     </ng-option>
-                  </ng-select>
+                  </ng-select> -->
                   <div class="input-group" [style.width]="'250px !important'">
                     <input
                       formControlName="chatLink"
