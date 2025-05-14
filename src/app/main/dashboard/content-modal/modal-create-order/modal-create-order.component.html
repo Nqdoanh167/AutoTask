@@ -1,7 +1,9 @@
-<iframe
-  id="iframe"
-  [src]="safeUrl"
-  style="height: 80vh; width: 100%"
-  frameborder="0"
-  allowfullscreen
-></iframe>
+<div style="max-height: 80vh">
+  <iframe
+    id="iframe"
+    [src]="url | safe"
+    style="height: 80vh; width: 100%"
+    frameborder="0"
+    allowfullscreen
+  ></iframe>
+</div>

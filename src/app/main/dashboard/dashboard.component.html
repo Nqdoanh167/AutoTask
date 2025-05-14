@@ -176,13 +176,15 @@
                         <td>
                           <div
                             class="fw-500 cursor-pointer"
-                            (click)="handleUpdate(item)"
+                            [routerLink]="['/']"
+                            [queryParams]="{id: item.id}"
                           >
                             {{ item.name || '-' }}
                           </div>
                           <div
                             class="fw-500 cursor-pointer text-link mt-1"
-                            (click)="handleUpdate(item)"
+                            [routerLink]="['/']"
+                            [queryParams]="{id: item.id}"
                           >
                             {{ item.code || '-' }}
                           </div>

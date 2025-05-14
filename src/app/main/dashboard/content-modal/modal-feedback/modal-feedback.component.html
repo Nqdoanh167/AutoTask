@@ -95,11 +95,8 @@
                         [clearable]="false"
                         [multiple]="getIsMultiSelect(i)"
                         (change)="onRatingChange($event, i)"
-                        [formControlName]="
-                          getIsMultiSelect(i) ? 'multi_star' : 'star'
-                        "
+                        [formControlName]="'answer'"
                         [virtualScroll]="true"
-                        style="min-width: 300px; height: 35px"
                       >
                         <ng-option
                           *ngFor="let option of getConfigRating(i)"
@@ -184,25 +181,18 @@
       </div>
     }
 
-    <div class="modal-footer">
-      <div class="d-flex gap-2">
-        <button
-          class="btn btn-light"
-          style="min-width: 120px"
-          (click)="hideModal()"
-        >
-          Đóng
-        </button>
-        <button
-          [disabled]="loading.submit"
-          class="btn btn-primary text-white ms-2"
-          style="min-width: 120px"
-          (click)="onSubmit()"
-        >
-          <i class="fas fa-spinner fa-spin" *ngIf="loading.submit"></i>
-          Gửi đánh giá
-        </button>
-      </div>
+    <div class="modal-footer one-side-buttons">
+      <button class="btn button-default-modal" (click)="hideModal()">
+        Đóng
+      </button>
+      <button
+        [disabled]="loading.submit"
+        class="btn button-submit-modal"
+        (click)="onSubmit()"
+      >
+        <i class="fas fa-spinner fa-spin" *ngIf="loading.submit"></i>
+        Gửi đánh giá
+      </button>
     </div>
   </div>
 </form>
