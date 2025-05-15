@@ -37,7 +37,9 @@
                 Loại kết nối
                 <i
                   class="fa-regular fa-circle-question ms-1"
-                  tooltip="Nếu bạn chọn loại liên kết là API, hệ thống có thể thông qua API để tự động tạo Tác vụ theo cấu hình bên dưới"
+                  [tooltip]="
+                    'Nếu bạn chọn loại liên kết là API, hệ thống có thể thông qua API để tự động tạo Tác vụ theo cấu hình bên dưới'
+                  "
                   placement="right"
                 ></i>
               </label>
@@ -111,7 +113,7 @@
                 ID Nền tảng
                 <i
                   class="fa-regular fa-circle-question ms-1"
-                  tooltip="ID Fanpage, ID Ladipage, ID Shopee,..."
+                  [tooltip]="'ID Fanpage, ID Ladipage, ID Shopee,...'"
                   placement="right"
                 ></i>
               </label>
@@ -250,7 +252,7 @@ Nếu Nguồn trả dữ liệu về và xung đột với thông tin bên dư�
                 placement="right"
               ></i>
             </div>
-            <div class="row">
+            <div class="row mb-3">
               <div class="col-4">
                 <div>
                   <label class="form-control-label">Nhân viên phụ trách</label>
@@ -370,6 +372,53 @@ Nếu Nguồn trả dữ liệu về và xung đột với thông tin bên dư�
                       {{ option.name }}
                     </ng-option>
                   </ng-select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-4"></div>
+
+              <div class="col-4">
+                <div>
+                  <label class="form-control-label">
+                    Cấu hình chia số tự động
+                  </label>
+                  <div [style.width]="'100%'" id="distributionConfigId">
+                    <ng-select
+                      id="argument-in"
+                      [clearable]="false"
+                      formControlName="distributionConfigId"
+                      appendTo=".modal-update-source"
+                      placeholder="Chọn cấu hình chia số"
+                      (click)="
+                        !taskDistributionConfigs.rows.length &&
+                          getTaskDistributionConfig()
+                      "
+                      [loading]="taskDistributionConfigs.loading"
+                      [loadingText]="'Đang tải...'"
+                    >
+                      <ng-option
+                        *ngFor="let option of taskDistributionConfigs.rows"
+                        [value]="option.id"
+                      >
+                        {{ option.name }}
+                      </ng-option>
+                    </ng-select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-4">
+                <div>
+                  <label class="form-control-label">Mức ưu tiên</label>
+                  <div [style.width]="'100%'" id="priority">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Mức ưu tiên"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
