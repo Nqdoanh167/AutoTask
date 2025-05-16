@@ -23,6 +23,7 @@ export interface Template {
   picture: string;
   isDefault: boolean;
   criterias: {
+    id?: string;
     name: string;
     density: number;
     type: string;
