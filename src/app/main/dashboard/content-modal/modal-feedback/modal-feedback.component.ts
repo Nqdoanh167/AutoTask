@@ -26,6 +26,7 @@ import {IFeedback, Template} from '@app/types/feedback';
 import {ToastrService} from 'ngx-toastr';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {normalizeToNumberArray} from '@app/utils/common';
+import {ITaskChainResult} from '@app/types/flow';
 
 @Component({
   selector: 'app-modal-feedback',
@@ -33,7 +34,7 @@ import {normalizeToNumberArray} from '@app/utils/common';
   styleUrls: ['./modal-feedback.component.scss'],
 })
 export class ModalFeedbackComponent implements OnInit, OnDestroy {
-  @Input() taskChainResultId!: string;
+  @Input() taskChainResult!: ITaskChainResult;
   @Input() subActionId!: string;
   @Output() successEvent = new EventEmitter();
 
@@ -134,9 +135,13 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res.status === 200) {
             this.templates = res?.data.templates || [];
-            const template = this.templates.find(
-              (template) => template.isDefault,
-            );
+            const template = this.templates.find((template) => {
+              if (this.taskChainResult?.action.templateId) {
+                return template.id === this.taskChainResult?.action?.templateId;
+              }
+
+              return template.isDefault;
+            });
             if (template) {
               this.form.patchValue({
                 templateId: template.id,
@@ -169,7 +174,7 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
       } as any as IFeedback;
 
       this.autoTaskService.taskChainResult
-        .sendFeedback(this.taskChainResultId, body)
+        .sendFeedback(this.taskChainResult?.id as any, body)
         .pipe(
           finalize(() => {
             this.loading.submit = false;

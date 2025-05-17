@@ -89,6 +89,7 @@ export interface IAction {
   createdAt: Date;
   updatedAt: Date;
   subActions?: IAction[];
+  templateId?: string;
 }
 
 export interface IBodyAction {
