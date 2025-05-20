@@ -128,13 +128,14 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     this.customerService.customer
       .getById(id)
       .pipe(
-          finalize(() => (this.loading.customer = false)),
+        finalize(() => (this.loading.customer = false)),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
-            this.selectedCustomer = res.data;
+            // this.selectedCustomer = res.data;
+            this.handleChooseCustomer(res.data);
             if (res.data?.provinceCode) {
               this.getDistrict(res.data?.provinceCode);
             }
@@ -296,23 +297,46 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     if (!customer) return;
     this.trigger.name = false;
 
-    this.formGroup.patchValue({
-      id: customer.id,
-      name: customer.name,
-      picture: customer.picture,
-      phone: customer.phone,
-      email: customer.email,
-      province: customer.province,
-      provinceCode: customer.provinceCode,
-      district: customer.district,
-      districtCode: customer.districtCode,
-      ward: customer.ward,
-      wardCode: customer.wardCode,
-      tags: customer.tags,
-      address: customer.address,
-      gender: customer.gender,
-      street: customer.street,
-    });
+    const patchData: any = {};
+    const formValues = this.formGroup.value;
+
+    const fields: (keyof Customer)[] = [
+      'id',
+      'name',
+      'picture',
+      'phone',
+      'email',
+      'province',
+      'provinceCode',
+      'district',
+      'districtCode',
+      'ward',
+      'wardCode',
+      'tags',
+      'address',
+      'gender',
+      'street',
+    ];
+
+    for (const key of fields) {
+      patchData[key] = formValues[key];
+      const customerValue = customer[key];
+
+      // Nếu form chưa có giá trị (null, undefined hoặc rỗng) thì patch từ customer
+      if (!patchData[key]) {
+        patchData[key] = customerValue;
+      }
+
+      if (key === 'provinceCode') {
+        this.getDistrict(patchData[key]);
+      }
+
+      if (key === 'districtCode' && patchData[key]) {
+        this.getWard(patchData['provinceCode'], patchData[key]);
+      }
+    }
+
+    this.formGroup.patchValue(patchData);
     this.selectedCustomer = customer;
   }
 
