@@ -141,21 +141,45 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       label: 'Sản phẩm quan tâm',
       value: ESourceArgKey.PRODUCT_NAME,
     },
-    {
-      label: 'Nhân viên phụ trách',
-      value: ESourceArgKey.TEAMS,
-    },
-    {
-      label: 'Chuỗi hành động',
-      value: ESourceArgKey.ADD_CHAIN_ACT_IDS,
-    },
+    // {
+    //   label: 'Nhân viên phụ trách',
+    //   value: ESourceArgKey.TEAMS,
+    // },
+    // {
+    //   label: 'Chuỗi hành động',
+    //   value: ESourceArgKey.ADD_CHAIN_ACT_IDS,
+    // },
     {
       label: 'Tag',
       value: ESourceArgKey.TAGS,
     },
+    // {
+    //   label: 'Thông tin đơn vị (Chi nhánh/Phòng ban/Nhóm)',
+    //   value: ESourceArgKey.BRANCH,
+    // },
     {
-      label: 'Thông tin đơn vị (Chi nhánh/Phòng ban/Nhóm)',
-      value: ESourceArgKey.BRANCH,
+      label: 'Facebook AD ID',
+      value: ESourceArgKey.FB_AD_ID,
+    },
+    {
+      label: 'UTM Campaign',
+      value: ESourceArgKey.UTM_CAMPAIGN,
+    },
+    {
+      label: 'UTM Source',
+      value: ESourceArgKey.UTM_SOURCE,
+    },
+    {
+      label: 'UTM Medium',
+      value: ESourceArgKey.UTM_MEDIUM,
+    },
+    {
+      label: 'UTM Term',
+      value: ESourceArgKey.UTM_TERM,
+    },
+    {
+      label: 'UTM Content',
+      value: ESourceArgKey.UTM_CONTENT,
     },
   ];
 
