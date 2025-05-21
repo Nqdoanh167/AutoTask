@@ -116,7 +116,6 @@
             [placeholder]="'Chọn template'"
             [searchable]="true"
             [items]="listTemplateFeedback"
-            [loading]="loading.getConfigFeedback"
             class="dropdown-auto-width"
             appearance="outline"
             formControlName="templateId"
@@ -124,7 +123,7 @@
             bindLabel="name"
             bindValue="id"
             appendTo=".modal"
-            (click)="!listTemplateFeedback.length && getConfigFeedback()"
+            [clearable]="false"
           ></ng-select>
           <div
             *ngIf="submitted && !f['templateId'].value"
