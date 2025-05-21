@@ -375,6 +375,13 @@ export interface ITask {
     picture: string;
     link: string;
   }[];
+
+  fbAdId?: string;
+  utmCampaign?: string;
+  utmContent?: string;
+  utmMedium?: string;
+  utmSource?: string;
+  utmTerm?: string;
 }
 
 export interface IBranchTaskDto {

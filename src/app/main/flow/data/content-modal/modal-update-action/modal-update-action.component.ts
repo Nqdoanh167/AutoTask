@@ -76,7 +76,6 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   public loading = {
     submit: false,
     data: false,
-    getConfigFeedback: false,
   };
 
   public listTemplateFeedback: Template[] = [];
@@ -124,6 +123,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       }
     }
     this.getBlock();
+    this.getTemplates();
   }
 
   getBlock() {
@@ -178,20 +178,17 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       });
   }
 
-  getConfigFeedback() {
-    if (this.loading.getConfigFeedback) return;
-    this.loading.getConfigFeedback = true;
-    this.feedbackService.config
-      .get()
-      .pipe(
-        finalize(() => (this.loading.getConfigFeedback = false)),
-        takeUntil(this.destroy$),
-      )
+  getTemplates() {
+    this.feedbackService.currentConfig$
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          if (res.status === 200) {
-            this.listTemplateFeedback = res?.data.templates || [];
+          if (res) {
+            this.listTemplateFeedback = res.templates;
           }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
         },
       });
   }

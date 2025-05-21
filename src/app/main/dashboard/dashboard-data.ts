@@ -1,4 +1,10 @@
-import {ICommonDataLazy, IQueryBase, ITag} from '@app/types/viewmodels';
+import {
+  BizRole,
+  EntityPagination,
+  ICommonDataLazy,
+  IQueryBase,
+  ITag,
+} from '@app/types/viewmodels';
 import {IAction, IActResult, IChainAct, ITask} from '@app/types/flow';
 import {ISource} from '@app/types/setting';
 import {finalize, shareReplay, Subject, takeUntil} from 'rxjs';
@@ -12,6 +18,7 @@ import {
 } from '@main/dashboard/dashboard-variables';
 import {inject} from '@angular/core';
 import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
+import {AuthService} from '@app/services/api/auth.service';
 
 export class DashboardData extends CheckboxSortTableComponent<
   ITask,
@@ -78,6 +85,16 @@ export class DashboardData extends CheckboxSortTableComponent<
 
   constructor() {
     super();
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        const configFilterResult = this.configFilters.find(
+          (filter) => filter.name === 'teamRoles',
+        );
+        if (configFilterResult) {
+          configFilterResult.options = biz.roles || [];
+        }
+      });
   }
 
   override getDataSource(isReset?: boolean) {
