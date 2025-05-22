@@ -47,7 +47,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       callBlockAutomation: this.fb.group({
         blockId: null,
       }),
-      templateId: [null, [Validators.required]],
+      templateId: [null],
     },
     {validators: [this.allOrNoneRequired]},
   );
