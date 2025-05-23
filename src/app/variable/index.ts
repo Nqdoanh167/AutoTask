@@ -49,6 +49,16 @@ export const listColumns: IDataColumns = {
       tooltip: 'Nhân viên phụ trách',
     },
     {
+      name: 'Facebook Ads ID',
+      value: 'fbAdId',
+      tooltip: 'Facebook Ads ID',
+    },
+    {
+      name: 'Thông tin UTM',
+      value: 'utm',
+      tooltip: 'Thông tin UTM',
+    },
+    {
       name: 'Ngày tạo',
       value: 'createdAt',
       tooltip: 'Ngày tạo',
@@ -81,6 +91,8 @@ export const listColumnsDashboardDefault: IColumns[] =
       'cart',
       'orderIds',
       'leadDeal',
+      'fbAdId',
+      'utm',
       'createdAt',
     ].includes(el.value),
   );

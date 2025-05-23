@@ -23,6 +23,8 @@ import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import uniqBy from 'lodash/uniqBy';
 import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
+import {Template} from '@app/types/feedback';
+import {FeedbackService} from '@app/services/api/feeback.service';
 
 @Component({
   selector: 'app-modal-update-action',
@@ -45,6 +47,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       callBlockAutomation: this.fb.group({
         blockId: null,
       }),
+      templateId: [null],
     },
     {validators: [this.allOrNoneRequired]},
   );
@@ -75,6 +78,8 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     data: false,
   };
 
+  public listTemplateFeedback: Template[] = [];
+
   protected readonly EActionType = EActionType;
 
   constructor(
@@ -86,6 +91,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly automationService: AutomationService,
+    private readonly feedbackService: FeedbackService,
   ) {
     this.actionTypes = configurationService.actionTypes;
   }
@@ -117,6 +123,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       }
     }
     this.getBlock();
+    this.getTemplates();
   }
 
   getBlock() {
@@ -166,6 +173,21 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
         },
         error: (err) => {
           this.reasons.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getTemplates() {
+    this.feedbackService.currentConfig$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res) {
+            this.listTemplateFeedback = res.templates;
+          }
+        },
+        error: (err) => {
           this.commonService.handleErr(err);
         },
       });

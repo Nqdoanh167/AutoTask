@@ -111,6 +111,7 @@
             <div class="col">
               <label for="type" class="form-control-label">
                 ID Nền tảng
+                <span class="required">*</span>
                 <i
                   class="fa-regular fa-circle-question ms-1"
                   [tooltip]="'ID Fanpage, ID Ladipage, ID Shopee,...'"
@@ -247,8 +248,7 @@
               Thông tin mặc định khi Tác vụ được tạo
               <i
                 class="fa-regular fa-circle-question ms-1"
-                tooltip="Khi Tác vụ được tạo qua Nguồn này, thì những thông tin bên dưới sẽ được tự động gán vào Task.
-Nếu Nguồn trả dữ liệu về và xung đột với thông tin bên dưới, thì sẽ ưu tin sử dụng dữ liệu được trả về"
+                [tooltip]="'Khi Tác vụ được tạo qua Nguồn này, thì những thông tin bên dưới sẽ được tự động gán vào Task.Nếu Nguồn trả dữ liệu về và xung đột với thông tin bên dưới, thì sẽ ưu tin sử dụng dữ liệu được trả về'"
                 placement="right"
               ></i>
             </div>

@@ -26,6 +26,12 @@ export enum ESourceArgKey {
   ADD_CHAIN_ACT_IDS = 'addChainActIds',
   PRODUCT_NAME = 'product.name',
   BRANCH = 'branch',
+  FB_AD_ID = 'fbAdId',
+  UTM_CAMPAIGN = 'utmCampaign',
+  UTM_SOURCE = 'utmSource',
+  UTM_MEDIUM = 'utmMedium',
+  UTM_TERM = 'utmTerm',
+  UTM_CONTENT = 'utmContent',
 }
 
 export interface ISourceArgsDto {

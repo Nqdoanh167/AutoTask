@@ -3,7 +3,7 @@ import {inject} from '@angular/core';
 import {BehaviorSubject, finalize, takeUntil} from 'rxjs';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import {cloneDeep, uniqBy} from 'lodash';
+import {cloneDeep, template, uniqBy} from 'lodash';
 import {
   EntityPagination,
   FlatBranch,
@@ -450,6 +450,8 @@ export class DetailTaskData extends BaseComponentsComponent {
               id: subAction.id,
               name: subAction.name,
               type: subAction.type,
+              callBlockAutomation: subAction.callBlockAutomation,
+              templateId: subAction.templateId,
             });
             (<FormArray>taskChainResultForm.controls.subActions).push(
               subActionForm,

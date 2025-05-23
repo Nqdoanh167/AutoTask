@@ -172,7 +172,7 @@
         </div>
       </div>
       <div class="col-3">
-        @if (selectedCustomer && hasPermitCustomer && hasUpdateTaskPer) {
+        <!-- @if (selectedCustomer && hasPermitCustomer && hasUpdateTaskPer) {
           <label class="form-control-label"></label>
           <button
             (click)="handleSyncCustomer()"
@@ -181,7 +181,7 @@
             <i class="fa-solid fa-arrow-right-arrow-left fa-rotate-90 me-2"></i>
             Cập nhật cho bản ghi Khách hàng
           </button>
-        }
+        } -->
       </div>
     </div>
     <div class="row mt-2">
@@ -357,14 +357,27 @@
           }
         </div>
         @if (hasUpdateTaskPer) {
-          <button
-            (click)="handleClearSelectedCustomer()"
-            class="btn button-medium button-sub-primary red-color"
-            type="button"
-          >
-            Bỏ chọn
-            <i class="fa-solid fa-circle-xmark ms-1"></i>
-          </button>
+          <div class="d-flex align-items-center gap-2">
+            <button
+              (click)="handleSyncCustomer()"
+              class="btn button-medium button-sub-primary secondary-color d-flex align-items-center justify-content-center border"
+              [tooltip]="'Cập nhật thông tin của sang module Khách hàng'"
+            >
+              <i
+                class="fa-solid fa-arrow-right-arrow-left fa-rotate-90 me-2"
+              ></i>
+              Cập nhật
+            </button>
+
+            <button
+              (click)="handleClearSelectedCustomer()"
+              class="btn button-medium button-sub-primary red-color"
+              type="button"
+            >
+              Bỏ chọn
+              <i class="fa-solid fa-circle-xmark ms-1"></i>
+            </button>
+          </div>
         }
       </div>
       @if (!loading.customer) {

@@ -90,6 +90,18 @@ export const TASK_CONFIG_FILTERS = [
   },
   {
     type: ETypeFilter.SELECT,
+    name: 'teamRoles',
+    placeholder: 'Vai trò',
+    options: [],
+    bindLabel: 'name',
+    bindValue: 'id',
+    clearable: true,
+    searchable: true,
+    multiple: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SELECT,
     name: 'teamId',
     placeholder: 'Nhân sự phụ trách',
     options: [],
@@ -134,6 +146,12 @@ export const TASK_CONFIG_FILTERS = [
     placeholder: 'Ngày cập nhật cuối',
     subType: 'range',
     clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SEARCH,
+    name: 'fbAdId',
+    placeholder: 'Lọc theo Facebook Ad ID',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
 ];

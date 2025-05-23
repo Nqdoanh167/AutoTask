@@ -2,7 +2,7 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
 import {EntityResult} from 'src/app/types/viewmodels';
-import {Subject, takeUntil, tap} from 'rxjs';
+import {BehaviorSubject, Subject, takeUntil, tap} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {IFeedback, IFeedbackConfig} from '@app/types/feedback';
@@ -12,6 +12,9 @@ import {IFeedback, IFeedbackConfig} from '@app/types/feedback';
 })
 export class FeedbackService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
+
+  private currentConfigSubject = new BehaviorSubject<IFeedbackConfig | null>(null);
+  public currentConfig$ = this.currentConfigSubject.asObservable();
 
   api = {
     config: 'config',
@@ -39,6 +42,10 @@ export class FeedbackService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.config]),
       ),
   };
+
+  setConfig(config: IFeedbackConfig) {
+    this.currentConfigSubject.next(config);
+  }
 
   ngOnDestroy(): void {
     this.destroy.next(true);

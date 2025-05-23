@@ -584,7 +584,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     const modal = this.modalService.show(ModalFeedbackComponent, {
       class: 'modal-lg modal-dialog-centered',
       initialState: {
-        taskChainResultId: taskChainResult.id,
+        taskChainResult,
         subActionId,
       },
     });
