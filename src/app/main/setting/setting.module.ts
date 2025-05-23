@@ -37,6 +37,7 @@ import {DivideComponent} from './divide/divide.component';
 import {ModalUpdateDivideComponent} from './divide/modal-update-divide/modal-update-divide.component';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {InputMaskModule} from '../../share/input/input-mask/input-mask.module';
+import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
 
 @NgModule({
   declarations: [
@@ -81,6 +82,7 @@ import {InputMaskModule} from '../../share/input/input-mask/input-mask.module';
     LetDirective,
     ModalModule.forRoot(),
     InputMaskModule,
+    FilterDataModule,
   ],
 })
 export class SettingModule {}

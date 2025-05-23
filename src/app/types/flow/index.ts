@@ -89,6 +89,7 @@ export interface IAction {
   createdAt: Date;
   updatedAt: Date;
   subActions?: IAction[];
+  templateId?: string;
 }
 
 export interface IBodyAction {
@@ -365,6 +366,15 @@ export interface ITask {
   updatedBy: AccountPublic;
   createdAt: Date;
   updatedAt: Date;
+  platformSourceIds: string[];
+  platformSources: {
+    id: string;
+    name: string;
+    platformId: string;
+    platform: string;
+    picture: string;
+    link: string;
+  }[];
 }
 
 export interface IBranchTaskDto {
@@ -384,6 +394,15 @@ export interface ITaskDto {
   products: IProductDto[];
   counselorId: string;
   addChainActIds?: string[];
+  platformSourceIds?: string[];
+  platformSources?: {
+    id: string;
+    name: string;
+    platformId: string;
+    platform: string;
+    picture: string;
+    link: string;
+  }[];
 }
 export interface CloneTaskDto {
   options: string[];

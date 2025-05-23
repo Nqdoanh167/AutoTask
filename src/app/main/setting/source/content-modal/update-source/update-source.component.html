@@ -32,7 +32,7 @@
                 </div>
               </div>
             </div>
-            <div class="col">
+            <!-- <div class="col">
               <label for="type" class="form-control-label">
                 Loại kết nối
                 <i
@@ -58,7 +58,7 @@
                   {{ item.label }}
                 </ng-template>
               </ng-select>
-            </div>
+            </div> -->
             <div class="col">
               <label for="isActive" class="form-control-label">
                 Trạng thái kích hoạt
@@ -155,181 +155,299 @@
               </div>
             </div>
           </div>
-          <ng-container *ngIf="f['type'].value === EDataSourceType.API">
-            <div class="mt-2">
-              <label for="arguments" class="form-control-label">Tham số</label>
-              <div id="arguments" formArrayName="arguments">
-                <div
-                  class="text-center p-2"
-                  *ngIf="!formArguments().controls.length"
-                >
-                  Không cấu hình tham số
-                </div>
-                <ng-container
-                  *ngFor="
-                    let argument of formArguments().controls;
-                    let argumentIndex = index;
-                    let last = last;
-                    let first = first
-                  "
-                >
+
+          <div class="mt-4">
+            <div class="subhead mb-3 d-flex align-items-end gap-1">
+              Nguồn dữ liệu API
+
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="type"
+                style="width: 18px; height: 18px"
+                (change)="toggleType($event)"
+                [checked]="f['type'].value === EDataSourceType.API"
+              />
+              <i
+                class="fa-regular fa-circle-question ms-1"
+                [tooltip]="
+                  'Hệ thống có thể thông qua API để tự động tạo Tác vụ theo cấu hình bên dưới'
+                "
+                placement="right"
+              ></i>
+            </div>
+
+            <ng-container *ngIf="f['type'].value === EDataSourceType.API">
+              <div class="mt-2">
+                <label for="arguments" class="form-control-label">
+                  Tham số
+                </label>
+                <div id="arguments" formArrayName="arguments">
                   <div
-                    [formGroupName]="argumentIndex"
-                    class="row {{ !first && 'mt-2' }} g-0 mx-0"
+                    class="text-center p-2"
+                    *ngIf="!formArguments().controls.length"
                   >
-                    <div class="col-6">
-                      <div class="d-flex align-items-center">
-                        <ng-select
-                          class="w-90"
-                          id="argument-in"
-                          [clearable]="false"
-                          [ngClass]="{
-                            'is-invalid': submitted && !argument.value['argKey']
-                          }"
-                          formControlName="argKey"
-                          appendTo=".modal-update-source"
-                          placeholder="Tham số"
-                        >
-                          <ng-option
-                            *ngFor="let option of listSourceArgKey"
-                            [value]="option.value"
-                            [disabled]="checkExistArgKey(option.value)"
+                    Không cấu hình tham số
+                  </div>
+                  <ng-container
+                    *ngFor="
+                      let argument of formArguments().controls;
+                      let argumentIndex = index;
+                      let last = last;
+                      let first = first
+                    "
+                  >
+                    <div
+                      [formGroupName]="argumentIndex"
+                      class="row {{ !first && 'mt-2' }} g-0 mx-0"
+                    >
+                      <div class="col-6">
+                        <div class="d-flex align-items-center">
+                          <ng-select
+                            class="w-90"
+                            id="argument-in"
+                            [clearable]="false"
+                            [ngClass]="{
+                              'is-invalid':
+                                submitted && !argument.value['argKey']
+                            }"
+                            formControlName="argKey"
+                            appendTo=".modal-update-source"
+                            placeholder="Tham số"
                           >
-                            {{ option.label }}
-                          </ng-option>
-                        </ng-select>
-                        <div class="ps-3">
-                          <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                            <ng-option
+                              *ngFor="let option of listSourceArgKey"
+                              [value]="option.value"
+                              [disabled]="checkExistArgKey(option.value)"
+                            >
+                              {{ option.label }}
+                            </ng-option>
+                          </ng-select>
+                          <div class="ps-3">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="d-flex align-items-center">
+                          <input
+                            [ngClass]="{
+                              'is-invalid':
+                                submitted && !argument.value['argRef']
+                            }"
+                            type="text"
+                            class="form-control"
+                            formControlName="argRef"
+                            placeholder="Tên trường API"
+                          />
+                          <div
+                            (click)="handleRemoveArgument(argumentIndex)"
+                            class="ps-3 cursor-pointer"
+                          >
+                            <img
+                              class=""
+                              src="./assets/images/icon/x.svg"
+                              alt=""
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div class="col-6">
-                      <div class="d-flex align-items-center">
-                        <input
-                          [ngClass]="{
-                            'is-invalid': submitted && !argument.value['argRef']
-                          }"
-                          type="text"
-                          class="form-control"
-                          formControlName="argRef"
-                          placeholder="Tên trường API"
-                        />
+                  </ng-container>
+                </div>
+                <div
+                  *ngIf="
+                    formArguments().controls.length < listSourceArgKey.length
+                  "
+                  [style.width]="'150px'"
+                  class="d-flex align-items-center gap-2 button-add-step-action text-link mt-3"
+                  (click)="handleAddArgument()"
+                >
+                  <i class="fa-solid fa-plus me-1"></i>
+                  <span>Thêm tham số</span>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+          <div formGroupName="dTask" class="mt-4 dTask-form">
+            <div class="subhead mb-3">
+              Thông tin mặc định khi Tác vụ được tạo
+              <i
+                class="fa-regular fa-circle-question ms-1"
+                [tooltip]="
+                  'Khi Tác vụ được tạo qua Nguồn này, thì những thông tin bên dưới sẽ được tự động gán vào Task.Nếu Nguồn trả dữ liệu về và xung đột với thông tin bên dưới, thì sẽ ưu tin sử dụng dữ liệu được trả về'
+                "
+                placement="right"
+              ></i>
+            </div>
+            <div class="row mb-3">
+              <div class="col-2">
+                <label for="type" class="form-control-label">
+                  Loại chia số
+                  <i
+                    class="fa-regular fa-circle-question ms-1"
+                    [tooltip]="''"
+                    placement="right"
+                  ></i>
+                </label>
+
+                <ng-select
+                  [style.width]="'100%'"
+                  [clearable]="false"
+                  [placeholder]="'Chọn loại chia số'"
+                  [multiple]="false"
+                  class="dropdown-auto-width"
+                  id="taskTypeId"
+                  appendTo=".modal-update-source"
+                  [items]="listDistributionType"
+                  bindLabel="label"
+                  bindValue="value"
+                  formControlName="distributionType"
+                ></ng-select>
+              </div>
+
+              <div class="col-4">
+                <ng-container
+                  *ngIf="
+                    updateForm.get('dTask.distributionType')?.value ===
+                    EDistributeType.MANUAL
+                  "
+                >
+                  <div>
+                    <label class="form-control-label">Nhân sự phụ trách</label>
+                  </div>
+                  <div
+                    *ngFor="
+                      let settingRole of formTeams.controls;
+                      let settingRoleIndex = index
+                    "
+                    class="btn-group mx-1"
+                    dropdown
+                    container=".modal-update-source"
+                    [autoClose]="true"
+                  >
+                    <button
+                      dropdownToggle
+                      type="button"
+                      class="btn btn-default border rounded-pill button-role"
+                      popoverTitle="Vai trò: {{ settingRole.value?.roleName }}"
+                      popover="Thông tin: {{ settingRole.value?.userName }} - {{
+                        settingRole.value?.userEmail
+                      }}"
+                      triggers="hover"
+                      container=".dTask-form"
+                    >
+                      <i
+                        *ngIf="!settingRole.value.userId"
+                        class="fa-solid"
+                        [ngClass]="settingRole.value?.roleIcon"
+                      ></i>
+                      <img
+                        *ngIf="!!settingRole.value.userId"
+                        class="rounded-pill"
+                        [src]="settingRole.value?.userPicture"
+                        alt=""
+                      />
+                    </button>
+                    <ul
+                      id="dropdown-select-role{{ settingRole.value.roleId }}"
+                      *dropdownMenu
+                      class="dropdown-menu"
+                      role="menu"
+                      aria-labelledby="button-select-role"
+                    >
+                      <li
+                        role="menuitem"
+                        class="item-user-dropdown"
+                        [class.selected]="item.id === settingRole.value.userId"
+                        *ngFor="
+                          let item of listBizUsers
+                            | getDataArray: 'roleIds' : settingRole.value.roleId
+                        "
+                        [class.disabled]="!item.isActive"
+                        (click)="
+                          item.id === settingRole.value.userId
+                            ? onRemoveTeam(settingRoleIndex)
+                            : onChooseTeam(settingRoleIndex, item)
+                        "
+                      >
                         <div
-                          (click)="handleRemoveArgument(argumentIndex)"
-                          class="ps-3 cursor-pointer"
+                          class="d-flex align-items-center p-3 cursor-pointer"
                         >
-                          <img
-                            class=""
-                            src="./assets/images/icon/x.svg"
-                            alt=""
-                          />
+                          <div>
+                            <img
+                              class="avatar me-2"
+                              src="{{ item.picture }}"
+                              fallback="assets/images/avatar.svg"
+                              alt=""
+                            />
+                          </div>
+                          <div class="text-truncate">
+                            {{ item.name }}
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </ng-container>
+
+                <ng-container
+                  *ngIf="
+                    updateForm.get('dTask.distributionType')?.value ===
+                    EDistributeType.AUTO
+                  "
+                >
+                  <div class="row">
+                    <div class="col-8">
+                      <div>
+                        <label class="form-control-label">
+                          Cấu hình chia số tự động
+                        </label>
+                        <div [style.width]="'100%'" id="distributionConfigId">
+                          <ng-select
+                            id="argument-in"
+                            [clearable]="false"
+                            appendTo=".modal-update-source"
+                            placeholder="Chọn cấu hình chia số"
+                            (click)="
+                              !taskDistributionConfigs.rows.length &&
+                                getTaskDistributionConfig()
+                            "
+                            [loading]="taskDistributionConfigs.loading"
+                            [loadingText]="'Đang tải...'"
+                            formControlName="taskDistributionConfigId"
+                          >
+                            <ng-option
+                              *ngFor="
+                                let option of taskDistributionConfigs.rows
+                              "
+                              [value]="option.id"
+                            >
+                              {{ option.name }}
+                            </ng-option>
+                          </ng-select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-4">
+                      <div>
+                        <label class="form-control-label">Mức ưu tiên</label>
+                        <div [style.width]="'100%'" id="priority">
+                          <app-input-mask
+                            [min]="1"
+                            [max]="100"
+                            [isQuantity]="true"
+                            [value]="f['dTask.priority']?.value"
+                            (changeValue)="handleChangePriority($event)"
+                          ></app-input-mask>
                         </div>
                       </div>
                     </div>
                   </div>
                 </ng-container>
               </div>
-              <div
-                *ngIf="
-                  formArguments().controls.length < listSourceArgKey.length
-                "
-                [style.width]="'150px'"
-                class="d-flex align-items-center gap-2 button-add-step-action text-link mt-3"
-                (click)="handleAddArgument()"
-              >
-                <i class="fa-solid fa-plus me-1"></i>
-                <span>Thêm tham số</span>
-              </div>
-            </div>
-          </ng-container>
-          <div formGroupName="dTask" class="mt-4 dTask-form">
-            <div class="subhead mb-3">
-              Thông tin mặc định khi Tác vụ được tạo
-              <i
-                class="fa-regular fa-circle-question ms-1"
-                tooltip="Khi Tác vụ được tạo qua Nguồn này, thì những thông tin bên dưới sẽ được tự động gán vào Task.
-Nếu Nguồn trả dữ liệu về và xung đột với thông tin bên dưới, thì sẽ ưu tin sử dụng dữ liệu được trả về"
-                placement="right"
-              ></i>
-            </div>
-            <div class="row mb-3">
-              <div class="col-4">
-                <div>
-                  <label class="form-control-label">Nhân viên phụ trách</label>
-                </div>
-                <div
-                  *ngFor="
-                    let settingRole of formTeams.controls;
-                    let settingRoleIndex = index
-                  "
-                  class="btn-group mx-1"
-                  dropdown
-                  container=".modal-update-source"
-                  [autoClose]="true"
-                >
-                  <button
-                    dropdownToggle
-                    type="button"
-                    class="btn btn-default border rounded-pill button-role"
-                    popoverTitle="Vai trò: {{ settingRole.value?.roleName }}"
-                    popover="Thông tin: {{ settingRole.value?.userName }} - {{
-                      settingRole.value?.userEmail
-                    }}"
-                    triggers="hover"
-                    container=".dTask-form"
-                  >
-                    <i
-                      *ngIf="!settingRole.value.userId"
-                      class="fa-solid"
-                      [ngClass]="settingRole.value?.roleIcon"
-                    ></i>
-                    <img
-                      *ngIf="!!settingRole.value.userId"
-                      class="rounded-pill"
-                      [src]="settingRole.value?.userPicture"
-                      alt=""
-                    />
-                  </button>
-                  <ul
-                    id="dropdown-select-role{{ settingRole.value.roleId }}"
-                    *dropdownMenu
-                    class="dropdown-menu"
-                    role="menu"
-                    aria-labelledby="button-select-role"
-                  >
-                    <li
-                      role="menuitem"
-                      class="item-user-dropdown"
-                      [class.selected]="item.id === settingRole.value.userId"
-                      *ngFor="
-                        let item of listBizUsers
-                          | getDataArray: 'roleIds' : settingRole.value.roleId
-                      "
-                      [class.disabled]="!item.isActive"
-                      (click)="
-                        item.id === settingRole.value.userId
-                          ? onRemoveTeam(settingRoleIndex)
-                          : onChooseTeam(settingRoleIndex, item)
-                      "
-                    >
-                      <div class="d-flex align-items-center p-3 cursor-pointer">
-                        <div>
-                          <img
-                            class="avatar me-2"
-                            src="{{ item.picture }}"
-                            fallback="assets/images/avatar.svg"
-                            alt=""
-                          />
-                        </div>
-                        <div class="text-truncate">
-                          {{ item.name }}
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="col-4">
+              <div class="col-3">
                 <div>
                   <label class="form-control-label">
                     Chi nhánh - Phòng ban - Đội nhóm
@@ -348,7 +466,7 @@ Nếu Nguồn trả dữ liệu về và xung đột với thông tin bên dư�
                   </div>
                 </div>
               </div>
-              <div class="col-4">
+              <div class="col-3">
                 <div>
                   <label class="form-control-label">
                     Chuỗi hành động đầu tiên
@@ -372,53 +490,6 @@ Nếu Nguồn trả dữ liệu về và xung đột với thông tin bên dư�
                       {{ option.name }}
                     </ng-option>
                   </ng-select>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-4"></div>
-
-              <div class="col-4">
-                <div>
-                  <label class="form-control-label">
-                    Cấu hình chia số tự động
-                  </label>
-                  <div [style.width]="'100%'" id="distributionConfigId">
-                    <ng-select
-                      id="argument-in"
-                      [clearable]="false"
-                      formControlName="distributionConfigId"
-                      appendTo=".modal-update-source"
-                      placeholder="Chọn cấu hình chia số"
-                      (click)="
-                        !taskDistributionConfigs.rows.length &&
-                          getTaskDistributionConfig()
-                      "
-                      [loading]="taskDistributionConfigs.loading"
-                      [loadingText]="'Đang tải...'"
-                    >
-                      <ng-option
-                        *ngFor="let option of taskDistributionConfigs.rows"
-                        [value]="option.id"
-                      >
-                        {{ option.name }}
-                      </ng-option>
-                    </ng-select>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-4">
-                <div>
-                  <label class="form-control-label">Mức ưu tiên</label>
-                  <div [style.width]="'100%'" id="priority">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Mức ưu tiên"
-                    />
-                  </div>
                 </div>
               </div>
             </div>

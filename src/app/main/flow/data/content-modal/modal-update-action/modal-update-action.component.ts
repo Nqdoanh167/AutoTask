@@ -23,6 +23,8 @@ import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import uniqBy from 'lodash/uniqBy';
 import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
+import {Template} from '@app/types/feedback';
+import {FeedbackService} from '@app/services/api/feeback.service';
 
 @Component({
   selector: 'app-modal-update-action',
@@ -45,6 +47,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       callBlockAutomation: this.fb.group({
         blockId: null,
       }),
+      templateId: [null, [Validators.required]],
     },
     {validators: [this.allOrNoneRequired]},
   );
@@ -73,7 +76,10 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   public loading = {
     submit: false,
     data: false,
+    getConfigFeedback: false,
   };
+
+  public listTemplateFeedback: Template[] = [];
 
   protected readonly EActionType = EActionType;
 
@@ -86,6 +92,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly automationService: AutomationService,
+    private readonly feedbackService: FeedbackService,
   ) {
     this.actionTypes = configurationService.actionTypes;
   }
@@ -167,6 +174,24 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
         error: (err) => {
           this.reasons.isAllowLoadMore = false;
           this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getConfigFeedback() {
+    if (this.loading.getConfigFeedback) return;
+    this.loading.getConfigFeedback = true;
+    this.feedbackService.config
+      .get()
+      .pipe(
+        finalize(() => (this.loading.getConfigFeedback = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.listTemplateFeedback = res?.data.templates || [];
+          }
         },
       });
   }

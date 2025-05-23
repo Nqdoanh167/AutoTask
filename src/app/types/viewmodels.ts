@@ -1677,9 +1677,12 @@ export interface TaskDistributionConfig {
 export interface RoleRatio {
   roleId: string;
   roleName: string; // Tên vai trò (VD: Sale, Marketing)
+  roleIcon: string; // Hình ảnh vai trò
   //cấu hình tỉ lệ chia cho từng vai trò
-  ratioByEmployees: {
-    userId: string;
-    ratio: number;
-  }[];
+  ratioByEmployees: RatioByEmployee[];
+}
+
+export interface RatioByEmployee {
+  userId: string;
+  ratio: number;
 }

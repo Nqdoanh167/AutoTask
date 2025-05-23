@@ -20,7 +20,13 @@ import {
 import {finalize, lastValueFrom, take, takeUntil} from 'rxjs';
 import {FormArray, FormGroup, ValidationErrors} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {ERole, ESocialPlatform, ITag, User} from '@app/types/viewmodels';
+import {
+  ERole,
+  ESocialPlatform,
+  ITag,
+  OrderPlatformSource,
+  User,
+} from '@app/types/viewmodels';
 import {intersection} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
@@ -251,6 +257,13 @@ export class ModalUpdateTaskComponent
           },
         });
     });
+  }
+
+  handleChangePlatFormSource(data: OrderPlatformSource[]) {
+    this.updateForm.patchValue({
+      platformSourceIds: data.map((item) => item.id),
+      platformSources: data,
+    } as any);
   }
 
   async handleUpdate() {
