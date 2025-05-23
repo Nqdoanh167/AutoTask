@@ -76,6 +76,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   public loading = {
     submit: false,
     data: false,
+    getConfigFeedback: false,
   };
 
   public listTemplateFeedback: Template[] = [];

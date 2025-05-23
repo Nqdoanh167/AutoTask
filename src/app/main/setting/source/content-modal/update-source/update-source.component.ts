@@ -16,6 +16,7 @@ import {BsModalRef} from 'ngx-bootstrap/modal';
 import {
   EDataSourceType,
   ESourceArgKey,
+  EDistributeType,
   ISetting,
   ISource,
   ISourceArgsDto,
@@ -57,9 +58,9 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   public submitted = false;
   public updateForm = this.fb.group({
     name: [null, [Validators.required]],
-    type: EDataSourceType.MANUAL,
+    type: EDataSourceType.API,
     platform: [null, [Validators.required]],
-    platformId: [null],
+    platformId: [null, [Validators.required]],
     picture: [null],
     isActive: true,
     arguments: this.fb.array([]),
@@ -69,6 +70,9 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       branch: null,
       teams: this.fb.array([]),
       taskChainIds: null,
+      distributionType: [EDistributeType.MANUAL],
+      priority: 1,
+      taskDistributionConfigId: null,
     }),
     apiEndpoint: this.fb.group({
       path: null,
@@ -78,7 +82,6 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       token: null,
     }),
     apiBody: null,
-    distributionConfigId: null,
   });
   public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
     rows: [],
@@ -120,6 +123,17 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     {
       label: 'API',
       value: EDataSourceType.API,
+    },
+  ];
+
+  public listDistributionType = [
+    {
+      label: 'Thủ công',
+      value: EDistributeType.MANUAL,
+    },
+    {
+      label: 'Tự động',
+      value: EDistributeType.AUTO,
     },
   ];
   public listBizUsers: User[] = [];
@@ -211,6 +225,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   ];
 
   protected readonly EDataSourceType = EDataSourceType;
+  protected readonly EDistributeType = EDistributeType;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -278,6 +293,8 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
         });
       }
     }
+
+    this.handleChangeType();
   }
 
   getActionChain() {
@@ -384,6 +401,17 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       });
   }
 
+  toggleType(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const isChecked = target.checked;
+
+    this.updateForm
+      .get('type')
+      ?.setValue(isChecked ? EDataSourceType.API : null);
+
+    this.handleChangeType();
+  }
+
   handleChangeType() {
     this.submitted = false;
     this.formArguments().clear();
@@ -398,6 +426,10 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     ) {
       this.handleAddArgument();
     }
+  }
+
+  handleChangePriority(priority: number) {
+    this.updateForm.get('dTask.priority')?.setValue(priority || 1);
   }
 
   onDelete() {
