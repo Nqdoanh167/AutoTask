@@ -50,6 +50,8 @@ import {ModalFeedbackComponent} from './content-modal/modal-feedback/modal-feedb
 import {NgxStarsModule} from 'ngx-stars';
 import {InputUploadPreviewComponent} from '../../share/input/input-upload-preview/input-upload-preview.component';
 import {TaskCreateSourceComponent} from './content-modal/task-create-source/task-create-source.component';
+import {SafePipe} from '@app/share/pipe/safeUrl.pipe';
+import {ModalCreateOrderComponent} from './content-modal/modal-create-order/modal-create-order.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -65,6 +67,7 @@ import {TaskCreateSourceComponent} from './content-modal/task-create-source/task
     HistoryComponent,
     ModalAssignTeamV2Component,
     ModalFeedbackComponent,
+    ModalCreateOrderComponent,
     TaskCreateSourceComponent,
   ],
   imports: [
@@ -107,6 +110,7 @@ import {TaskCreateSourceComponent} from './content-modal/task-create-source/task
     ProgressbarModule.forRoot(),
     NgxStarsModule,
     InputUploadPreviewComponent,
+    SafePipe,
   ],
 })
 export class DashboardModule {}

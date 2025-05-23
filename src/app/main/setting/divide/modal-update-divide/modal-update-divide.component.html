@@ -69,31 +69,46 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>Vai trò</th>
-                  <th>Số lượng nhân viên</th>
+                  <th style="width: 500px">Vai trò</th>
+                  <th class="text-center">Số lượng nhân viên</th>
                   <th class="columns-action text-end">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                <tr class="text-center" *ngIf="!roles.rows.length">
+                <tr
+                  class="text-center"
+                  *ngIf="!roleRatiosFormArray.controls.length"
+                >
                   <td colspan="4">
                     <div>Không có dữ liệu</div>
                   </td>
                 </tr>
-                <tr *ngFor="let role of roles.rows; let i = index">
-                  <td>
-                    {{ role.name }}
+                <tr
+                  *ngFor="
+                    let roleControl of roleRatiosFormArray.controls;
+                    let i = index
+                  "
+                >
+                  <td style="width: 500px">
+                    {{ roleControl.value.roleName }}
                   </td>
-                  <td>
-                    {{ getUserByRole(role.id)?.length }}
+                  <td class="text-center">
+                    {{ roleControl.value.ratioByEmployees?.length || 0 }}
                   </td>
                   <td class="columns-action">
                     <div class="d-flex justify-content-end">
                       <span
-                        (click)="editRoleRatio(role.id)"
+                        (click)="editRoleRatio(roleControl.value.roleId)"
                         class="d-flex align-items-center btn-action-table"
                       >
                         <img src="./assets/images/icon/edit.svg" alt="" />
+                      </span>
+
+                      <span
+                        (click)="deleteRoleRatio(roleControl.value)"
+                        class="d-flex align-items-center btn-action-table"
+                      >
+                        <img src="./assets/images/icon/remove.svg" alt="" />
                       </span>
                     </div>
                   </td>
@@ -101,6 +116,18 @@
               </tbody>
             </table>
           </div>
+        </div>
+
+        <div class="mt-2">
+          <button
+            type="button"
+            class="btn btn-outline-primary d-flex align-items-center gap-2"
+            (click)="addRoleRatio()"
+            *ngIf="hasAvailableRoles()"
+          >
+            <i class="fa-solid fa-plus"></i>
+            <span>Thêm vai trò</span>
+          </button>
         </div>
       </div>
 
@@ -205,32 +232,74 @@
       </div>
       <div class="modal-body">
         <form [formGroup]="roleRatioForm" *ngIf="roleRatioForm">
-          <div class="row">
-            <div class="col-12 mb-3">
-              <label class="form-label fw-bold">Danh sách nhân viên</label>
-              <div
-                class="alert alert-info"
-                *ngIf="ratioByEmployeesArray.length === 0"
-              >
-                Không có nhân viên nào thuộc vai trò này
-              </div>
-
-              <div *ngIf="ratioByEmployeesArray.length > 0">
-                <div class="user-list-header d-flex">
-                  <span class="form-control-label m-0 flex-grow-1">
-                    Nhân viên
-                  </span>
-                  <span class="form-control-label m-0" style="width: 150px">
-                    Tỉ lệ chia
-                  </span>
+          @defer (when !loading.modal) {
+            <div class="row">
+              <div class="col-12 mb-3">
+                <label class="form-label fw-bold">Danh sách nhân viên</label>
+                <div class="input-suggest-customer">
+                  <div class="input-suffix input-prefix">
+                    <div
+                      style="z-index: 2; left: 14px; top: 9px"
+                      class="position-absolute"
+                    >
+                      <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <ng-select
+                      [items]="
+                        usersByRole | filterData: selectedUserIds : ['id']
+                      "
+                      bindLabel="name"
+                      bindValue="id"
+                      [clearable]="false"
+                      [closeOnSelect]="false"
+                      [placeholder]="'Chọn nhân viên'"
+                      [notFoundText]="'Không có nhân viên'"
+                      (change)="handleChooseUser($event)"
+                    >
+                      <ng-template ng-label-tmp let-item="item"></ng-template>
+                      <ng-template ng-option-tmp let-item="item">
+                        <div
+                          class="person-info d-flex justify-content-between align-items-center p-1"
+                        >
+                          <div
+                            class="d-flex justify-content-between align-items-center"
+                          >
+                            <img
+                              class="avatar"
+                              alt=""
+                              fallback="./assets/images/avatar.svg"
+                              src="{{ item?.picture }}"
+                            />
+                            <div class="d-flex flex-column mx-3">
+                              <span class="account-name fw-500">
+                                {{ item?.name }}
+                              </span>
+                              <span class="account-phone">
+                                {{ item?.phone }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </ng-select>
+                  </div>
                 </div>
-                @defer (when !loading.modal) {
+
+                <div>
+                  <div class="user-list-header d-flex">
+                    <span class="form-control-label m-0 flex-grow-1">
+                      Nhân viên
+                    </span>
+                    <span class="form-control-label m-0" style="width: 213px">
+                      Tỉ lệ chia
+                    </span>
+                  </div>
                   <div
                     class="user-list-container"
                     formArrayName="ratioByEmployees"
                   >
                     <div
-                      class="d-flex align-items-center"
+                      class="d-flex align-items-center gap-3"
                       *ngFor="
                         let userControl of ratioByEmployeesArray.controls;
                         let i = index
@@ -238,11 +307,11 @@
                       [formGroupName]="i"
                     >
                       <div class="d-flex align-items-center flex-grow-1">
-                        <div class="avatar me-2">
+                        <div class="me-2">
                           <img
                             [src]="
-                              userControl.get('userPicture')?.value ||
-                              './assets/images/avatar.png'
+                              userControl.value?.userPicture ||
+                              './assets/images/avatar.svg'
                             "
                             alt="Avatar"
                             class="img-fluid rounded-circle"
@@ -251,34 +320,43 @@
                         </div>
                         <div>
                           <div class="fw-bold">
-                            {{ userControl.get('userName')?.value }}
+                            {{ userControl.value.userName }}
                           </div>
                           <div class="text-muted small">
-                            {{ userControl.get('userEmail')?.value }}
+                            {{ userControl.value.userEmail }}
                           </div>
                         </div>
                       </div>
                       <div style="width: 150px">
                         <app-input-mask
                           [isQuantity]="true"
-                          [min]="0"
+                          [min]="1"
                           [max]="1000"
-                          [value]="userControl.get('ratio')?.value"
-                          (changeValue)="
-                            userControl.get('ratio')?.setValue($event)
-                          "
+                          [value]="userControl.value?.ratio"
+                          (changeValue)="handleChangeRatio($event, userControl)"
                         ></app-input-mask>
+                      </div>
+
+                      <div>
+                        <button
+                          type="button"
+                          class="btn btn-outline-danger btn-sm"
+                          (click)="ratioByEmployeesArray.removeAt(i)"
+                          style="border: 1px solid #dc3545"
+                        >
+                          <i class="fas fa-times"></i>
+                        </button>
                       </div>
                     </div>
                   </div>
-                } @placeholder (minimum 100ms) {
-                  <div class="center-item" [style.height]="'300px'">
-                    <div class="spinner-custom"></div>
-                  </div>
-                }
+                </div>
               </div>
             </div>
-          </div>
+          } @placeholder (minimum 100ms) {
+            <div class="center-item" [style.height]="'300px'">
+              <div class="spinner-custom"></div>
+            </div>
+          }
         </form>
 
         <div class="d-flex justify-content-end mt-3 gap-1">

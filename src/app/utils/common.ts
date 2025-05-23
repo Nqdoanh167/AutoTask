@@ -358,3 +358,22 @@ export function filterItems<T>(
     }),
   );
 }
+
+export function normalizeToNumberArray(value: any): number[] {
+  if (Array.isArray(value)) return value.map(Number);
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.map(Number);
+    } catch {}
+    const num = Number(value);
+    return isNaN(num) ? [] : [num];
+  }
+
+  if (typeof value === 'number') {
+    return [value];
+  }
+
+  return [];
+}

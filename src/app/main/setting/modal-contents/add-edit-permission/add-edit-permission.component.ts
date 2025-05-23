@@ -201,7 +201,7 @@ export class AddEditPermissionComponent
               class: 'col-4',
             },
             {
-              key: EPerActSetting.UPDATE_DIVIDE_SETTING,
+              key: EPerActSetting.CRUD_TASK_DISTRIBUTION_CONFIG,
               name: 'Thêm, Sửa, Xóa Cấu hình chia số',
               class: 'col-4',
             },
@@ -359,6 +359,15 @@ export class AddEditPermissionComponent
       let value: string[] =
         this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
       if (checked) {
+        if(permission.key === EPerActSetting.CRUD_TASK_DISTRIBUTION_CONFIG){
+          value.push(
+            EPerActSetting.VIEW_TASK_DISTRIBUTION_CONFIG,
+            EPerActSetting.CREATE_TASK_DISTRIBUTION_CONFIG,
+            EPerActSetting.UPDATE_TASK_DISTRIBUTION_CONFIG,
+            EPerActSetting.DELETE_TASK_DISTRIBUTION_CONFIG,
+          )
+          return
+        }
         value.push(permission.key);
       } else {
         const index = value.indexOf(permission.key);

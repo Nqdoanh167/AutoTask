@@ -103,6 +103,39 @@
             </div>
           </div>
         </div>
+
+        <div *ngIf="f['type'].value === EActionType.FEEDBACK" class="mb-2">
+          <label class="form-control-label" for="templateId">
+            Template đánh giá
+            <span class="required">*</span>
+          </label>
+          <ng-select
+            [ngClass]="{
+              'is-invalid': submitted && !f['templateId'].value?.blockId
+            }"
+            [placeholder]="'Chọn template'"
+            [searchable]="true"
+            [items]="listTemplateFeedback"
+            [loading]="loading.getConfigFeedback"
+            class="dropdown-auto-width"
+            appearance="outline"
+            formControlName="templateId"
+            id="templateId"
+            bindLabel="name"
+            bindValue="id"
+            appendTo=".modal"
+            (click)="!listTemplateFeedback.length && getConfigFeedback()"
+          ></ng-select>
+          <div
+            *ngIf="submitted && !f['templateId'].value"
+            class="invalid-feedback"
+          >
+            <div *ngIf="!f['templateId'].value">
+              Template đánh giá không được bỏ trống
+            </div>
+          </div>
+        </div>
+
         <div class="mb-2">
           <label class="form-control-label" for="reasons">
             Nguyên nhân dẫn đến kết quả

@@ -584,7 +584,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     const modal = this.modalService.show(ModalFeedbackComponent, {
       class: 'modal-lg modal-dialog-centered',
       initialState: {
-        taskChainResultId: taskChainResult.id,
+        taskChainResult,
         subActionId,
       },
     });
@@ -625,6 +625,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     let url = `${environment.urlDomain}/${this.bizAlias}/sale-center/?code=${
       code || id
     }`;
+    window.open(url, '_blank');
+  }
+
+  handleViewFeedback(id: string) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/feedback/list?id=${id}`;
     window.open(url, '_blank');
   }
 

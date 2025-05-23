@@ -6,13 +6,20 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {BsModalRef, BsModalService, ModalDirective} from 'ngx-bootstrap/modal';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import {BsModalRef, ModalDirective} from 'ngx-bootstrap/modal';
 import {Subject} from 'rxjs';
 import {finalize, takeUntil} from 'rxjs/operators';
 import {
   BizRole,
   EntityPagination,
+  RatioByEmployee,
   RoleRatio,
   TaskDistributionConfig,
   User,
@@ -39,7 +46,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   public loading = {
     roles: false,
     submit: false,
-    modal: true,
+    modal: false,
   };
   public users!: User[];
   private destroy$ = new Subject();
@@ -52,6 +59,9 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     page: 1,
     total: 0,
   };
+
+  public usersByRole!: Partial<User>[];
+  public selectedUserIds: string[] = [];
 
   public isOpenBackdrop = false;
   public selectedRole: BizRole | null = null;
@@ -90,8 +100,16 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     });
   }
 
-  getUserByRole(roleId: string): User[] {
-    return this.users.filter((user) => (user.roleIds || []).includes(roleId));
+  getUserByRole(roleId: string): void {
+    this.usersByRole = this.users
+      .filter((user) => (user.roleIds || []).includes(roleId))
+      .map((user) => ({
+        id: user.id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        picture: user.picture,
+      }));
   }
 
   get roleRatiosFormArray(): FormArray {
@@ -100,6 +118,18 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
 
   get ratioByEmployeesArray(): FormArray {
     return this.roleRatioForm?.get('ratioByEmployees') as FormArray;
+  }
+
+  getQuantityByRole(roleId: string): number {
+    const roleRatio = this.roleRatiosFormArray.controls.find(
+      (c: any) => c.value.roleId === roleId,
+    )?.value;
+
+    if (roleRatio) {
+      return roleRatio.ratioByEmployees.length;
+    }
+
+    return 0;
   }
 
   patchFormValue(): void {
@@ -112,19 +142,16 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
         (r: RoleRatio) => r.roleId === role.id,
       );
 
-      const roleRatio = existingRoleRatio || {
-        roleId: role.id,
-        roleName: role.name,
-        ratioByEmployees: [],
-      };
-
-      roleRatiosFormArray.push(
-        this.fb.control({
-          roleId: roleRatio.roleId,
-          roleName: roleRatio.roleName,
-          ratioByEmployees: roleRatio.ratioByEmployees,
-        }),
-      );
+      if (existingRoleRatio) {
+        roleRatiosFormArray.push(
+          this.fb.control({
+            roleId: existingRoleRatio?.roleId,
+            roleName: existingRoleRatio?.roleName,
+            roleIcon: existingRoleRatio?.roleIcon,
+            ratioByEmployees: existingRoleRatio?.ratioByEmployees,
+          }),
+        );
+      }
     });
 
     this.formGroup.patchValue({
@@ -188,53 +215,100 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     }
   }
 
+  hasAvailableRoles(): boolean {
+    const existingRoleIds = this.roleRatiosFormArray.controls.map(
+      (c: any) => c.value.roleId,
+    );
+    return this.roles.rows.some((role) => !existingRoleIds.includes(role.id));
+  }
+
+  addRoleRatio(): void {
+    const existingRoleIds = this.roleRatiosFormArray.controls.map(
+      (c: any) => c.value.roleId,
+    );
+
+    const availableRoles = this.roles.rows.filter(
+      (role) => !existingRoleIds.includes(role.id),
+    );
+
+    if (availableRoles.length === 0) {
+    }
+
+    const roleToAdd = availableRoles[0];
+
+    this.roleRatiosFormArray.push(
+      this.fb.control({
+        roleId: roleToAdd.id,
+        roleName: roleToAdd.name,
+        roleIcon: roleToAdd.icon,
+        ratioByEmployees: [],
+      }),
+    );
+  }
+
+  deleteRoleRatio(roleRatio: any): void {
+    const existingIndex = this.roleRatiosFormArray.controls.findIndex(
+      (c: any) => c.value.roleId === roleRatio.roleId,
+    );
+
+    if (existingIndex >= 0) {
+      this.roleRatiosFormArray.removeAt(existingIndex);
+    }
+  }
+
   editRoleRatio(roleId: string): void {
     this.isOpenBackdrop = true;
     this.loading.modal = true;
 
-    const role = this.roles.rows.find((i) => i.id === roleId);
-    if (!role) return;
+    this.getUserByRole(roleId);
 
-    this.selectedRole = role;
+    const existingRoleRatio = this.roleRatiosFormArray.controls.find(
+      (c: any) => c.value.roleId === roleId,
+    )?.value;
 
-    let existingRoleRatio = this.formGroup.value.roleRatios?.find(
-      (r: RoleRatio) => r.roleId === roleId,
-    );
-
-    this.roleRatioForm = this.fb.group({
-      roleId: [role.id],
-      roleName: [role.name],
-      ratioByEmployees: this.fb.array([]),
-    });
-
-    const roleUsers = this.getUserByRole(roleId);
-
-    // this.roleRatiosFormArray.clear();
-
-    roleUsers.forEach((user) => {
-      const existingConfig = existingRoleRatio?.ratioByEmployees?.find(
-        (c: any) => c.userId === user.id,
+    if (existingRoleRatio) {
+      this.selectedUserIds = existingRoleRatio.ratioByEmployees.map(
+        (c: RatioByEmployee) => c.userId,
       );
 
-      this.ratioByEmployeesArray.push(
-        this.fb.group({
-          userId: [user.id],
-          userName: [user.name],
-          userEmail: [user.email],
-          userPicture: [user.picture],
-          ratio: [existingConfig?.ratio || 1],
-        }),
-      );
-    });
+      this.roleRatioForm = this.fb.group({
+        roleId: [roleId, Validators.required],
+        roleName: [existingRoleRatio.roleName],
+        roleIcon: [existingRoleRatio.roleIcon],
+        ratioByEmployees: this.fb.array(
+          existingRoleRatio.ratioByEmployees.map((ratioByEmployee: any) => {
+            const userData = this.users.find(
+              (user) => user.id === ratioByEmployee.userId,
+            );
+
+            return this.fb.control({
+              userId: userData?.id,
+              userPicture: userData?.picture,
+              userName: userData?.name,
+              userPhone: userData?.phone,
+              userEmail: userData?.email,
+              ratio: ratioByEmployee.ratio || 1,
+            });
+          }),
+        ),
+      });
+    } else {
+      this.roleRatioForm = this.fb.group({
+        roleId: [roleId, Validators.required],
+        roleName: [''],
+        roleIcon: [''],
+        ratioByEmployees: this.fb.array([]),
+      });
+    }
 
     this.itemModal.show();
+
     setTimeout(() => {
       this.loading.modal = false;
     }, 500);
 
     this.itemModal.onHide.subscribe(() => {
       this.isOpenBackdrop = false;
-      this.selectedRole = null;
     });
   }
 
@@ -251,20 +325,55 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     const newRoleRatio: RoleRatio = {
       roleId: formValue.roleId,
       roleName: formValue.roleName,
+      roleIcon: formValue.roleIcon,
       ratioByEmployees: formValue.ratioByEmployees.filter(
-        (c: any) => c.ratio > 0,
+        (c: RatioByEmployee) => c.ratio > 0,
       ),
     };
 
-    const roleRatiosArray = this.roleRatiosFormArray;
-
     if (existingIndex >= 0) {
-      roleRatiosArray.setControl(existingIndex, this.fb.control(newRoleRatio));
+      this.roleRatiosFormArray.setControl(
+        existingIndex,
+        this.fb.control(newRoleRatio),
+      );
     } else {
-      roleRatiosArray.push(this.fb.control(newRoleRatio));
+      this.roleRatiosFormArray.push(this.fb.control(newRoleRatio));
     }
 
     this.itemModal.hide();
+  }
+
+  handleChooseUser(user: User) {
+    const ratioByEmployeesArray = this.ratioByEmployeesArray;
+    const existingIndex = ratioByEmployeesArray.controls.findIndex(
+      (c: any) => c.userId === user.id,
+    );
+
+    if (existingIndex >= 0) {
+      ratioByEmployeesArray.removeAt(existingIndex);
+    } else {
+      ratioByEmployeesArray.push(
+        this.fb.control({
+          userId: user.id,
+          userPicture: user.picture,
+          userName: user.name,
+          userPhone: user.phone,
+          userEmail: user.email,
+          ratio: 1,
+        }),
+      );
+    }
+
+    this.selectedUserIds = ratioByEmployeesArray.controls.map(
+      (c: any) => c.value.userId,
+    );
+  }
+
+  handleChangeRatio(ratio: number, control: AbstractControl) {
+    control.setValue({
+      ...control.value,
+      ratio: ratio,
+    });
   }
 
   ngOnDestroy(): void {
