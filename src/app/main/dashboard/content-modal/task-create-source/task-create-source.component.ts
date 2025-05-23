@@ -17,7 +17,6 @@ import {
   OrderPlatformSource,
   Source,
 } from 'src/app/types/viewmodels';
-// import { SearchHelper } from 'src/app/utils/search-helper';
 
 interface TypeSource {
   id: string;
@@ -151,13 +150,12 @@ export class TaskCreateSourceComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // source
-    this.autoTaskService.source
-      .get({})
+    this.autoTaskService.listSourceObservable
       .pipe(takeUntil(this.destroy))
       .subscribe({
         next: (res) => {
           if (res) {
-            this.source.rows = res.data;
+            this.source.rows = res;
             this.setupItems();
             this.source.isGet = true;
           }
@@ -280,16 +278,30 @@ export class TaskCreateSourceComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.values = [...this.listTypeSource, ...this.source.rows]
-      .filter((v) => this.valueIds.includes(v.id))
-      .map((v) => ({
-        id: v.id,
-        name: v.name,
-        link: v.link,
-        picture: v.picture,
-        platform: v.platform,
-        platformId: v.platformId,
-      }));
+    // this.values = [...this.listTypeSource, ...this.source.rows]
+    //   .filter((v) => this.valueIds.includes(v.id))
+    //   .map((v) => ({
+    //     id: v.id,
+    //     name: v.name,
+    //     link: v.link,
+    //     picture: v.picture,
+    //     platform: v.platform,
+    //     platformId: v.platformId,
+    //   }));
+    this.values = this.valueIds.map((v)=>{
+      const source = [...this.listTypeSource, ...this.source.rows].find((i) => i.id === v);
+      if (source) {
+        return {
+          id: source.id,
+          name: source.name,
+          link: source.link,
+          picture: source.picture,
+          platform: source.platform,
+          platformId: source.platformId,
+        };
+      }
+      return null
+    }).filter((i) => i !== null) as OrderPlatformSource[];
 
     this.changePlatformSource.emit(this.values);
     this.changeDefaultData.emit({

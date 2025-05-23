@@ -104,10 +104,18 @@
           </div>
         </div>
 
-        <div *ngIf="f['type'].value === EActionType.FEEDBACK" class="mb-2">
-          <label class="form-control-label" for="templateId">
+        <div
+          *ngIf="
+            f['type'].value === EActionType.FEEDBACK &&
+            this.hasPermitModuleFeedback
+          "
+          class="mb-2"
+        >
+          <label class="form-control-label d-flex gap-2 align-items-center" for="templateId">
             Template đánh giá
-            <span class="required">*</span>
+            <span (click)="handleTransferFeedback()" [tooltip]="'Chuyển hướng sang module feedback'" class="cursor-pointer">
+              <img src="./assets/images/icon/transfer.svg" alt="" width="20" height="20"/>
+            </span>
           </label>
           <ng-select
             [placeholder]="'Chọn template'"

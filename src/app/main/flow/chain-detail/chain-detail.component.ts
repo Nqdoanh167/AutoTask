@@ -773,7 +773,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   getBlock() {
     this.blocks.loading = true;
     this.automationService.block
-      .getMany({}, {cache: true})
+      .getMany({})
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.blocks.loading = false)),
