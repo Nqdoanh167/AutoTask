@@ -21,7 +21,13 @@ import {
   ISourceArgsDto,
   IUpdateSourceDto,
 } from '@app/types/setting';
-import {Biz, ICommonDataLazy, IQueryBase, User} from '@app/types/viewmodels';
+import {
+  Biz,
+  ICommonDataLazy,
+  IQueryBase,
+  TaskDistributionConfig,
+  User,
+} from '@app/types/viewmodels';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {MainService} from '@app/services/api/main.service';
@@ -72,6 +78,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       token: null,
     }),
     apiBody: null,
+    distributionConfigId: null,
   });
   public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
     rows: [],
@@ -84,6 +91,26 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+
+  public taskDistributionConfigs: ICommonDataLazy<
+    TaskDistributionConfig,
+    IQueryBase
+  > = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+      filter: JSON.stringify({isActive: true}),
+    },
+    isAllowLoadMore: false,
+  };
+
+  public get actionChain(): IChainAct[] {
+    return this.actionChains.rows;
+  }
+
   public units = this.autoTaskService.getUserUnits();
   public listType = [
     {
@@ -299,6 +326,36 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
           } else {
             this.commonService.handleResErr(res);
           }
+        },
+      });
+  }
+
+  getTaskDistributionConfig() {
+    this.taskDistributionConfigs.loading = true;
+    this.autoTaskService.taskDistributionConfig
+      .get(this.taskDistributionConfigs.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.taskDistributionConfigs.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.taskDistributionConfigs.rows = uniqBy(
+              this.taskDistributionConfigs.rows.concat(res.data),
+              'id',
+            );
+            this.taskDistributionConfigs.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.taskDistributionConfigs.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.taskDistributionConfigs.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
         },
       });
   }

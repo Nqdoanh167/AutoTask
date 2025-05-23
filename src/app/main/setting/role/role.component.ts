@@ -23,6 +23,7 @@ export class RoleComponent implements OnDestroy, OnInit {
     total: 0,
   };
   settingForm!: FormGroup;
+  workHoursForm!: FormGroup;
   public permission = {
     update: false,
   };
@@ -55,6 +56,12 @@ export class RoleComponent implements OnDestroy, OnInit {
     this.settingForm = this.fb.group({
       roles: [[]],
       assignRole: [null],
+    });
+    this.workHoursForm = this.fb.group({
+      workHoursType: ['daily'],
+      startTime: ['9:41 AM'],
+      endTime: ['9:41 AM'],
+      isActive: [true],
     });
     if (!this.permission.update) {
       this.settingForm.disable();
@@ -101,6 +108,17 @@ export class RoleComponent implements OnDestroy, OnInit {
         },
       });
   }
+
+  saveWorkHours() {
+    if (this.workHoursForm.invalid) {
+      return;
+    }
+
+    const formValue = this.workHoursForm.value;
+    // Call your API service to save work hours
+    // this.settingService.saveWorkHours(formValue).subscribe(...);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();

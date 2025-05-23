@@ -83,4 +83,63 @@
       </div>
     </div>
   </div>
+
+  <div class="card" [formGroup]="workHoursForm">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="title fw-bold fs-5">Giờ làm việc</div>
+        <div class="form-check form-switch mb-0">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="isActive"
+            formControlName="isActive"
+          />
+        </div>
+      </div>
+      @if (workHoursForm?.get('isActive')?.value) {
+        <div class="mt-3">
+          <ng-select
+            [items]="[{id: 'daily', name: 'Cố định hàng ngày'}]"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Chọn loại giờ làm việc"
+            [clearable]="false"
+            formControlName="workHoursType"
+            class="dropdown-auto-width custom-input-single-round"
+          >
+            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+              <div class="ng-value-label">
+                <span>{{ item.name }}</span>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div class="mt-3 d-flex align-items-center">
+          <div class="me-2">Từ</div>
+          <div class="time-input me-3">
+            <input
+              type="text"
+              class="form-control"
+              formControlName="startTime"
+              placeholder="9:41 AM"
+              style="color: #007aff"
+            />
+          </div>
+          <div class="me-2">Đến</div>
+          <div class="time-input">
+            <input
+              type="text"
+              class="form-control"
+              formControlName="endTime"
+              placeholder="9:41 AM"
+              style="color: #007aff"
+            />
+          </div>
+        </div>
+      }
+    </div>
+  </div>
 </div>

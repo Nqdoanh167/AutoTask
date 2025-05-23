@@ -10,9 +10,10 @@ import {PhoneCallPopUpComponent} from '@share/common/phone-call-pop-up/phone-cal
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {ConnectPhoneComponent} from '@share/common/connect-phone/connect-phone.component';
-import {ModalCallInComponent} from "@share/common/modal-call-in/modal-call-in.component";
-import {QuickCallComponent} from "@share/common/quick-call/quick-call.component";
-import {ModalCallOutComponent} from "@share/common/modal-call-out/modal-call-out.component";
+import {ModalCallInComponent} from '@share/common/modal-call-in/modal-call-in.component';
+import {QuickCallComponent} from '@share/common/quick-call/quick-call.component';
+import {ModalCallOutComponent} from '@share/common/modal-call-out/modal-call-out.component';
+import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/modal-stop-receive.component';
 // component
 
 @NgModule({
@@ -31,7 +32,8 @@ import {ModalCallOutComponent} from "@share/common/modal-call-out/modal-call-out
     ConnectPhoneComponent,
     ModalCallInComponent,
     QuickCallComponent,
-    ModalCallOutComponent
+    ModalCallOutComponent,
+    ModalStopReceiveComponent,
   ],
 })
 export class MainModule {}
