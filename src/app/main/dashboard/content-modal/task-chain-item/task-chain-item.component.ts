@@ -119,7 +119,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   formTaskChainResults() {
-    console.log('formItem', this.formItem);
     return (<FormArray>this.formItem.get('taskChainResults')) as FormArray;
   }
 
@@ -133,7 +132,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
-    console.log('check', this.formItem);
     this.formItem.valueChanges
       ?.pipe(takeUntil(this.destroy$))
       .subscribe((value: any) => {
@@ -236,6 +234,21 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     taskChainResult: ITaskChainResult,
   ) {
+    this.formTaskChainResults().at(taskChainResultIndex).patchValue({
+      result: {
+        id: null,
+        name: null,
+      },
+      reason: {
+        id: null,
+        name: null,
+      }
+    });
+
+    (<FormArray>(
+      this.formTaskChainResults().at(taskChainResultIndex).get('nextActions')
+    )).clear();
+ 
     this.cancelUpdateTaskChainEvent.emit(taskChainResultIndex);
   }
 

@@ -540,19 +540,14 @@ export class DetailTaskData extends BaseComponentsComponent {
   }
 
   getTag() {
-    this.autoTaskService.tag
-      .get({}, {cache: true})
+    this.autoTaskService.listTagObservable
       .pipe(
         finalize(() => {}),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
-          if (res && res.status === 200) {
-            this.tags.rows = res.data;
-          } else {
-            this.commonService.handleResErr(res);
-          }
+          this.tags.rows = res || [];
         },
         error: (err) => {
           this.commonService.handleErr(err);
@@ -579,26 +574,14 @@ export class DetailTaskData extends BaseComponentsComponent {
 
   getActionChain() {
     this.actionChains.loading = true;
-    this.autoTaskService.chainAction
-      .get(this.actionChains.paramsQuery, {cache: true})
+    this.autoTaskService.listChainActObservable
       .pipe(
         finalize(() => (this.actionChains.loading = false)),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
-          if (res.status === 200) {
-            this.actionChains.rows = uniqBy(
-              this.actionChains.rows.concat(res.data),
-              'id',
-            );
-            this.actionChains.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.actionChains.isAllowLoadMore = false;
-          }
+          this.actionChains.rows = res || [];
         },
         error: (err) => {
           this.actionChains.isAllowLoadMore = false;
@@ -609,26 +592,14 @@ export class DetailTaskData extends BaseComponentsComponent {
 
   getSource() {
     this.sources.loading = true;
-    this.autoTaskService.source
-      .get(this.sources.paramsQuery, {cache: true})
+    this.autoTaskService.listSourceObservable
       .pipe(
         finalize(() => (this.sources.loading = false)),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
-          if (res.status === 200) {
-            this.sources.rows = uniqBy(
-              this.sources.rows.concat(res.data),
-              'id',
-            );
-            this.sources.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.sources.isAllowLoadMore = false;
-          }
+          this.sources.rows = res || [];
         },
         error: (err) => {
           this.sources.isAllowLoadMore = false;
@@ -639,26 +610,14 @@ export class DetailTaskData extends BaseComponentsComponent {
 
   getResult() {
     this.results.loading = true;
-    this.autoTaskService.actionResult
-      .get(this.results.paramsQuery, {cache: true})
+    this.autoTaskService.listActResultObservable
       .pipe(
         finalize(() => (this.results.loading = false)),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
-          if (res.status === 200) {
-            this.results.rows = uniqBy(
-              this.results.rows.concat(res.data),
-              'id',
-            );
-            this.results.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.results.isAllowLoadMore = false;
-          }
+          this.results.rows = res || [];
         },
         error: (err) => {
           this.results.isAllowLoadMore = false;
@@ -669,26 +628,14 @@ export class DetailTaskData extends BaseComponentsComponent {
 
   getAction() {
     this.actions.loading = true;
-    this.autoTaskService.action
-      .get(this.actions.paramsQuery, {cache: true})
+    this.autoTaskService.listActionObservable
       .pipe(
         finalize(() => (this.actions.loading = false)),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
-          if (res.status === 200) {
-            this.actions.rows = uniqBy(
-              this.actions.rows.concat(res.data),
-              'id',
-            );
-            this.actions.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.actions.isAllowLoadMore = false;
-          }
+          this.actions.rows = res || [];
         },
         error: (err) => {
           this.actions.isAllowLoadMore = false;
@@ -699,19 +646,14 @@ export class DetailTaskData extends BaseComponentsComponent {
 
   getBlock() {
     this.blocks.loading = true;
-    this.automationService.block
-      .getMany({}, {cache: true})
+    this.automationService.listBlock$
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.blocks.loading = false)),
       )
       .subscribe({
         next: (res) => {
-          if (res.status === 200) {
-            this.blocks.rows = res.data;
-          } else {
-            this.commonService.handleResErr(res);
-          }
+          this.blocks.rows = res || []
         },
         error: (err) => {
           this.commonService.handleErr(err);
