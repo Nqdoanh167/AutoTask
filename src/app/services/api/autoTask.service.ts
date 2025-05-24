@@ -9,7 +9,14 @@ import {
   Order,
   TaskDistributionConfig,
 } from 'src/app/types/viewmodels';
-import {BehaviorSubject, of, Subject, takeUntil, tap} from 'rxjs';
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  of,
+  Subject,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {
@@ -101,33 +108,56 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   >(undefined);
   public currentActiveViewMode = this.currentActiveViewMode$.asObservable();
 
-  private listTagSubject = new BehaviorSubject<EntityResult<ITag[]>>(
-    null as unknown as EntityResult<ITag[]>,
+  private listTagSubject = new BehaviorSubject<ITag[]>(
+    null as unknown as ITag[],
   );
+  public listTagObservable = this.listTagSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
 
   private listViewModeSubject = new BehaviorSubject<EntityResult<IView>>(
     null as unknown as EntityResult<IView>,
   );
 
-  private listSourceSubject = new BehaviorSubject<EntityResult<ISource[]>>(
-    null as unknown as EntityResult<ISource[]>,
+  private listSourceSubject = new BehaviorSubject<ISource[]>(
+    null as unknown as ISource[],
   );
 
-  private listChainActSubject = new BehaviorSubject<EntityResult<IChainAct[]>>(
-    null as unknown as EntityResult<IChainAct[]>,
-  );
+  public listSourceObservable = this.listSourceSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
 
-  private listActResultSubject = new BehaviorSubject<
-    EntityResult<IActResult[]>
-  >(null as unknown as EntityResult<IActResult[]>);
+  private listChainActSubject = new BehaviorSubject<IChainAct[]>(
+    null as unknown as IChainAct[],
+  );
+  public listChainActObservable = this.listChainActSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
+  private listActResultSubject = new BehaviorSubject<IActResult[]>(
+    null as unknown as IActResult[],
+  );
+  public listActResultObservable = this.listActResultSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
 
   private listActReasonSubject = new BehaviorSubject<
     EntityResult<IActReason[]>
   >(null as unknown as EntityResult<IActReason[]>);
 
-  private listActionSubject = new BehaviorSubject<EntityResult<IAction[]>>(
-    null as unknown as EntityResult<IAction[]>,
+  private listActionSubject = new BehaviorSubject<IAction[]>(
+    null as unknown as IAction[],
   );
+  public listActionObservable = this.listActionSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
+  private currentSettingObject = new BehaviorSubject<ISetting>(
+    null as unknown as ISetting)
+  
+  public currentSetting = this.currentSettingObject
+    .asObservable()
+    .pipe(distinctUntilChanged());
 
   constructor(
     httpClient: HttpClient,
@@ -147,26 +177,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   }
 
   action = {
-    get: (
-      params = {},
-      options?: {
-        cache?: boolean;
-      },
-    ) => {
-      const getData = this.httpClient
-        .get<EntityResult<IAction[]>>(this.createUrl([this.api.action]), {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<IAction[]>>(
+        this.createUrl([this.api.action]),
+        {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        })
-        .pipe(tap((res) => res?.status === 200 && this.setListAction(res)));
-
-      if (options?.cache) {
-        if (!this.listActionSubject.getValue()) {
-          return getData;
-        }
-        return of(this.listActionSubject.getValue());
-      }
-      return getData;
-    },
+        },
+      ),
     getOne: (id: string) =>
       this.httpClient.get<EntityResult<IAction>>(
         this.createUrl([this.api.action, id]),
@@ -188,31 +205,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   actionResult = {
-    get: (
-      params = {},
-      options?: {
-        cache?: boolean;
-      },
-    ) => {
-      const getData = this.httpClient
-        .get<EntityResult<IActResult[]>>(
-          this.createUrl([this.api.actionResult]),
-          {
-            params: this.createParams(
-              Object.assign(params, this.defaultParams),
-            ),
-          },
-        )
-        .pipe(tap((res) => res?.status === 200 && this.setListActResult(res)));
-
-      if (options?.cache) {
-        if (!this.listActResultSubject.getValue()) {
-          return getData;
-        }
-        return of(this.listActResultSubject.getValue());
-      }
-      return getData;
-    },
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<IActResult[]>>(
+        this.createUrl([this.api.actionResult]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     create: (body: IBodyResultReason) =>
       this.httpClient.post<EntityResult<IActResult>>(
         this.createUrl([this.api.actionResult]),
@@ -266,31 +265,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   chainAction = {
-    get: (
-      params = {},
-      options?: {
-        cache?: boolean;
-      },
-    ) => {
-      const getData = this.httpClient
-        .get<EntityResult<IChainAct[]>>(
-          this.createUrl([this.api.chainAction]),
-          {
-            params: this.createParams(
-              Object.assign(params, this.defaultParams),
-            ),
-          },
-        )
-        .pipe(tap((res) => res?.status === 200 && this.setListChainAct(res)));
-
-      if (options?.cache) {
-        if (!this.listChainActSubject.getValue()) {
-          return getData;
-        }
-        return of(this.listChainActSubject.getValue());
-      }
-      return getData;
-    },
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<IChainAct[]>>(
+        this.createUrl([this.api.chainAction]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     getOne: (id: string) =>
       this.httpClient.get<EntityResult<IChainAct>>(
         this.createUrl([this.api.chainAction, id]),
@@ -463,26 +444,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   source = {
-    get: (
-      params = {},
-      options?: {
-        cache?: boolean;
-      },
-    ) => {
-      const getData = this.httpClient
-        .get<EntityResult<ISource[]>>(this.createUrl([this.api.source]), {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<ISource[]>>(
+        this.createUrl([this.api.source]),
+        {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        })
-        .pipe(tap((res) => res?.status === 200 && this.setListSource(res)));
-
-      if (options?.cache) {
-        if (!this.listSourceSubject.getValue()) {
-          return getData;
-        }
-        return of(this.listSourceSubject.getValue());
-      }
-      return getData;
-    },
+        },
+      ),
     getOrderBySource: (params = {}) =>
       this.httpClient.get<EntityResult<Record<ESocialPlatform, ISource[]>>>(
         this.createUrl([this.api.source, 'group']),
@@ -507,26 +475,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   tag = {
-    get: (
-      params = {},
-      options?: {
-        cache?: boolean;
-      },
-    ) => {
-      const getData = this.httpClient
-        .get<EntityResult<ITag[]>>(this.createUrl([this.api.tag]), {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<ITag[]>>(
+        this.createUrl([this.api.tag]),
+        {
           params: this.createParams(Object.assign(params, this.defaultParams)),
-        })
-        .pipe(tap((res) => res?.status === 200 && this.setListTag(res)));
-
-      if (options?.cache) {
-        if (!this.listTagSubject.getValue()) {
-          return getData;
-        }
-        return of(this.listTagSubject.getValue());
-      }
-      return getData;
-    },
+        },
+      ),
     create: (body: ITag) =>
       this.httpClient.post<EntityResult<ITag>>(
         this.createUrl([this.api.tag]),
@@ -808,7 +763,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     return units;
   }
 
-  setListTag(items: EntityResult<ITag[]>) {
+  setListTag(items: ITag[]) {
     this.listTagSubject.next(items);
   }
 
@@ -816,15 +771,15 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     this.listViewModeSubject.next(item);
   }
 
-  setListSource(items: EntityResult<ISource[]>) {
+  setListSource(items: ISource[]) {
     this.listSourceSubject.next(items);
   }
 
-  setListChainAct(items: EntityResult<IChainAct[]>) {
-    this.listChainActSubject.next(items);
+  setListChainAct(items: IChainAct[]) {
+    this.listChainActSubject.next(items || []);
   }
 
-  setListActResult(items: EntityResult<IActResult[]>) {
+  setListActResult(items: IActResult[]) {
     this.listActResultSubject.next(items);
   }
 
@@ -832,8 +787,12 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     this.listActReasonSubject.next(items);
   }
 
-  setListAction(items: EntityResult<IAction[]>) {
+  setListAction(items: IAction[]) {
     this.listActionSubject.next(items);
+  }
+
+  setCurrentSetting(item: ISetting) {
+    this.currentSettingObject.next(item);
   }
 
   ngOnDestroy(): void {

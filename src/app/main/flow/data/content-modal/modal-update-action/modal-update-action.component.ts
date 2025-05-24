@@ -25,6 +25,8 @@ import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
 import {Template} from '@app/types/feedback';
 import {FeedbackService} from '@app/services/api/feeback.service';
+import {environment} from 'src/environments/environment';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-modal-update-action',
@@ -35,6 +37,9 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   @Input() sourceData?: IAction;
   @Output() updateSuccess = new EventEmitter();
   private destroy$ = new Subject();
+  protected bizAlias?: string;
+  protected hasPermitModuleFeedback =
+    this.authService.checkPermittedModule('feedback');
 
   public actionTypes: {value: EActionType; label: string}[] = [];
   public submitted = false;
@@ -76,7 +81,6 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   public loading = {
     submit: false,
     data: false,
-    getConfigFeedback: false,
   };
 
   public listTemplateFeedback: Template[] = [];
@@ -93,8 +97,14 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     private readonly commonService: CommonService,
     private readonly automationService: AutomationService,
     private readonly feedbackService: FeedbackService,
+    private readonly authService: AuthService,
   ) {
     this.actionTypes = configurationService.actionTypes;
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.bizAlias = biz.alias;
+      });
   }
 
   get f(): {[key: string]: AbstractControl} {
@@ -130,7 +140,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   getBlock() {
     this.blocks.loading = true;
     this.automationService.block
-      .getMany({}, {cache: true})
+      .getMany({})
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => (this.blocks.loading = false)),
@@ -271,6 +281,11 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     this.f['callBlockAutomation'].patchValue({
       blockId: null,
     });
+  }
+
+  handleTransferFeedback() {
+    const url = `${environment.urlDomain}/${this.bizAlias}/feedback/config?tab=template`;
+    window.open(url, '_blank');
   }
 
   ngOnDestroy(): void {

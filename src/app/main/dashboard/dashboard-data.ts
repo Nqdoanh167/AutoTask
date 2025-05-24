@@ -19,6 +19,7 @@ import {
 import {inject} from '@angular/core';
 import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
 import {AuthService} from '@app/services/api/auth.service';
+import {AutomationService} from '@app/services/api/automation.service';
 
 export class DashboardData extends CheckboxSortTableComponent<
   ITask,
@@ -26,6 +27,7 @@ export class DashboardData extends CheckboxSortTableComponent<
 > {
   protected readonly commonService = inject(CommonService);
   protected readonly autoTaskService = inject(AutoTaskService);
+  protected readonly automationService = inject(AutomationService);
 
   public override configFilters: IFilterTopTable[] = TASK_CONFIG_FILTERS;
   public override configButtons: IFilterTopButton[] = TASK_CONFIG_BUTTON;
@@ -38,7 +40,7 @@ export class DashboardData extends CheckboxSortTableComponent<
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
       sort: '-createdAt',
       filter: JSON.stringify({isActive: true}),
     },
@@ -49,7 +51,7 @@ export class DashboardData extends CheckboxSortTableComponent<
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -59,7 +61,7 @@ export class DashboardData extends CheckboxSortTableComponent<
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -68,8 +70,8 @@ export class DashboardData extends CheckboxSortTableComponent<
     rows: [],
     loading: false,
     paramsQuery: {
-      page: 1,
-      limit: 100,
+      // page: 1,
+      // limit: 100,
     },
     isAllowLoadMore: false,
   };
@@ -78,7 +80,8 @@ export class DashboardData extends CheckboxSortTableComponent<
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
+      isActive: true,
     },
     isAllowLoadMore: false,
   };
@@ -95,6 +98,7 @@ export class DashboardData extends CheckboxSortTableComponent<
           configFilterResult.options = biz.roles || [];
         }
       });
+    this.getAutoTaskSetting();
   }
 
   override getDataSource(isReset?: boolean) {
@@ -153,6 +157,7 @@ export class DashboardData extends CheckboxSortTableComponent<
               this.actionChains.rows.concat(res.data),
               'id',
             );
+            this.autoTaskService.setListChainAct(this.actionChains.rows);
             const configFilterChain = this.configFilters.find(
               (filter) => filter.name === 'chainActId',
             );
@@ -193,6 +198,7 @@ export class DashboardData extends CheckboxSortTableComponent<
               this.results.rows.concat(res.data),
               'id',
             );
+            this.autoTaskService.setListActResult(this.results.rows);
             const configFilterResult = this.configFilters.find(
               (filter) => filter.name === 'resultIds',
             );
@@ -229,6 +235,7 @@ export class DashboardData extends CheckboxSortTableComponent<
               this.actions.rows.concat(res.data),
               'id',
             );
+            this.autoTaskService.setListAction(this.actions.rows);
             const configFilterAction = this.configFilters.find(
               (filter) => filter.name === 'actionIds',
             );
@@ -265,6 +272,7 @@ export class DashboardData extends CheckboxSortTableComponent<
               this.sources.rows.concat(res.data),
               'id',
             );
+            this.autoTaskService.setListSource(this.sources.rows);
             const configFilterSource = this.configFilters.find(
               (filter) => filter.name === 'sourceIds',
             );
@@ -298,6 +306,7 @@ export class DashboardData extends CheckboxSortTableComponent<
         next: (res) => {
           if (res.status === 200) {
             this.tags.rows = uniqBy(this.tags.rows.concat(res.data), 'id');
+            this.autoTaskService.setListTag(this.tags.rows);
             const configFilterTag = this.configFilters.find(
               (filter) => filter.name === 'tags',
             );
@@ -315,6 +324,18 @@ export class DashboardData extends CheckboxSortTableComponent<
         error: (err) => {
           this.tags.isAllowLoadMore = false;
           this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getAutoTaskSetting() {
+    return this.autoTaskService.setting
+      .retrieve({bizId: this.currentBiz?.id})
+      .subscribe({
+        next: (res) => {
+          if(res.status ===200 && res.data) {
+            this.autoTaskService.setCurrentSetting(res.data);
+          }
         },
       });
   }
