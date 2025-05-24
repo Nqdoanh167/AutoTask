@@ -111,6 +111,7 @@
             <div class="col">
               <label for="type" class="form-control-label">
                 ID Nền tảng
+                <span class="required">*</span>
                 <i
                   class="fa-regular fa-circle-question ms-1"
                   [tooltip]="'ID Fanpage, ID Ladipage, ID Shopee,...'"
@@ -438,7 +439,7 @@
                             [min]="1"
                             [max]="100"
                             [isQuantity]="true"
-                            [value]="f['dTask.priority']?.value"
+                            [value]="f['dTask']?.value?.priority"
                             (changeValue)="handleChangePriority($event)"
                           ></app-input-mask>
                         </div>

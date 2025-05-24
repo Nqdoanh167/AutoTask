@@ -272,6 +272,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     this.getAutoTaskSetting();
     this.getActionChain();
     if (this.sourceData) {
+      console.log('check', this.sourceData);
       this.updateForm.patchValue({
         ...this.sourceData,
         counselorId: this.sourceData?.counselor?.id,
@@ -281,6 +282,9 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
           this.sourceData?.dTask?.branch,
         );
         this.updateForm.get('dTask.branch')?.setValue(foundUnit as any);
+      }
+      if(this.sourceData?.dTask?.taskDistributionConfigId){
+        this.getTaskDistributionConfig()
       }
       if (this.sourceData?.arguments) {
         this.sourceData?.arguments?.forEach((argument: ISourceArgsDto) => {
@@ -294,7 +298,6 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       }
     }
 
-    this.handleChangeType();
   }
 
   getActionChain() {

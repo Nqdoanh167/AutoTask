@@ -106,12 +106,13 @@ export class ModalUpdateTaskComponent
 
   async ngOnInit() {
     this.loading.modal = true;
-    const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
-    if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {
-      this.autoTaskSetting = autoTaskSettingRes.data;
-    } else {
-      this.commonService.handleResErr(autoTaskSettingRes);
-    }
+    // const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
+    // if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {
+    //   this.autoTaskSetting = autoTaskSettingRes.data;
+    // } else {
+    //   this.commonService.handleResErr(autoTaskSettingRes);
+    // }
+    this.getAutoTaskSetting();
     if (!this.sourceData && !this.taskId && !this.code) {
       this.loading.modal = false;
       this.patchForm();
@@ -144,18 +145,20 @@ export class ModalUpdateTaskComponent
       )
       .subscribe({
         next: (res) => {
-          if (res.status === 200) {
+          if (res.status === 200 && res.data) {
             this.sourceData = res.data;
             this.patchForm(res.data);
             if (isRefresh) {
               this.customerInfoComponent?.handleClearSelectValue();
             }
           } else {
-            this.commonService.handleResErr(res);
+            this.toastr.error('Không tìm thấy dữ liệu');
+            this.hideModal();
           }
         },
         error: (err) => {
           this.commonService.handleErr(err);
+           this.hideModal();
         },
       });
   }
@@ -175,7 +178,8 @@ export class ModalUpdateTaskComponent
             this.sourceData = detailTask;
             this.patchForm(detailTask);
           } else {
-            this.commonService.handleResErr(res);
+            this.toastr.error('Không tìm thấy dữ liệu');
+            this.hideModal();
           }
         },
       });

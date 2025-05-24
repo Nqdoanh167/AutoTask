@@ -102,7 +102,7 @@ export class DashboardComponent
   }
 
   override ngOnInit() {
-    // this.handleCheckPermission();
+    this.handleCheckPermission();
     this.handleActiveViewMode();
     const permissions = this.authService.getUserPerByType(EPerActType.TASK);
     this.permission.edit = this.hasPermission(

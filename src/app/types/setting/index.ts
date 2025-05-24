@@ -57,6 +57,9 @@ export interface ISourceDTask {
   branch: IBranchTaskDto;
   teams: ISourceDTaskTeam[];
   taskChainIds: string[];
+  distributionType: string | 'MANUAL' | 'AUTO';
+  priority: number;
+  taskDistributionConfigId: string;
 }
 
 export interface ISource {
