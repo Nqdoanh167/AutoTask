@@ -81,7 +81,6 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   public loading = {
     submit: false,
     data: false,
-    getConfigFeedback: false,
   };
 
   public listTemplateFeedback: Template[] = [];
@@ -285,7 +284,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   }
 
   handleTransferFeedback() {
-    const url = `${environment.urlDomain}/${this.bizAlias}/feedback/config/template`;
+    const url = `${environment.urlDomain}/${this.bizAlias}/feedback/config?tab=template`;
     window.open(url, '_blank');
   }
 

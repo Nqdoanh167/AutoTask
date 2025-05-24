@@ -328,11 +328,11 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       }
 
       if (key === 'provinceCode') {
-        this.getDistrict(patchData[key]);
+        // this.getDistrict(patchData[key]);
       }
 
       if (key === 'districtCode' && patchData[key]) {
-        this.getWard(patchData['provinceCode'], patchData[key]);
+        // this.getWard(patchData['provinceCode'], patchData[key]);
       }
     }
 

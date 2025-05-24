@@ -21,11 +21,8 @@ export class AutomationService extends BaseApiService implements OnDestroy {
   destroy = new Subject();
 
   private listBlockSubject = new BehaviorSubject<
-    IBlockAutomation[]
-  >(null as unknown as IBlockAutomation[]);
-  public listBlock$ = this.listBlockSubject
-    .asObservable()
-    .pipe(distinctUntilChanged());
+    EntityResult<IBlockAutomation[]>
+  >(null as unknown as EntityResult<IBlockAutomation[]>);
 
   api = {
     action: 'action',
@@ -53,16 +50,31 @@ export class AutomationService extends BaseApiService implements OnDestroy {
       this.httpClient.get<EntityResult<IBlockAutomation>>(
         this.createUrl(['blocks', id]),
       ),
-    getMany: (params: IQueryBase) =>
-      this.httpClient.get<EntityResult<IBlockAutomation[]>>(
-        this.createUrl(['blocks']),
-        {
-          params: this.createParams(params),
+    getMany: (
+        params = {},
+        options?: {
+          cache?: boolean;
         },
-      ),
+      ) => {
+        const getData = this.httpClient
+          .get<EntityResult<IBlockAutomation[]>>(this.createUrl(['blocks']), {
+            params: this.createParams(Object.assign(params)),
+          })
+          .pipe(tap((res) => res?.status === 200 && this.setListBlock(res)));
+  
+        if (options?.cache) {
+          if (!this.listBlockSubject.getValue()) {
+            return getData;
+          }
+          return of(this.listBlockSubject.getValue());
+        }
+        return getData;
+      },
   };
 
-  setListBlock(items: IBlockAutomation[]) {
+  
+
+  setListBlock(items: EntityResult<IBlockAutomation[]>) {
     this.listBlockSubject.next(items);
   }
 
