@@ -88,18 +88,18 @@ export const TASK_CONFIG_FILTERS = [
     minWidth: '200px',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  {
-    type: ETypeFilter.SELECT,
-    name: 'teamRoles',
-    placeholder: 'Vai trò',
-    options: [],
-    bindLabel: 'name',
-    bindValue: 'id',
-    clearable: true,
-    searchable: true,
-    multiple: true,
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  },
+  // {
+  //   type: ETypeFilter.SELECT,
+  //   name: 'teamRoles',
+  //   placeholder: 'Vai trò',
+  //   options: [],
+  //   bindLabel: 'name',
+  //   bindValue: 'id',
+  //   clearable: true,
+  //   searchable: true,
+  //   multiple: true,
+  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  // },
   {
     type: ETypeFilter.SELECT,
     name: 'teamId',
@@ -148,12 +148,12 @@ export const TASK_CONFIG_FILTERS = [
     clearable: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  {
-    type: ETypeFilter.SEARCH,
-    name: 'fbAdId',
-    placeholder: 'Lọc theo Facebook Ad ID',
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  },
+  // {
+  //   type: ETypeFilter.SEARCH,
+  //   name: 'fbAdId',
+  //   placeholder: 'Lọc theo Facebook Ad ID',
+  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  // },
 ];
 
 export const TASK_FLOWS_CONFIG_FILTERS = [

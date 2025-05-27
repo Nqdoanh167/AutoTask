@@ -6,11 +6,11 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
+  TemplateRef,
   ViewChild,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
-import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {TabsetComponent, TabsModule} from 'ngx-bootstrap/tabs';
 import {finalize, Subject, takeUntil} from 'rxjs';
@@ -27,6 +27,14 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {v4 as uuidv4} from 'uuid';
 import cloneDeep from 'lodash/cloneDeep';
+import {TreeSelectModule} from 'primeng/treeselect';
+import {ModifiedUserUnit} from '@app/types/flow';
+import {BsModalRef, BsModalService, ModalModule} from 'ngx-bootstrap/modal';
+import {BizRole, User} from '@app/types/viewmodels';
+import {NgSelectComponent, NgSelectModule} from '@ng-select/ng-select';
+import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
+import {CustomModalComponent} from '../../custom/custom-modal/custom-modal.component';
+import {BaseComponentsComponent} from '../base-components/base-components.component';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -34,36 +42,59 @@ import cloneDeep from 'lodash/cloneDeep';
   imports: [
     CommonModule,
     BsDropdownModule,
-    CustomInputSearchComponent,
     ReactiveFormsModule,
     TabsModule,
     FormsModule,
     PopoverModule,
     TooltipModule,
-    ModalConfirmComponent,
+    TreeSelectModule,
+    ModalModule,
+    NgSelectModule,
+    FilterDataModule,
+    CustomModalComponent,
   ],
   templateUrl: './view-mode-tab.component.html',
   styleUrls: ['./view-mode-tab.component.scss'],
 })
 export class ViewModeTabComponent
+  extends BaseComponentsComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit
 {
   @ViewChild('staticTabs') staticTabs!: TabsetComponent;
+  @ViewChild('viewSettingsModal') viewSettingsModal!: TemplateRef<void>;
 
-  @Input() MAX_TAB = 20;
+  @Input() MAX_TAB = 15;
   @Input() key?: EScreens;
-
-  private destroy$ = new Subject();
 
   public tabs: IViewModeDto[] = [];
   public filteredTabs: IViewModeDto[] = [];
   public loading = false;
+  public selectedUsers: User[] = [];
+  public selectedUserIds: string[] = [];
+  public roles: BizRole[] = [];
+  public units = this.autoTaskService.getUserUnits(false);
+  public selectedUnits: ModifiedUserUnit[] = [];
+  public branches: any[] = [];
+
+  public selectedTab?: IViewModeDto;
+
+  public modeTypes = [
+    {label: 'Cá nhân', value: 'personal'},
+    {label: 'Chi nhánh', value: 'position'},
+    {label: 'Vai trò', value: 'role', role: 'OWNER'},
+    {label: 'Tất cả', value: 'all', role: 'OWNER'},
+  ];
   constructor(
     private readonly toastr: ToastrService,
     private readonly modalConfirmService: ModalConfirmService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
-  ) {}
+    private readonly modalService: BsModalService,
+    public modalRef: BsModalRef,
+  ) {
+    super();
+    this.roles = this.currentUser?.roles || [];
+  }
 
   ngOnInit() {
     if (this.key) {
@@ -104,6 +135,11 @@ export class ViewModeTabComponent
         isEdit: false,
         hasChanged: false,
         isActive: tab.isDefault ?? false,
+        ownerId: tab.ownerId,
+        type: tab.type || 'personal',
+        allowedUserIds: tab.allowedUserIds || [],
+        posIds: tab.posIds || [],
+        roleIds: tab.roleIds || [],
       };
     });
     if (isInit) {
@@ -280,6 +316,8 @@ export class ViewModeTabComponent
       isEdit: false,
       isActive: false,
       options: tab.options,
+      ownerId: this.currentUser?.id,
+      type: this.currentUser?.role === 'OWNER' ? 'all' : 'personal',
     } as IViewModeDto;
     this.tabs.push(newTab);
     const oldViewModes = this.autoTaskService.getDashboardViewModes();
@@ -335,13 +373,20 @@ export class ViewModeTabComponent
       this.autoTaskService.settingView
         .update({
           screen: this.key as EScreens,
-          modes: tabs.map((tab) => {
-            return {
-              name: tab.name,
-              options: tab.options,
-              isDefault: tab.isDefault,
-            };
-          }),
+          modes: tabs
+            .map((tab) => {
+              return {
+                name: tab.name,
+                options: tab.options,
+                isDefault: tab.isDefault,
+                type: tab.type,
+                allowedUserIds: tab.allowedUserIds,
+                posIds: tab.posIds,
+                ownerId: tab.ownerId,
+                roleIds: tab.roleIds,
+              };
+            })
+            .filter((item) => item.ownerId === this.currentUser?.id),
         } as IViewDto)
         .pipe(
           takeUntil(this.destroy$),
@@ -381,6 +426,8 @@ export class ViewModeTabComponent
       isEdit: false,
       isActive: false,
       options: {},
+      ownerId: this.currentUser?.id,
+      type: this.currentUser?.role === 'OWNER' ? 'all' : 'personal',
     } as IViewModeDto;
     this.tabs.push(newTab);
     const oldViewModes = this.autoTaskService.getDashboardViewModes();
@@ -422,8 +469,127 @@ export class ViewModeTabComponent
     return el.id;
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
+  handleSettingsViewMode(tab: IViewModeDto): void {
+    this.selectedTab = {...tab};
+
+    this.selectedUsers = (this.bizUsers || []).filter(
+      (user) =>
+        this.selectedTab?.allowedUserIds?.includes(user.id) &&
+        user.id !== this.currentUser?.id,
+    );
+
+    this.selectedUserIds = this.selectedUsers.map((item) => item.id);
+
+    this.selectedUnits = this.autoTaskService.findUnitsByIds(tab.posIds || []);
+
+    this.modalRef = this.modalService.show(this.viewSettingsModal, {
+      class: 'modal-dialog-centered',
+      backdrop: 'static',
+      ignoreBackdropClick: true,
+    });
+
+    this.modalRef?.onHidden?.subscribe(() => {
+      this.selectedUsers = [];
+      this.selectedUserIds = [];
+      this.selectedTab = undefined;
+    });
+  }
+
+  handleChooseUser(user: User) {
+    if (user) {
+      const existingUser = this.selectedUsers.find(
+        (item) => item.id === user.id,
+      );
+      if (!existingUser) {
+        this.selectedUsers.push(user);
+      }
+    }
+    this.selectedUserIds = this.selectedUsers.map((item) => item.id);
+  }
+
+  handleRemoveUser(user: User) {
+    this.selectedUsers = this.selectedUsers.filter(
+      (item) => item.id !== user.id,
+    );
+    this.selectedUserIds = this.selectedUsers.map((item) => item.id);
+  }
+
+  saveViewSettings(): void {
+    if (!this.selectedTab) return;
+    if (this.selectedTab.type === 'personal') {
+      this.selectedTab.allowedUserIds = this.selectedUserIds;
+    }
+    if (this.selectedTab.type === 'position') {
+      this.selectedTab.posIds = this.selectedUnits.map((unit) => {
+        return unit.team || unit.department || unit.id || '';
+      });
+    }
+
+    const oldViewModes = this.autoTaskService.getDashboardViewModes();
+    const index = oldViewModes.findIndex(
+      (item) => item.id === this.selectedTab?.id,
+    );
+    if (index !== -1) {
+      oldViewModes[index] = this.selectedTab;
+    }
+
+    this.tabs = cloneDeep(oldViewModes);
+    this.tabs.forEach((tab) => {
+      tab.isActive = tab.id === this.selectedTab?.id;
+    });
+
+    this.handleSetTab()
+      .then(() => {
+        this.modalRef?.hide();
+        this.toastr.success('Cập nhật chế độ xem thành công');
+      })
+      .catch((err) => {
+        this.toastr.error('Cập nhật chế độ xem thất bại');
+        console.error(err);
+      });
+  }
+
+  handleChangeUnits(event: any) {
+    const ids: string[] = [];
+    this.selectedUnits.forEach((unit) => {
+      ids.push(unit?.team || unit?.department || unit?.id || '');
+    });
+  }
+
+  getSelectedSummary(nodes: any[]): string {
+    const teamIds = new Set();
+    const pbKeys = new Set();
+    const cnKeys = new Set();
+
+    nodes.forEach((n) => {
+      if (n.team) {
+        teamIds.add(n.team); // Đội nhóm: ưu tiên cao nhất
+      } else if (n.department) {
+        // Nếu chưa chọn TEAM của PB này thì mới đếm PB
+        const hasTeam = nodes.some(
+          (x) => x.team && x.department === n.department,
+        );
+        if (!hasTeam) {
+          pbKeys.add(`${n.id}-${n.department}`); // Dựa theo id CN + id PB
+        }
+      } else {
+        // Nếu chưa chọn PB hoặc TEAM thuộc CN này thì mới đếm CN
+        const hasLowerLevel = nodes.some(
+          (x) =>
+            (x.department && x.id === n.id) || // có PB trong CN này
+            (x.team && x.id === n.id), // có TEAM trong CN này
+        );
+        if (!hasLowerLevel) {
+          cnKeys.add(n.id);
+        }
+      }
+    });
+
+    const parts = [];
+    if (cnKeys.size) parts.push(`${cnKeys.size}CN`);
+    if (pbKeys.size) parts.push(`${pbKeys.size}PB`);
+    if (teamIds.size) parts.push(`${teamIds.size}ĐN`);
+
+    return parts.join(' ');
   }
 }

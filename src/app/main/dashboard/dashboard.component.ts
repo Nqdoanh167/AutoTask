@@ -501,10 +501,11 @@ export class DashboardComponent
       configFilterPopover.value = data.value;
     }
     if (data.value !== this.currentActiveViewMode?.options?.sort) {
-      // this.handleViewModeChange(true);
     }
 
-    this.getDataSource(true);
+    this.handleViewModeChange(true);
+
+    // this.getDataSource(true);
   }
 
   override onSelectFilter(data: {value?: string | string[]; name: string}) {

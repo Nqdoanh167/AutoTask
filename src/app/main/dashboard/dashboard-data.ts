@@ -19,7 +19,7 @@ import {
 import {inject} from '@angular/core';
 import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
 import {AuthService} from '@app/services/api/auth.service';
-import { AutomationService } from '@app/services/api/automation.service';
+import {AutomationService} from '@app/services/api/automation.service';
 
 export class DashboardData extends CheckboxSortTableComponent<
   ITask,
@@ -98,8 +98,7 @@ export class DashboardData extends CheckboxSortTableComponent<
           configFilterResult.options = biz.roles || [];
         }
       });
-
-    this.getBlock()
+    this.getAutoTaskSetting();
   }
 
   override getDataSource(isReset?: boolean) {
@@ -329,19 +328,15 @@ export class DashboardData extends CheckboxSortTableComponent<
       });
   }
 
-  getBlock(){
-    this.automationService.block.getMany({}).pipe(
-      takeUntil(this.destroy$),
-    ).subscribe({
-      next: (res) => {
-        if (res.status === 200) {
-          this.automationService.setListBlock(res.data);
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      
-    }
-    )
+  getAutoTaskSetting() {
+    return this.autoTaskService.setting
+      .retrieve({bizId: this.currentBiz?.id})
+      .subscribe({
+        next: (res) => {
+          if(res.status ===200 && res.data) {
+            this.autoTaskService.setCurrentSetting(res.data);
+          }
+        },
+      });
   }
 }

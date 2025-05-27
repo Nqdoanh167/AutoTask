@@ -71,7 +71,7 @@ export class AuthService {
   }
 
   popular() {
-    let alias = 'demo';
+    let alias = 'test';
 
     const parsedURL = new URL(location.href);
     if (!environment.production && !this.isAuthenticated) {
@@ -260,6 +260,13 @@ export class AuthService {
   }
 
   loginInDev() {
+    const token = localStorage.getItem('smaxapp_token');
+    if (token) {
+      this.setToken(token);
+      this.isLoggedInSubject.next(true);
+      window.location.reload();
+      return;
+    }
     const headers = new HttpHeaders().set(
       'Authorization',
       'Basic ZHVvbmdsb25nLmRldkBnbWFpbC5jb206MTIzMTIz',

@@ -284,7 +284,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   }
 
   handleTransferFeedback() {
-    const url = `${environment.urlDomain}/${this.bizAlias}/feedback/config/template`;
+    const url = `${environment.urlDomain}/${this.bizAlias}/feedback/config?tab=template`;
     window.open(url, '_blank');
   }
 

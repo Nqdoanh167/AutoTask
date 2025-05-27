@@ -68,7 +68,16 @@
               role="menu"
               aria-labelledby="button-alignment"
             >
-              <li role="menuitem">
+              <li role="menuitem" *ngIf="currentUser?.role === 'OWNER'">
+                <div
+                  (click)="handleSettingsViewMode(tabz)"
+                  class="dropdown-item d-flex align-items-center gap-2"
+                >
+                  <img src="./assets/images/icon/setting.svg" alt="" />
+                  Cài đặt chế độ xem
+                </div>
+              </li>
+              <li role="menuitem" *ngIf="tabz.ownerId === currentUser?.id">
                 <div
                   (click)="handleEditTab(tabz, $event, index)"
                   class="dropdown-item d-flex align-items-center gap-2"
@@ -86,7 +95,10 @@
                   Sao chép chế độ xem
                 </div>
               </li>
-              <li *ngIf="!tabz.isDefault" role="menuitem">
+              <li
+                *ngIf="!tabz.isDefault && tabz.ownerId === currentUser?.id"
+                role="menuitem"
+              >
                 <div
                   (click)="handleDeleteViewMode(tabz)"
                   class="dropdown-item d-flex align-items-center gap-2 text-danger"
@@ -235,3 +247,176 @@
       </div>
     </div> -->
 </div>
+
+<ng-template #viewSettingsModal>
+  <app-custom-modal
+    (submitModal)="saveViewSettings()"
+    (hideModal)="modalRef?.hide()"
+    *ngIf="selectedTab"
+  >
+    <ng-container modalTitle>Cài đặt chế độ xem</ng-container>
+
+    <ng-container modalBody>
+      <div class="mb-3">
+        <label class="form-label">Phạm vi hiển thị</label>
+        <div class="d-flex flex-column gap-2">
+          <div class="form-check" *ngFor="let modeType of modeTypes">
+            <ng-container
+              *ngIf="!modeType.role || modeType.role === currentUser?.role"
+            >
+              <input
+                class="form-check-input"
+                type="radio"
+                name="viewScope"
+                [id]="modeType.value"
+                [value]="modeType.value"
+                [(ngModel)]="selectedTab.type"
+              />
+              <label class="form-check-label" [htmlFor]="modeType.value">
+                {{ modeType.label }}
+              </label>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3" *ngIf="selectedTab.type === 'position'">
+        <label class="form-label">Chọn chi nhánh</label>
+        <p-treeSelect
+          [filter]="true"
+          [options]="units"
+          [(ngModel)]="selectedUnits"
+          (onNodeSelect)="handleChangeUnits($event)"
+          (onNodeUnselect)="handleChangeUnits($event)"
+          [metaKeySelection]="false"
+          selectionMode="checkbox"
+          class="w-100"
+          containerStyleClass="w-100 input-medium custom-tree-select fw-normal show-in-above"
+          placeholder="Chọn Chi nhánh..."
+        >
+          <ng-template pTemplate="value" let-selectedNodes>
+            <ng-container *ngIf="selectedNodes?.length">
+              {{ getSelectedSummary(selectedNodes) }}
+            </ng-container>
+            <ng-container *ngIf="!selectedNodes?.length">
+              Chọn Chi nhánh...
+            </ng-container>
+          </ng-template>
+        </p-treeSelect>
+      </div>
+
+      <div class="mt-3" *ngIf="selectedTab.type === 'role'">
+        <label class="form-label">Chọn vai trò</label>
+        <div class="action-roles">
+          <ng-select
+            id="role"
+            [items]="roles"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Chọn vai trò"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [clearable]="true"
+            class=""
+            appendTo=".modal"
+            [(ngModel)]="selectedTab.roleIds"
+          >
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon" (click)="clear(item)">×</span>
+              <div class="ng-value-label">
+                <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+                <span class="ms-2">{{ item.name }}</span>
+              </div>
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item">
+              <div class="ng-value-label">
+                <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+                <span class="ms-2">{{ item.name }}</span>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+
+      <div class="mt-3" *ngIf="selectedTab.type === 'personal'">
+        <label class="form-label">Chọn nhân viên</label>
+        <ng-select
+          [items]="bizUsers | filterData: selectedUserIds : ['id']"
+          bindLabel="name"
+          bindValue="id"
+          [clearable]="true"
+          [closeOnSelect]="false"
+          [placeholder]="'Chọn nhân viên'"
+          [notFoundText]="'Không có nhân viên'"
+          #ngSelect
+          (change)="handleChooseUser($event); ngSelect?.handleClearClick()"
+          appendTo=".modal"
+        >
+          <ng-template ng-option-tmp let-item="item">
+            <div
+              class="person-info d-flex justify-content-between align-items-center p-1"
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <img
+                  class="avatar"
+                  alt=""
+                  fallback="./assets/images/avatar.svg"
+                  src="{{ item?.picture }}"
+                />
+                <div class="d-flex flex-column mx-3">
+                  <span class="account-name fw-500">
+                    {{ item?.name }}
+                  </span>
+                  <span class="account-phone">
+                    {{ item?.phone }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </ng-select>
+
+        <div class="user-list-header d-flex" *ngIf="selectedUsers.length">
+          <span class="form-control-label m-0 flex-grow-1">Nhân viên</span>
+        </div>
+
+        <div class="user-list-container">
+          <div
+            class="d-flex align-items-center gap-3"
+            *ngFor="let user of selectedUsers; let i = index"
+          >
+            <div class="d-flex align-items-center flex-grow-1">
+              <div class="me-2">
+                <img
+                  [src]="user.picture || './assets/images/avatar.svg'"
+                  alt="Avatar"
+                  class="img-fluid rounded-circle"
+                  style="width: 32px; height: 32px"
+                />
+              </div>
+              <div>
+                <div class="fw-bold">
+                  {{ user.name }}
+                </div>
+                <div class="text-muted small">
+                  {{ user.email }}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="button"
+                class="btn btn-outline-danger btn-sm"
+                (click)="handleRemoveUser(user)"
+                style="border: 1px solid #dc3545"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </app-custom-modal>
+</ng-template>
