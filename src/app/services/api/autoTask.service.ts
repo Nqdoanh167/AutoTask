@@ -150,6 +150,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
 
+  private currentSettingObject = new BehaviorSubject<ISetting>(
+    null as unknown as ISetting)
+  
+  public currentSetting = this.currentSettingObject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
   constructor(
     httpClient: HttpClient,
     private authService: AuthService,
@@ -756,6 +763,10 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   setListAction(items: IAction[]) {
     this.listActionSubject.next(items);
+  }
+
+  setCurrentSetting(item: ISetting) {
+    this.currentSettingObject.next(item);
   }
 
   ngOnDestroy(): void {

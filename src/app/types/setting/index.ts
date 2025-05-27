@@ -109,6 +109,11 @@ export interface IViewModeDto {
   isActive?: boolean;
   hasChanged?: boolean;
   isEdit?: boolean;
+  type?: string | 'all' | 'personal' | 'position';
+  ownerId?: string;
+  allowedUserIds?: string[];
+  posIds?: string[];
+  roleIds?: string[];
 }
 
 export interface IView {

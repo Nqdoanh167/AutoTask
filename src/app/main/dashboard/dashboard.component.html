@@ -727,15 +727,30 @@
                       </ng-container>
 
                       <ng-container *ngSwitchCase="'fbAdId'">
-                        <td>{{item.fbAdId}}</td>
+                        <td>{{ item.fbAdId }}</td>
                       </ng-container>
-                       <ng-container *ngSwitchCase="'utm'">
+                      <ng-container *ngSwitchCase="'utm'">
                         <td>
-                          <div *ngIf="item.utmSource" >- UTM Source: <span class="fs-7">{{item.utmSource}}</span></div>
-                          <div *ngIf="item.utmMedium" >- UTM Medium: <span class="fs-7">{{item.utmMedium}}</span></div>
-                          <div *ngIf="item.utmCampaign" >- UTM Campaign: <span class="fs-7">{{item.utmCampaign}}</span></div>
-                          <div *ngIf="item.utmContent" >- UTM Content: <span class="fs-7">{{item.utmContent}}</span></div>
-                          <div *ngIf="item.utmTerm" >- UTM Term: <span class="fs-7">{{item.utmContent}}</span></div>
+                          <div *ngIf="item.utmSource">
+                            - UTM Source:
+                            <span class="fs-7">{{ item.utmSource }}</span>
+                          </div>
+                          <div *ngIf="item.utmMedium">
+                            - UTM Medium:
+                            <span class="fs-7">{{ item.utmMedium }}</span>
+                          </div>
+                          <div *ngIf="item.utmCampaign">
+                            - UTM Campaign:
+                            <span class="fs-7">{{ item.utmCampaign }}</span>
+                          </div>
+                          <div *ngIf="item.utmContent">
+                            - UTM Content:
+                            <span class="fs-7">{{ item.utmContent }}</span>
+                          </div>
+                          <div *ngIf="item.utmTerm">
+                            - UTM Term:
+                            <span class="fs-7">{{ item.utmContent }}</span>
+                          </div>
                         </td>
                       </ng-container>
                     </ng-container>
@@ -797,6 +812,7 @@
               [currentPage]="item.paramsQuery.page"
               (changePageEvent)="pageChanged($event)"
               [total]="item.total"
+              [optionSize]="[10, 20, 50, 100, 500, 1000]"
             />
           </div>
         </div>

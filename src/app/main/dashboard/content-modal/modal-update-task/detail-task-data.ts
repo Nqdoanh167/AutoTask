@@ -645,23 +645,27 @@ export class DetailTaskData extends BaseComponentsComponent {
   }
 
   getBlock() {
-    this.blocks.loading = true;
-    this.automationService.listBlock$
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.blocks.loading = false)),
-      )
+    this.automationService.block
+      .getMany({}, {cache: true})
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          this.blocks.rows = res || []
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
+          if (res.status === 200) {
+            this.blocks.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
         },
       });
   }
 
   getAutoTaskSetting() {
-    return this.autoTaskService.setting.retrieve({bizId: this.currentBiz?.id});
+    return this.autoTaskService.currentSetting.subscribe({
+      next: (res) => {
+        if(res){
+          this.autoTaskSetting = res;
+        }
+      }
+    })
   }
 }
