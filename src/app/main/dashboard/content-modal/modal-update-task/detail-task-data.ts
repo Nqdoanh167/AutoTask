@@ -1,8 +1,5 @@
-import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
 import {inject} from '@angular/core';
 import {BehaviorSubject, finalize, takeUntil} from 'rxjs';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {CommonService} from '@app/services/common/common.service';
 import {cloneDeep, template, uniqBy} from 'lodash';
 import {
   EntityPagination,
@@ -10,19 +7,13 @@ import {
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
-  ITag,
   Order,
 } from '@app/types/viewmodels';
 import {
-  IAction,
-  IActResult,
-  IChainAct,
   ITask,
   ITaskChain,
 } from '@app/types/flow';
-import {ISetting, ISource} from '@app/types/setting';
 import {IBlockAutomation} from '@app/types/automation';
-import {AutomationService} from '@app/services/api/automation.service';
 import {
   AbstractControl,
   FormArray,
@@ -33,11 +24,10 @@ import {
 import {calculateTime} from '@app/utils/common';
 import moment from 'moment/moment';
 import {ETabTaskDetail} from '@app/types/task';
+import {DashboardData} from '../../dashboard-data';
 
-export class DetailTaskData extends BaseComponentsComponent {
-  protected autoTaskService = inject(AutoTaskService);
-  protected commonService = inject(CommonService);
-  protected automationService = inject(AutomationService);
+export class DetailTaskData extends DashboardData {
+
   protected fb = inject(FormBuilder);
 
   protected detailTask?: ITask;
@@ -97,45 +87,10 @@ export class DetailTaskData extends BaseComponentsComponent {
     deleteTask: false,
     modal: false,
   };
-  protected tags: EntityPagination<ITag> = {
-    rows: [],
-    loading: false,
-  };
+
   protected orders: EntityPagination<Order> = {
     rows: [],
     loading: false,
-  };
-  protected results: ICommonDataLazy<IActResult, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-
-  protected sources: ICommonDataLazy<ISource, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-
-  protected actions: ICommonDataLazy<IAction, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
   };
 
   protected blocks: ICommonDataLazy<IBlockAutomation, IQueryBase> = {
@@ -145,18 +100,6 @@ export class DetailTaskData extends BaseComponentsComponent {
       page: 1,
       limit: 100,
       sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-
-  protected actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-      filter: JSON.stringify({isActive: true}),
     },
     isAllowLoadMore: false,
   };
@@ -171,7 +114,7 @@ export class DetailTaskData extends BaseComponentsComponent {
     },
     total: 0,
   };
-  protected autoTaskSetting!: ISetting;
+
   protected activeTab = ETabTaskDetail.INFO;
   protected tabs = [
     {
@@ -331,6 +274,7 @@ export class DetailTaskData extends BaseComponentsComponent {
         });
       }
       if (dataSource.tags?.length) {
+        this.clickLoadData('tags');
         if (dataSource.tags.every((tag) => typeof tag === 'object')) {
           this.updateForm.patchValue({
             tags: dataSource.tags?.map((tag) => tag.id),
@@ -539,22 +483,6 @@ export class DetailTaskData extends BaseComponentsComponent {
     }
   }
 
-  getTag() {
-    this.autoTaskService.listTagObservable
-      .pipe(
-        finalize(() => {}),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          this.tags.rows = res || [];
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
   getOrderDetail(orderIds: string[]) {
     this.autoTaskService.task
       .retrieveOrdersByTask({orderIds: orderIds})
@@ -567,78 +495,6 @@ export class DetailTaskData extends BaseComponentsComponent {
           }
         },
         error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getActionChain() {
-    this.actionChains.loading = true;
-    this.autoTaskService.listChainActObservable
-      .pipe(
-        finalize(() => (this.actionChains.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          this.actionChains.rows = res || [];
-        },
-        error: (err) => {
-          this.actionChains.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getSource() {
-    this.sources.loading = true;
-    this.autoTaskService.listSourceObservable
-      .pipe(
-        finalize(() => (this.sources.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          this.sources.rows = res || [];
-        },
-        error: (err) => {
-          this.sources.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getResult() {
-    this.results.loading = true;
-    this.autoTaskService.listActResultObservable
-      .pipe(
-        finalize(() => (this.results.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          this.results.rows = res || [];
-        },
-        error: (err) => {
-          this.results.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getAction() {
-    this.actions.loading = true;
-    this.autoTaskService.listActionObservable
-      .pipe(
-        finalize(() => (this.actions.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          this.actions.rows = res || [];
-        },
-        error: (err) => {
-          this.actions.isAllowLoadMore = false;
           this.commonService.handleErr(err);
         },
       });
@@ -657,15 +513,5 @@ export class DetailTaskData extends BaseComponentsComponent {
           }
         },
       });
-  }
-
-  getAutoTaskSetting() {
-    return this.autoTaskService.currentSetting.subscribe({
-      next: (res) => {
-        if(res){
-          this.autoTaskSetting = res;
-        }
-      }
-    })
   }
 }

@@ -114,6 +114,7 @@ export interface IViewModeDto {
   allowedUserIds?: string[];
   posIds?: string[];
   roleIds?: string[];
+  quantity?: number;
 }
 
 export interface IView {

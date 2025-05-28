@@ -49,6 +49,7 @@ export class CustomDatePickerComponent implements OnInit, OnChanges {
     showWeekNumbers: false,
     clearPosition: 'right',
     ranges: undefined,
+    adaptivePosition: true,
   };
 
   ngOnInit(): void {

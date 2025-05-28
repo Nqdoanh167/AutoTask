@@ -37,10 +37,15 @@ export class DetailTaskPerms extends DetailTaskData {
       taskPermissions,
       EPerActTask.EDIT_TIME_ACTION,
     );
-    this.getTag();
-    this.getSource();
-    this.getActionChain();
-    this.getResult();
-    this.getAction();
+
+    // // this.getTag();
+    // this.getSource();
+    // this.getActionChain();
+    // this.getResult();
+    // this.getAction();
+    this.clickLoadData('results')
+    this.clickLoadData('actionChains')
+    this.clickLoadData('sources')
+    this.clickLoadData('actions')
   }
 }

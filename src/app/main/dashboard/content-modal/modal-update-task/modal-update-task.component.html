@@ -210,6 +210,8 @@
                               [closeOnSelect]="false"
                               bindValue="id"
                               #ngSelectTagTask
+                              [loading]="tags.loading"
+                              (click)="clickLoadData('tags')"
                             >
                               <ng-template ng-option-tmp let-item="item">
                                 <div
@@ -739,6 +741,8 @@
             class="dropdown-auto-width custom-input-multiple-round"
             id="action-modal"
             appendTo=".modal-add-chain-action"
+            [loading]="actionChains.loading"
+            (click)="clickLoadData('actionChains')"
           >
             @for (option of actionChains.rows; track $index) {
               <ng-option [value]="option.id">

@@ -65,6 +65,7 @@ export class ViewModeTabComponent
 
   @Input() MAX_TAB = 15;
   @Input() key?: EScreens;
+  @Input() quantity = 0;
 
   public tabs: IViewModeDto[] = [];
   public filteredTabs: IViewModeDto[] = [];
