@@ -33,6 +33,7 @@ import {ETypeFilter, IFilterTopTable} from '@app/types/common';
         [closeOnSelect]="false"
         [clearable]="!!selectData.clearable"
         [clearSearchOnAdd]="true"
+        [loading]="selectData.loading || false"
       >
         <ng-template *ngIf="selectData.isCreatable" ng-header-tmp>
           <div (click)="onCreateOption()" class="cursor-point">
@@ -71,6 +72,7 @@ export class CustomSelectSearchComponent implements OnInit, OnChanges {
     isCreatable: false,
     bindLabel: 'name',
     bindValue: 'id',
+    loading: false,
   };
   @Output() selectEvent = new EventEmitter<string>();
   @Output() scrollToEndEvent = new EventEmitter();

@@ -359,9 +359,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
           actionId: actResult.actionId,
         };
       },
-    ) as unknown as IManyUpsertChainActResultDto;
+    ) as unknown as IManyUpsertChainActResultDto[];
     const bodyDelay = {
       fistActionDelay: this.fistActionDelay,
+      actionIds: bodyUpdateResults.map((actResult) => actResult.actionId),
+      name: this.detailChain?.name
     } as IUpdateChainActDto;
     this.loading.submit = true;
     this.configButtons[this.configButtons.length - 1].loading = true;

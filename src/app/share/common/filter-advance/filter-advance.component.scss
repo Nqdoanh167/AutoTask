@@ -1,0 +1,40 @@
+.button-filter-top {
+  img {
+    max-width: 16px;
+    max-height: 16px;
+  }
+  img.activeIcon {
+    display: none;
+  }
+  img.icon {
+    display: block;
+  }
+  &:hover {
+    img.icon {
+      display: none;
+    }
+    img.activeIcon {
+      display: block !important;
+    }
+  }
+}
+.custom-popover-tab .popover-body {
+  width: 500px;
+}
+
+.filter-btn {
+  font-size: 12px;
+}
+
+.icon-close {
+  color: #979aa6;
+  padding: 5px;
+  border-radius: 4px;
+  background: transparent;
+  :hover {
+    color: #fff;
+    background: #979aa6;
+    padding: 5px;
+    border-radius: 4px;
+  }
+}

@@ -40,7 +40,7 @@
               *ngIf="tabz.isDefault"
               [ngStyle]="{color: tabz.isActive ? '#4277FF' : '#afb2bd'}"
             ></i>
-            {{ tabz.name }}
+            {{ tabz.name }} {{tabz.isActive ? '(' + (quantity || 0) + ')' : ''}}
           </div>
           <div *ngIf="tabz.isEdit">
             <input
