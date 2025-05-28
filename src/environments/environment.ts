@@ -6,9 +6,9 @@ export const environment = {
   production: false,
   module: 'auto-task',
   apiAddress: 'https://dev.smax.app/api',
-  // apiAddress: 'http://localhost:5020/api',
-  // apiModule: 'http://localhost:5020/api',
-  apiModule: 'https://dev.smax.app/api',
+  // apiAddress: 'http://localhost:7200/api',
+  apiModule: 'http://localhost:7200/api',
+  // apiModule: 'https://dev.smax.app/api',
   urlDomain: 'https://dev.smax.app',
   clientUrl: 'https://dev.smax.app',
 };
