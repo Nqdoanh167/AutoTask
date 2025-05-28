@@ -104,7 +104,7 @@ export class ModalUpdateTaskComponent
       });
   }
 
-  async ngOnInit() {
+  override async ngOnInit() {
     this.loading.modal = true;
     // const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
     // if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {

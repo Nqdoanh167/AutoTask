@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import {ICommonDataSource, IPageChange} from '@app/types/viewmodels';
 import {sortBy, sortIcon} from '@app/utils/common';
-import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
 import {ConvertTypeModule} from '@share/pipe/convertType/convertType.module';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -19,7 +18,6 @@ import {BaseComponentsComponent} from '@share/common/base-components/base-compon
   selector: 'app-standard-table',
   standalone: true,
   imports: [
-    FilterTopTableComponent,
     ConvertTypeModule,
     PaginationModule,
     ReactiveFormsModule,

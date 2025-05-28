@@ -434,7 +434,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.chainActionResult, 'update-many']),
         body,
       ),
-    upsertMany: (body: IManyUpsertChainActResultDto) =>
+    upsertMany: (body: IManyUpsertChainActResultDto[]) =>
       this.httpClient.put<EntityResult<IChainResult>>(
         this.createUrl([this.api.chainActionResult, 'upsert-many']),
         body,
@@ -750,6 +750,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   }
 
   setListChainAct(items: IChainAct[]) {
+    console.log('setListChainAct', items);
     this.listChainActSubject.next(items || []);
   }
 

@@ -52,6 +52,7 @@ import {InputUploadPreviewComponent} from '../../share/input/input-upload-previe
 import {TaskCreateSourceComponent} from './content-modal/task-create-source/task-create-source.component';
 import {SafePipe} from '@app/share/pipe/safeUrl.pipe';
 import {ModalCreateOrderComponent} from './content-modal/modal-create-order/modal-create-order.component';
+import { FilterAdvanceComponent } from "../../share/common/filter-advance/filter-advance.component";
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -111,6 +112,7 @@ import {ModalCreateOrderComponent} from './content-modal/modal-create-order/moda
     NgxStarsModule,
     InputUploadPreviewComponent,
     SafePipe,
-  ],
+    FilterAdvanceComponent
+],
 })
 export class DashboardModule {}

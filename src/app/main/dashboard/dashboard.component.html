@@ -5,37 +5,13 @@
         <div
           class="d-flex justify-content-between align-items-start mb-3 flex-wrap"
         >
-          <app-view-mode-tab [key]="EScreens.DASHBOARD"></app-view-mode-tab>
-          <app-filter-top-table
-            [configFilters]="configFilters"
-            [configButtons]="configButtons"
+          <app-view-mode-tab [key]="EScreens.DASHBOARD" [quantity]="item.total"></app-view-mode-tab>
+          <app-filter-advance
             (clickButtonEvent)="handleAction($event)"
             (searchEvent)="onSearch($event)"
-            (selectEvent)="onSelectFilter($event)"
-            (eventApply)="onApply($event)"
-            (eventReset)="onReset($event)"
-            (popoverEvent)="onPopoverFilter($event)"
-            (pickerDateEvent)="onPickerDateFilter($event)"
-            (scrollToEndEvent)="handleLoadMoreData($event)"
           >
-            <ng-container specificAdvanceFilter>
-              <div class="fw-500 col-4">Chi nhánh</div>
-              <div class="col-8">
-                <p-treeSelect
-                  [filter]="true"
-                  [options]="units"
-                  [(ngModel)]="selectedUnits"
-                  (onNodeSelect)="handleChangeUnits($event)"
-                  (onNodeUnselect)="handleChangeUnits($event)"
-                  [metaKeySelection]="false"
-                  selectionMode="checkbox"
-                  class="w-100"
-                  containerStyleClass="w-100 input-medium custom-tree-select fw-normal"
-                  placeholder="Chọn Chi nhánh..."
-                ></p-treeSelect>
-              </div>
-            </ng-container>
-          </app-filter-top-table>
+        
+          </app-filter-advance>
         </div>
 
         <div class="table-responsive tableFixHead custom-scrollbar">

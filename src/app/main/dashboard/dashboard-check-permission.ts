@@ -14,14 +14,15 @@ export class DashboardCheckPermission extends DashboardData {
 
   constructor() {
     super();
+    this.handleCheckPermission();
   }
 
   handleCheckPermission() {
-    this.getActionChain();
-    this.getResult();
-    this.getAction();
-    this.getSource();
-    this.getTag();
+    // this.getActionChain();
+    // this.getResult();
+    // this.getAction();
+    // this.getSource();
+    // this.getTag();
     this.configFilters = [...this.configFilters, ...TASK_FLOWS_CONFIG_FILTERS];
     this.configFilters = [
       ...this.configFilters,
