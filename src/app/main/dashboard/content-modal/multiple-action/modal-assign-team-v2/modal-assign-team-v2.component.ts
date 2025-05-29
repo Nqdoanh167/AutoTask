@@ -71,7 +71,7 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
   public _cachedSelectedTasks: ITask[] = [];
   public selectedTaskCount: number = 0; // hiển thị
   public ETypeBulkUpdate = ETypeBulkUpdate;
-  public users!: User[];
+  public usersFilter!: User[];
   protected loading = {
     modal: false,
   };
@@ -148,7 +148,7 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
     private readonly toastService: ToastrService,
   ) {
     super()
-    this.users = this.bizUsers || []
+    this.usersFilter = this.bizUsers || []
     
   }
 
@@ -166,9 +166,9 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
 
   initUserSelections() {
     this.selectAll = true;
-    this.currentSelectedUserCount = this.users.length;
+    this.currentSelectedUserCount = this.usersFilter.length;
 
-    this.userSelections = this.users.map((user) => ({
+    this.userSelections = this.usersFilter.map((user) => ({
       user: {
         id: user.id,
         name: user.name,
@@ -278,6 +278,10 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
   }
 
   public distributeTasksToUsers() {
+    this.userSelections = this.userSelections.filter((item) =>
+      this.usersFilter.some((user) => user.id === item.user.id),
+    );
+
     const {
       hasUnevenDistribution,
       higherTaskCount,
@@ -290,38 +294,17 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
     );
 
     if (hasUnevenDistribution) {
-      // nếu user có selected thì sẽ chia đều số lượng tác vụ
-      this.userSelections = this.users.map((user, idx) => {
-        const count =
-          idx < higherTaskUserCount ? higherTaskCount : lowerTaskCount;
-
-        return {
-          user: {
-            id: user.id,
-            name: user.name,
-            picture: user.picture,
-            email: user.email,
-          },
-          selected: this.userSelections[idx]?.selected,
-          count: this.userSelections[idx]?.selected
-            ? count
-            : 0, // Chỉ cập nhật count nếu user được chọn
-        };
+      let idx = 0
+      this.userSelections.forEach((item, index) => {
+        if(item.selected) idx++;
+        item.count = item.selected ? (idx <= higherTaskUserCount ? higherTaskCount : lowerTaskCount) : 0;
       })
     } else {
-      // nếu user có selected thì sẽ chia đều số lượng tác vụ
-      this.userSelections = this.users.map((user, idx) => ({
-        user: {
-          id: user.id,
-          name: user.name,
-          picture: user.picture,
-          email: user.email,
-        },
-        selected: this.userSelections[idx]?.selected,
-        count: this.userSelections[idx]?.selected
-          ? higherTaskCount
-          : 0, 
-      }));
+      let idx= 0
+      this.userSelections.forEach((item, index) => {
+        if(item.selected) idx++;
+        item.count = item.selected ? higherTaskCount : 0;
+      })
     }
   }
 
@@ -483,7 +466,7 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
     this.roleError = false;
 
     // Filter out users whom lack of current role in their roleIds
-    this.users = this.currentBiz!.users.filter((user) =>
+    this.usersFilter = this.currentBiz!.users.filter((user) =>
       user.roleIds!.includes(this.currentRole!.id),
     );
 
@@ -504,7 +487,7 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
   }
 
   toggleSelectAll(): void {
-    this.currentSelectedUserCount = this.selectAll ? this.users.length : 0;
+    this.currentSelectedUserCount = this.selectAll ? this.usersFilter.length : 0;
 
     // Update existing objects in place
     this.userSelections.forEach((item) => {
@@ -524,7 +507,7 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
     } else {
       this.currentSelectedUserCount--;
     }
-    if (this.currentSelectedUserCount === this.users.length) {
+    if (this.currentSelectedUserCount === this.usersFilter.length) {
       this.selectAll = true;
     } else {
       this.selectAll = false;
@@ -533,7 +516,7 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
 
   handleChangeValueRangeNumber(value: number, index: number): void {
     if (this.userSelections[index]) {
-      this.userSelections[index].count = value || 0;
+      this.userSelections[index].count = value;
       // this.calculateTotalDistributed();
     }
   }
