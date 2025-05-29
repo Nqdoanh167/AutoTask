@@ -1,23 +1,24 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {distinctUntilChanged, filter, takeUntil} from 'rxjs';
-import {ETypeBulkUpdate, ETypeButton, ETypeFilter} from '@app/types/common';
-import {IColumns, Order} from '@app/types/viewmodels';
-import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
-import {BsModalService} from 'ngx-bootstrap/modal';
-import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
-import {ETaskChainType, ITask, ModifiedUserUnit} from '@app/types/flow';
-import {isEqual} from 'lodash';
-import {EPerActTask, EPerActType, EScreens, IViewModeDto} from '@app/types/setting';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ToastrService} from 'ngx-toastr';
-import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
-import {environment} from 'src/environments/environment';
-import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
-import {listColumnsDashboardDefault} from '@app/variable';
-import {TASK_MULTIPLE_ACTIONS} from '@main/dashboard/dashboard-variables';
-import {DashboardCheckPermission} from '@main/dashboard/dashboard-check-permission';
-import {NgSelectComponent} from '@ng-select/ng-select';
-import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { distinctUntilChanged, filter, takeUntil } from 'rxjs';
+import { ETypeBulkUpdate, ETypeButton, ETypeFilter } from '@app/types/common';
+import { IColumns, Order } from '@app/types/viewmodels';
+import { ModalConfirmService } from '@share/custom/modal-confirm/modal-confirm.service';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { ModalUpdateTaskComponent } from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
+import { ETaskChainType, ITask, ModifiedUserUnit } from '@app/types/flow';
+import { isEqual } from 'lodash';
+import { EPerActTask, EPerActType, EScreens, IViewModeDto } from '@app/types/setting';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { ModalAssignTeamComponent } from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
+import { environment } from 'src/environments/environment';
+import { OrderableTableComponent } from '@app/share/orderable-table/orderable-table.component';
+import { listColumnsDashboardDefault } from '@app/variable';
+import { TASK_MULTIPLE_ACTIONS } from '@main/dashboard/dashboard-variables';
+import { DashboardCheckPermission } from '@main/dashboard/dashboard-check-permission';
+import { NgSelectComponent } from '@ng-select/ng-select';
+import { ModalAssignTeamV2Component } from './content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
 
 @Component({
   selector: 'app-task',
@@ -26,9 +27,9 @@ import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-
 })
 export class DashboardComponent
   extends DashboardCheckPermission
-  implements OnInit, OnDestroy
-{
+  implements OnInit, OnDestroy {
   @ViewChild('selectBatchActions') selectBatchActions?: NgSelectComponent;
+  @ViewChild('virtualScroll') virtualScroll?: CdkVirtualScrollViewport;
 
   private startX: number = 0;
   private startWidth: number = 0;
@@ -62,7 +63,7 @@ export class DashboardComponent
           );
           if (configFilterStaff) {
             configFilterStaff.options = [
-              {name: 'Chưa gán nhân sự phụ trách', id: 'NONE'},
+              { name: 'Chưa gán nhân sự phụ trách', id: 'NONE' },
             ].concat(this.authService.getColleague());
           }
         }
@@ -108,7 +109,7 @@ export class DashboardComponent
     }
   }
 
-  showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
+  showModalMultipleAction(action: { value: ETypeBulkUpdate }) {
     if (!action) return;
     try {
       const modalRef = this.modalService.show(ModalAssignTeamComponent, {
@@ -278,8 +279,8 @@ export class DashboardComponent
     }
   }
 
-  override pageChanged(dataPage: {page: number; limit: number}): void {
-    const {page, limit} = dataPage;
+  override pageChanged(dataPage: { page: number; limit: number }): void {
+    const { page, limit } = dataPage;
     if (page) {
       this.item.paramsQuery = {
         ...this.item.paramsQuery,
@@ -307,6 +308,7 @@ export class DashboardComponent
   }
 
   startResizing(event: MouseEvent) {
+    console.log('event', event)
     const header = event.currentTarget as HTMLElement;
     this.startX = event.pageX;
     this.startWidth = header.offsetWidth;

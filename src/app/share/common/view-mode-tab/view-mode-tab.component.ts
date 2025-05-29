@@ -9,32 +9,32 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {TabsetComponent, TabsModule} from 'ngx-bootstrap/tabs';
-import {finalize, Subject, takeUntil} from 'rxjs';
-import {PopoverModule} from 'ngx-bootstrap/popover';
-import {ToastrService} from 'ngx-toastr';
-import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import { CommonModule } from '@angular/common';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TabDirective, TabsetComponent, TabsModule } from 'ngx-bootstrap/tabs';
+import { finalize, Subject, takeUntil } from 'rxjs';
+import { PopoverModule } from 'ngx-bootstrap/popover';
+import { ToastrService } from 'ngx-toastr';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import {
   IModalConfirmContent,
   ModalConfirmComponent,
 } from '@share/custom/modal-confirm/modal-confirm.component';
-import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
-import {EScreens, IViewDto, IViewModeDto} from '@app/types/setting';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {CommonService} from '@app/services/common/common.service';
-import {v4 as uuidv4} from 'uuid';
+import { ModalConfirmService } from '@share/custom/modal-confirm/modal-confirm.service';
+import { EScreens, IViewDto, IViewModeDto } from '@app/types/setting';
+import { AutoTaskService } from '@app/services/api/autoTask.service';
+import { CommonService } from '@app/services/common/common.service';
+import { v4 as uuidv4 } from 'uuid';
 import cloneDeep from 'lodash/cloneDeep';
-import {TreeSelectModule} from 'primeng/treeselect';
-import {ModifiedUserUnit} from '@app/types/flow';
-import {BsModalRef, BsModalService, ModalModule} from 'ngx-bootstrap/modal';
-import {BizRole, User} from '@app/types/viewmodels';
-import {NgSelectComponent, NgSelectModule} from '@ng-select/ng-select';
-import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
-import {CustomModalComponent} from '../../custom/custom-modal/custom-modal.component';
-import {BaseComponentsComponent} from '../base-components/base-components.component';
+import { TreeSelectModule } from 'primeng/treeselect';
+import { ModifiedUserUnit } from '@app/types/flow';
+import { BsModalRef, BsModalService, ModalModule } from 'ngx-bootstrap/modal';
+import { BizRole, User } from '@app/types/viewmodels';
+import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
+import { FilterDataModule } from '@app/share/pipe/filter-data/filter-data.module';
+import { CustomModalComponent } from '../../custom/custom-modal/custom-modal.component';
+import { BaseComponentsComponent } from '../base-components/base-components.component';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -58,14 +58,14 @@ import {BaseComponentsComponent} from '../base-components/base-components.compon
 })
 export class ViewModeTabComponent
   extends BaseComponentsComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit
-{
+  implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @ViewChild('staticTabs') staticTabs!: TabsetComponent;
   @ViewChild('viewSettingsModal') viewSettingsModal!: TemplateRef<void>;
 
   @Input() MAX_TAB = 15;
   @Input() key?: EScreens;
   @Input() quantity = 0;
+  @Input() isActiveChangeTab: Boolean = true;
 
   public tabs: IViewModeDto[] = [];
   public filteredTabs: IViewModeDto[] = [];
@@ -80,10 +80,10 @@ export class ViewModeTabComponent
   public selectedTab?: IViewModeDto;
 
   public modeTypes = [
-    {label: 'Cá nhân', value: 'personal'},
-    {label: 'Chi nhánh', value: 'position'},
-    {label: 'Vai trò', value: 'role', role: 'OWNER'},
-    {label: 'Tất cả', value: 'all', role: 'OWNER'},
+    { label: 'Cá nhân', value: 'personal' },
+    { label: 'Chi nhánh', value: 'position' },
+    { label: 'Vai trò', value: 'role', role: 'OWNER' },
+    { label: 'Tất cả', value: 'all', role: 'OWNER' },
   ];
   constructor(
     private readonly toastr: ToastrService,
@@ -111,7 +111,7 @@ export class ViewModeTabComponent
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) {}
+  ngOnChanges(changes: SimpleChanges) { }
 
   handleOpenPopover(event: any) {
     this.filteredTabs = this.tabs;
@@ -158,7 +158,7 @@ export class ViewModeTabComponent
         {
           screen: this.key,
         },
-        {cache: true},
+        { cache: true },
       )
       .pipe(
         takeUntil(this.destroy$),
@@ -185,7 +185,7 @@ export class ViewModeTabComponent
     const buttonPrev = document.querySelector('.button-previous');
     const buttonNext = document.querySelector('.button-next');
     if (!scrollTab) return;
-    const {scrollWidth, clientWidth, scrollLeft} = scrollTab;
+    const { scrollWidth, clientWidth, scrollLeft } = scrollTab;
     if (scrollTab?.scrollLeft === 0) {
       if (buttonPrev) {
         buttonPrev.classList.add('hide');
@@ -207,11 +207,9 @@ export class ViewModeTabComponent
     }
   }
 
-  handleChangeActive(
-    tab: IViewModeDto,
-    index: number,
-    isScroll: boolean = false,
-  ) {
+  handleChangeActive(tab: IViewModeDto, index: number, isScroll: boolean = false,) {
+    if (!this.isActiveChangeTab) return;
+    tab.isActive = true;
     this.tabs.forEach((item) => {
       item.isActive = false;
     });
@@ -329,9 +327,8 @@ export class ViewModeTabComponent
 
   handleDeleteViewMode(value: IViewModeDto) {
     const title = 'Xóa chế độ xem';
-    const description = `Bạn sắp xóa chế độ xem <b>${
-      value.name || ''
-    }</b>, hành động này không thể hoàn tác.`;
+    const description = `Bạn sắp xóa chế độ xem <b>${value.name || ''
+      }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
 
     const modalContent: IModalConfirmContent = {
@@ -471,7 +468,7 @@ export class ViewModeTabComponent
   }
 
   handleSettingsViewMode(tab: IViewModeDto): void {
-    this.selectedTab = {...tab};
+    this.selectedTab = { ...tab };
 
     this.selectedUsers = (this.bizUsers || []).filter(
       (user) =>

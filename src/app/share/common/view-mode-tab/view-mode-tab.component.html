@@ -19,8 +19,9 @@
           let index = index;
           trackBy: trackByMethod
         "
+        [disabled]="!isActiveChangeTab"
         [active]="tabz.isActive"
-        (selectTab)="tabz.isActive = true; handleChangeActive(tabz, index)"
+        (selectTab)="handleChangeActive(tabz, index)"
         (deselect)="tabz.isActive = false"
         class="tab-custom"
         id="view-mode-id-{{ tabz.id }}"
