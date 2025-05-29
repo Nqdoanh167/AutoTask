@@ -7,6 +7,7 @@
 
 .table-responsive {
   @include mixins.calculateSize('max-height', '100vh', '227px');
+  @include mixins.calculateSize('height', '100vh', '227px');
 }
 
 .avatar {
@@ -129,10 +130,5 @@
 
 .table-header {
   overflow: hidden;
-}
-
-cdk-virtual-scroll-viewport {
-  max-height: calc(100vh - 274px);
-  height: calc(100vh - 274px);
 }
 

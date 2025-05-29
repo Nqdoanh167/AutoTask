@@ -82,6 +82,7 @@ export class AuthService {
     }
 
     if (this.getToken() && alias) {
+      console.log('get auto task');
       this.bizService.biz.get(alias).subscribe({
         next: (res) => {
           if (res.data?.id) {
