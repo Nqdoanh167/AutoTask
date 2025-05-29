@@ -13,10 +13,10 @@ export enum ESpecialQueryTaskKey {
 export const specialQueryTaskKeys = Object.values(ESpecialQueryTaskKey);
 
 export const TASK_MULTIPLE_ACTIONS = [
-  {
-    label: 'Gán nhân viên phụ trách',
-    value: ETypeBulkUpdate.ASSIGN_TEAM,
-  },
+  // {
+  //   label: 'Gán nhân viên phụ trách',
+  //   value: ETypeBulkUpdate.ASSIGN_TEAM,
+  // },
   {
     label: 'Bỏ nhân viên phụ trách',
     value: ETypeBulkUpdate.REMOVE_TEAM,
