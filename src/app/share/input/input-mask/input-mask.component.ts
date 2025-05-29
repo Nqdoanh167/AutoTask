@@ -48,10 +48,11 @@ export class InputMaskComponent
     private cdr: ChangeDetectorRef,
   ) {}
   ngOnChanges(changes: SimpleChanges): void {
+      this.cdr.detectChanges();
     if (changes['isQuantity']) {
-      setTimeout(() => {
-        this.setupOption(this.biz);
-      }, 0);
+      // setTimeout(() => {
+      // }, 0);
+      this.setupOption(this.biz);
     }
   }
   ngAfterViewInit(): void {

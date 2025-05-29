@@ -117,3 +117,22 @@
   padding-left: 8px;
   padding-right: 8px;
 }
+
+.virtual-scroll-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.table-header {
+  overflow: hidden;
+}
+
+cdk-virtual-scroll-viewport {
+  max-height: calc(100vh - 274px);
+  height: calc(100vh - 274px);
+}
+

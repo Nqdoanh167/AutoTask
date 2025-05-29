@@ -4,7 +4,7 @@
       Chia tác vụ đã chọn ({{ selectedTaskCount }} tác vụ)
     </ng-container>
 
-    <ng-container modalBody>
+    <ng-container modalBody >
       @defer (when !loading.modal) {
         <div class="row mb-3">
           <div class="col-12">
@@ -216,7 +216,7 @@
                         <app-input-mask
                           [id]="'count' + i"
                           [isQuantity]="true"
-                          [value]="userSelection.count"
+                          [value]="userSelection.count || 0"
                           (changeValue)="
                             handleChangeValueRangeNumber($event, i)
                           "

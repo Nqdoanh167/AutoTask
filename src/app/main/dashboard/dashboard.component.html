@@ -14,7 +14,7 @@
           </app-filter-advance>
         </div>
 
-        <div class="table-responsive tableFixHead custom-scrollbar">
+        <cdk-virtual-scroll-viewport itemSize="50" class="table-responsive tableFixHead custom-scrollbar">
           <table class="table col-resizable">
             <thead>
               @if (!getLengthCheckRow()) {
@@ -34,7 +34,7 @@
                     </th>
                   }
                   <ng-container
-                    *ngFor="let columns of dataColumnsShow; index as i"
+                    *cdkVirtualFor="let columns of dataColumnsShow; index as i"
                   >
                     <th (mousedown)="startResizing($event)">
                       <i
@@ -458,18 +458,6 @@
                       <ng-container *ngSwitchCase="'leadDeal'">
                         <td>
                           <div class="d-flex flex-column" *ngIf="item.leadDeal">
-                            <!-- <span
-                              class="fw-500 text-link"
-                              (click)="handleViewCustomer(item)"
-                            >
-                              {{ item.leadDeal?.name || '-' }}
-                            </span>
-                            <span *ngIf="item.leadDeal?.phone">
-                              {{ item.leadDeal?.phone || '-' }}
-                            </span>
-                            <span *ngIf="item.leadDeal?.address">
-                              {{ item.leadDeal?.address || '-' }}
-                            </span> -->
                             <div class="d-flex">
                               <img
                                 height="30px"
@@ -491,12 +479,6 @@
                                 >
                                   {{ item.leadDeal?.phone || '-' }}
                                 </span>
-                                <!-- <span
-                                  class="fs-7"
-                                  *ngIf="item.leadDeal?.address"
-                                >
-                                  {{ item.leadDeal?.address || '-' }}
-                                </span> -->
                               </div>
                             </div>
                           </div>
@@ -762,7 +744,7 @@
               </ng-container>
             </tbody>
           </table>
-        </div>
+        </cdk-virtual-scroll-viewport>
         <div class="d-flex align-items-end">
           <!-- Icon List -->
           <div

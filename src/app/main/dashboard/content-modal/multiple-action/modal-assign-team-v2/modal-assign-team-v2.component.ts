@@ -21,6 +21,7 @@ import {ToastrService} from 'ngx-toastr';
 import {ProgressbarType} from 'ngx-bootstrap/progressbar';
 import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 import moment from 'moment';
+import { BaseComponentsComponent } from '@app/share/common/base-components/base-components.component';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -61,17 +62,15 @@ interface IUserSelection {
   styleUrls: ['./modal-assign-team-v2.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default,
 })
-export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
+export class ModalAssignTeamV2Component extends BaseComponentsComponent implements OnInit, OnDestroy {
   @Input() action!: ETypeBulkUpdate;
   @Input() selectedTaskIds: string[] = []; // Limit 1000
   @Input() selectedTaskCodes: string[] = [];
   @Input() selectedTasks: ITask[] = [];
   @Output() assignTeams = new EventEmitter<ISubmitPayload>();
-  private destroy$ = new Subject();
   public _cachedSelectedTasks: ITask[] = [];
   public selectedTaskCount: number = 0; // hiển thị
   public ETypeBulkUpdate = ETypeBulkUpdate;
-  public biz!: Biz;
   public users!: User[];
   protected loading = {
     modal: false,
@@ -82,7 +81,6 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
   public availableRoles: BizRole[] = [];
   public userSelections: IUserSelection[] = [];
   public modalOpenByTaskSelection!: boolean; // Check if there are any tasks selected (not empty)
-  public availableBranches!: IBranch[];
   public currentBranch: IBranch | null = null;
   public branches = this.autoTaskService.getUserUnits(false);
   public selectedBranch: ModifiedUserUnit | null = null;
@@ -99,8 +97,8 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
 
   public onDistributeTasksClick() {
     this.distributeTasksToUsers();
-    this.selectAll = true;
-    this.toggleSelectAll();
+    // this.selectAll = true;
+    // this.toggleSelectAll();
     // this.calculateTotalDistributed();
   }
 
@@ -144,17 +142,14 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
 
   constructor(
     private readonly modalRef: BsModalRef,
-    private readonly authService: AuthService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly router: Router,
     private readonly toastService: ToastrService,
   ) {
-    this.authService.currentBiz.subscribe((biz) => {
-      this.biz = biz;
-      this.availableBranches = [...biz.branches];
-      this.users = biz.users.map((i) => i);
-    });
+    super()
+    this.users = this.bizUsers || []
+    
   }
 
   ngOnInit() {
@@ -187,12 +182,12 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
 
   getRole() {
     this.autoTaskService.setting
-      .retrieve({bizId: this.biz.id})
+      .retrieve({bizId: this.currentBiz!.id})
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
-            const fRoles = this.biz.roles.filter((role) => {
+            const fRoles = this.currentBiz!.roles.filter((role) => {
               return res.data.roles?.includes(role.id);
             });
             this.availableRoles = [...fRoles];
@@ -291,11 +286,15 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
       lowerTaskUserCount,
     } = coreDistributeTasksToUsers(
       this.actualSplitTaskCount,
-      this.users.length,
+      this.userSelections.filter((item) => item.selected).length,
     );
 
     if (hasUnevenDistribution) {
+      // nếu user có selected thì sẽ chia đều số lượng tác vụ
       this.userSelections = this.users.map((user, idx) => {
+        const count =
+          idx < higherTaskUserCount ? higherTaskCount : lowerTaskCount;
+
         return {
           user: {
             id: user.id,
@@ -303,20 +302,25 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
             picture: user.picture,
             email: user.email,
           },
-          selected: true,
-          count: idx < higherTaskUserCount ? higherTaskCount : lowerTaskCount,
+          selected: this.userSelections[idx]?.selected,
+          count: this.userSelections[idx]?.selected
+            ? count
+            : 0, // Chỉ cập nhật count nếu user được chọn
         };
-      });
+      })
     } else {
-      this.userSelections = this.users.map((user) => ({
+      // nếu user có selected thì sẽ chia đều số lượng tác vụ
+      this.userSelections = this.users.map((user, idx) => ({
         user: {
           id: user.id,
           name: user.name,
           picture: user.picture,
           email: user.email,
         },
-        selected: true,
-        count: higherTaskCount,
+        selected: this.userSelections[idx]?.selected,
+        count: this.userSelections[idx]?.selected
+          ? higherTaskCount
+          : 0, 
       }));
     }
   }
@@ -479,7 +483,7 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
     this.roleError = false;
 
     // Filter out users whom lack of current role in their roleIds
-    this.users = this.biz.users.filter((user) =>
+    this.users = this.currentBiz!.users.filter((user) =>
       user.roleIds!.includes(this.currentRole!.id),
     );
 
@@ -529,7 +533,7 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
 
   handleChangeValueRangeNumber(value: number, index: number): void {
     if (this.userSelections[index]) {
-      this.userSelections[index].count = value;
+      this.userSelections[index].count = value || 0;
       // this.calculateTotalDistributed();
     }
   }
@@ -588,8 +592,4 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
     this.modalRef.hide();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
-  }
 }
