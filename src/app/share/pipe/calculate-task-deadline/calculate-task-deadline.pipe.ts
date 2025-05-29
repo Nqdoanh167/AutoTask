@@ -39,16 +39,16 @@ export class CalculateTaskDeadlinePipe implements PipeTransform, OnDestroy {
       }
     };
     calculate();
-    this.interval = setInterval(() => {
-      calculate();
-    }, 3000);
+    // this.interval = setInterval(() => {
+    //   calculate();
+    // }, 3000);
 
     return data;
   }
 
   ngOnDestroy() {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
+    // if (this.interval) {
+    //   clearInterval(this.interval);
+    // }
   }
 }

@@ -53,6 +53,7 @@ import {TaskCreateSourceComponent} from './content-modal/task-create-source/task
 import {SafePipe} from '@app/share/pipe/safeUrl.pipe';
 import {ModalCreateOrderComponent} from './content-modal/modal-create-order/modal-create-order.component';
 import { FilterAdvanceComponent } from "../../share/common/filter-advance/filter-advance.component";
+import {ScrollingModule} from '@angular/cdk/scrolling';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -112,7 +113,8 @@ import { FilterAdvanceComponent } from "../../share/common/filter-advance/filter
     NgxStarsModule,
     InputUploadPreviewComponent,
     SafePipe,
-    FilterAdvanceComponent
+    FilterAdvanceComponent,
+    ScrollingModule
 ],
 })
 export class DashboardModule {}
