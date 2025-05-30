@@ -5,6 +5,7 @@ import {
   ETypeFilter,
 } from '@app/types/common';
 import {EActionStates, EEditedDateState} from '@app/types/flow';
+import { BsCustomDates } from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 
 export enum ESpecialQueryTaskKey {
   BRANCH_IDS = 'branchIds',
@@ -261,3 +262,32 @@ export const TASK_CONFIG_BUTTON = [
     tooltip: 'Thêm mới tác vụ',
   },
 ];
+
+
+export const ranges: BsCustomDates[] = [
+    {
+      label: '30 ngày trước',
+      value: [
+        new Date(new Date().setDate(new Date().getDate() - 30)),
+        new Date(),
+      ],
+    },
+    {
+      label: '15 ngày trước',
+      value: [
+        new Date(new Date().setDate(new Date().getDate() - 15)),
+        new Date(),
+      ],
+    },
+    {
+      label: '7 ngày trước',
+      value: [
+        new Date(new Date().setDate(new Date().getDate() - 7)),
+        new Date(),
+      ],
+    },
+    {
+      label: 'Hôm nay',
+      value: [new Date(), new Date()],
+    },
+  ];
