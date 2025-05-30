@@ -91,18 +91,13 @@ export class FilterAdvanceComponent
           (key: any) => {
             if (this.configFilterAdvance.some((cA) => cA.name === key)) {
               this.onSearchingAdvance.push(key);
-            } else if (specialQueryTaskKeys.includes(key)) {
-              this.onSearchingAdvance.push(key);
             }
           },
         );
-
       });
   }
 
   override ngOnInit() {
-
-
     this.configFilterAdvance = this.configFilters.filter(
       (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
     );
@@ -319,6 +314,13 @@ export class FilterAdvanceComponent
       this.paramsQuery.filter = '{}';
       this.selectedUnits = [];
       const objFilterQuery = JSON.parse(this.paramsQuery.filter || '{}');
+
+      Object.keys(this.currentActiveViewMode?.options || {}).forEach((key) => {
+        if (this.currentActiveViewMode?.options[key]) {
+          objFilterQuery[key] = this.currentActiveViewMode?.options[key];
+        }
+      });
+
       if (this.currentActiveViewMode?.options?.branchIds) {
         objFilterQuery.branchIds =
           this.currentActiveViewMode?.options.branchIds;
@@ -436,7 +438,7 @@ export class FilterAdvanceComponent
         this.getAction();
       } else if (filter.name === 'resultIds') {
         this.getResult();
-      } else if (filter.name === 'teamRoles'){
+      } else if (filter.name === 'teamRoles') {
         this.getRole();
       }
     }

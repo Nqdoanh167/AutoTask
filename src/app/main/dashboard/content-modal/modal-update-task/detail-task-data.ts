@@ -277,7 +277,8 @@ export class DetailTaskData extends DashboardData {
         this.clickLoadData('tags');
         if (dataSource.tags.every((tag) => typeof tag === 'object')) {
           this.updateForm.patchValue({
-            tags: dataSource.tags?.map((tag) => tag.id),
+            tags: this.tags.rows.filter((tag) =>
+              dataSource.tags?.some((t) => t === tag.id)),
           } as any);
         }
       }

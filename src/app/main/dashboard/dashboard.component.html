@@ -11,6 +11,7 @@
           [enableSearch]="false"
           [isSelectAll]="false"
           (changeEvent)="handleQueryParam($event, 'branchIds')"
+          [value]="currentActiveViewMode?.options.branchIds || []"
         ></app-filter-checkbox>
       </li>
 
@@ -23,6 +24,7 @@
           [enableRemove]="false"
           [enableSearch]="false"
           (changeEvent)="handleQueryParam($event, 'teamRoles')"
+          [value]="currentActiveViewMode?.options.teamRoles || []"
         ></app-filter-checkbox>
       </li>
 
@@ -36,6 +38,7 @@
           (changeEvent)="handleQueryParam($event, 'teamId')"
           [listItemSelect]="listUsersFilter"
           (searchEvent)="getListUsersFilter($event)"
+          [value]="currentActiveViewMode?.options.teamId || []"
         ></app-filter-checkbox>
       </li>
     </ul>
@@ -45,15 +48,19 @@
     <ul class="nav flex-nowrap align-items-center">
       <li style="padding-left: 5px; height: 35px">
         <ng-select
-          [items]="tags.rows"
-          bindLabel="name"
-          bindValue="id"
           class="ng-select-custom"
           placeholder="Chọn tag"
           (click)="clickLoadData('tags')"
           (change)="handleQueryParam($event, 'tags')"
           [loading]="tags.loading"
-        ></ng-select>
+          [(ngModel)]="tagFilter"
+        >
+          <ng-option *ngFor="let tag of tags.rows" [value]="tag.id">
+            <span class="text-capitalize" [ngStyle]="{color: tag.bgColor}">
+              {{ tag.name }}
+            </span>
+          </ng-option>
+        </ng-select>
       </li>
 
       <li style="padding-left: 5px; height: 35px">
@@ -64,6 +71,7 @@
           [placeholder]="'Từ ngày -  Đến ngày'"
           [showClearButton]="true"
           [rangeChoose]="ranges"
+          [defaultRangeValue]="currentActiveViewMode?.options.createdAt || null"
         ></custom-date-picker>
       </li>
     </ul>
@@ -273,8 +281,9 @@
                           {{ item.code || '-' }}
                         </div>
                         <div class="d-flex flex-row flex-wrap gap-1 mt-1">
-                          <div *ngFor="let tag of item.tags">
+                          <div *ngFor="let tagId of item.tags">
                             <span
+                              *ngIf="getTagById(tagId) as tag"
                               class="text-capitalize me-2 tag-item"
                               [ngClass]="{nonBack: !tag.bgColor}"
                               [ngStyle]="{background: tag.bgColor}"
@@ -675,9 +684,9 @@
                       <td>
                         <div
                           class="d-flex flex-column"
-                          *ngIf="item?.orders?.length; else nonContent"
+                          *ngIf="item?.orderIds?.length; else nonContent"
                         >
-                          <div class="list-order d-flex flex-column gap-2">
+                          <!-- <div class="list-order d-flex flex-column gap-2">
                             <div
                               *ngFor="let order of item.orders"
                               class="order-item"
@@ -696,6 +705,12 @@
                                 </div>
                               </div>
                             </div>
+                          </div> -->
+                          <div
+                            class="fw-500 text-link"
+                            (click)="handleViewTabOrder(item)"
+                          >
+                            Đã có đơn hàng
                           </div>
                         </div>
                       </td>
