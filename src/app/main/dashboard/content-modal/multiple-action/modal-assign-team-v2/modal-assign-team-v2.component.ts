@@ -21,7 +21,7 @@ import {ToastrService} from 'ngx-toastr';
 import {ProgressbarType} from 'ngx-bootstrap/progressbar';
 import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 import moment from 'moment';
-import { BaseComponentsComponent } from '@app/share/common/base-components/base-components.component';
+import {BaseComponentsComponent} from '@app/share/common/base-components/base-components.component';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -62,21 +62,22 @@ interface IUserSelection {
   styleUrls: ['./modal-assign-team-v2.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default,
 })
-export class ModalAssignTeamV2Component extends BaseComponentsComponent implements OnInit, OnDestroy {
+export class ModalAssignTeamV2Component
+  extends BaseComponentsComponent
+  implements OnInit, OnDestroy
+{
   @Input() action!: ETypeBulkUpdate;
   @Input() selectedTaskIds: string[] = []; // Limit 1000
   @Input() selectedTaskCodes: string[] = [];
   @Input() selectedTasks: ITask[] = [];
-  @Output() assignTeams = new EventEmitter<ISubmitPayload>();
+  @Output() assignTeams = new EventEmitter<void>();
   public _cachedSelectedTasks: ITask[] = [];
   public selectedTaskCount: number = 0; // hiển thị
   public ETypeBulkUpdate = ETypeBulkUpdate;
-  public usersFilter!: User[];
   protected loading = {
     modal: false,
   };
   public selectAll = false;
-  // public totalDistributed = 0;
   public currentRole: BizRole | null = null;
   public availableRoles: BizRole[] = [];
   public userSelections: IUserSelection[] = [];
@@ -147,9 +148,7 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
     private readonly router: Router,
     private readonly toastService: ToastrService,
   ) {
-    super()
-    this.usersFilter = this.bizUsers || []
-    
+    super();
   }
 
   ngOnInit() {
@@ -166,9 +165,8 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
 
   initUserSelections() {
     this.selectAll = true;
-    this.currentSelectedUserCount = this.usersFilter.length;
 
-    this.userSelections = this.usersFilter.map((user) => ({
+    this.userSelections = this.bizUsers!.map((user) => ({
       user: {
         id: user.id,
         name: user.name,
@@ -178,6 +176,8 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
       selected: true,
       count: 0,
     }));
+
+    this.currentSelectedUserCount = this.userSelections.length;
   }
 
   getRole() {
@@ -278,10 +278,6 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
   }
 
   public distributeTasksToUsers() {
-    this.userSelections = this.userSelections.filter((item) =>
-      this.usersFilter.some((user) => user.id === item.user.id),
-    );
-
     const {
       hasUnevenDistribution,
       higherTaskCount,
@@ -294,17 +290,21 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
     );
 
     if (hasUnevenDistribution) {
-      let idx = 0
+      let idx = 0;
       this.userSelections.forEach((item, index) => {
-        if(item.selected) idx++;
-        item.count = item.selected ? (idx <= higherTaskUserCount ? higherTaskCount : lowerTaskCount) : 0;
-      })
+        if (item.selected) idx++;
+        item.count = item.selected
+          ? idx <= higherTaskUserCount
+            ? higherTaskCount
+            : lowerTaskCount
+          : 0;
+      });
     } else {
-      let idx= 0
+      let idx = 0;
       this.userSelections.forEach((item, index) => {
-        if(item.selected) idx++;
+        if (item.selected) idx++;
         item.count = item.selected ? higherTaskCount : 0;
-      })
+      });
     }
   }
 
@@ -399,6 +399,7 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
         setTimeout(() => {
           this.progressStatus = 'success';
           // this.modalRef.hide();
+          this.assignTeams.emit();
         }, 1000);
         return;
       }
@@ -466,9 +467,18 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
     this.roleError = false;
 
     // Filter out users whom lack of current role in their roleIds
-    this.usersFilter = this.currentBiz!.users.filter((user) =>
+    this.userSelections = this.bizUsers!.filter((user) =>
       user.roleIds!.includes(this.currentRole!.id),
-    );
+    ).map((user) => ({
+      user: {
+        id: user.id,
+        name: user.name,
+        picture: user.picture,
+        email: user.email,
+      },
+      selected: true,
+      count: 0,
+    }));
 
     if (this.modalOpenByTaskSelection) {
       this._filterLackOfRoleInTasks();
@@ -487,7 +497,9 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
   }
 
   toggleSelectAll(): void {
-    this.currentSelectedUserCount = this.selectAll ? this.usersFilter.length : 0;
+    this.currentSelectedUserCount = this.selectAll
+      ? this.userSelections.length
+      : 0;
 
     // Update existing objects in place
     this.userSelections.forEach((item) => {
@@ -507,7 +519,7 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
     } else {
       this.currentSelectedUserCount--;
     }
-    if (this.currentSelectedUserCount === this.usersFilter.length) {
+    if (this.currentSelectedUserCount === this.userSelections.length) {
       this.selectAll = true;
     } else {
       this.selectAll = false;
@@ -574,5 +586,4 @@ export class ModalAssignTeamV2Component extends BaseComponentsComponent implemen
   hideModal(): void {
     this.modalRef.hide();
   }
-
 }

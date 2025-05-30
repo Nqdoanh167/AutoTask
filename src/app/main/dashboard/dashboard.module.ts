@@ -54,6 +54,8 @@ import {SafePipe} from '@app/share/pipe/safeUrl.pipe';
 import {ModalCreateOrderComponent} from './content-modal/modal-create-order/modal-create-order.component';
 import { FilterAdvanceComponent } from "../../share/common/filter-advance/filter-advance.component";
 import {ScrollingModule} from '@angular/cdk/scrolling';
+import { HeaderModule } from "../../share/layout/header/header.module";
+import { InputSelectCheckboxModule } from "../../share/common/filter-checkbox/filter-checkbox.component.module";
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -114,7 +116,9 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
     InputUploadPreviewComponent,
     SafePipe,
     FilterAdvanceComponent,
-    ScrollingModule
+    ScrollingModule,
+    HeaderModule,
+    InputSelectCheckboxModule
 ],
 })
 export class DashboardModule {}
