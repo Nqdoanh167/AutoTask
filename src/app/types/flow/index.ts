@@ -352,7 +352,7 @@ export interface ITask {
   name: string;
   note: string;
   leadDeal?: ILeadDealDto;
-  tags?: ITag[];
+  tags?: string[];
   cart: ITaskCartDto;
   orderIds: string[];
   orders: Pick<Order, 'code' | 'id'>[];

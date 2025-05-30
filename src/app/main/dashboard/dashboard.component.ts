@@ -2,29 +2,27 @@ import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {distinctUntilChanged, filter, takeUntil} from 'rxjs';
 import {ETypeBulkUpdate, ETypeButton, ETypeFilter} from '@app/types/common';
-import {IColumns, IDateRange, Order, User} from '@app/types/viewmodels';
-import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
+import {IColumns, IDateRange, ITag, Order, User} from '@app/types/viewmodels';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
 import {ETaskChainType, ITask, ModifiedUserUnit} from '@app/types/flow';
 import {isEqual} from 'lodash';
-import {
-  EPerActTask,
-  EPerActType,
-  EScreens,
-  IViewModeDto,
-} from '@app/types/setting';
+import {EPerActTask, EPerActType, EScreens} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
 import {environment} from 'src/environments/environment';
 import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 import {listColumnsDashboardDefault} from '@app/variable';
-import {ranges, TASK_MULTIPLE_ACTIONS} from '@main/dashboard/dashboard-variables';
+import {
+  ranges,
+  TASK_MULTIPLE_ACTIONS,
+} from '@main/dashboard/dashboard-variables';
 import {DashboardCheckPermission} from '@main/dashboard/dashboard-check-permission';
 import {NgSelectComponent} from '@ng-select/ng-select';
 import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
 import moment from 'moment';
+import {ETabTaskDetail} from '@app/types/task';
 
 @Component({
   selector: 'app-task',
@@ -54,10 +52,9 @@ export class DashboardComponent
   protected readonly ranges = ranges;
 
   public listUsersFilter: User[] = this.bizUsers || [];
-
+  public tagFilter: ITag | null = null;
   constructor(
     private readonly modalService: BsModalService,
-    private readonly modalConfirmService: ModalConfirmService,
     private readonly route: ActivatedRoute,
     private readonly toastrService: ToastrService,
     private readonly router: Router,
@@ -100,6 +97,7 @@ export class DashboardComponent
   }
 
   override ngOnInit() {
+    this.clickLoadData('tags');
     this.handleActiveViewMode();
     const permissions = this.authService.getUserPerByType(EPerActType.TASK);
     this.permission.edit = this.hasPermission(
@@ -119,14 +117,20 @@ export class DashboardComponent
     }
   }
 
-  getListUsersFilter(term: string){
+  getTagById(id: string) {
+    if (id) return this.tags.rows.find((tag: ITag) => tag.id === id);
+    return null;
+  }
+
+  getListUsersFilter(term: string) {
     if (!term) {
       this.listUsersFilter = this.bizUsers || [];
       return;
     }
-    this.listUsersFilter = this.bizUsers?.filter((user) =>
-      user.name.toLowerCase().includes(term.toLowerCase()),
-    ) || [];
+    this.listUsersFilter =
+      this.bizUsers?.filter((user) =>
+        user.name.toLowerCase().includes(term.toLowerCase()),
+      ) || [];
   }
 
   showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
@@ -181,11 +185,19 @@ export class DashboardComponent
           const objFilterQuery = JSON.parse(
             this.item.paramsQuery.filter || '{}',
           );
+          Object.keys(currentActiveViewMode?.options || {}).forEach((key) => {
+            if (currentActiveViewMode?.options[key]) {
+              objFilterQuery[key] = currentActiveViewMode?.options[key];
+            }
+          });
+
           if (currentActiveViewMode?.options?.branchIds) {
-            objFilterQuery.branchIds = currentActiveViewMode?.options.branchIds;
             this.selectedUnits = this.autoTaskService.findUnitsByIds(
               currentActiveViewMode?.options.branchIds || [],
             );
+          }
+          if (currentActiveViewMode?.options?.tags) {
+            this.tagFilter = currentActiveViewMode?.options?.tags[0]
           }
           // loop configFilters and update by value of object options in currentActiveViewMode
           this.configFilters.forEach((configFilter) => {
@@ -256,7 +268,9 @@ export class DashboardComponent
   handleQueryParam(data: any, name: string) {
     const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
     if (name === 'tags') {
-      objFilterQuery.tags = [data.id];
+      console.log('data', data);
+      if (data) objFilterQuery[name] = [data];
+      else delete objFilterQuery[name];
     }
 
     if (name === 'createdAt') {
@@ -266,18 +280,26 @@ export class DashboardComponent
           moment(hValue.fromDate).startOf('day').toISOString(),
           moment(hValue.toDate).endOf('day').toISOString(),
         ];
-      }else return
+      } else delete objFilterQuery.createdAt;
     }
 
-    if(name === 'branchIds' || name === 'teamRoles' || name === 'teamId') {
-      if(data?.length){
-        objFilterQuery[name] = data
-      }
+    if (name === 'branchIds' || name === 'teamRoles' || name === 'teamId') {
+      if (data?.length) {
+        objFilterQuery[name] = data;
+      } else delete objFilterQuery[name];
+    }
+    if (
+      isEqual(
+        objFilterQuery?.[name],
+        this.currentActiveViewMode?.options?.[name],
+      )
+    ) {
+      return;
     }
 
     this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
 
-    this.handleViewModeChange(true)
+    this.handleViewModeChange(true);
     // this.getDataSource(true);
   }
 
@@ -353,6 +375,19 @@ export class DashboardComponent
   handleViewCustomer(item: ITask) {
     let url = `${environment.urlDomain}/${this.bizAlias}/customers/${item.leadDeal?.id}`;
     window.open(url, '_blank');
+  }
+
+  handleViewTabOrder(item: ITask) {
+    const currentQueryParams = this.route.snapshot.queryParams;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        ...currentQueryParams,
+        id: item.id,
+      },
+      fragment: ETabTaskDetail.ORDER,
+      replaceUrl: true,
+    });
   }
 
   startResizing(event: MouseEvent) {
