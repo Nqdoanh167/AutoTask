@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {BehaviorSubject} from 'rxjs';
-import {distinctUntilChanged} from 'rxjs/operators';
-import {BizService} from './biz.service';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
+import { BizService } from './biz.service';
 import {
   Biz,
   BizModule,
@@ -11,7 +11,7 @@ import {
   IBranch,
   User,
 } from 'src/app/types/viewmodels';
-import {environment} from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 import {
   EPerActFlow,
   EPerActSetting,
@@ -60,7 +60,7 @@ export class AuthService {
   constructor(
     private bizService: BizService,
     protected httpClient: HttpClient,
-  ) {}
+  ) { }
 
   getCurrentBiz() {
     return this.currentBizSubject.getValue();
@@ -178,6 +178,7 @@ export class AuthService {
 
   checkUserAccessModule(module: EModule): boolean {
     const userPer = this.userAccessPerSubject.getValue();
+    console.log('userPer', userPer);
     if (!userPer) return false;
     switch (module) {
       case EModule.DASHBOARD:
@@ -275,7 +276,7 @@ export class AuthService {
     const res = this.httpClient.post(
       'https://dev.smax.app/api/auth',
       {},
-      {headers},
+      { headers },
     );
     res.pipe().subscribe({
       next: (res: any) => {
