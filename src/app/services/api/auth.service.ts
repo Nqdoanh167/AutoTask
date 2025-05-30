@@ -133,10 +133,10 @@ export class AuthService {
       let key: EPerActType;
       let listNavItems: any[] = [];
       switch (module) {
-        case EModule.DASHBOARD:
-          key = EPerActType.TASK;
-          listNavItems = listDashboardNavItems;
-          break;
+        // case EModule.DASHBOARD:
+        //   key = EPerActType.TASK;
+        //   listNavItems = listDashboardNavItems;
+        //   break;
         case EModule.CONFIG:
           key = EPerActType.FLOW;
           listNavItems = listConfigNavItems;

@@ -4,7 +4,7 @@
       Chia tác vụ đã chọn ({{ selectedTaskCount }} tác vụ)
     </ng-container>
 
-    <ng-container modalBody >
+    <ng-container modalBody>
       @defer (when !loading.modal) {
         <div class="row mb-3">
           <div class="col-12">
@@ -131,14 +131,16 @@
                   Vai trò: Chọn vai trò cần gắn cho đơn hàng đồng thời hệ thống
                   sẽ kiểm tra tổng số lượng đơn chưa được gắn vai trò bạn chọn
                 </li>
-                <li>
-                  Chi nhánh: Lọc ra những đơn chưa có vai trò ở chi nhánh bạn
-                  chọn
-                </li>
-                <li>
-                  Thời gian tạo: Lọc ra những đơn chưa có vai trò ở khoảng thời
-                  gian tạo đã chọn
-                </li>
+                <ng-container *ngIf="!modalOpenByTaskSelection">
+                  <li>
+                    Chi nhánh: Lọc ra những đơn chưa có vai trò ở chi nhánh bạn
+                    chọn
+                  </li>
+                  <li>
+                    Thời gian tạo: Lọc ra những đơn chưa có vai trò ở khoảng
+                    thời gian tạo đã chọn
+                  </li>
+                </ng-container>
               </ul>
 
               <br />
@@ -168,7 +170,7 @@
                     (ngModelChange)="toggleSelectAll()"
                   />
                   <label class="form-check-label" for="selectAllUsers">
-                    Chọn toàn bộ ({{ usersFilter?.length }} thành viên)
+                    Chọn toàn bộ ({{ userSelections?.length }} thành viên)
                   </label>
                 </div>
               </div>

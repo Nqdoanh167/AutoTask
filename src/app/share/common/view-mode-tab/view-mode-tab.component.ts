@@ -35,6 +35,7 @@ import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { FilterDataModule } from '@app/share/pipe/filter-data/filter-data.module';
 import { CustomModalComponent } from '../../custom/custom-modal/custom-modal.component';
 import { BaseComponentsComponent } from '../base-components/base-components.component';
+import { CustomInputSearchComponent } from "../../custom/custom-input-search/custom-input-search.component";
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -52,7 +53,8 @@ import { BaseComponentsComponent } from '../base-components/base-components.comp
     NgSelectModule,
     FilterDataModule,
     CustomModalComponent,
-  ],
+    CustomInputSearchComponent
+],
   templateUrl: './view-mode-tab.component.html',
   styleUrls: ['./view-mode-tab.component.scss'],
 })
