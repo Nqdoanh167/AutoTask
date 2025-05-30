@@ -80,7 +80,7 @@
             <app-custom-tab-set
               [tabs]="tabs"
               [(activeTab)]="activeTab"
-              (activeTabChange)="getDetailTask(true)"
+              (activeTabChange)="handleActiveTabChange($event)"
             >
               <ng-container right>
                 <div
@@ -654,6 +654,37 @@
                         ></app-orders>
                       </div>
                     }
+                  </div>
+                }
+                @case (ETabTaskDetail.BOOKING) {
+                  <div class="mt-3 content-tab custom-scrollbar">
+                    <div class="group-content mt-3">
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <div class="headline">Đơn booking đã tạo</div>
+                        <div class="d-flex gap-2">
+                          @if (
+                            !!sourceData?.id &&
+                            sourceData?.bookingIds &&
+                            sourceData!.bookingIds.length
+                          ) {
+                            <button
+                              (click)="handleViewCreatedBooking()"
+                              class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                              type="button"
+                            >
+                              <i class="fa-solid fa-calendar me-2"></i>
+                              Xem đơn booking đã tạo
+                            </button>
+                          }
+                        </div>
+                      </div>
+                      <app-bookings
+                        [bookings]="bookings.rows"
+                        [loading]="bookings.loading"
+                      ></app-bookings>
+                    </div>
                   </div>
                 }
                 @case (ETabTaskDetail.HISTORY) {

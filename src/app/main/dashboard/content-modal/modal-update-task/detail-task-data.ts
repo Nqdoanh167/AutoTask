@@ -93,6 +93,11 @@ export class DetailTaskData extends DashboardData {
     loading: false,
   };
 
+   protected bookings: EntityPagination<any> = {
+    rows: [],
+    loading: false,
+  };
+
   protected blocks: ICommonDataLazy<IBlockAutomation, IQueryBase> = {
     rows: [],
     loading: false,
@@ -124,6 +129,10 @@ export class DetailTaskData extends DashboardData {
     {
       label: 'Đơn hàng & Sản phẩm',
       value: ETabTaskDetail.ORDER,
+    },
+    {
+      label: 'Đơn booking',
+      value: ETabTaskDetail.BOOKING,
     },
   ];
 
@@ -243,9 +252,9 @@ export class DetailTaskData extends DashboardData {
         const {branch} = dataSource;
         this.getInfoUnit(branch?.team || branch?.department || branch?.id);
       }
-      if (dataSource.orderIds?.length > 0) {
-        this.getOrderDetail(dataSource.orderIds);
-      }
+      // if (dataSource.orderIds?.length > 0) {
+      //   this.getOrderDetail(dataSource.orderIds);
+      // }
       if (!this.tabs.find((tab) => tab.value === ETabTaskDetail.HISTORY)) {
         this.tabs = [
           ...this.tabs,
@@ -367,6 +376,7 @@ export class DetailTaskData extends DashboardData {
             isEdit: false,
             orders: this.fb.array([]),
             feedbacks: this.fb.array([]),
+            bookings: this.fb.array([]),
             subActions: this.fb.array([]),
           });
 
@@ -388,6 +398,15 @@ export class DetailTaskData extends DashboardData {
             (<FormArray>taskChainResultForm.controls.feedbacks).push(
               feedbackForm,
             );
+          });
+
+          taskChainResult?.bookings?.forEach((booking) => {
+            const bookingForm = this.fb.group({
+              id: booking.id,
+              code: booking.code,
+              subActionId: booking.subActionId,
+            });
+            (<FormArray>taskChainResultForm.controls.bookings).push(bookingForm);
           });
 
           taskChainResult?.subActions?.forEach((subAction) => {
@@ -491,6 +510,23 @@ export class DetailTaskData extends DashboardData {
         next: (res) => {
           if (res && res.status === 200) {
             this.orders.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getBookingDetail(bookingIds: string[]) {
+    this.autoTaskService.task
+      .retrieveBookingsByTask({bookingIds})
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            this.bookings.rows = res.data;
           } else {
             this.commonService.handleResErr(res);
           }
