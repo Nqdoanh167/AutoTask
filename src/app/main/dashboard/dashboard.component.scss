@@ -1,6 +1,11 @@
 @use 'src/app/styles/variable' as vars;
 @use 'src/app/styles/mixins' as mixins;
 
+.header {
+  .input-checkbox {
+    width: 140px;
+  }
+}
 .dashboard-site {
   padding: 16px;
 }

@@ -1,7 +1,7 @@
 import { ICommonDataLazy, IQueryBase, ITag } from '@app/types/viewmodels';
 import { IAction, IActResult, IChainAct, ITask } from '@app/types/flow';
 import { ISetting, ISource, IViewModeDto } from '@app/types/setting';
-import { finalize, shareReplay, takeUntil } from 'rxjs';
+import { finalize, shareReplay, takeUntil, filter } from 'rxjs';
 import { isEqual, uniqBy } from 'lodash';
 import { CommonService } from '@app/services/common/common.service';
 import { AutoTaskService } from '@app/services/api/autoTask.service';
@@ -361,6 +361,7 @@ export class DashboardData extends CheckboxSortTableComponent<
   }
 
   handleViewModeChange(hasChanged: boolean) {
+    console.log('handleViewModeChange', hasChanged);
     // change hasChanged of currentActiveViewMode to true and update currentActiveViewMode to dashboardViewModes by emit new value
     const changedTab = {
       ...this.currentActiveViewMode,

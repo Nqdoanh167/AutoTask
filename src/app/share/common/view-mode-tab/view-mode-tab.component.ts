@@ -54,7 +54,7 @@ import { CustomInputSearchComponent } from "../../custom/custom-input-search/cus
     FilterDataModule,
     CustomModalComponent,
     CustomInputSearchComponent
-],
+  ],
   templateUrl: './view-mode-tab.component.html',
   styleUrls: ['./view-mode-tab.component.scss'],
 })
@@ -211,7 +211,6 @@ export class ViewModeTabComponent
 
   handleChangeActive(tab: IViewModeDto, index: number, isScroll: boolean = false,) {
     if (!this.isActiveChangeTab) return;
-    tab.isActive = true;
     this.tabs.forEach((item) => {
       item.isActive = false;
     });
@@ -220,9 +219,7 @@ export class ViewModeTabComponent
       // scroll to active tab
       const scrollTab = document.querySelector('.nav-tabs');
       if (scrollTab) {
-        const activeTab = document.getElementById(
-          `view-mode-id-${tab.id}-link`,
-        );
+        const activeTab = document.getElementById(`view-mode-id-${tab.id}-link`);
         if (activeTab) {
           scrollTab.scrollLeft = activeTab.offsetLeft;
           setTimeout(() => {
@@ -231,7 +228,7 @@ export class ViewModeTabComponent
         }
       }
     }
-    this.autoTaskService.setCurrentActiveViewMode(tab);
+    this.autoTaskService.setCurrentActiveViewMode(tab, true);
   }
 
   handleUpdateTab(tab: IViewModeDto) {

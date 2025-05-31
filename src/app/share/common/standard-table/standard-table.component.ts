@@ -45,6 +45,7 @@ export class StandardTableComponent<T, K extends any>
   public item: ICommonDataSource<T, K | any> = {
     rows: [],
     loading: false,
+    isFirstRequest: true,
     paramsQuery: {
       limit: 20,
       page: 1,

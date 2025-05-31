@@ -5,6 +5,7 @@ export interface ObjectAny {
 export interface ICommonDataSource<T, K> {
   rows: T[];
   loading: boolean;
+  isFirstRequest?: boolean;
   paramsQuery: K;
   total: number;
 }
@@ -116,10 +117,8 @@ export interface ITag {
 export interface IPosLastBranches {
   id: string;
   name: string;
-  role: BizRole;
-  teams: string[];
-  departments: string[];
-  userIds: string[];
+  role: ERole;
+  userIds?: string[];
 }
 export interface FlatBranch {
   id: string;
@@ -150,6 +149,7 @@ export interface User {
   };
   groupIds?: string[];
   branches: Branch[];
+  flatBranchIds?: string[];
   roleBranches: Branch[];
   posLastBranches: IPosLastBranches[];
   flatBranches: FlatBranch[];
@@ -164,41 +164,24 @@ export interface User {
 }
 export interface Team {
   id: string;
+  level?: string;
+  branchId?: string;
   name: string;
   desc: string;
-  permission?: string;
+  role?: ERole;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 export interface Department extends Team {
   teams: Team[];
+  children?: any;
 }
 export interface Branch extends Team {
   departments: Department[];
+  children?: any;
 }
 
-export interface BizDomain {
-  id: string;
-  name: string;
-  disabled: boolean;
-  bizId: string;
-  ssl: string;
-  verify: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface IBranch {
-  id: string;
-  name: string;
-  address: string;
-  desc: string;
-  isActive: boolean;
-  phone: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export type BizModuleAlias =
   | 'main'
@@ -210,7 +193,7 @@ export type BizModuleAlias =
   | string;
 
 export interface Biz {
-  branches: IBranch[];
+  branches: Branch[];
   id: string;
   alias: BizModuleAlias;
   author?: {
@@ -232,7 +215,6 @@ export interface Biz {
     thousandSeparator: string;
   };
 
-  domains: BizDomain[];
   module: BizModule;
   modules: BizModule[];
   quickModules: string[];
@@ -648,7 +630,7 @@ export interface CourseEvent {
   totalLesson: number;
   totalAmount: number;
   totalSold: number;
-  sold: {id: string; name: string; amount: number; quantity: number}[];
+  sold: { id: string; name: string; amount: number; quantity: number }[];
   prices: CourseEventPrice[];
   lessons: CourseEventLesson[];
   gifts: CourseEventGift[];
@@ -838,6 +820,8 @@ export enum ERole {
   OWNER = 'OWNER',
   DEV = 'DEV',
   MEMBER = 'MEMBER',
+  ADMIN = 'ADMIN',
+  MODE = 'MODE',
 }
 
 export interface AppointmentStatus {

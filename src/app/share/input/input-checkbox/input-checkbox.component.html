@@ -1,0 +1,75 @@
+<div class="input-search">
+  <div class="form-control display-value d-flex align-items-center input-display" [class]="customClass"
+    [ngClass]="{ disabled: disabled }" (click)="toggle()" [tooltip]="tooltipText" [placement]="tooltipPlacement">
+    <ng-container *ngIf="templateValue; else noneTemplateValue;">
+      <ng-container *ngIf="value.length; else noneValue">
+        <ng-container *ngTemplateOutlet="templateValue; context: { item: value }"></ng-container>
+      </ng-container>
+      <ng-template #noneValue>
+        <span class="ip-placeholder">{{ placeholder }}</span>
+      </ng-template>
+    </ng-container>
+    <ng-template #noneTemplateValue>
+      <span *ngIf="value.length; else noneValue;">{{ value.length }} lựa chọn</span>
+      <ng-template #noneValue>
+        <span class="ip-placeholder">{{ placeholder }}</span>
+      </ng-template>
+    </ng-template>
+  </div>
+  <div class="icon-remove cursor-pointer" *ngIf="!loading && enableRemove && value" (click)="onRemoveItemSelect()">
+    <i class="fas fa-times-circle"></i>
+  </div>
+  <div class="icon-loading cursor-pointer" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i>
+  </div>
+  <!-- && showSelectTag -->
+  <div class="show-select" [style]="styleListItem" *ngIf="!isListHide">
+    <div class="input-search" *ngIf="enableSearch">
+      <input style="padding-left: 12px;" type="text" #inputSearch class="form-control h-sm"
+        (keyup)="onChangeInputSearch($event)" placeholder="Tìm kiếm" />
+    </div>
+    <ng-template #recursiveList let-list let-isChild="isChild" let-parent="parent">
+      <div class="frame-list">
+        <div class="list-item custom-scrollbar" *ngIf="list?.length">
+          <div class="item" *ngIf="isSelectAll && !parent">
+            <div class="form-check">
+              <input class="form-check-input cursor-pointer" name="checkbox-all" type="checkbox"
+                (change)="onSelectItem($event,'all', 'all')" [checked]="valueCurrent.length === list.length"
+                id="checkbox-all">
+              <label class="form-check-label cursor-pointer w-100" for="checkbox-all">
+                Chọn toàn bộ
+              </label>
+            </div>
+          </div>
+          <div class="item" *ngFor="let item of list" [ngClass]="{selected: valueCurrent.includes(item[itemKey])}">
+            <div class="form-check">
+              <input class="form-check-input cursor-pointer" [name]="item[itemKey]" type="checkbox"
+                (change)="onSelectItem($event, 'item',item, parent)" [checked]="valueCurrent.includes(item[itemKey])"
+                [id]="'checkbox-'+item[itemKey]">
+              <label class="form-check-label cursor-pointer w-100" [for]="'checkbox-'+item[itemKey]">
+                <img [src]="item.picture" height="24px" width="24px" class="rounded-circle me-1" alt=""
+                  *ngIf="item.picture">
+                {{item[itemValue]}}
+              </label>
+            </div>
+
+            <ng-container *ngIf="item.children?.length && valueCurrent.includes(item[itemKey])">
+              <ng-container
+                *ngTemplateOutlet="recursiveList; context:{ $implicit: item.children, parent: item }"></ng-container>
+            </ng-container>
+            <!-- <ng-container *ngTemplateOutlet="template; context: { item: item }"></ng-container> -->
+          </div>
+        </div>
+        <div class="frame-loading w-100 h-100" *ngIf="loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <div>loading...</div>
+        </div>
+      </div>
+    </ng-template>
+    <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: _filteredItems}"></ng-container>
+
+    <div class="frame-btn text-right">
+      <div class="btn btn-primary text-white w-100" (click)="onFilter()">Lọc</div>
+    </div>
+  </div>
+</div>

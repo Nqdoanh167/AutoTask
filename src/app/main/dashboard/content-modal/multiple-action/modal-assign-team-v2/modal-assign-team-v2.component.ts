@@ -7,21 +7,20 @@ import {
   Output,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import {Subject, takeUntil} from 'rxjs';
-import {BsModalRef} from 'ngx-bootstrap/modal';
-import {CommonService} from '@app/services/common/common.service';
-import {Biz, BizRole, IBranch, IDateRange, User} from '@app/types/viewmodels';
-import {AuthService} from '@app/services/api/auth.service';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {Router} from '@angular/router';
-import {ETypeBulkUpdate} from '@app/types/common';
-import {ITask, ModifiedUserUnit} from '@app/types/flow';
-import {distributeTasksToUsers as coreDistributeTasksToUsers} from './helper';
-import {ToastrService} from 'ngx-toastr';
-import {ProgressbarType} from 'ngx-bootstrap/progressbar';
-import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
+import { takeUntil } from 'rxjs';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { CommonService } from '@app/services/common/common.service';
+import { BizRole, Branch, IDateRange, User } from '@app/types/viewmodels';
+import { AutoTaskService } from '@app/services/api/autoTask.service';
+import { Router } from '@angular/router';
+import { ETypeBulkUpdate } from '@app/types/common';
+import { ITask, ModifiedUserUnit } from '@app/types/flow';
+import { distributeTasksToUsers as coreDistributeTasksToUsers } from './helper';
+import { ToastrService } from 'ngx-toastr';
+import { ProgressbarType } from 'ngx-bootstrap/progressbar';
+import { BsCustomDates } from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 import moment from 'moment';
-import {BaseComponentsComponent} from '@app/share/common/base-components/base-components.component';
+import { BaseComponentsComponent } from '@app/share/common/base-components/base-components.component';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -64,8 +63,7 @@ interface IUserSelection {
 })
 export class ModalAssignTeamV2Component
   extends BaseComponentsComponent
-  implements OnInit, OnDestroy
-{
+  implements OnInit, OnDestroy {
   @Input() action!: ETypeBulkUpdate;
   @Input() selectedTaskIds: string[] = []; // Limit 1000
   @Input() selectedTaskCodes: string[] = [];
@@ -82,7 +80,7 @@ export class ModalAssignTeamV2Component
   public availableRoles: BizRole[] = [];
   public userSelections: IUserSelection[] = [];
   public modalOpenByTaskSelection!: boolean; // Check if there are any tasks selected (not empty)
-  public currentBranch: IBranch | null = null;
+  public currentBranch: Branch | null = null;
   public branches = this.autoTaskService.getUserUnits(false);
   public selectedBranch: ModifiedUserUnit | null = null;
 
@@ -182,7 +180,7 @@ export class ModalAssignTeamV2Component
 
   getRole() {
     this.autoTaskService.setting
-      .retrieve({bizId: this.currentBiz!.id})
+      .retrieve({ bizId: this.currentBiz!.id })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
@@ -404,7 +402,7 @@ export class ModalAssignTeamV2Component
         return;
       }
 
-      const payload: ISubmitPayload = {tasks: batchAssignments};
+      const payload: ISubmitPayload = { tasks: batchAssignments };
       const tasksInThisBatch = batchAssignments.reduce(
         (sum, a) => sum + a.taskIds.length,
         0,

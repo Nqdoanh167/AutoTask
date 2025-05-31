@@ -2,7 +2,6 @@ import {DashboardData} from '@main/dashboard/dashboard-data';
 import {
   TASK_FLOWS_CONFIG_FILTERS,
   TASK_SOURCE_SETTING_CONFIG_FILTERS,
-  TASK_TAG_SETTING_CONFIG_FILTERS,
 } from '@main/dashboard/dashboard-variables';
 
 export class DashboardCheckPermission extends DashboardData {
@@ -30,7 +29,6 @@ export class DashboardCheckPermission extends DashboardData {
     ];
     this.configFilters = [
       ...this.configFilters,
-      ...TASK_TAG_SETTING_CONFIG_FILTERS,
     ];
   }
 

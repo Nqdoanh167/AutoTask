@@ -1,44 +1,41 @@
-<app-header>
-  <div class="left">
-    <ul class="nav flex-nowrap">
-      <li style="padding-left: 5px">
-        <app-filter-checkbox [selectData]="{
-            name: 'branch',
-            placeHolder: 'Chi nhánh'
-          }" [enableRemove]="false" [enableSearch]="false" [isSelectAll]="false"
-          (changeEvent)="handleQueryParam($event, 'branchIds')"></app-filter-checkbox>
-      </li>
+<app-header class="header">
+  <div class="left d-flex flex-wrap">
+    <app-input-checkbox [value]="checkbox.branchIds" [listItemSelect]="checkbox.listBranches" [enableRemove]="false"
+      [isSelectAll]="true" [isValidPermissionCheckbox]="true" tooltipText="Chi nhánh" tooltipPlacement="right"
+      customClass="h-sm" class="me-2 input-checkbox" placeholder="Chi nhánh" [enableSearch]="false"
+      (onChange)="changeBranch($event);" [templateValue]="tempBranchValue">
 
-      <li style="padding-left: 5px">
-        <app-filter-checkbox [selectData]="{
-            name: 'role',
-            placeHolder: 'Vai trò'
-          }" [enableRemove]="false" [enableSearch]="false"
-          (changeEvent)="handleQueryParam($event, 'teamRoles')"></app-filter-checkbox>
-      </li>
-
-      <li style="padding-left: 5px">
-        <app-filter-checkbox [selectData]="{
-            name: 'user',
-            placeHolder: 'Nhân sự'
-          }" [enableRemove]="false" (changeEvent)="handleQueryParam($event, 'teamId')"
-          [listItemSelect]="listUsersFilter" (searchEvent)="getListUsersFilter($event)"></app-filter-checkbox>
-      </li>
-    </ul>
+    </app-input-checkbox>
+    <ng-template #tempBranchValue let-model="item">
+      {{checkbox.branchDisplayInputText}}
+    </ng-template>
+    <app-input-checkbox [value]="checkbox.roleIds" [listItemSelect]="checkbox.listRoles" [enableRemove]="false"
+      tooltipText="Vai trò" tooltipPlacement="right" customClass="h-sm" class="me-2 input-checkbox"
+      placeholder="Vai trò" [enableSearch]="false" (onChange)="changeRole($event);"></app-input-checkbox>
+    <app-input-checkbox [value]="checkbox.userIds" [listItemSelect]="checkbox.listUsers" [enableRemove]="false"
+      [enableSearch]="checkbox.listUsers?.length > 10" tooltipText="Thành viên" tooltipPlacement="right"
+      customClass="h-sm" class="me-2 input-checkbox" placeholder="Thành viên"
+      (onChange)="changeUser($event);"></app-input-checkbox>
   </div>
 
   <div class="right">
     <ul class="nav flex-nowrap align-items-center">
       <li style="padding-left: 5px; height: 35px">
-        <ng-select [items]="tags.rows" bindLabel="name" bindValue="id" class="ng-select-custom" placeholder="Chọn tag"
-          (click)="clickLoadData('tags')" (change)="handleQueryParam($event, 'tags')"
-          [loading]="tags.loading"></ng-select>
+        <ng-select class="ng-select-custom" placeholder="Chọn tag" (click)="clickLoadData('tags')"
+          (change)="handleQueryParam($event, 'tags')" [loading]="tags.loading" [(ngModel)]="tagFilter">
+          <ng-option *ngFor="let tag of tags.rows" [value]="tag.id">
+            <span class="text-capitalize" [ngStyle]="{color: tag.bgColor}">
+              {{ tag.name }}
+            </span>
+          </ng-option>
+        </ng-select>
       </li>
 
       <li style="padding-left: 5px; height: 35px">
         <custom-date-picker [className]="'input-medium'" [typePicker]="'range'"
           (changeDateEmmit)="handleQueryParam($event, 'createdAt')" [placeholder]="'Từ ngày -  Đến ngày'"
-          [showClearButton]="true" [rangeChoose]="ranges"></custom-date-picker>
+          [showClearButton]="true" [rangeChoose]="ranges"
+          [defaultRangeValue]="currentActiveViewMode?.options.createdAt || null"></custom-date-picker>
       </li>
     </ul>
   </div>
@@ -61,36 +58,26 @@
               @if (!getLengthCheckRow()) {
               <tr>
                 @if (permission.edit) {
-                <th scope="col" style="width: 40px" class="column-checkbox" [style.top]="
-                        -(
-                          virtualScroll!.getOffsetToRenderedContentStart() || 0
-                        ) + 'px'
-                      ">
+                <th scope="col" style="width: 40px" class="column-checkbox"
+                  [style.top]="-(virtualScroll!.getOffsetToRenderedContentStart() || 0) + 'px'">
                   <label class="basic-checkbox standalone">
-                    <input type="checkbox" (change)="
-                            handleSelectRow({type: 'all', event: $event})
-                          " [checked]="isAllChecked()" />
+                    <input type="checkbox" (change)="handleSelectRow({type: 'all', event: $event})"
+                      [checked]="isAllChecked()" />
                     <span class="checkmark"></span>
                   </label>
                 </th>
                 }
                 <ng-container *ngFor="let columns of dataColumnsShow; index as i">
-                  <th (mousedown)="startResizing($event)" [style.top]="
-                        -(
-                          virtualScroll!.getOffsetToRenderedContentStart() || 0
-                        ) + 'px'
-                      ">
+                  <th (mousedown)="startResizing($event)"
+                    [style.top]="-(virtualScroll!.getOffsetToRenderedContentStart() || 0) + 'px'">
                     <i *ngIf="columns.showTooltip" class="fa fa-question-circle"
                       [tooltipHtml]="columns.tooltip || ''"></i>
                     {{ columns.name }}
                     <span *ngIf="columns.fieldSort" class="caret-wrapper justify-content-center"
                       (click)="changeSort(columns.fieldSort)">
-                      <i class="fa fa-caret-up asc" [ngClass]="{
-                            'text-primary': sort[columns.fieldSort] === 1
-                          }"></i>
-                      <i class="fa fa-caret-down desc" [ngClass]="{
-                            'text-primary': sort[columns.fieldSort] === -1
-                          }"></i>
+                      <i class="fa fa-caret-up asc" [ngClass]="{  'text-primary': sort[columns.fieldSort] === 1}"></i>
+                      <i class="fa fa-caret-down desc"
+                        [ngClass]="{'text-primary': sort[columns.fieldSort] === -1 }"></i>
                     </span>
                   </th>
                 </ng-container>
@@ -106,20 +93,15 @@
               </tr>
               } @else {
               <tr>
-                <th scope="col" style="width: 40px" class="column-checkbox" [style.top]="
-                      -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
-                      'px'
-                    ">
+                <th scope="col" style="width: 40px" class="column-checkbox"
+                  [style.top]="-(virtualScroll!.getOffsetToRenderedContentStart() || 0) + 'px'">
                   <label class="basic-checkbox standalone">
                     <input type="checkbox" (change)="handleSelectRow({type: 'all', event: $event})"
                       [checked]="isAllChecked()" />
                     <span class="checkmark"></span>
                   </label>
                 </th>
-                <th colspan="12" [style.top]="
-                      -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
-                      'px'
-                    ">
+                <th colspan="12" [style.top]="-(virtualScroll!.getOffsetToRenderedContentStart() || 0) + 'px'">
                   <div class="d-flex align-items-center gap-3">
                     <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
                     <ng-select #selectBatchActions appearance="outline" [clearable]="false"
@@ -171,9 +153,9 @@
                           {{ item.code || '-' }}
                         </div>
                         <div class="d-flex flex-row flex-wrap gap-1 mt-1">
-                          <div *ngFor="let tag of item.tags">
-                            <span class="text-capitalize me-2 tag-item" [ngClass]="{nonBack: !tag.bgColor}"
-                              [ngStyle]="{background: tag.bgColor}">
+                          <div *ngFor="let tagId of item.tags">
+                            <span *ngIf="getTagById(tagId) as tag" class="text-capitalize me-2 tag-item"
+                              [ngClass]="{nonBack: !tag.bgColor}" [ngStyle]="{background: tag.bgColor}">
                               <span>{{ tag.name }}</span>
                             </span>
                           </div>
@@ -235,83 +217,42 @@
                                                 </tr>
                                               </thead>
                                               <tbody>
-                                                @for (
-                                                reasonEditedDate of taskChainResult?.reasonEditedDate;
-                                                track reasonEditedDateIndex;
-                                                let reasonEditedDateIndex = $index
-                                                ) {
+                                                @for (reasonEditedDate of taskChainResult?.reasonEditedDate;track
+                                                reasonEditedDateIndex;let reasonEditedDateIndex = $index) {
                                                 <tr>
                                                   <td>
-                                                    {{
-                                                    reasonEditedDate?.editedDate
-                                                    | date
-                                                    : 'dd/MM/yyyy HH:mm'
-                                                    }}
+                                                    {{ reasonEditedDate?.editedDate | date : 'dd/MM/yyyy HH:mm' }}
                                                   </td>
                                                   <td>
-                                                    @if (
-                                                    reasonEditedDate?.deadDate &&
-                                                    reasonEditedDate?.editedDate
-                                                    ) {
-                                                    <div *ngLet="
-                                                              reasonEditedDate.deadDate <
-                                                              reasonEditedDate.editedDate as outOfDeadline
-                                                            ">
-                                                      <div class="{{
-                                                                outOfDeadline
-                                                                  ? 'text-danger'
-                                                                  : 'text-primary'
-                                                              }}">
-                                                        {{
-                                                        outOfDeadline
-                                                        ? 'Trễ'
-                                                        : 'Còn'
-                                                        }}
-                                                        {{
-                                                        reasonEditedDate.deadDate
-                                                        | calculateDeadline
-                                                        : reasonEditedDate.editedDate
-                                                        }}
+                                                    @if ( reasonEditedDate?.deadDate && reasonEditedDate?.editedDate ) {
+                                                    <div
+                                                      *ngLet="reasonEditedDate.deadDate < reasonEditedDate.editedDate as outOfDeadline">
+                                                      <div class="{{ outOfDeadline ? 'text-danger' : 'text-primary'}}">
+                                                        {{ outOfDeadline ? 'Trễ' : 'Còn' }} {{ reasonEditedDate.deadDate
+                                                        | calculateDeadline : reasonEditedDate.editedDate }}
                                                       </div>
                                                     </div>
                                                     }
                                                   </td>
-                                                  <td>
-                                                    @if (
-                                                    reasonEditedDate?.newDate &&
-                                                    reasonEditedDate?.editedDate
-                                                    ) {
+                                                  <td> @if ( reasonEditedDate?.newDate && reasonEditedDate?.editedDate)
+                                                    {
                                                     <div class="text-primary">
-                                                      Còn
-                                                      {{
-                                                      reasonEditedDate.newDate
-                                                      | calculateDeadline
-                                                      : reasonEditedDate.editedDate
-                                                      }}
+                                                      Còn {{ reasonEditedDate.newDate | calculateDeadline :
+                                                      reasonEditedDate.editedDate }}
                                                     </div>
                                                     }
                                                   </td>
                                                   <td>
-                                                    <div class="d-flex gap-2 align-items-center">
-                                                      <img class="avatar" src="{{
-                                                              reasonEditedDate
-                                                                ?.editedBy
-                                                                ?.picture
-                                                            }}" alt="" />
+                                                    <div class="d-flex gap-2 align-items-center"> <img class="avatar"
+                                                        src="{{reasonEditedDate?.editedBy?.picture}}" alt="" />
                                                       <span class="fw-500">
-                                                        {{
-                                                        reasonEditedDate
-                                                        ?.editedBy?.name
-                                                        }}
+                                                        {{ reasonEditedDate?.editedBy?.name }}
                                                       </span>
                                                     </div>
                                                   </td>
                                                   <td class="column-note">
                                                     <div>
-                                                      {{
-                                                      reasonEditedDate?.reason ||
-                                                      '-'
-                                                      }}
+                                                      {{reasonEditedDate?.reason ||'-'}}
                                                     </div>
                                                   </td>
                                                 </tr>
@@ -479,18 +420,29 @@
                     </ng-container>
                     <ng-container *ngSwitchCase="'orderIds'">
                       <td>
-                        <div class="d-flex flex-column" *ngIf="item?.orders?.length; else nonContent">
-                          <div class="list-order d-flex flex-column gap-2">
-                            <div *ngFor="let order of item.orders" class="order-item">
-                              <div (click)="handleViewCreatedOrder(order)"
-                                class="d-flex gap-2 align-items-center cursor-pointer">
-                                <img src="./assets/images/logo-modules/sale-center.svg" alt=""
-                                  [style.height]="'25px'" />
+                        <div class="d-flex flex-column" *ngIf="item?.orderIds?.length; else nonContent">
+                          <!-- <div class="list-order d-flex flex-column gap-2">
+                            <div
+                              *ngFor="let order of item.orders"
+                              class="order-item"
+                            >
+                              <div
+                                (click)="handleViewCreatedOrder(order)"
+                                class="d-flex gap-2 align-items-center cursor-pointer"
+                              >
+                                <img
+                                  src="./assets/images/logo-modules/sale-center.svg"
+                                  alt=""
+                                  [style.height]="'25px'"
+                                />
                                 <div class="fw-500 text-link">
                                   {{ order.code }}
                                 </div>
                               </div>
                             </div>
+                          </div> -->
+                          <div class="fw-500 text-link" (click)="handleViewTabOrder(item)">
+                            Đã có đơn hàng
                           </div>
                         </div>
                       </td>

@@ -40,9 +40,9 @@ import {ETabTaskDetail} from '@app/types/task';
 import {MainService} from '@app/services/api/main.service';
 import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
 import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
-import {ModalConfirmCallComponent} from '@main/dashboard/content-modal/modal-confirm-call/modal-confirm-call.component';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
+import { ActivatedRoute } from '@angular/router';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 
@@ -91,6 +91,7 @@ export class ModalUpdateTaskComponent
     private readonly mainService: MainService,
     private readonly phoneCallService: PhoneCallService,
     private readonly toastrService: ToastrService,
+    private readonly route: ActivatedRoute,
   ) {
     super();
     this.authService.currentBiz
@@ -102,6 +103,12 @@ export class ModalUpdateTaskComponent
         this.listBizUsers = biz.users;
         this.currentBiz = biz;
       });
+
+    this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        this.activeTab = fragment as ETabTaskDetail
+      }
+    });
   }
 
   override async ngOnInit() {

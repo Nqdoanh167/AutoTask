@@ -1,6 +1,6 @@
-import {Injectable, OnDestroy} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {BaseApiService} from './base.service';
+import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BaseApiService } from './base.service';
 import {
   EntityResult,
   ESocialPlatform,
@@ -16,8 +16,8 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import {environment} from 'src/environments/environment';
-import {AuthService} from './auth.service';
+import { environment } from 'src/environments/environment';
+import { AuthService } from './auth.service';
 import {
   CloneTaskDto,
   IAction,
@@ -59,9 +59,9 @@ import {
   UserAcl,
   UserPerAccess,
 } from '@app/types/setting';
-import {omitBy} from 'lodash';
-import {ISubmitPayload} from '@app/main/dashboard/content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
-import {IFeedback} from '@app/types/feedback';
+import { omitBy } from 'lodash';
+import { ISubmitPayload } from '@app/main/dashboard/content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
+import { IFeedback } from '@app/types/feedback';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -152,7 +152,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   private currentSettingObject = new BehaviorSubject<ISetting>(
     null as unknown as ISetting)
-  
+
   public currentSetting = this.currentSettingObject
     .asObservable()
     .pipe(distinctUntilChanged());
@@ -227,7 +227,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   actionReason = {
-    get: (params = {}, options?: {cache?: boolean}) => {
+    get: (params = {}, options?: { cache?: boolean }) => {
       const getData = this.httpClient
         .get<EntityResult<IActReason[]>>(
           this.createUrl([this.api.actionReason]),
@@ -620,7 +620,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     return this.changedDashboardViewModes$.getValue();
   }
 
-  setCurrentActiveViewMode(data: IViewModeDto) {
+  setCurrentActiveViewMode(data: IViewModeDto, isChangeTab: boolean = false) {
+    data.isChangeTab = isChangeTab;
     this.currentActiveViewMode$.next(data);
     // replace the current active view mode in the list changedDashboardViewModes
     const viewModes = this.changedDashboardViewModes$.getValue();
@@ -635,7 +636,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   findUnitsByIds(ids: string[]) {
     const units = this.getUserUnits();
-    return units.flatMap((branch) => {
+    console.log('units', units);
+    const branchs = units.flatMap((branch) => {
       if (ids.includes(branch.data)) {
         const departments = branch.children || [];
         const teams = departments.flatMap(
@@ -654,6 +656,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         }) || []
       );
     });
+    console.log('branchs', branchs);
+    return branchs;
   }
 
   getFirstUnit() {

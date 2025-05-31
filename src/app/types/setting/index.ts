@@ -4,7 +4,7 @@ import {
   ESocialPlatform,
   User,
 } from '@app/types/viewmodels';
-import {IBranchTaskDto, ITaskCartDto} from '@app/types/flow';
+import { IBranchTaskDto, ITaskCartDto } from '@app/types/flow';
 
 export enum EDataSourceType {
   MANUAL = 'MANUAL',
@@ -106,6 +106,7 @@ export interface IViewModeDto {
   name?: string;
   options?: any;
   isDefault?: boolean;
+  isChangeTab?: boolean;
   isActive?: boolean;
   hasChanged?: boolean;
   isEdit?: boolean;
@@ -133,7 +134,7 @@ export interface ISetting {
   updatedBy: AccountPublic;
 }
 
-export interface IViewDto extends Pick<IView, 'screen' | 'modes'> {}
+export interface IViewDto extends Pick<IView, 'screen' | 'modes'> { }
 
 export enum ETabPermissions {
   EMPLOYEE = 'EMPLOYEE',
@@ -194,7 +195,7 @@ export interface IPermissionGroups {
   name: string;
   key: EPerActType;
   isOpen: boolean;
-  groups?: {name: string; permissions: IPermissionItem[]}[];
+  groups?: { name: string; permissions: IPermissionItem[] }[];
   permissions?: IPermissionItem[];
   class?: string;
 }
@@ -224,9 +225,9 @@ export interface PermissionDto
   extends Pick<
     Permission,
     'name' | 'description' | 'isActive' | 'permissionAction'
-  > {}
+  > { }
 
-export interface UpdatePermissionDto extends PermissionDto {}
+export interface UpdatePermissionDto extends PermissionDto { }
 
 export enum EBatchActionEmployeePer {
   REMOVE = 'REMOVE',
@@ -239,7 +240,7 @@ export interface UserAclBaseRole {
   permission: string;
 }
 
-export interface UserAclTeam extends UserAclBaseRole {}
+export interface UserAclTeam extends UserAclBaseRole { }
 
 export interface UserAclDepartment extends UserAclBaseRole {
   teams: UserAclTeam[];
@@ -255,7 +256,7 @@ export interface UserAcl extends Omit<BaseInterface, 'id'> {
   branches: UserAclBranch[];
 }
 
-export interface UpdateUserAclDto extends UserAcl {}
+export interface UpdateUserAclDto extends UserAcl { }
 
 export interface BulkRemoveUserAcl {
   permissionId: string;
@@ -280,5 +281,7 @@ export interface SeparateTaskPer {
 }
 
 export interface UserPerAccess extends PermissionAction {
-  separateTask: SeparateTaskPer[];
+  roleBranch?: {
+    [name: string]: string[]
+  }
 }

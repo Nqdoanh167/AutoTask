@@ -6,28 +6,28 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
+import { CommonModule } from '@angular/common';
+import { CustomInputSearchComponent } from '@share/custom/custom-input-search/custom-input-search.component';
 import {
   EBotherAdvanceBasicFilter,
   ETypeButton,
   ETypeFilter,
   IFilterTopTable,
 } from '@app/types/common';
-import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
-import {PopoverModule} from 'ngx-bootstrap/popover';
-import {IDateRange} from '@app/types/viewmodels';
-import {takeUntil} from 'rxjs';
-import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
-import {specialQueryTaskKeys} from '@main/dashboard/dashboard-variables';
-import {TooltipModule} from 'ngx-bootstrap/tooltip';
-import {DashboardCheckPermission} from '@app/main/dashboard/dashboard-check-permission';
-import {isEqual} from 'lodash';
-import {ModifiedUserUnit} from '@app/types/flow';
+import { CustomSelectSearchComponent } from '@share/custom/custom-select-search/custom-select-search.component';
+import { PopoverModule } from 'ngx-bootstrap/popover';
+import { IDateRange } from '@app/types/viewmodels';
+import { takeUntil } from 'rxjs';
+import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
+import { specialQueryTaskKeys } from '@main/dashboard/dashboard-variables';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { DashboardCheckPermission } from '@app/main/dashboard/dashboard-check-permission';
+import { isEqual } from 'lodash';
+import { ModifiedUserUnit } from '@app/types/flow';
 import moment from 'moment';
-import {NgSelectModule} from '@ng-select/ng-select';
-import {FormsModule} from '@angular/forms';
-import {TreeSelectModule} from 'primeng/treeselect';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { FormsModule } from '@angular/forms';
+import { TreeSelectModule } from 'primeng/treeselect';
 
 @Component({
   selector: 'app-filter-advance',
@@ -49,8 +49,7 @@ import {TreeSelectModule} from 'primeng/treeselect';
 })
 export class FilterAdvanceComponent
   extends DashboardCheckPermission
-  implements OnInit, OnDestroy
-{
+  implements OnInit, OnDestroy {
   @ViewChild('popFilter') popFilter?: any;
   @Output() clickButtonEvent = new EventEmitter<string>();
   @Output() toggleButtonEvent = new EventEmitter<{
@@ -58,7 +57,7 @@ export class FilterAdvanceComponent
     name?: string;
   }>();
   @Output() scrollToEndEvent = new EventEmitter<any>();
-  @Output() searchEvent = new EventEmitter<{term: string; name: string}>();
+  @Output() searchEvent = new EventEmitter<{ term: string; name: string }>();
 
   public paramsQuery: any = {
     sort: '-createdAt',
@@ -69,7 +68,7 @@ export class FilterAdvanceComponent
   configFilterBasic: IFilterTopTable[] = [];
   onSearchingAdvance: string[] = [];
 
-  public cdtList: {key: string; label: string; value: string | string[]}[] = [];
+  public cdtList: { key: string; label: string; value: string | string[] }[] = [];
 
   public units = this.autoTaskService.getUserUnits(false);
   public selectedUnits: ModifiedUserUnit[] = [];
@@ -91,18 +90,13 @@ export class FilterAdvanceComponent
           (key: any) => {
             if (this.configFilterAdvance.some((cA) => cA.name === key)) {
               this.onSearchingAdvance.push(key);
-            } else if (specialQueryTaskKeys.includes(key)) {
-              this.onSearchingAdvance.push(key);
             }
           },
         );
-
       });
   }
 
   override ngOnInit() {
-
-
     this.configFilterAdvance = this.configFilters.filter(
       (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
     );
@@ -130,7 +124,7 @@ export class FilterAdvanceComponent
   }
 
   onSearchValue(term: string, name: string = 'search') {
-    this.searchEvent.emit({term, name});
+    this.searchEvent.emit({ term, name });
   }
 
   onPickerDate(value: any, name: string = 'date') {
@@ -254,7 +248,7 @@ export class FilterAdvanceComponent
 
   handleToggleAction(event: any, name?: string) {
     const checked = !!event.target?.checked;
-    this.toggleButtonEvent.emit({value: checked, name});
+    this.toggleButtonEvent.emit({ value: checked, name });
   }
 
   handleApply() {
@@ -319,6 +313,13 @@ export class FilterAdvanceComponent
       this.paramsQuery.filter = '{}';
       this.selectedUnits = [];
       const objFilterQuery = JSON.parse(this.paramsQuery.filter || '{}');
+
+      Object.keys(this.currentActiveViewMode?.options || {}).forEach((key) => {
+        if (this.currentActiveViewMode?.options[key]) {
+          objFilterQuery[key] = this.currentActiveViewMode?.options[key];
+        }
+      });
+
       if (this.currentActiveViewMode?.options?.branchIds) {
         objFilterQuery.branchIds =
           this.currentActiveViewMode?.options.branchIds;
@@ -436,7 +437,7 @@ export class FilterAdvanceComponent
         this.getAction();
       } else if (filter.name === 'resultIds') {
         this.getResult();
-      } else if (filter.name === 'teamRoles'){
+      } else if (filter.name === 'teamRoles') {
         this.getRole();
       }
     }
