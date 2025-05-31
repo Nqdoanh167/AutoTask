@@ -1,6 +1,6 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BaseApiService } from './base.service';
+import {Injectable, OnDestroy} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BaseApiService} from './base.service';
 import {
   EntityResult,
   ESocialPlatform,
@@ -16,8 +16,8 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service';
+import {environment} from 'src/environments/environment';
+import {AuthService} from './auth.service';
 import {
   CloneTaskDto,
   IAction,
@@ -59,9 +59,9 @@ import {
   UserAcl,
   UserPerAccess,
 } from '@app/types/setting';
-import { omitBy } from 'lodash';
-import { ISubmitPayload } from '@app/main/dashboard/content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
-import { IFeedback } from '@app/types/feedback';
+import {omitBy} from 'lodash';
+import {ISubmitPayload} from '@app/main/dashboard/content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
+import {IFeedback} from '@app/types/feedback';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -113,8 +113,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
 
-  private listViewModeSubject = new BehaviorSubject<EntityResult<IView>>(
-    null as unknown as EntityResult<IView>,
+  private listViewModeSubject = new BehaviorSubject<EntityResult<IView[]>>(
+    null as unknown as EntityResult<IView[]>,
   );
 
   private listSourceSubject = new BehaviorSubject<ISource[]>(
@@ -151,7 +151,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     .pipe(distinctUntilChanged());
 
   private currentSettingObject = new BehaviorSubject<ISetting>(
-    null as unknown as ISetting)
+    null as unknown as ISetting,
+  );
 
   public currentSetting = this.currentSettingObject
     .asObservable()
@@ -227,7 +228,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   actionReason = {
-    get: (params = {}, options?: { cache?: boolean }) => {
+    get: (params = {}, options?: {cache?: boolean}) => {
       const getData = this.httpClient
         .get<EntityResult<IActReason[]>>(
           this.createUrl([this.api.actionReason]),
@@ -527,7 +528,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       },
     ) => {
       const getData = this.httpClient
-        .get<EntityResult<IView>>(
+        .get<EntityResult<IView[]>>(
           this.createUrl([this.api.settingView, 'retrieve']),
           {
             params: this.createParams(
@@ -548,6 +549,12 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
     update: (body: IViewDto) =>
       this.httpClient.put<EntityResult<IView>>(
+        this.createUrl([this.api.settingView]),
+        body,
+      ),
+
+    create: (body: IViewDto) =>
+      this.httpClient.post<EntityResult<IView>>(
         this.createUrl([this.api.settingView]),
         body,
       ),
@@ -758,7 +765,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     this.listTagSubject.next(items);
   }
 
-  setListViewMode(item: EntityResult<IView>) {
+  setListViewMode(item: EntityResult<IView[]>) {
     this.listViewModeSubject.next(item);
   }
 

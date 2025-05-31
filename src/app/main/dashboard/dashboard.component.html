@@ -35,7 +35,7 @@
         <custom-date-picker [className]="'input-medium'" [typePicker]="'range'"
           (changeDateEmmit)="handleQueryParam($event, 'createdAt')" [placeholder]="'Từ ngày -  Đến ngày'"
           [showClearButton]="true" [rangeChoose]="ranges"
-          [defaultRangeValue]="currentActiveViewMode?.options.createdAt || null"></custom-date-picker>
+          [defaultRangeValue]="currentActiveViewMode?.options?.createdAt || null"></custom-date-picker>
       </li>
     </ul>
   </div>

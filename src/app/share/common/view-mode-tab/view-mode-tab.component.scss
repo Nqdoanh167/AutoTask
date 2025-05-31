@@ -95,3 +95,25 @@
   margin-bottom: 8px;
   margin-top: 10px;
 }
+
+.popover-tab {
+  .tab-item {
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(66, 119, 255, 0.05);
+    }
+    
+    &.active-tab {
+      background-color: rgba(66, 119, 255, 0.1);
+      
+      .tab-item-title {
+        color: #4277FF;
+        font-weight: 500;
+      }
+    }
+  }
+}
