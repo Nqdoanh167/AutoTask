@@ -3,7 +3,7 @@
     <app-input-checkbox [value]="checkbox.branchIds" [listItemSelect]="checkbox.listBranches" [enableRemove]="false"
       [isSelectAll]="true" [isValidPermissionCheckbox]="true" tooltipText="Chi nhánh" tooltipPlacement="right"
       customClass="h-sm" class="me-2 input-checkbox" placeholder="Chi nhánh" [enableSearch]="false"
-      (onChange)="changeBranch($event);" [templateValue]="tempBranchValue">
+      (onChange)="changeBranch({branchIds: $event});" [templateValue]="tempBranchValue">
 
     </app-input-checkbox>
     <ng-template #tempBranchValue let-model="item">
@@ -22,7 +22,7 @@
     <ul class="nav flex-nowrap align-items-center">
       <li style="padding-left: 5px; height: 35px">
         <ng-select class="ng-select-custom" placeholder="Chọn tag" (click)="clickLoadData('tags')"
-          (change)="handleQueryParam($event, 'tags')" [loading]="tags.loading" [(ngModel)]="tagFilter">
+          (change)="handleQueryParam($event, 'tags')" [loading]="tags.loading" [(ngModel)]="filter.tag">
           <ng-option *ngFor="let tag of tags.rows" [value]="tag.id">
             <span class="text-capitalize" [ngStyle]="{color: tag.bgColor}">
               {{ tag.name }}

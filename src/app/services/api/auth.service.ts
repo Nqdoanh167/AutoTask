@@ -84,7 +84,6 @@ export class AuthService {
     }
 
     if (this.getToken() && alias) {
-      console.log('get auto task');
       this.bizService.biz.get(alias).subscribe({
         next: (res) => {
           if (res.data?.id) {
@@ -192,8 +191,6 @@ export class AuthService {
     return this.isPerBranch(branch, per);
   }
   getBranchPer(pers: string[] = [], option = { isFullBranch: false }) {
-    console.log('biz', this.biz);
-    console.log('value', this.userAccessPerSubject.getValue());
     let branches: Branch[] = [];
 
     if (this.isOwner() || option.isFullBranch) {
@@ -319,16 +316,6 @@ export class AuthService {
         rows.push(roleB);
       }
     })
-    // console.log('bids', bids);
-    // console.log({
-    //   ids: [
-    //     ...branchIds,
-    //     ...departmentIds,
-    //     ...teamIds,
-    //   ],
-    //   nestedIds,
-    //   rows
-    // });
     return {
       branchIds,
       departmentIds,

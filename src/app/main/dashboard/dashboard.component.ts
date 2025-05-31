@@ -47,7 +47,9 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
   protected readonly ETaskChainType = ETaskChainType;
   protected readonly ranges = ranges;
 
-  public tagFilter: ITag | null = null;
+  filter = {
+    tag: null
+  }
 
   checkbox: any = {
     branchId: null,
@@ -137,12 +139,13 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
       this.checkbox.listUsers = this.currentBiz.users.filter(u => u.isActive);
       this.checkbox.listBranches = this.authService.getBranchPer();
     }
-    console.log('setupCheckbox', this.checkbox);
   }
 
 
-  setupCheckboxBranch() {
+  setupCheckboxBranch(isChangeTab: boolean = false) {
+    console.log('setupCheckboxBranch');
     this.checkbox.branchIds = [];
+
     this.checkbox.listBranches = this.authService.getBranchPer().map(branch => {
       this.checkbox.branchIds.push(branch.id);
       if (branch.departments?.length) {
@@ -163,27 +166,44 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
     });
 
     this.checkbox.listRoles = this.currentBiz?.user.roles?.filter((r: BizRole) => this.setting.roles.includes(r.id) && r.isActive) || [];
-    // if (!this.biz.user.branchIds?.length) {
-    //   this.toastr.warning('Bạn chưa ở trong chi nhánh nào. Vui lòng liên hệ chủ Biz để được cấp quyền vào chi nhánh quản lý đơn hàng của mình!')
-    //   return;
-    // }
-    console.log('setupCheckboxBranch filter', this.item.paramsQuery.filter);
+    if (!this.currentBiz?.user.branchIds?.length) {
+      this.toastrService.warning('Bạn chưa ở trong chi nhánh nào. Vui lòng liên hệ chủ Biz để được cấp quyền vào chi nhánh quản lý đơn hàng của mình!')
+      return;
+    }
     const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+    console.log('objFilterQuery', objFilterQuery);
 
     if (objFilterQuery.branchIds && objFilterQuery.branchIds.length) {
-      this.checkbox.branchIds = objFilterQuery.branchIds;
+      // Ví dụ có nhiều id chi nhánh thì hàm detectFilterBranchIds sẽ trả về danh sách các chi nhánh, phòng ban, đội nhóm mà user thỏa mãn
+      const detectBranchFilter = this.authService.detectFilterBranchIds(objFilterQuery.branchIds);
+      // console.log('detectBranchFilter', detectBranchFilter);
+      if (detectBranchFilter.branchIds?.length)
+        this.checkbox.branchIds = detectBranchFilter.branchIds;
+    } else if (isChangeTab && this.isViewAllTask()) {
+      this.checkbox.branchIds = []
     }
-    console.log('setupCheckboxBranch this.checkbox.branchIds', this.checkbox.branchIds);
-    this.changeBranch(this.checkbox.branchIds, true);
+
+
+
+    this.changeBranch({
+      branchIds: this.checkbox.branchIds,
+      isReload: true,
+      isChangeTab
+    });
 
   }
 
-  changeBranch(branchIds: string[], isReload: boolean = false) {
-    console.log('changeBranch', branchIds, isReload);
+  changeBranch({ branchIds = [], isReload = false, isChangeTab = false }: { branchIds: string[], isReload?: boolean, isChangeTab?: boolean }) {
     this.checkbox.branchIds = branchIds;
     this.checkbox.receiverAllBranchIds = [];   // Chỉ dùng cho trường hợp tạo đơn hàng, toàn bộ ID sẽ tiếp nhận đơn hàng
     this.checkbox.userIds = [];
     this.checkbox.roleIds = [];
+    if (isChangeTab) {
+      const filterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+      if (filterQuery.teamRoles?.length) this.checkbox.roleIds = (filterQuery.teamRoles || []).filter((r: string) => this.currentBiz?.user?.roleIds?.includes(r)) || [];
+      if (filterQuery.teamId?.length) this.checkbox.userIds = filterQuery.teamId || [];
+    }
+
     let detectFilter: any = {};
     if (!this.isViewAllTask()) {
       // Nếu không chọn chi nhánh nào thì gắn mặc định toàn chi nhánh
@@ -199,7 +219,6 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
       let isFullPerBranches = true;
 
       detectFilter = this.authService.detectFilterBranchIds(branchIds);
-      console.log('detectFilter', detectFilter);
 
       detectFilter.rows.forEach((row: any) => {
         if (this.authService.isPerBranch(row.id, 'VIEW_TASK_SAME_LEVEL')) {
@@ -210,14 +229,21 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
           isFullPerBranches = false;
         }
       });
-      console.log('isFullPerBranches', isFullPerBranches);
       // Nếu có quyền View_all trên toàn bộ branch => k lọc userId mặc định nữua
       if (isFullPerBranches) userIds = [];
       else checkboxUserIds = [this.currentUser?.id];
-
       checkboxUserIds = Array.from(new Set(checkboxUserIds));
       this.checkbox.listUsers = this.currentBiz?.users.filter((u: User) => checkboxUserIds.includes(u.id));
-      this.checkbox.userIds = userIds;
+      // Nếu filter có userIds thì lọc lại danh sách user có ko thì cho vào danh sách cho phép truy vấn
+      if (this.checkbox.userIds?.length) {
+        this.checkbox.userIds.forEach((uId: string) => {
+          const hasUser = this.checkbox.listUsers.some((u: User) => u.id === uId);
+          if (hasUser) {
+            userIds.push(uId);
+          }
+        });
+      }
+      this.checkbox.userIds = Array.from(new Set(userIds));
     } else if (branchIds.length) {
       let userIds: string[] = [];
       detectFilter = this.authService.detectFilterBranchIds(branchIds);
@@ -236,7 +262,7 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
       this.checkbox.branchId = this.checkbox.branchIds[0];
     }
     // Detect toàn bộ ID của chi nhánh, phòng ban, đội nhóm sẽ nhận đơn hàng từ SOCKET
-    detectFilter.rows.forEach((row: any) => {
+    detectFilter.rows?.forEach((row: any) => {
       this.checkbox.receiverAllBranchIds.push(row.id);
       if (row.departments?.length) {
         row.departments.forEach((department: any) => {
@@ -256,10 +282,12 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
       }
     })
 
+
+    // Cập nhật text hiển thị của checkbox chi nhánh, phòng ban, đội nhóm => X CN, Y PB, Z ĐN
     this.checkbox.branchDisplayInputText = 'Lựa chọn';
-    const lengthBranch = detectFilter.branchIds.length;
-    const lengthDepartment = detectFilter.departmentIds.length;
-    const lengthTeam = detectFilter.teamIds.length;
+    const lengthBranch = detectFilter.branchIds?.length;
+    const lengthDepartment = detectFilter.departmentIds?.length;
+    const lengthTeam = detectFilter.teamIds?.length;
     if (lengthBranch && lengthDepartment && lengthTeam) {
       this.checkbox.branchDisplayInputText = `${lengthBranch} CN, ${lengthDepartment} PB, ${lengthTeam} ĐN`;
     }
@@ -276,7 +304,7 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
       if (lengthDepartment) this.checkbox.branchDisplayInputText += `${lengthDepartment} phòng ban`;
       if (lengthTeam) this.checkbox.branchDisplayInputText += `${lengthTeam} đội nhóm`;
     }
-    console.log('thischeckbox', this.checkbox);
+    // End check text hiể thị
     if (isReload) {
       this.getDataSource(true)
     } else {
@@ -339,7 +367,7 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
   }
   handleChangeCheckbox() {
     const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
-    console.log('handleChangeCheckbox objFilterQuery', objFilterQuery);
+    // console.log('handleChangeCheckbox objFilterQuery', objFilterQuery);
     delete objFilterQuery.branchIds
     delete objFilterQuery.teamRoles
     delete objFilterQuery.teamId
@@ -428,9 +456,8 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
             }
           });
 
-          if (this.currentActiveViewMode?.options?.tags) {
-            this.tagFilter = this.currentActiveViewMode?.options?.tags[0]
-          }
+          this.filter.tag = this.currentActiveViewMode?.options?.tags?.[0] || null;
+
           // loop configFilters and update by value of object options in currentActiveViewMode
           this.configFilters.forEach((configFilter) => {
             if (
@@ -439,15 +466,10 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
               configFilter.type === ETypeFilter.DATE
             ) {
               if (configFilter.name === 'sort') {
-                configFilter.value =
-                  this.currentActiveViewMode?.options[configFilter.name!] ||
-                  '-createdAt';
-                this.item.paramsQuery.sort =
-                  this.currentActiveViewMode?.options[configFilter.name!] ||
-                  ('-createdAt' as string);
+                configFilter.value = this.currentActiveViewMode?.options[configFilter.name!] || '-createdAt';
+                this.item.paramsQuery.sort = this.currentActiveViewMode?.options[configFilter.name!] || ('-createdAt' as string);
               } else {
-                configFilter.value =
-                  this.currentActiveViewMode?.options[configFilter.name!];
+                configFilter.value = this.currentActiveViewMode?.options[configFilter.name!];
                 objFilterQuery[configFilter.name!] = configFilter.value;
               }
             }
@@ -469,9 +491,8 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
 
           // update dataSource.paramsQuery.filter by objFilterQuery
           this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
-          console.log('filterr', this.item.paramsQuery.filter);
-          if (this.item.isFirstRequest || this.currentActiveViewMode?.isChangeTab) {
-            this.setupCheckboxBranch();
+          if ((this.item.isFirstRequest || this.currentActiveViewMode?.isChangeTab)) {
+            this.setupCheckboxBranch(this.currentActiveViewMode?.isChangeTab);
           } else {
             this.getDataSource(true);
 
