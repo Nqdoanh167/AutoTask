@@ -116,6 +116,7 @@ export class ViewModeTabComponent
   ngOnChanges(changes: SimpleChanges) { }
 
   handleOpenPopover(event: any) {
+    event.stopPropagation();
     this.filteredTabs = this.tabs;
   }
 
@@ -210,8 +211,6 @@ export class ViewModeTabComponent
   }
 
   handleChangeActive(tab: IViewModeDto, index: number, isScroll: boolean = false,) {
-    if (!this.isActiveChangeTab) return;
-    tab.isActive = true;
     this.tabs.forEach((item) => {
       item.isActive = false;
     });
@@ -224,7 +223,7 @@ export class ViewModeTabComponent
           `view-mode-id-${tab.id}-link`,
         );
         if (activeTab) {
-          scrollTab.scrollLeft = activeTab.offsetLeft;
+          scrollTab.scrollLeft = activeTab.offsetLeft - 300;
           setTimeout(() => {
             this.checkHideButtonNext();
           }, 1000);
@@ -268,6 +267,7 @@ export class ViewModeTabComponent
   }
 
   handleEditTab(tab: IViewModeDto, event: any, index: number) {
+    event.stopPropagation();
     tab.isEdit = true;
     setTimeout(() => {
       const inputEdit = document.getElementById(`input-edit-tab-${index}`);
@@ -307,6 +307,7 @@ export class ViewModeTabComponent
   }
 
   handleCloneTab(tab: IViewModeDto, event: any) {
+    event.stopPropagation();
     if (this.tabs.length >= this.MAX_TAB) {
       this.toastr.warning(`Tối đa ${this.MAX_TAB} chế độ xem`);
       return;
@@ -327,7 +328,8 @@ export class ViewModeTabComponent
     this.checkHideButtonNext();
   }
 
-  handleDeleteViewMode(value: IViewModeDto) {
+  handleDeleteViewMode(value: IViewModeDto, event: any) {
+    event.stopPropagation();
     const title = 'Xóa chế độ xem';
     const description = `Bạn sắp xóa chế độ xem <b>${value.name || ''
       }</b>, hành động này không thể hoàn tác.`;
