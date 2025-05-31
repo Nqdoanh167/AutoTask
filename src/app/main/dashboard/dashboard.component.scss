@@ -1,12 +1,18 @@
 @use 'src/app/styles/variable' as vars;
 @use 'src/app/styles/mixins' as mixins;
 
+.header {
+  .input-checkbox {
+    width: 140px;
+  }
+}
 .dashboard-site {
   padding: 16px;
 }
 
 .table-responsive {
   @include mixins.calculateSize('max-height', '100vh', '227px');
+  @include mixins.calculateSize('height', '100vh', '227px');
 }
 
 .avatar {
@@ -129,10 +135,5 @@
 
 .table-header {
   overflow: hidden;
-}
-
-cdk-virtual-scroll-viewport {
-  max-height: calc(100vh - 274px);
-  height: calc(100vh - 274px);
 }
 

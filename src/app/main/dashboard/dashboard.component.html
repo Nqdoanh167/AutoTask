@@ -1,60 +1,28 @@
-<app-header>
-  <div class="left">
-    <ul class="nav flex-nowrap">
-      <li style="padding-left: 5px">
-        <app-filter-checkbox
-          [selectData]="{
-            name: 'branch',
-            placeHolder: 'Chi nhánh'
-          }"
-          [enableRemove]="false"
-          [enableSearch]="false"
-          [isSelectAll]="false"
-          (changeEvent)="handleQueryParam($event, 'branchIds')"
-          [value]="currentActiveViewMode?.options.branchIds || []"
-        ></app-filter-checkbox>
-      </li>
+<app-header class="header">
+  <div class="left d-flex flex-wrap">
+    <app-input-checkbox [value]="checkbox.branchIds" [listItemSelect]="checkbox.listBranches" [enableRemove]="false"
+      [isSelectAll]="true" [isValidPermissionCheckbox]="true" tooltipText="Chi nhánh" tooltipPlacement="right"
+      customClass="h-sm" class="me-2 input-checkbox" placeholder="Chi nhánh" [enableSearch]="false"
+      (onChange)="changeBranch($event);" [templateValue]="tempBranchValue">
 
-      <li style="padding-left: 5px">
-        <app-filter-checkbox
-          [selectData]="{
-            name: 'role',
-            placeHolder: 'Vai trò'
-          }"
-          [enableRemove]="false"
-          [enableSearch]="false"
-          (changeEvent)="handleQueryParam($event, 'teamRoles')"
-          [value]="currentActiveViewMode?.options.teamRoles || []"
-        ></app-filter-checkbox>
-      </li>
-
-      <li style="padding-left: 5px">
-        <app-filter-checkbox
-          [selectData]="{
-            name: 'user',
-            placeHolder: 'Nhân sự'
-          }"
-          [enableRemove]="false"
-          (changeEvent)="handleQueryParam($event, 'teamId')"
-          [listItemSelect]="listUsersFilter"
-          (searchEvent)="getListUsersFilter($event)"
-          [value]="currentActiveViewMode?.options.teamId || []"
-        ></app-filter-checkbox>
-      </li>
-    </ul>
+    </app-input-checkbox>
+    <ng-template #tempBranchValue let-model="item">
+      {{checkbox.branchDisplayInputText}}
+    </ng-template>
+    <app-input-checkbox [value]="checkbox.roleIds" [listItemSelect]="checkbox.listRoles" [enableRemove]="false"
+      tooltipText="Vai trò" tooltipPlacement="right" customClass="h-sm" class="me-2 input-checkbox"
+      placeholder="Vai trò" [enableSearch]="false" (onChange)="changeRole($event);"></app-input-checkbox>
+    <app-input-checkbox [value]="checkbox.userIds" [listItemSelect]="checkbox.listUsers" [enableRemove]="false"
+      [enableSearch]="checkbox.listUsers?.length > 10" tooltipText="Thành viên" tooltipPlacement="right"
+      customClass="h-sm" class="me-2 input-checkbox" placeholder="Thành viên"
+      (onChange)="changeUser($event);"></app-input-checkbox>
   </div>
 
   <div class="right">
     <ul class="nav flex-nowrap align-items-center">
       <li style="padding-left: 5px; height: 35px">
-        <ng-select
-          class="ng-select-custom"
-          placeholder="Chọn tag"
-          (click)="clickLoadData('tags')"
-          (change)="handleQueryParam($event, 'tags')"
-          [loading]="tags.loading"
-          [(ngModel)]="tagFilter"
-        >
+        <ng-select class="ng-select-custom" placeholder="Chọn tag" (click)="clickLoadData('tags')"
+          (change)="handleQueryParam($event, 'tags')" [loading]="tags.loading" [(ngModel)]="tagFilter">
           <ng-option *ngFor="let tag of tags.rows" [value]="tag.id">
             <span class="text-capitalize" [ngStyle]="{color: tag.bgColor}">
               {{ tag.name }}
@@ -64,15 +32,10 @@
       </li>
 
       <li style="padding-left: 5px; height: 35px">
-        <custom-date-picker
-          [className]="'input-medium'"
-          [typePicker]="'range'"
-          (changeDateEmmit)="handleQueryParam($event, 'createdAt')"
-          [placeholder]="'Từ ngày -  Đến ngày'"
-          [showClearButton]="true"
-          [rangeChoose]="ranges"
-          [defaultRangeValue]="currentActiveViewMode?.options.createdAt || null"
-        ></custom-date-picker>
+        <custom-date-picker [className]="'input-medium'" [typePicker]="'range'"
+          (changeDateEmmit)="handleQueryParam($event, 'createdAt')" [placeholder]="'Từ ngày -  Đến ngày'"
+          [showClearButton]="true" [rangeChoose]="ranges"
+          [defaultRangeValue]="currentActiveViewMode?.options?.createdAt || null"></custom-date-picker>
       </li>
     </ul>
   </div>
@@ -81,92 +44,44 @@
   <div class="card">
     <div class="card-body">
       <div class="content-site">
-        <div
-          class="d-flex justify-content-between align-items-start mb-3 flex-wrap"
-        >
-          <app-view-mode-tab
-            [isActiveChangeTab]="!item.loading"
-            [key]="EScreens.DASHBOARD"
-            [quantity]="item.total"
-          ></app-view-mode-tab>
-          <app-filter-advance
-            (clickButtonEvent)="handleAction($event)"
-            (searchEvent)="onSearch($event)"
-          ></app-filter-advance>
+        <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap">
+          <app-view-mode-tab [isActiveChangeTab]="!item.loading" [key]="EScreens.DASHBOARD"
+            [quantity]="item.total"></app-view-mode-tab>
+          <app-filter-advance (clickButtonEvent)="handleAction($event)"
+            (searchEvent)="onSearch($event)"></app-filter-advance>
         </div>
 
-        <cdk-virtual-scroll-viewport
-          #virtualScroll
-          [itemSize]="82"
-          [minBufferPx]="82 * 9"
-          [maxBufferPx]="82 * 18"
-          class="table-responsive tableFixHead custom-scrollbar"
-        >
+        <cdk-virtual-scroll-viewport #virtualScroll [itemSize]="82" [minBufferPx]="82 * 9" [maxBufferPx]="82 * 18"
+          class="table-responsive tableFixHead custom-scrollbar">
           <table class="table col-resizable">
             <thead>
               @if (!getLengthCheckRow()) {
-                <tr>
-                  @if (permission.edit) {
-                    <th
-                      scope="col"
-                      style="width: 40px"
-                      class="column-checkbox"
-                      [style.top]="
-                        -(
-                          virtualScroll!.getOffsetToRenderedContentStart() || 0
-                        ) + 'px'
-                      "
-                    >
-                      <label class="basic-checkbox standalone">
-                        <input
-                          type="checkbox"
-                          (change)="
-                            handleSelectRow({type: 'all', event: $event})
-                          "
-                          [checked]="isAllChecked()"
-                        />
-                        <span class="checkmark"></span>
-                      </label>
-                    </th>
-                  }
-                  <ng-container
-                    *ngFor="let columns of dataColumnsShow; index as i"
-                  >
-                    <th
-                      (mousedown)="startResizing($event)"
-                      [style.top]="
-                        -(
-                          virtualScroll!.getOffsetToRenderedContentStart() || 0
-                        ) + 'px'
-                      "
-                    >
-                      <i
-                        *ngIf="columns.showTooltip"
-                        class="fa fa-question-circle"
-                        [tooltipHtml]="columns.tooltip || ''"
-                      ></i>
-                      {{ columns.name }}
-                      <span
-                        *ngIf="columns.fieldSort"
-                        class="caret-wrapper justify-content-center"
-                        (click)="changeSort(columns.fieldSort)"
-                      >
-                        <i
-                          class="fa fa-caret-up asc"
-                          [ngClass]="{
-                            'text-primary': sort[columns.fieldSort] === 1
-                          }"
-                        ></i>
-                        <i
-                          class="fa fa-caret-down desc"
-                          [ngClass]="{
-                            'text-primary': sort[columns.fieldSort] === -1
-                          }"
-                        ></i>
-                      </span>
-                    </th>
-                  </ng-container>
-                  <!-- <th scope="col">
+              <tr>
+                @if (permission.edit) {
+                <th scope="col" style="width: 40px" class="column-checkbox"
+                  [style.top]="-(virtualScroll!.getOffsetToRenderedContentStart() || 0) + 'px'">
+                  <label class="basic-checkbox standalone">
+                    <input type="checkbox" (change)="handleSelectRow({type: 'all', event: $event})"
+                      [checked]="isAllChecked()" />
+                    <span class="checkmark"></span>
+                  </label>
+                </th>
+                }
+                <ng-container *ngFor="let columns of dataColumnsShow; index as i">
+                  <th (mousedown)="startResizing($event)"
+                    [style.top]="-(virtualScroll!.getOffsetToRenderedContentStart() || 0) + 'px'">
+                    <i *ngIf="columns.showTooltip" class="fa fa-question-circle"
+                      [tooltipHtml]="columns.tooltip || ''"></i>
+                    {{ columns.name }}
+                    <span *ngIf="columns.fieldSort" class="caret-wrapper justify-content-center"
+                      (click)="changeSort(columns.fieldSort)">
+                      <i class="fa fa-caret-up asc" [ngClass]="{  'text-primary': sort[columns.fieldSort] === 1}"></i>
+                      <i class="fa fa-caret-down desc"
+                        [ngClass]="{'text-primary': sort[columns.fieldSort] === -1 }"></i>
+                    </span>
+                  </th>
+                </ng-container>
+                <!-- <th scope="col">
                     <div
                       class="btn button-cog-table text-center"
                       (click)="showModalOrderableTable()"
@@ -174,64 +89,35 @@
                       <img src="./assets/images/icon/table.svg" alt="" />
                     </div>
                   </th> -->
-                  <!-- <th class="columns-action">Hành động</th> -->
-                </tr>
+                <!-- <th class="columns-action">Hành động</th> -->
+              </tr>
               } @else {
-                <tr>
-                  <th
-                    scope="col"
-                    style="width: 40px"
-                    class="column-checkbox"
-                    [style.top]="
-                      -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
-                      'px'
-                    "
-                  >
-                    <label class="basic-checkbox standalone">
-                      <input
-                        type="checkbox"
-                        (change)="handleSelectRow({type: 'all', event: $event})"
-                        [checked]="isAllChecked()"
-                      />
-                      <span class="checkmark"></span>
-                    </label>
-                  </th>
-                  <th
-                    colspan="12"
-                    [style.top]="
-                      -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
-                      'px'
-                    "
-                  >
-                    <div class="d-flex align-items-center gap-3">
-                      <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
-                      <ng-select
-                        #selectBatchActions
-                        appearance="outline"
-                        [clearable]="false"
-                        placeholder="Thao tác hàng loạt"
-                        style="width: 250px"
-                        [items]="multipleAction"
-                        (change)="showModalMultipleAction($event)"
-                        appendTo="body"
-                        class="ng-select ng-select-single"
-                      ></ng-select>
-                      <button
-                        class="btn button-outline"
-                        (click)="handleRefreshRow()"
-                      >
-                        Bỏ chọn tất cả
-                      </button>
-                    </div>
-                  </th>
-                </tr>
+              <tr>
+                <th scope="col" style="width: 40px" class="column-checkbox"
+                  [style.top]="-(virtualScroll!.getOffsetToRenderedContentStart() || 0) + 'px'">
+                  <label class="basic-checkbox standalone">
+                    <input type="checkbox" (change)="handleSelectRow({type: 'all', event: $event})"
+                      [checked]="isAllChecked()" />
+                    <span class="checkmark"></span>
+                  </label>
+                </th>
+                <th colspan="12" [style.top]="-(virtualScroll!.getOffsetToRenderedContentStart() || 0) + 'px'">
+                  <div class="d-flex align-items-center gap-3">
+                    <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
+                    <ng-select #selectBatchActions appearance="outline" [clearable]="false"
+                      placeholder="Thao tác hàng loạt" style="width: 250px" [items]="multipleAction"
+                      (change)="showModalMultipleAction($event)" appendTo="body"
+                      class="ng-select ng-select-single"></ng-select>
+                    <button class="btn button-outline" (click)="handleRefreshRow()">
+                      Bỏ chọn tất cả
+                    </button>
+                  </div>
+                </th>
+              </tr>
               }
             </thead>
             <tbody>
-              <tr
-                class="text-center"
-                *ngIf="!item.rows.length && !item.loading"
-              >
+              <tr class="text-center" *ngIf="!item.rows.length && !item.loading">
                 <td colspan="12">
                   <div>Không có dữ liệu</div>
                 </td>
@@ -246,48 +132,30 @@
               </tr>
               <tr *cdkVirtualFor="let item of item.rows; index as i">
                 @if (permission.edit) {
-                  <td>
-                    <label class="basic-checkbox">
-                      <input
-                        value="{{ item.id }}"
-                        [checked]="isCheckRow(item)"
-                        (change)="handleSelectRow({item, event: $event})"
-                        (keydown)="isShift = true"
-                        (keyup)="isShift = false"
-                        type="checkbox"
-                      />
-                      <span class="checkmark"></span>
-                    </label>
-                  </td>
+                <td>
+                  <label class="basic-checkbox">
+                    <input value="{{ item.id }}" [checked]="isCheckRow(item)"
+                      (change)="handleSelectRow({item, event: $event})" (keydown)="isShift = true"
+                      (keyup)="isShift = false" type="checkbox" />
+                    <span class="checkmark"></span>
+                  </label>
+                </td>
                 }
-                <ng-container
-                  *ngFor="let columns of dataColumnsShow; index as i"
-                >
+                <ng-container *ngFor="let columns of dataColumnsShow; index as i">
                   <ng-container [ngSwitch]="columns.value">
                     <ng-container *ngSwitchCase="'name'">
                       <td>
-                        <div
-                          class="fw-500 cursor-pointer"
-                          [routerLink]="['/']"
-                          [queryParams]="{id: item.id}"
-                        >
+                        <div class="fw-500 cursor-pointer" [routerLink]="['/']" [queryParams]="{id: item.id}">
                           {{ item.name || '-' }}
                         </div>
-                        <div
-                          class="fw-500 cursor-pointer text-link mt-1"
-                          [routerLink]="['/']"
-                          [queryParams]="{id: item.id}"
-                        >
+                        <div class="fw-500 cursor-pointer text-link mt-1" [routerLink]="['/']"
+                          [queryParams]="{id: item.id}">
                           {{ item.code || '-' }}
                         </div>
                         <div class="d-flex flex-row flex-wrap gap-1 mt-1">
                           <div *ngFor="let tagId of item.tags">
-                            <span
-                              *ngIf="getTagById(tagId) as tag"
-                              class="text-capitalize me-2 tag-item"
-                              [ngClass]="{nonBack: !tag.bgColor}"
-                              [ngStyle]="{background: tag.bgColor}"
-                            >
+                            <span *ngIf="getTagById(tagId) as tag" class="text-capitalize me-2 tag-item"
+                              [ngClass]="{nonBack: !tag.bgColor}" [ngStyle]="{background: tag.bgColor}">
                               <span>{{ tag.name }}</span>
                             </span>
                           </div>
@@ -298,222 +166,125 @@
                       <td class="column-action-chain">
                         <div class="list-chain d-flex flex-column gap-2">
                           <ng-container *ngIf="item?.taskChains?.length">
-                            <div
-                              *ngFor="let taskChain of item?.taskChains"
-                              class="chain-item"
-                              [class.item-lock]="
+                            <div *ngFor="let taskChain of item?.taskChains" class="chain-item" [class.item-lock]="
                                 taskChain.status === ETaskChainType.CLOSED
-                              "
-                            >
+                              ">
                               <div class="lock" tooltip="Chuỗi đã đóng">
-                                <img
-                                  src="./assets/images/icon/grey-lock.svg"
-                                  alt=""
-                                />
+                                <img src="./assets/images/icon/grey-lock.svg" alt="" />
                               </div>
 
                               <div class="list-act">
-                                <div
-                                  *ngFor="
+                                <div *ngFor="
                                     let taskChainResult of taskChain?.taskChainResults;
                                     let resultIndex = index
-                                  "
-                                  class="list-act-item"
-                                >
+                                  " class="list-act-item">
                                   <span>#{{ resultIndex + 1 }}</span>
                                   <span>
                                     -
-                                    <span
-                                      *ngIf="!!taskChainResult?.executedDate"
-                                      class="completed"
-                                    >
+                                    <span *ngIf="!!taskChainResult?.executedDate" class="completed">
                                       <i class="fa-solid fa-check"></i>
                                     </span>
-                                    <span
-                                      *ngIf="
+                                    <span *ngIf="
                                         !taskChainResult?.executedDate &&
                                         taskChainResult?.deadlineDate
-                                      "
-                                    >
-                                      <ng-container
-                                        [ngTemplateOutlet]="timeLeft"
-                                        [ngTemplateOutletContext]="{
+                                      ">
+                                      <ng-container [ngTemplateOutlet]="timeLeft" [ngTemplateOutletContext]="{
                                           dataTimeLeft:
                                             (taskChainResult.deadlineDate
                                             | calculateTaskDeadline: taskChain)
-                                        }"
-                                      ></ng-container>
+                                        }"></ng-container>
                                       @if (
-                                        taskChainResult?.reasonEditedDate
-                                          ?.length
+                                      taskChainResult?.reasonEditedDate
+                                      ?.length
                                       ) {
-                                        <i
-                                          [popover]="changeHistoriesPop"
-                                          placement="right"
-                                          [outsideClick]="true"
-                                          class="fa-solid fa-circle-exclamation warning-change-time"
-                                          container="body"
-                                        ></i>
-                                        <ng-template #changeHistoriesPop>
-                                          <div
-                                            class="popover-change-histories align-items-center"
-                                          >
-                                            <div class="headline mb-2">
-                                              Lịch sử chỉnh sửa thời gian
-                                            </div>
-                                            <div
-                                              class="table-responsive tableFixHead custom-scrollbar"
-                                              [style.max-height]="'300px'"
-                                            >
-                                              <table
-                                                class="table table-change-histories"
-                                              >
-                                                <thead>
-                                                  <tr>
-                                                    <th>Thời gian chỉnh sửa</th>
-                                                    <th>Trước khi chỉnh sửa</th>
-                                                    <th>Sau khi chỉnh sửa</th>
-                                                    <th>Người sửa</th>
-                                                    <th>Ghi chú</th>
-                                                  </tr>
-                                                </thead>
-                                                <tbody>
-                                                  @for (
-                                                    reasonEditedDate of taskChainResult?.reasonEditedDate;
-                                                    track reasonEditedDateIndex;
-                                                    let reasonEditedDateIndex = $index
-                                                  ) {
-                                                    <tr>
-                                                      <td>
-                                                        {{
-                                                          reasonEditedDate?.editedDate
-                                                            | date
-                                                              : 'dd/MM/yyyy HH:mm'
-                                                        }}
-                                                      </td>
-                                                      <td>
-                                                        @if (
-                                                          reasonEditedDate?.deadDate &&
-                                                          reasonEditedDate?.editedDate
-                                                        ) {
-                                                          <div
-                                                            *ngLet="
-                                                              reasonEditedDate.deadDate <
-                                                              reasonEditedDate.editedDate as outOfDeadline
-                                                            "
-                                                          >
-                                                            <div
-                                                              class="{{
-                                                                outOfDeadline
-                                                                  ? 'text-danger'
-                                                                  : 'text-primary'
-                                                              }}"
-                                                            >
-                                                              {{
-                                                                outOfDeadline
-                                                                  ? 'Trễ'
-                                                                  : 'Còn'
-                                                              }}
-                                                              {{
-                                                                reasonEditedDate.deadDate
-                                                                  | calculateDeadline
-                                                                    : reasonEditedDate.editedDate
-                                                              }}
-                                                            </div>
-                                                          </div>
-                                                        }
-                                                      </td>
-                                                      <td>
-                                                        @if (
-                                                          reasonEditedDate?.newDate &&
-                                                          reasonEditedDate?.editedDate
-                                                        ) {
-                                                          <div
-                                                            class="text-primary"
-                                                          >
-                                                            Còn
-                                                            {{
-                                                              reasonEditedDate.newDate
-                                                                | calculateDeadline
-                                                                  : reasonEditedDate.editedDate
-                                                            }}
-                                                          </div>
-                                                        }
-                                                      </td>
-                                                      <td>
-                                                        <div
-                                                          class="d-flex gap-2 align-items-center"
-                                                        >
-                                                          <img
-                                                            class="avatar"
-                                                            src="{{
-                                                              reasonEditedDate
-                                                                ?.editedBy
-                                                                ?.picture
-                                                            }}"
-                                                            alt=""
-                                                          />
-                                                          <span class="fw-500">
-                                                            {{
-                                                              reasonEditedDate
-                                                                ?.editedBy?.name
-                                                            }}
-                                                          </span>
-                                                        </div>
-                                                      </td>
-                                                      <td class="column-note">
-                                                        <div>
-                                                          {{
-                                                            reasonEditedDate?.reason ||
-                                                              '-'
-                                                          }}
-                                                        </div>
-                                                      </td>
-                                                    </tr>
-                                                  }
-                                                  <tr></tr>
-                                                </tbody>
-                                              </table>
-                                            </div>
+                                      <i [popover]="changeHistoriesPop" placement="right" [outsideClick]="true"
+                                        class="fa-solid fa-circle-exclamation warning-change-time" container="body"></i>
+                                      <ng-template #changeHistoriesPop>
+                                        <div class="popover-change-histories align-items-center">
+                                          <div class="headline mb-2">
+                                            Lịch sử chỉnh sửa thời gian
                                           </div>
-                                        </ng-template>
+                                          <div class="table-responsive tableFixHead custom-scrollbar"
+                                            [style.max-height]="'300px'">
+                                            <table class="table table-change-histories">
+                                              <thead>
+                                                <tr>
+                                                  <th>Thời gian chỉnh sửa</th>
+                                                  <th>Trước khi chỉnh sửa</th>
+                                                  <th>Sau khi chỉnh sửa</th>
+                                                  <th>Người sửa</th>
+                                                  <th>Ghi chú</th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                @for (reasonEditedDate of taskChainResult?.reasonEditedDate;track
+                                                reasonEditedDateIndex;let reasonEditedDateIndex = $index) {
+                                                <tr>
+                                                  <td>
+                                                    {{ reasonEditedDate?.editedDate | date : 'dd/MM/yyyy HH:mm' }}
+                                                  </td>
+                                                  <td>
+                                                    @if ( reasonEditedDate?.deadDate && reasonEditedDate?.editedDate ) {
+                                                    <div
+                                                      *ngLet="reasonEditedDate.deadDate < reasonEditedDate.editedDate as outOfDeadline">
+                                                      <div class="{{ outOfDeadline ? 'text-danger' : 'text-primary'}}">
+                                                        {{ outOfDeadline ? 'Trễ' : 'Còn' }} {{ reasonEditedDate.deadDate
+                                                        | calculateDeadline : reasonEditedDate.editedDate }}
+                                                      </div>
+                                                    </div>
+                                                    }
+                                                  </td>
+                                                  <td> @if ( reasonEditedDate?.newDate && reasonEditedDate?.editedDate)
+                                                    {
+                                                    <div class="text-primary">
+                                                      Còn {{ reasonEditedDate.newDate | calculateDeadline :
+                                                      reasonEditedDate.editedDate }}
+                                                    </div>
+                                                    }
+                                                  </td>
+                                                  <td>
+                                                    <div class="d-flex gap-2 align-items-center"> <img class="avatar"
+                                                        src="{{reasonEditedDate?.editedBy?.picture}}" alt="" />
+                                                      <span class="fw-500">
+                                                        {{ reasonEditedDate?.editedBy?.name }}
+                                                      </span>
+                                                    </div>
+                                                  </td>
+                                                  <td class="column-note">
+                                                    <div>
+                                                      {{reasonEditedDate?.reason ||'-'}}
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                                }
+                                                <tr></tr>
+                                              </tbody>
+                                            </table>
+                                          </div>
+                                        </div>
+                                      </ng-template>
                                       }
-                                      <ng-template
-                                        #timeLeft
-                                        let-dataTimeLeft="dataTimeLeft"
-                                      >
-                                        <span
-                                          class="{{
+                                      <ng-template #timeLeft let-dataTimeLeft="dataTimeLeft">
+                                        <span class="{{
                                             dataTimeLeft?.typeOverDeadline
-                                          }}"
-                                        >
-                                          <ng-container
-                                            [ngSwitch]="
+                                          }}">
+                                          <ng-container [ngSwitch]="
                                               dataTimeLeft?.typeOverDeadline
-                                            "
-                                          >
+                                            ">
                                             <span *ngSwitchCase="'over'">
-                                              <i
-                                                class="fa-solid fa-triangle-exclamation"
-                                                style="color: #ef6a6a"
-                                              ></i>
+                                              <i class="fa-solid fa-triangle-exclamation" style="color: #ef6a6a"></i>
                                             </span>
                                             <span *ngSwitchCase="'notOver'">
-                                              <i
-                                                class="fa-solid fa-stopwatch"
-                                                style="color: #4277ff"
-                                              ></i>
+                                              <i class="fa-solid fa-stopwatch" style="color: #4277ff"></i>
                                             </span>
                                             <span *ngSwitchCase="'now'">
                                               Ngay lập tức
                                             </span>
                                           </ng-container>
-                                          <span
-                                            *ngIf="
+                                          <span *ngIf="
                                               dataTimeLeft.typeOverDeadline !==
                                               'now'
-                                            "
-                                          >
+                                            ">
                                             {{ dataTimeLeft.timeLeft }}
                                           </span>
                                         </span>
@@ -522,12 +293,8 @@
                                     -
                                   </span>
                                   <span>
-                                    <ng-container
-                                      [ngSwitch]="taskChainResult?.action?.name"
-                                    >
-                                      <span
-                                        *ngSwitchCase="'Call block automation'"
-                                      >
+                                    <ng-container [ngSwitch]="taskChainResult?.action?.name">
+                                      <span *ngSwitchCase="'Call block automation'">
                                         Gọi Block Automation
                                       </span>
                                       <span *ngSwitchCase="'Close chain'">
@@ -562,24 +329,15 @@
                       <td>
                         <div class="d-flex flex-column" *ngIf="item.leadDeal">
                           <div class="d-flex">
-                            <img
-                              height="30px"
-                              width="30px"
-                              class="me-2 rounded-circle"
-                              [src]="
+                            <img height="30px" width="30px" class="me-2 rounded-circle" [src]="
                                 item.leadDeal?.picture ||
                                 './assets/images/noavatar.png'
-                              "
-                              style="line-height: 130%"
-                            />
+                              " style="line-height: 130%" />
                             <div class="d-flex flex-column">
                               <span class="fw-500">
                                 {{ item.leadDeal?.name || '-' }}
                               </span>
-                              <span
-                                class="fs-7 text-link"
-                                *ngIf="item.leadDeal?.phone"
-                              >
+                              <span class="fs-7 text-link" *ngIf="item.leadDeal?.phone">
                                 {{ item.leadDeal?.phone || '-' }}
                               </span>
                             </div>
@@ -587,11 +345,8 @@
                         </div>
                         <div class="d-flex flex-row flex-wrap gap-1">
                           <div *ngFor="let tag of item.leadDeal?.tags">
-                            <span
-                              class="text-capitalize tag-item"
-                              [ngClass]="{nonBack: !tag.bgColor}"
-                              [ngStyle]="{background: tag.bgColor}"
-                            >
+                            <span class="text-capitalize tag-item" [ngClass]="{nonBack: !tag.bgColor}"
+                              [ngStyle]="{background: tag.bgColor}">
                               <span>{{ tag.name }}</span>
                             </span>
                           </div>
@@ -601,16 +356,11 @@
                     <ng-container *ngSwitchCase="'cart'">
                       <td class="column-interested-product">
                         <div class="list-product">
-                          <ng-container
-                            *ngFor="let product of item.cart?.products"
-                          >
-                            <ng-container
-                              [ngTemplateOutlet]="templateProductItem"
-                              [ngTemplateOutletContext]="{
+                          <ng-container *ngFor="let product of item.cart?.products">
+                            <ng-container [ngTemplateOutlet]="templateProductItem" [ngTemplateOutletContext]="{
                                 product: product,
                                 type: 'Sản phẩm'
-                              }"
-                            ></ng-container>
+                              }"></ng-container>
                           </ng-container>
                           <!-- <ng-container *ngFor="let product of item.cart?.combos">
                                 <ng-container [ngTemplateOutlet]="templateProductItem" [ngTemplateOutletContext]="{
@@ -636,27 +386,15 @@
                                   type: 'Thẻ trả trước'
                                 }"></ng-container>
                               </ng-container> -->
-                          <ng-template
-                            #templateProductItem
-                            let-product="product"
-                            let-type="type"
-                          >
-                            <div
-                              tooltip="{{ product.name }}: {{
+                          <ng-template #templateProductItem let-product="product" let-type="type">
+                            <div tooltip="{{ product.name }}: {{
                                 product.quantity
-                              }} x {{ product.price | currency: 'VND' }}"
-                              placement="top"
-                              class="product-item d-flex align-items-center"
-                            >
-                              <img
-                                src="{{
+                              }} x {{ product.price | currency: 'VND' }}" placement="top"
+                              class="product-item d-flex align-items-center">
+                              <img src="{{
                                   product?.picture ||
                                     'assets/images/default-product.png'
-                                }}"
-                                fallback="assets/images/avatar.svg"
-                                class="product-item-image me-2"
-                                alt=""
-                              />
+                                }}" fallback="assets/images/avatar.svg" class="product-item-image me-2" alt="" />
                               <div class="product-item-name">
                                 {{ product.name || '-' }}
                               </div>
@@ -669,12 +407,12 @@
                       <td class="column-branch">
                         <div>
                           {{
-                            item?.branch?.teamName &&
-                              item?.branch?.teamName + ', '
+                          item?.branch?.teamName &&
+                          item?.branch?.teamName + ', '
                           }}
                           {{
-                            item?.branch?.departmentName &&
-                              item?.branch?.departmentName + ', '
+                          item?.branch?.departmentName &&
+                          item?.branch?.departmentName + ', '
                           }}
                           {{ item?.branch?.name || '-' }}
                         </div>
@@ -682,10 +420,7 @@
                     </ng-container>
                     <ng-container *ngSwitchCase="'orderIds'">
                       <td>
-                        <div
-                          class="d-flex flex-column"
-                          *ngIf="item?.orderIds?.length; else nonContent"
-                        >
+                        <div class="d-flex flex-column" *ngIf="item?.orderIds?.length; else nonContent">
                           <!-- <div class="list-order d-flex flex-column gap-2">
                             <div
                               *ngFor="let order of item.orders"
@@ -706,10 +441,7 @@
                               </div>
                             </div>
                           </div> -->
-                          <div
-                            class="fw-500 text-link"
-                            (click)="handleViewTabOrder(item)"
-                          >
+                          <div class="fw-500 text-link" (click)="handleViewTabOrder(item)">
                             Đã có đơn hàng
                           </div>
                         </div>
@@ -719,23 +451,11 @@
                       <td>
                         <div class="d-flex align-items-center flex-wrap">
                           <ng-container *ngFor="let team of item.teams">
-                            <div
-                              class="ms-1 mt-1 team-img"
-                              *ngIf="team?.userId"
-                            >
-                              <img
-                                src="{{ team.userPicture }}"
-                                fallback="assets/images/avatar.svg"
-                                loading="lazy"
-                                height="30px"
-                                width="30px"
-                                class="rounded-circle"
-                              />
+                            <div class="ms-1 mt-1 team-img" *ngIf="team?.userId">
+                              <img src="{{ team.userPicture }}" fallback="assets/images/avatar.svg" loading="lazy"
+                                height="30px" width="30px" class="rounded-circle" />
                               <div class="icon-add">
-                                <i
-                                  class="fa-solid"
-                                  [ngClass]="team.roleIcon"
-                                ></i>
+                                <i class="fa-solid" [ngClass]="team.roleIcon"></i>
                               </div>
                             </div>
                           </ng-container>
@@ -756,17 +476,9 @@
                     </ng-container>
                     <ng-container *ngSwitchCase="'updatedBy'">
                       <td>
-                        <div
-                          class="d-flex justify-content-start align-items-center"
-                        >
-                          <img
-                            *ngIf="item.updatedBy?.picture"
-                            width="25"
-                            height="25"
-                            class="rounded-pill cover-fill"
-                            [src]="item.updatedBy?.picture"
-                            alt=""
-                          />
+                        <div class="d-flex justify-content-start align-items-center">
+                          <img *ngIf="item.updatedBy?.picture" width="25" height="25" class="rounded-pill cover-fill"
+                            [src]="item.updatedBy?.picture" alt="" />
                           <!-- <div class="ms-2 text-secondary name">
                                 {{ item.updatedBy?.name }}
                               </div> -->
@@ -775,17 +487,9 @@
                     </ng-container>
                     <ng-container *ngSwitchCase="'createdBy'">
                       <td>
-                        <div
-                          class="d-flex justify-content-start align-items-center"
-                        >
-                          <img
-                            *ngIf="item.createdBy?.picture"
-                            width="25"
-                            height="25"
-                            class="rounded-pill cover-fill"
-                            [src]="item.createdBy?.picture"
-                            alt=""
-                          />
+                        <div class="d-flex justify-content-start align-items-center">
+                          <img *ngIf="item.createdBy?.picture" width="25" height="25" class="rounded-pill cover-fill"
+                            [src]="item.createdBy?.picture" alt="" />
                           <!-- <div class="ms-2 text-secondary name">
                                 {{ item.createdBy?.name }}
                               </div> -->
@@ -855,31 +559,16 @@
         </cdk-virtual-scroll-viewport>
         <div class="d-flex align-items-end">
           <!-- Icon List -->
-          <div
-            class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2"
-            style="width: 40%"
-          >
-            <button
-              class="btn button-outline"
-              [tooltip]="'Chia tác vụ'"
-              (click)="showModalAssignTeamV2()"
-            >
+          <div class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2" style="width: 40%">
+            <button class="btn button-outline" [tooltip]="'Chia tác vụ'" (click)="showModalAssignTeamV2()">
               <img src="./assets/images/icon/split.svg" alt="split-tasks" />
             </button>
           </div>
           <!-- Pagination -->
-          <div
-            class="d-flex align-items-center flex-grow-0 flex-shrink-0 justify-content-end"
-            style="width: 60%"
-          >
-            <custom-pagination
-              [showConfig]="true"
-              [selectedSize]="item.paramsQuery.limit"
-              [currentPage]="item.paramsQuery.page"
-              (changePageEvent)="pageChanged($event)"
-              [total]="item.total"
-              [optionSize]="[10, 20, 50, 100, 500, 1000]"
-            />
+          <div class="d-flex align-items-center flex-grow-0 flex-shrink-0 justify-content-end" style="width: 60%">
+            <custom-pagination [showConfig]="true" [selectedSize]="item.paramsQuery.limit"
+              [currentPage]="item.paramsQuery.page" (changePageEvent)="pageChanged($event)" [total]="item.total"
+              [optionSize]="[10, 20, 50, 100, 500, 1000]" />
           </div>
         </div>
       </div>
@@ -890,5 +579,5 @@
 <ng-template #nonContent>-</ng-template>
 
 @if (isOpenBackDrop) {
-  <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
+<bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
 }

@@ -1,88 +1,53 @@
-<div
-  class="filter-top-table d-flex flex-wrap align-items-center justify-content-end gap-2"
->
+<div class="filter-top-table d-flex flex-wrap align-items-center justify-content-end gap-2">
   <div class="left d-flex flex-wrap align-items-center gap-2">
     @for (filter of configFilterBasic; track $index) {
-      @switch (filter.type) {
-        @case (ETypeFilter.SEARCH) {
-          <custom-input-search
-            [className]="'input-medium'"
-            (searchEvent)="onSearchValue($event, filter.name)"
-            [placeholder]="filter.placeholder || 'Search...'"
-            [isCollapsible]="true"
-          ></custom-input-search>
+    @switch (filter.type) {
+    @case (ETypeFilter.SEARCH) {
+    <custom-input-search [className]="'input-medium'" (searchEvent)="onSearchValue($event, filter.name)"
+      [placeholder]="filter.placeholder || 'Search...'" [isCollapsible]="true"></custom-input-search>
+    }
+    @case (ETypeFilter.DATE) {
+    <custom-date-picker [className]="'input-medium'" [typePicker]="filter.subType"
+      (changeDateEmmit)="onPickerDate($event, filter.name)" [placeholder]="filter.placeholder || 'Picker Date'"
+      [showClearButton]="true"></custom-date-picker>
+    }
+    @case (ETypeFilter.SELECT) {
+    <custom-select-search [value]="filter?.value" [minWidth]="filter?.minWidth" [className]="''" [selectData]="filter"
+      (selectEvent)="onSelectValue($event, filter.name)"
+      (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"></custom-select-search>
+    }
+    @case (ETypeFilter.POPOVER) {
+    <button class="btn btn-light border text-secondary" type="button" (click)="handleOpenPopover()"
+      [popover]="popoverTemplate" [outsideClick]="true" [placement]="'bottom left'"
+      containerClass="custom-popover-dropdown">
+      <i class="fa-solid fa-sort-amount-desc"></i>
+      <!-- Sắp xếp -->
+      {{ filter.value ? getDefaultValuePopover(filter.name) : '' }}
+    </button>
+    <ng-template #popoverTemplate>
+      <div class="popover-tab">
+        @for (option of filter.options; track $index) {
+        <div class="row align-items-center" (click)="onPopoverValue(option['value'], filter.name)">
+          <div class="col-12 tab-item" [class.active]="filter.value === option['value']">
+            {{ option['label'] || option['name'] }}
+          </div>
+        </div>
         }
-        @case (ETypeFilter.DATE) {
-          <custom-date-picker
-            [className]="'input-medium'"
-            [typePicker]="filter.subType"
-            (changeDateEmmit)="onPickerDate($event, filter.name)"
-            [placeholder]="filter.placeholder || 'Picker Date'"
-            [showClearButton]="true"
-          ></custom-date-picker>
-        }
-        @case (ETypeFilter.SELECT) {
-          <custom-select-search
-            [value]="filter?.value"
-            [minWidth]="filter?.minWidth"
-            [className]="''"
-            [selectData]="filter"
-            (selectEvent)="onSelectValue($event, filter.name)"
-            (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"
-          ></custom-select-search>
-        }
-        @case (ETypeFilter.POPOVER) {
-          <button
-            class="btn btn-light border text-secondary"
-            type="button"
-            (click)="handleOpenPopover()"
-            [popover]="popoverTemplate"
-            [outsideClick]="true"
-            [placement]="'bottom left'"
-            containerClass="custom-popover-dropdown"
-          >
-            <i class="fa-solid fa-sort-amount-desc"></i>
-            <!-- Sắp xếp -->
-            {{ filter.value ? getDefaultValuePopover(filter.name) : '' }}
-          </button>
-          <ng-template #popoverTemplate>
-            <div class="popover-tab">
-              @for (option of filter.options; track $index) {
-                <div
-                  class="row align-items-center"
-                  (click)="onPopoverValue(option['value'], filter.name)"
-                >
-                  <div
-                    class="col-12 tab-item"
-                    [class.active]="filter.value === option['value']"
-                  >
-                    {{ option['label'] || option['name'] }}
-                  </div>
-                </div>
-              }
-            </div>
-          </ng-template>
-        }
-      }
+      </div>
+    </ng-template>
+    }
+    }
     }
     <!-- @if (configFilterAdvance.length) { -->
-    <button
-      class="btn btn-light border text-secondary"
-      type="button"
-      (click)="handleOpenPopover()"
-      [popover]="popTemplate"
-      [outsideClick]="false"
-      [placement]="'bottom'"
-      #popFilter="bs-popover"
-      containerClass="filter-advance-popover-tab custom-popover-tab"
-      [tooltip]="'Bộ lọc'"
-    >
+    <button class="btn btn-light border text-secondary" type="button" (click)="handleOpenPopover()"
+      [popover]="popTemplate" [outsideClick]="false" [placement]="'bottom'" #popFilter="bs-popover"
+      containerClass="filter-advance-popover-tab custom-popover-tab" [tooltip]="'Bộ lọc'">
       <i class="fa-solid fa-sliders"></i>
       <!-- Bộ lọc -->
       @if (onSearchingAdvance.length) {
-        <span class="ms-1 bg-danger px-1 rounded-circle text-white fw-500 fs-7">
-          {{ onSearchingAdvance.length }}
-        </span>
+      <span class="ms-1 bg-danger px-1 rounded-circle text-white fw-500 fs-7">
+        {{ onSearchingAdvance.length }}
+      </span>
       }
     </button>
     <ng-template #popTemplate>
@@ -133,67 +98,43 @@
           </ng-container>
         </div> -->
         @for (cdt of cdtList; track $index) {
-          <div class="row align-items-center my-2">
-            <div class="fw-500 col-4">
-              <ng-select
-                [items]="configFilterAdvance"
-                bindLabel="placeholder"
-                bindValue="name"
-                placeholder="Chọn điều kiện lọc"
-                [clearable]="true"
-                [tooltip]="getCdtLabel(cdt.key)"
-                [clearable]="false"
-                [(ngModel)]="cdt.key"
-              ></ng-select>
-            </div>
+        <div class="row align-items-center my-2">
+          <div class="fw-500 col-4">
+            <ng-select [items]="configFilterAdvance" bindLabel="placeholder" bindValue="name"
+              placeholder="Chọn điều kiện lọc" [clearable]="true" [tooltip]="getCdtLabel(cdt.key)" [clearable]="false"
+              [(ngModel)]="cdt.key"></ng-select>
+          </div>
 
-            <div class="col-8 p-0 row align-items-center">
-              <div class="col-11">
-                @for (filter of configFilterAdvance; track $index) {
-                  @if (filter.name === cdt.key) {
-                    @switch (filter.type) {
-                      @case (ETypeFilter.SEARCH) {
-                        <custom-input-search
-                          [className]="''"
-                          (searchEvent)="cdt.value = $event"
-                          [placeholder]="filter.placeholder || 'Search...'"
-                        ></custom-input-search>
-                      }
-                      @case (ETypeFilter.SELECT) {
-                        <custom-select-search
-                          [value]="filter?.value"
-                          [minWidth]="filter?.minWidth"
-                          [className]="''"
-                          [selectData]="filter"
-                          (selectEvent)="cdt.value = $event"
-                          (scrollToEndEvent)="
+          <div class="col-8 p-0 row align-items-center">
+            <div class="col-11">
+              @for (filter of configFilterAdvance; track $index) {
+              @if (filter.name === cdt.key) {
+              @switch (filter.type) {
+              @case (ETypeFilter.SEARCH) {
+              <custom-input-search [className]="''" (searchEvent)="cdt.value = $event"
+                [placeholder]="filter.placeholder || 'Search...'"></custom-input-search>
+              }
+              @case (ETypeFilter.SELECT) {
+              <custom-select-search [value]="filter?.value" [minWidth]="filter?.minWidth" [className]="''"
+                [selectData]="filter" (selectEvent)="cdt.value = $event" (scrollToEndEvent)="
                             scrollToEndEvent.emit(filter.name)
-                          "
-                          (click)="loadData(filter)"
-                        ></custom-select-search>
-                      }
-                      @case (ETypeFilter.DATE) {
-                        <custom-date-picker
-                          [className]="'input-medium'"
-                          [typePicker]="filter.subType"
-                          [defaultRangeValue]="filter.value"
-                          (changeDateEmmit)="onPickerDateAdvance($event, cdt)"
-                          [placeholder]="filter.placeholder || 'Picker Date'"
-                          [showClearButton]="true"
-                        ></custom-date-picker>
-                      }
-                    }
-                  }
-                }
-              </div>
-              <div
-                class="col-1 d-flex justify-content-center cursor-pointer icon-close"
-                (click)="removeFilterCondition(cdt.key)"
-              >
-                <div class="fas fa-times"></div>
-              </div>
+                          " (click)="loadData(filter)"></custom-select-search>
+              }
+              @case (ETypeFilter.DATE) {
+              <custom-date-picker [className]="'input-medium'" [typePicker]="filter.subType"
+                [defaultRangeValue]="filter.value" (changeDateEmmit)="onPickerDateAdvance($event, cdt)"
+                [placeholder]="filter.placeholder || 'Picker Date'" [showClearButton]="true"></custom-date-picker>
+              }
+              }
+              }
+              }
+            </div>
+            <div class="col-1 d-flex justify-content-center cursor-pointer icon-close"
+              (click)="removeFilterCondition(cdt.key)">
+              <div class="fas fa-times"></div>
             </div>
           </div>
+        </div>
         }
 
         <div class="d-flex justify-content-between mt-3">
@@ -221,69 +162,44 @@
   </div>
   <div class="right d-flex flex-wrap align-items-center gap-2">
     @for (filter of configButtons; track $index) {
-      @switch (filter.type) {
-        @case (ETypeButton.TOGGLE) {
-          <div class="form-check form-switch mb-0">
-            <input
-              (change)="handleToggleAction($event, filter.name)"
-              checked="{{ filter.value ? 'checked' : null }}"
-              class="form-check-input"
-              type="checkbox"
-              role="switch"
-              name="{{ filter.name }}"
-            />
-            <label [for]="filter.name">
-              {{ filter.label }}
-            </label>
-          </div>
-        }
-        @default {
-          <button
-            type="button"
-            class="btn button-medium {{
+    @switch (filter.type) {
+    @case (ETypeButton.TOGGLE) {
+    <div class="form-check form-switch mb-0">
+      <input (change)="handleToggleAction($event, filter.name)" checked="{{ filter.value ? 'checked' : null }}"
+        class="form-check-input" type="checkbox" role="switch" name="{{ filter.name }}" />
+      <label [for]="filter.name">
+        {{ filter.label }}
+      </label>
+    </div>
+    }
+    @default {
+    <button type="button" class="btn button-medium {{
               filter.className
-            }} center-item button-filter-top"
-            [ngClass]="{
+            }} center-item button-filter-top" [ngClass]="{
               'button-fill secondary-color':
                 filter.type === ETypeButton.PRIMARY,
               'button-outline': filter.type === ETypeButton.DEFAULT,
               'button-sub-primary  secondary-color2':
                 filter.type === ETypeButton.SUB_PRIMARY
-            }"
-            (click)="onClick(filter.name || 'button')"
-            [disabled]="filter.disabled"
-            [tooltip]="filter.tooltip"
-            [ngStyle]="{
+            }" (click)="onClick(filter.name || 'button')" [disabled]="filter.disabled" [tooltip]="filter.tooltip"
+      [ngStyle]="{
               'background-color': filter.isActive ? '#f18658' : null
-            }"
-          >
-            @if (!filter.loading) {
-              @if (filter.icon || filter.activeIcon) {
-                <img
-                  src="{{ filter.activeIcon ?? filter.icon }}"
-                  alt=""
-                  class="activeIcon"
-                  [ngClass]="{'me-1': !!filter.label}"
-                />
-              }
-              @if (filter.icon) {
-                <img
-                  src="{{ filter.icon }}"
-                  alt=""
-                  class="icon"
-                  [ngClass]="{'me-1': !!filter.label}"
-                />
-              }
-            } @else {
-              <i
-                class="fas fa-spinner fa-spin me-1-2"
-                [ngClass]="{'me-1': !!filter.label}"
-              ></i>
-            }
-            {{ filter.label }}
-          </button>
-        }
+            }">
+      @if (!filter.loading) {
+      @if (filter.icon || filter.activeIcon) {
+      <img src="{{ filter.activeIcon ?? filter.icon }}" alt="" class="activeIcon"
+        [ngClass]="{'me-1': !!filter.label}" />
       }
+      @if (filter.icon) {
+      <img src="{{ filter.icon }}" alt="" class="icon" [ngClass]="{'me-1': !!filter.label}" />
+      }
+      } @else {
+      <i class="fas fa-spinner fa-spin me-1-2" [ngClass]="{'me-1': !!filter.label}"></i>
+      }
+      {{ filter.label }}
+    </button>
+    }
+    }
     }
   </div>
 </div>

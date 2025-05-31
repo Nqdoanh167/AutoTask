@@ -113,8 +113,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
 
-  private listViewModeSubject = new BehaviorSubject<EntityResult<IView>>(
-    null as unknown as EntityResult<IView>,
+  private listViewModeSubject = new BehaviorSubject<EntityResult<IView[]>>(
+    null as unknown as EntityResult<IView[]>,
   );
 
   private listSourceSubject = new BehaviorSubject<ISource[]>(
@@ -151,8 +151,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     .pipe(distinctUntilChanged());
 
   private currentSettingObject = new BehaviorSubject<ISetting>(
-    null as unknown as ISetting)
-  
+    null as unknown as ISetting,
+  );
+
   public currentSetting = this.currentSettingObject
     .asObservable()
     .pipe(distinctUntilChanged());
@@ -514,7 +515,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       },
     ) => {
       const getData = this.httpClient
-        .get<EntityResult<IView>>(
+        .get<EntityResult<IView[]>>(
           this.createUrl([this.api.settingView, 'retrieve']),
           {
             params: this.createParams(
@@ -535,6 +536,12 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
     update: (body: IViewDto) =>
       this.httpClient.put<EntityResult<IView>>(
+        this.createUrl([this.api.settingView]),
+        body,
+      ),
+
+    create: (body: IViewDto) =>
+      this.httpClient.post<EntityResult<IView>>(
         this.createUrl([this.api.settingView]),
         body,
       ),
@@ -620,7 +627,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     return this.changedDashboardViewModes$.getValue();
   }
 
-  setCurrentActiveViewMode(data: IViewModeDto) {
+  setCurrentActiveViewMode(data: IViewModeDto, isChangeTab: boolean = false) {
+    data.isChangeTab = isChangeTab;
     this.currentActiveViewMode$.next(data);
     // replace the current active view mode in the list changedDashboardViewModes
     const viewModes = this.changedDashboardViewModes$.getValue();
@@ -635,7 +643,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   findUnitsByIds(ids: string[]) {
     const units = this.getUserUnits();
-    return units.flatMap((branch) => {
+    console.log('units', units);
+    const branchs = units.flatMap((branch) => {
       if (ids.includes(branch.data)) {
         const departments = branch.children || [];
         const teams = departments.flatMap(
@@ -654,6 +663,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         }) || []
       );
     });
+    console.log('branchs', branchs);
+    return branchs;
   }
 
   getFirstUnit() {
@@ -741,7 +752,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     this.listTagSubject.next(items);
   }
 
-  setListViewMode(item: EntityResult<IView>) {
+  setListViewMode(item: EntityResult<IView[]>) {
     this.listViewModeSubject.next(item);
   }
 
