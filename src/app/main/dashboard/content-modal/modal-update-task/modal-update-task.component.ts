@@ -710,6 +710,13 @@ export class ModalUpdateTaskComponent
     window.open(url, '_blank');
   }
 
+  handleViewCreatedBooking() {
+    let url = `${environment.urlDomain}/${
+      this.currentBiz!.alias
+    }/booking/booking-list/?taskId=${this.sourceData?.id}`;
+    window.open(url, '_blank');
+  }
+
   async handleCreateTaskOrder() {
     if (!this.sourceData?.id || this.loading.createOrder) return;
     this.loading.createOrder = true;
@@ -966,5 +973,19 @@ export class ModalUpdateTaskComponent
           }
         },
       });
+  }
+
+  handleActiveTabChange(tab: ETabTaskDetail) {
+    if(tab === ETabTaskDetail.INFO){
+      this.getDetailTask(true);
+    }else if(tab === ETabTaskDetail.ORDER){
+      if(this.sourceData?.orderIds.length){
+        this.getOrderDetail(this.sourceData?.orderIds!);
+      }
+    }else if(tab === ETabTaskDetail.BOOKING){
+      if(this.sourceData?.bookingIds.length){
+        this.getBookingDetail(this.sourceData?.bookingIds!);
+      }
+    }
   }
 }

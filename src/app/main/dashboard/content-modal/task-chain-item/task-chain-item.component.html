@@ -485,6 +485,49 @@
                                 </button>
                               </ng-template>
                             }
+                            @case (EActionType.BOOKING) {
+                              <div
+                                *ngIf="
+                                  getSubActionBooking(
+                                    taskChainResult.value?.bookings,
+                                    subAction.id
+                                  ) as booking;
+                                  else noBooking
+                                "
+                              >
+                                <b>Đơn booking:</b>
+                                <span
+                                  class="text-primary fs-7 fst-italic"
+                                  style="cursor: pointer"
+                                  (click)="handleViewBooking(booking)"
+                                >
+                                  {{ booking?.code || booking?.id }}
+                                </span>
+                              </div>
+
+                              <ng-template #noBooking>
+                                <button
+                                  (click)="
+                                    handleCreateBooking(
+                                      taskChainResult.value,
+                                      subAction.id
+                                    )
+                                  "
+                                  type="button"
+                                  class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+                                  [disabled]="
+                                    !handleCheckIsAllowEdit(
+                                      'actionButton',
+                                      taskChainResult.value,
+                                      taskChainResultIndex
+                                    )
+                                  "
+                                >
+                                  Tạo booking
+                                  <i class="fa-solid fa-calendar ms-2"></i>
+                                </button>
+                              </ng-template>
+                            }
                             @case (EActionType.OTHER) {
                               <div>Khác</div>
                             }

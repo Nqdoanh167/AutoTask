@@ -35,6 +35,10 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
       label: 'Tạo đơn hàng thủ công',
     },
     {
+      value: EActionType.BOOKING,
+      label: 'Tạo booking',
+    },
+    {
       value: EActionType.OTHER,
       label: 'Khác',
     },

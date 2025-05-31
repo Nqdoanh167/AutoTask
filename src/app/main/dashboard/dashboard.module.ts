@@ -57,6 +57,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { HeaderModule } from "../../share/layout/header/header.module";
 import { InputCheckboxModule } from '@app/share/input/input-checkbox/input-checkbox.module';
 import { InputSelectCheckboxModule } from "../../share/common/filter-checkbox/filter-checkbox.component.module";
+import { ModalCreateBookingComponent } from './content-modal/modal-create-booking/modal-create-booking.component';
+import { BookingsComponent } from './content-modal/bookings/bookings.component';
 
 @NgModule({
   declarations: [
@@ -75,6 +77,8 @@ import { InputSelectCheckboxModule } from "../../share/common/filter-checkbox/fi
     ModalFeedbackComponent,
     ModalCreateOrderComponent,
     TaskCreateSourceComponent,
+    ModalCreateBookingComponent,
+    BookingsComponent
   ],
   imports: [
     CommonModule,

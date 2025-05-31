@@ -319,6 +319,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
+    retrieveBookingsByTask: (params = {}) =>
+      this.httpClient.get<EntityResult<any[]>>(
+        this.createUrl([this.api.task, 'retrieve-booking-by-task']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     getOne: (id: string) =>
       this.httpClient.get<EntityResult<ITask>>(
         this.createUrl([this.api.task, id]),
@@ -419,6 +426,12 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     manualCreateOrder: (id: string, body: any) =>
       this.httpClient.post<EntityResult<ITaskChainResult>>(
         this.createUrl([this.api.taskChainResult, id, 'manual-create-order']),
+        body,
+      ),
+
+    createBooking: (id: string, body: any) =>
+      this.httpClient.post<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'create-booking']),
         body,
       ),
   };
