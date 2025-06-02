@@ -1,14 +1,14 @@
-import {Component, OnInit} from '@angular/core';
-import {NavigationEnd, Router} from '@angular/router';
-import {AuthService} from 'src/app/services/api/auth.service';
-import {Biz, EModule, ISidebar, User} from 'src/app/types/viewmodels';
-import {filter} from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { AuthService } from 'src/app/services/api/auth.service';
+import { Biz, EModule, ISidebar, User } from 'src/app/types/viewmodels';
+import { filter } from 'rxjs/operators';
 import {
   listConfigNavItems,
   listDashboardNavItems,
   listSettingNavItems,
 } from '@app/variable';
-import {MainService} from '@app/services/api/main.service';
+import { MainService } from '@app/services/api/main.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -97,6 +97,7 @@ export class SidebarComponent implements OnInit {
       this.mainService.setHeaderTabs([]);
     }
     const getAccessibleSite = this.authService.getAccessibleSite();
+    console.log('getAccessibleSite', getAccessibleSite);
     const availableTabs = getAccessibleSite[mainModule as EModule];
     if (mainModule !== EModule.DASHBOARD) {
       this.mainService.setHeaderTabs(

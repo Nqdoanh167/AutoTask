@@ -176,15 +176,15 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
     if (objFilterQuery.branchIds && objFilterQuery.branchIds.length) {
       // Ví dụ có nhiều id chi nhánh thì hàm detectFilterBranchIds sẽ trả về danh sách các chi nhánh, phòng ban, đội nhóm mà user thỏa mãn
       const detectBranchFilter = this.authService.detectFilterBranchIds(objFilterQuery.branchIds);
-      console.log('detectBranchFilter', detectBranchFilter);
-      if (detectBranchFilter.branchIds?.length)
-        this.checkbox.branchIds = detectBranchFilter.branchIds;
+      // console.log('detectBranchFilter', detectBranchFilter);
+      if (detectBranchFilter.nestedIds?.length)
+        this.checkbox.branchIds = detectBranchFilter.nestedIds.flat();
     } else if (isChangeTab && this.isViewAllTask()) {
       this.checkbox.branchIds = []
     }
 
 
-    console.log('this.checkbox', this.checkbox);
+    // console.log('this.checkbox', this.checkbox);
     this.changeBranch({
       branchIds: this.checkbox.branchIds,
       isReload: true,
@@ -594,7 +594,7 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
       modalUpdate?.content?.updateSuccess
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
-          // this.getDataSource();
+          this.getDataSource();
         });
       modalUpdate?.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.isOpenBackDrop = false;
