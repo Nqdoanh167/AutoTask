@@ -1,9 +1,10 @@
-import {Injectable, OnDestroy} from '@angular/core';
-import {BehaviorSubject, Subject} from 'rxjs';
-import {ToastrService} from 'ngx-toastr';
-import {Router} from '@angular/router';
-import {EntityResult} from '@app/types/viewmodels';
-import {HttpErrorResponse} from '@angular/common/http';
+import { Injectable, OnDestroy } from '@angular/core';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
+import { EntityResult } from '@app/types/viewmodels';
+import { HttpErrorResponse } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,7 @@ export class CommonService implements OnDestroy {
   constructor(
     private toastr: ToastrService,
     private router: Router,
-  ) {}
+  ) { }
 
   handleResErr<T>(response?: EntityResult<T>, alias?: string) {
     if (!response) {
@@ -29,9 +30,10 @@ export class CommonService implements OnDestroy {
     } else if ([404].includes(response.status)) {
       this.toastr.error('Không tìm thấy kết quả!');
     } else if ([401].includes(response.status)) {
-      this.router.navigate(['/login']);
+      // this.router.navigate([]);
+      window.location.href = environment.urlDomain;
     } else if ([403].includes(response.status)) {
-      this.toastr.error('Bạn không có quyền!');
+      this.toastr.error(response.message || 'Bạn không có quyền!');
     } else {
       this.toastr.error('Đã có lỗi xảy ra!');
     }

@@ -176,7 +176,7 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
     if (objFilterQuery.branchIds && objFilterQuery.branchIds.length) {
       // Ví dụ có nhiều id chi nhánh thì hàm detectFilterBranchIds sẽ trả về danh sách các chi nhánh, phòng ban, đội nhóm mà user thỏa mãn
       const detectBranchFilter = this.authService.detectFilterBranchIds(objFilterQuery.branchIds);
-      // console.log('detectBranchFilter', detectBranchFilter);
+      console.log('detectBranchFilter', detectBranchFilter);
       if (detectBranchFilter.branchIds?.length)
         this.checkbox.branchIds = detectBranchFilter.branchIds;
     } else if (isChangeTab && this.isViewAllTask()) {
@@ -184,7 +184,7 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
     }
 
 
-
+    console.log('this.checkbox', this.checkbox);
     this.changeBranch({
       branchIds: this.checkbox.branchIds,
       isReload: true,
@@ -305,11 +305,11 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
       if (lengthTeam) this.checkbox.branchDisplayInputText += `${lengthTeam} đội nhóm`;
     }
     // End check text hiể thị
-    if (isReload) {
-      this.getDataSource(true)
-    } else {
-      this.handleChangeCheckbox();
-    }
+    // if (isReload) {
+    //   this.getDataSource(true)
+    // } else {
+    // }
+    this.handleChangeCheckbox(isReload);
   }
   isViewAllTask() {
     return (
@@ -365,7 +365,7 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
     }
     this.handleChangeCheckbox();
   }
-  handleChangeCheckbox() {
+  handleChangeCheckbox(isReload: boolean = false) {
     const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
     // console.log('handleChangeCheckbox objFilterQuery', objFilterQuery);
     delete objFilterQuery.branchIds
@@ -374,6 +374,13 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
     if (this.checkbox.branchIds?.length) objFilterQuery.branchIds = this.checkbox.branchIds || [];
     if (this.checkbox.roleIds?.length) objFilterQuery.teamRoles = this.checkbox.roleIds || [];
     if (this.checkbox.userIds?.length) objFilterQuery.teamId = this.checkbox.userIds || [];
+
+    if (isReload) {
+      this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
+      this.getDataSource(true);
+      return;
+    }
+
     if (
       isEqual(objFilterQuery.branchIds, this.currentActiveViewMode?.options?.branchIds)
       && isEqual(objFilterQuery.teamRoles, this.currentActiveViewMode?.options?.teamRoles)
@@ -587,7 +594,7 @@ export class DashboardComponent extends DashboardCheckPermission implements OnIn
       modalUpdate?.content?.updateSuccess
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
-          this.getDataSource();
+          // this.getDataSource();
         });
       modalUpdate?.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.isOpenBackDrop = false;
