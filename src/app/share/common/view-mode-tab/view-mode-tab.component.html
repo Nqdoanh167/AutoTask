@@ -34,6 +34,7 @@
             containerClass="custom-tooltip-tab-filter"
             class="tab-name fw-500 d-flex align-items-start gap-2"
             *ngIf="!tabz.isEdit"
+            (dblclick)="handleEditTab(tabz, $event, index)"
           >
             <i
               class="fa-solid fa-home"
@@ -71,7 +72,7 @@
             >
               <li
                 role="menuitem"
-                *ngIf="currentUser?.role === 'OWNER' && !tabz.isDefault"
+                *ngIf="currentUser?.role === 'OWNER'"
               >
                 <div
                   (click)="handleSettingsViewMode(tabz)"
@@ -92,7 +93,7 @@
               </li>
               <li role="menuitem">
                 <div
-                  (click)="handleCloneTab(tabz, $event)"
+                  (click)="addNewAndCloneTab(tabz)"
                   class="dropdown-item d-flex align-items-center gap-2"
                 >
                   <img src="./assets/images/icon/copy.svg" alt="" />
@@ -100,11 +101,10 @@
                 </div>
               </li>
               <li
-                *ngIf="!tabz.isDefault && tabz.ownerId === currentUser?.id"
                 role="menuitem"
               >
                 <div
-                  (click)="handleDeleteViewMode(tabz, $event)"
+                  (click)="handleDeleteViewMode(tabz, $event , index)"
                   class="dropdown-item d-flex align-items-center gap-2 text-danger"
                 >
                   <img src="./assets/images/icon/remove.svg" alt="" />
@@ -153,7 +153,7 @@
   <!-- <div
     type="button"
     class="button-scroll-tab button-add-tab ms-3"
-    (click)="!loading && addNewTab()"
+    (click)="!loading && addNewAndCloneTab()"
     [tooltip]="'Thêm chế độ xem'"
   >
     <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
@@ -176,7 +176,7 @@
       <button
         type="button"
         class="button-scroll-tab button-add-tab"
-        (click)="!loading && addNewTab()"
+        (click)="!loading && addNewAndCloneTab()"
       >
         <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
         <i *ngIf="!loading" class="fa-solid fa-plus"></i>
@@ -217,7 +217,7 @@
                     >
                       <li
                         role="menuitem"
-                        *ngIf="currentUser?.role === 'OWNER' && !tabz.isDefault"
+                        *ngIf="currentUser?.role === 'OWNER'"
                       >
                         <div
                           (click)="handleSettingsViewMode(tabz)"
@@ -241,7 +241,7 @@
                       </li>
                       <li role="menuitem">
                         <div
-                          (click)="handleCloneTab(tabz, $event)"
+                          (click)="addNewAndCloneTab(tabz)"
                           class="dropdown-item d-flex align-items-center gap-2"
                         >
                           <img src="./assets/images/icon/copy.svg" alt="" />
@@ -249,13 +249,10 @@
                         </div>
                       </li>
                       <li
-                        *ngIf="
-                          !tabz.isDefault && tabz.ownerId === currentUser?.id
-                        "
                         role="menuitem"
                       >
                         <div
-                          (click)="handleDeleteViewMode(tabz, $event)"
+                          (click)="handleDeleteViewMode(tabz, $event, index)"
                           class="dropdown-item d-flex align-items-center gap-2 text-danger"
                         >
                           <img src="./assets/images/icon/remove.svg" alt="" />

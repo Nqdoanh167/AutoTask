@@ -9,33 +9,33 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TabDirective, TabsetComponent, TabsModule } from 'ngx-bootstrap/tabs';
-import { finalize, Subject, takeUntil } from 'rxjs';
-import { PopoverModule } from 'ngx-bootstrap/popover';
-import { ToastrService } from 'ngx-toastr';
-import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import {CommonModule} from '@angular/common';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {TabDirective, TabsetComponent, TabsModule} from 'ngx-bootstrap/tabs';
+import {finalize, Subject, takeUntil} from 'rxjs';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {ToastrService} from 'ngx-toastr';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {
   IModalConfirmContent,
   ModalConfirmComponent,
 } from '@share/custom/modal-confirm/modal-confirm.component';
-import { ModalConfirmService } from '@share/custom/modal-confirm/modal-confirm.service';
-import { EScreens, IViewDto, IViewModeDto } from '@app/types/setting';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { CommonService } from '@app/services/common/common.service';
-import { v4 as uuidv4 } from 'uuid';
+import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
+import {EScreens, IViewDto, IViewModeDto} from '@app/types/setting';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CommonService} from '@app/services/common/common.service';
+import {v4 as uuidv4} from 'uuid';
 import cloneDeep from 'lodash/cloneDeep';
-import { TreeSelectModule } from 'primeng/treeselect';
-import { ModifiedUserUnit } from '@app/types/flow';
-import { BsModalRef, BsModalService, ModalModule } from 'ngx-bootstrap/modal';
-import { BizRole, User } from '@app/types/viewmodels';
-import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
-import { FilterDataModule } from '@app/share/pipe/filter-data/filter-data.module';
-import { CustomModalComponent } from '../../custom/custom-modal/custom-modal.component';
-import { BaseComponentsComponent } from '../base-components/base-components.component';
-import { CustomInputSearchComponent } from '../../custom/custom-input-search/custom-input-search.component';
+import {TreeSelectModule} from 'primeng/treeselect';
+import {ModifiedUserUnit} from '@app/types/flow';
+import {BsModalRef, BsModalService, ModalModule} from 'ngx-bootstrap/modal';
+import {BizRole, User} from '@app/types/viewmodels';
+import {NgSelectComponent, NgSelectModule} from '@ng-select/ng-select';
+import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
+import {CustomModalComponent} from '../../custom/custom-modal/custom-modal.component';
+import {BaseComponentsComponent} from '../base-components/base-components.component';
+import {CustomInputSearchComponent} from '../../custom/custom-input-search/custom-input-search.component';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -60,7 +60,8 @@ import { CustomInputSearchComponent } from '../../custom/custom-input-search/cus
 })
 export class ViewModeTabComponent
   extends BaseComponentsComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+{
   @ViewChild('staticTabs') staticTabs!: TabsetComponent;
   @ViewChild('viewSettingsModal') viewSettingsModal!: TemplateRef<void>;
 
@@ -82,10 +83,10 @@ export class ViewModeTabComponent
   public selectedTab?: IViewModeDto;
 
   public modeTypes = [
-    { label: 'Cá nhân', value: 'personal' },
-    { label: 'Chi nhánh', value: 'position' },
-    { label: 'Vai trò', value: 'role', role: 'OWNER' },
-    { label: 'Tất cả', value: 'all', role: 'OWNER' },
+    {label: 'Cá nhân', value: 'personal'},
+    {label: 'Chi nhánh', value: 'position'},
+    {label: 'Vai trò', value: 'role', role: 'OWNER'},
+    {label: 'Tất cả', value: 'all', role: 'OWNER'},
   ];
   constructor(
     private readonly toastr: ToastrService,
@@ -113,7 +114,7 @@ export class ViewModeTabComponent
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) { }
+  ngOnChanges(changes: SimpleChanges) {}
 
   handleOpenPopover(event: any) {
     event.stopPropagation();
@@ -131,6 +132,7 @@ export class ViewModeTabComponent
   }
 
   modifyTabs(tabs: IViewModeDto[], isInit: boolean = false) {
+    console.log('tabs', tabs);
     const modifiedTabs = tabs.map((tab) => {
       return {
         ...tab,
@@ -147,11 +149,12 @@ export class ViewModeTabComponent
     });
 
     if (isInit) {
-      let currentTab = modifiedTabs.find((tab) => tab.isDefault);
+      let currentTab = modifiedTabs.find((tab) => tab.isActive);
       if (!currentTab) {
-        currentTab = modifiedTabs[0]
+        currentTab = modifiedTabs[0];
       }
       if (currentTab) {
+        // currentTab.isDefault = true;
         currentTab.isActive = true;
         this.autoTaskService.setCurrentActiveViewMode(currentTab, true);
       }
@@ -166,7 +169,7 @@ export class ViewModeTabComponent
         {
           screen: this.key,
         },
-        { cache: true },
+        {cache: true},
       )
       .pipe(
         takeUntil(this.destroy$),
@@ -193,7 +196,7 @@ export class ViewModeTabComponent
     const buttonPrev = document.querySelector('.button-previous');
     const buttonNext = document.querySelector('.button-next');
     if (!scrollTab) return;
-    const { scrollWidth, clientWidth, scrollLeft } = scrollTab;
+    const {scrollWidth, clientWidth, scrollLeft} = scrollTab;
     if (scrollTab?.scrollLeft === 0) {
       if (buttonPrev) {
         buttonPrev.classList.add('hide');
@@ -317,10 +320,10 @@ export class ViewModeTabComponent
 
   handleCloneTab(tab: IViewModeDto, event: any) {
     event.stopPropagation();
-    if (this.tabs.length >= this.MAX_TAB) {
-      this.toastr.warning(`Tối đa ${this.MAX_TAB} chế độ xem`);
-      return;
-    }
+    // if (this.tabs.length >= this.MAX_TAB) {
+    //   this.toastr.warning(`Tối đa ${this.MAX_TAB} chế độ xem`);
+    //   return;
+    // }
     const newTab = {
       id: uuidv4(),
       name: tab.name,
@@ -337,11 +340,12 @@ export class ViewModeTabComponent
     this.checkHideButtonNext();
   }
 
-  handleDeleteViewMode(value: IViewModeDto, event: any) {
+  handleDeleteViewMode(value: IViewModeDto, event: any, index: number) {
     event.stopPropagation();
     const title = 'Xóa chế độ xem';
-    const description = `Bạn sắp xóa chế độ xem <b>${value.name || ''
-      }</b>, hành động này không thể hoàn tác.`;
+    const description = `Bạn sắp xóa chế độ xem <b>${
+      value.name || ''
+    }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
 
     const modalContent: IModalConfirmContent = {
@@ -353,29 +357,34 @@ export class ViewModeTabComponent
       context: value,
     };
     this.modalConfirmService.openModal(modalContent, undefined, () => {
-      this.removeTabHandler(value);
+      this.removeTabHandler(value, index);
     });
   }
 
-  removeTabHandler(tab: IViewModeDto): void {
-    let index = this.tabs.indexOf(tab);
-    if (index === -1) {
-      return;
-    }
-    if (tab.isActive && this.hasAvailableTabs(index)) {
-      let newActiveIndex = this.getClosestTabIndex(index);
-      this.tabs[newActiveIndex].isActive = true;
-    } else {
-      this.tabs[index].isActive = false;
-      this.staticTabs.tabs[0].active = true;
-    }
-    this.tabs.splice(index, 1);
-    const oldViewModes = this.autoTaskService.getDashboardViewModes();
-    this.autoTaskService.setDashboardViewModes(
-      oldViewModes.filter((item) => item.id !== tab.id),
-    );
-    this.handleSetTab().then();
-  }
+  removeTabHandler(tab: IViewModeDto, index: number): void {
+  this.autoTaskService.settingView.delete(tab.id!).subscribe({
+    next: (res) => {
+      if (res.status === 200) {
+        this.tabs = this.tabs.filter((item) => item.id !== tab.id);
+        this.autoTaskService.setChangedDashboardViewModes([...this.tabs]);
+
+        if (tab.isActive && this.tabs.length > 0) {
+          this.tabs.forEach(item => item.isActive = false);
+          this.tabs[0].isActive = true;
+          this.autoTaskService.setCurrentActiveViewMode(this.tabs[0], true);
+        }
+
+        
+        this.toastr.success('Xóa chế độ xem thành công');
+      } else {
+        this.toastr.error('Xóa chế độ xem thất bại');
+      }
+    },
+    error: (err) => {
+      this.toastr.error('Xóa chế độ xem thất bại');
+    },
+  });
+}
 
   handleSetTab() {
     this.loading = true;
@@ -418,54 +427,83 @@ export class ViewModeTabComponent
     });
   }
 
-  addNewTab(): void {
-    if (this.tabs.length >= this.MAX_TAB) {
-      this.toastr.warning(`Tối đa ${this.MAX_TAB} chế độ xem`);
-      return;
+  addNewAndCloneTab(tab: IViewModeDto | null = null): void {
+    // if (this.tabs.length >= this.MAX_TAB) {
+    //   this.toastr.warning(`Tối đa ${this.MAX_TAB} chế độ xem`);
+    //   return;
+    // }
+    let newTab: IViewDto;
+    if (tab) {
+      newTab = {
+        screen: this.key!,
+        name: tab.name!,
+        isEdit: false,
+        isActive: false,
+        options: tab.options,
+        type: this.currentUser?.role === 'OWNER' ? 'all' : 'personal',
+        isDefault: false,
+        allowedUserIds: tab.allowedUserIds || [],
+        posIds: tab.posIds || [],
+        roleIds: tab.roleIds || [],
+      };
+    } else {
+      const newTabIndex = this.tabs.length + 1;
+      newTab = {
+        screen: this.key,
+        name: `Chế độ xem ${newTabIndex}`,
+        isEdit: false,
+        isActive: false,
+        options: {},
+        ownerId: this.currentUser?.id,
+        type: this.currentUser?.role === 'OWNER' ? 'all' : 'personal',
+        isDefault: false,
+        allowedUserIds: [],
+        posIds: [],
+        roleIds: [],
+      } as IViewDto;
     }
-    const scrollTab = document.querySelector('.nav-tabs');
-    if (scrollTab) {
-      scrollTab.scrollLeft = scrollTab.scrollWidth - scrollTab.clientWidth;
-    }
-    const newTabIndex = this.tabs.length + 1;
-    const newTab = {
-      screen: this.key,
-      name: `Chế độ xem ${newTabIndex}`,
-      isEdit: false,
-      isActive: false,
-      options: {},
-      ownerId: this.currentUser?.id,
-      type: this.currentUser?.role === 'OWNER' ? 'all' : 'personal',
-      isDefault: false,
-      allowedUserIds: [],
-      posIds: [],
-      roleIds: [],
-    } as IViewDto;
 
-    this.tabs.forEach((item) => {
-      item.isActive = false;
-    })
+    this.loading = true;
+    this.autoTaskService.settingView
+      .create(newTab)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.tabs.forEach((item) => {
+              item.isActive = false;
+            });
+            const tab = res.data;
 
-    this.autoTaskService.settingView.create(newTab).subscribe({
-      next: (res) => {
-        if (res.status === 200) {
-          const tab = res.data
-          tab.isActive = true;
-          this.tabs.push(tab);
-          this.autoTaskService.setDashboardViewModes(this.tabs);
-          this.autoTaskService.setCurrentActiveViewMode(tab, true);
-          this.toastr.success('Thêm chế độ xem thành công');
-        } else {
-          this.commonService.handleResErr(res);
-          this.toastr.success('Thêm chế độ xem thất bại');
-        }
-      },
-      error: (err) => {
-        this.commonService.handleErr(err);
-      },
-    });
+            tab.isActive = true;
+            this.tabs.push(tab);
+            // this.autoTaskService.setDashboardViewModes(this.tabs);
+            this.autoTaskService.setCurrentActiveViewMode(tab, true);
 
-    this.checkHideButtonNext();
+            setTimeout(() => {
+              const lastTab = document.querySelector('.nav-tabs li:last-child');
+              if (lastTab) {
+                lastTab.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'nearest',
+                  inline: 'end',
+                });
+              }
+              this.checkHideButtonNext();
+            }, 100);
+
+            this.toastr.success('Thêm chế độ xem thành công');
+          } else {
+            this.toastr.error('Thêm chế độ xem thất bại');
+          }
+        },
+        error: (err) => {
+          this.toastr.error('Thêm chế độ xem thất bại');
+        },
+      });
   }
 
   async handleSave(tab: IViewModeDto, isConfirm: boolean) {
@@ -502,7 +540,7 @@ export class ViewModeTabComponent
   }
 
   handleSettingsViewMode(tab: IViewModeDto): void {
-    this.selectedTab = { ...tab };
+    this.selectedTab = {...tab};
 
     this.selectedUsers = (this.bizUsers || []).filter(
       (user) =>

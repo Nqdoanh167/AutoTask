@@ -119,9 +119,10 @@ export interface IViewModeDto {
 }
 
 export interface IView {
+  id?: string;
+  name: string;
   screen: EScreens;
   ownerId: string;
-  // modes: IViewModeDto[];
   bizId: string;
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
@@ -142,7 +143,7 @@ export interface ISetting {
   updatedBy: AccountPublic;
 }
 
-export interface IViewDto extends Pick<IView, 'screen' | 'options' | 'type' | 'allowedUserIds' | 'posIds' | 'roleIds' | 'isDefault' | 'isEdit' | 'isActive'> { }
+export interface IViewDto extends Pick<IView, 'screen' | 'options' | 'type' | 'allowedUserIds' | 'posIds' | 'roleIds' | 'isDefault' | 'isEdit' | 'isActive' | 'name'> { }
 
 export enum ETabPermissions {
   EMPLOYEE = 'EMPLOYEE',
