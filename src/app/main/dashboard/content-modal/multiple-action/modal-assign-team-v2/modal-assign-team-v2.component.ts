@@ -343,8 +343,8 @@ export class ModalAssignTeamV2Component
         taskIds: assignTaskIds,
         assignTo: {
           roleId: this.currentRole!.id,
-          roleIcon: this.currentRole!.icon,
-          roleName: this.currentRole!.name,
+          roleIcon: this.currentRole!.icon || '',
+          roleName: this.currentRole!.name || '',
           userId: user.id,
           userName: user.name,
           userPicture: user.picture || '',
@@ -366,7 +366,7 @@ export class ModalAssignTeamV2Component
       const batchAssignments: ITaskAssignment[] = [];
       let batchTaskCount = 0;
       let i = 0;
-      const maxBatchSize = 50; // Maximum number of tasks per batch
+      const maxBatchSize = 500; // Maximum number of tasks per batch
 
       while (i < allAssignments.length && batchTaskCount < maxBatchSize) {
         const assignment = allAssignments[i];
@@ -414,7 +414,7 @@ export class ModalAssignTeamV2Component
         this.progressStatus = 'error';
         this.progressType = 'danger';
         this.toastService.warning('Quá thời gian xử lý yêu cầu');
-      }, 5000);
+      }, 20000);
 
       this.autoTaskService.task
         .bulkAssignTeam(payload)
