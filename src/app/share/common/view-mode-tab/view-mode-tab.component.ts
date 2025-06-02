@@ -132,19 +132,20 @@ export class ViewModeTabComponent
   }
 
   modifyTabs(tabs: IViewModeDto[], isInit: boolean = false) {
-    console.log('tabs', tabs);
-    const modifiedTabs = tabs.map((tab) => {
+    const modifiedTabs = tabs.map((tab, index) => {
       return {
         ...tab,
         options: tab.options ?? {},
-        isEdit: false,
+        isEdit: tab.isEdit,
         hasChanged: false,
-        isActive: tab.isDefault ?? false,
+        isActive: index === 0,
         ownerId: tab.ownerId,
         type: tab.type || 'personal',
         allowedUserIds: tab.allowedUserIds || [],
         posIds: tab.posIds || [],
         roleIds: tab.roleIds || [],
+        isRename: false,
+        isEditView: tab.isEdit || tab.ownerId === this.currentUser?.id,
       };
     });
 
@@ -246,7 +247,7 @@ export class ViewModeTabComponent
   }
 
   handleUpdateTab(tab: IViewModeDto) {
-    tab.isEdit = false;
+    tab.isRename = false;
     const oldViewModes = this.autoTaskService.getDashboardViewModes();
     const index = oldViewModes.findIndex((item) => item.id === tab.id);
     if (index !== -1) {
@@ -280,7 +281,10 @@ export class ViewModeTabComponent
 
   handleEditTab(tab: IViewModeDto, event: any, index: number) {
     event.stopPropagation();
-    tab.isEdit = true;
+    if (!tab.isEditView) {
+      return;
+    }
+    tab.isRename = true;
     setTimeout(() => {
       const inputEdit = document.getElementById(`input-edit-tab-${index}`);
       if (inputEdit) {
@@ -362,29 +366,28 @@ export class ViewModeTabComponent
   }
 
   removeTabHandler(tab: IViewModeDto, index: number): void {
-  this.autoTaskService.settingView.delete(tab.id!).subscribe({
-    next: (res) => {
-      if (res.status === 200) {
-        this.tabs = this.tabs.filter((item) => item.id !== tab.id);
-        this.autoTaskService.setChangedDashboardViewModes([...this.tabs]);
+    this.autoTaskService.settingView.delete(tab.id!).subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.tabs = this.tabs.filter((item) => item.id !== tab.id);
+          this.autoTaskService.setChangedDashboardViewModes([...this.tabs]);
 
-        if (tab.isActive && this.tabs.length > 0) {
-          this.tabs.forEach(item => item.isActive = false);
-          this.tabs[0].isActive = true;
-          this.autoTaskService.setCurrentActiveViewMode(this.tabs[0], true);
+          if (tab.isActive && this.tabs.length > 0) {
+            this.tabs.forEach((item) => (item.isActive = false));
+            this.tabs[0].isActive = true;
+            this.autoTaskService.setCurrentActiveViewMode(this.tabs[0], true);
+          }
+
+          this.toastr.success('Xóa chế độ xem thành công');
+        } else {
+          this.toastr.error('Xóa chế độ xem thất bại');
         }
-
-        
-        this.toastr.success('Xóa chế độ xem thành công');
-      } else {
+      },
+      error: (err) => {
         this.toastr.error('Xóa chế độ xem thất bại');
-      }
-    },
-    error: (err) => {
-      this.toastr.error('Xóa chế độ xem thất bại');
-    },
-  });
-}
+      },
+    });
+  }
 
   handleSetTab() {
     this.loading = true;
@@ -404,6 +407,7 @@ export class ViewModeTabComponent
           allowedUserIds: tabActive?.allowedUserIds || [],
           posIds: tabActive?.posIds || [],
           roleIds: tabActive?.roleIds || [],
+          isRename: tabActive?.isRename || false,
         } as IViewDto)
         .pipe(
           takeUntil(this.destroy$),
@@ -477,21 +481,24 @@ export class ViewModeTabComponent
               item.isActive = false;
             });
             const tab = res.data;
-
+            tab.isEditView = true;
             tab.isActive = true;
             this.tabs.push(tab);
-            // this.autoTaskService.setDashboardViewModes(this.tabs);
             this.autoTaskService.setCurrentActiveViewMode(tab, true);
 
             setTimeout(() => {
-              const lastTab = document.querySelector('.nav-tabs li:last-child');
-              if (lastTab) {
-                lastTab.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'nearest',
-                  inline: 'end',
-                });
+              const tabContainer = document.querySelector('.nav-tabs');
+              if (tabContainer) {
+                tabContainer.scrollLeft = tabContainer.scrollWidth + 100;
               }
+              
+              setTimeout(() => {
+                if (tabContainer) {
+                  tabContainer.scrollLeft = tabContainer.scrollWidth + 100;
+                }
+                this.checkHideButtonNext();
+              }, 50);
+              
               this.checkHideButtonNext();
             }, 100);
 
@@ -595,27 +602,40 @@ export class ViewModeTabComponent
       });
     }
 
-    const oldViewModes = this.autoTaskService.getDashboardViewModes();
-    const index = oldViewModes.findIndex(
-      (item) => item.id === this.selectedTab?.id,
-    );
-    if (index !== -1) {
-      oldViewModes[index] = this.selectedTab;
-    }
-
-    this.tabs = cloneDeep(oldViewModes);
-    this.tabs.forEach((tab) => {
-      tab.isActive = tab.id === this.selectedTab?.id;
-    });
-
-    this.handleSetTab()
-      .then(() => {
-        this.modalRef?.hide();
-        this.toastr.success('Cập nhật chế độ xem thành công');
-      })
-      .catch((err) => {
-        this.toastr.error('Cập nhật chế độ xem thất bại');
-        console.error(err);
+    this.autoTaskService.settingView
+      .update({
+        id: this.selectedTab.id,
+        screen: this.key,
+        name: this.selectedTab.name,
+        isEdit: this.selectedTab.isEdit,
+        options: this.selectedTab.options || {},
+        type: this.selectedTab.type || 'personal',
+        isDefault: this.selectedTab.isDefault || false,
+        allowedUserIds: this.selectedTab.allowedUserIds || [],
+        posIds: this.selectedTab.posIds || [],
+        roleIds: this.selectedTab.roleIds || [],
+      } as IViewDto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.modalRef?.hide();
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            const tab = res.data;
+            tab.isActive = true;
+            tab.isEditView = true;
+            this.toastr.success('Cập nhật chế độ xem thành công');
+            this.autoTaskService.setCurrentActiveViewMode(res.data, true);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
       });
   }
 

@@ -33,18 +33,18 @@
             container="body"
             containerClass="custom-tooltip-tab-filter"
             class="tab-name fw-500 d-flex align-items-start gap-2"
-            *ngIf="!tabz.isEdit"
+            *ngIf="!tabz.isRename"
             (dblclick)="handleEditTab(tabz, $event, index)"
           >
-            <i
+            <!-- <i
               class="fa-solid fa-home"
               *ngIf="tabz.isDefault"
               [ngStyle]="{color: tabz.isActive ? '#4277FF' : '#afb2bd'}"
-            ></i>
+            ></i> -->
             {{ tabz.name }}
             {{ tabz.isActive ? '(' + (quantity || 0) + ')' : '' }}
           </div>
-          <div *ngIf="tabz.isEdit">
+          <div *ngIf="tabz.isRename">
             <input
               (keydown)="handleKeyDown($event, tabz)"
               (blur)="handleUpdateTab(tabz)"
@@ -54,7 +54,7 @@
               [id]="'input-edit-tab-' + index"
             />
           </div>
-          <div *ngIf="!tabz.isEdit" class="ms-1" container="body" dropdown>
+          <div *ngIf="!tabz.isRename" class="ms-1" container="body" dropdown>
             <div
               id="button-alignment"
               aria-controls="dropdown-alignment"
@@ -70,10 +70,7 @@
               role="menu"
               aria-labelledby="button-alignment"
             >
-              <li
-                role="menuitem"
-                *ngIf="currentUser?.role === 'OWNER'"
-              >
+              <li role="menuitem" *ngIf="tabz.isEditView">
                 <div
                   (click)="handleSettingsViewMode(tabz)"
                   class="dropdown-item d-flex align-items-center gap-2"
@@ -82,7 +79,7 @@
                   Cài đặt chế độ xem
                 </div>
               </li>
-              <li role="menuitem" *ngIf="tabz.ownerId === currentUser?.id">
+              <li role="menuitem" *ngIf="tabz.isEditView">
                 <div
                   (click)="handleEditTab(tabz, $event, index)"
                   class="dropdown-item d-flex align-items-center gap-2"
@@ -100,11 +97,9 @@
                   Sao chép chế độ xem
                 </div>
               </li>
-              <li
-                role="menuitem"
-              >
+              <li role="menuitem" *ngIf="tabz.isEditView">
                 <div
-                  (click)="handleDeleteViewMode(tabz, $event , index)"
+                  (click)="handleDeleteViewMode(tabz, $event, index)"
                   class="dropdown-item d-flex align-items-center gap-2 text-danger"
                 >
                   <img src="./assets/images/icon/remove.svg" alt="" />
@@ -215,10 +210,7 @@
                       role="menu"
                       aria-labelledby="button-alignment"
                     >
-                      <li
-                        role="menuitem"
-                        *ngIf="currentUser?.role === 'OWNER'"
-                      >
+                      <li role="menuitem" *ngIf="currentUser?.role === 'OWNER'">
                         <div
                           (click)="handleSettingsViewMode(tabz)"
                           class="dropdown-item d-flex align-items-center gap-2"
@@ -248,9 +240,7 @@
                           Sao chép chế độ xem
                         </div>
                       </li>
-                      <li
-                        role="menuitem"
-                      >
+                      <li role="menuitem">
                         <div
                           (click)="handleDeleteViewMode(tabz, $event, index)"
                           class="dropdown-item d-flex align-items-center gap-2 text-danger"
@@ -280,8 +270,23 @@
     <ng-container modalTitle>Cài đặt chế độ xem</ng-container>
 
     <ng-container modalBody>
+      <div class="mb-3 d-flex align-items-center gap-2">
+        <label class="fw-500" for="edit-tab">
+          Cho phép chỉnh sửa
+        </label>
+        <div class="form-check form-switch d-flex align-items-center gap-2">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="edit-tab"
+            [(ngModel)]="selectedTab.isEdit"
+            [tooltip]="'Cho phép các OWNER khác có thể chỉnh sửa chế độ xem này'"
+          />
+        </div>
+      </div>
       <div class="mb-3">
-        <label class="form-label">Phạm vi hiển thị</label>
+        <label class="fw-500">Phạm vi hiển thị</label>
         <div class="d-flex flex-column gap-2">
           <div class="form-check" *ngFor="let modeType of modeTypes">
             <ng-container

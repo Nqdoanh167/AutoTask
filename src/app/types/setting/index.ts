@@ -116,6 +116,8 @@ export interface IViewModeDto {
   posIds?: string[];
   roleIds?: string[];
   quantity?: number;
+  isRename?: boolean;
+  isEditView?: boolean;
 }
 
 export interface IView {
@@ -134,6 +136,7 @@ export interface IView {
   isDefault?: boolean;
   isEdit?: boolean;
   isActive?: boolean;
+  isEditView?: boolean;
 }
 
 export interface ISetting {

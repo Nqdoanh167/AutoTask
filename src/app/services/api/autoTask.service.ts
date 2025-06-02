@@ -647,6 +647,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   setCurrentActiveViewMode(data: IViewModeDto, isChangeTab: boolean = false) {
     data.isChangeTab = isChangeTab;
+    data.options = data.options || {};
     this.currentActiveViewMode$.next(data);
     // replace the current active view mode in the list changedDashboardViewModes
     const viewModes = this.changedDashboardViewModes$.getValue();
