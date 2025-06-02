@@ -67,6 +67,9 @@ export class ModalUpdateTaskComponent
   @Input() taskId?: string;
   @Input() code?: string;
   @Output() updateSuccess = new EventEmitter();
+  @Output() createdTask = new EventEmitter<ITask>();
+  @Output() updatedTask = new EventEmitter<ITask>();
+  @Output() deleteTask = new EventEmitter<string>();
 
   public selectTag: boolean = false;
   public submittedModal = {
@@ -325,11 +328,15 @@ export class ModalUpdateTaskComponent
               this.commonService.handleResSuccess(
                 this.sourceData?.id ? 'update' : 'create',
               );
-              this.updateSuccess.emit();
+              if(this.sourceData?.id){
+                this.updatedTask.emit(res.data);
+              }else {
+                this.createdTask.emit(res.data);
+              }
               this.sourceData = res.data;
               this.patchForm(res.data);
               resolve(res.data);
-              this.getDetailTask();
+              // this.getDetailTask();
             } else {
               this.handleErrorResponse(res, reject);
             }
@@ -419,7 +426,7 @@ export class ModalUpdateTaskComponent
         next: (res) => {
           if (res.status === 200) {
             this.commonService.handleResSuccess('delete');
-            this.updateSuccess.emit();
+            this.deleteTask.emit(value.id);
             this.hideModal();
           } else {
             this.commonService.handleResErr(res);
@@ -471,8 +478,10 @@ export class ModalUpdateTaskComponent
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
-              this.getDetailTask();
-              this.updateSuccess.emit();
+              // this.getDetailTask();
+              // this.updateSuccess.emit();
+              this.sourceData = res.data;
+              this.patchForm(res.data);
               this.addTaskChainModalRef?.hide();
             } else {
               this.commonService.handleResErr(res);
@@ -967,7 +976,7 @@ export class ModalUpdateTaskComponent
           if (res.status === 200) {
             this.toastrService.success('Sao chép tác vụ thành công');
 
-            this.updateSuccess.emit();
+            this.createdTask.emit(res.data);
           } else {
             this.commonService.handleResErr(res);
           }
