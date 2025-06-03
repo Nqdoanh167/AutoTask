@@ -38,6 +38,45 @@
             }
           }
         </div>
+
+        <div class="mb-3">
+          <label for="tags" class="form-control-label">Tags</label>
+          <ng-select
+            id="tagstags"
+            class="custom-input-tag full-width"
+            placeholder="Chọn tags..."
+            formControlName="tags"
+            [items]="tags.rows"
+            appearance="outline"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            (click)="!tags.rows.length && getTags()"
+            [loading]="tags.loading"
+            [bindLabel]="'name'"
+            [bindValue]="'id'"
+          >
+            <ng-template ng-option-tmp let-item="item">
+              <div
+                class="tag-item"
+                [ngClass]="{nonBack: !item.bgColor}"
+                [ngStyle]="{background: item.bgColor}"
+              >
+                {{ item.name }}
+              </div>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon" (click)="clear(item)">×</span>
+              <div
+                class="tag-item"
+                [ngClass]="{nonBack: !item.bgColor}"
+                [ngStyle]="{background: item.bgColor}"
+              >
+                {{ item.name }}
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+
         <div class="mb-3">
           <label class="form-control-label" for="phone">Số điện thoại</label>
           <input
@@ -84,6 +123,7 @@
             type="text"
           />
         </div>
+        
       </form>
     </ng-container>
   </app-custom-modal>

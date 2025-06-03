@@ -54,10 +54,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   public trigger = {
     name: false,
   };
-  public tags: EntityPagination<CustomerTag> = {
-    rows: [],
-    loading: false,
-  };
+  
   public loading = {
     customer: false,
     updateCustomer: false,
@@ -103,7 +100,6 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     if (!this.hasUpdateTaskPer) {
       this.formGroup.disable();
     }
-    this.getTag();
     this.getProvince();
     // this.formGroup.valueChanges
     //   .pipe(distinctUntilKeyChanged('id'))
@@ -216,21 +212,6 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       });
   }
 
-  getTag() {
-    if (!this.hasPermitCustomer) return;
-    this.customerService.tag.get({}, {cache: true}).subscribe({
-      next: (res) => {
-        if (res && res.status === 200) {
-          this.tags.rows = res.data;
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      error: (err) => {
-        this.commonService.handleErr(err);
-      },
-    });
-  }
 
   handleChangeLocation(value: string, type: 'province' | 'district' | 'ward') {
     switch (type) {

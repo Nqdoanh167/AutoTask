@@ -6,8 +6,8 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {Customer} from '@app/types/customer';
-import {Subject} from 'rxjs';
+import {Customer, CustomerTag} from '@app/types/customer';
+import {finalize, Subject} from 'rxjs';
 import {
   AbstractControl,
   FormBuilder,
@@ -21,6 +21,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {SelectLocationComponent} from '@share/common/select-location/select-location.component';
 import {ISelectedLocation} from '@app/types/location';
 import {CustomerService} from '@app/services/api/customer.service';
+import { EntityPagination } from '@app/types/viewmodels';
 
 @Component({
   selector: 'app-modal-update-customer',
@@ -65,6 +66,11 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
     submit: false,
   };
 
+  public tags: EntityPagination<CustomerTag> = {
+    rows: [],
+    loading: false,
+  };
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly commonService: CommonService,
@@ -77,6 +83,9 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.dataDetail) {
+      if(this.dataDetail.tags && this.dataDetail.tags.length) {
+        this.getTags()
+      }
       this.updateForm.patchValue({
         ...(this.dataDetail as any),
       });
@@ -95,6 +104,25 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
         },
       };
     }
+  }
+
+  getTags() {
+    this.tags.loading = true;
+    this.customerService.tag.get({}, {cache: true}).pipe(
+      finalize(()=> this.tags.loading = false)
+    ).subscribe({
+      next: (res) => {
+        if (res && res.status === 200) {
+          console.log('tag', res);
+          this.tags.rows = res.data;
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+      error: (err) => {
+        this.commonService.handleErr(err);
+      },
+    });
   }
 
   handleUpdate() {
