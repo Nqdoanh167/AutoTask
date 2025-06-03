@@ -694,6 +694,22 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     return firstTeam || firstDepartment || firstBranch;
   }
 
+  // nhận vào mảng ids gồm id của cả chi nhánh , phòng ban và đội nhóm
+  // trả về đơn vị đầu tiên tìm thấy trong mảng ids nếu là chi nhánh thì tìm phòng ban và đội nhóm đầu tiên của chi nhánh đó
+  // nếu là phòng ban thì tìm đội nhóm đầu tiên của phòng ban đó
+  getFirstUnitByIds(ids: string[]) {
+    const units = this.getUserUnits();
+    for (const unit of units) {
+      if (ids.includes(unit.data)) {
+        if (unit.children?.length) {
+          return unit.children[0].children?.[0] || unit.children[0];
+        }
+        return unit;
+      }
+    }
+    return undefined;
+  }
+
   findUnitFromData(data: IBranchTaskDto) {
     const units = this.getUserUnits();
     let res: ModifiedUserUnit | undefined = undefined;
@@ -780,7 +796,6 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   }
 
   setListChainAct(items: IChainAct[]) {
-    console.log('setListChainAct', items);
     this.listChainActSubject.next(items || []);
   }
 

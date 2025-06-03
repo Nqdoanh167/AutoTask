@@ -34,7 +34,7 @@ import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/up
 import {environment} from '../../../../../environments/environment';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
-import {ISource, IUpdateSourceDto} from '@app/types/setting';
+import {ISource, IUpdateSourceDto, IViewModeDto} from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 import {ETabTaskDetail} from '@app/types/task';
 import {MainService} from '@app/services/api/main.service';
@@ -42,7 +42,7 @@ import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/d
 import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 
@@ -67,6 +67,9 @@ export class ModalUpdateTaskComponent
   @Input() taskId?: string;
   @Input() code?: string;
   @Output() updateSuccess = new EventEmitter();
+  @Output() createdTask = new EventEmitter<ITask>();
+  @Output() updatedTask = new EventEmitter<ITask>();
+  @Output() deleteTask = new EventEmitter<string>();
 
   public selectTag: boolean = false;
   public submittedModal = {
@@ -104,9 +107,13 @@ export class ModalUpdateTaskComponent
         this.currentBiz = biz;
       });
 
-    this.route.fragment.subscribe(fragment => {
+    this.autoTaskService.currentActiveViewMode.subscribe((mode) => {
+      this.currentActiveViewMode = mode;
+    });
+
+    this.route.fragment.subscribe((fragment) => {
       if (fragment) {
-        this.activeTab = fragment as ETabTaskDetail
+        this.activeTab = fragment as ETabTaskDetail;
       }
     });
   }
@@ -119,7 +126,6 @@ export class ModalUpdateTaskComponent
     // } else {
     //   this.commonService.handleResErr(autoTaskSettingRes);
     // }
-    this.getAutoTaskSetting();
     if (!this.sourceData && !this.taskId && !this.code) {
       this.loading.modal = false;
       this.patchForm();
@@ -127,7 +133,15 @@ export class ModalUpdateTaskComponent
     this.handleCheckPermission();
     if (this.sourceData) {
     } else {
-      const branch = this.autoTaskService.getFirstUnit();
+      let branch = this.autoTaskService.getFirstUnit();
+      if (this.currentActiveViewMode?.options?.branchIds) {
+        const branchUnit = this.autoTaskService.getFirstUnitByIds(
+          this.currentActiveViewMode.options.branchIds,
+        );
+        if (branchUnit) {
+          branch = branchUnit;
+        }
+      }
       this.updateForm.patchValue({
         branch,
       } as any);
@@ -165,7 +179,7 @@ export class ModalUpdateTaskComponent
         },
         error: (err) => {
           this.commonService.handleErr(err);
-           this.hideModal();
+          this.hideModal();
         },
       });
   }
@@ -233,7 +247,7 @@ export class ModalUpdateTaskComponent
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.getTag();
+            // this.getTag();
             this.ngSelectTagTask.filter('');
             const formTag: string[] = this.updateForm.value.tags || [];
             formTag.push(res.data.id as any);
@@ -325,11 +339,15 @@ export class ModalUpdateTaskComponent
               this.commonService.handleResSuccess(
                 this.sourceData?.id ? 'update' : 'create',
               );
-              this.updateSuccess.emit();
+              if (this.sourceData?.id) {
+                this.updatedTask.emit(res.data);
+              } else {
+                this.createdTask.emit(res.data);
+              }
               this.sourceData = res.data;
               this.patchForm(res.data);
               resolve(res.data);
-              this.getDetailTask();
+              // this.getDetailTask();
             } else {
               this.handleErrorResponse(res, reject);
             }
@@ -419,7 +437,7 @@ export class ModalUpdateTaskComponent
         next: (res) => {
           if (res.status === 200) {
             this.commonService.handleResSuccess('delete');
-            this.updateSuccess.emit();
+            this.deleteTask.emit(value.id);
             this.hideModal();
           } else {
             this.commonService.handleResErr(res);
@@ -471,8 +489,10 @@ export class ModalUpdateTaskComponent
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
-              this.getDetailTask();
-              this.updateSuccess.emit();
+              // this.getDetailTask();
+              // this.updateSuccess.emit();
+              this.sourceData = res.data;
+              this.patchForm(res.data);
               this.addTaskChainModalRef?.hide();
             } else {
               this.commonService.handleResErr(res);
@@ -967,7 +987,7 @@ export class ModalUpdateTaskComponent
           if (res.status === 200) {
             this.toastrService.success('Sao chép tác vụ thành công');
 
-            this.updateSuccess.emit();
+            this.createdTask.emit(res.data);
           } else {
             this.commonService.handleResErr(res);
           }
@@ -976,14 +996,14 @@ export class ModalUpdateTaskComponent
   }
 
   handleActiveTabChange(tab: ETabTaskDetail) {
-    if(tab === ETabTaskDetail.INFO){
+    if (tab === ETabTaskDetail.INFO) {
       this.getDetailTask(true);
-    }else if(tab === ETabTaskDetail.ORDER){
-      if(this.sourceData?.orderIds.length){
+    } else if (tab === ETabTaskDetail.ORDER) {
+      if (this.sourceData?.orderIds.length) {
         this.getOrderDetail(this.sourceData?.orderIds!);
       }
-    }else if(tab === ETabTaskDetail.BOOKING){
-      if(this.sourceData?.bookingIds.length){
+    } else if (tab === ETabTaskDetail.BOOKING) {
+      if (this.sourceData?.bookingIds.length) {
         this.getBookingDetail(this.sourceData?.bookingIds!);
       }
     }

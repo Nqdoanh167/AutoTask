@@ -41,9 +41,37 @@
         </ng-container>
         <div
           modalFooter
-          class="d-flex justify-content-end align-items-center gap-2"
+          class="d-flex justify-content-end align-items-end gap-2"
           id="footer-modal-assign-team"
         >
+
+          <div class="w-100" *ngIf="progressStatus === 'processing'">
+            <div class="text-primary fs-7">
+              Quá trình đang thực hiện, vui lòng không tắt trình duyệt
+              và chờ trong giây lát.
+            </div>
+            <progressbar
+              [value]="progressValue"
+              [max]="progressMax"
+              [type]="progressType"
+              [animate]="true"
+            ></progressbar>
+          </div>
+
+          <div
+            class="w-100 text-success fs-7"
+            *ngIf="progressStatus === 'success'"
+          >
+            Chia tác vụ thành công.
+          </div>
+          <div
+            class="w-100 text-danger fs-7"
+            *ngIf="progressStatus === 'error'"
+          >
+            Chia tác vụ thất bại.
+          </div>
+
+
           <button
             (click)="hideModal()"
             class="btn button-default-modal"
@@ -52,6 +80,7 @@
             Hủy
           </button>
           <button
+            *ngIf="progressStatus !== 'success'"  
             (click)="onSubmit()"
             [disabled]="!form.valid"
             class="btn btn-primary text-white"

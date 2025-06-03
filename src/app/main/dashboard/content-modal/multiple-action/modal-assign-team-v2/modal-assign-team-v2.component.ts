@@ -154,7 +154,7 @@ export class ModalAssignTeamV2Component
     this._cachedSelectedTasks = [...this.selectedTasks];
     this.selectedTaskCount = this.selectedTasks.length;
     this.modalOpenByTaskSelection = this.selectedTaskIds.length > 0;
-    this.getRole();
+    this.getAutoTaskSettingCache();
     this.initUserSelections();
     setTimeout(() => {
       this.loading.modal = false;
@@ -178,15 +178,12 @@ export class ModalAssignTeamV2Component
     this.currentSelectedUserCount = this.userSelections.length;
   }
 
-  getRole() {
-    this.autoTaskService.setting
-      .retrieve({ bizId: this.currentBiz!.id })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          if (res && res.status === 200) {
-            const fRoles = this.currentBiz!.roles.filter((role) => {
-              return res.data.roles?.includes(role.id);
+  getAutoTaskSettingCache() {
+    return this.autoTaskService.currentSetting.subscribe({
+      next: (res) => {
+        if (res) {
+              const fRoles = this.currentBiz!.roles.filter((role) => {
+              return res.roles?.includes(role.id);
             });
             this.availableRoles = [...fRoles];
             if (!fRoles.length) {
@@ -196,14 +193,9 @@ export class ModalAssignTeamV2Component
             if (this.modalOpenByTaskSelection) {
               this.onRoleChange(fRoles[0]);
             }
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
+        }
+      },
+    });
   }
 
   /*
@@ -366,7 +358,7 @@ export class ModalAssignTeamV2Component
       const batchAssignments: ITaskAssignment[] = [];
       let batchTaskCount = 0;
       let i = 0;
-      const maxBatchSize = 500; // Maximum number of tasks per batch
+      const maxBatchSize = 20; // Maximum number of tasks per batch
 
       while (i < allAssignments.length && batchTaskCount < maxBatchSize) {
         const assignment = allAssignments[i];
