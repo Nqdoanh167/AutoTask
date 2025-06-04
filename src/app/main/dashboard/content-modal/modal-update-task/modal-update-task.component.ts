@@ -34,7 +34,12 @@ import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/up
 import {environment} from '../../../../../environments/environment';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
-import {ISource, IUpdateSourceDto, IViewModeDto} from '@app/types/setting';
+import {
+  EPerActTask,
+  ISource,
+  IUpdateSourceDto,
+  IViewModeDto,
+} from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 import {ETabTaskDetail} from '@app/types/task';
 import {MainService} from '@app/services/api/main.service';
@@ -167,6 +172,20 @@ export class ModalUpdateTaskComponent
       .subscribe({
         next: (res) => {
           if (res.status === 200 && res.data) {
+            const unitId = res.data?.branch?.team || res.data?.branch?.department || res.data?.branch?.id;
+            if (
+              !this.authService.hasPerRole(
+                unitId,
+                EPerActTask.UPDATE_TASK,
+              )
+            ) {
+              this.toastr.warning(
+                'Bạn không có quyền cập nhật task ở chi nhánh này <3',
+              );
+              this.hideModal()
+              return
+            }
+
             this.sourceData = res.data;
             this.patchForm(res.data);
             if (isRefresh) {
@@ -294,6 +313,11 @@ export class ModalUpdateTaskComponent
   async handleUpdate() {
     const branchForm = this.f['branch'].value;
     const sourceForm = this.f['sourceForm'].value;
+
+    if (!this.authService.hasPerRole(branchForm?.data, EPerActTask.CREATE_TASK)) {
+      this.toastr.warning('Bạn không có quyền tạo tác vụ cho chi nhánh này <3');
+      return;
+    }
 
     if (sourceForm) {
       const newSource = await this.handleCreateSourceForm();

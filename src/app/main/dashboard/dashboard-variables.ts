@@ -199,6 +199,18 @@ export const TASK_FLOWS_CONFIG_FILTERS = [
     multiple: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
+  {
+    type: ETypeFilter.SELECT,
+    name: 'unassignedRoleIds',
+    placeholder: 'Tác vụ chưa được gán vai trò',
+    options: [],
+    bindLabel: 'name',
+    bindValue: 'id',
+    clearable: false,
+    searchable: true,
+    multiple: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
 ];
 
 export const TASK_SOURCE_SETTING_CONFIG_FILTERS = [

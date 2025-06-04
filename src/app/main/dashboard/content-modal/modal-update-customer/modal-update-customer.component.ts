@@ -21,7 +21,8 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {SelectLocationComponent} from '@share/common/select-location/select-location.component';
 import {ISelectedLocation} from '@app/types/location';
 import {CustomerService} from '@app/services/api/customer.service';
-import { EntityPagination } from '@app/types/viewmodels';
+import {EntityPagination} from '@app/types/viewmodels';
+import {CustomDatePickerComponent} from '../../../../share/custom/custom-date-picker/custom-date-picker.component';
 
 @Component({
   selector: 'app-modal-update-customer',
@@ -32,6 +33,7 @@ import { EntityPagination } from '@app/types/viewmodels';
     NgSelectModule,
     ReactiveFormsModule,
     SelectLocationComponent,
+    CustomDatePickerComponent,
   ],
   templateUrl: './modal-update-customer.component.html',
   styleUrl: './modal-update-customer.component.scss',
@@ -51,13 +53,14 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
     email: null,
     address: null,
     street: null,
-    tags: null,
+    tagIds: null,
     ward: null,
     wardCode: null,
     district: null,
     districtCode: null,
     province: null,
     provinceCode: null,
+    birthday: null,
   });
 
   public selectedLocation?: ISelectedLocation;
@@ -83,8 +86,8 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.dataDetail) {
-      if(this.dataDetail.tags && this.dataDetail.tags.length) {
-        this.getTags()
+      if (this.dataDetail.tags && this.dataDetail.tags.length) {
+        this.getTags();
       }
       this.updateForm.patchValue({
         ...(this.dataDetail as any),
@@ -108,21 +111,32 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
 
   getTags() {
     this.tags.loading = true;
-    this.customerService.tag.get({}, {cache: true}).pipe(
-      finalize(()=> this.tags.loading = false)
-    ).subscribe({
-      next: (res) => {
-        if (res && res.status === 200) {
-          console.log('tag', res);
-          this.tags.rows = res.data;
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      error: (err) => {
-        this.commonService.handleErr(err);
-      },
-    });
+    this.customerService.tag
+      .get({}, {cache: true})
+      .pipe(finalize(() => (this.tags.loading = false)))
+      .subscribe({
+        next: (res) => {
+          if (res && res.status === 200) {
+            console.log('tag', res);
+            this.tags.rows = res.data;
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getBirthdayValue(): Date | undefined {
+    const value = this.updateForm.get('birthday')?.value;
+  
+    if (!value) return undefined;
+  
+    const date = new Date(value);
+  
+    return isNaN(date.getTime()) ? undefined : date;
   }
 
   handleUpdate() {
@@ -170,6 +184,14 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
     this.updateForm.patchValue({
       address,
     } as any);
+  }
+
+  handleChangeBirthday(value: any) {
+    if (value) {
+      this.updateForm.patchValue({
+        birthday: value,
+      });
+    }
   }
 
   ngOnDestroy(): void {

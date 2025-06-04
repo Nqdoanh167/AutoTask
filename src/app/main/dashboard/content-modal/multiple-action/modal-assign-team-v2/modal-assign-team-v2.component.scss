@@ -27,3 +27,14 @@
     color: inherit;
   }
 }
+
+.user-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+::ng-deep .ng-dropdown-panel {
+  z-index: 9999 !important;
+  position: absolute !important;
+}

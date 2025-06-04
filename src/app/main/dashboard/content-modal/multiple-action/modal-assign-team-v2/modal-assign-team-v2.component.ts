@@ -7,20 +7,20 @@ import {
   Output,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { takeUntil } from 'rxjs';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { CommonService } from '@app/services/common/common.service';
-import { BizRole, Branch, IDateRange, User } from '@app/types/viewmodels';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { Router } from '@angular/router';
-import { ETypeBulkUpdate } from '@app/types/common';
-import { ITask, ModifiedUserUnit } from '@app/types/flow';
-import { distributeTasksToUsers as coreDistributeTasksToUsers } from './helper';
-import { ToastrService } from 'ngx-toastr';
-import { ProgressbarType } from 'ngx-bootstrap/progressbar';
-import { BsCustomDates } from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
+import {takeUntil} from 'rxjs';
+import {BsModalRef} from 'ngx-bootstrap/modal';
+import {CommonService} from '@app/services/common/common.service';
+import {BizRole, Branch, IDateRange, User} from '@app/types/viewmodels';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {Router} from '@angular/router';
+import {ETypeBulkUpdate} from '@app/types/common';
+import {ITask, ModifiedUserUnit} from '@app/types/flow';
+import {distributeTasksToUsers as coreDistributeTasksToUsers} from './helper';
+import {ToastrService} from 'ngx-toastr';
+import {ProgressbarType} from 'ngx-bootstrap/progressbar';
+import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 import moment from 'moment';
-import { BaseComponentsComponent } from '@app/share/common/base-components/base-components.component';
+import {BaseComponentsComponent} from '@app/share/common/base-components/base-components.component';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -63,7 +63,8 @@ interface IUserSelection {
 })
 export class ModalAssignTeamV2Component
   extends BaseComponentsComponent
-  implements OnInit, OnDestroy {
+  implements OnInit, OnDestroy
+{
   @Input() action!: ETypeBulkUpdate;
   @Input() selectedTaskIds: string[] = []; // Limit 1000
   @Input() selectedTaskCodes: string[] = [];
@@ -79,6 +80,7 @@ export class ModalAssignTeamV2Component
   public currentRole: BizRole | null = null;
   public availableRoles: BizRole[] = [];
   public userSelections: IUserSelection[] = [];
+  public selectedUserIds: string[] = []; // Mảng chứa ID của người dùng đã chọn
   public modalOpenByTaskSelection!: boolean; // Check if there are any tasks selected (not empty)
   public currentBranch: Branch | null = null;
   public branches = this.autoTaskService.getUserUnits(false);
@@ -139,6 +141,18 @@ export class ModalAssignTeamV2Component
     },
   ];
 
+  selectType = 'all'; 
+  public selectTypeList = [
+    {
+      id: 'all',
+      label: 'Lấy toàn bộ nhân viên',
+    },
+    {
+      id: 'search',
+      label: 'Chọn 1 vài nhân viên',
+    },
+  ];
+
   constructor(
     private readonly modalRef: BsModalRef,
     private readonly autoTaskService: AutoTaskService,
@@ -182,17 +196,17 @@ export class ModalAssignTeamV2Component
     return this.autoTaskService.currentSetting.subscribe({
       next: (res) => {
         if (res) {
-              const fRoles = this.currentBiz!.roles.filter((role) => {
-              return res.roles?.includes(role.id);
-            });
-            this.availableRoles = [...fRoles];
-            if (!fRoles.length) {
-              this.toastService.warning('Không có vai trò nào để chia');
-              return;
-            }
-            if (this.modalOpenByTaskSelection) {
-              this.onRoleChange(fRoles[0]);
-            }
+          const fRoles = this.currentBiz!.roles.filter((role) => {
+            return res.roles?.includes(role.id);
+          });
+          this.availableRoles = [...fRoles];
+          if (!fRoles.length) {
+            this.toastService.warning('Không có vai trò nào để chia');
+            return;
+          }
+          if (this.modalOpenByTaskSelection) {
+            this.onRoleChange(fRoles[0]);
+          }
         }
       },
     });
@@ -394,7 +408,7 @@ export class ModalAssignTeamV2Component
         return;
       }
 
-      const payload: ISubmitPayload = { tasks: batchAssignments };
+      const payload: ISubmitPayload = {tasks: batchAssignments};
       const tasksInThisBatch = batchAssignments.reduce(
         (sum, a) => sum + a.taskIds.length,
         0,
@@ -453,6 +467,7 @@ export class ModalAssignTeamV2Component
    * Mảng user được lọc theo vai trò khả dụng hiện tại của biz và của loại vai trò được chọn
    */
   onRoleChange(role: BizRole): void {
+    this.selectType = 'all';
     this.currentRole = role;
     this.roleError = false;
 
@@ -524,6 +539,7 @@ export class ModalAssignTeamV2Component
   }
 
   onTimeChange(event: Date | IDateRange): void {
+    this.selectType = 'all';
     const hValue = event as IDateRange;
 
     if (hValue?.fromDate && hValue?.toDate) {
@@ -546,6 +562,7 @@ export class ModalAssignTeamV2Component
   }
 
   handleChangeBranch(event: any) {
+    this.selectType = 'all';
     if (event?.node?.team) {
       this.filter.teamId =
         this.filter.teamId === event.node.data ? undefined : event.node.data;
@@ -571,6 +588,32 @@ export class ModalAssignTeamV2Component
     }
 
     this.getTasksCanSplit();
+  }
+
+    handleChooseUser(user: User) {
+    if (user) {
+      const existingUser = this.userSelections.find(
+        (item) => item.user.id === user.id,
+      );
+      if (!existingUser) {
+        this.userSelections.push({
+          user,
+          selected: true,
+          count: 0,
+        });
+      }
+    }
+    this.selectedUserIds = this.userSelections.map((item) => item.user.id);
+  }
+
+  handleChangeType(type: any){
+    if(type?.id === 'search'){
+      this.userSelections = [];
+      this.selectedUserIds = [];
+    } else if(type?.id === 'all'){
+      this.initUserSelections();
+      this.selectedUserIds = this.userSelections.map((item) => item.user.id);
+    }
   }
 
   hideModal(): void {

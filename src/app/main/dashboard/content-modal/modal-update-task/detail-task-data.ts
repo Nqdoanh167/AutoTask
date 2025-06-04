@@ -130,10 +130,10 @@ export class DetailTaskData extends DashboardData {
       label: 'Đơn hàng & Sản phẩm',
       value: ETabTaskDetail.ORDER,
     },
-    {
-      label: 'Đơn booking',
-      value: ETabTaskDetail.BOOKING,
-    },
+    // {
+    //   label: 'Đơn booking',
+    //   value: ETabTaskDetail.BOOKING,
+    // },
   ];
 
   public infoUnit$ = new BehaviorSubject<FlatBranch | undefined>(undefined);

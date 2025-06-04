@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   Input,
   OnChanges,
@@ -12,15 +13,12 @@ import {
 import {CommonModule} from '@angular/common';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {TabDirective, TabsetComponent, TabsModule} from 'ngx-bootstrap/tabs';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {TabsetComponent, TabsModule} from 'ngx-bootstrap/tabs';
+import {finalize, takeUntil} from 'rxjs';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {ToastrService} from 'ngx-toastr';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
-import {
-  IModalConfirmContent,
-  ModalConfirmComponent,
-} from '@share/custom/modal-confirm/modal-confirm.component';
+import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {EScreens, IViewDto, IViewModeDto} from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
@@ -31,12 +29,17 @@ import {TreeSelectModule} from 'primeng/treeselect';
 import {ModifiedUserUnit} from '@app/types/flow';
 import {BsModalRef, BsModalService, ModalModule} from 'ngx-bootstrap/modal';
 import {BizRole, User} from '@app/types/viewmodels';
-import {NgSelectComponent, NgSelectModule} from '@ng-select/ng-select';
+import {NgSelectModule} from '@ng-select/ng-select';
 import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
 import {CustomModalComponent} from '../../custom/custom-modal/custom-modal.component';
 import {BaseComponentsComponent} from '../base-components/base-components.component';
 import {CustomInputSearchComponent} from '../../custom/custom-input-search/custom-input-search.component';
-import { SortableModule } from 'ngx-bootstrap/sortable';
+import {
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { SortByPipe } from '@app/share/pipe/sort-by.pipe';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -55,7 +58,7 @@ import { SortableModule } from 'ngx-bootstrap/sortable';
     FilterDataModule,
     CustomModalComponent,
     CustomInputSearchComponent,
-    SortableModule
+    DragDropModule,
   ],
   templateUrl: './view-mode-tab.component.html',
   styleUrls: ['./view-mode-tab.component.scss'],
@@ -97,6 +100,7 @@ export class ViewModeTabComponent
     private readonly commonService: CommonService,
     private readonly modalService: BsModalService,
     public modalRef: BsModalRef,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     super();
     this.roles = this.currentUser?.roles || [];
@@ -108,7 +112,11 @@ export class ViewModeTabComponent
       this.autoTaskService.changedDashboardViewModes
         .pipe(takeUntil(this.destroy$))
         .subscribe((res) => {
-          this.tabs = res;
+          // Sắp xếp tabs theo pos trước khi gán
+          this.tabs = res
+          console.log('this.tabs', this.tabs);
+          this.cdr.detectChanges();
+          this.cdr.markForCheck();
           setTimeout(() => {
             this.checkHideButtonNext();
           }, 100);
@@ -148,6 +156,7 @@ export class ViewModeTabComponent
         roleIds: tab.roleIds || [],
         isRename: false,
         isEditView: tab.isEdit || tab.ownerId === this.currentUser?.id,
+        pos: tab.pos,
       };
     });
 
@@ -165,14 +174,14 @@ export class ViewModeTabComponent
     return modifiedTabs;
   }
 
-  handleGetTab() {
+  handleGetTab(isCache: boolean = true) {
     this.loading = true;
     this.autoTaskService.settingView
       .retrieve(
         {
           screen: this.key,
         },
-        {cache: true},
+        {cache: isCache},
       )
       .pipe(
         takeUntil(this.destroy$),
@@ -337,7 +346,7 @@ export class ViewModeTabComponent
       isActive: false,
       options: tab.options,
       ownerId: this.currentUser?.id,
-      type: this.currentUser?.role === 'OWNER' ? 'all' : 'personal',
+      type: 'personal',
     } as IViewModeDto;
     this.tabs.push(newTab);
     const oldViewModes = this.autoTaskService.getDashboardViewModes();
@@ -493,14 +502,14 @@ export class ViewModeTabComponent
               if (tabContainer) {
                 tabContainer.scrollLeft = tabContainer.scrollWidth + 100;
               }
-              
+
               setTimeout(() => {
                 if (tabContainer) {
                   tabContainer.scrollLeft = tabContainer.scrollWidth + 100;
                 }
                 this.checkHideButtonNext();
               }, 50);
-              
+
               this.checkHideButtonNext();
             }, 100);
 
@@ -544,8 +553,8 @@ export class ViewModeTabComponent
     }
   }
 
-  trackByMethod(index: number, el: any): number {
-    return el.id;
+  trackByMethod(index: number, item: any): any {
+    return item.id
   }
 
   handleSettingsViewMode(tab: IViewModeDto): void {
@@ -685,7 +694,60 @@ export class ViewModeTabComponent
     return parts.join(' ');
   }
 
-  handleSortTabs(event: any) {
-    console.log('handleSortTabs', event);
+  //Xác định tab nào di chuyển
+  //Nếu đưa lên đầu => pos = tab[0].pos/2
+  //Nếu đơn xuống cuối => pos+=tabs[tabs.length-1].pos+1000
+  //Còn lại => pos = (tab[index-1].pos + tab[index+1].pos)/2
+  //Hãy tính toán pos mới cho tab đã di chuyển
+  drop(event: CdkDragDrop<IViewModeDto[]>) {
+    const previousIndex = event.previousIndex;
+    const currentIndex = event.currentIndex;
+
+    // Di chuyển item trong mảng filteredTabs
+    moveItemInArray(this.filteredTabs, previousIndex, currentIndex);
+
+    if(previousIndex === currentIndex) return
+
+    const movedTab = this.filteredTabs[currentIndex];
+    if (!movedTab.id || !movedTab.pos === undefined) return;
+
+    let newPos: number = movedTab.pos! || 0;
+
+    if (currentIndex === 0) {
+      const nextTab = this.filteredTabs[1];
+      newPos = nextTab ? nextTab.pos! / 2 : 0;
+    } else if (currentIndex === this.filteredTabs.length - 1) {
+      newPos = (this.filteredTabs[currentIndex - 1].pos! || 0) + 1000;
+    } else {
+      const prevTab = this.filteredTabs[currentIndex - 1];
+      const nextTab = this.filteredTabs[currentIndex + 1];
+      newPos = (prevTab.pos! + nextTab.pos!) / 2;
+    }
+
+    movedTab.pos = newPos;
+
+    this.autoTaskService.settingView
+      .updatePos(movedTab.id, newPos)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.autoTaskService.setChangedDashboardViewModes([...this.filteredTabs]);
+          this.autoTaskService.setDashboardViewModes([...this.filteredTabs]);
+          
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toastr.success('Cập nhật vị trí tab thành công');
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
   }
 }

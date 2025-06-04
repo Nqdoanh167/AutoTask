@@ -7,7 +7,7 @@ export class DetailTaskPerms extends DetailTaskData {
     canEditChain: false,
     canEditDeadline: false,
     canCreateOrder: false,
-    canEditTask: false,
+    canEditTask: true,
     canGetTag: false,
   };
 
@@ -21,10 +21,10 @@ export class DetailTaskPerms extends DetailTaskData {
 
   handleCheckPermission() {
     const taskPermissions = this.authService.getUserPerByType(EPerActType.TASK);
-    this.permissions.canEditTask = this.hasPermission(
-      taskPermissions,
-      EPerActTask.UPDATE_TASK,
-    );
+    // this.permissions.canEditTask = this.hasPermission(
+    //   taskPermissions,
+    //   EPerActTask.UPDATE_TASK,
+    // );
     this.permissions.canEditChain = this.hasPermission(
       taskPermissions,
       EPerActTask.MANAGE_CHAIN,
