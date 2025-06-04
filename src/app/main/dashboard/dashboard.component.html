@@ -405,17 +405,17 @@
                     </ng-container>
                     <ng-container *ngSwitchCase="'branch'">
                       <td class="column-branch">
-                        <div>
+                        <div *ngIf="getBranch(item?.branch) as branch; else nonBranch">
+                          {{ branch?.teamName && branch?.teamName + ', ' }}
                           {{
-                          item?.branch?.teamName &&
-                          item?.branch?.teamName + ', '
+                            branch?.departmentName &&
+                              branch?.departmentName + ', '
                           }}
-                          {{
-                          item?.branch?.departmentName &&
-                          item?.branch?.departmentName + ', '
-                          }}
-                          {{ item?.branch?.name || '-' }}
+                          {{ branch?.name || '-' }}
                         </div>
+                        <ng-template #nonBranch>
+                          <div>-</div>
+                        </ng-template>
                       </td>
                     </ng-container>
                     <ng-container *ngSwitchCase="'orderIds'">

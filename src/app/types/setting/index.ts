@@ -118,6 +118,7 @@ export interface IViewModeDto {
   quantity?: number;
   isRename?: boolean;
   isEditView?: boolean;
+  pos?: number
 }
 
 export interface IView {

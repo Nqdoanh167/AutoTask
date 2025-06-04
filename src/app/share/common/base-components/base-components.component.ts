@@ -1,7 +1,7 @@
 import {Component, inject, OnDestroy} from '@angular/core';
 import {Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
-import {Biz, User} from '@app/types/viewmodels';
+import {Biz, Branch, User} from '@app/types/viewmodels';
 
 @Component({
   selector: 'app-base-components',
@@ -18,6 +18,7 @@ export class BaseComponentsComponent implements OnDestroy {
   protected bizAlias?: string;
   protected bizUsers?: User[];
   protected currentViewer?: User;
+  protected bizBranches?: Branch[];
 
   constructor() {
     this.authService.currentBiz
@@ -27,6 +28,7 @@ export class BaseComponentsComponent implements OnDestroy {
         this.bizAlias = biz.alias;
         this.currentUser = biz?.user;
         this.bizUsers = biz.users;
+        this.bizBranches = biz.branches;
       });
     this.authService.currentUser
       .pipe(takeUntil(this.destroy$))

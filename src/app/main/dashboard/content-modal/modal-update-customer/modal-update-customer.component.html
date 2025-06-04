@@ -45,7 +45,7 @@
             id="tagstags"
             class="custom-input-tag full-width"
             placeholder="Chọn tags..."
-            formControlName="tags"
+            formControlName="tagIds"
             [items]="tags.rows"
             appearance="outline"
             [multiple]="true"
@@ -99,6 +99,22 @@
             type="text"
           />
         </div>
+
+        <!-- Ngày sinh -->
+        <div class="mb-3">
+          <label class="form-control-label" for="birthday">Ngày sinh</label>
+          <custom-date-picker
+            [placeholder]="'Nhập Ngày sinh...'"
+            [ngClass]="{'is-invalid': submitted && f['birthday'].errors}"
+            [id]="'birthday'"
+            (changeDateEmmit)="handleChangeBirthday($event)"
+            [typePicker]="'single'"
+            [dateSingle]="getBirthdayValue()"
+            [defaultValue]="getBirthdayValue()"
+            [maxDate]="'today'"
+          ></custom-date-picker>
+        </div>
+
         <div class="mb-3">
           <select-location
             [selected]="selectedLocation"
@@ -123,7 +139,6 @@
             type="text"
           />
         </div>
-        
       </form>
     </ng-container>
   </app-custom-modal>

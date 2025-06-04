@@ -8,6 +8,6 @@
 .modal-body-hidden {
   .modal-body{
     max-height: calc(100vh - 202px);
-    overflow: scroll;
+    overflow-y: scroll;
   }
 }

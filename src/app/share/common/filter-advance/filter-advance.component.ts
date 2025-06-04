@@ -73,6 +73,14 @@ export class FilterAdvanceComponent
   public units = this.autoTaskService.getUserUnits(false);
   public selectedUnits: ModifiedUserUnit[] = [];
 
+  public listDifferentQueryKeys = [
+    {
+      name: 'unassignedRoleIds',
+      label: 'Chưa gán vai trò',
+      value: []
+    }
+  ]
+
   protected readonly ETypeFilter = ETypeFilter;
   protected readonly ETypeButton = ETypeButton;
   constructor() {
@@ -244,6 +252,20 @@ export class FilterAdvanceComponent
     } else {
       this.clickButtonEvent.emit(name);
     }
+  }
+
+  onChangeDifferentQueryKey(
+    event: {
+      name: string,
+      value: any;
+      label: string;
+    },
+  ) {
+    console.log('onChangeDifferentQueryKey', event);
+    const { name, value } = event;
+    const objFilterQuery = JSON.parse(this.paramsQuery.filter || '{}');
+    objFilterQuery[name] = value;
+    this.paramsQuery.filter = JSON.stringify(objFilterQuery);
   }
 
   handleToggleAction(event: any, name?: string) {
@@ -437,7 +459,7 @@ export class FilterAdvanceComponent
         this.getAction();
       } else if (filter.name === 'resultIds') {
         this.getResult();
-      } else if (filter.name === 'teamRoles') {
+      } else if (filter.name === 'teamRoles' || filter.name === 'unassignedRoleIds') {
         this.getRole();
       }
     }
@@ -451,4 +473,5 @@ export class FilterAdvanceComponent
       filter.loading = false;
     }, 100);
   }
+  
 }

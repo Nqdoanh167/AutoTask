@@ -563,6 +563,12 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.delete<EntityResult<IView>>(
         this.createUrl([this.api.settingView, id]),
       ),
+
+    updatePos: (id: string, pos: number) =>
+      this.httpClient.put<EntityResult<IView>>(
+        this.createUrl([this.api.settingView, id,  'pos']),
+        { pos },
+      ),
   };
 
   setting = {

@@ -4,7 +4,7 @@
       Chia tác vụ đã chọn ({{ selectedTaskCount }} tác vụ)
     </ng-container>
 
-    <ng-container modalBody>
+    <ng-container modalBody >
       @defer (when !loading.modal) {
         <div class="row mb-3">
           <div class="col-12">
@@ -159,24 +159,82 @@
 
             <!-- User List with Toggle -->
             @if (selectedTaskIds.length > 0) {
-              <div class="mb-3">
-                <div class="form-check form-switch">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id="selectAllUsers"
-                    [(ngModel)]="selectAll"
-                    (ngModelChange)="toggleSelectAll()"
-                  />
-                  <label class="form-check-label" for="selectAllUsers">
-                    Chọn toàn bộ ({{ userSelections?.length }} thành viên)
-                  </label>
-                </div>
+              <div class="mb-3 d-flex align-items-center gap-2">
+                <ng-select
+                  [items]="selectTypeList"
+                  [(ngModel)]="selectType"
+                  [clearable]="false"
+                  [bindLabel]="'label'"
+                  [bindValue]="'id'"
+                  style="width: 250px"
+                  (change)="handleChangeType($event)"
+                >
+                  <ng-template ng-label-tmp let-item="item">
+                    {{ item.label }}
+                  </ng-template>
+                </ng-select>
+
+                <ng-container *ngIf="selectType === 'search'">
+                  <ng-select
+                    [items]="bizUsers | filterData: selectedUserIds : ['id']"
+                    bindLabel="name"
+                    bindValue="id"
+                    [clearable]="true"
+                    [closeOnSelect]="false"
+                    [placeholder]="'Chọn nhân viên'"
+                    [notFoundText]="'Không có nhân viên'"
+                    #ngSelect
+                    (change)="
+                      handleChooseUser($event); ngSelect?.handleClearClick()
+                    "
+                    style="width: 250px"
+                    appendTo="body"
+                  >
+                    <ng-template ng-option-tmp let-item="item">
+                      <div
+                        class="person-info d-flex justify-content-between align-items-center p-1"
+                      >
+                        <div
+                          class="d-flex justify-content-between align-items-center"
+                        >
+                          <img
+                            alt=""
+                            fallback="./assets/images/avatar.svg"
+                            src="{{ item?.picture }}"
+                            class="img-fluid rounded-circle"
+                            style="width: 32px; height: 32px"
+                          />
+                          <div class="d-flex flex-column mx-3">
+                            <span class="account-name fw-500">
+                              {{ item?.name }}
+                            </span>
+                            <span class="text-muted small">
+                              {{ item?.email }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-template>
+                  </ng-select>
+                </ng-container>
+              </div>
+
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="selectAllUsers"
+                  [(ngModel)]="selectAll"
+                  (ngModelChange)="toggleSelectAll()"
+                />
+                <label class="form-check-label" for="selectAllUsers">
+                  Chọn toàn bộ ({{ userSelections?.length }} thành viên)
+                </label>
               </div>
 
               <!-- User Items -->
-              <div>
+              <div style="min-height: 250px;">
                 <ng-container
                   *ngFor="let userSelection of userSelections; let i = index"
                 >
@@ -207,7 +265,9 @@
                         />
                       </div>
                       <div>
-                        <div class="fw-bold">{{ userSelection.user.name }}</div>
+                        <div class="fw-bold">
+                          {{ userSelection.user.name }}
+                        </div>
                         <div class="text-muted small">
                           {{ userSelection.user.email }}
                         </div>

@@ -474,6 +474,11 @@ export class DashboardComponent
     return null;
   }
 
+  getBranch(branch: any): any {
+    if(branch?.name) return branch;
+    return this.bizBranches?.find((b) => b.id === branch.id) || null;
+  }
+
   showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
     if (!action) return;
     try {
