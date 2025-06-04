@@ -50,6 +50,7 @@ export class InputCheckboxComponent implements OnInit, OnChanges {
   valueCurrent: string[] = [];
   isListHide = true;
   timeout: any = null;
+  textSearch = '';
   _filteredItems: any[] = [];
   @HostListener('document:click', ['$event'])
   onClick(ev: MouseEvent): void { };

@@ -25,8 +25,11 @@
   <!-- && showSelectTag -->
   <div class="show-select" [style]="styleListItem" *ngIf="!isListHide">
     <div class="input-search" *ngIf="enableSearch">
-      <input style="padding-left: 12px;" type="text" #inputSearch class="form-control h-sm"
+      <input style="padding-left: 12px;" type="text" #inputSearch [(ngModel)]="textSearch" class="form-control h-sm"
         (keyup)="onChangeInputSearch($event)" placeholder="Tìm kiếm" />
+    </div>
+    <div class="text-center text-secondary fs-7 py-2" *ngIf="!_filteredItems.length">
+      Không tìm thấy
     </div>
     <ng-template #recursiveList let-list let-isChild="isChild" let-parent="parent">
       <div class="frame-list">

@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InputCheckboxComponent } from './input-checkbox.component';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -10,6 +11,7 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     TooltipModule.forRoot()
   ],
   exports: [

@@ -75,6 +75,8 @@ export class DashboardComponent
     listUsers: [],
   };
   setting!: ISetting;
+
+  
   constructor(
     private readonly modalService: BsModalService,
     private readonly route: ActivatedRoute,
@@ -479,29 +481,12 @@ export class DashboardComponent
         class: 'modal-dialog-centered',
         initialState: {
           action: action?.value,
+          taskIds: this.getRowIds(),
         },
       });
 
-      modalRef.content?.assignTeams.subscribe((data) => {
-        if (data) {
-          const payload = {
-            taskIds: this.getRowIds(),
-            teams: data.teams,
-          };
-          this.autoTaskService.task.bulkUpdate(payload).subscribe({
-            next: (res) => {
-              if (res.status === 200) {
-                this.toastrService.success(
-                  'Gán nhân viên phụ trách thành công',
-                );
-                this.getDataSource();
-              } else {
-                this.commonService.handleResErr(res);
-              }
-            },
-            error: (err: any) => this.commonService.handleErr(err),
-          });
-        }
+      modalRef.content?.assignTeams.subscribe(() => {
+        this.getDataSource()
       });
       this.selectBatchActions?.handleClearClick();
     } catch (e) {

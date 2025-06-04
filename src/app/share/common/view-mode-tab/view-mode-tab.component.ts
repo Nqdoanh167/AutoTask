@@ -36,6 +36,7 @@ import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
 import {CustomModalComponent} from '../../custom/custom-modal/custom-modal.component';
 import {BaseComponentsComponent} from '../base-components/base-components.component';
 import {CustomInputSearchComponent} from '../../custom/custom-input-search/custom-input-search.component';
+import { SortableModule } from 'ngx-bootstrap/sortable';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -54,6 +55,7 @@ import {CustomInputSearchComponent} from '../../custom/custom-input-search/custo
     FilterDataModule,
     CustomModalComponent,
     CustomInputSearchComponent,
+    SortableModule
   ],
   templateUrl: './view-mode-tab.component.html',
   styleUrls: ['./view-mode-tab.component.scss'],
@@ -84,7 +86,7 @@ export class ViewModeTabComponent
 
   public modeTypes = [
     {label: 'Cá nhân', value: 'personal'},
-    {label: 'Chi nhánh', value: 'position'},
+    {label: 'Chi nhánh', value: 'position', role: 'OWNER'},
     {label: 'Vai trò', value: 'role', role: 'OWNER'},
     {label: 'Tất cả', value: 'all', role: 'OWNER'},
   ];
@@ -681,5 +683,9 @@ export class ViewModeTabComponent
     if (teamIds.size) parts.push(`${teamIds.size}ĐN`);
 
     return parts.join(' ');
+  }
+
+  handleSortTabs(event: any) {
+    console.log('handleSortTabs', event);
   }
 }
