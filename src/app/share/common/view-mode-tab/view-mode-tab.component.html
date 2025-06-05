@@ -97,7 +97,7 @@
                   Sao chép chế độ xem
                 </div>
               </li>
-              <li role="menuitem" *ngIf="tabz.isEditView">
+              <li role="menuitem" *ngIf="tabs.length > 1">
                 <div
                   (click)="handleDeleteViewMode(tabz, $event, index)"
                   class="dropdown-item d-flex align-items-center gap-2 text-danger"
@@ -241,7 +241,7 @@
                           Sao chép chế độ xem
                         </div>
                       </li>
-                      <li role="menuitem" *ngIf="tabz.ownerId === currentUser?.id">
+                      <li role="menuitem" *ngIf="tabs.length > 1">
                         <div
                           (click)="handleDeleteViewMode(tabz, $event, index)"
                           class="dropdown-item d-flex align-items-center gap-2 text-danger"

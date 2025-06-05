@@ -342,7 +342,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                     ? Number(nextAction.delayValue)
                     : null,
                   addNewChain: {
-                    chainId: nextAction.addNewChainId,
+                    chainId: nextAction.addNewChain?.chainId,
                     chainActResultId: nextAction.addNewChainActId,
                   },
                 };

@@ -221,6 +221,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   }
 
   handleChangeNextActionInNewChain(chainAct: IChainActResult) {
+    console.log('handleChangeNextActionInNewChain', chainAct);
     const selectedChain = this.actionChains.find(
       (actionChain) => actionChain.id === chainAct.chainActId,
     );

@@ -1,7 +1,12 @@
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {distinctUntilChanged, filter, takeUntil} from 'rxjs';
-import {ETypeBulkUpdate, ETypeButton, ETypeFilter} from '@app/types/common';
+import {
+  EBotherAdvanceBasicFilter,
+  ETypeBulkUpdate,
+  ETypeButton,
+  ETypeFilter,
+} from '@app/types/common';
 import {
   Biz,
   BizRole,
@@ -76,7 +81,6 @@ export class DashboardComponent
   };
   setting!: ISetting;
 
-  
   constructor(
     private readonly modalService: BsModalService,
     private readonly route: ActivatedRoute,
@@ -475,7 +479,7 @@ export class DashboardComponent
   }
 
   getBranch(branch: any): any {
-    if(branch?.name) return branch;
+    if (branch?.name) return branch;
     return this.bizBranches?.find((b) => b.id === branch.id) || null;
   }
 
@@ -491,7 +495,7 @@ export class DashboardComponent
       });
 
       modalRef.content?.assignTeams.subscribe(() => {
-        this.getDataSource()
+        this.getDataSource();
       });
       this.selectBatchActions?.handleClearClick();
     } catch (e) {
@@ -582,6 +586,23 @@ export class DashboardComponent
         });
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  onPopoverFilter(data: {value?: string | string[]; name: string}) {
+    if (data.value) {
+      this.item.paramsQuery.sort = data.value;
+    } else {
+      delete this.item.paramsQuery.sort;
+    }
+    const configFilterPopover = this.configFilters.find(
+      (filter) => filter.name === 'sort',
+    );
+    if (configFilterPopover) {
+      configFilterPopover.value = data.value;
+    }
+    if (data.value !== this.currentActiveViewMode?.options?.sort) {
+      this.handleViewModeChange(true);
     }
   }
 
@@ -721,6 +742,53 @@ export class DashboardComponent
     if (name === 'orderableTable') {
       this.showModalOrderableTable();
     }
+    if (name === 'isHideExecute') {
+      const configButton = this.configButtons.find(
+        (cf) => cf.name === 'isHideExecute',
+      );
+      const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
+      obj['isHideExecute'] = !configButton?.isActive;
+      this.item.paramsQuery.filter = JSON.stringify(obj);
+      configButton!.isActive = !configButton?.isActive;
+      if (!isEqual(obj, this.currentActiveViewMode?.options)) {
+        this.handleViewModeChange(true);
+        return;
+      }
+    }
+  }
+
+  handleFilterAdvance(filter: any) {
+    const objFilterQuery = {
+      ...JSON.parse(this.item.paramsQuery.filter || '{}'),
+      ...filter,
+    }
+    const configFilterAdvance = this.configFilters.filter(
+      (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
+    );
+
+    // Xóa những field có trong configFilterAdvance mà không có trong filter
+    configFilterAdvance.forEach((item) => {
+      if (!Object.keys(filter).includes(item.name!)) {
+        delete objFilterQuery[item.name!];
+      }
+    });
+
+    this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
+
+    this.handleViewModeChange(true);
+  }
+
+  handleViewModeChange(hasChanged: boolean) {
+    const changedTab = {
+      ...this.currentActiveViewMode,
+      hasChanged: hasChanged,
+      options: {
+        ...JSON.parse(this.item.paramsQuery.filter || '{}'),
+        sort: this.item.paramsQuery.sort,
+        q: this.item.paramsQuery.q,
+      },
+    };
+    this.autoTaskService.setCurrentActiveViewMode(changedTab);
   }
 
   override pageChanged(dataPage: {page: number; limit: number}): void {

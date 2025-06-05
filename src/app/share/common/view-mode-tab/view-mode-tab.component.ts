@@ -39,7 +39,7 @@ import {
   DragDropModule,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { SortByPipe } from '@app/share/pipe/sort-by.pipe';
+import {SortByPipe} from '@app/share/pipe/sort-by.pipe';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -111,7 +111,7 @@ export class ViewModeTabComponent
       this.autoTaskService.changedDashboardViewModes
         .pipe(takeUntil(this.destroy$))
         .subscribe((res) => {
-          this.tabs = res
+          this.tabs = res;
           setTimeout(() => {
             this.checkHideButtonNext();
           }, 100);
@@ -253,15 +253,26 @@ export class ViewModeTabComponent
   }
 
   handleUpdateTab(tab: IViewModeDto) {
-    tab.isRename = false;
-    const oldViewModes = this.autoTaskService.getDashboardViewModes();
-    const index = oldViewModes.findIndex((item) => item.id === tab.id);
-    if (index !== -1) {
-      oldViewModes[index] = tab;
-    }
-    this.autoTaskService.setDashboardViewModes(oldViewModes);
-    this.autoTaskService.setCurrentActiveViewMode(tab);
-    this.handleSetTab().then();
+    if (!tab) return;
+    this.autoTaskService.settingView
+      .update({
+        screen: this.key!,
+        ...tab,
+        name: tab.name!,
+      })
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            tab.isRename = false;
+            this.toastr.success('Cập nhật tab thành công');
+          } else {
+            this.toastr.error('Cập nhật tab thất bại');
+          }
+        },
+        error: (err) => {
+          this.toastr.error('Cập nhật tab thất bại');
+        },
+      });
   }
 
   handleKeyDown(event: any, tab: IViewModeDto) {
@@ -549,7 +560,7 @@ export class ViewModeTabComponent
   }
 
   trackByMethod(index: number, item: any): any {
-    return index
+    return index;
   }
 
   handleSettingsViewMode(tab: IViewModeDto): void {
@@ -701,7 +712,7 @@ export class ViewModeTabComponent
     // Di chuyển item trong mảng filteredTabs
     moveItemInArray(this.filteredTabs, previousIndex, currentIndex);
 
-    if(previousIndex === currentIndex) return
+    if (previousIndex === currentIndex) return;
 
     const movedTab = this.filteredTabs[currentIndex];
     if (!movedTab.id || !movedTab.pos === undefined) return;
@@ -723,15 +734,14 @@ export class ViewModeTabComponent
 
     this.autoTaskService.settingView
       .updatePos(movedTab.id, newPos)
-      .pipe(
-        takeUntil(this.destroy$),
-      )
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.autoTaskService.setChangedDashboardViewModes([...this.filteredTabs]);
+            this.autoTaskService.setChangedDashboardViewModes([
+              ...this.filteredTabs,
+            ]);
             this.toastr.success('Cập nhật vị trí tab thành công');
-
           } else {
             this.commonService.handleResErr(res);
           }

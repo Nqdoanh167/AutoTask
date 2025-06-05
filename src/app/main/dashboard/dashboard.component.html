@@ -48,7 +48,7 @@
           <app-view-mode-tab [isActiveChangeTab]="!item.loading" [key]="EScreens.DASHBOARD"
             [quantity]="item.total"></app-view-mode-tab>
           <app-filter-advance (clickButtonEvent)="handleAction($event)"
-            (searchEvent)="onSearch($event)"></app-filter-advance>
+            (searchEvent)="onSearch($event)" (filterAdvanceEvent)="handleFilterAdvance($event)" (popoverEvent)="onPopoverFilter($event)"></app-filter-advance>
         </div>
 
         <cdk-virtual-scroll-viewport #virtualScroll [itemSize]="82" [minBufferPx]="82 * 9" [maxBufferPx]="82 * 18"
@@ -477,7 +477,7 @@
                     <ng-container *ngSwitchCase="'updatedBy'">
                       <td>
                         <div class="d-flex justify-content-start align-items-center">
-                          <img *ngIf="item.updatedBy?.picture" width="25" height="25" class="rounded-pill cover-fill"
+                          <img *ngIf="item.updatedBy?.picture" width="30" height="30" class="rounded-pill cover-fill"
                             [src]="item.updatedBy?.picture" alt="" />
                           <!-- <div class="ms-2 text-secondary name">
                                 {{ item.updatedBy?.name }}
@@ -488,7 +488,7 @@
                     <ng-container *ngSwitchCase="'createdBy'">
                       <td>
                         <div class="d-flex justify-content-start align-items-center">
-                          <img *ngIf="item.createdBy?.picture" width="25" height="25" class="rounded-pill cover-fill"
+                          <img *ngIf="item.createdBy?.picture" width="30" height="30" class="rounded-pill cover-fill"
                             [src]="item.createdBy?.picture" alt="" />
                           <!-- <div class="ms-2 text-secondary name">
                                 {{ item.createdBy?.name }}
