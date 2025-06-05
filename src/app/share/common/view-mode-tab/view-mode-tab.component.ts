@@ -100,7 +100,6 @@ export class ViewModeTabComponent
     private readonly commonService: CommonService,
     private readonly modalService: BsModalService,
     public modalRef: BsModalRef,
-    private readonly cdr: ChangeDetectorRef,
   ) {
     super();
     this.roles = this.currentUser?.roles || [];
@@ -112,11 +111,7 @@ export class ViewModeTabComponent
       this.autoTaskService.changedDashboardViewModes
         .pipe(takeUntil(this.destroy$))
         .subscribe((res) => {
-          // Sắp xếp tabs theo pos trước khi gán
           this.tabs = res
-          console.log('this.tabs', this.tabs);
-          this.cdr.detectChanges();
-          this.cdr.markForCheck();
           setTimeout(() => {
             this.checkHideButtonNext();
           }, 100);
@@ -554,7 +549,7 @@ export class ViewModeTabComponent
   }
 
   trackByMethod(index: number, item: any): any {
-    return item.id
+    return index
   }
 
   handleSettingsViewMode(tab: IViewModeDto): void {
@@ -730,17 +725,13 @@ export class ViewModeTabComponent
       .updatePos(movedTab.id, newPos)
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => {
-          this.autoTaskService.setChangedDashboardViewModes([...this.filteredTabs]);
-          this.autoTaskService.setDashboardViewModes([...this.filteredTabs]);
-          
-          this.cdr.detectChanges();
-        }),
       )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
+            this.autoTaskService.setChangedDashboardViewModes([...this.filteredTabs]);
             this.toastr.success('Cập nhật vị trí tab thành công');
+
           } else {
             this.commonService.handleResErr(res);
           }
