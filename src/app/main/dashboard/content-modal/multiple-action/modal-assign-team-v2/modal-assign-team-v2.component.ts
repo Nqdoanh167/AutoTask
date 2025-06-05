@@ -606,6 +606,18 @@ export class ModalAssignTeamV2Component
     this.selectedUserIds = this.userSelections.map((item) => item.user.id);
   }
 
+  handleRemoveUser(user: Partial<User>) {
+    if (user) {
+      const index = this.userSelections.findIndex(
+        (item) => item.user.id === user.id,
+      );
+      if (index !== -1) {
+        this.userSelections.splice(index, 1);
+      }
+    }
+    this.selectedUserIds = this.userSelections.map((item) => item.user.id);
+  }
+
   handleChangeType(type: any){
     if(type?.id === 'search'){
       this.userSelections = [];
