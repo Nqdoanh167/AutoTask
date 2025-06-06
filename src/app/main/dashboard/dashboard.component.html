@@ -107,7 +107,7 @@
                     <ng-select #selectBatchActions appearance="outline" [clearable]="false"
                       placeholder="Thao tác hàng loạt" style="width: 250px" [items]="multipleAction"
                       (change)="showModalMultipleAction($event)" appendTo="body"
-                      class="ng-select ng-select-single"></ng-select>
+                      class="ng-select ng-select-single" *ngIf="hasPerAssignTasks()"></ng-select>
                     <button class="btn button-outline" (click)="handleRefreshRow()">
                       Bỏ chọn tất cả
                     </button>
@@ -559,8 +559,8 @@
         </cdk-virtual-scroll-viewport>
         <div class="d-flex align-items-end">
           <!-- Icon List -->
-          <div class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2" style="width: 40%">
-            <button class="btn button-outline" [tooltip]="'Chia tác vụ'" (click)="showModalAssignTeamV2()">
+          <div class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2" style="width: 40%" >
+            <button class="btn button-outline" [tooltip]="'Chia tác vụ'" (click)="showModalAssignTeamV2()" *ngIf="hasPerSplitTasks()">
               <img src="./assets/images/icon/split.svg" alt="split-tasks" />
             </button>
           </div>

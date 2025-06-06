@@ -532,11 +532,22 @@ export class ViewModeTabComponent
 
   async handleSave(tab: IViewModeDto, isConfirm: boolean) {
     if (isConfirm) {
-      //find and update tab into dashboardViewModes
+      // Lưu những filter mới vào options của tab
       const tabs = this.autoTaskService.getDashboardViewModes();
       const index = tabs.findIndex((item) => item.id === tab.id);
       if (index !== -1) {
-        tabs[index] = tab;
+        // Merge options cũ với options mới từ tab hiện tại
+        const originalOptions = tabs[index].options || {};
+        const currentOptions = tab.options || {};
+
+        // Lưu options đã được merge
+        tabs[index] = {
+          ...tab,
+          options: {
+            ...originalOptions,
+            ...currentOptions,
+          },
+        };
       }
       this.autoTaskService.setDashboardViewModes(this.tabs);
       const res = await this.handleSetTab();
@@ -544,12 +555,26 @@ export class ViewModeTabComponent
         tab.hasChanged = false;
       }
     } else {
-      // update tab by data find from dashboardViewModes
+      // Chỉ xóa những filter mới thêm, giữ nguyên những filter cũ
       try {
         const tabs = this.autoTaskService.getDashboardViewModes();
         const index = tabs.findIndex((item) => item.id === tab.id);
         if (index !== -1) {
-          tab = this.tabs[index] = cloneDeep(tabs[index]);
+          const originalTab = cloneDeep(tabs[index]);
+          const originalOptions = originalTab.options || {};
+          const currentOptions = tab.options || {};
+
+          // Tạo options mới chỉ chứa những filter cũ (có trong originalOptions)
+          const filteredOptions: any = {};
+          Object.keys(originalOptions).forEach((key) => {
+            filteredOptions[key] = originalOptions[key];
+          });
+
+          // Cập nhật tab với options đã được lọc
+          tab = this.tabs[index] = {
+            ...originalTab,
+            options: filteredOptions,
+          };
         }
         tab.hasChanged = false;
         this.autoTaskService.setCurrentActiveViewMode(tabs[index]);
