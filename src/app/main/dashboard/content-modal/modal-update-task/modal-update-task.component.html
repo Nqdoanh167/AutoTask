@@ -98,7 +98,7 @@
                       }"
                       placeholder="Chọn Đơn vị..."
                       (onNodeSelect)="handleChangeUnit($event)"
-                      (onNodeUnselect)="handleChangeUnit($event)"
+                      (onNodeUnselect)="preventUnselect($event)"
                     ></p-treeSelect>
                   </div>
                   <!-- <ng-select

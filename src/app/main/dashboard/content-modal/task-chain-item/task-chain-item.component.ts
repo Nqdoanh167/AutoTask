@@ -46,7 +46,8 @@ import {ModalFeedbackComponent} from '../modal-feedback/modal-feedback.component
 import {AuthService} from '@app/services/api/auth.service';
 import {ModalCreateOrderComponent} from '../modal-create-order/modal-create-order.component';
 import {environment} from 'src/environments/environment';
-import { ModalCreateBookingComponent } from '../modal-create-booking/modal-create-booking.component';
+import {ModalCreateBookingComponent} from '../modal-create-booking/modal-create-booking.component';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-task-chain-item',
@@ -108,6 +109,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     private readonly commonService: CommonService,
     private readonly cdr: ChangeDetectorRef,
     private modalService: BsModalService,
+    private readonly toarst: ToastrService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -236,21 +238,23 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     taskChainResult: ITaskChainResult,
   ) {
-    this.formTaskChainResults().at(taskChainResultIndex).patchValue({
-      result: {
-        id: null,
-        name: null,
-      },
-      reason: {
-        id: null,
-        name: null,
-      }
-    });
+    this.formTaskChainResults()
+      .at(taskChainResultIndex)
+      .patchValue({
+        result: {
+          id: null,
+          name: null,
+        },
+        reason: {
+          id: null,
+          name: null,
+        },
+      });
 
     (<FormArray>(
       this.formTaskChainResults().at(taskChainResultIndex).get('nextActions')
     )).clear();
- 
+
     this.cancelUpdateTaskChainEvent.emit(taskChainResultIndex);
   }
 
@@ -259,6 +263,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResult: ITaskChainResult,
   ) {
     if (!taskChainResult.id) return;
+    this.submitted = true;
+
     const {
       note,
       resultIndex,
@@ -268,6 +274,10 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       action,
       reasonEditedDate,
     } = this.formTaskChainResults().at(taskChainResultIndex).value;
+
+     if ( resultIndex === null || resultIndex === undefined) {
+      return;
+    }
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
         const modify = {

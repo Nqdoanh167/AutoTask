@@ -172,18 +172,16 @@ export class ModalUpdateTaskComponent
       .subscribe({
         next: (res) => {
           if (res.status === 200 && res.data) {
-            const unitId = res.data?.branch?.team || res.data?.branch?.department || res.data?.branch?.id;
-            if (
-              !this.authService.hasPerRole(
-                unitId,
-                EPerActTask.UPDATE_TASK,
-              )
-            ) {
+            const unitId =
+              res.data?.branch?.team ||
+              res.data?.branch?.department ||
+              res.data?.branch?.id;
+            if (!this.authService.hasPerRole(unitId, EPerActTask.UPDATE_TASK)) {
               this.toastr.warning(
                 'Bạn không có quyền cập nhật task ở chi nhánh này <3',
               );
-              this.hideModal()
-              return
+              this.hideModal();
+              return;
             }
 
             this.sourceData = res.data;
@@ -314,7 +312,9 @@ export class ModalUpdateTaskComponent
     const branchForm = this.f['branch'].value;
     const sourceForm = this.f['sourceForm'].value;
 
-    if (!this.authService.hasPerRole(branchForm?.data, EPerActTask.CREATE_TASK)) {
+    if (
+      !this.authService.hasPerRole(branchForm?.data, EPerActTask.CREATE_TASK)
+    ) {
       this.toastr.warning('Bạn không có quyền tạo tác vụ cho chi nhánh này <3');
       return;
     }
@@ -428,6 +428,15 @@ export class ModalUpdateTaskComponent
   }
 
   handleDeleteTask() {
+    const unitId =
+      this.sourceData?.branch?.team ||
+      this.sourceData?.branch?.department ||
+      this.sourceData?.branch?.id;
+    if (!this.authService.hasPerRole(unitId!, EPerActTask.DELETE_TASK)) {
+      this.toastr.warning('Bạn không có quyền xóa task này <3');
+      return;
+    }
+
     const title = 'Xóa Tác vụ';
     const description = `Bạn sắp xóa Tác vụ <b>${
       this.sourceData?.name || ''
@@ -905,6 +914,17 @@ export class ModalUpdateTaskComponent
         userId: null,
       });
     });
+  }
+
+  preventUnselect(value: TreeNodeUnSelectEvent) {
+    const currentBranchValue = this.updateForm.get('branch')?.value;
+    if (currentBranchValue) {
+      setTimeout(() => {
+        this.updateForm.patchValue({
+          branch: currentBranchValue,
+        });
+      }, 0);
+    }
   }
 
   handleChangeChatLink() {
