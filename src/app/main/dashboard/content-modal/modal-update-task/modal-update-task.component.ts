@@ -1052,4 +1052,11 @@ export class ModalUpdateTaskComponent
       }
     }
   }
+
+  handleUpdateTaskChainData(taskChain: ITaskChain, chainIndex: number) {
+    if (this.sourceData && taskChain) {
+      this.sourceData.taskChains[chainIndex] = taskChain;
+      this.updatedTask.emit(this.sourceData);
+    }
+  }
 }

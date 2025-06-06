@@ -899,7 +899,10 @@ export class DashboardComponent
     modalRef.onHide?.pipe(takeUntil(this.destroy$));
   }
 
-  handleGetData(data: any) {
-    console.log({data});
+  hasPerSplitTasks(){
+    return this.authService.checkUserPer(EPerActType.TASK, [EPerActTask.SPLIT_TEAM_TASK]);
+  }
+  hasPerAssignTasks(){
+    return this.authService.checkUserPer(EPerActType.TASK, [EPerActTask.REMOVE_TEAM_TASK]);
   }
 }

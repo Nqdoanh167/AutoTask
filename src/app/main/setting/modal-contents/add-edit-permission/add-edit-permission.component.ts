@@ -140,6 +140,18 @@ export class AddEditPermissionComponent
                 '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
               dependsOnPer: EPerActTask.UPDATE_TASK,
             },
+            {
+              key: EPerActTask.SPLIT_TEAM_TASK,
+              name: 'Chia tác vụ cho nhân viên',
+              tooltip:
+                'Chia tác vụ cho nhân viên.' 
+            },
+            {
+              key: EPerActTask.REMOVE_TEAM_TASK,
+              name: 'Bỏ gán tác vụ khỏi nhân viên',
+              tooltip:
+                'Bỏ gán tác vụ khỏi nhân viên'
+            },
           ],
         },
       ],
