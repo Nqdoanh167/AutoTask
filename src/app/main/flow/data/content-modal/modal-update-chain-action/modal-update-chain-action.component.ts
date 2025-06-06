@@ -170,9 +170,12 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
         (acc: any, action: any) => {
           if (action.value) {
             const subActions = action.subActions || [];
-            acc[action.value] = subActions
-              .filter((subAction: any) => subAction.value)
-              .map((subAction: any) => subAction.value);
+            acc[action.value] = [
+              action.value,
+              ...subActions
+                .filter((subAction: any) => subAction.value)
+                .map((subAction: any) => subAction.value),
+            ];
           }
           return acc;
         },

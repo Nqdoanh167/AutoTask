@@ -364,7 +364,7 @@ export class DetailTaskData extends DashboardData {
                 : null,
             note: taskChainResult.note,
             result: this.fb.group({
-              id: taskChainResult?.result?.id,
+              id: [taskChainResult?.result?.id, [Validators.required]],
               name: taskChainResult?.result?.name,
             }),
             reason: this.fb.group({
