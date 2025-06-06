@@ -348,22 +348,6 @@ export class DashboardData extends CheckboxSortTableComponent<
     }
   }
 
-  handleViewModeChange(hasChanged: boolean) {
-    console.log('handleViewModeChange', hasChanged);
-    // change hasChanged of currentActiveViewMode to true and update currentActiveViewMode to dashboardViewModes by emit new value
-    const changedTab = {
-      ...this.currentActiveViewMode,
-      hasChanged: hasChanged,
-      options: {
-        ...JSON.parse(this.item.paramsQuery.filter || '{}'),
-        sort: this.item.paramsQuery.sort,
-        q: this.item.paramsQuery.q,
-      },
-    };
-    console.log('changedTab', changedTab);
-    this.autoTaskService.setCurrentActiveViewMode(changedTab);
-  }
-
   getAutoTaskSettingCache() {
     return this.autoTaskService.currentSetting.subscribe({
       next: (res) => {

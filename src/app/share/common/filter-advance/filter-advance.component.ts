@@ -19,11 +19,9 @@ import { PopoverModule } from 'ngx-bootstrap/popover';
 import { IDateRange } from '@app/types/viewmodels';
 import { takeUntil } from 'rxjs';
 import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
-import { specialQueryTaskKeys } from '@main/dashboard/dashboard-variables';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { DashboardCheckPermission } from '@app/main/dashboard/dashboard-check-permission';
 import { isEqual } from 'lodash';
-import { ModifiedUserUnit } from '@app/types/flow';
 import moment from 'moment';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
@@ -56,6 +54,8 @@ export class FilterAdvanceComponent
     value: boolean;
     name?: string;
   }>();
+  @Output() popoverEvent = new EventEmitter<{value: string; name: string}>();
+  @Output() filterAdvanceEvent = new EventEmitter<any>()
   @Output() scrollToEndEvent = new EventEmitter<any>();
   @Output() searchEvent = new EventEmitter<{ term: string; name: string }>();
 
@@ -69,17 +69,6 @@ export class FilterAdvanceComponent
   onSearchingAdvance: string[] = [];
 
   public cdtList: { key: string; label: string; value: string | string[] }[] = [];
-
-  public units = this.autoTaskService.getUserUnits(false);
-  public selectedUnits: ModifiedUserUnit[] = [];
-
-  public listDifferentQueryKeys = [
-    {
-      name: 'unassignedRoleIds',
-      label: 'Chưa gán vai trò',
-      value: []
-    }
-  ]
 
   protected readonly ETypeFilter = ETypeFilter;
   protected readonly ETypeButton = ETypeButton;
@@ -155,7 +144,6 @@ export class FilterAdvanceComponent
         if (
           !isEqual(obj?.[name], this.currentActiveViewMode?.options?.[name])
         ) {
-          // this.handleViewModeChange(true);
           return;
         }
       }
@@ -187,10 +175,6 @@ export class FilterAdvanceComponent
         }
       }
       this.paramsQuery.filter = JSON.stringify(obj);
-      // if (!isEqual(obj, this.currentActiveViewMode?.options)) {
-      //   // this.handleViewModeChange(true);
-      //   return;
-      // }
     } else {
       if (value) {
         this.paramsQuery.sort = value;
@@ -198,26 +182,12 @@ export class FilterAdvanceComponent
         delete this.paramsQuery.sort;
       }
       if (value !== this.currentActiveViewMode?.options?.sort) {
-        // this.handleViewModeChange(true);
       }
     }
   }
 
   onPopoverValue(value: any, name: string = 'popover') {
-    if (value) {
-      this.paramsQuery.sort = value;
-    } else {
-      delete this.paramsQuery.sort;
-    }
-    const configFilterPopover = this.configFilters.find(
-      (filter) => filter.name === 'sort',
-    );
-    if (configFilterPopover) {
-      configFilterPopover.value = value;
-    }
-    if (value !== this.currentActiveViewMode?.options?.sort) {
-      this.handleViewModeChange(true);
-    }
+    this.popoverEvent.emit({value, name});
   }
 
   onPickerDateAdvance(value: IDateRange | Date, cdt: any) {
@@ -237,35 +207,7 @@ export class FilterAdvanceComponent
   }
 
   onClick(name: string) {
-    if (name === 'isHideExecute') {
-      const configButton = this.configButtons.find(
-        (cf) => cf.name === 'isHideExecute',
-      );
-      const obj = JSON.parse(this.paramsQuery.filter || '{}');
-      obj['isHideExecute'] = !configButton?.isActive;
-      this.paramsQuery.filter = JSON.stringify(obj);
-      configButton!.isActive = !configButton?.isActive;
-      if (!isEqual(obj, this.currentActiveViewMode?.options)) {
-        this.handleViewModeChange(true);
-        return;
-      }
-    } else {
-      this.clickButtonEvent.emit(name);
-    }
-  }
-
-  onChangeDifferentQueryKey(
-    event: {
-      name: string,
-      value: any;
-      label: string;
-    },
-  ) {
-    console.log('onChangeDifferentQueryKey', event);
-    const { name, value } = event;
-    const objFilterQuery = JSON.parse(this.paramsQuery.filter || '{}');
-    objFilterQuery[name] = value;
-    this.paramsQuery.filter = JSON.stringify(objFilterQuery);
+    this.clickButtonEvent.emit(name);
   }
 
   handleToggleAction(event: any, name?: string) {
@@ -284,12 +226,14 @@ export class FilterAdvanceComponent
     });
 
     this.paramsQuery.filter = JSON.stringify(objFilterQuery);
-    this.handleViewModeChange(true);
+    this.filterAdvanceEvent.emit(JSON.parse(this.paramsQuery.filter || '{}'));
     this.popFilter.hide();
   }
 
   reset() {
-    this.handleOpenPopover();
+    // this.handleOpenPopover();
+    this.paramsQuery.filter = '{}';
+    this.cdtList = [];
   }
 
   addFilterCondition() {
@@ -316,24 +260,10 @@ export class FilterAdvanceComponent
     return filter ? filter.placeholder : key;
   }
 
-  handleChangeUnits(event: any) {
-    const ids: string[] = [];
-    this.selectedUnits.forEach((unit) => {
-      ids.push(unit?.team || unit?.department || unit?.id || '');
-    });
-    const objFilterQuery = JSON.parse(this.paramsQuery.filter || '{}');
-    if (ids.length > 0) {
-      objFilterQuery['branchIds'] = ids;
-    } else {
-      delete objFilterQuery['branchIds'];
-    }
-    this.paramsQuery.filter = JSON.stringify(objFilterQuery);
-  }
 
   handleActiveViewMode() {
     try {
       this.paramsQuery.filter = '{}';
-      this.selectedUnits = [];
       const objFilterQuery = JSON.parse(this.paramsQuery.filter || '{}');
 
       Object.keys(this.currentActiveViewMode?.options || {}).forEach((key) => {
@@ -342,14 +272,6 @@ export class FilterAdvanceComponent
         }
       });
 
-      if (this.currentActiveViewMode?.options?.branchIds) {
-        objFilterQuery.branchIds =
-          this.currentActiveViewMode?.options.branchIds;
-        this.selectedUnits = this.autoTaskService.findUnitsByIds(
-          this.currentActiveViewMode?.options.branchIds || [],
-        );
-      }
-      // loop configFilters and update by value of object options in currentActiveViewMode
       this.configFilters.forEach((configFilter) => {
         if (
           configFilter.type === ETypeFilter.SELECT ||
@@ -398,56 +320,6 @@ export class FilterAdvanceComponent
     } catch (e) {
       console.log(e);
     }
-  }
-
-  override handleViewModeChange(hasChanged: boolean) {
-    const changedTab = {
-      ...this.currentActiveViewMode,
-      hasChanged: hasChanged,
-      options: {
-        ...JSON.parse(this.paramsQuery.filter || '{}'),
-        sort: this.paramsQuery.sort,
-        q: this.paramsQuery.q,
-      },
-    };
-    this.autoTaskService.setCurrentActiveViewMode(changedTab);
-  }
-
-  getSelectedSummary(nodes: any[]): string {
-    const teamIds = new Set();
-    const pbKeys = new Set();
-    const cnKeys = new Set();
-
-    nodes.forEach((n) => {
-      if (n.team) {
-        teamIds.add(n.team); // Đội nhóm: ưu tiên cao nhất
-      } else if (n.department) {
-        // Nếu chưa chọn TEAM của PB này thì mới đếm PB
-        const hasTeam = nodes.some(
-          (x) => x.team && x.department === n.department,
-        );
-        if (!hasTeam) {
-          pbKeys.add(`${n.id}-${n.department}`); // Dựa theo id CN + id PB
-        }
-      } else {
-        // Nếu chưa chọn PB hoặc TEAM thuộc CN này thì mới đếm CN
-        const hasLowerLevel = nodes.some(
-          (x) =>
-            (x.department && x.id === n.id) || // có PB trong CN này
-            (x.team && x.id === n.id), // có TEAM trong CN này
-        );
-        if (!hasLowerLevel) {
-          cnKeys.add(n.id);
-        }
-      }
-    });
-
-    const parts = [];
-    if (cnKeys.size) parts.push(`${cnKeys.size}CN`);
-    if (pbKeys.size) parts.push(`${pbKeys.size}PB`);
-    if (teamIds.size) parts.push(`${teamIds.size}ĐN`);
-
-    return parts.join(' ');
   }
 
   loadData(filter: IFilterTopTable) {

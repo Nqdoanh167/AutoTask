@@ -65,38 +65,6 @@
             </button>
           </div>
         </div>
-        <!-- <div class="row align-items-center my-2">
-          <ng-container>
-            <div class="fw-500 col-4">Chi nhánh</div>
-            <div class="col-8 p-0 row">
-              <div class="col-11">
-                <p-treeSelect
-                  [filter]="true"
-                  [options]="units"
-                  [(ngModel)]="selectedUnits"
-                  (onNodeSelect)="handleChangeUnits($event)"
-                  (onNodeUnselect)="handleChangeUnits($event)"
-                  [metaKeySelection]="false"
-                  selectionMode="checkbox"
-                  class="w-100"
-                  containerStyleClass="w-100 input-medium custom-tree-select fw-normal"
-                  placeholder="Chọn Chi nhánh..."
-                >
-                  <ng-template pTemplate="value" let-selectedNodes>
-                    <ng-container *ngIf="selectedNodes?.length">
-                      {{ getSelectedSummary(selectedNodes) }}
-                    </ng-container>
-                    <ng-container *ngIf="!selectedNodes?.length">
-                      Chọn Chi nhánh...
-                    </ng-container>
-                  </ng-template>
-                </p-treeSelect>
-              </div>
-
-              <div class="col-1"></div>
-            </div>
-          </ng-container>
-        </div> -->
         @for (cdt of cdtList; track $index) {
         <div class="row align-items-center my-2">
           <div class="fw-500 col-4">
