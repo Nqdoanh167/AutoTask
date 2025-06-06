@@ -197,6 +197,7 @@ export interface IUpdateChainActDto {
   isActive: boolean;
   actionIds: string[];
   fistActionDelay: IFistActionDelayDto;
+  subActions?: IAction[];
 }
 
 export interface IBodyChainResult {

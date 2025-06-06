@@ -525,7 +525,10 @@
                                   )
                                 "
                                 (updateTaskChainEvent)="
-                                  getDetailTask(); updateSuccess.emit()
+                                  handleUpdateTaskChainData(
+                                    taskChain.value,
+                                    chainIndex
+                                  )
                                 "
                                 (cancelUpdateTaskChainEvent)="
                                   handleCancelUpdateChain(

@@ -226,6 +226,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                         }),
                       };
                     }),
+                    subActions: actResult?.subActions || [],
                   };
                 })
                 .sort((a, b) => a.ordering - b.ordering),
@@ -236,6 +237,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         },
         error: (err) => this.commonService.handleErr(err),
       });
+      
   }
 
   handleAction(name: string) {
@@ -357,13 +359,14 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
           ordering: index + 1,
           chainActId: this.detailChain?.id,
           actionId: actResult.actionId,
+          subActionIds: actResult.subActions?.map(subAction=> subAction.id)
         };
       },
     ) as unknown as IManyUpsertChainActResultDto[];
     const bodyDelay = {
       fistActionDelay: this.fistActionDelay,
       actionIds: bodyUpdateResults.map((actResult) => actResult.actionId),
-      name: this.detailChain?.name
+      name: this.detailChain?.name,
     } as IUpdateChainActDto;
     this.loading.submit = true;
     this.configButtons[this.configButtons.length - 1].loading = true;
