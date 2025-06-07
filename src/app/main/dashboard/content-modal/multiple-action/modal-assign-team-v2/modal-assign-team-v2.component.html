@@ -16,7 +16,7 @@
             </div> -->
 
             <div class="filter__assign-team mb-3 row flex-wrap">
-              <div [ngClass]="modalOpenByTaskSelection ? 'col-10' : 'col-2'">
+              <div [ngClass]="modalOpenByTaskSelection ? 'col-10' : 'col-3'">
                 <label class="form-label d-flex align-items-center">
                   Vai trò
                 </label>
@@ -36,13 +36,13 @@
                   }"
                 >
                   <ng-template ng-label-tmp let-item="item">
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center" [tooltip]="item.name">
                       <i [class]="item.icon" class="me-2"></i>
                       <span>{{ item.name }}</span>
                     </div>
                   </ng-template>
                   <ng-template ng-option-tmp let-item="item">
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center" [tooltip]="item.name">
                       <i [class]="item.icon" class="me-2"></i>
                       <span>{{ item.name }}</span>
                     </div>
@@ -72,14 +72,14 @@
                 </div>
 
                 <!-- Time Selector -->
-                <div class="col-5" style="max-height: 36px">
+                <div class="col-4" style="max-height: 36px">
                   <label class="form-label d-flex align-items-center">
                     Thời gian tạo
                   </label>
                   <custom-date-picker
                     [id]="'timeRange'"
                     [showClearButton]="true"
-                    [style]="{height: '36px'}"
+                    [style]="{height: '36px', minWidth: '200px'}"
                     [className]="'input-small'"
                     [typePicker]="'range'"
                     (changeDateEmmit)="onTimeChange($event)"
