@@ -568,7 +568,8 @@
           <div class="d-flex align-items-center flex-grow-0 flex-shrink-0 justify-content-end" style="width: 60%">
             <custom-pagination [showConfig]="true" [selectedSize]="item.paramsQuery.limit"
               [currentPage]="item.paramsQuery.page" (changePageEvent)="pageChanged($event)" [total]="item.total"
-              [optionSize]="[10, 20, 50, 100, 500, 1000]" />
+              [optionSize]="[10, 20, 50, 100, 500, 1000]" [type]="item.rows.length > 10000 ? 'lazy' : 'number'" (changePageLazyEvent)="handleChangePageLazy($event)" [maxRecords]="10000"
+              />
           </div>
         </div>
       </div>

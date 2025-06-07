@@ -53,6 +53,7 @@ export class StandardTableComponent<T, K extends any>
       sort: '-createdAt',
     },
     total: 0,
+    after: '',
   };
 
   constructor() {

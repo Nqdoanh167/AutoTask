@@ -122,6 +122,7 @@ export class DashboardData extends CheckboxSortTableComponent<
           if (res.status === 200) {
             this.item.rows = res.data;
             this.item.total = res.meta?.total || 0;
+            if(res.meta?.after) this.item.after = res.meta.after;
           } else {
             this.commonService.handleResErr(res);
           }

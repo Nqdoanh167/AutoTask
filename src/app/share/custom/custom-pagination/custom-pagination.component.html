@@ -15,23 +15,24 @@
         [dropdownPosition]="'top'"
       ></ng-select>
     </div>
-    <ng-container *ngIf="type === 'number'">
+    <ng-container>
       <span>trong tổng số {{ total }} bản ghi</span>
     </ng-container>
   </div>
   <div class="mt-2 mt-sm-2 mt-md-0">
     <ng-container
-      *ngIf="type === 'number'; then number; else lazy"
+      *ngIf="!shouldUseLazyMode; then number; else lazy"
     ></ng-container>
   </div>
 </div>
 
 <ng-template #lazy>
   <div class="custom-change-page">
-    <button (click)="changePageLazy('before')" type="button" class="btn mx-2">
+    <button (click)="changePageLazy('before')" type="button" class="btn mx-2" [disabled]="!canGoPrevious" [tooltip]="'Trang ' + (currentPage - 1)">
       <i class="fa-solid fa-arrow-left"></i>
     </button>
-    <button (click)="changePageLazy('after')" type="button" class="btn">
+
+    <button (click)="changePageLazy('after')" type="button" class="btn" [disabled]="!canGoNext" [tooltip]="'Trang ' + (currentPage + 1)">
       <i class="fa-solid fa-arrow-right"></i>
     </button>
   </div>
@@ -39,7 +40,7 @@
 
 <ng-template #number>
   <pagination
-    [totalItems]="total"
+    [totalItems]="Math.min(total, maxRecords)"
     [ngModel]="currentPage"
     (pageChanged)="pageChanged($event, null)"
     [itemsPerPage]="selectedSize"
@@ -48,7 +49,7 @@
     [rotate]="false"
     previousText="&lsaquo;"
     nextText="&rsaquo;"
-    firstText="Trang đầu"
-    lastText="Trang cuối"
+    firstText="<<"
+    lastText=">>"
   ></pagination>
 </ng-template>

@@ -11,6 +11,7 @@ import {
   Biz,
   BizRole,
   ERole,
+  IChangePage,
   IColumns,
   IDateRange,
   ITag,
@@ -535,8 +536,10 @@ export class DashboardComponent
           this.filter.tag =
             this.currentActiveViewMode?.options?.tags?.[0] || null;
 
-          this.checkbox.roleIds = this.currentActiveViewMode?.options?.teamRoles || [];
-          this.checkbox.userIds = this.currentActiveViewMode?.options?.teamId || [];
+          this.checkbox.roleIds =
+            this.currentActiveViewMode?.options?.teamRoles || [];
+          this.checkbox.userIds =
+            this.currentActiveViewMode?.options?.teamId || [];
 
           // loop configFilters and update by value of object options in currentActiveViewMode
           this.configFilters.forEach((configFilter) => {
@@ -763,7 +766,7 @@ export class DashboardComponent
     const objFilterQuery = {
       ...JSON.parse(this.item.paramsQuery.filter || '{}'),
       ...filter,
-    }
+    };
     const configFilterAdvance = this.configFilters.filter(
       (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
     );
@@ -808,6 +811,18 @@ export class DashboardComponent
         limit: Number(limit),
       };
     }
+    this.getDataSource();
+  }
+
+  handleChangePageLazy(direction: IChangePage): void {
+    const currentPage = this.item.paramsQuery.page;
+
+    if (direction === 'after') {
+        this.item.paramsQuery.page = currentPage + 1;
+    } else if (direction === 'before') {
+      this.item.paramsQuery.page = currentPage - 1;
+    }
+    this.item.paramsQuery.after = this.item.after
     this.getDataSource();
   }
 
@@ -901,10 +916,14 @@ export class DashboardComponent
     modalRef.onHide?.pipe(takeUntil(this.destroy$));
   }
 
-  hasPerSplitTasks(){
-    return this.authService.checkUserPer(EPerActType.TASK, [EPerActTask.SPLIT_TEAM_TASK]);
+  hasPerSplitTasks() {
+    return this.authService.checkUserPer(EPerActType.TASK, [
+      EPerActTask.SPLIT_TEAM_TASK,
+    ]);
   }
-  hasPerAssignTasks(){
-    return this.authService.checkUserPer(EPerActType.TASK, [EPerActTask.REMOVE_TEAM_TASK]);
+  hasPerAssignTasks() {
+    return this.authService.checkUserPer(EPerActType.TASK, [
+      EPerActTask.REMOVE_TEAM_TASK,
+    ]);
   }
 }
