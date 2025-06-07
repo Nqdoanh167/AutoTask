@@ -536,24 +536,14 @@ export class ViewModeTabComponent
       const tabs = this.autoTaskService.getDashboardViewModes();
       const index = tabs.findIndex((item) => item.id === tab.id);
       if (index !== -1) {
-        // Merge options cũ với options mới từ tab hiện tại
-        const originalOptions = tabs[index].options || {};
-        const currentOptions = tab.options || {};
-
-        // Lưu options đã được merge
-        tabs[index] = {
-          ...tab,
-          options: {
-            ...originalOptions,
-            ...currentOptions,
-          },
-        };
+        tabs[index] = tab;
       }
       this.autoTaskService.setDashboardViewModes(this.tabs);
       const res = await this.handleSetTab();
       if (res) {
         tab.hasChanged = false;
       }
+
     } else {
       // Chỉ xóa những filter mới thêm, giữ nguyên những filter cũ
       try {

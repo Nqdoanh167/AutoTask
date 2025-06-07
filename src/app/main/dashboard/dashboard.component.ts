@@ -514,7 +514,6 @@ export class DashboardComponent
           takeUntil(this.destroy$),
         )
         .subscribe((currentActiveViewMode) => {
-          console.log('currentActiveViewMode', currentActiveViewMode);
           this.currentActiveViewMode = currentActiveViewMode;
           if (this.currentActiveViewMode?.isChangeTab) {
             this.item.isFirstRequest = true;
@@ -535,6 +534,9 @@ export class DashboardComponent
 
           this.filter.tag =
             this.currentActiveViewMode?.options?.tags?.[0] || null;
+
+          this.checkbox.roleIds = this.currentActiveViewMode?.options?.teamRoles || [];
+          this.checkbox.userIds = this.currentActiveViewMode?.options?.teamId || [];
 
           // loop configFilters and update by value of object options in currentActiveViewMode
           this.configFilters.forEach((configFilter) => {
