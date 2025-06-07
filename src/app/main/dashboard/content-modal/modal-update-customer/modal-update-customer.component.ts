@@ -91,6 +91,7 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
       }
       this.updateForm.patchValue({
         ...(this.dataDetail as any),
+        tagIds: this.dataDetail.tags?.map((tag) => tag.id) || [],
       });
       this.selectedLocation = {
         province: {
@@ -117,7 +118,6 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
-            console.log('tag', res);
             this.tags.rows = res.data;
           } else {
             this.commonService.handleResErr(res);
