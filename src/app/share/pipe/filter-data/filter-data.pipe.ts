@@ -5,17 +5,26 @@ import {Pipe, PipeTransform} from '@angular/core';
 })
 export class FilterDataPipe implements PipeTransform {
   constructor() {}
-  transform(items?: any[], keywords?: any[], properties?: string[]): any[] {
+  transform(items?: any[], keywords?: any[] | (() => any[]), properties?: string[]): any[] {
     if (!items) return [];
-    if (!keywords?.length) return items;
     if (!properties?.length) return items;
+
+    let excludeValues: any[] = [];
+    if (typeof keywords === 'function') {
+      excludeValues = keywords();
+    } else if (Array.isArray(keywords)) {
+      excludeValues = keywords;
+    }
+    
+    if (!excludeValues?.length) return items;
+
     return items.filter((item) => {
       let itemFound: Boolean = false;
       for (let i = 0; i < properties.length; i++) {
         const modifiedValue = this.removeAccents(
           item[properties[i]].toLowerCase(),
         );
-        const modifiedKeywords = keywords?.map((keyword) =>
+        const modifiedKeywords = excludeValues?.map((keyword) =>
           this.removeAccents(keyword.toLowerCase()),
         );
         if (!modifiedKeywords?.includes(modifiedValue)) {

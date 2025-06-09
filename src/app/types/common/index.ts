@@ -3,6 +3,7 @@ export enum ETypeFilter {
   POPOVER = 'popover',
   SELECT = 'select',
   DATE = 'date',
+  ACTION_RESULT='action_result'
 }
 export enum ETypeBulkUpdate {
   REMOVE_TEAM = 'REMOVE_TEAM',
