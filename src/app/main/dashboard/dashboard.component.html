@@ -46,7 +46,7 @@
       <div class="content-site">
         <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap">
           <app-view-mode-tab [isActiveChangeTab]="!item.loading" [key]="EScreens.DASHBOARD"
-            [quantity]="item.total"></app-view-mode-tab>
+            [quantity]="item.total" [checkbox]="checkbox"></app-view-mode-tab>
           <app-filter-advance (clickButtonEvent)="handleAction($event)"
             (searchEvent)="onSearch($event)" (filterAdvanceEvent)="handleFilterAdvance($event)" (popoverEvent)="onPopoverFilter($event)"></app-filter-advance>
         </div>
