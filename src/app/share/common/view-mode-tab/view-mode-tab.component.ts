@@ -74,6 +74,7 @@ export class ViewModeTabComponent
   @Input() key?: EScreens;
   @Input() quantity = 0;
   @Input() isActiveChangeTab: Boolean = true;
+  @Input() checkbox: any
 
   public tabs: IViewModeDto[] = [];
   public filteredTabs: IViewModeDto[] = [];
@@ -552,7 +553,16 @@ export class ViewModeTabComponent
         if (index !== -1) {
           const originalTab = cloneDeep(tabs[index]);
           const originalOptions = originalTab.options || {};
-          const currentOptions = tab.options || {};
+          // Bổ sung thêm branchIds, teamIds, teamRoleIds nếu có
+          if(this.checkbox?.branchIds && this.checkbox?.branchIds.length > 0) {
+            originalOptions.branchIds = this.checkbox.branchIds;
+          }
+          if(this.checkbox?.roleIds && this.checkbox?.roleIds.length > 0) {
+            originalOptions.teamRoles = this.checkbox.roleIds;
+          }
+          if(this.checkbox?.userIds && this.checkbox?.userIds.length > 0) {
+            originalOptions.teamId = this.checkbox.userIds;
+          }
 
           // Tạo options mới chỉ chứa những filter cũ (có trong originalOptions)
           const filteredOptions: any = {};
@@ -567,7 +577,7 @@ export class ViewModeTabComponent
           };
         }
         tab.hasChanged = false;
-        this.autoTaskService.setCurrentActiveViewMode(tabs[index]);
+        this.autoTaskService.setCurrentActiveViewMode(tab);
       } catch (e) {
         console.log(e);
       }
