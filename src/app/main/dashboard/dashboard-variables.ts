@@ -208,7 +208,7 @@ export const TASK_FLOWS_CONFIG_FILTERS = [
   },
   {
     type: ETypeFilter.ACTION_RESULT,
-    name: 'action_result',
+    name: 'actionResult',
     placeholder: 'Hành động & Kết quả',
     clearable: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
