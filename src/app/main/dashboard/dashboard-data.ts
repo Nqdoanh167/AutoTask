@@ -320,7 +320,7 @@ export class DashboardData extends CheckboxSortTableComponent<
 
   getRole() {
     const configFilterResult = this.configFilters.find(
-      (filter) => filter.name === 'teamRoles' || filter.name === 'unassignedRoleIds',
+      (filter) => filter.name === 'teamRoles' || filter.name === 'unassignedRoleId',
     );
     if (configFilterResult) {
       configFilterResult.options = this.currentBiz?.roles || [];

@@ -133,14 +133,14 @@ export const TASK_CONFIG_FILTERS = [
     minWidth: '200px',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  // {
-  //   type: ETypeFilter.DATE,
-  //   name: 'createdAt',
-  //   placeholder: 'Ngày tạo',
-  //   subType: 'range',
-  //   clearable: true,
-  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  // },
+  {
+    type: ETypeFilter.DATE,
+    name: 'createdAt',
+    placeholder: 'Ngày tạo',
+    subType: 'range',
+    clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
   {
     type: ETypeFilter.DATE,
     name: 'updatedAt',
@@ -149,12 +149,7 @@ export const TASK_CONFIG_FILTERS = [
     clearable: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  // {
-  //   type: ETypeFilter.SEARCH,
-  //   name: 'fbAdId',
-  //   placeholder: 'Lọc theo Facebook Ad ID',
-  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  // },
+  
 ];
 
 export const TASK_FLOWS_CONFIG_FILTERS = [
@@ -201,14 +196,45 @@ export const TASK_FLOWS_CONFIG_FILTERS = [
   },
   {
     type: ETypeFilter.SELECT,
-    name: 'unassignedRoleIds',
+    name: 'unassignedRoleId',
     placeholder: 'Tác vụ chưa được gán vai trò',
     options: [],
     bindLabel: 'name',
     bindValue: 'id',
     clearable: false,
-    searchable: true,
-    multiple: true,
+    searchable: false,
+    multiple: false,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.ACTION_RESULT,
+    name: 'action_result',
+    placeholder: 'Hành động & Kết quả',
+    clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SEARCH,
+    name: 'fbAdId',
+    placeholder: 'FB ADs ID',
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SEARCH,
+    name: 'utmSource',
+    placeholder: 'UTM Source',
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SEARCH,
+    name: 'utmCampaign',
+    placeholder: 'UTM Campaign',
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SEARCH,
+    name: 'utmMedium',
+    placeholder: 'UTM Medium',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
 ];
