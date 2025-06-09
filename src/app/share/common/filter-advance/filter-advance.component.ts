@@ -257,8 +257,8 @@ export class FilterAdvanceComponent
       } else delete objFilterQuery[configFilter.name!];
     });
 
-    if(objFilterQuery['action_result'] ) {
-      if(!objFilterQuery['action_result']?.actionId || !objFilterQuery['action_result']?.resultId || !objFilterQuery['action_result']?.type) {
+    if(objFilterQuery['actionResult'] ) {
+      if(!objFilterQuery['actionResult']?.actionId || !objFilterQuery['actionResult']?.resultId || !objFilterQuery['actionResult']?.type) {
         return
       }
     }
