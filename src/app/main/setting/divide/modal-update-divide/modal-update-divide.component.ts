@@ -301,11 +301,12 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
       });
     }
 
-    this.itemModal.show();
+    this.itemModal.show()
+    this.itemModal.config.backdrop = 'static';
 
     setTimeout(() => {
       this.loading.modal = false;
-    }, 500);
+    }, 100);
 
     this.itemModal.onHide.subscribe(() => {
       this.isOpenBackdrop = false;

@@ -226,6 +226,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                         }),
                       };
                     }),
+                    subActions: actResult?.subActions || [],
                   };
                 })
                 .sort((a, b) => a.ordering - b.ordering),
@@ -236,6 +237,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
         },
         error: (err) => this.commonService.handleErr(err),
       });
+      
   }
 
   handleAction(name: string) {
@@ -342,7 +344,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
                     ? Number(nextAction.delayValue)
                     : null,
                   addNewChain: {
-                    chainId: nextAction.addNewChainId,
+                    chainId: nextAction.addNewChain?.chainId,
                     chainActResultId: nextAction.addNewChainActId,
                   },
                 };
@@ -357,11 +359,18 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
           ordering: index + 1,
           chainActId: this.detailChain?.id,
           actionId: actResult.actionId,
+          subActionIds: actResult.subActions?.map(subAction=> subAction.id)
         };
       },
-    ) as unknown as IManyUpsertChainActResultDto;
+    ) as unknown as IManyUpsertChainActResultDto[];
     const bodyDelay = {
       fistActionDelay: this.fistActionDelay,
+      actionIds: bodyUpdateResults.map((actResult) => actResult.actionId),
+      name: this.detailChain?.name,
+      subActionIds: this.detailChain?.actionResults?.map((actResult) => {
+        return actResult.subActions?.map((subAction) => subAction.id) || [];
+      }) || [],
+      
     } as IUpdateChainActDto;
     this.loading.submit = true;
     this.configButtons[this.configButtons.length - 1].loading = true;

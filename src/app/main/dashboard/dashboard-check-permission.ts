@@ -2,7 +2,6 @@ import {DashboardData} from '@main/dashboard/dashboard-data';
 import {
   TASK_FLOWS_CONFIG_FILTERS,
   TASK_SOURCE_SETTING_CONFIG_FILTERS,
-  TASK_TAG_SETTING_CONFIG_FILTERS,
 } from '@main/dashboard/dashboard-variables';
 
 export class DashboardCheckPermission extends DashboardData {
@@ -14,14 +13,15 @@ export class DashboardCheckPermission extends DashboardData {
 
   constructor() {
     super();
+    this.handleCheckPermission();
   }
 
   handleCheckPermission() {
-    this.getActionChain();
-    this.getResult();
-    this.getAction();
-    this.getSource();
-    this.getTag();
+    // this.getActionChain();
+    // this.getResult();
+    // this.getAction();
+    // this.getSource();
+    // this.getTag();
     this.configFilters = [...this.configFilters, ...TASK_FLOWS_CONFIG_FILTERS];
     this.configFilters = [
       ...this.configFilters,
@@ -29,7 +29,6 @@ export class DashboardCheckPermission extends DashboardData {
     ];
     this.configFilters = [
       ...this.configFilters,
-      ...TASK_TAG_SETTING_CONFIG_FILTERS,
     ];
   }
 

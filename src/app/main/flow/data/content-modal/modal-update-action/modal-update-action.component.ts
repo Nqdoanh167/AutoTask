@@ -40,6 +40,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   protected bizAlias?: string;
   protected hasPermitModuleFeedback =
     this.authService.checkPermittedModule('feedback');
+  protected hasPermitModuleBooking = this.authService.checkPermittedModule('booking');
 
   public actionTypes: {value: EActionType; label: string}[] = [];
   public submitted = false;

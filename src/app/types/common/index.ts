@@ -39,6 +39,7 @@ export interface IFilterTopTable {
   subType?: any;
   onSearch?: (event: any) => void;
   value?: string | string[] | any;
+  loading?: boolean;
 }
 
 export type NameButton = 'reload' | 'add_new' | 'save' | string;

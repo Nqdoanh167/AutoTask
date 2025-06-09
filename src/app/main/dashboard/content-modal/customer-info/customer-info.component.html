@@ -211,42 +211,6 @@
           [class]="submitted && f['email'].errors ? 'is-invalid' : ''"
         />
       </div>
-      <div class="col-6">
-        <label class="form-control-label" for="leadDeal.tags">Tag</label>
-        <ng-select
-          id="leadDeal.tags"
-          class="custom-input-tag full-width"
-          placeholder="Chọn tags..."
-          formControlName="tags"
-          [items]="tags.rows"
-          appendTo=".modal"
-          (blur)="selectTag = !selectTag"
-          appearance="outline"
-          [multiple]="true"
-          [closeOnSelect]="false"
-          [compareWith]="compareFunction"
-        >
-          <ng-template ng-option-tmp let-item="item">
-            <div
-              class="tag-item"
-              [ngClass]="{nonBack: !item.bgColor}"
-              [ngStyle]="{background: item.bgColor}"
-            >
-              {{ item.name }}
-            </div>
-          </ng-template>
-          <ng-template ng-label-tmp let-item="item" let-clear="clear">
-            <span class="ng-value-icon" (click)="clear(item)">×</span>
-            <div
-              class="tag-item"
-              [ngClass]="{nonBack: !item.bgColor}"
-              [ngStyle]="{background: item.bgColor}"
-            >
-              {{ item.name }}
-            </div>
-          </ng-template>
-        </ng-select>
-      </div>
     </div>
     <div class="mt-2">
       <label class="form-control-label" for="leadDeal.address">Địa chỉ</label>

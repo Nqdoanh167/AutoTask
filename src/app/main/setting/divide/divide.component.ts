@@ -109,6 +109,7 @@ export class DivideComponent implements OnInit, OnDestroy {
         sourceData: value,
       },
       class: 'modal-lg',
+      backdrop: 'static',
     });
     modalUpdate.content?.updateItem.pipe(takeUntil(this.destroy$)).subscribe({
       next: (item) => {

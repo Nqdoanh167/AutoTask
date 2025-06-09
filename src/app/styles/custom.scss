@@ -776,7 +776,7 @@ ng-select.select-search-icon {
       padding: 0;
     }
     .popover-body {
-      width: 450px;
+      width: 550px;
     }
     .ng-select.ng-select-multiple
       .ng-select-container
@@ -1217,7 +1217,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       }
 
       .tab-name {
-        max-width: 150px;
+        max-width: 250px;
         @include limit-text-row(1);
       }
 

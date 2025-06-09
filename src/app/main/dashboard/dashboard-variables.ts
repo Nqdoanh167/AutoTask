@@ -5,6 +5,7 @@ import {
   ETypeFilter,
 } from '@app/types/common';
 import {EActionStates, EEditedDateState} from '@app/types/flow';
+import { BsCustomDates } from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 
 export enum ESpecialQueryTaskKey {
   BRANCH_IDS = 'branchIds',
@@ -13,10 +14,10 @@ export enum ESpecialQueryTaskKey {
 export const specialQueryTaskKeys = Object.values(ESpecialQueryTaskKey);
 
 export const TASK_MULTIPLE_ACTIONS = [
-  {
-    label: 'Gán nhân viên phụ trách',
-    value: ETypeBulkUpdate.ASSIGN_TEAM,
-  },
+  // {
+  //   label: 'Gán nhân viên phụ trách',
+  //   value: ETypeBulkUpdate.ASSIGN_TEAM,
+  // },
   {
     label: 'Bỏ nhân viên phụ trách',
     value: ETypeBulkUpdate.REMOVE_TEAM,
@@ -88,29 +89,29 @@ export const TASK_CONFIG_FILTERS = [
     minWidth: '200px',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  {
-    type: ETypeFilter.SELECT,
-    name: 'teamRoles',
-    placeholder: 'Vai trò',
-    options: [],
-    bindLabel: 'name',
-    bindValue: 'id',
-    clearable: true,
-    searchable: true,
-    multiple: true,
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  },
-  {
-    type: ETypeFilter.SELECT,
-    name: 'teamId',
-    placeholder: 'Nhân sự phụ trách',
-    options: [],
-    bindLabel: 'name',
-    bindValue: 'id',
-    clearable: true,
-    searchable: true,
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  },
+  // {
+  //   type: ETypeFilter.SELECT,
+  //   name: 'teamRoles',
+  //   placeholder: 'Vai trò',
+  //   options: [],
+  //   bindLabel: 'name',
+  //   bindValue: 'id',
+  //   clearable: true,
+  //   searchable: true,
+  //   multiple: true,
+  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  // },
+  // {
+  //   type: ETypeFilter.SELECT,
+  //   name: 'teamId',
+  //   placeholder: 'Nhân sự phụ trách',
+  //   options: [],
+  //   bindLabel: 'name',
+  //   bindValue: 'id',
+  //   clearable: false,
+  //   searchable: true,
+  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  // },
   {
     type: ETypeFilter.SELECT,
     name: 'editDateState',
@@ -127,19 +128,19 @@ export const TASK_CONFIG_FILTERS = [
     ],
     bindLabel: 'label',
     bindValue: 'value',
-    clearable: true,
+    clearable: false,
     multiple: false,
     minWidth: '200px',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  {
-    type: ETypeFilter.DATE,
-    name: 'createdAt',
-    placeholder: 'Ngày tạo',
-    subType: 'range',
-    clearable: true,
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  },
+  // {
+  //   type: ETypeFilter.DATE,
+  //   name: 'createdAt',
+  //   placeholder: 'Ngày tạo',
+  //   subType: 'range',
+  //   clearable: true,
+  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  // },
   {
     type: ETypeFilter.DATE,
     name: 'updatedAt',
@@ -148,12 +149,12 @@ export const TASK_CONFIG_FILTERS = [
     clearable: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  {
-    type: ETypeFilter.SEARCH,
-    name: 'fbAdId',
-    placeholder: 'Lọc theo Facebook Ad ID',
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  },
+  // {
+  //   type: ETypeFilter.SEARCH,
+  //   name: 'fbAdId',
+  //   placeholder: 'Lọc theo Facebook Ad ID',
+  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  // },
 ];
 
 export const TASK_FLOWS_CONFIG_FILTERS = [
@@ -169,7 +170,7 @@ export const TASK_FLOWS_CONFIG_FILTERS = [
     ],
     bindLabel: 'name',
     bindValue: 'id',
-    clearable: true,
+    clearable: false,
     searchable: true,
     multiple: false,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
@@ -181,7 +182,7 @@ export const TASK_FLOWS_CONFIG_FILTERS = [
     options: [],
     bindLabel: 'name',
     bindValue: 'id',
-    clearable: true,
+    clearable: false,
     searchable: true,
     multiple: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
@@ -193,7 +194,19 @@ export const TASK_FLOWS_CONFIG_FILTERS = [
     options: [],
     bindLabel: 'name',
     bindValue: 'id',
-    clearable: true,
+    clearable: false,
+    searchable: true,
+    multiple: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SELECT,
+    name: 'unassignedRoleIds',
+    placeholder: 'Tác vụ chưa được gán vai trò',
+    options: [],
+    bindLabel: 'name',
+    bindValue: 'id',
+    clearable: false,
     searchable: true,
     multiple: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
@@ -208,7 +221,7 @@ export const TASK_SOURCE_SETTING_CONFIG_FILTERS = [
     options: [],
     bindLabel: 'name',
     bindValue: 'id',
-    clearable: true,
+    clearable: false,
     searchable: true,
     multiple: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
@@ -261,3 +274,32 @@ export const TASK_CONFIG_BUTTON = [
     tooltip: 'Thêm mới tác vụ',
   },
 ];
+
+
+export const ranges: BsCustomDates[] = [
+    {
+      label: '30 ngày trước',
+      value: [
+        new Date(new Date().setDate(new Date().getDate() - 30)),
+        new Date(),
+      ],
+    },
+    {
+      label: '15 ngày trước',
+      value: [
+        new Date(new Date().setDate(new Date().getDate() - 15)),
+        new Date(),
+      ],
+    },
+    {
+      label: '7 ngày trước',
+      value: [
+        new Date(new Date().setDate(new Date().getDate() - 7)),
+        new Date(),
+      ],
+    },
+    {
+      label: 'Hôm nay',
+      value: [new Date(), new Date()],
+    },
+  ];

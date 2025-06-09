@@ -1,34 +1,43 @@
+import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {distinctUntilChanged, filter, finalize, takeUntil} from 'rxjs';
-import {ETypeBulkUpdate, ETypeButton, ETypeFilter} from '@app/types/common';
-import {IColumns, IDateRange, Order} from '@app/types/viewmodels';
-import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
-import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
+import {distinctUntilChanged, filter, takeUntil} from 'rxjs';
+import {
+  EBotherAdvanceBasicFilter,
+  ETypeBulkUpdate,
+  ETypeButton,
+  ETypeFilter,
+} from '@app/types/common';
+import {
+  Biz,
+  BizRole,
+  ERole,
+  IChangePage,
+  IColumns,
+  IDateRange,
+  ITag,
+  Order,
+  User,
+} from '@app/types/viewmodels';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
 import {ETaskChainType, ITask, ModifiedUserUnit} from '@app/types/flow';
-import moment from 'moment/moment';
 import {isEqual} from 'lodash';
-import {
-  EPerActTask,
-  EPerActType,
-  EScreens,
-  IViewModeDto,
-} from '@app/types/setting';
+import {EPerActTask, EPerActType, EScreens, ISetting} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
 import {environment} from 'src/environments/environment';
 import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 import {listColumnsDashboardDefault} from '@app/variable';
-import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
 import {
-  ESpecialQueryTaskKey,
+  ranges,
   TASK_MULTIPLE_ACTIONS,
 } from '@main/dashboard/dashboard-variables';
 import {DashboardCheckPermission} from '@main/dashboard/dashboard-check-permission';
 import {NgSelectComponent} from '@ng-select/ng-select';
 import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
+import moment from 'moment';
+import {ETabTaskDetail} from '@app/types/task';
 
 @Component({
   selector: 'app-task',
@@ -40,6 +49,7 @@ export class DashboardComponent
   implements OnInit, OnDestroy
 {
   @ViewChild('selectBatchActions') selectBatchActions?: NgSelectComponent;
+  @ViewChild('virtualScroll') virtualScroll?: CdkVirtualScrollViewport;
 
   private startX: number = 0;
   private startWidth: number = 0;
@@ -48,28 +58,48 @@ export class DashboardComponent
 
   public isOpenBackDrop: boolean = false;
   public multipleAction = TASK_MULTIPLE_ACTIONS;
-  public currentActiveViewMode?: IViewModeDto;
   public dataColumnsShow!: IColumns[];
-  public units = this.autoTaskService.getUserUnits(false);
-  public selectedUnits: ModifiedUserUnit[] = [];
   public selectedTasks: ITask[] = [];
 
   protected readonly EScreens = EScreens;
   protected readonly ETaskChainType = ETaskChainType;
+  protected readonly ranges = ranges;
+
+  filter = {
+    tag: null,
+  };
+
+  checkbox: any = {
+    branchId: null,
+    branchIds: [],
+    receiverAllBranchIds: [], // Danh sách id của tất cả các bộ phận nhận đơn hàng từ SOcket
+    branchDisplayInputText: '',
+    roleIds: [],
+    userIds: [],
+    listBranches: [],
+    listRoles: [],
+    listUsers: [],
+  };
+  setting!: ISetting;
 
   constructor(
     private readonly modalService: BsModalService,
-    private readonly modalConfirmService: ModalConfirmService,
     private readonly route: ActivatedRoute,
     private readonly toastrService: ToastrService,
     private readonly router: Router,
   ) {
     super();
+    this.autoTaskService.currentSetting
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((setting) => {
+        this.setting = setting;
+      });
+
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         if (biz) {
-          this.authService.getColleague();
+          this.currentBiz = biz;
           const configFilterStaff = this.configFilters.find(
             (filter) => filter.name === 'teamId',
           );
@@ -80,6 +110,7 @@ export class DashboardComponent
           }
         }
       });
+
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((q) => {
       if (q['id']) {
         this.handleUpdate(undefined, q['id']);
@@ -102,7 +133,10 @@ export class DashboardComponent
   }
 
   override ngOnInit() {
-    this.handleCheckPermission();
+    console.log('ngOnInit');
+    this.setupCheckbox();
+
+    this.clickLoadData('tags');
     this.handleActiveViewMode();
     const permissions = this.authService.getUserPerByType(EPerActType.TASK);
     this.permission.edit = this.hasPermission(
@@ -122,6 +156,334 @@ export class DashboardComponent
     }
   }
 
+  setupCheckbox() {
+    if (this.currentBiz) {
+      this.checkbox.listRoles =
+        this.currentBiz.user.roles?.filter(
+          (r: BizRole) => this.setting?.roles?.includes(r.id) && r.isActive,
+        ) || [];
+      this.checkbox.listUsers = this.currentBiz.users.filter((u) => u.isActive);
+      this.checkbox.listBranches = this.authService.getBranchPer();
+    }
+  }
+
+  setupCheckboxBranch(isChangeTab: boolean = false) {
+    console.log('setupCheckboxBranch');
+    this.checkbox.branchIds = [];
+
+    this.checkbox.listBranches = this.authService
+      .getBranchPer()
+      .map((branch) => {
+        this.checkbox.branchIds.push(branch.id);
+        if (branch.departments?.length) {
+          branch.children = branch.departments.map((department) => {
+            if (branch.role !== 'OWNER') {
+              this.checkbox.branchIds.push(department.id);
+            }
+            if (department.teams?.length) {
+              if (department.role !== 'OWNER') {
+                this.checkbox.branchIds.push(
+                  ...department.teams.map((t) => t.id),
+                );
+              }
+              department.children = department.teams;
+            }
+            return department;
+          });
+        }
+        return branch;
+      });
+
+    this.checkbox.listRoles =
+      this.currentBiz?.user.roles?.filter(
+        (r: BizRole) => this.setting.roles.includes(r.id) && r.isActive,
+      ) || [];
+    if (!this.currentBiz?.user.branchIds?.length) {
+      this.toastrService.warning(
+        'Bạn chưa ở trong chi nhánh nào. Vui lòng liên hệ chủ Biz để được cấp quyền vào chi nhánh quản lý đơn hàng của mình!',
+      );
+      return;
+    }
+    const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+    console.log('objFilterQuery', objFilterQuery);
+
+    if (objFilterQuery.branchIds && objFilterQuery.branchIds.length) {
+      // Ví dụ có nhiều id chi nhánh thì hàm detectFilterBranchIds sẽ trả về danh sách các chi nhánh, phòng ban, đội nhóm mà user thỏa mãn
+      const detectBranchFilter = this.authService.detectFilterBranchIds(
+        objFilterQuery.branchIds,
+      );
+      // console.log('detectBranchFilter', detectBranchFilter);
+      if (detectBranchFilter.nestedIds?.length)
+        this.checkbox.branchIds = detectBranchFilter.nestedIds.flat();
+    } else if (isChangeTab && this.isViewAllTask()) {
+      this.checkbox.branchIds = [];
+    }
+
+    // console.log('this.checkbox', this.checkbox);
+    this.changeBranch({
+      branchIds: this.checkbox.branchIds,
+      isReload: true,
+      isChangeTab,
+    });
+  }
+
+  changeBranch({
+    branchIds = [],
+    isReload = false,
+    isChangeTab = false,
+  }: {
+    branchIds: string[];
+    isReload?: boolean;
+    isChangeTab?: boolean;
+  }) {
+    this.checkbox.branchIds = branchIds;
+    this.checkbox.receiverAllBranchIds = []; // Chỉ dùng cho trường hợp tạo đơn hàng, toàn bộ ID sẽ tiếp nhận đơn hàng
+    this.checkbox.userIds = [];
+    this.checkbox.roleIds = [];
+    if (isChangeTab) {
+      const filterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+      if (filterQuery.teamRoles?.length)
+        this.checkbox.roleIds =
+          (filterQuery.teamRoles || []).filter(
+            (r: string) => this.currentBiz?.user?.roleIds?.includes(r),
+          ) || [];
+      if (filterQuery.teamId?.length)
+        this.checkbox.userIds = filterQuery.teamId || [];
+    }
+
+    let detectFilter: any = {};
+    if (!this.isViewAllTask()) {
+      // Nếu không chọn chi nhánh nào thì gắn mặc định toàn chi nhánh
+      if (!branchIds?.length) {
+        // branchIds = this.currentBiz?.user.branchIds || [];
+        // this.checkbox.branchIds = branchIds;
+        this.setupCheckboxBranch();
+        return;
+      }
+
+      let userIds = [this.currentUser?.id];
+      let checkboxUserIds = [this.currentUser?.id];
+      let isFullPerBranches = true;
+
+      detectFilter = this.authService.detectFilterBranchIds(branchIds);
+
+      detectFilter.rows.forEach((row: any) => {
+        if (this.authService.isPerBranch(row.id, 'VIEW_TASK_SAME_LEVEL')) {
+          this.currentBiz?.users.filter((u) => {
+            if (u.role === 'OWNER' || u.flatBranchIds?.includes(row.id))
+              checkboxUserIds.push(u.id);
+          });
+        } else {
+          isFullPerBranches = false;
+        }
+      });
+      // Nếu có quyền View_all trên toàn bộ branch => k lọc userId mặc định nữua
+      if (isFullPerBranches) userIds = [];
+      else checkboxUserIds = [this.currentUser?.id];
+      checkboxUserIds = Array.from(new Set(checkboxUserIds));
+      this.checkbox.listUsers = this.currentBiz?.users.filter((u: User) =>
+        checkboxUserIds.includes(u.id),
+      );
+      // Nếu filter có userIds thì lọc lại danh sách user có ko thì cho vào danh sách cho phép truy vấn
+      if (this.checkbox.userIds?.length) {
+        this.checkbox.userIds.forEach((uId: string) => {
+          const hasUser = this.checkbox.listUsers.some(
+            (u: User) => u.id === uId,
+          );
+          if (hasUser) {
+            userIds.push(uId);
+          }
+        });
+      }
+      this.checkbox.userIds = Array.from(new Set(userIds));
+    } else if (branchIds.length) {
+      let userIds: string[] = [];
+      detectFilter = this.authService.detectFilterBranchIds(branchIds);
+      console.log('detectFilter', detectFilter);
+      detectFilter.rows.forEach((row: any) => {
+        this.currentBiz?.users.forEach((u: User) => {
+          if (u.role === 'OWNER' || u.flatBranchIds?.includes(row.id))
+            userIds.push(u.id);
+        });
+      });
+      userIds = Array.from(new Set(userIds));
+      this.checkbox.listUsers = this.currentBiz?.users.filter((u: User) =>
+        userIds.includes(u.id),
+      );
+    }
+
+    // Gán ID mặc định khi tạo đơn sẽ ăn theo branch này
+    if (this.checkbox.branchIds.length) {
+      this.checkbox.branchId = this.checkbox.branchIds[0];
+    }
+    // Detect toàn bộ ID của chi nhánh, phòng ban, đội nhóm sẽ nhận đơn hàng từ SOCKET
+    detectFilter.rows?.forEach((row: any) => {
+      this.checkbox.receiverAllBranchIds.push(row.id);
+      if (row.departments?.length) {
+        row.departments.forEach((department: any) => {
+          this.checkbox.receiverAllBranchIds.push(department.id);
+          if (department.teams?.length) {
+            department.teams.forEach((team: any) => {
+              this.checkbox.receiverAllBranchIds.push(team.id);
+            });
+          }
+        });
+      }
+      if (row.teams?.length) {
+        row.teams.forEach((team: any) => {
+          this.checkbox.receiverAllBranchIds.push(team.id);
+        });
+      }
+    });
+
+    // Cập nhật text hiển thị của checkbox chi nhánh, phòng ban, đội nhóm => X CN, Y PB, Z ĐN
+    this.checkbox.branchDisplayInputText = 'Lựa chọn';
+    const lengthBranch = detectFilter.branchIds?.length;
+    const lengthDepartment = detectFilter.departmentIds?.length;
+    const lengthTeam = detectFilter.teamIds?.length;
+    if (lengthBranch && lengthDepartment && lengthTeam) {
+      this.checkbox.branchDisplayInputText = `${lengthBranch} CN, ${lengthDepartment} PB, ${lengthTeam} ĐN`;
+    } else if (
+      [lengthBranch, lengthDepartment, lengthTeam].filter((t) => t > 0).length >
+      1
+    ) {
+      const strValue = [];
+      if (lengthBranch) strValue.push(`${lengthBranch} CN`);
+      if (lengthDepartment) strValue.push(`${lengthDepartment} PB`);
+      if (lengthTeam) strValue.push(`${lengthTeam} ĐN`);
+      this.checkbox.branchDisplayInputText = strValue.join(', ');
+    } else {
+      this.checkbox.branchDisplayInputText = '';
+      if (lengthBranch)
+        this.checkbox.branchDisplayInputText += `${lengthBranch} chi nhánh`;
+      if (lengthDepartment)
+        this.checkbox.branchDisplayInputText += `${lengthDepartment} phòng ban`;
+      if (lengthTeam)
+        this.checkbox.branchDisplayInputText += `${lengthTeam} đội nhóm`;
+    }
+    // End check text hiể thị
+    // if (isReload) {
+    //   this.getDataSource(true)
+    // } else {
+    // }
+    this.handleChangeCheckbox(isReload);
+  }
+  isViewAllTask() {
+    return (
+      this.currentBiz?.user?.role === ERole.OWNER ||
+      [ERole.OWNER].includes(this.currentViewer?.role!)
+    );
+  }
+  changeRole(roleIds: string[]) {
+    console.log('changẻRole', roleIds);
+    this.checkbox.roleIds = roleIds;
+    let isFullPerBranches = true;
+    let isFullPermission = this.isViewAllTask();
+    if (this.checkbox.branchIds.length) {
+      let checkboxUserIds = [this.currentUser?.id];
+      this.authService
+        .detectFilterBranchIds(this.checkbox.branchIds)
+        .rows.forEach((row) => {
+          if (
+            this.authService.isPerBranch(row.id, 'VIEW_TASK_SAME_LEVEL') ||
+            isFullPermission
+          ) {
+            this.currentBiz?.users.forEach((u: User) => {
+              if (u.role === 'OWNER' || u.flatBranchIds?.includes(row.id))
+                checkboxUserIds.push(u.id);
+            });
+          } else {
+            isFullPerBranches = false;
+          }
+        });
+      checkboxUserIds = Array.from(new Set(checkboxUserIds));
+      this.checkbox.listUsers = this.currentBiz?.users.filter((u: User) =>
+        checkboxUserIds.includes(u.id),
+      );
+    }
+
+    let userIds: string[] = [];
+    if (!isFullPermission) {
+      userIds = [this.currentUser?.id!];
+      if (isFullPerBranches) userIds = [];
+    }
+
+    if (roleIds.length) {
+      this.checkbox.listUsers = this.checkbox.listUsers.filter(
+        (u: User) =>
+          roleIds.some((rId) => u.roleIds?.includes(rId)) ||
+          (isFullPermission && u.role === 'OWNER'),
+      );
+    }
+    this.checkbox.userIds = userIds;
+    this.handleChangeCheckbox();
+  }
+  changeUser(userIds: string[]) {
+    this.checkbox.userIds = userIds;
+
+    if (!this.checkbox.userIds.length && !this.isViewAllTask()) {
+      let isFullPerBranches = true;
+      this.checkbox.branchIds.forEach((branchId: string) => {
+        if (!this.authService.isPerBranch(branchId, 'VIEW_TASK_SAME_LEVEL')) {
+          isFullPerBranches = false;
+        }
+      });
+      if (!isFullPerBranches) {
+        this.checkbox.userIds = [this.currentUser?.id];
+      }
+    }
+    this.handleChangeCheckbox();
+  }
+  handleChangeCheckbox(isReload: boolean = false) {
+    const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+    // console.log('handleChangeCheckbox objFilterQuery', objFilterQuery);
+    delete objFilterQuery.branchIds;
+    delete objFilterQuery.teamRoles;
+    delete objFilterQuery.teamId;
+    if (this.checkbox.branchIds?.length)
+      objFilterQuery.branchIds = this.checkbox.branchIds || [];
+    if (this.checkbox.roleIds?.length)
+      objFilterQuery.teamRoles = this.checkbox.roleIds || [];
+    if (this.checkbox.userIds?.length)
+      objFilterQuery.teamId = this.checkbox.userIds || [];
+
+    if (isReload) {
+      this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
+      this.getDataSource(true);
+      return;
+    }
+
+    if (
+      isEqual(
+        objFilterQuery.branchIds,
+        this.currentActiveViewMode?.options?.branchIds,
+      ) &&
+      isEqual(
+        objFilterQuery.teamRoles,
+        this.currentActiveViewMode?.options?.teamRoles,
+      ) &&
+      isEqual(
+        objFilterQuery.teamId,
+        this.currentActiveViewMode?.options?.teamId,
+      )
+    ) {
+      return;
+    }
+    this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
+
+    this.handleViewModeChange(true);
+  }
+
+  getTagById(id: string) {
+    if (id) return this.tags.rows.find((tag: ITag) => tag.id === id);
+    return null;
+  }
+
+  getBranch(branch: any): any {
+    if (branch?.name) return branch;
+    return this.bizBranches?.find((b) => b.id === branch?.id) || null;
+  }
+
   showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
     if (!action) return;
     try {
@@ -129,29 +491,12 @@ export class DashboardComponent
         class: 'modal-dialog-centered',
         initialState: {
           action: action?.value,
+          taskIds: this.getRowIds(),
         },
       });
 
-      modalRef.content?.assignTeams.subscribe((data) => {
-        if (data) {
-          const payload = {
-            taskIds: this.getRowIds(),
-            teams: data.teams,
-          };
-          this.autoTaskService.task.bulkUpdate(payload).subscribe({
-            next: (res) => {
-              if (res.status === 200) {
-                this.toastrService.success(
-                  'Gán nhân viên phụ trách thành công',
-                );
-                this.getDataSource();
-              } else {
-                this.commonService.handleResErr(res);
-              }
-            },
-            error: (err: any) => this.commonService.handleErr(err),
-          });
-        }
+      modalRef.content?.assignTeams.subscribe(() => {
+        this.getDataSource();
       });
       this.selectBatchActions?.handleClearClick();
     } catch (e) {
@@ -159,8 +504,10 @@ export class DashboardComponent
     }
   }
 
+  // isInit: Khi load
   handleActiveViewMode() {
     try {
+      // Subscribe to currentActiveViewMode to handle changes
       this.autoTaskService.currentActiveViewMode
         .pipe(
           distinctUntilChanged(isEqual),
@@ -168,18 +515,32 @@ export class DashboardComponent
           takeUntil(this.destroy$),
         )
         .subscribe((currentActiveViewMode) => {
-          this.item.paramsQuery.filter = '{}';
-          this.selectedUnits = [];
           this.currentActiveViewMode = currentActiveViewMode;
+          if (this.currentActiveViewMode?.isChangeTab) {
+            this.item.isFirstRequest = true;
+            this.item.paramsQuery.page = 1;
+            this.item.rows = [];
+          }
+          this.item.paramsQuery.filter = '{}';
           const objFilterQuery = JSON.parse(
             this.item.paramsQuery.filter || '{}',
           );
-          if (currentActiveViewMode?.options?.branchIds) {
-            objFilterQuery.branchIds = currentActiveViewMode?.options.branchIds;
-            this.selectedUnits = this.autoTaskService.findUnitsByIds(
-              currentActiveViewMode?.options.branchIds || [],
-            );
-          }
+          Object.keys(this.currentActiveViewMode?.options || {}).forEach(
+            (key) => {
+              if (this.currentActiveViewMode?.options[key]) {
+                objFilterQuery[key] = this.currentActiveViewMode?.options[key];
+              }
+            },
+          );
+
+          this.filter.tag =
+            this.currentActiveViewMode?.options?.tags?.[0] || null;
+
+          this.checkbox.roleIds =
+            this.currentActiveViewMode?.options?.teamRoles || [];
+          this.checkbox.userIds =
+            this.currentActiveViewMode?.options?.teamId || [];
+
           // loop configFilters and update by value of object options in currentActiveViewMode
           this.configFilters.forEach((configFilter) => {
             if (
@@ -189,14 +550,14 @@ export class DashboardComponent
             ) {
               if (configFilter.name === 'sort') {
                 configFilter.value =
-                  currentActiveViewMode?.options[configFilter.name!] ||
+                  this.currentActiveViewMode?.options[configFilter.name!] ||
                   '-createdAt';
                 this.item.paramsQuery.sort =
-                  currentActiveViewMode?.options[configFilter.name!] ||
+                  this.currentActiveViewMode?.options[configFilter.name!] ||
                   ('-createdAt' as string);
               } else {
                 configFilter.value =
-                  currentActiveViewMode?.options[configFilter.name!];
+                  this.currentActiveViewMode?.options[configFilter.name!];
                 objFilterQuery[configFilter.name!] = configFilter.value;
               }
             }
@@ -205,48 +566,49 @@ export class DashboardComponent
           this.configButtons.forEach((configButton) => {
             if (configButton.type === ETypeButton.TOGGLE) {
               configButton.value =
-                currentActiveViewMode?.options[configButton.name!];
+                this.currentActiveViewMode?.options[configButton.name!];
               objFilterQuery[configButton.name!] = configButton.value;
             }
 
             if (configButton.type === ETypeButton.DEFAULT) {
               configButton.isActive =
-                currentActiveViewMode?.options[configButton.name!];
+                this.currentActiveViewMode?.options[configButton.name!];
               objFilterQuery[configButton.name!] = configButton.isActive;
             }
           });
 
           // update dataSource.paramsQuery.filter by objFilterQuery
           this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
-          this.getDataSource(true);
+          if (
+            this.item.isFirstRequest ||
+            this.currentActiveViewMode?.isChangeTab
+          ) {
+            this.setupCheckboxBranch(this.currentActiveViewMode?.isChangeTab);
+          } else {
+            this.getDataSource(true);
+          }
+          this.item.isFirstRequest = false;
         });
     } catch (e) {
       console.log(e);
     }
   }
 
-  onApply(e: any) {
-    this.handleViewModeChange(true);
-  }
-
-  onReset(e: any) {
-    this.item.paramsQuery.filter = '{}';
-    this.getDataSource(true);
-    this.handleViewModeChange(true);
-  }
-
-  handleViewModeChange(hasChanged: boolean) {
-    // change hasChanged of currentActiveViewMode to true and update currentActiveViewMode to dashboardViewModes by emit new value
-    const changedTab = {
-      ...this.currentActiveViewMode,
-      hasChanged: hasChanged,
-      options: {
-        ...JSON.parse(this.item.paramsQuery.filter || '{}'),
-        sort: this.item.paramsQuery.sort,
-      },
-    };
-    console.log('changedTab', changedTab);
-    this.autoTaskService.setCurrentActiveViewMode(changedTab);
+  onPopoverFilter(data: {value?: string | string[]; name: string}) {
+    if (data.value) {
+      this.item.paramsQuery.sort = data.value;
+    } else {
+      delete this.item.paramsQuery.sort;
+    }
+    const configFilterPopover = this.configFilters.find(
+      (filter) => filter.name === 'sort',
+    );
+    if (configFilterPopover) {
+      configFilterPopover.value = data.value;
+    }
+    if (data.value !== this.currentActiveViewMode?.options?.sort) {
+      this.handleViewModeChange(true);
+    }
   }
 
   changeSort(type: string) {
@@ -268,6 +630,45 @@ export class DashboardComponent
       },
       queryParamsHandling: 'merge',
     });
+  }
+
+  handleQueryParam(data: any, name: string) {
+    const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+    if (name === 'tags') {
+      console.log('data', data);
+      if (data) objFilterQuery[name] = [data];
+      else delete objFilterQuery[name];
+    }
+
+    if (name === 'createdAt') {
+      const hValue = data as IDateRange;
+      if (hValue?.fromDate && hValue?.toDate) {
+        objFilterQuery.createdAt = [
+          moment(hValue.fromDate).startOf('day').toISOString(),
+          moment(hValue.toDate).endOf('day').toISOString(),
+        ];
+      } else delete objFilterQuery.createdAt;
+    }
+
+    if (name === 'branchIds' || name === 'teamRoles' || name === 'teamId') {
+      if (data?.length) {
+        objFilterQuery[name] = data;
+      } else delete objFilterQuery[name];
+    }
+    if (
+      isEqual(
+        objFilterQuery?.[name],
+        this.currentActiveViewMode?.options?.[name],
+      )
+    ) {
+      return;
+    }
+
+    this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
+    console.log('this.item.paramsQuery.filter', this.item.paramsQuery.filter);
+
+    this.handleViewModeChange(true);
+    // this.getDataSource(true);
   }
 
   handleUpdate(value?: any, taskId?: string, code?: string) {
@@ -295,6 +696,38 @@ export class DashboardComponent
         .subscribe(() => {
           this.getDataSource();
         });
+
+      modalUpdate?.content?.updatedTask
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((data) => {
+          if (data) {
+            const item = this.item.rows.find((row) => row.id === data.id);
+            if (item) {
+              Object.assign(item, data);
+            }
+          }
+        });
+
+      modalUpdate?.content?.createdTask
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((data) => {
+          if (data) {
+            this.item.rows = [data, ...this.item.rows];
+            this.item.total! += 1;
+            if (this.item.rows.length > this.item.paramsQuery.limit!)
+              this.item.rows.pop();
+          }
+        });
+
+      modalUpdate?.content?.deleteTask
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((id) => {
+          if (id) {
+            this.item.total -= 1;
+            this.item.rows = this.item.rows.filter((i) => i.id !== id);
+          }
+        });
+
       modalUpdate?.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.isOpenBackDrop = false;
         this.handleClearQueryParams();
@@ -303,43 +736,6 @@ export class DashboardComponent
       console.log(e);
     }
   }
-
-  // handleCopy(task: ITask) {
-  //   const modalClone = this.modalService.show(ModalCloneComponent, {
-  //     initialState: {
-  //       task: task,
-  //     },
-  //     ignoreBackdropClick: true,
-  //     keyboard: false,
-  //   });
-  //   modalClone.content?.submitEvent.subscribe((res) => {
-  //     if (res) {
-  //       modalClone.hide();
-  //       this.cloneTask(task.id, res);
-  //     }
-  //   });
-  // }
-
-  // cloneTask(id: string, options: string[]) {
-  //   this.autoTaskService.task
-  //     .clone(id, {
-  //       options: options,
-  //     })
-  //     .pipe(
-  //       takeUntil(this.destroy$),
-  //       finalize(() => (this.item.loading = false)),
-  //     )
-  //     .subscribe({
-  //       next: (res) => {
-  //         if (res.status === 200) {
-  //           this.toastrService.success('Sao chép tác vụ thành công');
-  //           this.getDataSource();
-  //         } else {
-  //           this.commonService.handleResErr(res);
-  //         }
-  //       },
-  //     });
-  // }
 
   override handleAction(name: string) {
     if (name === 'reload') {
@@ -366,18 +762,39 @@ export class DashboardComponent
     }
   }
 
-  // handleToggleAction(data: {name?: string; value: boolean}) {
-  //   const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
-  //   obj[data.name!] = data.value;
-  //   this.item.paramsQuery.filter = JSON.stringify(obj);
-  //   const configButton = this.configButtons.find((cf) => cf.name === data.name);
-  //   configButton!.value = data.value;
+  handleFilterAdvance(filter: any) {
+    const objFilterQuery = {
+      ...JSON.parse(this.item.paramsQuery.filter || '{}'),
+      ...filter,
+    };
+    const configFilterAdvance = this.configFilters.filter(
+      (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
+    );
 
-  //   if (!isEqual(obj, this.currentActiveViewMode?.options)) {
-  //     this.handleViewModeChange(true);
-  //     return;
-  //   }
-  // }
+    // Xóa những field có trong configFilterAdvance mà không có trong filter
+    configFilterAdvance.forEach((item) => {
+      if (!Object.keys(filter).includes(item.name!)) {
+        delete objFilterQuery[item.name!];
+      }
+    });
+
+    this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
+
+    this.handleViewModeChange(true);
+  }
+
+  handleViewModeChange(hasChanged: boolean) {
+    const changedTab = {
+      ...this.currentActiveViewMode,
+      hasChanged: hasChanged,
+      options: {
+        ...JSON.parse(this.item.paramsQuery.filter || '{}'),
+        sort: this.item.paramsQuery.sort,
+        q: this.item.paramsQuery.q,
+      },
+    };
+    this.autoTaskService.setCurrentActiveViewMode(changedTab);
+  }
 
   override pageChanged(dataPage: {page: number; limit: number}): void {
     const {page, limit} = dataPage;
@@ -397,17 +814,43 @@ export class DashboardComponent
     this.getDataSource();
   }
 
+  handleChangePageLazy(direction: IChangePage): void {
+    const currentPage = this.item.paramsQuery.page;
+
+    if (direction === 'after') {
+        this.item.paramsQuery.page = currentPage + 1;
+    } else if (direction === 'before') {
+      this.item.paramsQuery.page = currentPage - 1;
+    }
+    this.item.paramsQuery.after = this.item.after
+    this.getDataSource();
+  }
+
   handleViewCreatedOrder(order: Pick<Order, 'id' | 'code'>) {
-    let url = `${environment.urlDomain}/${this.bizAlias}/sale-center/?code=${order.code}`;
+    let url = `${environment.urlDomain}/${this.currentBiz?.alias}/sale-center/?code=${order.code}`;
     window.open(url, '_blank');
   }
 
   handleViewCustomer(item: ITask) {
-    let url = `${environment.urlDomain}/${this.bizAlias}/customers/${item.leadDeal?.id}`;
+    let url = `${environment.urlDomain}/${this.currentBiz?.alias}/customers/${item.leadDeal?.id}`;
     window.open(url, '_blank');
   }
 
+  handleViewTabOrder(item: ITask) {
+    const currentQueryParams = this.route.snapshot.queryParams;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        ...currentQueryParams,
+        id: item.id,
+      },
+      fragment: ETabTaskDetail.ORDER,
+      replaceUrl: true,
+    });
+  }
+
   startResizing(event: MouseEvent) {
+    console.log('event', event);
     const header = event.currentTarget as HTMLElement;
     this.startX = event.pageX;
     this.startWidth = header.offsetWidth;
@@ -447,175 +890,6 @@ export class DashboardComponent
       });
   }
 
-  // onDelete(value: any) {
-  //   this.autoTaskService.task
-  //     .delete(value.id)
-  //     .pipe()
-  //     .subscribe({
-  //       next: (res) => {
-  //         if (res.status === 200) {
-  //           this.commonService.handleResSuccess('delete');
-  //           this.getDataSource();
-  //         } else {
-  //           this.commonService.handleResErr(res);
-  //         }
-  //       },
-  //       error: (err) => this.commonService.handleErr(err),
-  //     });
-  // }
-
-  // handleDeleteAction(value: any) {
-  //   const title = 'Xóa Tác Vụ';
-  //   const description = `Bạn sắp xóa Tác Vụ <b>${
-  //     value.name || ''
-  //   }</b>, hành động này không thể hoàn tác.`;
-  //   const okText = 'Xóa';
-
-  //   const modalContent: IModalConfirmContent = {
-  //     title,
-  //     description,
-  //     okText,
-  //     type: 'warning',
-  //     modalType: 'advance',
-  //     context: value,
-  //     errorState:
-  //       'Cẩn trọng với thao tác xoá bản ghi. Các module khác đang sử dụng dữ liệu\n' +
-  //       '        của bản ghi cũng sẽ bị ảnh hưởng.',
-  //   };
-
-  //   this.modalConfirmService.openModal(modalContent, undefined, () => {
-  //     this.onDelete(value);
-  //   });
-  // }
-
-  onPopoverFilter(data: {value?: string | string[]; name: string}) {
-    if (data.value) {
-      this.item.paramsQuery.sort = data.value;
-    } else {
-      delete this.item.paramsQuery.sort;
-    }
-    const configFilterPopover = this.configFilters.find(
-      (filter) => filter.name === 'sort',
-    );
-    if (configFilterPopover) {
-      configFilterPopover.value = data.value;
-    }
-    if (data.value !== this.currentActiveViewMode?.options?.sort) {
-      // this.handleViewModeChange(true);
-    }
-
-    this.getDataSource(true);
-  }
-
-  override onSelectFilter(data: {value?: string | string[]; name: string}) {
-    try {
-      const {value, name} = data;
-      if (name !== 'sort') {
-        const filter = this.item.paramsQuery?.filter || '{}';
-        let obj = JSON.parse(filter);
-        if (Array.isArray(value) && value.length > 0) {
-          obj[name] = value;
-        } else if (
-          typeof value === 'string' &&
-          (!!value || Number(value) === 0)
-        ) {
-          obj[name] = value;
-        } else {
-          delete obj[name];
-          if (name === 'chainActIds') {
-            const configFilterAction = this.configFilters.find(
-              (filter) => filter.name === 'actionIds',
-            );
-            if (configFilterAction) {
-              configFilterAction.options = this.actions.rows;
-            }
-          }
-        }
-        this.item.paramsQuery.filter = JSON.stringify(obj);
-        // console.log('filter', this.item.paramsQuery.filter);
-        if (!isEqual(obj, this.currentActiveViewMode?.options)) {
-          // this.handleViewModeChange(true);
-          return;
-        }
-      } else {
-        if (value) {
-          this.item.paramsQuery.sort = value;
-        } else {
-          delete this.item.paramsQuery.sort;
-        }
-        if (value !== this.currentActiveViewMode?.options?.sort) {
-          // this.handleViewModeChange(true);
-        }
-      }
-      this.getDataSource(true);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  onPickerDateFilter(data: {value?: IDateRange | Date; name: string}) {
-    try {
-      const {value, name} = data;
-      const filter = this.item.paramsQuery?.filter || '{}';
-      let obj = JSON.parse(filter);
-      const hValue = value as IDateRange;
-      if (name === name) {
-        if (hValue?.fromDate && hValue?.toDate) {
-          obj[name] = [
-            moment(hValue.fromDate).startOf('day').toISOString(),
-            moment(hValue.toDate).endOf('day').toISOString(),
-          ];
-        } else {
-          delete obj[name];
-        }
-
-        this.item.paramsQuery.filter = JSON.stringify(obj);
-        if (
-          !isEqual(obj?.[name], this.currentActiveViewMode?.options?.[name])
-        ) {
-          // this.handleViewModeChange(true);
-          return;
-        }
-      }
-
-      this.getDataSource(true);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  handleLoadMoreData(key: 'action' | 'result' | 'actionChain' | string) {
-    if (key === 'actionIds') {
-      if (this.actions.isAllowLoadMore) {
-        this.actions.paramsQuery!.page! += 1;
-        this.getAction();
-      }
-    }
-    if (key === 'chainActIds') {
-      if (this.actionChains.isAllowLoadMore) {
-        this.actionChains.paramsQuery!.page! += 1;
-        this.getActionChain();
-      }
-    }
-    if (key === 'resultIds') {
-      if (this.results.isAllowLoadMore) {
-        this.results.paramsQuery!.page! += 1;
-        this.getResult();
-      }
-    }
-  }
-
-  handleChangeUnits(event: any) {
-    const ids: string[] = [];
-    this.selectedUnits.forEach((unit) => {
-      ids.push(unit?.team || unit?.department || unit?.id || '');
-    });
-    this.onSelectFilter({
-      name: ESpecialQueryTaskKey.BRANCH_IDS,
-      value: ids.filter((id) => !!id),
-    });
-  }
-
   showModalAssignTeamV2() {
     // Sort rows by createdAt descending
     const rows = this.getCheckRows().sort(
@@ -636,11 +910,20 @@ export class DashboardComponent
       backdrop: 'static',
     });
 
-    modalRef.content?.assignTeams.subscribe((data) => {
-      if (data) {
-        this.getDataSource();
-      }
+    modalRef.content?.assignTeams.subscribe(() => {
+      this.getDataSource();
     });
     modalRef.onHide?.pipe(takeUntil(this.destroy$));
+  }
+
+  hasPerSplitTasks() {
+    return this.authService.checkUserPer(EPerActType.TASK, [
+      EPerActTask.SPLIT_TEAM_TASK,
+    ]);
+  }
+  hasPerAssignTasks() {
+    return this.authService.checkUserPer(EPerActType.TASK, [
+      EPerActTask.REMOVE_TEAM_TASK,
+    ]);
   }
 }

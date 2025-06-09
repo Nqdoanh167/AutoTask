@@ -7,11 +7,10 @@ import {
   Output,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import {Subject, takeUntil} from 'rxjs';
+import {takeUntil} from 'rxjs';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
-import {Biz, BizRole, IBranch, IDateRange, User} from '@app/types/viewmodels';
-import {AuthService} from '@app/services/api/auth.service';
+import {BizRole, Branch, IDateRange, User} from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {Router} from '@angular/router';
 import {ETypeBulkUpdate} from '@app/types/common';
@@ -21,6 +20,7 @@ import {ToastrService} from 'ngx-toastr';
 import {ProgressbarType} from 'ngx-bootstrap/progressbar';
 import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 import moment from 'moment';
+import {BaseComponentsComponent} from '@app/share/common/base-components/base-components.component';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -61,29 +61,28 @@ interface IUserSelection {
   styleUrls: ['./modal-assign-team-v2.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default,
 })
-export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
+export class ModalAssignTeamV2Component
+  extends BaseComponentsComponent
+  implements OnInit, OnDestroy
+{
   @Input() action!: ETypeBulkUpdate;
   @Input() selectedTaskIds: string[] = []; // Limit 1000
   @Input() selectedTaskCodes: string[] = [];
   @Input() selectedTasks: ITask[] = [];
-  @Output() assignTeams = new EventEmitter<ISubmitPayload>();
-  private destroy$ = new Subject();
+  @Output() assignTeams = new EventEmitter<void>();
   public _cachedSelectedTasks: ITask[] = [];
   public selectedTaskCount: number = 0; // hiển thị
   public ETypeBulkUpdate = ETypeBulkUpdate;
-  public biz!: Biz;
-  public users!: User[];
   protected loading = {
     modal: false,
   };
   public selectAll = false;
-  // public totalDistributed = 0;
   public currentRole: BizRole | null = null;
   public availableRoles: BizRole[] = [];
   public userSelections: IUserSelection[] = [];
+  public selectedUserIds: string[] = []; // Mảng chứa ID của người dùng đã chọn
   public modalOpenByTaskSelection!: boolean; // Check if there are any tasks selected (not empty)
-  public availableBranches!: IBranch[];
-  public currentBranch: IBranch | null = null;
+  public currentBranch: Branch | null = null;
   public branches = this.autoTaskService.getUserUnits(false);
   public selectedBranch: ModifiedUserUnit | null = null;
 
@@ -99,8 +98,8 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
 
   public onDistributeTasksClick() {
     this.distributeTasksToUsers();
-    this.selectAll = true;
-    this.toggleSelectAll();
+    // this.selectAll = true;
+    // this.toggleSelectAll();
     // this.calculateTotalDistributed();
   }
 
@@ -142,19 +141,26 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
     },
   ];
 
+  selectType = 'all'; 
+  public selectTypeList = [
+    {
+      id: 'all',
+      label: 'Lấy toàn bộ nhân viên',
+    },
+    {
+      id: 'search',
+      label: 'Chọn 1 vài nhân viên',
+    },
+  ];
+
   constructor(
     private readonly modalRef: BsModalRef,
-    private readonly authService: AuthService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly router: Router,
     private readonly toastService: ToastrService,
   ) {
-    this.authService.currentBiz.subscribe((biz) => {
-      this.biz = biz;
-      this.availableBranches = [...biz.branches];
-      this.users = biz.users.map((i) => i);
-    });
+    super();
   }
 
   ngOnInit() {
@@ -162,7 +168,7 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
     this._cachedSelectedTasks = [...this.selectedTasks];
     this.selectedTaskCount = this.selectedTasks.length;
     this.modalOpenByTaskSelection = this.selectedTaskIds.length > 0;
-    this.getRole();
+    this.getAutoTaskSettingCache();
     this.initUserSelections();
     setTimeout(() => {
       this.loading.modal = false;
@@ -171,9 +177,8 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
 
   initUserSelections() {
     this.selectAll = true;
-    this.currentSelectedUserCount = this.users.length;
 
-    this.userSelections = this.users.map((user) => ({
+    this.userSelections = this.bizUsers!.map((user) => ({
       user: {
         id: user.id,
         name: user.name,
@@ -183,34 +188,28 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
       selected: true,
       count: 0,
     }));
+
+    this.currentSelectedUserCount = this.userSelections.length;
   }
 
-  getRole() {
-    this.autoTaskService.setting
-      .retrieve({bizId: this.biz.id})
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          if (res && res.status === 200) {
-            const fRoles = this.biz.roles.filter((role) => {
-              return res.data.roles?.includes(role.id);
-            });
-            this.availableRoles = [...fRoles];
-            if (!fRoles.length) {
-              this.toastService.warning('Không có vai trò nào để chia');
-              return;
-            }
-            if (this.modalOpenByTaskSelection) {
-              this.onRoleChange(fRoles[0]);
-            }
-          } else {
-            this.commonService.handleResErr(res);
+  getAutoTaskSettingCache() {
+    return this.autoTaskService.currentSetting.subscribe({
+      next: (res) => {
+        if (res) {
+          const fRoles = this.currentBiz!.roles.filter((role) => {
+            return res.roles?.includes(role.id);
+          });
+          this.availableRoles = [...fRoles];
+          if (!fRoles.length) {
+            this.toastService.warning('Không có vai trò nào để chia');
+            return;
           }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
+          if (this.modalOpenByTaskSelection) {
+            this.onRoleChange(fRoles[0]);
+          }
+        }
+      },
+    });
   }
 
   /*
@@ -291,33 +290,25 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
       lowerTaskUserCount,
     } = coreDistributeTasksToUsers(
       this.actualSplitTaskCount,
-      this.users.length,
+      this.userSelections.filter((item) => item.selected).length,
     );
 
     if (hasUnevenDistribution) {
-      this.userSelections = this.users.map((user, idx) => {
-        return {
-          user: {
-            id: user.id,
-            name: user.name,
-            picture: user.picture,
-            email: user.email,
-          },
-          selected: true,
-          count: idx < higherTaskUserCount ? higherTaskCount : lowerTaskCount,
-        };
+      let idx = 0;
+      this.userSelections.forEach((item, index) => {
+        if (item.selected) idx++;
+        item.count = item.selected
+          ? idx <= higherTaskUserCount
+            ? higherTaskCount
+            : lowerTaskCount
+          : 0;
       });
     } else {
-      this.userSelections = this.users.map((user) => ({
-        user: {
-          id: user.id,
-          name: user.name,
-          picture: user.picture,
-          email: user.email,
-        },
-        selected: true,
-        count: higherTaskCount,
-      }));
+      let idx = 0;
+      this.userSelections.forEach((item, index) => {
+        if (item.selected) idx++;
+        item.count = item.selected ? higherTaskCount : 0;
+      });
     }
   }
 
@@ -358,8 +349,8 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
         taskIds: assignTaskIds,
         assignTo: {
           roleId: this.currentRole!.id,
-          roleIcon: this.currentRole!.icon,
-          roleName: this.currentRole!.name,
+          roleIcon: this.currentRole!.icon || '',
+          roleName: this.currentRole!.name || '',
           userId: user.id,
           userName: user.name,
           userPicture: user.picture || '',
@@ -381,7 +372,7 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
       const batchAssignments: ITaskAssignment[] = [];
       let batchTaskCount = 0;
       let i = 0;
-      const maxBatchSize = 50; // Maximum number of tasks per batch
+      const maxBatchSize = 20; // Maximum number of tasks per batch
 
       while (i < allAssignments.length && batchTaskCount < maxBatchSize) {
         const assignment = allAssignments[i];
@@ -412,6 +403,7 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
         setTimeout(() => {
           this.progressStatus = 'success';
           // this.modalRef.hide();
+          this.assignTeams.emit();
         }, 1000);
         return;
       }
@@ -428,7 +420,7 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
         this.progressStatus = 'error';
         this.progressType = 'danger';
         this.toastService.warning('Quá thời gian xử lý yêu cầu');
-      }, 5000);
+      }, 20000);
 
       this.autoTaskService.task
         .bulkAssignTeam(payload)
@@ -475,13 +467,23 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
    * Mảng user được lọc theo vai trò khả dụng hiện tại của biz và của loại vai trò được chọn
    */
   onRoleChange(role: BizRole): void {
+    this.selectType = 'all';
     this.currentRole = role;
     this.roleError = false;
 
     // Filter out users whom lack of current role in their roleIds
-    this.users = this.biz.users.filter((user) =>
+    this.userSelections = this.bizUsers!.filter((user) =>
       user.roleIds!.includes(this.currentRole!.id),
-    );
+    ).map((user) => ({
+      user: {
+        id: user.id,
+        name: user.name,
+        picture: user.picture,
+        email: user.email,
+      },
+      selected: true,
+      count: 0,
+    }));
 
     if (this.modalOpenByTaskSelection) {
       this._filterLackOfRoleInTasks();
@@ -500,7 +502,9 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
   }
 
   toggleSelectAll(): void {
-    this.currentSelectedUserCount = this.selectAll ? this.users.length : 0;
+    this.currentSelectedUserCount = this.selectAll
+      ? this.userSelections.length
+      : 0;
 
     // Update existing objects in place
     this.userSelections.forEach((item) => {
@@ -520,7 +524,7 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
     } else {
       this.currentSelectedUserCount--;
     }
-    if (this.currentSelectedUserCount === this.users.length) {
+    if (this.currentSelectedUserCount === this.userSelections.length) {
       this.selectAll = true;
     } else {
       this.selectAll = false;
@@ -535,6 +539,7 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
   }
 
   onTimeChange(event: Date | IDateRange): void {
+    this.selectType = 'all';
     const hValue = event as IDateRange;
 
     if (hValue?.fromDate && hValue?.toDate) {
@@ -557,6 +562,7 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
   }
 
   handleChangeBranch(event: any) {
+    this.selectType = 'all';
     if (event?.node?.team) {
       this.filter.teamId =
         this.filter.teamId === event.node.data ? undefined : event.node.data;
@@ -584,12 +590,45 @@ export class ModalAssignTeamV2Component implements OnInit, OnDestroy {
     this.getTasksCanSplit();
   }
 
-  hideModal(): void {
-    this.modalRef.hide();
+    handleChooseUser(user: User) {
+    if (user) {
+      const existingUser = this.userSelections.find(
+        (item) => item.user.id === user.id,
+      );
+      if (!existingUser) {
+        this.userSelections.push({
+          user,
+          selected: true,
+          count: 0,
+        });
+      }
+    }
+    this.selectedUserIds = this.userSelections.map((item) => item.user.id);
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
+  handleRemoveUser(user: Partial<User>) {
+    if (user) {
+      const index = this.userSelections.findIndex(
+        (item) => item.user.id === user.id,
+      );
+      if (index !== -1) {
+        this.userSelections.splice(index, 1);
+      }
+    }
+    this.selectedUserIds = this.userSelections.map((item) => item.user.id);
+  }
+
+  handleChangeType(type: any){
+    if(type?.id === 'search'){
+      this.userSelections = [];
+      this.selectedUserIds = [];
+    } else if(type?.id === 'all'){
+      this.initUserSelections();
+      this.selectedUserIds = this.userSelections.map((item) => item.user.id);
+    }
+  }
+
+  hideModal(): void {
+    this.modalRef.hide();
   }
 }

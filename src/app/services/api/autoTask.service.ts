@@ -115,8 +115,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
 
-  private listViewModeSubject = new BehaviorSubject<EntityResult<IView>>(
-    null as unknown as EntityResult<IView>,
+  private listViewModeSubject = new BehaviorSubject<EntityResult<IView[]>>(
+    null as unknown as EntityResult<IView[]>,
   );
 
   private listSourceSubject = new BehaviorSubject<ISource[]>(
@@ -153,8 +153,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     .pipe(distinctUntilChanged());
 
   private currentSettingObject = new BehaviorSubject<ISetting>(
-    null as unknown as ISetting)
-  
+    null as unknown as ISetting,
+  );
+
   public currentSetting = this.currentSettingObject
     .asObservable()
     .pipe(distinctUntilChanged());
@@ -321,6 +322,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
+    retrieveBookingsByTask: (params = {}) =>
+      this.httpClient.get<EntityResult<any[]>>(
+        this.createUrl([this.api.task, 'retrieve-booking-by-task']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     getOne: (id: string) =>
       this.httpClient.get<EntityResult<ITask>>(
         this.createUrl([this.api.task, id]),
@@ -423,6 +431,12 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.taskChainResult, id, 'manual-create-order']),
         body,
       ),
+
+    createBooking: (id: string, body: any) =>
+      this.httpClient.post<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'create-booking']),
+        body,
+      ),
   };
 
   chainActResult = {
@@ -436,7 +450,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.chainActionResult, 'update-many']),
         body,
       ),
-    upsertMany: (body: IManyUpsertChainActResultDto) =>
+    upsertMany: (body: IManyUpsertChainActResultDto[]) =>
       this.httpClient.put<EntityResult<IChainResult>>(
         this.createUrl([this.api.chainActionResult, 'upsert-many']),
         body,
@@ -516,7 +530,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       },
     ) => {
       const getData = this.httpClient
-        .get<EntityResult<IView>>(
+        .get<EntityResult<IView[]>>(
           this.createUrl([this.api.settingView, 'retrieve']),
           {
             params: this.createParams(
@@ -539,6 +553,23 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.put<EntityResult<IView>>(
         this.createUrl([this.api.settingView]),
         body,
+      ),
+
+    create: (body: IViewDto) =>
+      this.httpClient.post<EntityResult<IView>>(
+        this.createUrl([this.api.settingView]),
+        body,
+      ),
+
+    delete: (id: string) =>   
+      this.httpClient.delete<EntityResult<IView>>(
+        this.createUrl([this.api.settingView, id]),
+      ),
+
+    updatePos: (id: string, pos: number) =>
+      this.httpClient.put<EntityResult<IView>>(
+        this.createUrl([this.api.settingView, id,  'pos']),
+        { pos },
       ),
   };
 
@@ -646,7 +677,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     return this.changedDashboardViewModes$.getValue();
   }
 
-  setCurrentActiveViewMode(data: IViewModeDto) {
+  setCurrentActiveViewMode(data: IViewModeDto, isChangeTab: boolean = false) {
+    data.isChangeTab = isChangeTab;
+    data.options = data.options || {};
     this.currentActiveViewMode$.next(data);
     // replace the current active view mode in the list changedDashboardViewModes
     const viewModes = this.changedDashboardViewModes$.getValue();
@@ -661,7 +694,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   findUnitsByIds(ids: string[]) {
     const units = this.getUserUnits();
-    return units.flatMap((branch) => {
+    console.log('units', units);
+    const branchs = units.flatMap((branch) => {
       if (ids.includes(branch.data)) {
         const departments = branch.children || [];
         const teams = departments.flatMap(
@@ -680,6 +714,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         }) || []
       );
     });
+    console.log('branchs', branchs);
+    return branchs;
   }
 
   getFirstUnit() {
@@ -688,6 +724,22 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     const firstDepartment = units?.[0]?.children?.[0];
     const firstTeam = units?.[0]?.children?.[0]?.children?.[0];
     return firstTeam || firstDepartment || firstBranch;
+  }
+
+  // nhận vào mảng ids gồm id của cả chi nhánh , phòng ban và đội nhóm
+  // trả về đơn vị đầu tiên tìm thấy trong mảng ids nếu là chi nhánh thì tìm phòng ban và đội nhóm đầu tiên của chi nhánh đó
+  // nếu là phòng ban thì tìm đội nhóm đầu tiên của phòng ban đó
+  getFirstUnitByIds(ids: string[]) {
+    const units = this.getUserUnits();
+    for (const unit of units) {
+      if (ids.includes(unit.data)) {
+        if (unit.children?.length) {
+          return unit.children[0].children?.[0] || unit.children[0];
+        }
+        return unit;
+      }
+    }
+    return undefined;
   }
 
   findUnitFromData(data: IBranchTaskDto) {
@@ -767,7 +819,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     this.listTagSubject.next(items);
   }
 
-  setListViewMode(item: EntityResult<IView>) {
+  setListViewMode(item: EntityResult<IView[]>) {
     this.listViewModeSubject.next(item);
   }
 

@@ -80,7 +80,7 @@
             <app-custom-tab-set
               [tabs]="tabs"
               [(activeTab)]="activeTab"
-              (activeTabChange)="getDetailTask(true)"
+              (activeTabChange)="handleActiveTabChange($event)"
             >
               <ng-container right>
                 <div
@@ -98,7 +98,7 @@
                       }"
                       placeholder="Chọn Đơn vị..."
                       (onNodeSelect)="handleChangeUnit($event)"
-                      (onNodeUnselect)="handleChangeUnit($event)"
+                      (onNodeUnselect)="preventUnselect($event)"
                     ></p-treeSelect>
                   </div>
                   <!-- <ng-select
@@ -210,6 +210,8 @@
                               [closeOnSelect]="false"
                               bindValue="id"
                               #ngSelectTagTask
+                              [loading]="tags.loading"
+                              (click)="clickLoadData('tags')"
                             >
                               <ng-template ng-option-tmp let-item="item">
                                 <div
@@ -523,7 +525,10 @@
                                   )
                                 "
                                 (updateTaskChainEvent)="
-                                  getDetailTask(); updateSuccess.emit()
+                                  handleUpdateTaskChainData(
+                                    taskChain.value,
+                                    chainIndex
+                                  )
                                 "
                                 (cancelUpdateTaskChainEvent)="
                                   handleCancelUpdateChain(
@@ -654,6 +659,37 @@
                     }
                   </div>
                 }
+                <!-- @case (ETabTaskDetail.BOOKING) {
+                  <div class="mt-3 content-tab custom-scrollbar">
+                    <div class="group-content mt-3">
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <div class="headline">Đơn booking đã tạo</div>
+                        <div class="d-flex gap-2">
+                          @if (
+                            !!sourceData?.id &&
+                            sourceData?.bookingIds &&
+                            sourceData!.bookingIds.length
+                          ) {
+                            <button
+                              (click)="handleViewCreatedBooking()"
+                              class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                              type="button"
+                            >
+                              <i class="fa-solid fa-calendar me-2"></i>
+                              Xem đơn booking đã tạo
+                            </button>
+                          }
+                        </div>
+                      </div>
+                      <app-bookings
+                        [bookings]="bookings.rows"
+                        [loading]="bookings.loading"
+                      ></app-bookings>
+                    </div>
+                  </div>
+                } -->
                 @case (ETabTaskDetail.HISTORY) {
                   <div class="mt-3 content-tab custom-scrollbar">
                     <div class="group-content">
@@ -739,6 +775,8 @@
             class="dropdown-auto-width custom-input-multiple-round"
             id="action-modal"
             appendTo=".modal-add-chain-action"
+            [loading]="actionChains.loading"
+            (click)="clickLoadData('actionChains')"
           >
             @for (option of actionChains.rows; track $index) {
               <ng-option [value]="option.id">

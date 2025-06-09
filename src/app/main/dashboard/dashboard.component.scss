@@ -1,12 +1,18 @@
 @use 'src/app/styles/variable' as vars;
 @use 'src/app/styles/mixins' as mixins;
 
+.header {
+  .input-checkbox {
+    width: 140px;
+  }
+}
 .dashboard-site {
   padding: 16px;
 }
 
 .table-responsive {
   @include mixins.calculateSize('max-height', '100vh', '227px');
+  @include mixins.calculateSize('height', '100vh', '227px');
 }
 
 .avatar {
@@ -117,3 +123,17 @@
   padding-left: 8px;
   padding-right: 8px;
 }
+
+.virtual-scroll-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.table-header {
+  overflow: hidden;
+}
+

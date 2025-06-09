@@ -148,9 +148,6 @@
               formControlName="reassignRoles"
               class="dropdown-auto-width"
               style="width: 500px; height: auto"
-              [ngClass]="{
-                'is-invalid': isFieldInvalid('reassignRoles')
-              }"
               required
             >
               <ng-template ng-label-tmp let-item="item" let-clear="clear">
@@ -175,12 +172,12 @@
                 </div>
               </ng-template>
             </ng-select>
-            <div
+            <!-- <div
               class="invalid-feedback d-block"
               *ngIf="isFieldInvalid('reassignRoles')"
             >
               Chọn ít nhất 1 vai trò
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -269,13 +266,14 @@
                               alt=""
                               fallback="./assets/images/avatar.svg"
                               src="{{ item?.picture }}"
+                              style="width: 32px; height: 32px"
                             />
                             <div class="d-flex flex-column mx-3">
                               <span class="account-name fw-500">
                                 {{ item?.name }}
                               </span>
-                              <span class="account-phone">
-                                {{ item?.phone }}
+                              <span class="text-muted small">
+                                {{ item?.email }}
                               </span>
                             </div>
                           </div>
@@ -290,7 +288,7 @@
                     <span class="form-control-label m-0 flex-grow-1">
                       Nhân viên
                     </span>
-                    <span class="form-control-label m-0" style="width: 213px">
+                    <span class="form-control-label m-0" style="width: 150px">
                       Tỉ lệ chia
                     </span>
                   </div>
@@ -327,17 +325,23 @@
                           </div>
                         </div>
                       </div>
-                      <div style="width: 150px">
+                      <div style="width: 150px" class="d-flex align-items-center">
+                         <button
+                          class="btn btn-link text-danger"
+                          (click)="ratioByEmployeesArray.removeAt(i)"
+                        >
+                          <i class="fas fa-trash"></i>
+                        </button>
+
                         <app-input-mask
                           [isQuantity]="true"
-                          [min]="1"
                           [max]="1000"
-                          [value]="userControl.value?.ratio"
+                          [value]="userControl.value?.ratio || 1"
                           (changeValue)="handleChangeRatio($event, userControl)"
                         ></app-input-mask>
                       </div>
 
-                      <div>
+                      <!-- <div>
                         <button
                           type="button"
                           class="btn btn-outline-danger btn-sm"
@@ -346,7 +350,7 @@
                         >
                           <i class="fas fa-times"></i>
                         </button>
-                      </div>
+                      </div> -->
                     </div>
                   </div>
                 </div>

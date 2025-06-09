@@ -110,6 +110,7 @@ export interface Customer {
   createdAt: Date;
   updatedAt: Date;
   loyalty?: CustomerLoyalty;
+  birthday?: Date;
 }
 
 export interface CustomerLoyalty {

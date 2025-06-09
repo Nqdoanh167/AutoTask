@@ -48,6 +48,7 @@ export class InputMaskComponent
     private cdr: ChangeDetectorRef,
   ) {}
   ngOnChanges(changes: SimpleChanges): void {
+      this.cdr.detectChanges();
     if (changes['isQuantity']) {
       setTimeout(() => {
         this.setupOption(this.biz);

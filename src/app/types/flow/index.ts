@@ -23,6 +23,7 @@ export enum EActionType {
   SEND_BLOCK_AUTOMATION = 'SEND_BLOCK_AUTOMATION',
   FEEDBACK = 'FEEDBACK',
   MANUAL_CREATE_ORDER = 'MANUAL_CREATE_ORDER',
+  BOOKING = 'BOOKING',
   OTHER = 'OTHER',
 }
 
@@ -196,6 +197,7 @@ export interface IUpdateChainActDto {
   isActive: boolean;
   actionIds: string[];
   fistActionDelay: IFistActionDelayDto;
+  subActionIds?: string[][];
 }
 
 export interface IBodyChainResult {
@@ -284,6 +286,12 @@ export interface IOrderManual {
   subActionId: string;
 }
 
+export interface IBooking {
+  id: string;
+  code: string;
+  subActionId: string;
+}
+
 export interface ITaskChainResult {
   id?: string;
   status: ETaskChainResultType;
@@ -309,6 +317,7 @@ export interface ITaskChainResult {
   [key: string]: any;
   orders?: IOrderManual[];
   feedbacks?: IFeedback[];
+  bookings?: IBooking[];
   subActions?: IAction[];
 }
 
@@ -352,9 +361,10 @@ export interface ITask {
   name: string;
   note: string;
   leadDeal?: ILeadDealDto;
-  tags?: ITag[];
+  tags?: string[];
   cart: ITaskCartDto;
   orderIds: string[];
+  bookingIds: string[];
   orders: Pick<Order, 'code' | 'id'>[];
   counselor: AccountPublic;
   taskChainIds: string[];

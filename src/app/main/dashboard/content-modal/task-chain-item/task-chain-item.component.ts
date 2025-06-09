@@ -24,6 +24,7 @@ import {
   ETaskChainResultType,
   ETaskChainType,
   IActResult,
+  IBooking,
   IChainAct,
   IChainResult,
   IFeedback,
@@ -45,6 +46,8 @@ import {ModalFeedbackComponent} from '../modal-feedback/modal-feedback.component
 import {AuthService} from '@app/services/api/auth.service';
 import {ModalCreateOrderComponent} from '../modal-create-order/modal-create-order.component';
 import {environment} from 'src/environments/environment';
+import {ModalCreateBookingComponent} from '../modal-create-booking/modal-create-booking.component';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-task-chain-item',
@@ -106,6 +109,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     private readonly commonService: CommonService,
     private readonly cdr: ChangeDetectorRef,
     private modalService: BsModalService,
+    private readonly toarst: ToastrService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -234,21 +238,23 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     taskChainResult: ITaskChainResult,
   ) {
-    this.formTaskChainResults().at(taskChainResultIndex).patchValue({
-      result: {
-        id: null,
-        name: null,
-      },
-      reason: {
-        id: null,
-        name: null,
-      }
-    });
+    this.formTaskChainResults()
+      .at(taskChainResultIndex)
+      .patchValue({
+        result: {
+          id: null,
+          name: null,
+        },
+        reason: {
+          id: null,
+          name: null,
+        },
+      });
 
     (<FormArray>(
       this.formTaskChainResults().at(taskChainResultIndex).get('nextActions')
     )).clear();
- 
+
     this.cancelUpdateTaskChainEvent.emit(taskChainResultIndex);
   }
 
@@ -257,6 +263,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResult: ITaskChainResult,
   ) {
     if (!taskChainResult.id) return;
+    this.submitted = true;
+
     const {
       note,
       resultIndex,
@@ -266,6 +274,10 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       action,
       reasonEditedDate,
     } = this.formTaskChainResults().at(taskChainResultIndex).value;
+
+     if ( resultIndex === null || resultIndex === undefined) {
+      return;
+    }
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
         const modify = {
@@ -634,6 +646,28 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     });
   }
 
+  handleCreateBooking(taskChainResult: ITaskChainResult, subActionId: string) {
+    if (!taskChainResult.id) return;
+    this.showModal = true;
+    const modal = this.modalService.show(ModalCreateBookingComponent, {
+      class: 'modal-xl modal-dialog-centered',
+      initialState: {
+        taskChainResultId: taskChainResult.id,
+        taskId: this.task?.id,
+        subActionId,
+      },
+    });
+
+    modal.content?.successEvent.pipe(take(1)).subscribe(() => {
+      this.updateTaskChainEvent.emit();
+    });
+
+    modal.onHidden?.pipe(take(1)).subscribe(() => {
+      this.showModal = false;
+      this.cdr.markForCheck();
+    });
+  }
+
   handleViewOrder({id, code}: {id: string; code?: string}) {
     let url = `${environment.urlDomain}/${this.bizAlias}/sale-center/?code=${
       code || id
@@ -643,6 +677,13 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
 
   handleViewFeedback(id: string) {
     let url = `${environment.urlDomain}/${this.bizAlias}/feedback/list?id=${id}`;
+    window.open(url, '_blank');
+  }
+
+  handleViewBooking({id, code}: {id: string; code?: string}) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/booking/?code=${
+      code || id
+    }`;
     window.open(url, '_blank');
   }
 
@@ -657,6 +698,13 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     if (!orders || !subActionId) return null;
     return orders.find(
       (order: IOrderManual) => order.subActionId === subActionId,
+    );
+  }
+
+  getSubActionBooking(bookings: IBooking[], subActionId?: string) {
+    if (!bookings || !subActionId) return null;
+    return bookings.find(
+      (booking: IBooking) => booking.subActionId === subActionId,
     );
   }
 
