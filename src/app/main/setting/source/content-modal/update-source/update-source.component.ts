@@ -408,7 +408,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
 
     this.updateForm
       .get('type')
-      ?.setValue(isChecked ? EDataSourceType.API : null);
+      ?.setValue(isChecked ? EDataSourceType.API : EDataSourceType.MANUAL);
 
     this.handleChangeType();
   }
