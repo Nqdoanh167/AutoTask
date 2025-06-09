@@ -909,11 +909,11 @@ export class ModalUpdateTaskComponent
   handleChangeUnit(value: TreeNodeSelectEvent | TreeNodeUnSelectEvent) {
     const node = value.node as ModifiedUserUnit;
     this.getInfoUnit(node?.team || node?.department || node?.id);
-    this.formTeams.controls?.forEach((form) => {
-      form.patchValue({
-        userId: null,
-      });
-    });
+    // this.formTeams.controls?.forEach((form) => {
+    //   form.patchValue({
+    //     userId: null,
+    //   });
+    // });
   }
 
   preventUnselect(value: TreeNodeUnSelectEvent) {
