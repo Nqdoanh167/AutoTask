@@ -8,6 +8,7 @@ export interface ICommonDataSource<T, K> {
   isFirstRequest?: boolean;
   paramsQuery: K;
   total: number;
+  after?: string | null;
 }
 
 export interface ICommonDataLazy<T, K> {
@@ -1566,6 +1567,7 @@ export interface IMetaData {
   countRows: number;
   currentPage: number;
   limit: number;
+  after?: string
 }
 
 export interface AccountPublic {
