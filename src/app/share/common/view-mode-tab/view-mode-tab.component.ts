@@ -74,7 +74,7 @@ export class ViewModeTabComponent
   @Input() key?: EScreens;
   @Input() quantity = 0;
   @Input() isActiveChangeTab: Boolean = true;
-  @Input() checkbox: any
+  @Input() checkbox: any;
 
   public tabs: IViewModeDto[] = [];
   public filteredTabs: IViewModeDto[] = [];
@@ -121,6 +121,10 @@ export class ViewModeTabComponent
   }
 
   ngOnChanges(changes: SimpleChanges) {}
+
+  getUserById(id: string | undefined): User | undefined {
+    return this.bizUsers?.find((user) => user.id === id);
+  }
 
   handleOpenPopover(event: any) {
     event.stopPropagation();
@@ -544,7 +548,6 @@ export class ViewModeTabComponent
       if (res) {
         tab.hasChanged = false;
       }
-
     } else {
       // Chỉ xóa những filter mới thêm, giữ nguyên những filter cũ
       try {
@@ -554,13 +557,13 @@ export class ViewModeTabComponent
           const originalTab = cloneDeep(tabs[index]);
           const originalOptions = originalTab.options || {};
           // Bổ sung thêm branchIds, teamIds, teamRoleIds nếu có
-          if(this.checkbox?.branchIds && this.checkbox?.branchIds.length > 0) {
+          if (this.checkbox?.branchIds && this.checkbox?.branchIds.length > 0) {
             originalOptions.branchIds = this.checkbox.branchIds;
           }
-          if(this.checkbox?.roleIds && this.checkbox?.roleIds.length > 0) {
+          if (this.checkbox?.roleIds && this.checkbox?.roleIds.length > 0) {
             originalOptions.teamRoles = this.checkbox.roleIds;
           }
-          if(this.checkbox?.userIds && this.checkbox?.userIds.length > 0) {
+          if (this.checkbox?.userIds && this.checkbox?.userIds.length > 0) {
             originalOptions.teamId = this.checkbox.userIds;
           }
 
@@ -589,6 +592,10 @@ export class ViewModeTabComponent
   }
 
   handleSettingsViewMode(tab: IViewModeDto): void {
+    if (!this.authService.isOwner()) {
+      this.toastr.warning('Bạn không có quyền thực hiện chức năng này');
+      return;
+    }
     this.selectedTab = {...tab};
 
     this.selectedUsers = (this.bizUsers || []).filter(
@@ -598,7 +605,6 @@ export class ViewModeTabComponent
     );
 
     this.selectedUserIds = this.selectedUsers.map((item) => item.id);
-
     this.selectedUnits = this.autoTaskService.findUnitsByIds(tab.posIds || []);
 
     this.modalRef = this.modalService.show(this.viewSettingsModal, {
@@ -638,10 +644,23 @@ export class ViewModeTabComponent
     if (this.selectedTab.type === 'personal') {
       this.selectedTab.allowedUserIds = this.selectedUserIds;
     }
+
     if (this.selectedTab.type === 'position') {
       this.selectedTab.posIds = this.selectedUnits.map((unit) => {
         return unit.team || unit.department || unit.id || '';
       });
+
+      if (this.selectedTab.posIds.length === 0) {
+        this.toastr.warning('Vui lòng chọn ít nhất một chi nhánh');
+        return;
+      }
+    }
+
+    if (this.selectedTab.type === 'role') {
+      if (this.selectedTab?.roleIds?.length === 0) {
+        this.toastr.warning('Vui lòng chọn ít nhất một vai trò');
+        return;
+      }
     }
 
     this.autoTaskService.settingView

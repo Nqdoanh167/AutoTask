@@ -21,6 +21,7 @@ import {ProgressbarType} from 'ngx-bootstrap/progressbar';
 import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 import moment from 'moment';
 import {BaseComponentsComponent} from '@app/share/common/base-components/base-components.component';
+import { UserAcl } from '@app/types/setting';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -70,6 +71,7 @@ export class ModalAssignTeamV2Component
   @Input() selectedTaskCodes: string[] = [];
   @Input() selectedTasks: ITask[] = [];
   @Output() assignTeams = new EventEmitter<void>();
+  public users: User[] = [];
   public _cachedSelectedTasks: ITask[] = [];
   public selectedTaskCount: number = 0; // hiển thị
   public ETypeBulkUpdate = ETypeBulkUpdate;
@@ -89,7 +91,6 @@ export class ModalAssignTeamV2Component
   public currentSelectedUserCount!: number; // Count of users selected -> Used for toggle all
 
   public actualSplitTaskCount: number = 0; // Actual Task count used
-  // public actualSplitTaskCount = 0;
 
   public progressStatus: string | 'progressing' | 'success' | 'error' = '';
   public progressValue = 0;
@@ -169,7 +170,7 @@ export class ModalAssignTeamV2Component
     this.selectedTaskCount = this.selectedTasks.length;
     this.modalOpenByTaskSelection = this.selectedTaskIds.length > 0;
     this.getAutoTaskSettingCache();
-    this.initUserSelections();
+    this.getUsers();
     setTimeout(() => {
       this.loading.modal = false;
     }, 500);
@@ -178,7 +179,7 @@ export class ModalAssignTeamV2Component
   initUserSelections() {
     this.selectAll = true;
 
-    this.userSelections = this.bizUsers!.map((user) => ({
+    this.userSelections = this.users!.filter((user) => !!user.isActive).map((user) => ({
       user: {
         id: user.id,
         name: user.name,
@@ -190,6 +191,19 @@ export class ModalAssignTeamV2Component
     }));
 
     this.currentSelectedUserCount = this.userSelections.length;
+  }
+
+  getUsers(){
+    this.autoTaskService.userAcl.get().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        if (res && res.status === 200) {
+          this.users = this.bizUsers?.filter((user)=> res.data.some((acl: UserAcl) => acl.userId === user.id && !!acl.isActive)) || [];
+          this.initUserSelections();
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+    });
   }
 
   getAutoTaskSettingCache() {
@@ -472,7 +486,7 @@ export class ModalAssignTeamV2Component
     this.roleError = false;
 
     // Filter out users whom lack of current role in their roleIds
-    this.userSelections = this.bizUsers!.filter((user) =>
+    this.userSelections = this.users!.filter((user) =>
       user.roleIds!.includes(this.currentRole!.id),
     ).map((user) => ({
       user: {

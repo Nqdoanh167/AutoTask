@@ -707,7 +707,6 @@ ng-select.select-search-icon {
 .popover {
   white-space: nowrap;
   max-width: 100%;
-  margin-right: 180px;
 
   &.custom-popover-tab {
     // z-index of bs-dropdown-menu is 1040
@@ -744,6 +743,8 @@ ng-select.select-search-icon {
   }
   &.custom-popover-dropdown {
     // z-index of bs-dropdown-menu is 1040
+    margin-right: 180px;
+
     .popover-body {
       width: fit-content;
       padding: 0px 10px;
@@ -764,6 +765,7 @@ ng-select.select-search-icon {
   }
 
   &.filter-advance-popover-tab {
+    margin-right: 180px;
     position: relative;
     .button-close {
       position: absolute;

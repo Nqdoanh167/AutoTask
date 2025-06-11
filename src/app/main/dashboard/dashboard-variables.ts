@@ -5,7 +5,7 @@ import {
   ETypeFilter,
 } from '@app/types/common';
 import {EActionStates, EEditedDateState} from '@app/types/flow';
-import { BsCustomDates } from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
+import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 
 export enum ESpecialQueryTaskKey {
   BRANCH_IDS = 'branchIds',
@@ -149,7 +149,17 @@ export const TASK_CONFIG_FILTERS = [
     clearable: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  
+  {
+    type: ETypeFilter.SELECT,
+    name: 'teamId',
+    placeholder: 'Người tạo',
+    options: [],
+    bindLabel: 'name',
+    bindValue: 'id',
+    clearable: false,
+    searchable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
 ];
 
 export const TASK_FLOWS_CONFIG_FILTERS = [
@@ -301,31 +311,27 @@ export const TASK_CONFIG_BUTTON = [
   },
 ];
 
-
 export const ranges: BsCustomDates[] = [
-    {
-      label: '30 ngày trước',
-      value: [
-        new Date(new Date().setDate(new Date().getDate() - 30)),
-        new Date(),
-      ],
-    },
-    {
-      label: '15 ngày trước',
-      value: [
-        new Date(new Date().setDate(new Date().getDate() - 15)),
-        new Date(),
-      ],
-    },
-    {
-      label: '7 ngày trước',
-      value: [
-        new Date(new Date().setDate(new Date().getDate() - 7)),
-        new Date(),
-      ],
-    },
-    {
-      label: 'Hôm nay',
-      value: [new Date(), new Date()],
-    },
-  ];
+  {
+    label: '30 ngày trước',
+    value: [
+      new Date(new Date().setDate(new Date().getDate() - 30)),
+      new Date(),
+    ],
+  },
+  {
+    label: '15 ngày trước',
+    value: [
+      new Date(new Date().setDate(new Date().getDate() - 15)),
+      new Date(),
+    ],
+  },
+  {
+    label: '7 ngày trước',
+    value: [new Date(new Date().setDate(new Date().getDate() - 7)), new Date()],
+  },
+  {
+    label: 'Hôm nay',
+    value: [new Date(), new Date()],
+  },
+];

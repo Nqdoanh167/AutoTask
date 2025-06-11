@@ -9,10 +9,7 @@ import {
   IQueryBase,
   Order,
 } from '@app/types/viewmodels';
-import {
-  ITask,
-  ITaskChain,
-} from '@app/types/flow';
+import {ITask, ITaskChain} from '@app/types/flow';
 import {IBlockAutomation} from '@app/types/automation';
 import {
   AbstractControl,
@@ -27,7 +24,6 @@ import {ETabTaskDetail} from '@app/types/task';
 import {DashboardData} from '../../dashboard-data';
 
 export class DetailTaskData extends DashboardData {
-
   protected fb = inject(FormBuilder);
 
   protected detailTask?: ITask;
@@ -93,7 +89,7 @@ export class DetailTaskData extends DashboardData {
     loading: false,
   };
 
-   protected bookings: EntityPagination<any> = {
+  protected bookings: EntityPagination<any> = {
     rows: [],
     loading: false,
   };
@@ -247,7 +243,22 @@ export class DetailTaskData extends DashboardData {
     try {
       this.detailTask = dataSource && cloneDeep(dataSource);
       this.mappingTeams();
-      if (!dataSource) return;
+      if (!dataSource) {
+        let branch = this.autoTaskService.getFirstUnit();
+        if (this.currentActiveViewMode?.options?.branchIds) {
+          const branchUnit = this.autoTaskService.getFirstUnitByIds(
+            this.currentActiveViewMode.options.branchIds,
+          );
+          if (branchUnit) {
+            branch = branchUnit;
+          }
+        }
+        this.getInfoUnit(branch?.team || branch?.department || branch?.id);
+        this.updateForm.patchValue({
+          branch,
+        } as any);
+        return;
+      }
       if (dataSource.branch) {
         const {branch} = dataSource;
         this.getInfoUnit(branch?.team || branch?.department || branch?.id);
@@ -286,8 +297,9 @@ export class DetailTaskData extends DashboardData {
         this.clickLoadData('tags');
         if (dataSource.tags.every((tag) => typeof tag === 'object')) {
           this.updateForm.patchValue({
-            tags: this.tags.rows.filter((tag) =>
-              dataSource.tags?.some((t) => t === tag.id)),
+            tags: this.tags.rows.filter(
+              (tag) => dataSource.tags?.some((t) => t === tag.id),
+            ),
           } as any);
         }
       }
@@ -406,7 +418,9 @@ export class DetailTaskData extends DashboardData {
               code: booking.code,
               subActionId: booking.subActionId,
             });
-            (<FormArray>taskChainResultForm.controls.bookings).push(bookingForm);
+            (<FormArray>taskChainResultForm.controls.bookings).push(
+              bookingForm,
+            );
           });
 
           taskChainResult?.subActions?.forEach((subAction) => {
@@ -521,20 +535,18 @@ export class DetailTaskData extends DashboardData {
   }
 
   getBookingDetail(bookingIds: string[]) {
-    this.autoTaskService.task
-      .retrieveBookingsByTask({bookingIds})
-      .subscribe({
-        next: (res) => {
-          if (res && res.status === 200) {
-            this.bookings.rows = res.data;
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
+    this.autoTaskService.task.retrieveBookingsByTask({bookingIds}).subscribe({
+      next: (res) => {
+        if (res && res.status === 200) {
+          this.bookings.rows = res.data;
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+      error: (err) => {
+        this.commonService.handleErr(err);
+      },
+    });
   }
 
   getBlock() {
