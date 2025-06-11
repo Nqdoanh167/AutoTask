@@ -117,27 +117,17 @@
           </ng-select>
         </div>
 
-        <div class="mt-3 d-flex align-items-center">
-          <div class="me-2">Từ</div>
-          <div class="time-input me-3">
-            <input
-              type="text"
-              class="form-control"
-              formControlName="startTime"
-              placeholder="9:41 AM"
-              style="color: #007aff"
-            />
-          </div>
-          <div class="me-2">Đến</div>
-          <div class="time-input">
-            <input
-              type="text"
-              class="form-control"
-              formControlName="endTime"
-              placeholder="9:41 AM"
-              style="color: #007aff"
-            />
-          </div>
+        <div class="mt-3">
+          <custom-input-range-time
+            [values]="timeRange"
+            [showMeridian]="true"
+            [hourStep]="1"
+            [minuteStep]="30"
+            [showMinutes]="true"
+            [showSeconds]="false"
+            [disabled]="false"
+            (changeValue)="onTimeRangeChange($event)"
+          ></custom-input-range-time>
         </div>
       }
     </div>

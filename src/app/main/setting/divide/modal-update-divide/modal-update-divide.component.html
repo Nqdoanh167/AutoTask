@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="col-6 mb-3">
+      <!-- <div class="col-6 mb-3">
         <div class="form-check">
           <input
             class="form-check-input"
@@ -46,7 +46,7 @@
             Áp dụng cho nhân viên đang online
           </label>
         </div>
-      </div>
+      </div> -->
 
       <div class="col-6 mb-3">
         <div class="form-check">
@@ -334,6 +334,7 @@
                         </button>
 
                         <app-input-mask
+                          [min]="1"
                           [isQuantity]="true"
                           [max]="1000"
                           [value]="userControl.value?.ratio || 1"

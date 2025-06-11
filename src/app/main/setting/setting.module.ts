@@ -38,6 +38,7 @@ import {ModalUpdateDivideComponent} from './divide/modal-update-divide/modal-upd
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {InputMaskModule} from '../../share/input/input-mask/input-mask.module';
 import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
+import { CustomInputRangeTime } from "../../share/custom/custom-time-picker.component.ts/custom-input-range-time.component";
 
 @NgModule({
   declarations: [
@@ -83,6 +84,7 @@ import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
     ModalModule.forRoot(),
     InputMaskModule,
     FilterDataModule,
-  ],
+    CustomInputRangeTime
+],
 })
 export class SettingModule {}

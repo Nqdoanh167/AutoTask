@@ -119,6 +119,16 @@ export class RoleComponent implements OnDestroy, OnInit {
     // this.settingService.saveWorkHours(formValue).subscribe(...);
   }
 
+  timeRange: Date[] = [
+    new Date(2024, 0, 1, 9, 0), // 9:00 AM
+    new Date(2024, 0, 1, 17, 30) // 5:30 PM
+  ];
+
+  onTimeRangeChange(newRange: Date[]) {
+    this.timeRange = newRange;
+    console.log('Khoảng thời gian mới:', newRange);
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next(true);
     this.destroy$.complete();
