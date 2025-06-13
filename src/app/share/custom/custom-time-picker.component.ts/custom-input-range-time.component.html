@@ -27,7 +27,6 @@
                 (ngModelChange)="handleChangeValueRangeTime($event, 0)"
                 [showMeridian]="showMeridian"
                 [hourStep]="hourStep"
-                [minuteStep]="minuteStep"
                 [showMinutes]="showMinutes"
                 [showSeconds]="showSeconds"
                 [disabled]="disabled"
@@ -78,10 +77,6 @@
           </ng-template>
         </div>
       </div>
-    </div>
-    
-    <div *ngIf="error.fromTo" class="non-form-invalid-feedback">
-      <div>Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc</div>
     </div>
   </div>
 </ng-container>

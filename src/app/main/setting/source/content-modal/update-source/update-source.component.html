@@ -6,7 +6,7 @@
       </ng-container>
       <ng-container modalBody>
         <div class="wrapper">
-          <div class="row mb-3 gap-2">
+          <div class="row mb-3 g-2">
             <div class="col">
               <label for="name" class="form-control-label">
                 Tên nguồn dữ liệu
@@ -78,7 +78,7 @@
               </div>
             </div>
           </div>
-          <div class="row gap-2">
+          <div class="row g-2">
             <div class="col">
               <label for="name" class="form-control-label">
                 Nền tảng
@@ -200,7 +200,7 @@
                   >
                     <div
                       [formGroupName]="argumentIndex"
-                      class="row {{ !first && 'mt-2' }} g-0 mx-0"
+                      class="row {{ !first && 'mt-2' }} g-2 mx-0"
                     >
                       <div class="col-6">
                         <div class="d-flex align-items-center">
@@ -281,7 +281,22 @@
                 placement="right"
               ></i>
             </div>
-            <div class="row mb-3">
+            <div class="row mb-3 g-2">
+              <div class="col-1">
+                <div>
+                  <label class="form-control-label">Mức ưu tiên</label>
+                  <div [style.width]="'100%'" id="priority">
+                    <app-input-mask
+                      [min]="1"
+                      [max]="100"
+                      [isQuantity]="true"
+                      [value]="f['dTask']?.value?.priority"
+                      (changeValue)="handleChangePriority($event)"
+                    ></app-input-mask>
+                  </div>
+                </div>
+              </div>
+
               <div class="col-2">
                 <label for="type" class="form-control-label">
                   Loại chia số
@@ -307,7 +322,7 @@
                 ></ng-select>
               </div>
 
-              <div class="col-4">
+              <div class="col-3">
                 <ng-container
                   *ngIf="
                     updateForm.get('dTask.distributionType')?.value ===
@@ -398,7 +413,7 @@
                     EDistributeType.AUTO
                   "
                 >
-                  <div class="row">
+                  <div class="row g-2">
                     <div class="col-8">
                       <div>
                         <label class="form-control-label">
@@ -431,20 +446,7 @@
                       </div>
                     </div>
 
-                    <div class="col-4">
-                      <div>
-                        <label class="form-control-label">Mức ưu tiên</label>
-                        <div [style.width]="'100%'" id="priority">
-                          <app-input-mask
-                            [min]="1"
-                            [max]="100"
-                            [isQuantity]="true"
-                            [value]="f['dTask']?.value?.priority"
-                            (changeValue)="handleChangePriority($event)"
-                          ></app-input-mask>
-                        </div>
-                      </div>
-                    </div>
+                   
                   </div>
                 </ng-container>
               </div>
@@ -596,7 +598,7 @@
         </div>
         <div class="d-flex gap-2">
           <button
-            (click)="hideModal()"
+            (click)="hideModal();"
             class="btn button-default-modal"
             type="button"
           >

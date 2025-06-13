@@ -152,6 +152,12 @@ export interface ISetting {
   assignRole: string;
   bizId: string;
   updatedBy: AccountPublic;
+  workHourEnable?: boolean;
+  workHourType?: string | 'fixed_daily';
+  workHours?: {
+    start: string;
+    end: string;
+  }[];
 }
 
 export interface IViewDto extends Pick<IView, 'screen' | 'options' | 'type' | 'allowedUserIds' | 'posIds' | 'roleIds' | 'isDefault' | 'isEdit' | 'isActive' | 'name'> { }
