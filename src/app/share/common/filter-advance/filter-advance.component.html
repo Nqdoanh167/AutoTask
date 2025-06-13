@@ -104,7 +104,10 @@
           <div class="row align-items-center my-2">
             <div class="fw-500 col-4">
               <ng-select
-                [items]="configFilterAdvance | filterData: getUsedConditionKeys : ['name']"
+                [items]="
+                  configFilterAdvance
+                    | filterData: getUsedConditionKeys : ['name']
+                "
                 bindLabel="placeholder"
                 bindValue="name"
                 placeholder="Chọn điều kiện lọc"
@@ -112,9 +115,9 @@
                 [clearable]="false"
                 [(ngModel)]="cdt.key"
               >
-              <ng-template ng-label-tmp let-item="item">
-                {{ getCdtLabel(item.name) }}
-              </ng-template>
+                <ng-template ng-label-tmp let-item="item">
+                  {{ getCdtLabel(item.name) }}
+                </ng-template>
               </ng-select>
             </div>
 
@@ -176,10 +179,9 @@
                               "
                               [ngModel]="getActionResultValue(cdt, 'actionId')"
                               [ngClass]="{
-                                'is-invalid': !getActionResultValue(
-                                  cdt,
-                                  'actionId'
-                                )
+                                'is-invalid':
+                                  !getActionResultValue(cdt, 'resultId') &&
+                                  !getActionResultValue(cdt, 'actionId')
                               }"
                             ></ng-select>
                           </div>
@@ -203,10 +205,9 @@
                               "
                               [ngModel]="getActionResultValue(cdt, 'resultId')"
                               [ngClass]="{
-                                'is-invalid': !getActionResultValue(
-                                  cdt,
-                                  'resultId'
-                                )
+                                'is-invalid':
+                                  !getActionResultValue(cdt, 'resultId') &&
+                                  !getActionResultValue(cdt, 'actionId')
                               }"
                             ></ng-select>
                           </div>
@@ -219,7 +220,7 @@
                               bindLabel="name"
                               bindValue="id"
                               placeholder="Loại kết quả"
-                              [clearable]="true"
+                              [clearable]="false"
                               class="ng-select-custom"
                               style="height: 36px; max-width: 150px"
                               (ngModelChange)="
@@ -254,10 +255,7 @@
           </button>
 
           <div class="d-flex gap-2">
-            <button
-              class="btn filter-btn border text-danger"
-              (click)="reset()"
-            >
+            <button class="btn filter-btn border text-danger" (click)="reset()">
               <i class="fa-solid fa-rotate me-1"></i>
               Đặt lại
             </button>

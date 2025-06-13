@@ -32,8 +32,7 @@
             class="tab-name fw-500 d-flex align-items-start gap-2"
             *ngIf="!tabz.isRename"
             (dblclick)="handleEditTab(tabz, $event, index)"
-            [popover]="ownerInfoTemplate"
-            triggers="mouseenter:mouseleave"
+            [tooltip]="getUserById(tabz?.ownerId)?.name || 'Không xác định'"
           >
             <!-- <i
               class="fa-solid fa-home"
@@ -43,7 +42,7 @@
             {{ tabz.name }}
             {{ tabz.isActive ? '(' + (quantity || 0) + ')' : '' }}
           </div>
-          <ng-template #ownerInfoTemplate>
+          <!-- <ng-template #ownerInfoTemplate>
             <div class="d-flex align-items-center gap-2">
               <img
                 [src]="
@@ -58,7 +57,7 @@
                 {{ getUserById(tabz?.ownerId)?.name || 'Không xác định' }}
               </div>
             </div>
-          </ng-template>
+          </ng-template> -->
           <div *ngIf="tabz.isRename">
             <input
               (keydown)="handleKeyDown($event, tabz)"

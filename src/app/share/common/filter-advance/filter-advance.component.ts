@@ -121,6 +121,9 @@ export class FilterAdvanceComponent
 
   getActionResultValue(cdt: any, field: 'type' | 'actionId' | 'resultId') {
     if (!cdt.value || typeof cdt.value !== 'object') {
+      if( field === 'type') {
+        return 'IN';
+      }
       return null;
     }
     return cdt.value[field] || null;
@@ -139,17 +142,14 @@ export class FilterAdvanceComponent
 
   onChangeValueActionResult(cdt: any, field: 'actionId' | 'resultId' | 'type', value: any) {
     if (!cdt.value || typeof cdt.value !== 'object') {
-      cdt.value = {};
+      cdt.value = {
+        actionId: null,
+        resultId: null,
+        type: 'IN', 
+      };
     }
     
     cdt.value[field] = value;
-    
-    if (field === 'actionId') {
-      cdt.value.resultId = null;
-      cdt.value.type = null;
-    } else if (field === 'resultId') {
-      cdt.value.type = null;
-    }
   }
 
   onSearchValue(term: string, name: string = 'search') {
@@ -258,7 +258,13 @@ export class FilterAdvanceComponent
     });
 
     if(objFilterQuery['actionResult'] ) {
-      if(!objFilterQuery['actionResult']?.actionId || !objFilterQuery['actionResult']?.resultId || !objFilterQuery['actionResult']?.type) {
+      if(!objFilterQuery['actionResult']?.actionId){
+        delete objFilterQuery['actionResult'].actionId;
+      }
+      if(!objFilterQuery['actionResult']?.resultId){
+        delete objFilterQuery['actionResult'].resultId;
+      }
+      if((!objFilterQuery['actionResult']?.actionId && !objFilterQuery['actionResult']?.resultId) || !objFilterQuery['actionResult']?.type) {
         return
       }
     }
@@ -377,19 +383,21 @@ export class FilterAdvanceComponent
     if (!filter.options?.length) {
       filter.loading = true;
       if (filter.name === 'tags') {
-        this.getTag();
+        this.clickLoadData('tags');
       } else if (filter.name === 'actionIds') {
-        this.getAction();
+        this.clickLoadData('actions');
       } else if (filter.name === 'resultIds') {
-        this.getResult();
+        this.clickLoadData('results');
       } else if (filter.name === 'teamRoles' || filter.name === 'unassignedRoleId') {
         this.getRole();
+      }else if(filter.name === 'sourceIds'){
+        this.clickLoadData('sources');
       }
     }
 
     if (filter.name === 'chainActId' && filter.options?.length === 1) {
       filter.loading = true;
-      this.getActionChain();
+      this.clickLoadData('actionChains');
     }
 
     setTimeout(() => {

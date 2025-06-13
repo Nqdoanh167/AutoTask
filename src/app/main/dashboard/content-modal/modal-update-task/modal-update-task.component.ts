@@ -1038,6 +1038,7 @@ export class ModalUpdateTaskComponent
   }
 
   handleUpdateTaskChainData(taskChain: ITaskChain, chainIndex: number) {
+    console.log('taskChain', taskChain, chainIndex);
     if (this.sourceData && taskChain) {
       this.sourceData.taskChains[chainIndex] = taskChain;
       this.updatedTask.emit(this.sourceData);

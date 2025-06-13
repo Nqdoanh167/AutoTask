@@ -228,6 +228,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.getActionChain();
+    this.getAutoTaskSetting();
     if (this.sourceData) {
       this.updateForm.patchValue({
         ...this.sourceData,
@@ -284,15 +285,15 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
 
   getAutoTaskSetting() {
     if (!this.currentBiz) return;
-    this.autoTaskService.currentSetting
+    this.autoTaskService.setting.retrieve()
       .subscribe({
         next: (res) => {
           if (res) {
-            this.autoTaskSetting = res;
-            res.roles?.forEach((role) => {
+            this.autoTaskSetting = res.data;
+            res.data.roles?.forEach((role) => {
               const findRole = this.currentBiz.roles.find((r) => r.id === role);
               let initTeam = null;
-              if (!this.sourceData && findRole?.id === res.assignRole) {
+              if (!this.sourceData && findRole?.id === res.data.assignRole) {
                 initTeam = {
                   userId: this.currentBiz.user.id,
                   userName: this.currentBiz.user.name,
