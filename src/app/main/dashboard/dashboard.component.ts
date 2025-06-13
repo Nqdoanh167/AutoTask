@@ -1,6 +1,6 @@
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {distinctUntilChanged, filter, takeUntil} from 'rxjs';
+import {distinctUntilChanged, filter, take, takeUntil} from 'rxjs';
 import {
   EBotherAdvanceBasicFilter,
   ETypeBulkUpdate,
@@ -38,6 +38,7 @@ import {NgSelectComponent} from '@ng-select/ng-select';
 import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
 import moment from 'moment';
 import {ETabTaskDetail} from '@app/types/task';
+import {ModalCreateOrderComponent} from './content-modal/modal-create-order/modal-create-order.component';
 
 @Component({
   selector: 'app-task',
@@ -819,11 +820,11 @@ export class DashboardComponent
     const currentPage = this.item.paramsQuery.page;
 
     if (direction === 'after') {
-        this.item.paramsQuery.page = currentPage + 1;
+      this.item.paramsQuery.page = currentPage + 1;
     } else if (direction === 'before') {
       this.item.paramsQuery.page = currentPage - 1;
     }
-    this.item.paramsQuery.after = this.item.after
+    this.item.paramsQuery.after = this.item.after;
     this.getDataSource();
   }
 
@@ -926,5 +927,14 @@ export class DashboardComponent
     return this.authService.checkUserPer(EPerActType.TASK, [
       EPerActTask.REMOVE_TEAM_TASK,
     ]);
+  }
+
+  handleCreateOrder(orderId: string | null = null) {
+    const modal = this.modalService.show(ModalCreateOrderComponent, {
+      class: 'modal-xl modal-dialog-centered',
+      initialState: {
+        orderId,
+      },
+    });
   }
 }
