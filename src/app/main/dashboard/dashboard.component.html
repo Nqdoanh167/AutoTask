@@ -420,14 +420,14 @@
                     </ng-container>
                     <ng-container *ngSwitchCase="'orderIds'">
                       <td>
-                        <div class="d-flex flex-column" *ngIf="item?.orderIds?.length; else nonContent">
-                          <!-- <div class="list-order d-flex flex-column gap-2">
+                        <div class="d-flex flex-column" *ngIf="item?.orderCodes?.length; else nonContent">
+                          <div class="list-order d-flex flex-column gap-2">
                             <div
-                              *ngFor="let order of item.orders"
+                              *ngFor="let code of item.orderCodes"
                               class="order-item"
                             >
                               <div
-                                (click)="handleViewCreatedOrder(order)"
+                                (click)="handleViewTabOrder(item)"
                                 class="d-flex gap-2 align-items-center cursor-pointer"
                               >
                                 <img
@@ -436,13 +436,10 @@
                                   [style.height]="'25px'"
                                 />
                                 <div class="fw-500 text-link">
-                                  {{ order.code }}
+                                  {{ code }}
                                 </div>
                               </div>
                             </div>
-                          </div> -->
-                          <div class="fw-500 text-link" (click)="handleViewTabOrder(item)">
-                            Đã có đơn hàng
                           </div>
                         </div>
                       </td>

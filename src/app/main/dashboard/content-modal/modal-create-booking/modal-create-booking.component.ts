@@ -53,10 +53,9 @@ export class ModalCreateBookingComponent implements OnInit, OnDestroy {
       if (message.name === '__SM_FORM_POPUP') {
         switch (message.action) {
           case 'HIDE':
-            const {order} = message.data;
-
-            if (order?.id) {
-              this.handleCreateBooking(order?.id);
+            const {item} = message.data;
+            if (item?.id) {
+              this.handleCreateBooking(item?.id);
             }
             break;
         }
@@ -83,7 +82,7 @@ export class ModalCreateBookingComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res.status === 200) {
             this.toastr.success('Tạo đơn booking thành công!!');
-            this.successEvent.emit();
+            this.successEvent.emit(res.data.bookings || []);
           }
         },
       });
