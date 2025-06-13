@@ -98,7 +98,7 @@
                   <td class="columns-action">
                     <div class="d-flex justify-content-end">
                       <span
-                        (click)="editRoleRatio(roleControl.value.roleId)"
+                        (click)="editRoleRatio(roleControl.value.roleId); ngSelect?.handleClearClick()"
                         class="d-flex align-items-center btn-action-table"
                       >
                         <img src="./assets/images/icon/edit.svg" alt="" />
@@ -148,7 +148,6 @@
               formControlName="reassignRoles"
               class="dropdown-auto-width"
               style="width: 500px; height: auto"
-              required
             >
               <ng-template ng-label-tmp let-item="item" let-clear="clear">
                 <span class="ng-value-icon" (click)="clear(item)">×</span>
@@ -252,6 +251,7 @@
                       [placeholder]="'Chọn nhân viên'"
                       [notFoundText]="'Không có nhân viên'"
                       (change)="handleChooseUser($event)"
+                      #ngSelect
                     >
                       <ng-template ng-label-tmp let-item="item"></ng-template>
                       <ng-template ng-option-tmp let-item="item">

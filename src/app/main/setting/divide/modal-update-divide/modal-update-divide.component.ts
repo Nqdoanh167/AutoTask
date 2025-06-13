@@ -27,6 +27,7 @@ import {
 import {AuthService} from '@app/services/api/auth.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
+import { NgSelectComponent } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-modal-update-divide',
@@ -35,6 +36,7 @@ import {CommonService} from '@app/services/common/common.service';
 })
 export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   @ViewChild('itemModal') itemModal!: ModalDirective;
+  @ViewChild('ngSelect') ngSelect!: NgSelectComponent;
   @Output() addItem: EventEmitter<TaskDistributionConfig> = new EventEmitter();
   @Output() updateItem: EventEmitter<TaskDistributionConfig> =
     new EventEmitter();
@@ -130,6 +132,23 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     }
 
     return 0;
+  }
+
+  public  updateSelectedUserIds(): void {
+    const allUserIds: string[] = [];
+    
+    this.roleRatiosFormArray.controls.forEach((roleControl: any) => {
+      const roleValue = roleControl.value;
+      if (roleValue.ratioByEmployees && Array.isArray(roleValue.ratioByEmployees)) {
+        roleValue.ratioByEmployees.forEach((employee: RatioByEmployee) => {
+          if (employee.userId && !allUserIds.includes(employee.userId)) {
+            allUserIds.push(employee.userId);
+          }
+        });
+      }
+    });
+    
+    this.selectedUserIds = allUserIds;
   }
 
   patchFormValue(): void {
@@ -253,6 +272,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
 
     if (existingIndex >= 0) {
       this.roleRatiosFormArray.removeAt(existingIndex);
+      this.updateSelectedUserIds();
     }
   }
 
@@ -267,10 +287,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     )?.value;
 
     if (existingRoleRatio) {
-      this.selectedUserIds = existingRoleRatio.ratioByEmployees.map(
-        (c: RatioByEmployee) => c.userId,
-      );
-
+      this.updateSelectedUserIds()
       this.roleRatioForm = this.fb.group({
         roleId: [roleId, Validators.required],
         roleName: [existingRoleRatio.roleName],
@@ -292,6 +309,12 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
           }),
         ),
       });
+
+      this.roleRatioForm.valueChanges.subscribe((values) => {
+        this.selectedUserIds = values.ratioByEmployees.map(
+          (c: RatioByEmployee) => c.userId
+        );
+      });
     } else {
       this.roleRatioForm = this.fb.group({
         roleId: [roleId, Validators.required],
@@ -301,7 +324,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
       });
     }
 
-    this.itemModal.show()
+    this.itemModal.show();
     this.itemModal.config.backdrop = 'static';
 
     setTimeout(() => {
@@ -345,29 +368,27 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   }
 
   handleChooseUser(user: User) {
-    const ratioByEmployeesArray = this.ratioByEmployeesArray;
-    const existingIndex = ratioByEmployeesArray.controls.findIndex(
-      (c: any) => c.userId === user.id,
-    );
-
-    if (existingIndex >= 0) {
-      ratioByEmployeesArray.removeAt(existingIndex);
-    } else {
-      ratioByEmployeesArray.push(
-        this.fb.control({
-          userId: user.id,
-          userPicture: user.picture,
-          userName: user.name,
-          userPhone: user.phone,
-          userEmail: user.email,
-          ratio: 1,
-        }),
+    if(user){
+      const ratioByEmployeesArray = this.ratioByEmployeesArray;
+      const existingIndex = ratioByEmployeesArray.controls.findIndex(
+        (c: any) => c.userId === user.id,
       );
+  
+      if (existingIndex >= 0) {
+        ratioByEmployeesArray.removeAt(existingIndex);
+      } else {
+        ratioByEmployeesArray.push(
+          this.fb.control({
+            userId: user.id,
+            userPicture: user.picture,
+            userName: user.name,
+            userPhone: user.phone,
+            userEmail: user.email,
+            ratio: 1,
+          }),
+        );
+      }
     }
-
-    this.selectedUserIds = ratioByEmployeesArray.controls.map(
-      (c: any) => c.value.userId,
-    );
   }
 
   handleChangeRatio(ratio: number, control: AbstractControl) {

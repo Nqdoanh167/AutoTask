@@ -19,12 +19,9 @@ export class CustomInputRangeTime implements OnInit {
   @Input() showMinutes: boolean = true;
   @Input() showSeconds: boolean = false;
   @Input() disabled: boolean = false;
+  @Input() minGapMinutes: number = 30; 
 
   @Output() changeValue = new EventEmitter<Date[]>();
-
-  protected error = {
-    fromTo: false,
-  };
 
   protected valueRangeTime: Date[] = [new Date(), new Date()];
 
@@ -40,25 +37,13 @@ export class CustomInputRangeTime implements OnInit {
     try {
       const arrayValue = [...this.valueRangeTime];
       arrayValue[index] = value;
-      this.error.fromTo = this.isFromTimeGreaterThanToTime(arrayValue[0], arrayValue[1]);
+      
       this.valueRangeTime = [...arrayValue];
-      if (this.error.fromTo) {
-        this.changeValue.emit([new Date(), new Date()]);
-        return;
-      }
+      
       this.changeValue.emit(this.valueRangeTime);
     } catch (e) {
       console.log(e);
     }
-  }
-
-  private isFromTimeGreaterThanToTime(fromTime: Date, toTime: Date): boolean {
-    if (!fromTime || !toTime) return false;
-    
-    const fromTotalMinutes = fromTime.getHours() * 60 + fromTime.getMinutes();
-    const toTotalMinutes = toTime.getHours() * 60 + toTime.getMinutes();
-    
-    return fromTotalMinutes > toTotalMinutes;
   }
 
   formatTime(date: Date): string {
