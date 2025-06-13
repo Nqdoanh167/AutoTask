@@ -415,7 +415,7 @@ export class DetailTaskData extends DashboardData {
           taskChainResult?.bookings?.forEach((booking) => {
             const bookingForm = this.fb.group({
               id: booking.id,
-              code: booking.code,
+              title: booking.title,
               subActionId: booking.subActionId,
             });
             (<FormArray>taskChainResultForm.controls.bookings).push(

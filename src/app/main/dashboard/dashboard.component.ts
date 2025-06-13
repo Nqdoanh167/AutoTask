@@ -106,6 +106,7 @@ export class DashboardComponent
           if (configFilterStaff) {
             configFilterStaff.options = [
               {name: 'Chưa gán nhân sự phụ trách', id: 'NONE'},
+              {name: 'Hệ thống', id: 'system'},
             ].concat(this.authService.getColleague());
           }
         }
@@ -510,7 +511,7 @@ export class DashboardComponent
       // Subscribe to currentActiveViewMode to handle changes
       this.autoTaskService.currentActiveViewMode
         .pipe(
-          distinctUntilChanged(isEqual),
+          distinctUntilChanged(),
           filter((currentActiveViewMode) => !!currentActiveViewMode),
           takeUntil(this.destroy$),
         )

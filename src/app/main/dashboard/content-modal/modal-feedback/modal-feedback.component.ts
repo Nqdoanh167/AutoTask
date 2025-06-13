@@ -188,7 +188,7 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
           next: (res) => {
             if (res.status === 200) {
               this.toastr.success('Gửi đánh giá thành công!!');
-              this.successEvent.emit(res.data);
+              this.successEvent.emit(res.data.feedbacks || []);
             }
           },
         });
