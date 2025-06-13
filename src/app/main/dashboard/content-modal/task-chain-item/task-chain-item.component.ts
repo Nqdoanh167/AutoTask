@@ -275,7 +275,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       reasonEditedDate,
     } = this.formTaskChainResults().at(taskChainResultIndex).value;
 
-     if ( resultIndex === null || resultIndex === undefined) {
+    if (resultIndex === null || resultIndex === undefined) {
       return;
     }
     const modifiedNextActions = nextActions.map((nextAction: any) => {
@@ -603,7 +603,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       });
   }
 
-  handleFeedback(taskChainResult: ITaskChainResult, subActionId: string) {
+  handleFeedback(
+    taskChainResult: ITaskChainResult,
+    taskChainResultIndex: number,
+    subActionId: string,
+  ) {
     if (!taskChainResult.id) return;
     this.showModal = true;
     const modal = this.modalService.show(ModalFeedbackComponent, {
@@ -614,7 +618,26 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       },
     });
 
-    modal.content?.successEvent.pipe(take(1)).subscribe(() => {
+    modal.content?.successEvent.pipe(take(1)).subscribe((feedbacks) => {
+      //Cập nhật lại kết quả của taskChainResult
+      const taskChainResults = this.formTaskChainResults();
+      const taskChainResultForm = taskChainResults.at(
+        taskChainResultIndex,
+      ) as FormGroup;
+      const feedbacksFormArray = taskChainResultForm.get(
+        'feedbacks',
+      ) as FormArray;
+      feedbacksFormArray.clear();
+
+      feedbacks.forEach((feedback: IFeedback) => {
+        const feedbackForm = this.fb.group({
+          id: feedback.id,
+          rate: feedback.rate,
+          comment: feedback.comment,
+          subActionId: feedback.subActionId,
+        });
+        feedbacksFormArray.push(feedbackForm);
+      });
       this.updateTaskChainEvent.emit();
     });
 
@@ -624,7 +647,12 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     });
   }
 
-  handleCreateOrder(taskChainResult: ITaskChainResult, subActionId: string) {
+  handleCreateOrder(
+    taskChainResult: ITaskChainResult,
+    taskChainResultIndex: number,
+    subActionId: string,
+    orderId: string | null = null,
+  ) {
     if (!taskChainResult.id) return;
     this.showModal = true;
     const modal = this.modalService.show(ModalCreateOrderComponent, {
@@ -633,10 +661,27 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         taskChainResultId: taskChainResult.id,
         taskId: this.task?.id,
         subActionId,
+        orderId,
       },
     });
 
-    modal.content?.successEvent.pipe(take(1)).subscribe(() => {
+    modal.content?.successEvent.pipe(take(1)).subscribe((orders) => {
+      //Cập nhật lại kết quả của taskChainResult
+      const taskChainResults = this.formTaskChainResults();
+      const taskChainResultForm = taskChainResults.at(
+        taskChainResultIndex,
+      ) as FormGroup;
+      const ordersFormArray = taskChainResultForm.get('orders') as FormArray;
+      ordersFormArray.clear();
+
+      orders.forEach((order: IOrderManual) => {
+        const orderForm = this.fb.group({
+          id: order.id,
+          code: order.code,
+          subActionId: order.subActionId,
+        });
+        ordersFormArray.push(orderForm);
+      });
       this.updateTaskChainEvent.emit();
     });
 
@@ -646,7 +691,11 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     });
   }
 
-  handleCreateBooking(taskChainResult: ITaskChainResult, subActionId: string) {
+  handleCreateBooking(
+    taskChainResult: ITaskChainResult,
+    taskChainResultIndex: number,
+    subActionId: string,
+  ) {
     if (!taskChainResult.id) return;
     this.showModal = true;
     const modal = this.modalService.show(ModalCreateBookingComponent, {
@@ -658,7 +707,25 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       },
     });
 
-    modal.content?.successEvent.pipe(take(1)).subscribe(() => {
+    modal.content?.successEvent.pipe(take(1)).subscribe((bookings) => {
+      //Cập nhật lại kết quả của taskChainResult
+      const taskChainResults = this.formTaskChainResults();
+      const taskChainResultForm = taskChainResults.at(
+        taskChainResultIndex,
+      ) as FormGroup;
+      const bookingsFormArray = taskChainResultForm.get(
+        'bookings',
+      ) as FormArray;
+      bookingsFormArray.clear();
+
+      bookings.forEach((booking: IBooking) => {
+        const bookingForm = this.fb.group({
+          id: booking.id,
+          title: booking.title,
+          subActionId: booking.subActionId,
+        });
+        bookingsFormArray.push(bookingForm);
+      });
       this.updateTaskChainEvent.emit();
     });
 
@@ -680,10 +747,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     window.open(url, '_blank');
   }
 
-  handleViewBooking({id, code}: {id: string; code?: string}) {
-    let url = `${environment.urlDomain}/${this.bizAlias}/booking/?code=${
-      code || id
-    }`;
+  handleViewBooking(id: string) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/booking/?id=${id}`;
     window.open(url, '_blank');
   }
 

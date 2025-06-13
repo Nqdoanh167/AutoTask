@@ -328,7 +328,7 @@
                       <div style="width: 150px" class="d-flex align-items-center">
                          <button
                           class="btn btn-link text-danger"
-                          (click)="ratioByEmployeesArray.removeAt(i)"
+                          (click)="ratioByEmployeesArray.removeAt(i); ngSelect?.handleClearClick()"
                         >
                           <i class="fas fa-trash"></i>
                         </button>

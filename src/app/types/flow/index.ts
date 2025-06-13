@@ -288,7 +288,7 @@ export interface IOrderManual {
 
 export interface IBooking {
   id: string;
-  code: string;
+  title: string;
   subActionId: string;
 }
 

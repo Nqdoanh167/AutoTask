@@ -178,7 +178,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
       name: this.sourceData.name,
       applyForOnlineEmployee: this.sourceData.applyForOnlineEmployee,
       isWorkHourBased: this.sourceData.isWorkHourBased,
-      reassignRoles: this.sourceData.reassignRoles,
+      reassignRoles: this.sourceData.reassignRoles || [],
     });
 
     this.formGroup.setControl('roleRatios', roleRatiosFormArray);
@@ -201,10 +201,16 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
       const action = this.formGroup.value.id
         ? this.autoTaskService.taskDistributionConfig.update(
             this.formGroup.value.id,
-            this.formGroup.value,
+            {
+              ...this.formGroup.value,
+              reassignRoles: this.formGroup.value.reassignRoles || [],
+            },
           )
         : this.autoTaskService.taskDistributionConfig.create(
-            this.formGroup.value,
+            {
+              ...this.formGroup.value,
+              reassignRoles: this.formGroup.value.reassignRoles || [],
+            }
           );
 
       action
