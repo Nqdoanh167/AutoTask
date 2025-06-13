@@ -136,22 +136,6 @@ export class ModalUpdateTaskComponent
       this.patchForm();
     }
     this.handleCheckPermission();
-    if (this.sourceData) {
-    } else {
-      let branch = this.autoTaskService.getFirstUnit();
-      if (this.currentActiveViewMode?.options?.branchIds) {
-        const branchUnit = this.autoTaskService.getFirstUnitByIds(
-          this.currentActiveViewMode.options.branchIds,
-        );
-        if (branchUnit) {
-          branch = branchUnit;
-        }
-      }
-      this.updateForm.patchValue({
-        branch,
-      } as any);
-      this.getInfoUnit(branch?.team || branch?.department || branch?.id);
-    }
     if (this.code) {
       this.getTaskByCode();
     } else {
@@ -1054,6 +1038,7 @@ export class ModalUpdateTaskComponent
   }
 
   handleUpdateTaskChainData(taskChain: ITaskChain, chainIndex: number) {
+    console.log('taskChain', taskChain, chainIndex);
     if (this.sourceData && taskChain) {
       this.sourceData.taskChains[chainIndex] = taskChain;
       this.updatedTask.emit(this.sourceData);

@@ -22,6 +22,7 @@ export class ModalCreateOrderComponent implements OnInit, OnDestroy {
   @Input() taskChainResultId!: string;
   @Input() taskId!: string;
   @Input() subActionId!: string;
+  @Input() orderId: string | null = null;
 
   protected url!: string;
   private messageHandler: any;
@@ -44,7 +45,11 @@ export class ModalCreateOrderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.url = `${environment.urlDomain}/${this.bizAlias}/sale-center/order/create?taskId=${this.taskId}`;
+    if(this.orderId){
+      this.url = `${environment.urlDomain}/${this.bizAlias}/sale-center/order/${this.orderId}`;
+    }else {
+      this.url = `${environment.urlDomain}/${this.bizAlias}/sale-center/order/create?taskId=${this.taskId}`;
+    }
 
     this.messageHandler = (event: MessageEvent) => {
       if (event.origin !== environment.urlDomain) return;
@@ -85,7 +90,7 @@ export class ModalCreateOrderComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res.status === 200) {
             this.toastr.success('Tạo đơn hàng thành công!!');
-            this.successEvent.emit();
+            this.successEvent.emit(res.data.orders || []);
           }
         },
       });

@@ -75,7 +75,7 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
       limit: 100,
       sort: '-createdAt',
       filter: JSON.stringify({
-        type: [EActionType.FEEDBACK, EActionType.MANUAL_CREATE_ORDER],
+        type: [EActionType.FEEDBACK, EActionType.MANUAL_CREATE_ORDER, EActionType.BOOKING],
       }),
     },
     isAllowLoadMore: false,
