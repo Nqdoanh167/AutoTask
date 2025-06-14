@@ -151,7 +151,7 @@ export const TASK_CONFIG_FILTERS = [
   },
   {
     type: ETypeFilter.SELECT,
-    name: 'teamId',
+    name: 'createdBy',
     placeholder: 'Người tạo',
     options: [],
     bindLabel: 'name',
