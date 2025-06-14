@@ -102,7 +102,7 @@ export class DashboardComponent
         if (biz) {
           this.currentBiz = biz;
           const configFilterStaff = this.configFilters.find(
-            (filter) => filter.name === 'teamId',
+            (filter) => filter.name === 'createdBy',
           );
           if (configFilterStaff) {
             configFilterStaff.options = [

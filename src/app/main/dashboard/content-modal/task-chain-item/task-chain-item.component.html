@@ -381,7 +381,7 @@
                         track subActionIndex;
                         let subActionIndex = $index
                       ) {
-                        <div class="d-flex flex-column mb-2 ms-5">
+                        <div class="d-flex flex-column mb-2 ms-2">
                           @switch (subAction.type) {
                             @case (EActionType.FEEDBACK) {
                               <div
@@ -399,23 +399,13 @@
                                 </span>
 
                                 <div class="d-inline-flex align-items-center">
-                                  <span>
-                                    {{ feedback.rate }}
-                                  </span>
-                                  <ngx-stars
-                                    [readonly]="true"
-                                    [size]="1"
-                                    [maxStars]="1"
-                                    [color]="'#FFD700'"
-                                    [initialStars]="1"
-                                  ></ngx-stars>
-                                </div>
-
-                                <div
-                                  class="fst-italic text-primary fs-7 cursor-pointer"
-                                  (click)="handleViewFeedback(feedback.id)"
-                                >
-                                  Xem đánh giá
+                                  <span>{{ feedback.rate }}⭐</span>
+                                  <div
+                                    class="fst-italic text-primary fs-7 cursor-pointer"
+                                    (click)="handleViewFeedback(feedback.id)"
+                                  >
+                                    Xem đánh giá
+                                  </div>
                                 </div>
                               </div>
 
@@ -503,11 +493,19 @@
                                   ) as booking;
                                   else noBooking
                                 "
+                                class="d-flex align-items-center"
                               >
-                                <b>Đơn booking:</b>
+                                <b>Lịch hẹn:</b>
                                 <span
-                                  class="text-primary fs-7 fst-italic"
-                                  style="cursor: pointer"
+                                  class="text-primary fs-7 fst-italic ms-1"
+                                  style="
+                                    cursor: pointer;
+                                    display: inline-block;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+                                    max-width: 100px;
+                                  "
                                   (click)="handleViewBooking(booking?.id!)"
                                 >
                                   {{ booking?.title }}

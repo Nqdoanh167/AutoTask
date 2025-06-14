@@ -114,6 +114,8 @@
                 [tooltip]="getCdtLabel(cdt.key)"
                 [clearable]="false"
                 [(ngModel)]="cdt.key"
+                (change)="
+                  onChangeCondition(cdt.key)"
               >
                 <ng-template ng-label-tmp let-item="item">
                   {{ getCdtLabel(item.name) }}

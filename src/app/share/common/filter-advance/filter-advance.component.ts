@@ -71,7 +71,7 @@ export class FilterAdvanceComponent
   configFilterBasic: IFilterTopTable[] = [];
   onSearchingAdvance: string[] = [];
 
-  public cdtList: { key: string; label: string; value: string | string[] }[] = [];
+  public cdtList: { key: string; label: string; value: any }[] = [];
 
   protected readonly ETypeFilter = ETypeFilter;
   protected readonly ETypeButton = ETypeButton;
@@ -257,6 +257,7 @@ export class FilterAdvanceComponent
       } else delete objFilterQuery[configFilter.name!];
     });
 
+
     if(objFilterQuery['actionResult'] ) {
       if(!objFilterQuery['actionResult']?.actionId){
         delete objFilterQuery['actionResult'].actionId;
@@ -284,6 +285,18 @@ export class FilterAdvanceComponent
     for (const filter of this._configFilterAdvanceCopy) {
       if (!this.cdtList.some((item) => item.key === filter.name)) {
         if (filter) {
+          if (filter.type === ETypeFilter.ACTION_RESULT && !filter.value) {
+            this.cdtList.push({
+              key: filter.name!,
+              label: filter.placeholder!,
+              value: {
+                actionId: null,
+                resultId: null,
+                type: 'IN',
+              },
+            });
+           return
+          }
           this.cdtList.push({
             key: filter.name!,
             label: filter.placeholder!,
@@ -403,6 +416,19 @@ export class FilterAdvanceComponent
     setTimeout(() => {
       filter.loading = false;
     }, 100);
+  }
+
+  onChangeCondition(key: string) {
+    if(key === ETypeFilter.ACTION_RESULT){
+      const cdt = this.cdtList.find((item) => item.key === key);
+      if(cdt && !cdt.value) {
+        cdt.value = {
+          actionId: null,
+          resultId: null,
+          type: 'IN',
+        };
+      }
+    }
   }
 
 }
