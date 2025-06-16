@@ -335,3 +335,115 @@ export const ranges: BsCustomDates[] = [
     value: [new Date(), new Date()],
   },
 ];
+
+
+export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
+  {
+    fields: [
+      {
+        label: 'Số thứ tự (STT)',
+        code: 'stt',
+      },
+    ],
+  },
+  {
+    titleGroup: 'Thông tin khách hàng',
+    codeGroup: 'leadDeal',
+    fields: [
+      {
+        label: 'Tên khách hàng',
+        code: 'leadDeal_name',
+      },
+      {
+        label: 'Id khách hàng',
+        code: 'leadDeal_id',
+      },
+      {
+        label: 'Số điện thoại khách hàng',
+        code: 'leadDeal_phone',
+      },
+      {
+        label: 'Địa chỉ khách hàng',
+        code: 'leadDeal_address',
+      },
+    ],
+  },
+   {
+    titleGroup: 'Thông tin tác vụ',
+    codeGroup: 'task',
+    fields: [
+      {
+        label: 'Tên tác vụ',
+        code: 'name',
+      },
+      {
+        label: 'Id tác vụ',
+        code: 'id',
+      },
+      {
+        label: 'Chi nhánh',
+        code: 'branch_name',
+      },
+      {
+        label: 'Trạng thái',
+        code: 'hasTaskChains',
+      },
+      {
+        label: 'Ngày tạo',
+        code: 'createdAt',
+      },
+      {
+        label: 'Người tạo',
+        code: 'createdBy_name',
+      },{
+        label: 'Danh sách đơn hàng',
+        code: 'orderCodes',
+      },
+      {
+        label: 'Nguồn tác vụ của biz',
+        code: 'platformSources',
+      },
+      {
+        label: 'Danh sách tag',
+        code: 'tags',
+      },
+      {
+        label: 'Chuỗi hành động',
+        code: 'taskChains',
+      },
+      {
+        label: 'Các vai trò',
+        code: 'teams',
+      },
+      {
+        label: 'Ngày cập nhật cuối',
+        code: 'updatedAt',
+      },
+       {
+        label: 'Link cuộc hội thoại',
+        code: 'chatLink',
+      }
+    ],
+  },
+]
+
+export const FORM_EXPORT_EXCEL = {
+  stt: null,
+  leadDeal_name: null,
+  leadDeal_phone: null,
+  leadDeal_address: null,
+  leadDeal_id: null,
+  name: null,
+  id: null,
+  branch_name: null,
+  hasTaskChains: null,
+  createdAt: null,
+  createdBy_name: null,
+  orderCodes: null,
+  platformSources: null,
+  tags: null,
+  taskChains: null,
+  teams: null,
+  updatedAt: null,
+  chatLink: null,
+}

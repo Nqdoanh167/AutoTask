@@ -16,11 +16,18 @@ import {
   IDateRange,
   ITag,
   Order,
+  OrderPlatformSource,
   User,
 } from '@app/types/viewmodels';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
-import {ETaskChainType, ITask, ModifiedUserUnit} from '@app/types/flow';
+import {
+  ETaskChainType,
+  ITask,
+  ITaskChain,
+  ITeam,
+  ModifiedUserUnit,
+} from '@app/types/flow';
 import {isEqual} from 'lodash';
 import {EPerActTask, EPerActType, EScreens, ISetting} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -30,7 +37,9 @@ import {environment} from 'src/environments/environment';
 import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 import {listColumnsDashboardDefault} from '@app/variable';
 import {
+  FORM_EXPORT_EXCEL,
   ranges,
+  TASK_FIELD_GROUP_EXPORT_EXCEL,
   TASK_MULTIPLE_ACTIONS,
 } from '@main/dashboard/dashboard-variables';
 import {DashboardCheckPermission} from '@main/dashboard/dashboard-check-permission';
@@ -39,6 +48,7 @@ import {ModalAssignTeamV2Component} from './content-modal/multiple-action/modal-
 import moment from 'moment';
 import {ETabTaskDetail} from '@app/types/task';
 import {ModalCreateOrderComponent} from './content-modal/modal-create-order/modal-create-order.component';
+import {ModalExportExcelComponent} from '@app/share/common/modal-export-excel/modal-export-excel.component';
 
 @Component({
   selector: 'app-task',
@@ -82,6 +92,9 @@ export class DashboardComponent
     listUsers: [],
   };
   setting!: ISetting;
+
+  public afterHistory: string[] = [];
+  public currentAfterIndex: number = -1;
 
   constructor(
     private readonly modalService: BsModalService,
@@ -740,7 +753,7 @@ export class DashboardComponent
   }
 
   override handleAction(name: string) {
-    if (name === 'reload') {
+    if (name === 'reload' && !this.item.loading) {
       this.getDataSource(true);
     }
     if (name === 'add_new') {
@@ -813,18 +826,35 @@ export class DashboardComponent
         limit: Number(limit),
       };
     }
+    delete this.item.paramsQuery.after;
     this.getDataSource();
   }
 
   handleChangePageLazy(direction: IChangePage): void {
+    if(this.item.loading) return;
+
     const currentPage = this.item.paramsQuery.page;
 
     if (direction === 'after') {
       this.item.paramsQuery.page = currentPage + 1;
+
+      if (this.item.after && !this.afterHistory.includes(this.item.after)) {
+        this.afterHistory.push(this.item.after);
+      }
+      this.currentAfterIndex = this.afterHistory.length - 1;
+
+      this.item.paramsQuery.after = this.item.after;
     } else if (direction === 'before') {
       this.item.paramsQuery.page = currentPage - 1;
+
+      if (this.currentAfterIndex > 0) {
+        this.currentAfterIndex--;
+        this.item.paramsQuery.after = this.afterHistory[this.currentAfterIndex];
+      } else {
+        delete this.item.paramsQuery.after;
+        this.currentAfterIndex = -1;
+      }
     }
-    this.item.paramsQuery.after = this.item.after;
     this.getDataSource();
   }
 
@@ -934,6 +964,52 @@ export class DashboardComponent
       class: 'modal-xl modal-dialog-centered',
       initialState: {
         orderId,
+      },
+    });
+  }
+
+  showModalExportExcel() {
+    if (!this.getCheckRows().length) {
+      this.toastrService.warning('Vui lòng chọn ít nhất 1 tác vụ để xuất file');
+      return;
+    }
+    const rows = this.getCheckRows().map((item, index) => {
+      return {
+        ...item,
+        stt: index + 1,
+        hasTaskChains: item.hasTaskChains ? 'Đang mở' : 'Đã đóng chuỗi',
+        createdAt: new Date(item.createdAt).toLocaleDateString('vi-VN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }),
+        updatedAt: new Date(item.updatedAt).toLocaleDateString('vi-VN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }),
+        tags: (item.tags || [])
+          .map((tag: string) => this.getTagById(tag)?.name)
+          .join(', '),
+        taskChains: (item.taskChains || [])
+          .map((chain: ITaskChain) => chain?.name)
+          .join(', '),
+        teams: (item.teams || [])
+          .map((team: ITeam) => team.roleName)
+          .join(', '),
+        platformSources: (item.platformSources || [])
+          .map((source: OrderPlatformSource) => source.name)
+          .join(', '),
+      };
+    });
+
+    const modal = this.modalService.show(ModalExportExcelComponent, {
+      class: 'modal-lg modal-dialog-centered',
+      initialState: {
+        sheetName: 'danh sách tác vụ',
+        rows,
+        fieldGroupExportExcel: TASK_FIELD_GROUP_EXPORT_EXCEL,
+        formExportExcel: FORM_EXPORT_EXCEL,
       },
     });
   }

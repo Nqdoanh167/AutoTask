@@ -40,7 +40,14 @@
               [ngStyle]="{color: tabz.isActive ? '#4277FF' : '#afb2bd'}"
             ></i> -->
             {{ tabz.name }}
-            {{ tabz.isActive ? '(' + (quantity || 0) + ')' : '' }}
+            <ng-container *ngIf="tabz.isActive">
+              <span *ngIf="!isActiveChangeTab; else showQuantity">
+                <i class="fas fa-spinner fa-spin"></i>
+              </span>
+              <ng-template #showQuantity>
+                {{ '(' + (quantity || 0) + ')' }}
+              </ng-template>
+            </ng-container>
           </div>
           <!-- <ng-template #ownerInfoTemplate>
             <div class="d-flex align-items-center gap-2">

@@ -579,8 +579,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
-    update: (body: IViewDto) =>
-      this.httpClient.put<EntityResult<IView>>(
+    update: (body: ISetting) =>
+      this.httpClient.put<EntityResult<ISetting>>(
         this.createUrl([this.api.setting]),
         body,
       ),

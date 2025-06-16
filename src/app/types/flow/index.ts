@@ -392,6 +392,7 @@ export interface ITask {
   utmMedium?: string;
   utmSource?: string;
   utmTerm?: string;
+  hasTaskChains?: boolean;
 }
 
 export interface IBranchTaskDto {

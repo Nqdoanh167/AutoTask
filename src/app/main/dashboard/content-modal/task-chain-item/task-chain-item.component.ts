@@ -275,9 +275,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       reasonEditedDate,
     } = this.formTaskChainResults().at(taskChainResultIndex).value;
 
-    if (resultIndex === null || resultIndex === undefined) {
-      return;
-    }
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
         const modify = {
