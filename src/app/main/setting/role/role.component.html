@@ -129,9 +129,11 @@
             [showMinutes]="true"
             [showSeconds]="false"
             [disabled]="false"
-            (changeValue)="onTimeRangeChange($event)"
-            [minGapMinutes]="30"
+            (changeValue)="onTimeRangeChange($event); workHourError = ''"
           ></custom-input-range-time>
+          <div class="text-danger mt-2" *ngIf="workHourError">
+            <small><i class="fa-solid fa-exclamation-triangle me-1"></i>{{workHourError}}</small>
+          </div>
         </div>
       }
     </div>
