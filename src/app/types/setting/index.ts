@@ -145,6 +145,7 @@ export interface ISetting {
   assignRole: string;
   bizId: string;
   updatedBy: AccountPublic;
+  taskExportFields?: string[];
 }
 
 export interface IViewDto extends Pick<IView, 'screen' | 'options' | 'type' | 'allowedUserIds' | 'posIds' | 'roleIds' | 'isDefault' | 'isEdit' | 'isActive' | 'name'> { }

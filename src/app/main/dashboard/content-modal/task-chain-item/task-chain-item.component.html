@@ -577,11 +577,6 @@
                             bindLabel="result.name"
                             bindValue="result.id"
                             appendTo=".modal-update-task"
-                            [ngClass]="{
-                              'is-invalid':
-                                submitted &&
-                                taskChainResult?.value?.resultIndex === null
-                            }"
                           ></ng-select>
                         </div>
                         <div class="mt-2" formGroupName="reason">
