@@ -339,7 +339,7 @@ export class FilterAdvanceComponent
           if (!!this.currentActiveViewMode?.options[configFilter.name!]) {
             if (
               !configFilter?.options?.length ||
-              (configFilter?.options?.length === 1 &&
+              (!this.actionChains?.rows?.length &&
                 configFilter.name === 'chainActId')
             ) {
               this.loadData(configFilter);
@@ -408,7 +408,7 @@ export class FilterAdvanceComponent
       }
     }
 
-    if (filter.name === 'chainActId' && filter.options?.length === 1) {
+    if (filter.name === 'chainActId' && !this.actionChains?.rows?.length) {
       filter.loading = true;
       this.clickLoadData('actionChains');
     }
@@ -419,8 +419,9 @@ export class FilterAdvanceComponent
   }
 
   onChangeCondition(key: string) {
+    this.cdtList = this.cdtList.filter((item) => item.key !== key);
+    const cdt = this._configFilterAdvanceCopy.find((item) => item.name === key);
     if(key === ETypeFilter.ACTION_RESULT){
-      const cdt = this.cdtList.find((item) => item.key === key);
       if(cdt && !cdt.value) {
         cdt.value = {
           actionId: null,
@@ -429,6 +430,15 @@ export class FilterAdvanceComponent
         };
       }
     }
+
+    if (cdt) {
+      this.cdtList.push({
+        key: cdt.name!,
+        label: cdt.placeholder!,
+        value: cdt.value || '',
+      });
+    }
+
   }
 
 }

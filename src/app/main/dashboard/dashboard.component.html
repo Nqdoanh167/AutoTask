@@ -539,6 +539,9 @@
                                       <span *ngSwitchCase="'Close chain'">
                                         Đóng chuỗi
                                       </span>
+                                      <span *ngSwitchCase="'Auto create order'">
+                                        Tạo đơn hàng thủ công
+                                      </span>
                                       <span *ngSwitchDefault class="fw-500">
                                         {{ taskChainResult?.action?.name }}
                                       </span>
