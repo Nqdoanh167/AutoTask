@@ -133,14 +133,14 @@ export const TASK_CONFIG_FILTERS = [
     minWidth: '200px',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  {
-    type: ETypeFilter.DATE,
-    name: 'createdAt',
-    placeholder: 'Ngày tạo',
-    subType: 'range',
-    clearable: true,
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  },
+  // {
+  //   type: ETypeFilter.DATE,
+  //   name: 'createdAt',
+  //   placeholder: 'Ngày tạo',
+  //   subType: 'range',
+  //   clearable: true,
+  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  // },
   {
     type: ETypeFilter.DATE,
     name: 'updatedAt',
