@@ -424,6 +424,7 @@
                                   (click)="
                                     handleFeedback(
                                       taskChainResult.value,
+                                      taskChainResultIndex,
                                       subAction.id
                                     )
                                   "
@@ -456,7 +457,14 @@
                                 <span
                                   class="text-primary fs-7 fst-italic"
                                   style="cursor: pointer"
-                                  (click)="handleViewOrder(order)"
+                                  (click)="
+                                    handleCreateOrder(
+                                      taskChainResult.value,
+                                      taskChainResultIndex,
+                                      subAction.id,
+                                      order?.id
+                                    )
+                                  "
                                 >
                                   {{ order?.code || order?.id }}
                                 </span>
@@ -467,6 +475,7 @@
                                   (click)="
                                     handleCreateOrder(
                                       taskChainResult.value,
+                                      taskChainResultIndex,
                                       subAction.id
                                     )
                                   "
@@ -499,9 +508,9 @@
                                 <span
                                   class="text-primary fs-7 fst-italic"
                                   style="cursor: pointer"
-                                  (click)="handleViewBooking(booking)"
+                                  (click)="handleViewBooking(booking?.id!)"
                                 >
-                                  {{ booking?.code || booking?.id }}
+                                  {{ booking?.title }}
                                 </span>
                               </div>
 
@@ -510,6 +519,7 @@
                                   (click)="
                                     handleCreateBooking(
                                       taskChainResult.value,
+                                      taskChainResultIndex,
                                       subAction.id
                                     )
                                   "
@@ -570,7 +580,9 @@
                             bindValue="result.id"
                             appendTo=".modal-update-task"
                             [ngClass]="{
-                              'is-invalid': submitted && taskChainResult?.value?.resultIndex === null
+                              'is-invalid':
+                                submitted &&
+                                taskChainResult?.value?.resultIndex === null
                             }"
                           ></ng-select>
                         </div>

@@ -21,11 +21,12 @@ import { takeUntil } from 'rxjs';
 import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { DashboardCheckPermission } from '@app/main/dashboard/dashboard-check-permission';
-import { isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import moment from 'moment';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { TreeSelectModule } from 'primeng/treeselect';
+import { FilterDataModule } from '@app/share/pipe/filter-data/filter-data.module';
 
 @Component({
   selector: 'app-filter-advance',
@@ -41,6 +42,7 @@ import { TreeSelectModule } from 'primeng/treeselect';
     FormsModule,
     TooltipModule,
     TreeSelectModule,
+    FilterDataModule
   ],
   templateUrl: './filter-advance.component.html',
   styleUrls: ['./filter-advance.component.scss'],
@@ -65,6 +67,7 @@ export class FilterAdvanceComponent
   };
 
   configFilterAdvance: IFilterTopTable[] = [];
+  _configFilterAdvanceCopy: IFilterTopTable[] = [];
   configFilterBasic: IFilterTopTable[] = [];
   onSearchingAdvance: string[] = [];
 
@@ -97,9 +100,16 @@ export class FilterAdvanceComponent
     this.configFilterAdvance = this.configFilters.filter(
       (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
     );
+    this._configFilterAdvanceCopy = cloneDeep(this.configFilterAdvance);
     this.configFilterBasic = this.configFilters.filter(
       (item) => item.botherType !== EBotherAdvanceBasicFilter.ADVANCE,
     );
+  }
+
+  getUsedConditionKeys = (): string[] => {
+    return this.cdtList
+      .filter(item => item.key && item.key.trim() !== '')
+      .map(item => item.key);
   }
 
   getDefaultValuePopover(name?: string) {
@@ -107,6 +117,16 @@ export class FilterAdvanceComponent
     return filter?.options?.find((item) => filter.value === item['value'])?.[
       'label'
     ];
+  }
+
+  getActionResultValue(cdt: any, field: 'type' | 'actionId' | 'resultId') {
+    if (!cdt.value || typeof cdt.value !== 'object') {
+      if( field === 'type') {
+        return 'IN';
+      }
+      return null;
+    }
+    return cdt.value[field] || null;
   }
 
   handleOpenPopover() {
@@ -118,6 +138,18 @@ export class FilterAdvanceComponent
         label: item.placeholder!,
         value: item.value || '',
       }));
+  }
+
+  onChangeValueActionResult(cdt: any, field: 'actionId' | 'resultId' | 'type', value: any) {
+    if (!cdt.value || typeof cdt.value !== 'object') {
+      cdt.value = {
+        actionId: null,
+        resultId: null,
+        type: 'IN', 
+      };
+    }
+    
+    cdt.value[field] = value;
   }
 
   onSearchValue(term: string, name: string = 'search') {
@@ -225,6 +257,18 @@ export class FilterAdvanceComponent
       } else delete objFilterQuery[configFilter.name!];
     });
 
+    if(objFilterQuery['actionResult'] ) {
+      if(!objFilterQuery['actionResult']?.actionId){
+        delete objFilterQuery['actionResult'].actionId;
+      }
+      if(!objFilterQuery['actionResult']?.resultId){
+        delete objFilterQuery['actionResult'].resultId;
+      }
+      if((!objFilterQuery['actionResult']?.actionId && !objFilterQuery['actionResult']?.resultId) || !objFilterQuery['actionResult']?.type) {
+        return
+      }
+    }
+
     this.paramsQuery.filter = JSON.stringify(objFilterQuery);
     this.filterAdvanceEvent.emit(JSON.parse(this.paramsQuery.filter || '{}'));
     this.popFilter.hide();
@@ -237,7 +281,7 @@ export class FilterAdvanceComponent
   }
 
   addFilterCondition() {
-    for (const filter of this.configFilterAdvance) {
+    for (const filter of this._configFilterAdvanceCopy) {
       if (!this.cdtList.some((item) => item.key === filter.name)) {
         if (filter) {
           this.cdtList.push({
@@ -256,7 +300,7 @@ export class FilterAdvanceComponent
   }
 
   getCdtLabel(key: string) {
-    const filter = this.configFilterAdvance.find((item) => item.name === key);
+    const filter = this._configFilterAdvanceCopy.find((item) => item.name === key);
     return filter ? filter.placeholder : key;
   }
 
@@ -276,7 +320,8 @@ export class FilterAdvanceComponent
         if (
           configFilter.type === ETypeFilter.SELECT ||
           configFilter.type === ETypeFilter.POPOVER ||
-          configFilter.type === ETypeFilter.DATE
+          configFilter.type === ETypeFilter.DATE || 
+          configFilter.type === ETypeFilter.SEARCH
         ) {
           if (!!this.currentActiveViewMode?.options[configFilter.name!]) {
             if (
@@ -299,6 +344,18 @@ export class FilterAdvanceComponent
               this.currentActiveViewMode?.options[configFilter.name!];
             objFilterQuery[configFilter.name!] = configFilter.value;
           }
+        }
+
+        if (configFilter.type === ETypeFilter.ACTION_RESULT) {
+          if(this.currentActiveViewMode?.options[configFilter.name!]?.actionId){
+            this.clickLoadData('actions')
+          }
+          if(this.currentActiveViewMode?.options[configFilter.name!]?.resultId){
+            this.clickLoadData('results')
+          }
+          configFilter.value =
+            this.currentActiveViewMode?.options[configFilter.name!];
+          objFilterQuery[configFilter.name!] = configFilter.value;
         }
       });
 
@@ -326,24 +383,26 @@ export class FilterAdvanceComponent
     if (!filter.options?.length) {
       filter.loading = true;
       if (filter.name === 'tags') {
-        this.getTag();
+        this.clickLoadData('tags');
       } else if (filter.name === 'actionIds') {
-        this.getAction();
+        this.clickLoadData('actions');
       } else if (filter.name === 'resultIds') {
-        this.getResult();
-      } else if (filter.name === 'teamRoles' || filter.name === 'unassignedRoleIds') {
+        this.clickLoadData('results');
+      } else if (filter.name === 'teamRoles' || filter.name === 'unassignedRoleId') {
         this.getRole();
+      }else if(filter.name === 'sourceIds'){
+        this.clickLoadData('sources');
       }
     }
 
     if (filter.name === 'chainActId' && filter.options?.length === 1) {
       filter.loading = true;
-      this.getActionChain();
+      this.clickLoadData('actionChains');
     }
 
     setTimeout(() => {
       filter.loading = false;
     }, 100);
   }
-  
+
 }

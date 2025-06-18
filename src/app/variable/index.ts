@@ -122,7 +122,14 @@ export const listSettingNavItems: ISidebar[] = [
   {
     link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
     alias: ESettingTab.ROLE,
-    name: 'Vai trò',
+    name: 'Cấu hình',
+    isActive: true,
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
+  },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.DIVIDE}`,
+    alias: ESettingTab.DIVIDE,
+    name: 'Chia số',
     isActive: true,
     permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },

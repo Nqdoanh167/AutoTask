@@ -33,6 +33,12 @@ import {TreeSelectModule} from 'primeng/treeselect';
 import {TimeViewPipe} from '@share/pipe/timeView.pipe';
 import {GetDataArrayPipe} from '@share/pipe/get-data-array/getDataArray.pipe';
 import {LetDirective} from '@share/directive/ng-let.directive';
+import {DivideComponent} from './divide/divide.component';
+import {ModalUpdateDivideComponent} from './divide/modal-update-divide/modal-update-divide.component';
+import {ModalModule} from 'ngx-bootstrap/modal';
+import {InputMaskModule} from '../../share/input/input-mask/input-mask.module';
+import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
+import { CustomInputRangeTime } from "../../share/custom/custom-time-picker.component.ts/custom-input-range-time.component";
 
 @NgModule({
   declarations: [
@@ -46,6 +52,8 @@ import {LetDirective} from '@share/directive/ng-let.directive';
     PermissionsComponent,
     EmployeeComponent,
     AddEditPermissionComponent,
+    DivideComponent,
+    ModalUpdateDivideComponent,
   ],
   imports: [
     CommonModule,
@@ -73,6 +81,10 @@ import {LetDirective} from '@share/directive/ng-let.directive';
     TimeViewPipe,
     GetDataArrayPipe,
     LetDirective,
-  ],
+    ModalModule.forRoot(),
+    InputMaskModule,
+    FilterDataModule,
+    CustomInputRangeTime
+],
 })
 export class SettingModule {}

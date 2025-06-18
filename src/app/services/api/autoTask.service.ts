@@ -7,6 +7,7 @@ import {
   IHistory,
   ITag,
   Order,
+  TaskDistributionConfig,
 } from 'src/app/types/viewmodels';
 import {
   BehaviorSubject,
@@ -92,6 +93,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     setting: 'setting',
     permission: 'permission',
     userAcl: 'user-acl',
+    taskDistributionConfig: 'task-distribution-config',
   };
 
   private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
@@ -635,6 +637,30 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       ),
   };
 
+  taskDistributionConfig = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<TaskDistributionConfig[]>>(
+        this.createUrl([this.api.taskDistributionConfig]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: IBodyResultReason) =>
+      this.httpClient.post<EntityResult<TaskDistributionConfig>>(
+        this.createUrl([this.api.taskDistributionConfig]),
+        body,
+      ),
+    update: (id: string, body: IBodyResultReason) =>
+      this.httpClient.patch<EntityResult<TaskDistributionConfig>>(
+        this.createUrl([this.api.taskDistributionConfig, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.taskDistributionConfig, id]),
+      ),
+  };
+
   setDashboardViewModes(viewModes: IViewModeDto[]) {
     this.dashboardViewModes$.next(viewModes);
   }
@@ -703,17 +729,18 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   // nhận vào mảng ids gồm id của cả chi nhánh , phòng ban và đội nhóm
   // trả về đơn vị đầu tiên tìm thấy trong mảng ids nếu là chi nhánh thì tìm phòng ban và đội nhóm đầu tiên của chi nhánh đó
   // nếu là phòng ban thì tìm đội nhóm đầu tiên của phòng ban đó
+  // nếu là đội nhóm thì trả về đội nhóm đó
   getFirstUnitByIds(ids: string[]) {
-    const units = this.getUserUnits();
-    for (const unit of units) {
-      if (ids.includes(unit.data)) {
-        if (unit.children?.length) {
-          return unit.children[0].children?.[0] || unit.children[0];
+    const dfs = (units: any): any => {
+      for (const u of units) {
+        if (ids.includes(u.data)) {
+          return u.children?.length
+            ? dfs(u.children)
+            : u;
         }
-        return unit;
       }
-    }
-    return undefined;
+    };
+    return dfs(this.getUserUnits());
   }
 
   findUnitFromData(data: IBranchTaskDto) {

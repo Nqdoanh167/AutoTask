@@ -1,4 +1,6 @@
 import {Component, OnInit} from '@angular/core';
+import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/modal-stop-receive.component';
+import {BsModalService} from 'ngx-bootstrap/modal';
 import {AuthService} from 'src/app/services/api/auth.service';
 import {BreadcrumbService} from 'src/app/services/common/breadcrumb.service';
 import {Biz, User} from 'src/app/types/viewmodels';
@@ -15,6 +17,7 @@ export class HeaderComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private breadcrumbService: BreadcrumbService,
+    private modalService: BsModalService,
   ) {}
 
   ngOnInit(): void {
@@ -39,5 +42,14 @@ export class HeaderComponent implements OnInit {
   logout() {
     this.authService.logout();
     window.location.href = '/';
+  }
+
+  showModalStopReceive() {
+    const bsModalRef = this.modalService.show(ModalStopReceiveComponent, {
+      class: 'modal-xs',
+      ignoreBackdropClick: true,
+      backdrop: 'static',
+      keyboard: false,
+    });
   }
 }

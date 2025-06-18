@@ -184,7 +184,7 @@
                       <i class="fa-solid fa-magnifying-glass"></i>
                     </div>
                     <ng-select
-                      [items]="bizUsers | filterData: selectedUserIds : ['id']"
+                      [items]="users | filterData: selectedUserIds : ['id']"
                       bindLabel="name"
                       bindValue="id"
                       [clearable]="true"

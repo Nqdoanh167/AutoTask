@@ -5,7 +5,7 @@ import {
   ETypeFilter,
 } from '@app/types/common';
 import {EActionStates, EEditedDateState} from '@app/types/flow';
-import { BsCustomDates } from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
+import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
 
 export enum ESpecialQueryTaskKey {
   BRANCH_IDS = 'branchIds',
@@ -133,14 +133,14 @@ export const TASK_CONFIG_FILTERS = [
     minWidth: '200px',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  // {
-  //   type: ETypeFilter.DATE,
-  //   name: 'createdAt',
-  //   placeholder: 'Ngày tạo',
-  //   subType: 'range',
-  //   clearable: true,
-  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  // },
+  {
+    type: ETypeFilter.DATE,
+    name: 'createdAt',
+    placeholder: 'Ngày tạo',
+    subType: 'range',
+    clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
   {
     type: ETypeFilter.DATE,
     name: 'updatedAt',
@@ -149,12 +149,17 @@ export const TASK_CONFIG_FILTERS = [
     clearable: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  // {
-  //   type: ETypeFilter.SEARCH,
-  //   name: 'fbAdId',
-  //   placeholder: 'Lọc theo Facebook Ad ID',
-  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  // },
+  {
+    type: ETypeFilter.SELECT,
+    name: 'teamId',
+    placeholder: 'Người tạo',
+    options: [],
+    bindLabel: 'name',
+    bindValue: 'id',
+    clearable: false,
+    searchable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
 ];
 
 export const TASK_FLOWS_CONFIG_FILTERS = [
@@ -201,14 +206,45 @@ export const TASK_FLOWS_CONFIG_FILTERS = [
   },
   {
     type: ETypeFilter.SELECT,
-    name: 'unassignedRoleIds',
+    name: 'unassignedRoleId',
     placeholder: 'Tác vụ chưa được gán vai trò',
     options: [],
     bindLabel: 'name',
     bindValue: 'id',
     clearable: false,
-    searchable: true,
-    multiple: true,
+    searchable: false,
+    multiple: false,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.ACTION_RESULT,
+    name: 'actionResult',
+    placeholder: 'Hành động & Kết quả',
+    clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SEARCH,
+    name: 'fbAdId',
+    placeholder: 'FB ADs ID',
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SEARCH,
+    name: 'utmSource',
+    placeholder: 'UTM Source',
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SEARCH,
+    name: 'utmCampaign',
+    placeholder: 'UTM Campaign',
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SEARCH,
+    name: 'utmMedium',
+    placeholder: 'UTM Medium',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
 ];
@@ -275,31 +311,27 @@ export const TASK_CONFIG_BUTTON = [
   },
 ];
 
-
 export const ranges: BsCustomDates[] = [
-    {
-      label: '30 ngày trước',
-      value: [
-        new Date(new Date().setDate(new Date().getDate() - 30)),
-        new Date(),
-      ],
-    },
-    {
-      label: '15 ngày trước',
-      value: [
-        new Date(new Date().setDate(new Date().getDate() - 15)),
-        new Date(),
-      ],
-    },
-    {
-      label: '7 ngày trước',
-      value: [
-        new Date(new Date().setDate(new Date().getDate() - 7)),
-        new Date(),
-      ],
-    },
-    {
-      label: 'Hôm nay',
-      value: [new Date(), new Date()],
-    },
-  ];
+  {
+    label: '30 ngày trước',
+    value: [
+      new Date(new Date().setDate(new Date().getDate() - 30)),
+      new Date(),
+    ],
+  },
+  {
+    label: '15 ngày trước',
+    value: [
+      new Date(new Date().setDate(new Date().getDate() - 15)),
+      new Date(),
+    ],
+  },
+  {
+    label: '7 ngày trước',
+    value: [new Date(new Date().setDate(new Date().getDate() - 7)), new Date()],
+  },
+  {
+    label: 'Hôm nay',
+    value: [new Date(), new Date()],
+  },
+];
