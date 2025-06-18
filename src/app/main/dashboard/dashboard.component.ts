@@ -49,6 +49,7 @@ import moment from 'moment';
 import {ETabTaskDetail} from '@app/types/task';
 import {ModalCreateOrderComponent} from './content-modal/modal-create-order/modal-create-order.component';
 import {ModalExportExcelComponent} from '@app/share/common/modal-export-excel/modal-export-excel.component';
+import { ModalImportExcelComponent } from '@app/share/common/modal-import-excel/modal-import-excel.component';
 
 @Component({
   selector: 'app-task',
@@ -775,6 +776,19 @@ export class DashboardComponent
         return;
       }
     }
+    if(name == 'importExcel'){
+      this.handleImportExcel();
+    }
+  }
+
+  handleImportExcel() {
+    const modalRef = this.modalService.show(ModalImportExcelComponent, {
+      initialState: {
+      },
+      class: 'modal-dialog-centered modal-xl',
+      backdrop: 'static',
+    });
+
   }
 
   handleFilterAdvance(filter: any) {
