@@ -19,7 +19,6 @@ export class CustomInputRangeTime implements OnInit {
   @Input() showMinutes: boolean = true;
   @Input() showSeconds: boolean = false;
   @Input() disabled: boolean = false;
-  @Input() minGapMinutes: number = 30; 
 
   @Output() changeValue = new EventEmitter<Date[]>();
 

@@ -27,6 +27,7 @@ export class RoleComponent implements OnDestroy, OnInit {
   public permission = {
     update: false,
   };
+  public workHourError: string = '';
 
   private currentBiz!: Biz;
   private destroy$ = new Subject();
@@ -105,15 +106,16 @@ export class RoleComponent implements OnDestroy, OnInit {
     const workHours = this.settingForm.get('workHours')?.value;
     if (!workHours || workHours.length === 0) {
       this.toasrt.warning('Vui lòng nhập thời gian làm việc!');
+      this.workHourError = 'Vui lòng nhập thời gian làm việc!';
       return false;
     }
 
     for (const workHour of workHours) {
       if (!workHour.start || !workHour.end) {
         this.toasrt.warning('Vui lòng nhập đầy đủ thời gian làm việc!');
+        this.workHourError = 'Vui lòng nhập đầy đủ thời gian làm việc!';
         return false;
       }
-      console.log(workHour.start, workHour.end);
       const startTime = new Date(workHour.start);
       const endTime = new Date(workHour.end);
       
@@ -125,6 +127,7 @@ export class RoleComponent implements OnDestroy, OnInit {
       
       if (endMinutes - startMinutes < this.distanceMinutes) {
         this.toasrt.warning(`Thời gian làm việc phải ít nhất ${this.distanceMinutes} phút!`);
+        this.workHourError = `Thời gian làm việc phải ít nhất ${this.distanceMinutes} phút!`;
         return false;
       }
     }
