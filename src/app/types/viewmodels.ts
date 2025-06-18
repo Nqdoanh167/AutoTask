@@ -1556,6 +1556,7 @@ export enum ESettingTab {
   TAG = 'tag',
   DECENTRALIZATION = 'decentralization',
   ROLE = 'role',
+  DIVIDE = 'divide',
 }
 
 export type ITypePaginate = 'number' | 'lazy';
@@ -1640,4 +1641,34 @@ export enum ESocialPlatform {
   TIKI = 'TIKI',
   ZALO = 'ZALO',
   OTHER = 'OTHER',
+}
+
+export interface TaskDistributionConfig {
+  id: string; // Mã cấu hình (tùy chọn, dùng khi chỉnh sửa)
+  name: string; // Tên cấu hình chia số
+  applyForOnlineEmployee: boolean; // Có áp dụng cho nhân viên đang online không
+  isWorkHourBased: boolean; // Có áp dụng theo giờ làm việc không
+  roleRatios: RoleRatio[]; // Danh sách vai trò và tỉ lệ chia tương ứng
+  reassignRoles: string[]; // Cấu hình chia lại cho vai trò khác
+  createdAt: Date; // Ngày tạo cấu hình
+  updatedAt: Date; // Ngày cập nhật cấu hình
+  updatedBy: {
+    id: string; // Mã nhân viên cập nhật
+    name: string; // Tên nhân viên cập nhật
+    email: string; // Email nhân viên cập nhật
+    picture: string; // Hình ảnh nhân viên cập nhật
+  };
+}
+
+export interface RoleRatio {
+  roleId: string;
+  roleName: string; // Tên vai trò (VD: Sale, Marketing)
+  roleIcon: string; // Hình ảnh vai trò
+  //cấu hình tỉ lệ chia cho từng vai trò
+  ratioByEmployees: RatioByEmployee[];
+}
+
+export interface RatioByEmployee {
+  userId: string;
+  ratio: number;
 }

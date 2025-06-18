@@ -16,12 +16,19 @@ import {BsModalRef} from 'ngx-bootstrap/modal';
 import {
   EDataSourceType,
   ESourceArgKey,
+  EDistributeType,
   ISetting,
   ISource,
   ISourceArgsDto,
   IUpdateSourceDto,
 } from '@app/types/setting';
-import {Biz, ICommonDataLazy, IQueryBase, User} from '@app/types/viewmodels';
+import {
+  Biz,
+  ICommonDataLazy,
+  IQueryBase,
+  TaskDistributionConfig,
+  User,
+} from '@app/types/viewmodels';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {MainService} from '@app/services/api/main.service';
@@ -53,7 +60,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     name: [null, [Validators.required]],
     type: EDataSourceType.MANUAL,
     platform: [null, [Validators.required]],
-    platformId: [null],
+    platformId: [null, [Validators.required]],
     picture: [null],
     isActive: true,
     arguments: this.fb.array([]),
@@ -63,6 +70,9 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       branch: null,
       teams: this.fb.array([]),
       taskChainIds: null,
+      distributionType: [EDistributeType.MANUAL],
+      priority: 1,
+      taskDistributionConfigId: null,
     }),
     apiEndpoint: this.fb.group({
       path: null,
@@ -84,6 +94,26 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     },
     isAllowLoadMore: false,
   };
+
+  public taskDistributionConfigs: ICommonDataLazy<
+    TaskDistributionConfig,
+    IQueryBase
+  > = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 100,
+      sort: '-createdAt',
+      filter: JSON.stringify({isActive: true}),
+    },
+    isAllowLoadMore: false,
+  };
+
+  public get actionChain(): IChainAct[] {
+    return this.actionChains.rows;
+  }
+
   public units = this.autoTaskService.getUserUnits();
   public listType = [
     {
@@ -93,6 +123,17 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     {
       label: 'API',
       value: EDataSourceType.API,
+    },
+  ];
+
+  public listDistributionType = [
+    {
+      label: 'Thủ công',
+      value: EDistributeType.MANUAL,
+    },
+    {
+      label: 'Tự động',
+      value: EDistributeType.AUTO,
     },
   ];
   public listBizUsers: User[] = [];
@@ -184,6 +225,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
   ];
 
   protected readonly EDataSourceType = EDataSourceType;
+  protected readonly EDistributeType = EDistributeType;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -240,6 +282,9 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
         );
         this.updateForm.get('dTask.branch')?.setValue(foundUnit as any);
       }
+      if(this.sourceData?.dTask?.taskDistributionConfigId){
+        this.getTaskDistributionConfig()
+      }
       if (this.sourceData?.arguments) {
         this.sourceData?.arguments?.forEach((argument: ISourceArgsDto) => {
           this.formArguments().push(
@@ -251,6 +296,7 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
         });
       }
     }
+
   }
 
   getActionChain() {
@@ -326,6 +372,47 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
       });
   }
 
+  getTaskDistributionConfig() {
+    this.taskDistributionConfigs.loading = true;
+    this.autoTaskService.taskDistributionConfig
+      .get(this.taskDistributionConfigs.paramsQuery)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.taskDistributionConfigs.loading = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.taskDistributionConfigs.rows = uniqBy(
+              this.taskDistributionConfigs.rows.concat(res.data),
+              'id',
+            );
+            this.taskDistributionConfigs.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.taskDistributionConfigs.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.taskDistributionConfigs.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  toggleType(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const isChecked = target.checked;
+
+    this.updateForm
+      .get('type')
+      ?.setValue(isChecked ? EDataSourceType.API : EDataSourceType.MANUAL);
+
+    this.handleChangeType();
+  }
+
   handleChangeType() {
     this.submitted = false;
     this.formArguments().clear();
@@ -340,6 +427,10 @@ export class UpdateSourceComponent implements OnDestroy, OnInit {
     ) {
       this.handleAddArgument();
     }
+  }
+
+  handleChangePriority(priority: number) {
+    this.updateForm.get('dTask.priority')?.setValue(priority || 1);
   }
 
   onDelete() {

@@ -7,6 +7,7 @@ import {
   IHistory,
   ITag,
   Order,
+  TaskDistributionConfig,
 } from 'src/app/types/viewmodels';
 import {
   BehaviorSubject,
@@ -92,6 +93,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     setting: 'setting',
     permission: 'permission',
     userAcl: 'user-acl',
+    taskDistributionConfig: 'task-distribution-config',
   };
 
   private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
@@ -632,6 +634,30 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.userAcl, 'bulk-remove']),
         body,
+      ),
+  };
+
+  taskDistributionConfig = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<TaskDistributionConfig[]>>(
+        this.createUrl([this.api.taskDistributionConfig]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: IBodyResultReason) =>
+      this.httpClient.post<EntityResult<TaskDistributionConfig>>(
+        this.createUrl([this.api.taskDistributionConfig]),
+        body,
+      ),
+    update: (id: string, body: IBodyResultReason) =>
+      this.httpClient.patch<EntityResult<TaskDistributionConfig>>(
+        this.createUrl([this.api.taskDistributionConfig, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.taskDistributionConfig, id]),
       ),
   };
 

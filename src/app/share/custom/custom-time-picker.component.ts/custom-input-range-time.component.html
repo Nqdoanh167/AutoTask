@@ -1,0 +1,82 @@
+<ng-container>
+  <div>
+    <div
+      class="input-range-time d-flex w-100 px-2"
+    >
+      <div class="input-time d-flex align-items-center w-45">
+        <div>Từ:</div>
+        <div class="d-flex align-items-center ms-2 position-relative">
+          <input
+            type="text"
+            class="form-control time-input"
+            [value]="formatTime(valueRangeTime[0])"
+            placeholder="Chọn giờ"
+            readonly
+            [popover]="fromTimePopover"
+            [outsideClick]="true"
+            placement="bottom"
+            triggers="click"
+            style="color: #007aff; width: 184px;"
+          />
+          <i class="fa-solid fa-clock time-icon"></i>
+          
+          <ng-template #fromTimePopover>
+            <div class="timepicker-popup">
+              <timepicker
+                [(ngModel)]="valueRangeTime[0]"
+                (ngModelChange)="handleChangeValueRangeTime($event, 0)"
+                [showMeridian]="showMeridian"
+                [hourStep]="hourStep"
+                [showMinutes]="showMinutes"
+                [showSeconds]="showSeconds"
+                [disabled]="disabled"
+                [showSpinners]="true"
+                [readonlyInput]="false"
+              ></timepicker>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+      
+      <div class="icon w-15 d-flex justify-content-center align-items-center">
+        <i class="fa-solid fa-arrow-right-long px-2"></i>
+      </div>
+      
+      <div class="input-time d-flex align-items-center w-45">
+        <div>Đến:</div>
+        <div class="d-flex align-items-center ms-2 position-relative">
+          <input
+            type="text"
+            class="form-control time-input"
+            [value]="formatTime(valueRangeTime[1])"
+            placeholder="Chọn giờ"
+            readonly
+            [popover]="toTimePopover"
+            [outsideClick]="true"
+            placement="bottom"
+            triggers="click"
+            style="color: #007aff; width: 184px;"
+          />
+          <i class="fa-solid fa-clock time-icon"></i>
+          
+          <ng-template #toTimePopover>
+            <div class="timepicker-popup">
+              <timepicker
+                [(ngModel)]="valueRangeTime[1]"
+                (ngModelChange)="handleChangeValueRangeTime($event, 1)"
+                [showMeridian]="showMeridian"
+                [hourStep]="hourStep"
+                [minuteStep]="minuteStep"
+                [showMinutes]="showMinutes"
+                [showSeconds]="showSeconds"
+                [disabled]="disabled"
+                [showSpinners]="true"
+                [readonlyInput]="false"
+              ></timepicker>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
