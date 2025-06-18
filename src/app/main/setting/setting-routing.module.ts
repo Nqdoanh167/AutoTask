@@ -8,6 +8,7 @@ import {TagComponent} from './tag/tag.component';
 import {RoleComponent} from './role/role.component';
 import {HasPermissionAccessModuleGuard} from '@app/services/guard/hasPermissionAccessSubModule.guard';
 import {EModule, ESettingTab} from '@app/types/viewmodels';
+import { DivideComponent } from './divide/divide.component';
 
 const routes: Routes = [
   {
@@ -50,6 +51,14 @@ const routes: Routes = [
         },
         canActivate: [HasPermissionAccessModuleGuard],
         component: RoleComponent,
+      },
+      {
+        path: ESettingTab.DIVIDE,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
+        component: DivideComponent,
       },
     ],
   },

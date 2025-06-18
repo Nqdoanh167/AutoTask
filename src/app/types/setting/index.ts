@@ -11,6 +11,11 @@ export enum EDataSourceType {
   API = 'API',
 }
 
+export enum EDistributeType {
+  MANUAL = 'MANUAL',
+  AUTO = 'AUTO',
+}
+
 export enum ESourceArgKey {
   NAME = 'name',
   PICTURE = 'picture',
@@ -33,7 +38,6 @@ export enum ESourceArgKey {
   UTM_TERM = 'utmTerm',
   UTM_CONTENT = 'utmContent',
 }
-
 export interface ISourceArgsDto {
   argKey: ESourceArgKey;
   argRef: string;
@@ -53,6 +57,9 @@ export interface ISourceDTask {
   branch: IBranchTaskDto;
   teams: ISourceDTaskTeam[];
   taskChainIds: string[];
+  distributionType: string | 'MANUAL' | 'AUTO';
+  priority: number;
+  taskDistributionConfigId: string;
 }
 
 export interface ISource {
@@ -146,6 +153,12 @@ export interface ISetting {
   bizId: string;
   updatedBy: AccountPublic;
   taskExportFields?: string[];
+  workHourEnable?: boolean;
+  workHourType?: string | 'fixed_daily';
+  workHours?: {
+    start: string;
+    end: string;
+  }[];
 }
 
 export interface IViewDto extends Pick<IView, 'screen' | 'options' | 'type' | 'allowedUserIds' | 'posIds' | 'roleIds' | 'isDefault' | 'isEdit' | 'isActive' | 'name'> { }
@@ -184,6 +197,12 @@ export enum EPerActSetting {
   UPDATE_SOURCE_SETTING = 'UPDATE_SOURCE_SETTING',
   UPDATE_TAG_SETTING = 'UPDATE_TAG_SETTING',
   UPDATE_ROLE_SETTING = 'UPDATE_ROLE_SETTING',
+
+  CRUD_TASK_DISTRIBUTION_CONFIG = 'CRUD_TASK_DISTRIBUTION_CONFIG',
+  VIEW_TASK_DISTRIBUTION_CONFIG = 'VIEW_TASK_DISTRIBUTION_CONFIG',
+  CREATE_TASK_DISTRIBUTION_CONFIG = 'CREATE_TASK_DISTRIBUTION_CONFIG',
+  UPDATE_TASK_DISTRIBUTION_CONFIG = 'UPDATE_TASK_DISTRIBUTION_CONFIG',
+  DELETE_TASK_DISTRIBUTION_CONFIG = 'DELETE_TASK_DISTRIBUTION_CONFIG',
 
   VIEW_PERMISSION_SETTING_ACCESS = 'VIEW_PERMISSION_SETTING_ACCESS',
   UPDATE_PERMISSION_SETTING_ACCESS = 'UPDATE_PERMISSION_SETTING_ACCESS',
