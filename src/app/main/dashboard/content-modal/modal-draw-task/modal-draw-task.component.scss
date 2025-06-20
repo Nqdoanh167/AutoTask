@@ -1,0 +1,7 @@
+.modal-draw-task {
+  .table-responsive {
+    max-height: calc(100vh - 290px);
+    height: calc(100vh - 290px);
+    overflow-y: auto;
+  }
+}

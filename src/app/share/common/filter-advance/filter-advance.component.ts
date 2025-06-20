@@ -71,7 +71,7 @@ export class FilterAdvanceComponent
   configFilterBasic: IFilterTopTable[] = [];
   onSearchingAdvance: string[] = [];
 
-  public cdtList: { key: string; label: string; value: string | string[] }[] = [];
+  public cdtList: { key: string; label: string; value: any }[] = [];
 
   protected readonly ETypeFilter = ETypeFilter;
   protected readonly ETypeButton = ETypeButton;
@@ -257,6 +257,7 @@ export class FilterAdvanceComponent
       } else delete objFilterQuery[configFilter.name!];
     });
 
+
     if(objFilterQuery['actionResult'] ) {
       if(!objFilterQuery['actionResult']?.actionId){
         delete objFilterQuery['actionResult'].actionId;
@@ -284,6 +285,18 @@ export class FilterAdvanceComponent
     for (const filter of this._configFilterAdvanceCopy) {
       if (!this.cdtList.some((item) => item.key === filter.name)) {
         if (filter) {
+          if (filter.type === ETypeFilter.ACTION_RESULT && !filter.value) {
+            this.cdtList.push({
+              key: filter.name!,
+              label: filter.placeholder!,
+              value: {
+                actionId: null,
+                resultId: null,
+                type: 'IN',
+              },
+            });
+           return
+          }
           this.cdtList.push({
             key: filter.name!,
             label: filter.placeholder!,
@@ -326,7 +339,7 @@ export class FilterAdvanceComponent
           if (!!this.currentActiveViewMode?.options[configFilter.name!]) {
             if (
               !configFilter?.options?.length ||
-              (configFilter?.options?.length === 1 &&
+              (!this.actionChains?.rows?.length &&
                 configFilter.name === 'chainActId')
             ) {
               this.loadData(configFilter);
@@ -395,7 +408,7 @@ export class FilterAdvanceComponent
       }
     }
 
-    if (filter.name === 'chainActId' && filter.options?.length === 1) {
+    if (filter.name === 'chainActId' && !this.actionChains?.rows?.length) {
       filter.loading = true;
       this.clickLoadData('actionChains');
     }
@@ -403,6 +416,29 @@ export class FilterAdvanceComponent
     setTimeout(() => {
       filter.loading = false;
     }, 100);
+  }
+
+  onChangeCondition(key: string) {
+    this.cdtList = this.cdtList.filter((item) => item.key !== key);
+    const cdt = this._configFilterAdvanceCopy.find((item) => item.name === key);
+    if(key === ETypeFilter.ACTION_RESULT){
+      if(cdt && !cdt.value) {
+        cdt.value = {
+          actionId: null,
+          resultId: null,
+          type: 'IN',
+        };
+      }
+    }
+
+    if (cdt) {
+      this.cdtList.push({
+        key: cdt.name!,
+        label: cdt.placeholder!,
+        value: cdt.value || '',
+      });
+    }
+
   }
 
 }

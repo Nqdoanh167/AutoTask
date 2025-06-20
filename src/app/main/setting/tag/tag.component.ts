@@ -123,6 +123,7 @@ export class TagComponent implements OnDestroy, OnInit {
           if (res.status === 200) {
             this.tags.total = res.data.length || 0;
             this.tags.rows = res.data;
+            this.autoTaskService.setListTag(res.data);
           }
         },
       });

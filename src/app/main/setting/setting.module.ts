@@ -39,6 +39,7 @@ import {ModalModule} from 'ngx-bootstrap/modal';
 import {InputMaskModule} from '../../share/input/input-mask/input-mask.module';
 import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
 import { CustomInputRangeTime } from "../../share/custom/custom-time-picker.component.ts/custom-input-range-time.component";
+import { DropdownSearchModule } from "../../share/common/dropdown-search/dropdown-search.module";
 
 @NgModule({
   declarations: [
@@ -84,7 +85,8 @@ import { CustomInputRangeTime } from "../../share/custom/custom-time-picker.comp
     ModalModule.forRoot(),
     InputMaskModule,
     FilterDataModule,
-    CustomInputRangeTime
+    CustomInputRangeTime,
+    DropdownSearchModule
 ],
 })
 export class SettingModule {}

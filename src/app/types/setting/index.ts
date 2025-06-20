@@ -4,7 +4,7 @@ import {
   ESocialPlatform,
   User,
 } from '@app/types/viewmodels';
-import { IBranchTaskDto, ITaskCartDto } from '@app/types/flow';
+import {IBranchTaskDto, ITaskCartDto} from '@app/types/flow';
 
 export enum EDataSourceType {
   MANUAL = 'MANUAL',
@@ -125,7 +125,7 @@ export interface IViewModeDto {
   quantity?: number;
   isRename?: boolean;
   isEditView?: boolean;
-  pos?: number
+  pos?: number;
 }
 
 export interface IView {
@@ -152,15 +152,40 @@ export interface ISetting {
   assignRole: string;
   bizId: string;
   updatedBy: AccountPublic;
+  taskExportFields?: string[];
   workHourEnable?: boolean;
   workHourType?: string | 'fixed_daily';
   workHours?: {
     start: string;
     end: string;
   }[];
+  drawAndDropConfig?: {
+    roles: string[]; // Vai trò được phép rút & thả số, ví dụ: ["Telesale", "Chăm sóc khách hàng"]
+    drawConfig: {
+      maxOpenTasks?: number; // Số tác vụ đang mở tối đa trước khi bị chặn rút số
+    };
+    dropConfig: {
+      transferToBranch?: string; // Chi nhánh được chuyển tới sau khi thả số, ví dụ: "Toshiko Tổng"
+      assignTags?: string[]; // Tag được gán sau khi thả số, ví dụ: "Tự do"
+    };
+    isEnabled?: boolean; // Bật/tắt tính năng cấu hình rút & thả số
+  };
 }
 
-export interface IViewDto extends Pick<IView, 'screen' | 'options' | 'type' | 'allowedUserIds' | 'posIds' | 'roleIds' | 'isDefault' | 'isEdit' | 'isActive' | 'name'> { }
+export interface IViewDto
+  extends Pick<
+    IView,
+    | 'screen'
+    | 'options'
+    | 'type'
+    | 'allowedUserIds'
+    | 'posIds'
+    | 'roleIds'
+    | 'isDefault'
+    | 'isEdit'
+    | 'isActive'
+    | 'name'
+  > {}
 
 export enum ETabPermissions {
   EMPLOYEE = 'EMPLOYEE',
@@ -197,7 +222,7 @@ export enum EPerActSetting {
   UPDATE_TAG_SETTING = 'UPDATE_TAG_SETTING',
   UPDATE_ROLE_SETTING = 'UPDATE_ROLE_SETTING',
 
-  CRUD_TASK_DISTRIBUTION_CONFIG = 'CRUD_TASK_DISTRIBUTION_CONFIG',
+  MANAGE_TASK_DISTRIBUTION_CONFIG = 'MANAGE_TASK_DISTRIBUTION_CONFIG',
   VIEW_TASK_DISTRIBUTION_CONFIG = 'VIEW_TASK_DISTRIBUTION_CONFIG',
   CREATE_TASK_DISTRIBUTION_CONFIG = 'CREATE_TASK_DISTRIBUTION_CONFIG',
   UPDATE_TASK_DISTRIBUTION_CONFIG = 'UPDATE_TASK_DISTRIBUTION_CONFIG',
@@ -229,7 +254,7 @@ export interface IPermissionGroups {
   name: string;
   key: EPerActType;
   isOpen: boolean;
-  groups?: { name: string; permissions: IPermissionItem[] }[];
+  groups?: {name: string; permissions: IPermissionItem[]}[];
   permissions?: IPermissionItem[];
   class?: string;
 }
@@ -259,9 +284,9 @@ export interface PermissionDto
   extends Pick<
     Permission,
     'name' | 'description' | 'isActive' | 'permissionAction'
-  > { }
+  > {}
 
-export interface UpdatePermissionDto extends PermissionDto { }
+export interface UpdatePermissionDto extends PermissionDto {}
 
 export enum EBatchActionEmployeePer {
   REMOVE = 'REMOVE',
@@ -274,7 +299,7 @@ export interface UserAclBaseRole {
   permission: string;
 }
 
-export interface UserAclTeam extends UserAclBaseRole { }
+export interface UserAclTeam extends UserAclBaseRole {}
 
 export interface UserAclDepartment extends UserAclBaseRole {
   teams: UserAclTeam[];
@@ -290,7 +315,7 @@ export interface UserAcl extends Omit<BaseInterface, 'id'> {
   branches: UserAclBranch[];
 }
 
-export interface UpdateUserAclDto extends UserAcl { }
+export interface UpdateUserAclDto extends UserAcl {}
 
 export interface BulkRemoveUserAcl {
   permissionId: string;
@@ -316,6 +341,6 @@ export interface SeparateTaskPer {
 
 export interface UserPerAccess extends PermissionAction {
   roleBranch?: {
-    [name: string]: string[]
-  }
+    [name: string]: string[];
+  };
 }

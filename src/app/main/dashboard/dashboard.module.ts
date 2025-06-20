@@ -59,6 +59,7 @@ import { InputCheckboxModule } from '@app/share/input/input-checkbox/input-check
 import { InputSelectCheckboxModule } from "../../share/common/filter-checkbox/filter-checkbox.component.module";
 import { ModalCreateBookingComponent } from './content-modal/modal-create-booking/modal-create-booking.component';
 import { BookingsComponent } from './content-modal/bookings/bookings.component';
+import { ModalDrawTaskComponent } from './content-modal/modal-draw-task/modal-draw-task.component';
 
 @NgModule({
   declarations: [
@@ -78,7 +79,8 @@ import { BookingsComponent } from './content-modal/bookings/bookings.component';
     ModalCreateOrderComponent,
     TaskCreateSourceComponent,
     ModalCreateBookingComponent,
-    BookingsComponent
+    BookingsComponent,
+    ModalDrawTaskComponent
   ],
   imports: [
     CommonModule,
