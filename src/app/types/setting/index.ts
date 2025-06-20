@@ -152,6 +152,7 @@ export interface ISetting {
   assignRole: string;
   bizId: string;
   updatedBy: AccountPublic;
+  taskExportFields?: string[];
   workHourEnable?: boolean;
   workHourType?: string | 'fixed_daily';
   workHours?: {

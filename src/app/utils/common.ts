@@ -377,3 +377,19 @@ export function normalizeToNumberArray(value: any): number[] {
 
   return [];
 }
+
+
+export const flattenData = (data: any, prefix: string = ''): Record<string, any> => {
+  return Object.keys(data).reduce((acc: Record<string, any>, key) => {
+    const value = data[key];
+    const newKey = prefix ? `${prefix}_${key}` : key;
+
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      Object.assign(acc, flattenData(value, newKey));
+    } else {
+      acc[newKey] = value;
+    }
+
+    return acc;
+  }, {} as Record<string, any>);
+};
