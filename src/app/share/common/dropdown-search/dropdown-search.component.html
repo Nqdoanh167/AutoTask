@@ -1,0 +1,89 @@
+<div class="btn-group w-100" [ngClass]="{unscroll: nextLevel1}" dropdown placement="bottom right"
+  #dropdown="bs-dropdown" [insideClick]="true">
+  <!-- triggers="mouseover" -->
+  <div id="button-alignment" class="w-100" dropdownToggle>
+    <ng-container *ngIf="labelNullTemplate && !value">
+      <ng-template [ngTemplateOutlet]="labelNullTemplate || defaultLabelTemplate"
+        [ngTemplateOutletContext]="{ item: value }">
+      </ng-template>
+    </ng-container>
+    <ng-container *ngIf="labelTemplate">
+      <ng-template [ngTemplateOutlet]="labelTemplate || defaultLabelTemplate"
+        [ngTemplateOutletContext]="{ item: value }">
+      </ng-template>
+    </ng-container>
+    <ng-container *ngIf="!labelNullTemplate && !labelTemplate">
+      <ng-template [ngTemplateOutlet]="defaultLabelTemplate" [ngTemplateOutletContext]="{ item: value }">
+      </ng-template>
+    </ng-container>
+    <ng-template #defaultLabelTemplate>
+      <div class="input text-truncate {{className}}" [ngClass]="{readonly}">
+        <div *ngIf="!value" class="placeholder-text">
+          {{placeholder}}
+        </div>
+        <div *ngIf="value" class="value text-truncate w-100">
+          <ng-container *ngIf="labelValueTemplate; else noneLabelValueTemplate">
+            <ng-template [ngTemplateOutlet]="labelValueTemplate" [ngTemplateOutletContext]="{ item: value }">
+            </ng-template>
+          </ng-container>
+          <ng-template #noneLabelValueTemplate>
+            {{currentRowValue[bindLabel || bindValue || 'name']}}
+          </ng-template>
+        </div>
+        <span class="ng-arrow-wrapper" *ngIf="!readonly"><span class="ng-arrow"></span></span>
+        <!-- <i class="fa-solid fa-chevron-down ms-1"></i> -->
+      </div>
+    </ng-template>
+  </div>
+  <ng-container *ngIf="!readonly">
+    <div *dropdownMenu class="dropdown-menu dropdown-menu-{{placement}}  mt-0">
+      <div class="dropdown-item dropdown-item-search" *ngIf="isSearch">
+        <div class="input-suffix input-prefix">
+          <img src="./assets/images/icon/search.svg" alt="icon" class="icon" />
+          <input #searchInput type="text" class="form-control" placeholder="Tìm kiếm" [value]="search.term"
+            aria-autocomplete="list" (compositionstart)="onCompositionStart()"
+            (compositionend)="onCompositionEnd(searchInput.value)" (input)="searchFn(searchInput.value)"
+            (change)="$event.stopPropagation()">
+        </div>
+      </div>
+      <ul class="ul" [ngClass]="{'custom-scrollbar': !nextLevel1}" role="menu" aria-labelledby="button-alignment">
+        <ng-container *ngFor="let row of _filteredItems; let index = index;">
+          <li role="menuitem" class="dropdown-item d-flex algin-items-center mt-1 cursor-pointer"
+            [ngClass]="{active: isActiveOption(row)}" (click)="selectItem($event,row)">
+            <ng-template [ngTemplateOutlet]="optionTemplate" [ngTemplateOutletContext]="{ item: row }">
+            </ng-template>
+
+            <ng-container *ngIf="nextLevel1 && row[nextLevel1]?.length">
+              <ul class="dropdown-menu p-0 ul">
+                <ng-container *ngFor="let row1 of row[nextLevel1];">
+                  <li role="menuitem" class="dropdown-item d-flex algin-items-center mt-1 cursor-pointer"
+                    [ngClass]="{active: isActiveOption(row1)}" (click)="selectItem($event, row, row1)">
+                    <ng-template [ngTemplateOutlet]="optionTemplate" [ngTemplateOutletContext]="{ item: row1 }">
+                    </ng-template>
+
+                    <ng-container *ngIf="nextLevel2 && row1[nextLevel2]?.length">
+                      <ul class="dropdown-menu p-0 ul">
+                        <ng-container *ngFor="let row2 of row1[nextLevel2];">
+                          <li role="menuitem" class="dropdown-item d-flex algin-items-center mt-1 cursor-pointer"
+                            [ngClass]="{active: isActiveOption(row2)}" (click)="selectItem($event, row, row1, row2)">
+                            <ng-template [ngTemplateOutlet]="optionTemplate" [ngTemplateOutletContext]="{ item: row2 }">
+                            </ng-template>
+                          </li>
+                        </ng-container>
+                      </ul>
+                    </ng-container>
+                  </li>
+                </ng-container>
+              </ul>
+            </ng-container>
+          </li>
+        </ng-container>
+        <ng-container *ngIf="!_filteredItems.length">
+          <li class="text-center text-muted">
+            Không tìm thấy
+          </li>
+        </ng-container>
+      </ul>
+    </div>
+  </ng-container>
+</div>

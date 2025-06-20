@@ -1,0 +1,107 @@
+<div class="modal-content bg-light modal-lg">
+  <div class="modal-header">
+    <h4 id="dialog-sizes-name2" class="modal-title pull-left">
+      Tải {{ sheetName }} ({{ rows.length }} đơn)
+    </h4>
+    <button
+      type="button"
+      class="btn-close close pull-right"
+      aria-label="Close"
+      (click)="hideModal()"
+    >
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="frame-select">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fs-500 text-uppercase fs-7">Chọn cột tải về</div>
+            <button
+              [tooltip]="'Bỏ tích toàn bộ'"
+              class="btn btn-neutral btn-sm"
+              (click)="handleResetFieleds()"
+            >
+              <i class="fa-solid fa-rotate"></i>
+            </button>
+          </div>
+          <div *ngFor="let item of fieldGroupExportExcel">
+            <div class="title text-uppercase fs-7 mt-2">
+              {{ item.titleGroup }}
+            </div>
+            <form
+              [formGroup]="form"
+              class="mt-2"
+              *ngFor="let field of item.fields"
+            >
+              <label class="basic-checkbox">
+                <input
+                  value="{{ item.id }}"
+                  [id]="field.code"
+                  [value]="field.code"
+                  formControlName="{{ field.code }}"
+                  (change)="onChange($event)"
+                  type="checkbox"
+                />
+                <span class="checkmark"></span>
+              </label>
+              <label class="form-checkcodecursor-pointer ms-4" [for]="field.code">
+                {{ field.label }}
+              </label>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="frame-select">
+          <div class="fs-500 text-uppercase fs-7">Xuất ra Excel</div>
+          <div cdkDropList (cdkDropListDropped)="drop($event)">
+            <div *ngFor="let item of headerLabel">
+              <div
+                class="item-select mt-2 d-flex justify-content-between"
+                style="line-height: 24px; cursor: move"
+                cdkDrag
+              >
+                <div>{{ item }}</div>
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-arrows-alt"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-button mt-4 text-center">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <div class="cursor-pointer" (click)="handleSaveConfig()">
+            <img src="./assets/images/icon/save-now.svg" />
+            <span class="text-primary fs-500 ms-2">
+              Lưu cấu hình
+              <i class="fas fa-spinner fa-spin" *ngIf="loading.submit"></i>
+            </span>
+          </div>
+        </div>
+        <div>
+          <button
+            class="btn me-2 btn-light fs-500 fs-14"
+            style="min-width: 120px"
+            (click)="hideModal()"
+          >
+            Đóng
+          </button>
+          <button
+            class="btn bg-primary text-white fs-500 fs-14"
+            style="min-width: 120px"
+            (click)="handleExportExcel()"
+          >
+            Tải về
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

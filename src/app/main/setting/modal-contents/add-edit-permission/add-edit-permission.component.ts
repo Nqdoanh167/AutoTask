@@ -213,7 +213,7 @@ export class AddEditPermissionComponent
               class: 'col-4',
             },
             {
-              key: EPerActSetting.CRUD_TASK_DISTRIBUTION_CONFIG,
+              key: EPerActSetting.MANAGE_TASK_DISTRIBUTION_CONFIG,
               name: 'Thêm, Sửa, Xóa Cấu hình chia số',
               class: 'col-4',
             },
@@ -312,7 +312,14 @@ export class AddEditPermissionComponent
 
   handleUpdate() {
     this.loading.submit = true;
-    const data = this.updateForm.value as unknown as PermissionDto;
+    const data = this.updateForm.value as any;
+
+    Object.keys(data.permissionAction).forEach((key: string) => {
+      if(key){
+        data.permissionAction[key] = Array.from(new Set(data.permissionAction[key]));
+      }
+    });
+
     if (this.sourceData) {
       this.autoTaskService.permission
         .update(this.sourceData.id, data)
@@ -371,15 +378,6 @@ export class AddEditPermissionComponent
       let value: string[] =
         this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
       if (checked) {
-        if(permission.key === EPerActSetting.CRUD_TASK_DISTRIBUTION_CONFIG){
-          value.push(
-            EPerActSetting.VIEW_TASK_DISTRIBUTION_CONFIG,
-            EPerActSetting.CREATE_TASK_DISTRIBUTION_CONFIG,
-            EPerActSetting.UPDATE_TASK_DISTRIBUTION_CONFIG,
-            EPerActSetting.DELETE_TASK_DISTRIBUTION_CONFIG,
-          )
-          return
-        }
         value.push(permission.key);
       } else {
         const index = value.indexOf(permission.key);

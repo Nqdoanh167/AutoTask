@@ -238,22 +238,64 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     taskChainResult: ITaskChainResult,
   ) {
-    this.formTaskChainResults()
-      .at(taskChainResultIndex)
-      .patchValue({
-        result: {
-          id: null,
-          name: null,
-        },
-        reason: {
-          id: null,
-          name: null,
-        },
-      });
+    // Lấy dữ liệu gốc từ staticDataChainItem
+    const originalTaskChainResult = this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex];
+    
+    // Nếu có dữ liệu gốc, khôi phục về giá trị đó
+    if (originalTaskChainResult) {
+      this.formTaskChainResults()
+        .at(taskChainResultIndex)
+        .patchValue({
+          result: {
+            id: originalTaskChainResult.result?.id || null,
+            name: originalTaskChainResult.result?.name || null,
+          },
+          reason: {
+            id: originalTaskChainResult.reason?.id || null,
+            name: originalTaskChainResult.reason?.name || null,
+          },
+        });
 
-    (<FormArray>(
-      this.formTaskChainResults().at(taskChainResultIndex).get('nextActions')
-    )).clear();
+      // Khôi phục nextActions nếu có
+      const nextActionsFormArray = <FormArray>(
+        this.formTaskChainResults().at(taskChainResultIndex).get('nextActions')
+      );
+      nextActionsFormArray.clear();
+      
+      if (originalTaskChainResult.nextActions?.length) {
+        originalTaskChainResult.nextActions.forEach((nextAction) => {
+          const delayDate = nextAction.deadlineDate ? new Date(nextAction.deadlineDate) : new Date();
+          const executedDate = nextAction.executedDate ? new Date(nextAction.executedDate) : new Date();
+          const action = nextAction.action || {};
+          const nextActionForm = this.fb.group({
+            action: action,
+            deadlineDate: delayDate,
+            status: nextAction.status || EStatusTaskChainResult.UNDONE,
+            executedDate: executedDate,
+            childNextAction: nextAction,
+          });
+          nextActionsFormArray.push(nextActionForm);
+        });
+      }
+    } else {
+      // Nếu không có dữ liệu gốc, reset về null như cũ
+      this.formTaskChainResults()
+        .at(taskChainResultIndex)
+        .patchValue({
+          result: {
+            id: null,
+            name: null,
+          },
+          reason: {
+            id: null,
+            name: null,
+          },
+        });
+
+      (<FormArray>(
+        this.formTaskChainResults().at(taskChainResultIndex).get('nextActions')
+      )).clear();
+    }
 
     this.cancelUpdateTaskChainEvent.emit(taskChainResultIndex);
   }
@@ -275,9 +317,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       reasonEditedDate,
     } = this.formTaskChainResults().at(taskChainResultIndex).value;
 
-    if (resultIndex === null || resultIndex === undefined) {
-      return;
-    }
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
         const modify = {
