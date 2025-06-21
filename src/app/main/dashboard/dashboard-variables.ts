@@ -303,12 +303,6 @@ export const TASK_CONFIG_BUTTON = [
     tooltip: 'Rút số',
     isActive: false,
   },
-  {
-    name: 'importExcel',
-    type: ETypeButton.DEFAULT,
-    icon: './assets/images/icon/importExcel.svg',
-    tooltip: 'Thêm từ file Excel',
-  },
    {
     name: 'reload',
     type: ETypeButton.DEFAULT,
