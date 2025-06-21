@@ -28,11 +28,11 @@
 
 <ng-template #lazy>
   <div class="custom-change-page">
-    <button (click)="changePageLazy('before')" type="button" class="btn mx-2" [disabled]="!canGoPrevious" [tooltip]="'Trang ' + (currentPage - 1)">
+    <button (click)="changePageLazy('before')" type="button" class="btn mx-2" [disabled]="!canGoPrevious" [title]="'Trang ' + (currentPage - 1)">
       <i class="fa-solid fa-arrow-left"></i>
     </button>
 
-    <button (click)="changePageLazy('after')" type="button" class="btn" [disabled]="!canGoNext" [tooltip]="'Trang ' + (currentPage + 1)">
+    <button (click)="changePageLazy('after')" type="button" class="btn" [disabled]="!canGoNext" [title]="'Trang ' + (currentPage + 1)">
       <i class="fa-solid fa-arrow-right"></i>
     </button>
   </div>
