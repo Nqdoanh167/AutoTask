@@ -3,26 +3,32 @@
 
   <ng-container modalBody>
     <form [formGroup]="form">
-      <div class="alert alert-warning mb-3">
-        <h6 class="mb-2">
-          <i class="fas fa-info-circle"></i>
-          Lưu ý: Tải file mẫu để tránh lỗi định dạng
-        </h6>
-        <ul class="mb-0 small">
-          <li>Mở file hướng dẫn để xem cách điền thông tin</li>
-          <li>
-            Nếu có mã số hóa đơn trùng với dữ liệu trong hệ thống, hãy chọn "Ghi
-            đè" để cập nhật thông tin
+      <div role="alert" class="alert alert-warning ng-star-inserted">
+        <span class="text-danger fw-500">Lưu ý:</span>
+        Tải file mẫu
+        <span class="text-primary text-href" (click)="downloadTemplate()">tại đây</span>
+        <ul class="ps-4" style="list-style: circle">
+          <li class="fw-500" style="list-style: none">
+            Một số trường cần lưu ý:
           </li>
           <li>
-            Trường hợp muốn nhập dữ liệu mới hoàn toàn, bỏ chọn "Ghi đề nếu bị
-            trùng"
+            <div>
+              Mã tác vụ (Có thể nhập hoặc không)
+            </div>
           </li>
-          <li>Vui lòng phân loại đơn hàng theo đúng kho trước khi nhập</li>
-          <li>Chỉ nhập các đơn hàng có thể thực hiện được</li>
-          <li>Kiểm tra thông tin khách hàng trước khi lưu</li>
-          <li>Nếu không có số điện thoại thì để trống cột đó</li>
-          <li>Nếu không có số điện thoại thì bỏ trống cột đó</li>
+          <li><div>Tên tác vụ  (bắt buộc)</div></li>
+          <li><div>Chi nhánh: Tên chi nhánh (bắt buộc)</div></li>
+          <li>
+            <div>Khách hàng</div>
+            <ul>
+              <li>
+                Nếu không có tên khách hàng thì bắt buộc phải có số điện thoại
+              </li>
+              <li>
+                Nếu không có số điện thoại thì bắt buộc phải có tên khách hàng
+              </li>
+            </ul>
+          </li>
         </ul>
       </div>
 
@@ -128,7 +134,9 @@
                         type="text"
                         class="form-control custom-input"
                         [placeholder]="field.label"
-                         [ngClass]="{'is-invalid': isFieldInvalid(field.key, task)}"
+                        [ngClass]="{
+                          'is-invalid': isFieldInvalid(field.key, task)
+                        }"
                         [formControlName]="field.key"
                       />
                     </ng-container>
@@ -137,7 +145,9 @@
                         class="custom-input-tag full-width"
                         placeholder="Chọn tags..."
                         [formControlName]="field.key"
-                        [ngClass]="{'is-invalid': isFieldInvalid(field.key, task)}"
+                        [ngClass]="{
+                          'is-invalid': isFieldInvalid(field.key, task)
+                        }"
                         [items]="tags.rows"
                         [multiple]="true"
                         (click)="!tags.rows.length && clickLoadData('tags')"
@@ -171,7 +181,9 @@
                       <select
                         class="form-select border-0"
                         [formControlName]="field.key"
-                         [ngClass]="{'is-invalid': isFieldInvalid(field.key, task)}"
+                        [ngClass]="{
+                          'is-invalid': isFieldInvalid(field.key, task)
+                        }"
                       >
                         <option value="">Chọn chi nhánh</option>
                         <option

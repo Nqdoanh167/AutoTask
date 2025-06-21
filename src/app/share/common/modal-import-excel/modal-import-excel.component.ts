@@ -331,6 +331,76 @@ export class ModalImportExcelComponent
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
+
+  downloadTemplate() {
+    try {
+      const headers = this.fieldDefaults.map(field => field.label);
+      
+      const firstBranch = this.currentUser?.branches?.[0]?.name || 'Chi nhánh mặc định';
+      
+      const sampleData = [
+        [
+          'Tác vụ mẫu 1',
+          'Nguyễn Văn A',
+          '0123456789',
+          '123 Đường ABC, Quận 1, TP.HCM',
+          firstBranch,
+          'tag1, tag2',
+          'https://example.com/chat1'
+        ],
+        [
+          'Tác vụ mẫu 2',
+          'Trần Thị B',
+          '0987654321',
+          '456 Đường XYZ, Quận 2, TP.HCM',
+          firstBranch,
+          'tag3, tag4',
+          'https://example.com/chat2'
+        ],
+        [
+          'Tác vụ mẫu 3',
+          'Lê Văn C',
+          '0111222333',
+          '789 Đường DEF, Quận 3, TP.HCM',
+          firstBranch,
+          'tag5',
+          'https://example.com/chat3'
+        ],
+        [
+          'Tác vụ mẫu 4',
+          'Phạm Thị D',
+          '0444555666',
+          '321 Đường GHI, Quận 4, TP.HCM',
+          firstBranch,
+          'tag6, tag7, tag8',
+          'https://example.com/chat4'
+        ],
+        [
+          'Tác vụ mẫu 5',
+          'Hoàng Văn E',
+          '0777888999',
+          '654 Đường JKL, Quận 5, TP.HCM',
+          firstBranch,
+          'tag9, tag10',
+          'https://example.com/chat5'
+        ]
+      ];
+      
+      const worksheetData = [headers, ...sampleData];
+      
+      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Tác vụ mẫu');
+      
+      XLSX.writeFile(workbook, 'file_mau_tac_vu.xlsx');
+      
+    } catch (error) {
+      console.error('Lỗi khi tạo file mẫu:', error);
+      this.toastr.error('Có lỗi xảy ra khi tải xuống file mẫu', 'Lỗi');
+    }
+  }
+
+  
   hideModal(): void {
     this.bsModalRef.hide();
   }
