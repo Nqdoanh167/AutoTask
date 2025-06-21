@@ -83,9 +83,9 @@ export class RoleComponent implements OnDestroy, OnInit {
       assignRole: [null],
       workHourType: ['fixed_daily'],
       workHours: this.fb.array([]),
-      workHourEnable: [true],
+      workHourEnable: [false],
       drawAndDropConfig: this.fb.group({
-        roleIds: [null, Validators.required],
+        roleIds: [[]],
         drawConfig: this.fb.group({
           maxOpenTasks: [0],
         }),
@@ -259,6 +259,13 @@ export class RoleComponent implements OnDestroy, OnInit {
 
   onSubmit() {
     this.submitted = true;
+
+    // Bổ sung required cho roleIds
+    // if(this.drawAndDropConfig.get('isEnabled')?.value && !this.drawAndDropConfig.get('roleIds')?.value) {
+    //   // this.drawAndDropConfig.get('roleIds')?.setValidators([Validators.required]);
+    //   // this.drawAndDropConfig.get('roleIds')?.updateValueAndValidity();
+    // }
+
     if (this.settingForm.invalid) {
       this.toasrt.warning('Vui lòng nhập đầy đủ thông tin');
       return;
