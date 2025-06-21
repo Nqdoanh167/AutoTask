@@ -92,6 +92,7 @@ export class ModalImportExcelComponent
     {
       key: 'branch_name',
       label: 'Chi nhánh',
+      required: true,
     },
     {
       key: 'tags',
@@ -130,8 +131,8 @@ export class ModalImportExcelComponent
     return this.form.get('tasks') as FormArray;
   }
 
-  isFieldInvalid(field: string, taskIndex: number): boolean {
-    const control = this.taskArrayForm.at(taskIndex).get(field);
+  isFieldInvalid(field: string, group: FormGroup): boolean {
+    const control = group?.get(field);
     return (
       !!control &&
       control.invalid &&

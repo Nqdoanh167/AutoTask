@@ -281,12 +281,6 @@ export const TASK_TAG_SETTING_CONFIG_FILTERS = [
 
 export const TASK_CONFIG_BUTTON = [
   {
-    name: 'reload',
-    type: ETypeButton.DEFAULT,
-    icon: './assets/images/icon/reload.svg',
-    tooltip: 'Tải lại trang',
-  },
-  {
     name: 'orderableTable',
     type: ETypeButton.DEFAULT,
     // label: 'Thêm tác vụ',
@@ -301,6 +295,25 @@ export const TASK_CONFIG_BUTTON = [
     icon: './assets/images/icon/keychain.svg',
     tooltip: 'Ẩn chuỗi đã đóng',
     isActive: false,
+  },
+   {
+    name: 'drawTask',
+    type: ETypeButton.DEFAULT,
+    icon: './assets/images/icon/draw.svg',
+    tooltip: 'Rút số',
+    isActive: false,
+  },
+  {
+    name: 'importExcel',
+    type: ETypeButton.DEFAULT,
+    icon: './assets/images/icon/importExcel.svg',
+    tooltip: 'Thêm từ file Excel',
+  },
+   {
+    name: 'reload',
+    type: ETypeButton.DEFAULT,
+    icon: './assets/images/icon/reload.svg',
+    tooltip: 'Tải lại trang',
   },
   {
     name: 'importExcel',

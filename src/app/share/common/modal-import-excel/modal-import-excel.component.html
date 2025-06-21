@@ -96,15 +96,14 @@
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="tbody">
                 <tr
                   *cdkVirtualFor="
                     let task of taskArrayForm.controls;
                     let i = index;
                     trackBy: trackById
                   "
-                  [formGroupName]="i"
-                  class="row-item"
+                  [formGroup]="task"
                 >
                   <td class="text-nowrap">{{ i + 1 }}</td>
                   <td *ngIf="submitted">
@@ -129,9 +128,7 @@
                         type="text"
                         class="form-control custom-input"
                         [placeholder]="field.label"
-                        [ngClass]="{
-                          'is-invalid': isFieldInvalid(field.key, i)
-                        }"
+                         [ngClass]="{'is-invalid': isFieldInvalid(field.key, task)}"
                         [formControlName]="field.key"
                       />
                     </ng-container>
@@ -140,14 +137,14 @@
                         class="custom-input-tag full-width"
                         placeholder="Chọn tags..."
                         [formControlName]="field.key"
-                        [ngClass]="{'is-invalid': isFieldInvalid(field.key, i)}"
+                        [ngClass]="{'is-invalid': isFieldInvalid(field.key, task)}"
                         [items]="tags.rows"
                         [multiple]="true"
                         (click)="!tags.rows.length && clickLoadData('tags')"
                         [loading]="tags.loading"
                         [bindLabel]="'name'"
                         [bindValue]="'name'"
-                        appendTo=".row-item"
+                        appendTo=".tbody"
                       >
                         <ng-template ng-label-tmp let-item="item">
                           <div
@@ -174,6 +171,7 @@
                       <select
                         class="form-select border-0"
                         [formControlName]="field.key"
+                         [ngClass]="{'is-invalid': isFieldInvalid(field.key, task)}"
                       >
                         <option value="">Chọn chi nhánh</option>
                         <option

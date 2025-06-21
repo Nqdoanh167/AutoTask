@@ -49,7 +49,8 @@ import moment from 'moment';
 import {ETabTaskDetail} from '@app/types/task';
 import {ModalCreateOrderComponent} from './content-modal/modal-create-order/modal-create-order.component';
 import {ModalExportExcelComponent} from '@app/share/common/modal-export-excel/modal-export-excel.component';
-import { ModalImportExcelComponent } from '@app/share/common/modal-import-excel/modal-import-excel.component';
+import {ModalImportExcelComponent} from '@app/share/common/modal-import-excel/modal-import-excel.component';
+import {ModalDrawTaskComponent} from './content-modal/modal-draw-task/modal-draw-task.component';
 
 @Component({
   selector: 'app-task',
@@ -776,19 +777,21 @@ export class DashboardComponent
         return;
       }
     }
-    if(name == 'importExcel'){
+    if (name == 'importExcel') {
       this.handleImportExcel();
+    }
+
+    if (name === 'drawTask') {
+      this.showModalDrawTask();
     }
   }
 
   handleImportExcel() {
     const modalRef = this.modalService.show(ModalImportExcelComponent, {
-      initialState: {
-      },
+      initialState: {},
       class: 'modal-dialog-centered modal-xl',
       backdrop: 'static',
     });
-
   }
 
   handleFilterAdvance(filter: any) {
@@ -845,7 +848,7 @@ export class DashboardComponent
   }
 
   handleChangePageLazy(direction: IChangePage): void {
-    if(this.item.loading) return;
+    if (this.item.loading) return;
 
     const currentPage = this.item.paramsQuery.page;
 
@@ -1025,6 +1028,23 @@ export class DashboardComponent
         fieldGroupExportExcel: TASK_FIELD_GROUP_EXPORT_EXCEL,
         formExportExcel: FORM_EXPORT_EXCEL,
       },
+    });
+  }
+
+  showModalDrawTask() {
+    const modal = this.modalService.show(ModalDrawTaskComponent, {
+      class: 'modal-dialog-centered modal-xl',
+      backdrop: 'static',
+      keyboard: true,
+    });
+
+    modal.content?.drawSuccess.subscribe((task) => {
+      if (task) {
+        const item = this.item.rows.find((row) => row.id === task.id);
+        if (item) {
+          Object.assign(item, task);
+        }
+      }
     });
   }
 }

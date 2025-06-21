@@ -9,7 +9,7 @@
           (searchEvent)="onSearch($event)"
           (selectEvent)="onSelectFilter($event)"
         ></app-filter-top-table>
-        <accordion class="accordion-white mt-4" [isAnimated]="true">
+        <accordion class="accordion-white mt-3" [isAnimated]="true">
           <accordion-group *ngFor="let social of socialPlatforms" #myGroup>
             <div
               accordion-heading

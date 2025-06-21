@@ -283,8 +283,16 @@
             </div>
             <div class="row mb-3 g-2">
               <div class="col-1">
-                <div>
-                  <label class="form-control-label">Mức ưu tiên</label>
+                  <label class="form-control-label">
+                    Độ ưu tiên
+                    <i
+                      class="fa-regular fa-circle-question ms-1"
+                      [tooltip]="
+                        'Khi có nhiều nguồn, hệ thống chọn cấu hình mặc định từ nguồn có ưu tiên cao nhất (số lớn nhất)'
+                      "
+                      placement="right"
+                    ></i>
+                  </label>
                   <div [style.width]="'100%'" id="priority">
                     <app-input-mask
                       [min]="1"
@@ -294,7 +302,6 @@
                       (changeValue)="handleChangePriority($event)"
                     ></app-input-mask>
                   </div>
-                </div>
               </div>
 
               <div class="col-2">
@@ -445,8 +452,6 @@
                         </div>
                       </div>
                     </div>
-
-                   
                   </div>
                 </ng-container>
               </div>
@@ -504,7 +509,9 @@
                   Thông tin API
                   <i
                     class="fa-regular fa-circle-question ms-1"
-                    [tooltip]="'Nếu Task được tự động tạo qua API thì thông tin bên dưới sẽ tự được điền vào task.Trong trường hợp dữ liệu từ tham số và thông tin mặc định bên dưới xảy ra xung đột, hệ thông sẽ ưu tiên sử dụng dữ liệu tham số.'"
+                    [tooltip]="
+                      'Nếu Task được tự động tạo qua API thì thông tin bên dưới sẽ tự được điền vào task.Trong trường hợp dữ liệu từ tham số và thông tin mặc định bên dưới xảy ra xung đột, hệ thông sẽ ưu tiên sử dụng dữ liệu tham số.'
+                    "
                     placement="auto"
                   ></i>
                 </div>

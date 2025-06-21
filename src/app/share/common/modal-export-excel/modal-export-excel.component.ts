@@ -187,6 +187,7 @@ export class ModalExportExcelComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res.status === 200) {
             this.saveConfig.emit(this.headerCode);
+            this.autoTaskService.setCurrentSetting(res.data);
             this.toastr.success('Lưu cấu hình thành công');
           }
         },

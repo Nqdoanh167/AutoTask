@@ -383,6 +383,18 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.task, 'bulk-assign']),
         body,
       ),
+    drawable: (params = {}) =>
+      this.httpClient.get<EntityResult<ITask[]>>(
+        this.createUrl([this.api.task, 'drawable']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+
+    drawTask: (id: string) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, id, 'draw']), {},
+      ),
   };
 
   taskChain = {
@@ -561,15 +573,15 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         body,
       ),
 
-    delete: (id: string) =>   
+    delete: (id: string) =>
       this.httpClient.delete<EntityResult<IView>>(
         this.createUrl([this.api.settingView, id]),
       ),
 
     updatePos: (id: string, pos: number) =>
       this.httpClient.put<EntityResult<IView>>(
-        this.createUrl([this.api.settingView, id,  'pos']),
-        { pos },
+        this.createUrl([this.api.settingView, id, 'pos']),
+        {pos},
       ),
   };
 
@@ -734,9 +746,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     const dfs = (units: any): any => {
       for (const u of units) {
         if (ids.includes(u.data)) {
-          return u.children?.length
-            ? dfs(u.children)
-            : u;
+          return u.children?.length ? dfs(u.children) : u;
         }
       }
     };
