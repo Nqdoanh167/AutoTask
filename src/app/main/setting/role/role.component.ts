@@ -52,6 +52,7 @@ export class RoleComponent implements OnDestroy, OnInit {
 
   public currentBiz!: Biz;
   private destroy$ = new Subject();
+
   constructor(
     private readonly authService: AuthService,
     private readonly autoTaskService: AutoTaskService,
@@ -85,7 +86,7 @@ export class RoleComponent implements OnDestroy, OnInit {
       workHours: this.fb.array([]),
       workHourEnable: [false],
       drawAndDropConfig: this.fb.group({
-        roleIds: [[]],
+        roleIds: [null],
         drawConfig: this.fb.group({
           maxOpenTasks: [0],
         }),
@@ -258,13 +259,16 @@ export class RoleComponent implements OnDestroy, OnInit {
   }
 
   onSubmit() {
-    this.submitted = true;
-
     // Bổ sung required cho roleIds
-    // if(this.drawAndDropConfig.get('isEnabled')?.value && !this.drawAndDropConfig.get('roleIds')?.value) {
-    //   // this.drawAndDropConfig.get('roleIds')?.setValidators([Validators.required]);
-    //   // this.drawAndDropConfig.get('roleIds')?.updateValueAndValidity();
-    // }
+    const roleIdsControl = this.drawAndDropConfig.get('roleIds');
+    if (this.drawAndDropConfig.get('isEnabled')?.value) {
+      roleIdsControl?.setValidators([Validators.required]);
+    } else {
+      roleIdsControl?.clearValidators();
+    }
+    roleIdsControl?.updateValueAndValidity();
+
+    this.submitted = true;
 
     if (this.settingForm.invalid) {
       this.toasrt.warning('Vui lòng nhập đầy đủ thông tin');
@@ -279,7 +283,10 @@ export class RoleComponent implements OnDestroy, OnInit {
       .update({
         ...this.settingForm.value,
       })
-      .pipe(take(1), finalize(() => (this.submitted = false)))
+      .pipe(
+        take(1),
+        finalize(() => (this.submitted = false)),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {

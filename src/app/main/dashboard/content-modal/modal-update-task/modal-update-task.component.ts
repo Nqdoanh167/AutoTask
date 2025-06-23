@@ -79,6 +79,7 @@ export class ModalUpdateTaskComponent
   public selectTag: boolean = false;
   public submittedModal = {
     addTaskChain: false,
+    dropTask: false
   };
 
   public isOpenBackDrop: boolean = false;
@@ -760,7 +761,7 @@ export class ModalUpdateTaskComponent
     try {
       this.submitted = true;
       if (this.updateForm.invalid) return;
-      await this.handleUpdate();
+      // await this.handleUpdate();
     } catch (e) {
       this.loading.createOrder = false;
       console.log(e);
@@ -1046,5 +1047,25 @@ export class ModalUpdateTaskComponent
         this.updatedTask.emit(this.sourceData);
       }, 3000);
     }
+  }
+
+   handleDropTask(id?: string) {
+    if(!id) return;
+    this.submittedModal.dropTask = true;
+    this.autoTaskService.task
+      .dropTask(id)
+      .pipe(takeUntil(this.destroy$), finalize(()=>this.submittedModal.dropTask = false))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toastrService.success('Thả số thành công');
+            this.sourceData = res.data;
+            this.patchForm(res.data);
+            this.updatedTask.emit(res.data);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
   }
 }

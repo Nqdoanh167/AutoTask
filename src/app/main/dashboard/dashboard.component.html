@@ -47,6 +47,15 @@
   <div class="right">
     <ul class="nav flex-nowrap align-items-center">
       <li style="padding-left: 5px; height: 35px">
+        <custom-input-search
+          [className]="'input-medium'"
+          (searchEvent)="onSearch({term: $event, name:'search'})"
+          [placeholder]="'Tìm kiếm...'"
+          [isCollapsible]="true"
+        ></custom-input-search>
+      </li>
+
+      <li style="padding-left: 5px; height: 35px">
         <ng-select
           class="ng-select-custom"
           placeholder="Chọn tag"
@@ -94,7 +103,6 @@
           ></app-view-mode-tab>
           <app-filter-advance
             (clickButtonEvent)="handleAction($event)"
-            (searchEvent)="onSearch($event)"
             (filterAdvanceEvent)="handleFilterAdvance($event)"
             (popoverEvent)="onPopoverFilter($event)"
           ></app-filter-advance>
@@ -876,7 +884,11 @@
               <img src="./assets/images/icon/split.svg" alt="split-tasks" />
             </button>
 
-            <button [tooltip]="'Tải xuống đơn hàng đã chọn'" class="btn button-outline" (click)="showModalExportExcel()">
+            <button
+              [tooltip]="'Tải xuống đơn hàng đã chọn'"
+              class="btn button-outline"
+              (click)="showModalExportExcel()"
+            >
               <img
                 src="./assets/images/icon/download.svg"
                 alt=""

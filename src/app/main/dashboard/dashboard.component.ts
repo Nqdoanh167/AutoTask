@@ -782,6 +782,10 @@ export class DashboardComponent
     }
 
     if (name === 'drawTask') {
+      if(!this.autoTaskSetting.drawAndDropConfig?.isEnabled){
+        this.toastrService.warning('Bạn vui lòng bật tính năng rút số ở mục cấu hình trong phần cài đặt.');
+        return;
+      }
       this.showModalDrawTask();
     }
   }

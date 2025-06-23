@@ -100,154 +100,143 @@
             </button>
           </div>
         </div>
-        
-          <div class="row align-items-center my-2" *ngFor="let cdt of cdtList">
-            <div class="fw-500 col-4">
-              <ng-select
-                [items]="
-                  configFilterAdvance
-                    | filterData: getUsedConditionKeys : ['name']
-                "
-                bindLabel="placeholder"
-                bindValue="name"
-                placeholder="Chọn điều kiện lọc"
-                [tooltip]="getCdtLabel(cdt.key)"
-                [clearable]="false"
-                [(ngModel)]="cdt.key"
-                (change)="
-                  onChangeCondition(cdt.key)"
-              >
-                <ng-template ng-label-tmp let-item="item">
-                  {{ getCdtLabel(item.name) }}
-                </ng-template>
-              </ng-select>
-            </div>
 
-            <div class="col-8 p-0 row align-items-center">
-              <div class="col-11">
-                @for (filter of configFilterAdvance; track $index) {
-                  @if (filter.name === cdt.key) {
-                    @switch (filter.type) {
-                      @case (ETypeFilter.SEARCH) {
-                        <input
-                          type="text"
-                          class="form-control input-medium"
-                          [placeholder]="filter.placeholder || 'Search...'"
-                          [(ngModel)]="cdt.value"
-                        />
-                      }
-                      @case (ETypeFilter.SELECT) {
-                        <custom-select-search
-                          [value]="filter?.value"
-                          [minWidth]="filter?.minWidth"
-                          [className]="''"
-                          [selectData]="filter"
-                          (selectEvent)="cdt.value = $event"
-                          (scrollToEndEvent)="
-                            scrollToEndEvent.emit(filter.name)
-                          "
-                          (click)="loadData(filter)"
-                        ></custom-select-search>
-                      }
-                      @case (ETypeFilter.DATE) {
-                        <custom-date-picker
-                          [className]="'input-medium'"
-                          [typePicker]="filter.subType"
-                          [defaultRangeValue]="filter.value"
-                          (changeDateEmmit)="onPickerDateAdvance($event, cdt)"
-                          [placeholder]="filter.placeholder || 'Picker Date'"
-                          [showClearButton]="true"
-                        ></custom-date-picker>
-                      }
-                      @case (ETypeFilter.ACTION_RESULT) {
-                        <div class="d-flex gap-2">
-                          <div class="flex-fill">
-                            <ng-select
-                              [items]="actions.rows"
-                              bindLabel="name"
-                              bindValue="id"
-                              placeholder="Chọn hành động"
-                              [clearable]="true"
-                              class="ng-select-custom"
-                              style="height: 36px; max-width: 150px"
-                              (click)="clickLoadData('actions')"
-                              [loading]="actions.loading"
-                              (ngModelChange)="
-                                onChangeValueActionResult(
-                                  cdt,
-                                  'actionId',
-                                  $event
-                                )
-                              "
-                              [ngModel]="getActionResultValue(cdt, 'actionId')"
-                              [ngClass]="{
-                                'is-invalid':
-                                  !getActionResultValue(cdt, 'resultId') &&
-                                  !getActionResultValue(cdt, 'actionId')
-                              }"
-                            ></ng-select>
-                          </div>
-                          <div class="flex-fill">
-                            <ng-select
-                              [items]="results.rows"
-                              bindLabel="name"
-                              bindValue="id"
-                              placeholder="Chọn kết quả"
-                              [clearable]="true"
-                              class="ng-select-custom"
-                              style="height: 36px; max-width: 150px"
-                              (click)="clickLoadData('results')"
-                              [loading]="results.loading"
-                              (ngModelChange)="
-                                onChangeValueActionResult(
-                                  cdt,
-                                  'resultId',
-                                  $event
-                                )
-                              "
-                              [ngModel]="getActionResultValue(cdt, 'resultId')"
-                              [ngClass]="{
-                                'is-invalid':
-                                  !getActionResultValue(cdt, 'resultId') &&
-                                  !getActionResultValue(cdt, 'actionId')
-                              }"
-                            ></ng-select>
-                          </div>
-                          <div class="flex-fill">
-                            <ng-select
-                              [items]="[
-                                {id: 'IN', name: 'Trong chuỗi'},
-                                {id: 'LAST', name: 'Cuối chuỗi'}
-                              ]"
-                              bindLabel="name"
-                              bindValue="id"
-                              placeholder="Loại kết quả"
-                              [clearable]="false"
-                              class="ng-select-custom"
-                              style="height: 36px; max-width: 150px"
-                              (ngModelChange)="
-                                onChangeValueActionResult(cdt, 'type', $event)
-                              "
-                              [ngModel]="getActionResultValue(cdt, 'type')"
-                              [ngClass]="{
-                                'is-invalid': !getActionResultValue(cdt, 'type')
-                              }"
-                            ></ng-select>
-                          </div>
+        <div class="row align-items-center my-2" *ngFor="let cdt of cdtList">
+          <div class="fw-500 col-4">
+            <ng-select
+              [items]="
+                configFilterAdvance
+                  | filterData: getUsedConditionKeys : ['name']
+              "
+              bindLabel="placeholder"
+              bindValue="name"
+              placeholder="Chọn điều kiện lọc"
+              [tooltip]="getCdtLabel(cdt.key)"
+              [clearable]="false"
+              [(ngModel)]="cdt.key"
+              (change)="onChangeCondition(cdt.key)"
+            >
+              <ng-template ng-label-tmp let-item="item">
+                {{ getCdtLabel(item.name) }}
+              </ng-template>
+            </ng-select>
+          </div>
+
+          <div class="col-8 p-0 row align-items-center">
+            <div class="col-11">
+              @for (filter of configFilterAdvance; track $index) {
+                @if (filter.name === cdt.key) {
+                  @switch (filter.type) {
+                    @case (ETypeFilter.SEARCH) {
+                      <input
+                        type="text"
+                        class="form-control input-medium"
+                        [placeholder]="filter.placeholder || 'Search...'"
+                        [(ngModel)]="cdt.value"
+                      />
+                    }
+                    @case (ETypeFilter.SELECT) {
+                      <custom-select-search
+                        [value]="filter?.value"
+                        [minWidth]="filter?.minWidth"
+                        [className]="''"
+                        [selectData]="filter"
+                        (selectEvent)="cdt.value = $event"
+                        (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"
+                        (click)="loadData(filter)"
+                      ></custom-select-search>
+                    }
+                    @case (ETypeFilter.DATE) {
+                      <custom-date-picker
+                        [className]="'input-medium'"
+                        [typePicker]="filter.subType"
+                        [defaultRangeValue]="filter.value"
+                        (changeDateEmmit)="onPickerDateAdvance($event, cdt)"
+                        [placeholder]="filter.placeholder || 'Picker Date'"
+                        [showClearButton]="true"
+                      ></custom-date-picker>
+                    }
+                    @case (ETypeFilter.ACTION_RESULT) {
+                      <div class="d-flex gap-2">
+                        <div class="flex-fill">
+                          <ng-select
+                            [items]="actions.rows"
+                            bindLabel="name"
+                            bindValue="id"
+                            placeholder="Chọn hành động"
+                            [clearable]="true"
+                            class="ng-select-custom"
+                            style="height: 36px; max-width: 150px"
+                            (click)="clickLoadData('actions')"
+                            [loading]="actions.loading"
+                            (ngModelChange)="
+                              onChangeValueActionResult(cdt, 'actionId', $event)
+                            "
+                            [ngModel]="getActionResultValue(cdt, 'actionId')"
+                            [ngClass]="{
+                              'is-invalid':
+                                !getActionResultValue(cdt, 'resultId') &&
+                                !getActionResultValue(cdt, 'actionId')
+                            }"
+                          ></ng-select>
                         </div>
-                      }
+                        <div class="flex-fill">
+                          <ng-select
+                            [items]="results.rows"
+                            bindLabel="name"
+                            bindValue="id"
+                            placeholder="Chọn kết quả"
+                            [clearable]="true"
+                            class="ng-select-custom"
+                            style="height: 36px; max-width: 150px"
+                            (click)="clickLoadData('results')"
+                            [loading]="results.loading"
+                            (ngModelChange)="
+                              onChangeValueActionResult(cdt, 'resultId', $event)
+                            "
+                            [ngModel]="getActionResultValue(cdt, 'resultId')"
+                            [ngClass]="{
+                              'is-invalid':
+                                !getActionResultValue(cdt, 'resultId') &&
+                                !getActionResultValue(cdt, 'actionId')
+                            }"
+                          ></ng-select>
+                        </div>
+                        <div class="flex-fill">
+                          <ng-select
+                            [items]="[
+                              {id: 'IN', name: 'Trong chuỗi'},
+                              {id: 'LAST', name: 'Cuối chuỗi'}
+                            ]"
+                            bindLabel="name"
+                            bindValue="id"
+                            placeholder="Loại kết quả"
+                            [clearable]="false"
+                            class="ng-select-custom"
+                            style="height: 36px; max-width: 150px"
+                            (ngModelChange)="
+                              onChangeValueActionResult(cdt, 'type', $event)
+                            "
+                            [ngModel]="getActionResultValue(cdt, 'type')"
+                            [ngClass]="{
+                              'is-invalid': !getActionResultValue(cdt, 'type')
+                            }"
+                          ></ng-select>
+                        </div>
+                      </div>
                     }
                   }
                 }
-              </div>
-              <div
-                class="col-1 d-flex justify-content-center cursor-pointer icon-close"
-                (click)="removeFilterCondition(cdt.key)"
-              >
-                <div class="fas fa-times"></div>
-              </div>
+              }
+            </div>
+            <div
+              class="col-1 d-flex justify-content-center cursor-pointer icon-close"
+              (click)="removeFilterCondition(cdt.key)"
+            >
+              <div class="fas fa-times"></div>
             </div>
           </div>
+        </div>
 
         <div class="d-flex justify-content-between mt-3">
           <button class="btn filter-btn border" (click)="addFilterCondition()">
@@ -291,50 +280,99 @@
           </div>
         }
         @default {
-          <button
-            type="button"
-            class="btn button-medium {{
-              filter.className
-            }} center-item button-filter-top"
-            [ngClass]="{
-              'button-fill secondary-color':
-                filter.type === ETypeButton.PRIMARY,
-              'button-outline': filter.type === ETypeButton.DEFAULT,
-              'button-sub-primary  secondary-color2':
-                filter.type === ETypeButton.SUB_PRIMARY
-            }"
-            (click)="onClick(filter.name || 'button')"
-            [disabled]="filter.disabled"
+          <div class="btn-group" dropdown>
+            <button
+              type="button"
+              class="btn button-medium {{
+                filter.className
+              }} center-item button-filter-top"
+              [ngClass]="{
+                'button-fill secondary-color':
+                  filter.type === ETypeButton.PRIMARY,
+                'button-outline': filter.type === ETypeButton.DEFAULT,
+                'button-sub-primary  secondary-color2':
+                  filter.type === ETypeButton.SUB_PRIMARY
+              }"
+              (click)="onClick(filter.name || 'button')"
+              [disabled]="filter.disabled"
             [tooltip]="filter.tooltip"
-            [ngStyle]="{
-              'background-color': filter.isActive ? '#f18658' : null
-            }"
-          >
-            @if (!filter.loading) {
-              @if (filter.icon || filter.activeIcon) {
-                <img
-                  src="{{ filter.activeIcon ?? filter.icon }}"
-                  alt=""
-                  class="activeIcon"
+              [ngStyle]="{
+                'background-color': filter.isActive ? '#f18658' : null
+              }"
+            >
+              @if (!filter.loading) {
+                @if (filter.icon || filter.activeIcon) {
+                  <img
+                    src="{{ filter.activeIcon ?? filter.icon }}"
+                    alt=""
+                    class="activeIcon"
+                    [ngClass]="{'me-1': !!filter.label}"
+                  />
+                }
+                @if (filter.icon) {
+                  <img
+                    src="{{ filter.icon }}"
+                    alt=""
+                    class="icon"
+                    [ngClass]="{'me-1': !!filter.label}"
+                  />
+                }
+              } @else {
+                <i
+                  class="fas fa-spinner fa-spin me-1-2"
                   [ngClass]="{'me-1': !!filter.label}"
-                />
+                ></i>
               }
-              @if (filter.icon) {
-                <img
-                  src="{{ filter.icon }}"
-                  alt=""
-                  class="icon"
-                  [ngClass]="{'me-1': !!filter.label}"
-                />
-              }
-            } @else {
-              <i
-                class="fas fa-spinner fa-spin me-1-2"
-                [ngClass]="{'me-1': !!filter.label}"
-              ></i>
+              {{ filter.label }}
+            </button>
+
+            @if (filter.children && filter.children.length) {
+              <button
+                type="button"
+                class="btn button-medium {{
+                  filter.className
+                }} dropdown-toggle p-2 dropdown-toggle-split"
+                [ngClass]="{
+                  'button-fill secondary-color':
+                    filter.type === ETypeButton.PRIMARY,
+                  'button-outline': filter.type === ETypeButton.DEFAULT,
+                  'button-sub-primary  secondary-color2':
+                    filter.type === ETypeButton.SUB_PRIMARY
+                }"
+                dropdownToggle
+                aria-haspopup="true"
+                aria-expanded="false"
+                style="border-left: 1px solid #ffffff15;"
+              >
+                <span class="visually-hidden">Toggle Dropdown</span>
+              </button>
+              <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                @for (
+                  child of filter.children;
+                  track childIndex;
+                  let childIndex = $index
+                ) {
+                  <li role="menuitem">
+                    <div
+                      class="dropdown-item d-flex align-items-center"
+                      (click)="onClick(child.name || 'button')"
+                      [class.disabled]="child.disabled"
+                    >
+                      @if (child.icon) {
+                        <img
+                          src="{{ child.icon }}"
+                          alt=""
+                          class="me-2"
+                          style="width: 16px; height: 16px"
+                        />
+                      }
+                      {{ child.tooltip || child.label || child.name }}
+                    </div>
+                  </li>
+                }
+              </ul>
             }
-            {{ filter.label }}
-          </button>
+          </div>
         }
       }
     }
