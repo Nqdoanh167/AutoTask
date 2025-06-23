@@ -1131,7 +1131,7 @@ span.required {
   }
   .list-button-header {
     //background-color: $white;
-    height: 33px;
+    height: 36px;
     width: 180px;
     display: flex;
     padding-bottom: 3px;
@@ -1195,7 +1195,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
 
 .custom-tab-basic.tab-filter-data {
   .nav-tabs {
-    max-width: 800px;
+    max-width: 900px;
     //height: $input-medium;
     display: flex;
     flex-wrap: nowrap;
@@ -1215,7 +1215,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       color: #afb2bd !important;
       border-radius: unset !important;
       padding: 5px 20px;
-      height: 33px;
+      height: 36px;
       .button-edit-tab {
         display: none;
       }
