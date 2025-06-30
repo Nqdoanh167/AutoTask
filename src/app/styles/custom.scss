@@ -767,6 +767,7 @@ ng-select.select-search-icon {
   &.filter-advance-popover-tab {
     margin-right: 180px;
     position: relative;
+    z-index: 998;
     .button-close {
       position: absolute;
       top: -10px;
@@ -1131,7 +1132,7 @@ span.required {
   }
   .list-button-header {
     //background-color: $white;
-    height: 33px;
+    height: 36px;
     width: 180px;
     display: flex;
     padding-bottom: 3px;
@@ -1195,7 +1196,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
 
 .custom-tab-basic.tab-filter-data {
   .nav-tabs {
-    max-width: 800px;
+    max-width: 860px;
     //height: $input-medium;
     display: flex;
     flex-wrap: nowrap;
@@ -1215,7 +1216,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       color: #afb2bd !important;
       border-radius: unset !important;
       padding: 5px 20px;
-      height: 33px;
+      height: 36px;
       .button-edit-tab {
         display: none;
       }
@@ -1444,6 +1445,7 @@ $price-tag-dot-background: $white;
   justify-content: center;
   text-shadow: 0 0 1px #999;
   font-size: 12px;
+  background-color: #000;
 
   span {
     overflow: hidden;

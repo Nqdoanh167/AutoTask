@@ -27,6 +27,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { FilterDataModule } from '@app/share/pipe/filter-data/filter-data.module';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 @Component({
   selector: 'app-filter-advance',
@@ -42,7 +43,8 @@ import { FilterDataModule } from '@app/share/pipe/filter-data/filter-data.module
     FormsModule,
     TooltipModule,
     TreeSelectModule,
-    FilterDataModule
+    FilterDataModule,
+    BsDropdownModule
   ],
   templateUrl: './filter-advance.component.html',
   styleUrls: ['./filter-advance.component.scss'],
@@ -83,9 +85,9 @@ export class FilterAdvanceComponent
       .subscribe((currentActiveViewMode) => {
         this.currentActiveViewMode = currentActiveViewMode;
         this.onSearchingAdvance = [];
-        if (this.popFilter) {
-          this.popFilter.hide();
-        }
+        // if (this.popFilter) {
+        //   this.popFilter.hide();
+        // }
         Object.keys(currentActiveViewMode?.options || {}).forEach(
           (key: any) => {
             if (this.configFilterAdvance.some((cA) => cA.name === key)) {

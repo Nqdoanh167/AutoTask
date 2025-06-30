@@ -48,6 +48,7 @@ import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
 import {ActivatedRoute} from '@angular/router';
+import { SocketService } from '@app/services/api/socket.service';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 
@@ -79,6 +80,7 @@ export class ModalUpdateTaskComponent
   public selectTag: boolean = false;
   public submittedModal = {
     addTaskChain: false,
+    dropTask: false
   };
 
   public isOpenBackDrop: boolean = false;
@@ -100,6 +102,7 @@ export class ModalUpdateTaskComponent
     private readonly phoneCallService: PhoneCallService,
     private readonly toastrService: ToastrService,
     private readonly route: ActivatedRoute,
+    private socketService: SocketService
   ) {
     super();
     this.authService.currentBiz
@@ -760,7 +763,7 @@ export class ModalUpdateTaskComponent
     try {
       this.submitted = true;
       if (this.updateForm.invalid) return;
-      await this.handleUpdate();
+      // await this.handleUpdate();
     } catch (e) {
       this.loading.createOrder = false;
       console.log(e);
@@ -1040,11 +1043,43 @@ export class ModalUpdateTaskComponent
   handleUpdateTaskChainData(taskChain: ITaskChain, chainIndex: number) {
     if (this.sourceData && taskChain) {
       this.sourceData.taskChains[chainIndex] = taskChain;
-      //TODO
+   
       setTimeout(() => {
         this.getDetailTask(true)
         this.updatedTask.emit(this.sourceData);
       }, 3000);
+
+      //TODO
+      this.socketService.listen('UPDATE_TASK').subscribe({
+      next: (res) => {
+        if (res) {
+          //
+        }
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
     }
+  }
+
+   handleDropTask(id?: string) {
+    if(!id) return;
+    this.submittedModal.dropTask = true;
+    this.autoTaskService.task
+      .dropTask(id)
+      .pipe(takeUntil(this.destroy$), finalize(()=>this.submittedModal.dropTask = false))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toastrService.success('Thả số thành công');
+            this.sourceData = res.data;
+            this.patchForm(res.data);
+            this.updatedTask.emit(res.data);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
   }
 }

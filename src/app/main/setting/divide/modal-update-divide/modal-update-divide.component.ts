@@ -27,7 +27,7 @@ import {
 import {AuthService} from '@app/services/api/auth.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import { NgSelectComponent } from '@ng-select/ng-select';
+import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-modal-update-divide',
@@ -36,7 +36,7 @@ import { NgSelectComponent } from '@ng-select/ng-select';
 })
 export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   @ViewChild('itemModal') itemModal!: ModalDirective;
-  @ViewChild('ngSelect') ngSelect!: NgSelectComponent;
+  @ViewChild('ngSelectChooseUser') ngSelectChooseUser!: NgSelectComponent;
   @Output() addItem: EventEmitter<TaskDistributionConfig> = new EventEmitter();
   @Output() updateItem: EventEmitter<TaskDistributionConfig> =
     new EventEmitter();
@@ -64,6 +64,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
 
   public usersByRole!: Partial<User>[];
   public selectedUserIds: string[] = [];
+  public searchTermUser: string = '';
 
   public isOpenBackdrop = false;
   public selectedRole: BizRole | null = null;
@@ -134,12 +135,15 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     return 0;
   }
 
-  public  updateSelectedUserIds(): void {
+  public updateSelectedUserIds(): void {
     const allUserIds: string[] = [];
-    
+
     this.roleRatiosFormArray.controls.forEach((roleControl: any) => {
       const roleValue = roleControl.value;
-      if (roleValue.ratioByEmployees && Array.isArray(roleValue.ratioByEmployees)) {
+      if (
+        roleValue.ratioByEmployees &&
+        Array.isArray(roleValue.ratioByEmployees)
+      ) {
         roleValue.ratioByEmployees.forEach((employee: RatioByEmployee) => {
           if (employee.userId && !allUserIds.includes(employee.userId)) {
             allUserIds.push(employee.userId);
@@ -147,7 +151,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
         });
       }
     });
-    
+
     this.selectedUserIds = allUserIds;
   }
 
@@ -206,12 +210,10 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
               reassignRoles: this.formGroup.value.reassignRoles || [],
             },
           )
-        : this.autoTaskService.taskDistributionConfig.create(
-            {
-              ...this.formGroup.value,
-              reassignRoles: this.formGroup.value.reassignRoles || [],
-            }
-          );
+        : this.autoTaskService.taskDistributionConfig.create({
+            ...this.formGroup.value,
+            reassignRoles: this.formGroup.value.reassignRoles || [],
+          });
 
       action
         .pipe(
@@ -293,7 +295,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
     )?.value;
 
     if (existingRoleRatio) {
-      this.updateSelectedUserIds()
+      this.updateSelectedUserIds();
       this.roleRatioForm = this.fb.group({
         roleId: [roleId, Validators.required],
         roleName: [existingRoleRatio.roleName],
@@ -318,7 +320,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
 
       this.roleRatioForm.valueChanges.subscribe((values) => {
         this.selectedUserIds = values.ratioByEmployees.map(
-          (c: RatioByEmployee) => c.userId
+          (c: RatioByEmployee) => c.userId,
         );
       });
     } else {
@@ -374,26 +376,29 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   }
 
   handleChooseUser(user: User) {
-    if(user){
-      const ratioByEmployeesArray = this.ratioByEmployeesArray;
-      const existingIndex = ratioByEmployeesArray.controls.findIndex(
-        (c: any) => c.userId === user.id,
+    if (!user) return;
+    if (!this.searchTermUser) {
+      this.ngSelectChooseUser.handleClearClick();
+    }
+
+    const ratioByEmployeesArray = this.ratioByEmployeesArray;
+    const existingIndex = ratioByEmployeesArray.controls.findIndex(
+      (c: any) => c.userId === user.id,
+    );
+
+    if (existingIndex >= 0) {
+      ratioByEmployeesArray.removeAt(existingIndex);
+    } else {
+      ratioByEmployeesArray.push(
+        this.fb.control({
+          userId: user.id,
+          userPicture: user.picture,
+          userName: user.name,
+          userPhone: user.phone,
+          userEmail: user.email,
+          ratio: 1,
+        }),
       );
-  
-      if (existingIndex >= 0) {
-        ratioByEmployeesArray.removeAt(existingIndex);
-      } else {
-        ratioByEmployeesArray.push(
-          this.fb.control({
-            userId: user.id,
-            userPicture: user.picture,
-            userName: user.name,
-            userPhone: user.phone,
-            userEmail: user.email,
-            ratio: 1,
-          }),
-        );
-      }
     }
   }
 
