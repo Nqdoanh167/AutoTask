@@ -378,6 +378,15 @@
                           <div class="action-reload">
                             @if (sourceData?.id) {
                               <button
+                                (click)="handleDropTask(sourceData?.id)"
+                                class="btn button-medium button-outline  me-2"
+                                type="button"
+                                [disabled]="submittedModal.dropTask"
+                              >
+                                <img src="./assets/images/icon/drop.svg" alt="" style="width: 16px; height: 16px">
+                              </button>
+
+                              <button
                                 (click)="getDetailTask(true)"
                                 class="btn button-medium button-outline"
                                 type="button"

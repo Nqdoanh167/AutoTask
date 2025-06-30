@@ -60,6 +60,7 @@ import { InputSelectCheckboxModule } from "../../share/common/filter-checkbox/fi
 import { ModalCreateBookingComponent } from './content-modal/modal-create-booking/modal-create-booking.component';
 import { BookingsComponent } from './content-modal/bookings/bookings.component';
 import { ModalDrawTaskComponent } from './content-modal/modal-draw-task/modal-draw-task.component';
+import { InArrayFilterPipe } from '@app/share/pipe/inArrayFilter.pipe';
 
 @NgModule({
   declarations: [
@@ -128,6 +129,7 @@ import { ModalDrawTaskComponent } from './content-modal/modal-draw-task/modal-dr
     HeaderModule,
     InputSelectCheckboxModule,
     InputCheckboxModule,
+    InArrayFilterPipe
   ],
 })
 export class DashboardModule { }

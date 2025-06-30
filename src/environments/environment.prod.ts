@@ -5,6 +5,8 @@ export const environment = {
   apiModule: 'https://smax.app/api',
   urlDomain: 'https://smax.app',
   clientUrl: 'https://smax.app',
+  apiSocket: 'https://smax.app',
+  apiSocketPath: '/socket/auto-task/socket.io',
 };
 
 const parsedURL = new URL(location.href);

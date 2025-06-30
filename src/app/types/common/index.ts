@@ -58,6 +58,7 @@ export interface IFilterTopButton {
   hidden?: boolean;
   tooltip?: string;
   isActive?: boolean;
+  children?: IFilterTopButton[];
 }
 
 export interface ITabFilter {
