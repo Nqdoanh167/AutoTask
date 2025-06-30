@@ -201,13 +201,14 @@ export class RoleComponent implements OnDestroy, OnInit {
           if (res.status === 200) {
             this.ngSelectTagTask.filter('');
             this.tag.rows.push(res.data);
+            Object.assign(tag, res.data);
 
-            let formTag: string[] = this.dropConfig.value.assignTags || [];
+            let formTag: string[] = this.dropConfig.value.assignedTagIds || [];
             formTag.push(res.data.id as string);
             //Lọc tag bị undifned
             formTag = formTag.filter((tag) => tag !== undefined);
             this.dropConfig.patchValue({
-              assignTags: formTag,
+              assignedTagIds: formTag,
             });
           } else {
             this.commonService.handleResErr(res);

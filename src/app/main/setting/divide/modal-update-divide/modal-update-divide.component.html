@@ -98,7 +98,7 @@
                   <td class="columns-action">
                     <div class="d-flex justify-content-end">
                       <span
-                        (click)="editRoleRatio(roleControl.value.roleId); ngSelect?.handleClearClick()"
+                        (click)="editRoleRatio(roleControl.value.roleId)"
                         class="d-flex align-items-center btn-action-table"
                       >
                         <img src="./assets/images/icon/edit.svg" alt="" />
@@ -251,7 +251,9 @@
                       [placeholder]="'Chọn nhân viên'"
                       [notFoundText]="'Không có nhân viên'"
                       (change)="handleChooseUser($event)"
-                      #ngSelect
+                      #ngSelectChooseUser
+                      (search)="searchTermUser = $event.term"
+                      (blur)="ngSelectChooseUser?.handleClearClick()"
                     >
                       <ng-template ng-label-tmp let-item="item"></ng-template>
                       <ng-template ng-option-tmp let-item="item">
@@ -328,7 +330,7 @@
                       <div style="width: 150px" class="d-flex align-items-center">
                          <button
                           class="btn btn-link text-danger"
-                          (click)="ratioByEmployeesArray.removeAt(i); ngSelect?.handleClearClick()"
+                          (click)="ratioByEmployeesArray.removeAt(i)"
                         >
                           <i class="fas fa-trash"></i>
                         </button>

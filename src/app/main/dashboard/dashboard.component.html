@@ -49,9 +49,9 @@
       <li style="padding-left: 5px; height: 35px">
         <custom-input-search
           [className]="'input-medium'"
-          (searchEvent)="onSearch({term: $event, name:'search'})"
+          (searchEvent)="onSearch({term: $event, name: 'search'})"
           [placeholder]="'Tìm kiếm...'"
-          [isCollapsible]="true"
+          [isCollapsible]="false"
         ></custom-input-search>
       </li>
 
@@ -313,7 +313,12 @@
                         <div class="list-chain d-flex flex-column gap-2">
                           <ng-container *ngIf="item?.taskChains?.length">
                             <div
-                              *ngFor="let taskChain of item?.taskChains"
+                              *ngFor="
+                                let taskChain of item?.taskChains
+                                  | inArrayFilter
+                                    : 'chainActId'
+                                    : [currentActiveViewMode?.options?.chainActId]
+                              "
                               class="chain-item"
                               [class.item-lock]="
                                 taskChain.status === ETaskChainType.CLOSED
