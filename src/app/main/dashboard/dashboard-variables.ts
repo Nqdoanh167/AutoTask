@@ -25,10 +25,10 @@ export const TASK_MULTIPLE_ACTIONS = [
 ];
 
 export const TASK_CONFIG_FILTERS = [
-  {
-    type: ETypeFilter.SEARCH,
-    placeholder: 'Tìm kiếm...',
-  },
+  // {
+  //   type: ETypeFilter.SEARCH,
+  //   placeholder: 'Tìm kiếm...',
+  // },
   {
     type: ETypeFilter.POPOVER,
     name: 'sort',
@@ -281,13 +281,6 @@ export const TASK_TAG_SETTING_CONFIG_FILTERS = [
 
 export const TASK_CONFIG_BUTTON = [
   {
-    name: 'orderableTable',
-    type: ETypeButton.DEFAULT,
-    // label: 'Thêm tác vụ',
-    icon: './assets/images/icon/table.svg',
-    tooltip: 'Tùy chỉnh bảng',
-  },
-  {
     name: 'isHideExecute',
     type: ETypeButton.DEFAULT,
     // label: 'Ẩn chuỗi đã đóng',
@@ -296,14 +289,7 @@ export const TASK_CONFIG_BUTTON = [
     tooltip: 'Ẩn chuỗi đã đóng',
     isActive: false,
   },
-   {
-    name: 'drawTask',
-    type: ETypeButton.DEFAULT,
-    icon: './assets/images/icon/draw.svg',
-    tooltip: 'Rút số',
-    isActive: false,
-  },
-   {
+  {
     name: 'reload',
     type: ETypeButton.DEFAULT,
     icon: './assets/images/icon/reload.svg',
@@ -321,6 +307,36 @@ export const TASK_CONFIG_BUTTON = [
     label: 'Thêm',
     icon: './assets/images/icon/plus.svg',
     tooltip: 'Thêm mới tác vụ',
+    children: [
+      {
+        name: 'importExcel',
+        type: ETypeButton.DEFAULT,
+        icon: './assets/images/icon/importExcel.svg',
+        tooltip: 'Thêm từ file Excel',
+      },
+    ],
+  },
+  {
+    name: 'other',
+    type: ETypeButton.PRIMARY,
+    label: 'Khác',
+    // icon: './assets/images/icon/plus.svg',
+    tooltip: 'Chức năng khác',
+    children: [
+      {
+        name: 'drawTask',
+        type: ETypeButton.DEFAULT,
+        icon: './assets/images/icon/draw.svg',
+        tooltip: 'Rút số',
+        isActive: false,
+      },
+      {
+        name: 'orderableTable',
+        type: ETypeButton.DEFAULT,
+        icon: './assets/images/icon/table.svg',
+        tooltip: 'Tùy chỉnh bảng',
+      },
+    ],
   },
 ];
 
@@ -348,7 +364,6 @@ export const ranges: BsCustomDates[] = [
     value: [new Date(), new Date()],
   },
 ];
-
 
 export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
   {
@@ -381,7 +396,7 @@ export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
       },
     ],
   },
-   {
+  {
     titleGroup: 'Thông tin tác vụ',
     codeGroup: 'task',
     fields: [
@@ -408,7 +423,8 @@ export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
       {
         label: 'Người tạo',
         code: 'createdBy_name',
-      },{
+      },
+      {
         label: 'Danh sách đơn hàng',
         code: 'orderCodes',
       },
@@ -432,13 +448,13 @@ export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
         label: 'Ngày cập nhật cuối',
         code: 'updatedAt',
       },
-       {
+      {
         label: 'Link cuộc hội thoại',
         code: 'chatLink',
-      }
+      },
     ],
   },
-]
+];
 
 export const FORM_EXPORT_EXCEL = {
   stt: null,
@@ -459,4 +475,4 @@ export const FORM_EXPORT_EXCEL = {
   teams: null,
   updatedAt: null,
   chatLink: null,
-}
+};
