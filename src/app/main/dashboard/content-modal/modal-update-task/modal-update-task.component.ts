@@ -48,6 +48,7 @@ import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
 import {ActivatedRoute} from '@angular/router';
+import { SocketService } from '@app/services/api/socket.service';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 
@@ -101,6 +102,7 @@ export class ModalUpdateTaskComponent
     private readonly phoneCallService: PhoneCallService,
     private readonly toastrService: ToastrService,
     private readonly route: ActivatedRoute,
+    private socketService: SocketService
   ) {
     super();
     this.authService.currentBiz
@@ -1041,11 +1043,23 @@ export class ModalUpdateTaskComponent
   handleUpdateTaskChainData(taskChain: ITaskChain, chainIndex: number) {
     if (this.sourceData && taskChain) {
       this.sourceData.taskChains[chainIndex] = taskChain;
-      //TODO
+   
       setTimeout(() => {
         this.getDetailTask(true)
         this.updatedTask.emit(this.sourceData);
       }, 3000);
+
+      //TODO
+      this.socketService.listen('UPDATE_TASK').subscribe({
+      next: (res) => {
+        if (res) {
+          //
+        }
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
     }
   }
 

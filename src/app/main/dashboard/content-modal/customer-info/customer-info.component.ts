@@ -139,7 +139,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
               this.getWard(res.data?.provinceCode, res.data?.districtCode);
             }
           } else {
-            this.commonService.handleResErr(res);
+            // this.commonService.handleResErr(res);
+            this.toarst.error('Không tìm thấy khách hàng!');
           }
         },
       });

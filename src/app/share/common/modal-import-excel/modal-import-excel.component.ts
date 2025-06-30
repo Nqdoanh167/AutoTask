@@ -238,6 +238,9 @@ export class ModalImportExcelComponent
 
   async handleSubmit(): Promise<void> {
     this.submitted = true;
+    if(this.form.invalid) {
+      return
+    }
     this.loading.save = true;
 
     try {
@@ -271,7 +274,9 @@ export class ModalImportExcelComponent
       this.progressStatus = 'error';
     } finally {
       this.loading.save = false;
-      this.getDataSource(true)
+      setTimeout(() => {
+        this.getDataSource(true)
+      }, 3000);
     }
   }
 
