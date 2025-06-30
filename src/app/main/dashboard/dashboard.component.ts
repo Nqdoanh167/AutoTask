@@ -108,7 +108,7 @@ export class DashboardComponent
     this.autoTaskService.currentSetting
       .pipe(takeUntil(this.destroy$))
       .subscribe((setting) => {
-        this.setting = setting;
+        this.setting = setting || {};
       });
 
     this.authService.currentBiz
@@ -213,7 +213,7 @@ export class DashboardComponent
 
     this.checkbox.listRoles =
       this.currentBiz?.user.roles?.filter(
-        (r: BizRole) => this.setting.roles.includes(r.id) && r.isActive,
+        (r: BizRole) => this.setting?.roles?.includes(r.id) && r.isActive,
       ) || [];
     if (!this.currentBiz?.user.branchIds?.length) {
       this.toastrService.warning(

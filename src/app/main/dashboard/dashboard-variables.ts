@@ -293,11 +293,17 @@ export const TASK_CONFIG_BUTTON = [
     icon: './assets/images/icon/table.svg',
     tooltip: 'Tùy chỉnh bảng',
   },
-  {
+   {
     name: 'reload',
     type: ETypeButton.DEFAULT,
     icon: './assets/images/icon/reload.svg',
     tooltip: 'Tải lại trang',
+  },
+  {
+    name: 'importExcel',
+    type: ETypeButton.DEFAULT,
+    icon: './assets/images/icon/importExcel.svg',
+    tooltip: 'Thêm từ file Excel',
   },
   {
     name: 'add_new',
@@ -458,4 +464,4 @@ export const FORM_EXPORT_EXCEL = {
   teams: null,
   updatedAt: null,
   chatLink: null,
-};
+}
