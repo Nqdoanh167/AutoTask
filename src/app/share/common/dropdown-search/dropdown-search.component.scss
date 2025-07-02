@@ -125,3 +125,21 @@
     }
   }
 }
+
+.clear-btn {
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #999;
+  z-index: 1;
+  
+  &:hover {
+    color: #666;
+  }
+  
+  i {
+    font-size: 12px;
+  }
+}

@@ -313,6 +313,7 @@ export interface UserAcl extends Omit<BaseInterface, 'id'> {
   userId: string;
   isActive: boolean;
   branches: UserAclBranch[];
+  stopReceiveTaskDuration?: string
 }
 
 export interface UpdateUserAclDto extends UserAcl {}

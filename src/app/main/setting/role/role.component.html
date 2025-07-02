@@ -211,7 +211,10 @@
                 <label class="form-label fw-bold">Cấu hình rút số</label>
                 <div class="d-flex align-items-center mb-3 gap-2">
                   <span>Không cho phép rút số khi đang có</span>
-                  <div style="width: 100px">
+                  <div
+                    style="width: 100px"
+                    [tooltip]="'Nhập 0 nghĩa là không giới hạn số lượng rút số'"
+                  >
                     <app-input-mask
                       className="text-end"
                       [isQuantity]="true"
@@ -233,6 +236,13 @@
                   <div>
                     <label class="form-label">
                       Chi nhánh được chuyển tới sau khi thả số
+                      <i
+                        class="fa-regular fa-circle-question ms-1"
+                        [tooltip]="
+                          'Nếu không chọn chi nhánh, tác vụ sẽ giữ nguyên chi nhánh sau khi thả số.'
+                        "
+                        placement="right"
+                      ></i>
                     </label>
                     <app-dropdown-search
                       [value]="
@@ -249,6 +259,7 @@
                       [isSearch]="roleBranches!.length > 10"
                       (change)="onChangeBranch($event)"
                       [items]="roleBranches"
+                      [clearable]="true"
                     >
                       <ng-template ng-option-tmp let-item="item">
                         <div class="text-truncate">{{ item.name }}</div>

@@ -5,6 +5,7 @@ import {
   IChangePage,
   ICommonDataSource,
   ITag,
+  OrderPlatformSource,
 } from '@app/types/viewmodels';
 import {finalize, shareReplay, takeUntil} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
@@ -112,9 +113,23 @@ export class ModalDrawTaskComponent extends DashboardData {
     return this.bizBranches?.find((b) => b.id === branch?.id) || null;
   }
 
-  getSourceById(sourceId: string | undefined): any {
-    if (sourceId) return this.sources.rows.find((s) => s.id === sourceId);
-    return null;
+  getTagName(){
+    return this.tags.rows.find((tag) => tag.id === this.item.paramsQuery.filter.tags)?.name || '';
+  }
+
+  getBranchName(){
+    return this.bizBranches?.find((branch) => branch.id === this.item.paramsQuery.filter.branchIds)?.name || '';
+  }
+
+  getSourceName(){
+    return this.sources.rows.find((source) => source.id === this.item.paramsQuery.filter.sourceIds)?.name || '';
+  }
+
+  getPlatformSources(platformSources: OrderPlatformSource[]): string {
+    if (platformSources && platformSources.length) {
+      return platformSources.map(source => source.name).join(', ');
+    }
+    return '-';
   }
 
   drawTask(task: ITask) {

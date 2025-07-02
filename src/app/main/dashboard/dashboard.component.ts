@@ -51,6 +51,7 @@ import {ModalCreateOrderComponent} from './content-modal/modal-create-order/moda
 import {ModalExportExcelComponent} from '@app/share/common/modal-export-excel/modal-export-excel.component';
 import {ModalImportExcelComponent} from '@app/share/common/modal-import-excel/modal-import-excel.component';
 import {ModalDrawTaskComponent} from './content-modal/modal-draw-task/modal-draw-task.component';
+import {SocketService} from '@app/services/api/socket.service';
 
 @Component({
   selector: 'app-task',
@@ -103,6 +104,7 @@ export class DashboardComponent
     private readonly route: ActivatedRoute,
     private readonly toastrService: ToastrService,
     private readonly router: Router,
+    private readonly socketService: SocketService,
   ) {
     super();
     this.autoTaskService.currentSetting
@@ -121,7 +123,6 @@ export class DashboardComponent
           );
           if (configFilterStaff) {
             configFilterStaff.options = [
-              {name: 'Chưa gán nhân sự phụ trách', id: 'NONE'},
               {name: 'Hệ thống', id: 'system'},
             ].concat(this.authService.getColleague());
           }
@@ -147,6 +148,29 @@ export class DashboardComponent
       localStorage.setItem(typeColumn, JSON.stringify(defaultColumn));
     }
     this.dataColumnsShow = dataColumns || defaultColumn;
+
+    //socket
+    this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
+      if (data.triggerContext === 'CREATE' || data.triggerContext === 'CLONE') {
+        if (this.checkTaskFilter(data.task || {})) {
+          this.item.rows = [data.task || {}, ...this.item.rows];
+          this.item.total! += 1;
+          if (this.item.rows.length > this.item.paramsQuery.limit!)
+            this.item.rows.pop();
+        }
+      } else {
+        const task = data.task as ITask;
+        if (!this.checkTaskFilter(task)) {
+          this.item.rows = this.item.rows.filter((row) => row.id !== task.id);
+          this.item.total! -= 1;
+          return;
+        }
+        const item = this.item.rows.find((row) => row.id === task?.id);
+        if (item) {
+          Object.assign(item, task);
+        }
+      }
+    });
   }
 
   override ngOnInit() {
@@ -704,7 +728,7 @@ export class DashboardComponent
           code,
         },
         class: 'modal-xl',
-        ignoreBackdropClick: true,
+        // ignoreBackdropClick: true,
         keyboard: true,
         backdrop: false,
       });
@@ -714,27 +738,27 @@ export class DashboardComponent
           this.getDataSource();
         });
 
-      modalUpdate?.content?.updatedTask
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((data) => {
-          if (data) {
-            const item = this.item.rows.find((row) => row.id === data.id);
-            if (item) {
-              Object.assign(item, data);
-            }
-          }
-        });
+      // modalUpdate?.content?.updatedTask
+      //   .pipe(takeUntil(this.destroy$))
+      //   .subscribe((data) => {
+      //     if (data) {
+      //       const item = this.item.rows.find((row) => row.id === data.id);
+      //       if (item) {
+      //         Object.assign(item, data);
+      //       }
+      //     }
+      //   });
 
-      modalUpdate?.content?.createdTask
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((data) => {
-          if (data) {
-            this.item.rows = [data, ...this.item.rows];
-            this.item.total! += 1;
-            if (this.item.rows.length > this.item.paramsQuery.limit!)
-              this.item.rows.pop();
-          }
-        });
+      // modalUpdate?.content?.createdTask
+      //   .pipe(takeUntil(this.destroy$))
+      //   .subscribe((data) => {
+      //     if (data) {
+      //       this.item.rows = [data, ...this.item.rows];
+      //       this.item.total! += 1;
+      //       if (this.item.rows.length > this.item.paramsQuery.limit!)
+      //         this.item.rows.pop();
+      //     }
+      //   });
 
       modalUpdate?.content?.deleteTask
         .pipe(takeUntil(this.destroy$))
@@ -782,8 +806,10 @@ export class DashboardComponent
     }
 
     if (name === 'drawTask') {
-      if(!this.autoTaskSetting.drawAndDropConfig?.isEnabled){
-        this.toastrService.warning('Bạn vui lòng bật tính năng rút số ở mục cấu hình trong phần cài đặt.');
+      if (!this.autoTaskSetting.drawAndDropConfig?.isEnabled) {
+        this.toastrService.warning(
+          'Bạn vui lòng bật tính năng rút số ở mục cấu hình trong phần cài đặt.',
+        );
         return;
       }
       this.showModalDrawTask();
@@ -964,7 +990,9 @@ export class DashboardComponent
     });
 
     modalRef.content?.assignTeams.subscribe(() => {
-      this.getDataSource();
+      setTimeout(() => {
+        this.getDataSource();
+      }, 3000);
     });
     modalRef.onHide?.pipe(takeUntil(this.destroy$));
   }
@@ -1044,11 +1072,188 @@ export class DashboardComponent
 
     modal.content?.drawSuccess.subscribe((task) => {
       if (task) {
+        if (!this.checkTaskFilter(task)) {
+          this.item.rows = this.item.rows.filter((row) => row.id !== task.id);
+          this.item.total! -= 1;
+          return;
+        }
         const item = this.item.rows.find((row) => row.id === task.id);
         if (item) {
           Object.assign(item, task);
         }
       }
     });
+  }
+
+  /* 
+  1. branch
+  2. teamRoles
+  3. teamId
+  4. tags
+  5. createdAt
+  6. updatedAt
+  7. sourceIds
+  8. createdBy
+  9. chainActId
+  10. actionIds
+  11. resultIds
+  12. unassignedRoleId
+  */
+  checkTaskFilter(task: ITask): boolean {
+    try {
+      const filterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+
+      // branch
+      if (filterQuery.branchIds && filterQuery.branchIds.length > 0) {
+        if (
+          !task.branch?.id ||
+          !filterQuery.branchIds.includes(task.branch.id)
+        ) {
+          return false;
+        }
+      }
+
+      // teamRoles
+      if (filterQuery.teamRoles && filterQuery.teamRoles.length > 0) {
+        const taskTeamRoleIds =
+          task.teams
+            ?.map((team) => {
+              if (team.userId) return team.roleId;
+              return null;
+            })
+            .filter(Boolean) || [];
+        const hasMatchingRole = filterQuery.teamRoles.some((roleId: string) =>
+          taskTeamRoleIds.includes(roleId),
+        );
+        if (!hasMatchingRole) {
+          return false;
+        }
+      }
+
+      // teamId
+      if (filterQuery.teamId && filterQuery.teamId.length > 0) {
+        const taskUserIds = task.teams?.map((team) => team.userId) || [];
+        const hasMatchingUser = filterQuery.teamId.some((userId: string) =>
+          taskUserIds.includes(userId),
+        );
+        if (!hasMatchingUser) {
+          return false;
+        }
+      }
+
+      // tag
+      if (filterQuery.tags && filterQuery.tags.length > 0) {
+        const taskTagIds = task.tags || [];
+        const hasMatchingTag = filterQuery.tags.some((tagId: string) =>
+          taskTagIds.includes(tagId),
+        );
+        if (!hasMatchingTag) {
+          return false;
+        }
+      }
+
+      // sourceIds
+      if (filterQuery.sourceIds && filterQuery.sourceIds.length > 0) {
+        const taskPlatformSourceIds = task.platformSourceIds || [];
+        const hasMatchingPlatformSource = filterQuery.sourceIds.some(
+          (sourceId: string) => taskPlatformSourceIds.includes(sourceId),
+        );
+        if (!hasMatchingPlatformSource) {
+          return false;
+        }
+      }
+
+      // createdAt
+      if (filterQuery.createdAt && filterQuery.createdAt.length === 2) {
+        const taskCreatedAt = new Date(task.createdAt);
+        const startDate = new Date(filterQuery.createdAt[0]);
+        const endDate = new Date(filterQuery.createdAt[1]);
+
+        if (taskCreatedAt < startDate || taskCreatedAt > endDate) {
+          return false;
+        }
+      }
+
+      //updatedAt
+      if (filterQuery.updatedAt && filterQuery.updatedAt.length === 2) {
+        const taskUpdatedAt = new Date(task.updatedAt);
+        const startDate = new Date(filterQuery.updatedAt[0]);
+        const endDate = new Date(filterQuery.updatedAt[1]);
+
+        if (taskUpdatedAt < startDate || taskUpdatedAt > endDate) {
+          return false;
+        }
+      }
+
+      // createdBy
+      if (filterQuery.createdBy) {
+        if (task.createdBy.id !== filterQuery.createdBy) {
+          return false;
+        }
+      }
+
+      // chainActId
+      if (filterQuery.chainActId) {
+        const hasMatchingChain = task.taskChains?.some(
+          (chain) => chain.chainActId === filterQuery.chainActId,
+        );
+        if (!hasMatchingChain) {
+          return false;
+        }
+      }
+
+      // actionIds
+      if (filterQuery.actionIds && filterQuery.actionIds.length > 0) {
+        const actionIds = task.taskChains.flatMap((chain) =>
+          chain.taskChainResults.flatMap((result) => {
+            const ids = [];
+            if (result.action?.id) ids.push(result.action.id);
+            if (result.subActions?.length) {
+              ids.push(...result.subActions.map((sa) => sa.id));
+            }
+            return ids;
+          }),
+        );
+        const hasMatchingAction = filterQuery.actionIds.some(
+          (actionId: string) => actionIds.includes(actionId),
+        );
+        if (!hasMatchingAction) {
+          return false;
+        }
+      }
+
+      // resultIds
+      if (filterQuery.resultIds && filterQuery.resultIds.length > 0) {
+        const resultIds = task.taskChains
+          .flatMap((chain) =>
+            chain.taskChainResults.map(
+              (taskChainResult) => taskChainResult.result.id,
+            ),
+          )
+          .filter(Boolean);
+        const hasMatchingResult = filterQuery.resultIds.some(
+          (resultId: string) => resultIds.includes(resultId),
+        );
+        if (!hasMatchingResult) {
+          return false;
+        }
+      }
+
+      // unassignedRoleId
+      if (filterQuery.unassignedRoleId) {
+        const hasMatchingUnassignedRole = task.teams?.some(
+          (team) =>
+            team.roleId === filterQuery.unassignedRoleId && !team.userId,
+        );
+        if (hasMatchingUnassignedRole) {
+          return false;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in checkTaskFilter:', error);
+      return true;
+    }
   }
 }

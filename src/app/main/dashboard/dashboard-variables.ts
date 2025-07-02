@@ -293,7 +293,7 @@ export const TASK_CONFIG_BUTTON = [
     icon: './assets/images/icon/table.svg',
     tooltip: 'Tùy chỉnh bảng',
   },
-   {
+  {
     name: 'reload',
     type: ETypeButton.DEFAULT,
     icon: './assets/images/icon/reload.svg',

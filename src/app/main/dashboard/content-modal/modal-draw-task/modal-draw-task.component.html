@@ -29,6 +29,7 @@
               [(ngModel)]="item.paramsQuery.filter.tags"
               style="width: 200px"
               (ngModelChange)="getItems(true)"
+              [tooltip]="getTagName()"
             >
               <ng-option *ngFor="let tag of tags.rows" [value]="tag.id">
                 <span class="text-capitalize" [ngStyle]="{color: tag.bgColor}">
@@ -50,6 +51,7 @@
               [clearable]="true"
               [(ngModel)]="item.paramsQuery.filter.branchIds"
               (ngModelChange)="getItems(true)"
+              [tooltip]="getBranchName()"
             ></ng-select>
           </div>
 
@@ -61,6 +63,7 @@
               class="custom-select"
               [items]="sources.rows"
               [loading]="sources.loading"
+              [tooltip]="getSourceName()"
               (click)="clickLoadData('sources')"
               [bindLabel]="'name'"
               [bindValue]="'id'"
@@ -234,10 +237,7 @@
               </td>
               <td>
                 <div>
-                  <span *ngIf="getSourceById(task.sourceId) as source">
-                    {{ source.name || '-' }}
-                  </span>
-                  <span *ngIf="!getSourceById(task.sourceId)">-</span>
+                 <span>{{getPlatformSources(task.platformSources)}}</span>
                 </div>
               </td>
 
