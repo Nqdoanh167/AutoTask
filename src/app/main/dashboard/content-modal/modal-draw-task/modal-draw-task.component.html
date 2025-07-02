@@ -82,20 +82,67 @@
         </div>
       </div>
 
-      <cdk-virtual-scroll-viewport [itemSize]="82" class="table-responsive">
+      <cdk-virtual-scroll-viewport
+        #virtualScroll
+        [itemSize]="82"
+        class="table-responsive tableFixHead"
+      >
         <table class="table table-hover">
           <thead class="table-light">
             <tr>
-              <th class="position-sticky top-0" style="z-index: 1">Task</th>
-              <th class="position-sticky top-0" style="z-index: 1">
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
+                Task
+              </th>
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
                 Lead/Deal
               </th>
-              <th class="position-sticky top-0" style="z-index: 1">Tags</th>
-              <th class="position-sticky top-0" style="z-index: 1">
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
+                Tags
+              </th>
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
                 Chi nhánh
               </th>
-              <th class="position-sticky top-0" style="z-index: 1">Nguồn</th>
-              <th class="position-sticky top-0 text-end" style="z-index: 1">
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
+                Nguồn
+              </th>
+              <th
+                class="text-end"
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
                 Thao tác
               </th>
             </tr>
@@ -116,14 +163,10 @@
             </tr>
             <tr *cdkVirtualFor="let task of item.rows">
               <td>
-                <div
-                  class="fw-500 cursor-pointer"
-                >
+                <div class="fw-500 cursor-pointer">
                   {{ task.name || '-' }}
                 </div>
-                <div
-                  class="fw-500 cursor-pointer text-link mt-1"
-                >
+                <div class="fw-500 cursor-pointer text-link mt-1">
                   {{ task.code || '-' }}
                 </div>
               </td>

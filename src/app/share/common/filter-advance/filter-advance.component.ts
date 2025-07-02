@@ -85,9 +85,9 @@ export class FilterAdvanceComponent
       .subscribe((currentActiveViewMode) => {
         this.currentActiveViewMode = currentActiveViewMode;
         this.onSearchingAdvance = [];
-        if (this.popFilter) {
-          this.popFilter.hide();
-        }
+        // if (this.popFilter) {
+        //   this.popFilter.hide();
+        // }
         Object.keys(currentActiveViewMode?.options || {}).forEach(
           (key: any) => {
             if (this.configFilterAdvance.some((cA) => cA.name === key)) {

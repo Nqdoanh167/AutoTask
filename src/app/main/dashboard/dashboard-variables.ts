@@ -283,13 +283,17 @@ export const TASK_CONFIG_BUTTON = [
   {
     name: 'isHideExecute',
     type: ETypeButton.DEFAULT,
-    // label: 'Ẩn chuỗi đã đóng',
-    // value: true,
     icon: './assets/images/icon/keychain.svg',
     tooltip: 'Ẩn chuỗi đã đóng',
     isActive: false,
   },
   {
+    name: 'orderableTable',
+    type: ETypeButton.DEFAULT,
+    icon: './assets/images/icon/table.svg',
+    tooltip: 'Tùy chỉnh bảng',
+  },
+   {
     name: 'reload',
     type: ETypeButton.DEFAULT,
     icon: './assets/images/icon/reload.svg',
@@ -314,27 +318,12 @@ export const TASK_CONFIG_BUTTON = [
         icon: './assets/images/icon/importExcel.svg',
         tooltip: 'Thêm từ file Excel',
       },
-    ],
-  },
-  {
-    name: 'other',
-    type: ETypeButton.PRIMARY,
-    label: 'Khác',
-    // icon: './assets/images/icon/plus.svg',
-    tooltip: 'Chức năng khác',
-    children: [
       {
         name: 'drawTask',
         type: ETypeButton.DEFAULT,
         icon: './assets/images/icon/draw.svg',
         tooltip: 'Rút số',
         isActive: false,
-      },
-      {
-        name: 'orderableTable',
-        type: ETypeButton.DEFAULT,
-        icon: './assets/images/icon/table.svg',
-        tooltip: 'Tùy chỉnh bảng',
       },
     ],
   },
