@@ -387,7 +387,7 @@
                               </button>
 
                               <button
-                                (click)="getDetailTask(true)"
+                                (click)="handleResetTask(generateResetTaskKey())"
                                 class="btn button-medium button-outline"
                                 type="button"
                                 [disabled]="loading.getDetail"

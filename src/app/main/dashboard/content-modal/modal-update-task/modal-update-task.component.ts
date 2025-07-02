@@ -27,7 +27,7 @@ import {
   OrderPlatformSource,
   User,
 } from '@app/types/viewmodels';
-import {intersection} from 'lodash';
+import {intersection, uniqueId} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
@@ -48,7 +48,8 @@ import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
 import {ActivatedRoute} from '@angular/router';
-import { SocketService } from '@app/services/api/socket.service';
+import {SocketService} from '@app/services/api/socket.service';
+import {ThrottleEvent} from '@app/share/decorator/throttle-event.decorator';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 
@@ -80,7 +81,7 @@ export class ModalUpdateTaskComponent
   public selectTag: boolean = false;
   public submittedModal = {
     addTaskChain: false,
-    dropTask: false
+    dropTask: false,
   };
 
   public isOpenBackDrop: boolean = false;
@@ -102,7 +103,7 @@ export class ModalUpdateTaskComponent
     private readonly phoneCallService: PhoneCallService,
     private readonly toastrService: ToastrService,
     private readonly route: ActivatedRoute,
-    private socketService: SocketService
+    private socketService: SocketService,
   ) {
     super();
     this.authService.currentBiz
@@ -122,6 +123,13 @@ export class ModalUpdateTaskComponent
     this.route.fragment.subscribe((fragment) => {
       if (fragment) {
         this.activeTab = fragment as ETabTaskDetail;
+      }
+    });
+
+    this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
+      if (data.task?.id === this.sourceData?.id) {
+        Object.assign(this.sourceData || {}, data.task || {});
+        this.patchForm(this.sourceData);
       }
     });
   }
@@ -145,6 +153,21 @@ export class ModalUpdateTaskComponent
       this.getDetailTask();
     }
     this.getBlock();
+  }
+
+  public generateResetTaskKey(): string {
+    const bizId = this.currentBiz?.id ?? 'unknown-biz';
+    const userId = this.currentUser?.id ?? 'unknown-user';
+    const sourceId = this.sourceData?.id ?? 'unknown-source';
+    return `reset-task:${bizId}:${userId}:${sourceId}`;
+  }
+
+  @ThrottleEvent({
+    durationMs: 300,
+    keyGenerator: (taskKey) => taskKey,
+  })
+  handleResetTask(taskKey: any){
+    this.getDetailTask(true);
   }
 
   getDetailTask(isRefresh = false) {
@@ -300,6 +323,7 @@ export class ModalUpdateTaskComponent
     const sourceForm = this.f['sourceForm'].value;
 
     if (
+      !this.sourceData?.id &&
       !this.authService.hasPerRole(branchForm?.data, EPerActTask.CREATE_TASK)
     ) {
       this.toastr.warning('Bạn không có quyền tạo tác vụ cho chi nhánh này <3');
@@ -1043,32 +1067,23 @@ export class ModalUpdateTaskComponent
   handleUpdateTaskChainData(taskChain: ITaskChain, chainIndex: number) {
     if (this.sourceData && taskChain) {
       this.sourceData.taskChains[chainIndex] = taskChain;
-   
-      setTimeout(() => {
-        this.getDetailTask(true)
-        this.updatedTask.emit(this.sourceData);
-      }, 3000);
 
-      //TODO
-      this.socketService.listen('UPDATE_TASK').subscribe({
-      next: (res) => {
-        if (res) {
-          //
-        }
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
+      // setTimeout(() => {
+      //   this.getDetailTask(true)
+      //   this.updatedTask.emit(this.sourceData);
+      // }, 3000);
     }
   }
 
-   handleDropTask(id?: string) {
-    if(!id) return;
+  handleDropTask(id?: string) {
+    if (!id) return;
     this.submittedModal.dropTask = true;
     this.autoTaskService.task
       .dropTask(id)
-      .pipe(takeUntil(this.destroy$), finalize(()=>this.submittedModal.dropTask = false))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.submittedModal.dropTask = false)),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -1077,7 +1092,9 @@ export class ModalUpdateTaskComponent
             this.patchForm(res.data);
             this.updatedTask.emit(res.data);
           } else {
-            this.commonService.handleResErr(res);
+            this.toastrService.error(
+              'Bạn không nằm trong vai trò được phép thả số',
+            );
           }
         },
       });

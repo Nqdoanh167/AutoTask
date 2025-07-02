@@ -32,7 +32,12 @@ export class SocketService{
       transports: ['websocket', 'polling'],
     })
 
-    this.socket.on('JOIN_ROOM_SUCCESS', (data)=>{
+    this.socket.emit('JOIN_ROOM', {
+      bizAlias: this.bizAlias,
+      token: `Bearer ${this.authService.getToken()}`,
+    })
+
+    this.socket.on('room/JOIN_SUCCESS', (data)=>{
       this.bizId = data.bizId;
     })
   }

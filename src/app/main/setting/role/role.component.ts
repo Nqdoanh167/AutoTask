@@ -322,6 +322,19 @@ export class RoleComponent implements OnDestroy, OnInit {
   }
 
   onChangeBranch(items: any) {
+    if(!items){
+      this.dropConfig.patchValue({
+        transferToBranch: {
+          id: null,
+          name: null,
+          department: null,
+          departmentName: null,
+          team: null,
+          teamName: null,
+        },
+      });
+      return;
+    }
     if (items.length >= 1) {
       this.dropConfig.patchValue({
         transferToBranch: {
