@@ -16,4 +16,5 @@ if (parsedURL.hostname !== 'localhost') {
   environment.apiModule = serviceAddr;
   environment.urlDomain = parsedURL.origin;
   environment.clientUrl = parsedURL.origin;
+  environment.apiSocket = parsedURL.origin;
 }

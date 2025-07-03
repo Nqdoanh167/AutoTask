@@ -8,6 +8,10 @@ import {
 } from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {CommonModule} from '@angular/common';
+import {BaseComponentsComponent} from '@app/share/common/base-components/base-components.component';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {UserAcl} from '@app/types/setting';
+import {finalize, takeUntil} from 'rxjs';
 
 @Component({
   selector: 'app-modal-stop-receive',
@@ -16,63 +20,79 @@ import {CommonModule} from '@angular/common';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
 })
-export class ModalStopReceiveComponent implements OnInit {
+export class ModalStopReceiveComponent
+  extends BaseComponentsComponent
+  implements OnInit
+{
   @Output() updateSuccess = new EventEmitter<boolean>();
 
   formGroup!: FormGroup;
   loading = false;
+  userAcl!: UserAcl;
 
   // Options for stop receiving duration
   stopOptions = [
-    {id: '15m', label: 'Trong 15 phút', value: 15 * 60 * 1000},
-    {id: '1h', label: 'Trong 1 giờ', value: 60 * 60 * 1000},
-    {id: '8h', label: 'Trong 8 giờ', value: 8 * 60 * 60 * 1000},
-    {id: '24h', label: 'Trong 24 giờ', value: 24 * 60 * 60 * 1000},
+    {id: 'continue', label: 'Vẫn tiếp tục nhận số', value: 0},
+    {id: '15m', label: 'Trong 15 phút', value: 15},
+    {id: '1h', label: 'Trong 1 giờ', value: 60},
+    {id: '8h', label: 'Trong 8 giờ', value: 8 * 60},
+    {id: '24h', label: 'Trong 24 giờ', value: 24 * 60},
     {id: 'until_restart', label: 'Đến khi tôi bật lại', value: -1},
   ];
 
   constructor(
     public bsModalRef: BsModalRef,
     private fb: FormBuilder,
-  ) {}
+    private autoTaskService: AutoTaskService,
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.initForm();
+    this.loadUserAclData();
   }
 
   initForm(): void {
     this.formGroup = this.fb.group({
-      stopDuration: ['15m', Validators.required],
+      stopReceiveTaskDuration: [0],
     });
   }
 
+  loadUserAclData(): void {
+    this.loading = true;
+    this.autoTaskService.userAcl
+      .get()
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (response) => {
+          const user = response.data.find((user) => user.userId === this.currentUser?.id);
+          if (user) {
+            this.userAcl = user;
+            this.formGroup.patchValue({
+              stopReceiveTaskDuration: this.userAcl.stopReceiveTaskDuration || 0,
+            });
+          }
+        },
+      });
+  }
+
   onSubmit(): void {
-    //   const formValue = this.formGroup.value;
-    //   const selectedOption = this.stopOptions.find(option => option.id === formValue.stopDuration);
-    //   if (!selectedOption) return;
-    //   this.loading = true;
-    //   // Calculate end time if not "until restart"
-    //   const endTime = selectedOption.id === 'until_restart'
-    //     ? null
-    //     : new Date(Date.now() + selectedOption.value).toISOString();
-    //   const payload = {
-    //     stopReceiving: true,
-    //     stopUntil: endTime,
-    //     stopUntilRestart: selectedOption.id === 'until_restart'
-    //   };
-    //   this.settingService.updateUserSettings(payload)
-    //     .pipe(finalize(() => this.loading = false))
-    //     .subscribe({
-    //       next: (res) => {
-    //         if (res.status === 200) {
-    //           this.commonService.showSuccess('Đã ngừng nhận số thành công');
-    //           this.updateSuccess.emit(true);
-    //           this.bsModalRef.hide();
-    //         }
-    //       },
-    //       error: (err) => {
-    //         this.commonService.showError('Có lỗi xảy ra khi cập nhật cài đặt');
-    //       }
-    //     });
+    if (this.formGroup.invalid) {
+      return;
+    }
+
+    this.loading = true;
+    this.autoTaskService.userAcl.upsert({
+      ...this.userAcl,
+      stopReceiveTaskDuration: this.formGroup.value.stopReceiveTaskDuration,
+    })
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: () => {
+          this.updateSuccess.emit(true);
+          this.bsModalRef.hide();
+        },
+      });
   }
 }

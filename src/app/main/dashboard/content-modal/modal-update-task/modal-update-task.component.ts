@@ -17,9 +17,9 @@ import {
   ITaskDto,
   ModifiedUserUnit,
 } from '@app/types/flow';
-import {finalize, lastValueFrom, take, takeUntil} from 'rxjs';
-import {FormArray, FormGroup, ValidationErrors} from '@angular/forms';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
+import { finalize, lastValueFrom, take, takeUntil } from 'rxjs';
+import { FormArray, FormGroup, ValidationErrors } from '@angular/forms';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import {
   ERole,
   ESocialPlatform,
@@ -27,28 +27,29 @@ import {
   OrderPlatformSource,
   User,
 } from '@app/types/viewmodels';
-import {intersection} from 'lodash';
-import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
-import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
-import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
-import {environment} from '../../../../../environments/environment';
-import {ToastrService} from 'ngx-toastr';
-import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
+import { intersection, uniqueId } from 'lodash';
+import { IModalConfirmContent } from '@share/custom/modal-confirm/modal-confirm.component';
+import { ModalConfirmService } from '@share/custom/modal-confirm/modal-confirm.service';
+import { UpdateActionInTaskChainComponent } from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
+import { environment } from '../../../../../environments/environment';
+import { ToastrService } from 'ngx-toastr';
+import { CustomerInfoComponent } from '@main/dashboard/content-modal/customer-info/customer-info.component';
 import {
   EPerActTask,
   ISource,
   IUpdateSourceDto,
   IViewModeDto,
 } from '@app/types/setting';
-import {NgSelectComponent} from '@ng-select/ng-select';
-import {ETabTaskDetail} from '@app/types/task';
-import {MainService} from '@app/services/api/main.service';
-import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
-import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
-import {PhoneCallService} from '@app/services/common/phone-call.service';
-import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
-import {ActivatedRoute} from '@angular/router';
+import { NgSelectComponent } from '@ng-select/ng-select';
+import { ETabTaskDetail } from '@app/types/task';
+import { MainService } from '@app/services/api/main.service';
+import { DetailTaskPerms } from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
+import { TreeNodeSelectEvent, TreeNodeUnSelectEvent } from 'primeng/tree';
+import { PhoneCallService } from '@app/services/common/phone-call.service';
+import { ModalCloneComponent } from '../multiple-action/modal-clone/modal-clone.component';
+import { ActivatedRoute } from '@angular/router';
 import { SocketService } from '@app/services/api/socket.service';
+import { ThrottleEvent } from '@app/share/decorator/throttle-event.decorator';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 
@@ -59,8 +60,7 @@ declare function smaxCallSdkMakeCall(callInfo: any): void;
 })
 export class ModalUpdateTaskComponent
   extends DetailTaskPerms
-  implements OnInit
-{
+  implements OnInit {
   @ViewChild('templateAddTaskChain') templateAddTaskChain!: TemplateRef<any>;
   public addTaskChainModalRef?: BsModalRef;
 
@@ -80,7 +80,7 @@ export class ModalUpdateTaskComponent
   public selectTag: boolean = false;
   public submittedModal = {
     addTaskChain: false,
-    dropTask: false
+    dropTask: false,
   };
 
   public isOpenBackDrop: boolean = false;
@@ -102,7 +102,7 @@ export class ModalUpdateTaskComponent
     private readonly phoneCallService: PhoneCallService,
     private readonly toastrService: ToastrService,
     private readonly route: ActivatedRoute,
-    private socketService: SocketService
+    private socketService: SocketService,
   ) {
     super();
     this.authService.currentBiz
@@ -122,6 +122,13 @@ export class ModalUpdateTaskComponent
     this.route.fragment.subscribe((fragment) => {
       if (fragment) {
         this.activeTab = fragment as ETabTaskDetail;
+      }
+    });
+
+    this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
+      if (data.task?.id === this.sourceData?.id) {
+        Object.assign(this.sourceData || {}, data.task || {});
+        this.patchForm(this.sourceData);
       }
     });
   }
@@ -145,6 +152,21 @@ export class ModalUpdateTaskComponent
       this.getDetailTask();
     }
     this.getBlock();
+  }
+
+  public generateResetTaskKey(): string {
+    const bizId = this.currentBiz?.id ?? 'unknown-biz';
+    const userId = this.currentUser?.id ?? 'unknown-user';
+    const sourceId = this.sourceData?.id ?? 'unknown-source';
+    return `reset-task:${bizId}:${userId}:${sourceId}`;
+  }
+
+  @ThrottleEvent({
+    durationMs: 300,
+    keyGenerator: (taskKey) => taskKey,
+  })
+  handleResetTask(taskKey: any) {
+    this.getDetailTask(true);
   }
 
   getDetailTask(isRefresh = false) {
@@ -191,7 +213,7 @@ export class ModalUpdateTaskComponent
   getTaskByCode() {
     this.loading.getDetail = true;
     this.autoTaskService.task
-      .get({filter: JSON.stringify({codeIn: [this.code]}), page: 1, limit: 1})
+      .get({ filter: JSON.stringify({ codeIn: [this.code] }), page: 1, limit: 1 })
       .pipe(
         finalize(() => (this.loading.getDetail = false)),
         takeUntil(this.destroy$),
@@ -300,6 +322,7 @@ export class ModalUpdateTaskComponent
     const sourceForm = this.f['sourceForm'].value;
 
     if (
+      !this.sourceData?.id &&
       !this.authService.hasPerRole(branchForm?.data, EPerActTask.CREATE_TASK)
     ) {
       this.toastr.warning('Bạn không có quyền tạo tác vụ cho chi nhánh này <3');
@@ -319,14 +342,14 @@ export class ModalUpdateTaskComponent
       ...this.updateForm.value,
       branch: branchForm
         ? {
-            unit: branchForm.level,
-            id: branchForm.id,
-            name: branchForm.name,
-            department: branchForm.department,
-            departmentName: branchForm.departmentName,
-            team: branchForm.team,
-            teamName: branchForm.teamName,
-          }
+          unit: branchForm.level,
+          id: branchForm.id,
+          name: branchForm.name,
+          department: branchForm.department,
+          departmentName: branchForm.departmentName,
+          team: branchForm.team,
+          teamName: branchForm.teamName,
+        }
         : null,
     };
 
@@ -398,8 +421,8 @@ export class ModalUpdateTaskComponent
   }
 
   // Get form errors
-  getFormErrors(formGroup: FormGroup | FormArray): {[key: string]: any} {
-    let errors: {[key: string]: any} = {}; // Add index signature to errors object
+  getFormErrors(formGroup: FormGroup | FormArray): { [key: string]: any } {
+    let errors: { [key: string]: any } = {}; // Add index signature to errors object
     Object.keys(formGroup.controls).forEach((key) => {
       const control = formGroup.get(key);
       if (control instanceof FormGroup || control instanceof FormArray) {
@@ -425,9 +448,8 @@ export class ModalUpdateTaskComponent
     }
 
     const title = 'Xóa Tác vụ';
-    const description = `Bạn sắp xóa Tác vụ <b>${
-      this.sourceData?.name || ''
-    }</b>, hành động này không thể hoàn tác.`;
+    const description = `Bạn sắp xóa Tác vụ <b>${this.sourceData?.name || ''
+      }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xóa';
 
     const modalContent: IModalConfirmContent = {
@@ -552,9 +574,8 @@ export class ModalUpdateTaskComponent
     event.preventDefault();
     event.stopPropagation();
     const title = 'Đóng chuỗi';
-    const description = `Bạn sắp đóng chuỗi <b>${
-      taskChain.name || ''
-    }</b>, hành động này không thể hoàn tác.`;
+    const description = `Bạn sắp đóng chuỗi <b>${taskChain.name || ''
+      }</b>, hành động này không thể hoàn tác.`;
     const okText = 'Xác nhận';
 
     const modalContent: IModalConfirmContent = {
@@ -597,9 +618,8 @@ export class ModalUpdateTaskComponent
     event.stopPropagation();
     if (this.sourceData?.id) {
       const title = 'Xóa chuỗi';
-      const description = `Bạn sắp xóa chuỗi <b>${
-        taskChain.name || ''
-      }</b>, hành động này không thể hoàn tác.`;
+      const description = `Bạn sắp xóa chuỗi <b>${taskChain.name || ''
+        }</b>, hành động này không thể hoàn tác.`;
       const okText = 'Xác nhận';
 
       const modalContent: IModalConfirmContent = {
@@ -744,16 +764,14 @@ export class ModalUpdateTaskComponent
   }
 
   handleViewCreatedOrder() {
-    let url = `${environment.urlDomain}/${
-      this.currentBiz!.alias
-    }/sale-center/?sourceId=${this.sourceData?.id}`;
+    let url = `${environment.urlDomain}/${this.currentBiz!.alias
+      }/sale-center/?sourceId=${this.sourceData?.id}`;
     window.open(url, '_blank');
   }
 
   handleViewCreatedBooking() {
-    let url = `${environment.urlDomain}/${
-      this.currentBiz!.alias
-    }/booking/booking-list/?taskId=${this.sourceData?.id}`;
+    let url = `${environment.urlDomain}/${this.currentBiz!.alias
+      }/booking/booking-list/?taskId=${this.sourceData?.id}`;
     window.open(url, '_blank');
   }
 
@@ -811,7 +829,7 @@ export class ModalUpdateTaskComponent
     try {
       var stream: any;
       navigator.mediaDevices
-        .getUserMedia({audio: true})
+        .getUserMedia({ audio: true })
         .then(
           (s) => (stream = s),
           (e) => {
@@ -840,7 +858,7 @@ export class ModalUpdateTaskComponent
             if (!result) {
               return;
             }
-            const {phone} = this.formLeadDeal.value;
+            const { phone } = this.formLeadDeal.value;
             if (!phone) {
               this.toastr.warning('Không có số điện thoại của khách hàng');
               return;
@@ -1043,32 +1061,23 @@ export class ModalUpdateTaskComponent
   handleUpdateTaskChainData(taskChain: ITaskChain, chainIndex: number) {
     if (this.sourceData && taskChain) {
       this.sourceData.taskChains[chainIndex] = taskChain;
-   
-      setTimeout(() => {
-        this.getDetailTask(true)
-        this.updatedTask.emit(this.sourceData);
-      }, 3000);
 
-      //TODO
-      this.socketService.listen('UPDATE_TASK').subscribe({
-      next: (res) => {
-        if (res) {
-          //
-        }
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
+      // setTimeout(() => {
+      //   this.getDetailTask(true)
+      //   this.updatedTask.emit(this.sourceData);
+      // }, 3000);
     }
   }
 
-   handleDropTask(id?: string) {
-    if(!id) return;
+  handleDropTask(id?: string) {
+    if (!id) return;
     this.submittedModal.dropTask = true;
     this.autoTaskService.task
       .dropTask(id)
-      .pipe(takeUntil(this.destroy$), finalize(()=>this.submittedModal.dropTask = false))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.submittedModal.dropTask = false)),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -1077,7 +1086,9 @@ export class ModalUpdateTaskComponent
             this.patchForm(res.data);
             this.updatedTask.emit(res.data);
           } else {
-            this.commonService.handleResErr(res);
+            this.toastrService.error(
+              'Bạn không nằm trong vai trò được phép thả số',
+            );
           }
         },
       });

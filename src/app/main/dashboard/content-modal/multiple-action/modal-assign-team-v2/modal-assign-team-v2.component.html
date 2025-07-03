@@ -125,7 +125,10 @@
             <!-- Explain filter -->
             <div class="alert alert-warning">
               <p class="fw-bold mb-2">
-                Bộ lọc: Vai trò & Chi nhánh & Thời gian tạo
+                Bộ lọc: Vai trò 
+                <ng-container *ngIf="!modalOpenByTaskSelection">
+                  & Chi nhánh & Thời gian tạo
+                </ng-container>
               </p>
               <ul class="mb-0 ps-3">
                 <li>

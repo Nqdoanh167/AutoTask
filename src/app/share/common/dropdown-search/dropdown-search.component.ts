@@ -42,6 +42,7 @@ export class DropdownSearchComponent implements OnInit {
   @Input() nextLevel2: string = '';
   @Input() isSearch: boolean = false;
   @Input() readonly: boolean = false;
+  @Input() clearable: boolean = false;
   @Input()
   get items() { return this._items };
 
@@ -230,4 +231,19 @@ export class DropdownSearchComponent implements OnInit {
     return label.indexOf(search) > -1
   }
 
+  clearValue(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.value = null;
+    this.currentRowValue = null;
+    this.currentListRowValue = [];
+    this.currentListRowValueIds = [];
+    
+    this.change.emit(null);
+    
+    setTimeout(() => {
+      this.detect.detectChanges();
+    }, 0);
+  }
 }

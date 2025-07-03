@@ -32,14 +32,19 @@ export class SocketService {
       transports: ['websocket', 'polling'],
     })
 
-    this.socket.on('JOIN_ROOM_SUCCESS', (data: { bizId: string }) => {
+    this.socket.emit('JOIN_ROOM', {
+      bizAlias: this.bizAlias,
+      token: `Bearer ${this.authService.getToken()}`,
+    })
+
+    this.socket.on('room/JOIN_SUCCESS', (data) => {
       this.bizId = data.bizId;
     })
   }
 
   listen(eventName: string): Observable<any> {
     return new Observable((observer) => {
-      this.socket.on(eventName, (data: { bizId: string }) => {
+      this.socket.on(eventName, (data) => {
         observer.next(data);
       })
 

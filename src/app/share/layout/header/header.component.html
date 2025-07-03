@@ -11,14 +11,15 @@
         <ng-content select=".right"></ng-content>
         <div class="d-flex align-items-center">
           @if (user) {
-            <!-- <button
-              class="btn btn-light text-secondary"
+            <button
+              class="btn btn-light text-secondary ms-2"
+              style="height: 36px;"
               (click)="showModalStopReceive()"
             >
               <img src="./assets/images/icon/notify.svg" alt="" />
-            </button> -->
+            </button>
 
-            <div class="frame-avatar d-flex align-items-center">
+            <div class="frame-avatar d-flex align-items-center ms-2">
               <div class="btn-group" dropdown placement="bottom right">
                 <img
                   id="button-alignment"
