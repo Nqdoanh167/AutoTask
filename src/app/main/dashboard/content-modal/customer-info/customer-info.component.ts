@@ -124,14 +124,14 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     this.customerService.customer
       .getById(id)
       .pipe(
-        finalize(() => (this.loading.customer = false)),
+        finalize(() => (this.loading.customer = false)),  
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
             // this.selectedCustomer = res.data;
-            this.handleChooseCustomer(res.data);
+            this.handleChooseCustomer(res.data, true);
             if (res.data?.provinceCode) {
               this.getDistrict(res.data?.provinceCode);
             }
@@ -140,7 +140,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
             }
           } else {
             // this.commonService.handleResErr(res);
-            this.toarst.error('Không tìm thấy khách hàng!');
+            this.toarst.warning('Không tìm thấy khách hàng!');
           }
         },
       });
@@ -275,7 +275,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     });
   }
 
-  handleChooseCustomer(customer?: Customer) {
+  handleChooseCustomer(customer?: Customer, isInit: boolean = false) {
     if (!customer) return;
     this.trigger.name = false;
 
@@ -304,8 +304,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       patchData[key] = formValues[key];
       const customerValue = customer[key];
 
-      // Nếu form chưa có giá trị (null, undefined hoặc rỗng) thì patch từ customer
-      if (!patchData[key]) {
+      if(isInit && !patchData[key] || !isInit) {
         patchData[key] = customerValue;
       }
 

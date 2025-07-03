@@ -147,7 +147,7 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
       )
       .subscribe((res) => {
         if (res.status === 200) {
-          this.updateSuccess.emit();
+          this.updateSuccess.emit(res.data);
           this.commonService.handleResSuccess('update');
         } else {
           this.commonService.handleResErr(res);

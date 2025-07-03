@@ -151,23 +151,45 @@ export class DashboardComponent
 
     //socket
     this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
-      if (data.triggerContext === 'CREATE' || data.triggerContext === 'CLONE') {
-        if (this.checkTaskFilter(data.task || {})) {
-          this.item.rows = [data.task || {}, ...this.item.rows];
+      const taskData = data.task as ITask;
+      if (taskData.taskChains && taskData.taskChains.length) {
+        const filterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+        if (filterQuery.isHideExecute) {
+          taskData.taskChains = taskData.taskChains.filter(
+            (t: ITaskChain) => t.status !== ETaskChainType.CLOSED,
+          );
+          if (!taskData.taskChains.length) {
+            const taskIndex = this.item.rows.findIndex(
+              (row) => row.id === taskData.id,
+            );
+            if (taskIndex !== -1) {
+              this.item.rows = this.item.rows.filter(
+                (row) => row.id !== taskData.id,
+              );
+              this.item.total! -= 1;
+            }
+            return;
+          }
+        }
+      }
+
+      if (this.checkTaskFilter(taskData)) {
+        const task = this.item.rows.find((row) => row.id === taskData.id);
+        if (task) {
+          Object.assign(task, taskData);
+        } else {
+          this.item.rows = [taskData, ...this.item.rows];
           this.item.total! += 1;
-          if (this.item.rows.length > this.item.paramsQuery.limit!)
-            this.item.rows.pop();
         }
       } else {
-        const task = data.task as ITask;
-        if (!this.checkTaskFilter(task)) {
-          this.item.rows = this.item.rows.filter((row) => row.id !== task.id);
+        const taskIndex = this.item.rows.findIndex(
+          (row) => row.id === taskData.id,
+        );
+        if (taskIndex !== -1) {
+          this.item.rows = this.item.rows.filter(
+            (row) => row.id !== taskData.id,
+          );
           this.item.total! -= 1;
-          return;
-        }
-        const item = this.item.rows.find((row) => row.id === task?.id);
-        if (item) {
-          Object.assign(item, task);
         }
       }
     });

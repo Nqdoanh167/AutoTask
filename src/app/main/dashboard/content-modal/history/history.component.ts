@@ -340,6 +340,10 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
         return ``;
       case ESubOrderProductHistoryTask.NONE:
         return ``;
+      case EInformationContentHistoryTask.DRAW_TASK:
+        return `Rút số thành công`;
+      case EInformationContentHistoryTask.DROP_TASK:
+        return `Thả số thành công`;
       default:
         return '';
     }
