@@ -87,7 +87,7 @@
                         <div>
                           <img
                             class="avatar me-2"
-                            src="{{ item.picture }}"
+                            src="{{ item?.picture }}"
                             fallback="assets/images/avatar.svg"
                             alt=""
                           />
@@ -166,6 +166,7 @@
                               <span
                                 (click)="handleUpdate(item)"
                                 class="d-flex align-items-center btn-action-table"
+                                [class.disabled]="item.isUpserting"
                               >
                                 <img
                                   src="./assets/images/icon/edit.svg"

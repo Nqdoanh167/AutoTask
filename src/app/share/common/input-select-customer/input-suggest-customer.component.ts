@@ -27,6 +27,7 @@ import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {CustomerService} from '@app/services/api/customer.service';
 import {CommonService} from '@app/services/common/common.service';
 import {Customer} from '@app/types/customer';
+import {uniqBy} from 'lodash';
 
 @Component({
   selector: 'app-input-suggest-customer',
@@ -82,6 +83,7 @@ export class InputSuggestCustomerComponent
       debounce: 600,
     },
     isAllowLoadMore: false,
+    isGet: false, 
   };
   public selectedCustomer: Customer | undefined = undefined;
 
@@ -105,18 +107,18 @@ export class InputSuggestCustomerComponent
           ...this.customers.paramsQuery,
           q: data,
         };
-        this.getListCustomer(true, true);
+        this.getListCustomer(true);
       });
   }
 
   getListCustomer(isInit: boolean = false, isSearching: boolean = false) {
     try {
-      this.customers.loading = true;
-      const ids: string[] = [];
+      if (isInit) this.customers.paramsQuery.page = 1;
       const query = {
         ...this.customers.paramsQuery,
-        ...(isInit && ids.length && {ids: ids}),
       };
+
+      this.customers.loading = true;
       if (isSearching) {
         this.customers.paramsQuery.page = 1;
         this.customers.rows = [];
@@ -130,13 +132,21 @@ export class InputSuggestCustomerComponent
         )
         .subscribe({
           next: (res) => {
-            if (res && res.status === 200) {
-              this.customers.rows = res.data;
+            if (res.status === 200) {
+              this.customers.rows = uniqBy(
+                this.customers.rows.concat(res.data),
+                'id',
+              );
+              this.customers.isAllowLoadMore = res.meta
+                ? res.meta.currentPage < res.meta.totalPage
+                : false;
             } else {
               this.commonService.handleResErr(res);
+              this.customers.isAllowLoadMore = false;
             }
           },
           error: (err) => {
+            this.customers.isAllowLoadMore = false;
             this.commonService.handleErr(err);
           },
         });
@@ -185,27 +195,25 @@ export class InputSuggestCustomerComponent
   // End: for FormControl
 
   clickLoadData() {
-    if (!this.customers.rows.length) {
+    if (!this.customers.isGet) {
+      this.customers.isGet = true;
       this.customers.paramsQuery.page = 1;
-      this.getListCustomer(true, true);
-    }
-  }
-
-  scrollLoadData(event: {start: number; end: number}) {
-    if (
-      !this.customers.loading &&
-      event.end + 4 >
-        this.customers.paramsQuery.limit! * this.customers.paramsQuery.page!
-    ) {
-      this.customers.paramsQuery.page! += 1;
       this.getListCustomer();
     }
   }
+
+  handleLoadMore() {
+    if (this.customers.isAllowLoadMore) {
+      this.customers.paramsQuery!.page! += 1;
+      this.getListCustomer();
+    }
+  }
+
   searchFn(event: {term: string}) {
     clearTimeout(this.customers.paramsQuery['timeout']);
     this.customers.paramsQuery['timeout'] = setTimeout(() => {
       this.customers.paramsQuery.q = event.term;
-      this.getListCustomer(false, true);
+      this.getListCustomer(true, true);
     }, this.customers.paramsQuery['debounce']);
   }
 }

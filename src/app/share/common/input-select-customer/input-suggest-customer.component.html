@@ -84,21 +84,18 @@
       class="suggest-select"
       (change)="handleChooseCustomer($event)"
       (blur)="handleBlur($event)"
-      [items]="customers.rows"
       [trackByFn]="trackByFn"
-      bindLabel="name"
-      bindValue="id"
       [clearable]="false"
       [closeOnSelect]="true"
       [placeholder]="placeholder"
       (click)="clickLoadData()"
       #select
-      (scroll)="scrollLoadData($event)"
+      (scrollToEnd)="handleLoadMore()"
       (search)="searchFn($event)"
       [loading]="customers.loading"
       [notFoundText]="'Không có khách hàng'"
     >
-      <ng-template ng-option-tmp let-item="item">
+      <ng-option *ngFor="let item of customers.rows" [value]="item">
         <div
           class="person-info d-flex justify-content-between align-items-center p-1"
         >
@@ -115,7 +112,7 @@
             </div>
           </div>
         </div>
-      </ng-template>
+      </ng-option>
     </ng-select>
   </div>
 </div>
