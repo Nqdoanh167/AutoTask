@@ -326,6 +326,7 @@ export interface BulkRemoveUserAcl {
 export interface CombinedUserAcl extends User {
   isActiveAcl: boolean;
   aclBranches: UserAclBranch[];
+  isUpserting?: boolean;
 }
 
 export enum ELevelPer {

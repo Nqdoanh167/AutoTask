@@ -300,12 +300,6 @@ export const TASK_CONFIG_BUTTON = [
     tooltip: 'Tải lại trang',
   },
   {
-    name: 'importExcel',
-    type: ETypeButton.DEFAULT,
-    icon: './assets/images/icon/importExcel.svg',
-    tooltip: 'Thêm từ file Excel',
-  },
-  {
     name: 'add_new',
     type: ETypeButton.PRIMARY,
     label: 'Thêm',

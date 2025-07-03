@@ -16,6 +16,7 @@ export interface ICommonDataLazy<T, K> {
   loading: boolean;
   paramsQuery: K;
   isAllowLoadMore: boolean;
+  isGet?: boolean;
 }
 
 export interface Option {
@@ -1497,6 +1498,8 @@ export enum EInformationContentHistoryTask {
   CHANGE_NOTE_I = 'CHANGE_NOTE_I',
   ROLE = 'ROLE',
   CHAT_LINK = 'CHAT_LINK',
+  DROP_TASK = 'DROP_TASK',
+  DRAW_TASK = 'DRAW_TASK',
 }
 export interface IContentHistoryTask {
   orderProduct?: IOrderProductContentHistoryTask[];

@@ -5,7 +5,7 @@ import {
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {finalize, takeUntil} from 'rxjs';
+import {finalize, lastValueFrom, takeUntil} from 'rxjs';
 import {removeCharacter} from '@app/utils/common';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {environment} from '../../../../../../environments/environment';
@@ -147,6 +147,37 @@ export class EmployeeComponent
       });
   }
 
+  private async handleUpsertUserAcls() {
+    for (const user of this.listFilteredBizUsers) {
+      if (!user.isActiveAcl && user.isActive) {
+        user.isUpserting = true;
+        try {
+          const data = {
+            isActive: user.isActiveAcl,
+            userId: user.id,
+            branches: user.aclBranches,
+          } as UserAcl;
+
+          const res = await lastValueFrom(
+            this.autoTaskService.userAcl.upsert(data).pipe(
+              takeUntil(this.destroy$),
+              finalize(() => (user.isUpserting = false)),
+            ),
+          );
+
+          if (res.status === 200) {
+            const userData = this.aclData.rows.find(
+              (user) => user.userId === res.data.userId,
+            );
+            if (userData) {
+              Object.assign(userData, res.data);
+            }
+          }
+        } catch (error) {}
+      }
+    }
+  }
+
   private findAclById(aclList: UserAcl[], id: string): UserAcl | undefined {
     return aclList?.find((item) => item.userId === id);
   }
@@ -183,7 +214,7 @@ export class EmployeeComponent
     });
   }
 
-  handleMapData(data: UserAcl[], onlyHasAcl = false) {
+  handleMapData(data: UserAcl[], onlyHasAcl = false, shouldUpsert = true) {
     this.listFilteredBizUsers = data?.map((item) => {
       const user = this.listBizUsers?.find((u) => u.id === item.userId);
       if (user) {
@@ -204,6 +235,12 @@ export class EmployeeComponent
 
     if (this.isInPermissionModal) {
       this.item.rows = this.listFilteredBizUsers;
+    }
+
+    if (shouldUpsert) {
+      this.handleUpsertUserAcls().then(() => {
+        this.handleMapData(this.aclData.rows, onlyHasAcl, false);
+      });
     }
   }
 
@@ -239,7 +276,16 @@ export class EmployeeComponent
     });
     modalUpdate?.content?.updateSuccess
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.getUserAcl());
+      .subscribe((user) => {
+        const userData = this.aclData.rows.find(
+          (u) => u.userId === user.userId,
+        );
+
+        if (userData) {
+          Object.assign(userData, user);
+          this.handleMapData(this.aclData.rows);
+        }
+      });
   }
 
   removePerOfEmployees(employees: CombinedUserAcl[]) {
