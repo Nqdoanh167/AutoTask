@@ -138,10 +138,16 @@ export class ModalFeedbackComponent implements OnInit, OnDestroy {
             const subAction = this.taskChainResult?.subActions?.find(
               (subAction) => subAction.id === this.subActionId,
             );
-            const template = this.templates.find(
+            let template = this.templates.find(
               (template) =>
-                template.id === subAction?.templateId || template.isDefault,
+                template.id === subAction?.templateId,
             );
+
+            if (!template) {
+              template = this.templates.find(
+                (template) => template.isDefault
+              );
+            }
 
             if (template) {
               this.form.patchValue({
