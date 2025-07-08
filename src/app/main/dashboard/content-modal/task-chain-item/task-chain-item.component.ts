@@ -7,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -142,8 +143,16 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         this.cdr.detectChanges();
       });
     this.staticDataChainItem?.taskChainResults?.forEach((taskChainResult) => {
-      taskChainResult['isEdit'] = false;
+      taskChainResult['isEdit'] = true;
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['staticDataChainItem'] && this.staticDataChainItem) {
+      this.staticDataChainItem.taskChainResults?.forEach((taskChainResult) => {
+        taskChainResult['isEdit'] = true;
+      });
+    }
   }
 
   handleChangeTaskChainResult(
