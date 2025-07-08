@@ -688,6 +688,16 @@ export class ModalUpdateTaskComponent
           results: this.results.rows,
           blocks: this.blocks.rows,
           actionChains: this.actionChains.rows.map((chain) => {
+            // check xem nếu chuỗi tồn tại trong task và chưa đóng thi filter ra
+            if (this.sourceData?.taskChains) {
+              const chainTask = this.sourceData.taskChains.find(
+                (taskChain) => taskChain.chainActId === chain.id,
+              );
+
+              if (chainTask && chainTask.status === ETaskChainType.CLOSED) {
+                return null; 
+              }
+            }
             return {
               ...chain,
               actionResults: chain.actionResults?.map((actResult) => {
@@ -703,7 +713,7 @@ export class ModalUpdateTaskComponent
                 };
               }),
             };
-          }) as unknown as IChainAct[],
+          }).filter(Boolean) as unknown as IChainAct[],
           chainActId,
           loadingData: {
             results: this.results.loading,

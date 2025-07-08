@@ -18,6 +18,191 @@
         ></app-input-suggest-customer>
       </div>
     }
+
+     @if (selectedCustomer && hasPermitCustomer) {
+      <div class="corresponding-customer mt-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="subhead">
+            Bản ghi Khách hàng tương ứng trong hệ thống
+            @if (hasUpdateTaskPer) {
+              <span
+                (click)="handleUpdateCustomer()"
+                class="btn-action-table ms-1"
+              >
+                <img src="./assets/images/icon/edit.svg" alt="" />
+              </span>
+            }
+          </div>
+          @if (hasUpdateTaskPer) {
+            <div class="d-flex align-items-center gap-2">
+              <button
+                (click)="handleSyncCustomer()"
+                class="btn button-medium button-sub-primary secondary-color d-flex align-items-center justify-content-center border"
+                [tooltip]="'Cập nhật thông tin của sang module Khách hàng'"
+              >
+                <i
+                  class="fa-solid fa-arrow-right-arrow-left fa-rotate-90 me-2"
+                ></i>
+                Cập nhật
+              </button>
+
+              <button
+                (click)="handleClearSelectedCustomer()"
+                class="btn button-medium button-sub-primary red-color"
+                type="button"
+              >
+                Bỏ chọn
+                <i class="fa-solid fa-circle-xmark ms-1"></i>
+              </button>
+            </div>
+          }
+        </div>
+        @if (!loading.customer) {
+          <div class="mt-1">
+            <div
+              class="person-info d-flex justify-content-between align-items-center"
+            >
+              <div
+                class="d-flex justify-content-between align-items-center gap-3"
+              >
+                <img
+                  class="avatar-selected"
+                  alt=""
+                  fallback="assets/images/avatar.svg"
+                  src="{{ selectedCustomer?.picture }}"
+                />
+                <div>
+                  <div class="d-flex gap-3">
+                    <span
+                      class="account-name fw-500 text-link"
+                      (click)="handleViewCustomer(selectedCustomer?.id)"
+                    >
+                      {{ selectedCustomer?.name }}
+                    </span>
+                    @if (selectedCustomer?.phone) {
+                      <span>
+                        <span class="fw-500">SĐT:</span>
+                        {{ selectedCustomer?.phone }}
+                      </span>
+                    }
+                    @if (selectedCustomer?.email) {
+                      <span>
+                        <span class="fw-500">Email:</span>
+                        {{ selectedCustomer?.email }}
+                      </span>
+                    }
+                  </div>
+
+                  @if (selectedCustomer?.address) {
+                    <div>
+                      <span class="fw-500">Địa chỉ:</span>
+                      {{ selectedCustomer?.address }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+            @if (selectedCustomer && !selectTag) {
+              <div class="d-flex flex-row flex-wrap gap-2 mt-3">
+                @for (tag of selectedCustomer?.tags; track $index) {
+                  <span
+                    class="tag-item"
+                    [ngClass]="{nonBack: !tag.bgColor}"
+                    [ngStyle]="{background: tag.bgColor}"
+                  >
+                    <span>{{ tag.name }}</span>
+                  </span>
+                }
+              </div>
+            }
+            @if (selectedCustomer?.saleCenter) {
+              <div class="mt-3 sale-info">
+                <div class="d-flex align-items-center">
+                  <span class="fw-500">
+                    Doanh thu:
+                    <span class="text-danger">
+                      {{
+                        selectedCustomer?.saleCenter?.moneyCompleted ?? 0 | number
+                      }}
+                      VNĐ
+                    </span>
+                  </span>
+                  <div class="separate"></div>
+                  <span
+                    (click)="handleViewOrderType('completed')"
+                    class="fw-500 text-success cursor-pointer"
+                  >
+                    {{
+                      selectedCustomer?.saleCenter?.totalOrderCompleted ?? 0
+                        | number
+                    }}
+                    đơn hàng thành công
+                    <i
+                      class="ms-1 fa-solid"
+                      [style.color]="'#000'"
+                      [class]="
+                        viewOrderType === 'completed'
+                          ? 'fa-chevron-down'
+                          : 'fa-chevron-up'
+                      "
+                    ></i>
+                  </span>
+                  <div class="separate"></div>
+                  <span
+                    (click)="handleViewOrderType('cancelled')"
+                    class="fw-500 text-danger cursor-pointer"
+                  >
+                    {{
+                      selectedCustomer?.saleCenter?.totalOrderRefund ?? 0 | number
+                    }}
+                    đơn đã hoàn
+                    <i
+                      class="ms-1 fa-solid"
+                      [style.color]="'#000'"
+                      [class]="
+                        viewOrderType === 'cancelled'
+                          ? 'fa-chevron-down'
+                          : 'fa-chevron-up'
+                      "
+                    ></i>
+                  </span>
+                </div>
+                <div class="list-order mt-2">
+                  <div class="custom-scrollbar" [style.max-height]="'500px'">
+                    <table class="table transparent">
+                      <tbody>
+                        @for (order of viewOrCustomerOrders; track $index) {
+                          <tr>
+                            <td>{{ order?.createdAt | timeView }}</td>
+                            <td>
+                              <div
+                                class="fw-500 cursor-pointer text-link"
+                                (click)="handleViewOrder(order?.id)"
+                              >
+                                {{ order?.code || '-' }}
+                              </div>
+                            </td>
+                            <td>{{ order?.amount ?? 0 | number }} VNĐ</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-center">
+            <div class="spinner-grow text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div>Loading...</div>
+          </div>
+        }
+      </div>
+     }
+
     <div style="padding-left: 1px" class="row mt-2">
       <div class="col-3">
         <label class="form-control-label" for="leadDeal.name">
@@ -305,190 +490,6 @@
       </div>
     </div>
   </div>
-
-  @if (selectedCustomer && hasPermitCustomer) {
-    <div class="corresponding-customer mt-3">
-      <div class="d-flex align-items-center justify-content-between">
-        <div class="subhead">
-          Bản ghi Khách hàng tương ứng trong hệ thống
-          @if (hasUpdateTaskPer) {
-            <span
-              (click)="handleUpdateCustomer()"
-              class="btn-action-table ms-1"
-            >
-              <img src="./assets/images/icon/edit.svg" alt="" />
-            </span>
-          }
-        </div>
-        @if (hasUpdateTaskPer) {
-          <div class="d-flex align-items-center gap-2">
-            <button
-              (click)="handleSyncCustomer()"
-              class="btn button-medium button-sub-primary secondary-color d-flex align-items-center justify-content-center border"
-              [tooltip]="'Cập nhật thông tin của sang module Khách hàng'"
-            >
-              <i
-                class="fa-solid fa-arrow-right-arrow-left fa-rotate-90 me-2"
-              ></i>
-              Cập nhật
-            </button>
-
-            <button
-              (click)="handleClearSelectedCustomer()"
-              class="btn button-medium button-sub-primary red-color"
-              type="button"
-            >
-              Bỏ chọn
-              <i class="fa-solid fa-circle-xmark ms-1"></i>
-            </button>
-          </div>
-        }
-      </div>
-      @if (!loading.customer) {
-        <div class="mt-1">
-          <div
-            class="person-info d-flex justify-content-between align-items-center"
-          >
-            <div
-              class="d-flex justify-content-between align-items-center gap-3"
-            >
-              <img
-                class="avatar-selected"
-                alt=""
-                fallback="assets/images/avatar.svg"
-                src="{{ selectedCustomer?.picture }}"
-              />
-              <div>
-                <div class="d-flex gap-3">
-                  <span
-                    class="account-name fw-500 text-link"
-                    (click)="handleViewCustomer(selectedCustomer?.id)"
-                  >
-                    {{ selectedCustomer?.name }}
-                  </span>
-                  @if (selectedCustomer?.phone) {
-                    <span>
-                      <span class="fw-500">SĐT:</span>
-                      {{ selectedCustomer?.phone }}
-                    </span>
-                  }
-                  @if (selectedCustomer?.email) {
-                    <span>
-                      <span class="fw-500">Email:</span>
-                      {{ selectedCustomer?.email }}
-                    </span>
-                  }
-                </div>
-
-                @if (selectedCustomer?.address) {
-                  <div>
-                    <span class="fw-500">Địa chỉ:</span>
-                    {{ selectedCustomer?.address }}
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-          @if (selectedCustomer && !selectTag) {
-            <div class="d-flex flex-row flex-wrap gap-2 mt-3">
-              @for (tag of selectedCustomer?.tags; track $index) {
-                <span
-                  class="tag-item"
-                  [ngClass]="{nonBack: !tag.bgColor}"
-                  [ngStyle]="{background: tag.bgColor}"
-                >
-                  <span>{{ tag.name }}</span>
-                </span>
-              }
-            </div>
-          }
-          @if (selectedCustomer?.saleCenter) {
-            <div class="mt-3 sale-info">
-              <div class="d-flex align-items-center">
-                <span class="fw-500">
-                  Doanh thu:
-                  <span class="text-danger">
-                    {{
-                      selectedCustomer?.saleCenter?.moneyCompleted ?? 0 | number
-                    }}
-                    VNĐ
-                  </span>
-                </span>
-                <div class="separate"></div>
-                <span
-                  (click)="handleViewOrderType('completed')"
-                  class="fw-500 text-success cursor-pointer"
-                >
-                  {{
-                    selectedCustomer?.saleCenter?.totalOrderCompleted ?? 0
-                      | number
-                  }}
-                  đơn hàng thành công
-                  <i
-                    class="ms-1 fa-solid"
-                    [style.color]="'#000'"
-                    [class]="
-                      viewOrderType === 'completed'
-                        ? 'fa-chevron-down'
-                        : 'fa-chevron-up'
-                    "
-                  ></i>
-                </span>
-                <div class="separate"></div>
-                <span
-                  (click)="handleViewOrderType('cancelled')"
-                  class="fw-500 text-danger cursor-pointer"
-                >
-                  {{
-                    selectedCustomer?.saleCenter?.totalOrderRefund ?? 0 | number
-                  }}
-                  đơn đã hoàn
-                  <i
-                    class="ms-1 fa-solid"
-                    [style.color]="'#000'"
-                    [class]="
-                      viewOrderType === 'cancelled'
-                        ? 'fa-chevron-down'
-                        : 'fa-chevron-up'
-                    "
-                  ></i>
-                </span>
-              </div>
-              <div class="list-order mt-2">
-                <div class="custom-scrollbar" [style.max-height]="'500px'">
-                  <table class="table transparent">
-                    <tbody>
-                      @for (order of viewOrCustomerOrders; track $index) {
-                        <tr>
-                          <td>{{ order?.createdAt | timeView }}</td>
-                          <td>
-                            <div
-                              class="fw-500 cursor-pointer text-link"
-                              (click)="handleViewOrder(order?.id)"
-                            >
-                              {{ order?.code || '-' }}
-                            </div>
-                          </td>
-                          <td>{{ order?.amount ?? 0 | number }} VNĐ</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      } @else {
-        <div class="text-center">
-          <div class="spinner-grow text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <div>Loading...</div>
-        </div>
-      }
-    </div>
-  }
 
   <ng-template #selectNoData>
     <ng-option [value]="null">Không có dữ liệu</ng-option>

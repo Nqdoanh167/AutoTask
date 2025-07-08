@@ -40,6 +40,12 @@ export class SocketService {
     this.socket.on('room/JOIN_SUCCESS', (data) => {
       this.bizId = data.bizId;
     })
+
+    setInterval(() => {
+      if (this.socket?.connected) {
+        this.socket.emit('ping', { time: Date.now() });
+      }
+    }, 25000);
   }
 
   listen(eventName: string): Observable<any> {

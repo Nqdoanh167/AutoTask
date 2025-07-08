@@ -155,10 +155,10 @@ export class DashboardComponent
       if (taskData.taskChains && taskData.taskChains.length) {
         const filterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
         if (filterQuery.isHideExecute) {
-          taskData.taskChains = taskData.taskChains.filter(
+          const taskChains = taskData.taskChains.filter(
             (t: ITaskChain) => t.status !== ETaskChainType.CLOSED,
           );
-          if (!taskData.taskChains.length) {
+          if (!taskChains.length) {
             const taskIndex = this.item.rows.findIndex(
               (row) => row.id === taskData.id,
             );
@@ -167,8 +167,9 @@ export class DashboardComponent
                 (row) => row.id !== taskData.id,
               );
               this.item.total! -= 1;
+              return;
+
             }
-            return;
           }
         }
       }
@@ -191,6 +192,18 @@ export class DashboardComponent
           );
           this.item.total! -= 1;
         }
+      }
+    });
+
+    this.socketService.listen('task/DELETED').subscribe((data) => {
+      const taskIndex = this.item.rows.findIndex(
+        (row) => row.id === data.taskId,
+      );
+      if (taskIndex !== -1) {
+        this.item.rows = this.item.rows.filter(
+          (row) => row.id !== data.taskId,
+        );
+        this.item.total! -= 1;
       }
     });
   }
@@ -782,14 +795,14 @@ export class DashboardComponent
       //     }
       //   });
 
-      modalUpdate?.content?.deleteTask
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((id) => {
-          if (id) {
-            this.item.total -= 1;
-            this.item.rows = this.item.rows.filter((i) => i.id !== id);
-          }
-        });
+      // modalUpdate?.content?.deleteTask
+      //   .pipe(takeUntil(this.destroy$))
+      //   .subscribe((id) => {
+      //     if (id) {
+      //       this.item.total -= 1;
+      //       this.item.rows = this.item.rows.filter((i) => i.id !== id);
+      //     }
+      //   });
 
       modalUpdate?.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.isOpenBackDrop = false;
