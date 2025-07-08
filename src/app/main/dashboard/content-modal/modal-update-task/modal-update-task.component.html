@@ -345,9 +345,8 @@
                                         "
                                         [class.disabled]="!item.isActive"
                                         (click)="
-                                          item.id === settingRole.value.userId
-                                            ? onRemoveTeam(settingRoleIndex)
-                                            : onChooseTeam(
+                                          item.id !== settingRole.value.userId
+                                            && onChooseTeam(
                                                 settingRoleIndex,
                                                 item
                                               )
