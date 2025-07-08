@@ -85,6 +85,8 @@ export class RoleComponent implements OnDestroy, OnInit {
       workHourType: ['fixed_daily'],
       workHours: this.fb.array([]),
       workHourEnable: [false],
+      viewDrawConfig: [false],
+      viewDropConfig: [false],
       drawAndDropConfig: this.fb.group({
         roleIds: [null],
         drawConfig: this.fb.group({
