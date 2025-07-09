@@ -1,18 +1,17 @@
-import {Injectable} from '@angular/core';
-import {Observable, Subject, takeUntil} from 'rxjs';
-import {io, Socket} from 'socket.io-client';
-import {AuthService} from './auth.service';
-import {environment} from 'src/environments/environment';
+import { Injectable } from '@angular/core';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
+import { AuthService } from './auth.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SocketService {
-  private socket: Socket;
+  private socket!: Socket;
   private destroy = new Subject<void>();
   private bizId!: string;
   private bizAlias!: string;
-  private pingIntervalId: any;
 
   constructor(private readonly authService: AuthService) {
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
@@ -20,6 +19,10 @@ export class SocketService {
         this.bizAlias = biz?.alias;
       },
     });
+  }
+
+  private initSocket(): void {
+    if (!this.bizAlias) return;
 
     this.socket = io(environment.apiSocket, {
       auth: {
@@ -37,30 +40,19 @@ export class SocketService {
 
     this.socket.on('room/JOIN_SUCCESS', (data) => {
       this.bizId = data.bizId;
-      this.startPing();
     });
 
-    this.socket.on('disconnect', () => {
-      this.stopPing();
-    });
   }
 
-  private startPing() {
-    this.stopPing(); 
-    this.pingIntervalId = setInterval(() => {
-      if (this.socket?.connected) {
-        this.socket.emit('ping', {
-          active: true,
-          bizId: this.bizId,
-        });
-      }
-    }, 3 * 60 * 1000);
+  connect(): void {
+    if (!this.socket || !this.socket.connected) {
+      this.initSocket();
+    }
   }
 
-  private stopPing() {
-    if (this.pingIntervalId) {
-      clearInterval(this.pingIntervalId);
-      this.pingIntervalId = null;
+  disconnect(): void {
+    if (this.socket) {
+      this.socket.disconnect();
     }
   }
 
@@ -81,13 +73,5 @@ export class SocketService {
       data,
       bizId: this.bizId,
     });
-  }
-
-  disconnect(): void {
-    if (this.socket) {
-      this.socket.disconnect();
-      this.destroy.next();
-      this.destroy.complete();
-    }
   }
 }

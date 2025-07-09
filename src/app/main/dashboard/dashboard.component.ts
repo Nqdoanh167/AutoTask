@@ -107,6 +107,8 @@ export class DashboardComponent
     private readonly socketService: SocketService,
   ) {
     super();
+    this.socketService.connect();
+
     this.autoTaskService.currentSetting
       .pipe(takeUntil(this.destroy$))
       .subscribe((setting) => {
@@ -168,7 +170,6 @@ export class DashboardComponent
               );
               this.item.total! -= 1;
               return;
-
             }
           }
         }
@@ -179,8 +180,15 @@ export class DashboardComponent
         if (task) {
           Object.assign(task, taskData);
         } else {
-          this.item.rows = [taskData, ...this.item.rows];
-          this.item.total! += 1;
+          const insertIndex = this.item.rows.findIndex(
+            (row) => new Date(row.createdAt) < new Date(taskData.createdAt),
+          );
+
+          if (insertIndex !== -1) {
+            this.item.rows.splice(insertIndex, 0, taskData);
+            this.item.rows = [...this.item.rows];
+            this.item.total! += 1;
+          }
         }
       } else {
         const taskIndex = this.item.rows.findIndex(
@@ -200,9 +208,7 @@ export class DashboardComponent
         (row) => row.id === data.taskId,
       );
       if (taskIndex !== -1) {
-        this.item.rows = this.item.rows.filter(
-          (row) => row.id !== data.taskId,
-        );
+        this.item.rows = this.item.rows.filter((row) => row.id !== data.taskId);
         this.item.total! -= 1;
       }
     });
@@ -1290,5 +1296,11 @@ export class DashboardComponent
       console.error('Error in checkTaskFilter:', error);
       return true;
     }
+  }
+
+  override ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.socketService.disconnect();
   }
 }
