@@ -6,7 +6,6 @@ import {ISidebar} from '../types/viewmodels';
 import {MainService} from '@app/services/api/main.service';
 import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
 import {ECallType} from '@app/types/call';
-import { SocketService } from '@app/services/api/socket.service';
 
 @Component({
   selector: 'app-main',
@@ -21,7 +20,6 @@ export class MainComponent extends BaseComponentsComponent implements OnInit {
     private router: Router,
     private title: Title,
     private readonly mainService: MainService,
-    private readonly socketService: SocketService,
   ) {
     super();
     this.title.setTitle(`Smax App | ${this.currentBiz?.name} | Auto Task`);
