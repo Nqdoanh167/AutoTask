@@ -172,34 +172,76 @@ export class DashboardComponent
               return;
             }
           }
+
+          taskData.taskChains = taskChains;
         }
       }
 
-      const sort = this.item.paramsQuery.sort || '-createdAt';
-      const sortField = sort.replace('-', '');
-      if (!['createdAt', 'updatedAt'].includes(sortField)) {
-        return;
-      }
-
       if (this.checkTaskFilter(taskData)) {
-        const task = this.item.rows.find((row) => row.id === taskData.id);
-        if (task) {
-          Object.assign(task, taskData);
-        } else {
-          const sortDirection = sort.startsWith('-') ? 'desc' : 'asc';
-
-          const insertIndex = this.getInsertIndex(
-            this.item.rows,
-            taskData,
-            sortField as 'createdAt' | 'updatedAt',
-            sortDirection,
-          );
-
-          if (insertIndex !== -1) {
-            this.item.rows.splice(insertIndex, 0, taskData);
-            this.item.rows = [...this.item.rows];
+        // Những filter sẽ không thêm hoặc cập nhật task
+        if (this.item.paramsQuery.q) {
+          return;
+        }
+        const sort = this.item.paramsQuery.sort || '-createdAt';
+        if (
+          !['createdAt', '-createdAt', '-updatedAt', 'updatedAt'].includes(sort)
+        ) {
+          return;
+        }
+        
+        switch (data.actionType) {
+          case 'CREATE':
+            this.item.rows = [taskData, ...this.item.rows];
             this.item.total! += 1;
-          }
+            break;
+
+          case 'UPDATE':
+            const task = this.item.rows.find((row) => row.id === taskData.id);
+            if (task) {
+              Object.assign(task, taskData);
+            } else {
+              if (sort === 'updatedAt') {
+                break;
+              }
+
+              if (!this.item.rows.length || sort === '-updatedAt') {
+                this.item.rows = [taskData, ...this.item.rows];
+                this.item.total! += 1;
+                break;
+              }
+
+              const sortDirection = sort.startsWith('-') ? 'desc' : 'asc';
+              const taskTime = new Date(taskData.createdAt);
+
+              const firstTime = new Date(this.item.rows[0].createdAt);
+              const lastTime = new Date(
+                this.item.rows[this.item.rows.length - 1].createdAt,
+              );
+
+              const isBetween =
+                sortDirection === 'asc'
+                  ? taskTime >= firstTime && taskTime <= lastTime
+                  : taskTime <= firstTime && taskTime >= lastTime;
+
+              if (isBetween) {
+                const insertIndex = this.item.rows.findIndex((row) => {
+                  const rowDate = new Date(row.createdAt);
+                  return sortDirection === 'asc'
+                    ? rowDate > taskTime
+                    : rowDate < taskTime;
+                });
+
+                if (insertIndex !== -1) {
+                  this.item.rows.splice(insertIndex, 0, taskData);
+                  this.item.rows = [...this.item.rows];
+                  this.item.total! += 1;
+                }
+              }
+            }
+            break;
+
+          default:
+            break;
         }
       } else {
         const taskIndex = this.item.rows.findIndex(
@@ -247,21 +289,6 @@ export class DashboardComponent
     if (!this.permission.add) {
       this.configButtons[2].hidden = true;
     }
-  }
-
-  getInsertIndex(
-    rows: any[],
-    taskData: any,
-    sortField: 'createdAt' | 'updatedAt',
-    sortDirection: 'asc' | 'desc',
-  ): number {
-    const operator = sortDirection === 'desc' ? '<' : '>';
-    return rows.findIndex((row) => {
-      const rowDate = new Date(row[sortField]);
-      const taskDate = new Date(taskData[sortField]);
-
-      return operator === '<' ? rowDate < taskDate : rowDate > taskDate;
-    });
   }
 
   setupCheckbox() {
