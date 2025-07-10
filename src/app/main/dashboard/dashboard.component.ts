@@ -175,13 +175,24 @@ export class DashboardComponent
         }
       }
 
+      const sort = this.item.paramsQuery.sort || '-createdAt';
+      const sortField = sort.replace('-', '');
+      if (!['createdAt', 'updatedAt'].includes(sortField)) {
+        return;
+      }
+
       if (this.checkTaskFilter(taskData)) {
         const task = this.item.rows.find((row) => row.id === taskData.id);
         if (task) {
           Object.assign(task, taskData);
         } else {
-          const insertIndex = this.item.rows.findIndex(
-            (row) => new Date(row.createdAt) < new Date(taskData.createdAt),
+          const sortDirection = sort.startsWith('-') ? 'desc' : 'asc';
+
+          const insertIndex = this.getInsertIndex(
+            this.item.rows,
+            taskData,
+            sortField as 'createdAt' | 'updatedAt',
+            sortDirection,
           );
 
           if (insertIndex !== -1) {
@@ -236,6 +247,21 @@ export class DashboardComponent
     if (!this.permission.add) {
       this.configButtons[2].hidden = true;
     }
+  }
+
+  getInsertIndex(
+    rows: any[],
+    taskData: any,
+    sortField: 'createdAt' | 'updatedAt',
+    sortDirection: 'asc' | 'desc',
+  ): number {
+    const operator = sortDirection === 'desc' ? '<' : '>';
+    return rows.findIndex((row) => {
+      const rowDate = new Date(row[sortField]);
+      const taskDate = new Date(taskData[sortField]);
+
+      return operator === '<' ? rowDate < taskDate : rowDate > taskDate;
+    });
   }
 
   setupCheckbox() {
