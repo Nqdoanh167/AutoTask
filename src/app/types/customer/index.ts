@@ -61,7 +61,7 @@ export interface IOrderCustomer {
   source?: ESourceOrderCustomer;
   sourceName?: string;
   sourceId?: string;
-  cart?: ICartItem;
+  cart?: ICartItem[];
   amount?: number;
   amountCartRefund?: number;
   totalAmountPaid?: number;

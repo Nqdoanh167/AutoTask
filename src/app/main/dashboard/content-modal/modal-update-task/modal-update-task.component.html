@@ -144,16 +144,19 @@
                       [placement]="'bottom'"
                       (change)="handleChangeChatLink()"
                     />
-                    <!-- <span
-                      class="input-group-text cursor-pointer button-fill secondary-color fw-500"
-                      id="basic-addon2"
-                      tooltip="Gán link cuộc hội thoại để hệ thống có thể tự động kiểm tra và bổ sung thông tin Nguồn dữ liệu vào Tác vụ"
-                      container=".modal-update-task"
-                      (click)="handleChangeChatLink()"
-                    >
-                      Áp dụng
-                    </span> -->
                   </div>
+                  <button
+                    [tooltip]="'Nghe ghi âm cuộc gọi'"
+                    [placement]="'left'"
+                    class="btn button-outline"
+                    (click)="handleViewCallSmsOtt()"
+                  >
+                    <img
+                      src="./assets/images/icon-detail/record.svg"
+                      alt=""
+                      style="width: 16px"
+                    />
+                  </button>
                 </div>
               </ng-container>
             </app-custom-tab-set>
@@ -345,11 +348,9 @@
                                         "
                                         [class.disabled]="!item.isActive"
                                         (click)="
-                                          item.id !== settingRole.value.userId
-                                            && onChooseTeam(
-                                                settingRoleIndex,
-                                                item
-                                              )
+                                          item.id !==
+                                            settingRole.value.userId &&
+                                            onChooseTeam(settingRoleIndex, item)
                                         "
                                       >
                                         <div
@@ -378,15 +379,21 @@
                             @if (sourceData?.id) {
                               <button
                                 (click)="handleDropTask(sourceData?.id)"
-                                class="btn button-medium button-outline  me-2"
+                                class="btn button-medium button-outline me-2"
                                 type="button"
                                 [disabled]="submittedModal.dropTask"
                               >
-                                <img src="./assets/images/icon/drop.svg" alt="" style="width: 16px; height: 16px">
+                                <img
+                                  src="./assets/images/icon/drop.svg"
+                                  alt=""
+                                  style="width: 16px; height: 16px"
+                                />
                               </button>
 
                               <button
-                                (click)="handleResetTask(generateResetTaskKey())"
+                                (click)="
+                                  handleResetTask(generateResetTaskKey())
+                                "
                                 class="btn button-medium button-outline"
                                 type="button"
                                 [disabled]="loading.getDetail"
