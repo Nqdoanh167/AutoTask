@@ -1158,6 +1158,12 @@ export class DashboardComponent
   }
 
   showModalDrawTask() {
+    if(!this.autoTaskSetting?.viewDrawConfig){
+      this.toastrService.warning(
+        'Bạn vui lòng bật tính năng rút số ở mục cấu hình trong phần cài đặt.',
+      );
+      return;
+    }
     const modal = this.modalService.show(ModalDrawTaskComponent, {
       class: 'modal-dialog-centered modal-xl',
       backdrop: 'static',

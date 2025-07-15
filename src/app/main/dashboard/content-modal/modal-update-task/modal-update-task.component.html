@@ -382,6 +382,8 @@
                                 class="btn button-medium button-outline me-2"
                                 type="button"
                                 [disabled]="submittedModal.dropTask"
+                                [tooltip]="'Thả số'"
+                                *ngIf="autoTaskSetting?.viewDropConfig"
                               >
                                 <img
                                   src="./assets/images/icon/drop.svg"
