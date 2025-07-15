@@ -785,6 +785,12 @@ export class ModalUpdateTaskComponent
     window.open(url, '_blank');
   }
 
+  handleViewCallSmsOtt() {
+    let url = `${environment.urlDomain}/${this.currentBiz!.alias
+      }/sms-ott-call/history/?taskCode=${this.sourceData?.code}`;
+    window.open(url, '_blank');
+  }
+
   async handleCreateTaskOrder() {
     if (!this.sourceData?.id || this.loading.createOrder) return;
     this.loading.createOrder = true;

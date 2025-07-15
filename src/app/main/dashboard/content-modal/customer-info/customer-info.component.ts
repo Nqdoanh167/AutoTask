@@ -26,8 +26,17 @@ import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.co
 import {ToastrService} from 'ngx-toastr';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateCustomerComponent} from '@main/dashboard/content-modal/modal-update-customer/modal-update-customer.component';
+import {RfmService} from '@app/services/api/rfm.service';
 
-type ViewOrderType = 'completed' | 'cancelled';
+type ViewOrderType = 'completed' | 'cancelled' | 'trash';
+type BehaviorType = {
+  amount: number;
+  averageOrder: number;
+  groupName?: string;
+  point?: number;
+  membership?: string;
+  lastPurchase?: string;
+}
 
 @Component({
   selector: 'app-customer-info',
@@ -54,15 +63,22 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   public trigger = {
     name: false,
   };
-  
+
   public loading = {
     customer: false,
     updateCustomer: false,
+    getBehaviorInfoCustomer: false,
   };
+  //Hành vi mua hàng
+  public viewBehavior: boolean = false;
   public viewOrderType?: ViewOrderType;
   public viewOrCustomerOrders: IOrderCustomer[] = [];
   public selectedCustomer: Customer | null = null;
   public selectTag: boolean = false;
+  public behaviorInfo: BehaviorType = {
+    amount: 0,
+    averageOrder: 0
+  };
 
   protected hasPermitCustomer =
     this.authService.checkPermittedModule('customers');
@@ -75,6 +91,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly toarst: ToastrService,
     private readonly modalService: BsModalService,
+    private readonly rfmService: RfmService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -93,6 +110,13 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       changes?.['selectedCustomerId']?.currentValue
     ) {
       this.getCustomerDetail(this.selectedCustomerId);
+      this.viewOrCustomerOrders = [];
+      this.viewOrderType = undefined;
+      this.viewBehavior = false;
+      this.behaviorInfo = {
+        amount: 0,
+        averageOrder: 0
+      }
     }
   }
 
@@ -124,7 +148,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     this.customerService.customer
       .getById(id)
       .pipe(
-        finalize(() => (this.loading.customer = false)),  
+        finalize(() => (this.loading.customer = false)),
         takeUntil(this.destroy$),
       )
       .subscribe({
@@ -144,6 +168,34 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
           }
         },
       });
+  }
+
+  getBehaviorInfoCustomer() {
+    this.viewBehavior = !this.viewBehavior;
+    if (this.selectedCustomerId && this.viewBehavior) {
+      this.loading.getBehaviorInfoCustomer = true;
+      this.rfmService.customerRfm
+        .getBehavior(this.selectedCustomerId)
+        .pipe(
+          finalize(() => {
+            this.loading.getBehaviorInfoCustomer = false
+          }),
+          takeUntil(this.destroy$),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res && res.status === 200) {
+              this.behaviorInfo.amount = res.data?.m_amount || 0;
+              this.behaviorInfo.averageOrder = res.data?.aov || 0;
+              this.behaviorInfo.groupName = res.data?.groupName || '';
+              this.behaviorInfo.point = res.data?.rfm || 0;
+              this.behaviorInfo.membership = res.data?.membership || '';
+              this.behaviorInfo.lastPurchase = res.data?.r_endDate || '';
+            } else {
+            }
+          },
+        });
+    }
   }
 
   handleViewCustomer(customerId?: string) {
@@ -212,7 +264,6 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
         },
       });
   }
-
 
   handleChangeLocation(value: string, type: 'province' | 'district' | 'ward') {
     switch (type) {
@@ -304,7 +355,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       patchData[key] = formValues[key];
       const customerValue = customer[key];
 
-      if(isInit && !patchData[key] || !isInit) {
+      if ((isInit && !patchData[key]) || !isInit) {
         patchData[key] = customerValue;
       }
 
