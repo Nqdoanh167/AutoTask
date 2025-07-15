@@ -29,14 +29,6 @@ import {ModalUpdateCustomerComponent} from '@main/dashboard/content-modal/modal-
 import {RfmService} from '@app/services/api/rfm.service';
 
 type ViewOrderType = 'completed' | 'cancelled' | 'trash';
-type BehaviorType = {
-  amount: number;
-  averageOrder: number;
-  groupName?: string;
-  point?: number;
-  membership?: string;
-  lastPurchase?: string;
-}
 
 @Component({
   selector: 'app-customer-info',
@@ -67,7 +59,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   public loading = {
     customer: false,
     updateCustomer: false,
-    getBehaviorInfoCustomer: false,
+    getInfoRfm: false,
   };
   //Hành vi mua hàng
   public viewBehavior: boolean = false;
@@ -75,13 +67,20 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   public viewOrCustomerOrders: IOrderCustomer[] = [];
   public selectedCustomer: Customer | null = null;
   public selectTag: boolean = false;
-  public behaviorInfo: BehaviorType = {
-    amount: 0,
-    averageOrder: 0
+  public rfmInFo: {
+    point?: number;
+    groupName?: string;
+    isGet: boolean;
+  } = {
+    point: 0,
+    groupName: '',
+    isGet: false,
   };
 
   protected hasPermitCustomer =
     this.authService.checkPermittedModule('customers');
+
+  protected hasPermitRfm = this.authService.checkPermittedModule('rfm');
 
   constructor(
     private readonly apiLocationService: ApiLocationService,
@@ -110,13 +109,13 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       changes?.['selectedCustomerId']?.currentValue
     ) {
       this.getCustomerDetail(this.selectedCustomerId);
-      this.viewOrCustomerOrders = [];
-      this.viewOrderType = undefined;
       this.viewBehavior = false;
-      this.behaviorInfo = {
-        amount: 0,
-        averageOrder: 0
-      }
+      this.rfmInFo = {
+        point: 0,
+        groupName: '',
+        isGet: false,
+      };
+      this.viewOrderType = undefined;
     }
   }
 
@@ -162,6 +161,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
             if (res.data?.districtCode) {
               this.getWard(res.data?.provinceCode, res.data?.districtCode);
             }
+
+            this.handleViewOrderType('completed');
           } else {
             // this.commonService.handleResErr(res);
             this.toarst.warning('Không tìm thấy khách hàng!');
@@ -171,31 +172,43 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   }
 
   getBehaviorInfoCustomer() {
-    this.viewBehavior = !this.viewBehavior;
-    if (this.selectedCustomerId && this.viewBehavior) {
-      this.loading.getBehaviorInfoCustomer = true;
+    if (this.rfmInFo.isGet) return;
+    if (this.selectedCustomerId && this.hasPermitRfm) {
+      this.loading.getInfoRfm = true;
       this.rfmService.customerRfm
         .getBehavior(this.selectedCustomerId)
         .pipe(
           finalize(() => {
-            this.loading.getBehaviorInfoCustomer = false
+            this.rfmInFo.isGet = true;
+            this.loading.getInfoRfm = false;
           }),
           takeUntil(this.destroy$),
         )
         .subscribe({
           next: (res) => {
             if (res && res.status === 200) {
-              this.behaviorInfo.amount = res.data?.m_amount || 0;
-              this.behaviorInfo.averageOrder = res.data?.aov || 0;
-              this.behaviorInfo.groupName = res.data?.groupName || '';
-              this.behaviorInfo.point = res.data?.rfm || 0;
-              this.behaviorInfo.membership = res.data?.membership || '';
-              this.behaviorInfo.lastPurchase = res.data?.r_endDate || '';
+              this.rfmInFo.point = res.data?.point || 0;
+              this.rfmInFo.groupName = res.data?.groupName || '';
             } else {
             }
           },
         });
     }
+  }
+
+  getAverageOrder(){
+    // Tính giá trị đơn trung bình theo trạng thái completed
+    const orders = this.selectedCustomer?.orders.filter(
+      (order) => order.status === 'completed'
+    );
+
+    if (!orders || orders.length === 0) return 0;
+
+    const amount = orders.reduce((sum, order) => {
+      return sum + (order.amount || 0);
+    }, 0);
+
+    return amount / orders.length;
   }
 
   handleViewCustomer(customerId?: string) {

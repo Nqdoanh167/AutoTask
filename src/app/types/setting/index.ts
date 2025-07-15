@@ -170,6 +170,8 @@ export interface ISetting {
     };
     isEnabled?: boolean; // Bật/tắt tính năng cấu hình rút & thả số
   };
+  viewDropConfig?: boolean;
+  viewDrawConfig?: boolean;
 }
 
 export interface IViewDto

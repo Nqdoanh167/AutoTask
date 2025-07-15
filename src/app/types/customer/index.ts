@@ -80,6 +80,7 @@ export interface ISaleCenter {
   lastCompletedOrder?: IOrderCustomer;
   createdAt: Date;
   updatedAt: Date;
+  totalOrderTrash?: number;
 }
 
 export interface Customer {
@@ -111,6 +112,10 @@ export interface Customer {
   updatedAt: Date;
   loyalty?: CustomerLoyalty;
   birthday?: Date;
+  rfm: {
+    point?: number;
+    groupName?: string;
+  },
 }
 
 export interface CustomerLoyalty {

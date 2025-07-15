@@ -216,7 +216,7 @@
                       type="checkbox"
                       role="switch"
                       id="isActive"
-                      [value]="settingForm.get('viewDrawConfig')?.value"
+                      [checked]="settingForm.get('viewDrawConfig')?.value"
                       (change)="
                         settingForm.get('viewDrawConfig')?.setValue(
                           !settingForm.get('viewDrawConfig')?.value
@@ -256,7 +256,7 @@
                         type="checkbox"
                         role="switch"
                         id="isActive"
-                        [value]="settingForm.get('viewDropConfig')?.value"
+                        [checked]="settingForm.get('viewDropConfig')?.value"
                         (change)="
                           settingForm.get('viewDropConfig')?.setValue(
                             !settingForm.get('viewDropConfig')?.value
