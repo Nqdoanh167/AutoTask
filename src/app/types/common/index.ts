@@ -8,6 +8,7 @@ export enum ETypeFilter {
 export enum ETypeBulkUpdate {
   REMOVE_TEAM = 'REMOVE_TEAM',
   ASSIGN_TEAM = 'ASSIGN_TEAM',
+  DELETE_MULTI_TASK = 'DELETE_MULTI_TASK',
 }
 export enum EBotherAdvanceBasicFilter {
   BASIC = 'basic',

@@ -400,6 +400,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.post<EntityResult<ITask>>(
         this.createUrl([this.api.task, id, 'drop']), {},
       ),
+    deleteMulti: (taskIds: string[]) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.task, 'delete-requests']),
+        { taskIds },
+      ),
   };
 
   taskChain = {

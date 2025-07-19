@@ -62,7 +62,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     getInfoRfm: false,
   };
   //Hành vi mua hàng
-  public viewBehavior: boolean = false;
+  public viewBehavior: boolean = true;
   public viewOrderType?: ViewOrderType;
   public viewOrCustomerOrders: IOrderCustomer[] = [];
   public selectedCustomer: Customer | null = null;
@@ -109,7 +109,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       changes?.['selectedCustomerId']?.currentValue
     ) {
       this.getCustomerDetail(this.selectedCustomerId);
-      this.viewBehavior = false;
+      this.viewBehavior = true;
       this.rfmInFo = {
         point: 0,
         groupName: '',

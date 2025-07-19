@@ -52,6 +52,7 @@ import {ModalExportExcelComponent} from '@app/share/common/modal-export-excel/mo
 import {ModalImportExcelComponent} from '@app/share/common/modal-import-excel/modal-import-excel.component';
 import {ModalDrawTaskComponent} from './content-modal/modal-draw-task/modal-draw-task.component';
 import {SocketService} from '@app/services/api/socket.service';
+import {ModalDeleteMultiComponent} from './content-modal/multiple-action/modal-delete-multi/modal-delete-multi.component';
 
 @Component({
   selector: 'app-task',
@@ -188,9 +189,12 @@ export class DashboardComponent
         ) {
           return;
         }
-        
+
         switch (data.actionType) {
           case 'CREATE':
+            if(sort === 'createdAt' || sort === 'updatedAt'){
+              break;
+            }
             this.item.rows = [taskData, ...this.item.rows];
             this.item.total! += 1;
             break;
@@ -264,6 +268,13 @@ export class DashboardComponent
         this.item.rows = this.item.rows.filter((row) => row.id !== data.taskId);
         this.item.total! -= 1;
       }
+    });
+
+    this.socketService.listen('task/BULK_DELETED').subscribe((data) => {
+      setTimeout(() => {
+        this.toastrService.success(`Xóa thành công ${data.deletedTasksLength} tác vụ.`);
+        this.getDataSource(true);
+      }, 1000);
     });
   }
 
@@ -621,6 +632,44 @@ export class DashboardComponent
 
   showModalMultipleAction(action: {value: ETypeBulkUpdate}) {
     if (!action) return;
+    switch (action.value) {
+      case ETypeBulkUpdate.DELETE_MULTI_TASK:
+        // if (!this.hasPerDelMultipleTasks()) {
+        //   this.toastrService.warning(
+        //     'Bạn không có quyền thực hiện thao tác này!',
+        //   );
+        //   this.selectBatchActions?.handleClearClick();
+        //   break;
+        // }
+        this.showModalDeleteMultiTask(action);
+        break;
+      case ETypeBulkUpdate.ASSIGN_TEAM:
+        if (!this.hasPerAssignTasks()) {
+          this.toastrService.warning(
+            'Bạn không có quyền thực hiện thao tác này!',
+          );
+          break;
+        }
+        this.showModalAssignTeam(action);
+        break;
+
+      case ETypeBulkUpdate.REMOVE_TEAM:
+        if (!this.hasPerAssignTasks()) {
+          this.toastrService.warning(
+            'Bạn không có quyền thực hiện thao tác này!',
+          );
+          break;
+        }
+        this.showModalAssignTeam(action);
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  showModalAssignTeam(action: {value: ETypeBulkUpdate}) {
+    if (!action) return;
     try {
       const modalRef = this.modalService.show(ModalAssignTeamComponent, {
         class: 'modal-dialog-centered',
@@ -632,6 +681,26 @@ export class DashboardComponent
 
       modalRef.content?.assignTeams.subscribe(() => {
         this.getDataSource();
+      });
+      this.selectBatchActions?.handleClearClick();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  showModalDeleteMultiTask(action: {value: ETypeBulkUpdate}) {
+    if (!action) return;
+    try {
+      const modalRef = this.modalService.show(ModalDeleteMultiComponent, {
+        class: 'modal-dialog-centered',
+        initialState: {
+          taskIds: this.getRowIds(),
+          taskCodes: this.getRowCodes(),
+        },
+      });
+      modalRef.content?.success.subscribe(() => {
+        this.handleRefreshRow()
+        modalRef.hide();
       });
       this.selectBatchActions?.handleClearClick();
     } catch (e) {
@@ -1101,6 +1170,11 @@ export class DashboardComponent
       EPerActTask.REMOVE_TEAM_TASK,
     ]);
   }
+  hasPerDelMultipleTasks() {
+    return this.authService.checkUserPer(EPerActType.TASK, [
+      EPerActTask.DELETE_MULTI_TASK,
+    ]);
+  }
 
   handleCreateOrder(orderId: string | null = null) {
     const modal = this.modalService.show(ModalCreateOrderComponent, {
@@ -1158,7 +1232,7 @@ export class DashboardComponent
   }
 
   showModalDrawTask() {
-    if(!this.autoTaskSetting?.viewDrawConfig){
+    if (!this.autoTaskSetting?.viewDrawConfig) {
       this.toastrService.warning(
         'Bạn vui lòng bật tính năng rút số ở mục cấu hình trong phần cài đặt.',
       );

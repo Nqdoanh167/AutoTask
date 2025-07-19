@@ -22,6 +22,10 @@ export const TASK_MULTIPLE_ACTIONS = [
     label: 'Bỏ nhân viên phụ trách',
     value: ETypeBulkUpdate.REMOVE_TEAM,
   },
+  {
+    label: 'Xóa hàng loạt tác vụ',
+    value: ETypeBulkUpdate.DELETE_MULTI_TASK,
+  },
 ];
 
 export const TASK_CONFIG_FILTERS = [

@@ -29,6 +29,9 @@ export class CheckboxSortTableComponent<
   getRowIds() {
     return this.checkRow.getRowIds();
   }
+  getRowCodes() {
+    return this.checkRow.getRowCodes();
+  }
   getLengthCheckRow() {
     return this.checkRow.getLengthRow();
   }
