@@ -1,0 +1,38 @@
+<app-custom-modal>
+  <ng-container modalTitle>
+    Xóa tác vụ ({{ taskCodes.length }} tác vụ)
+  </ng-container>
+
+  <ng-container modalBody>
+    <div class="title">Danh sách tác vụ:</div>
+    <div class="d-flex flex-wrap gap-1">
+      <div class="badge bg-primary" *ngFor="let taskCode of taskCodes">
+        {{ taskCode }}
+      </div>
+    </div>
+    <div role="alert" class="alert alert-danger mt-2 mb-0">
+      <span class="text-danger fw-500">Cảnh báo:</span>
+      <ul class="ps-4" style="list-style: circle">
+        <li>Dữ liệu đã xóa không thể khôi phục.</li>
+        <li>Không thể thống kê các tác vụ đã bị xóa.</li>
+        <li>
+          Có thể ảnh hưởng đến các chức năng liên quan.Vui lòng liên hệ bộ phận
+          kỹ thuật để đánh giá rủi ro trước khi thực hiẹn
+        </li>
+      </ul>
+    </div>
+  </ng-container>
+
+  <ng-container modalFooter>
+    <div class="modal-button text-end">
+      <button
+        class="btn bg-danger text-white"
+        style="min-width: 120px"
+        (click)="handleDeleteMultiTasks()"
+      >
+        <i class="fa-regular fa-trash-can me-2"></i>
+        Xóa
+      </button>
+    </div>
+  </ng-container>
+</app-custom-modal>
