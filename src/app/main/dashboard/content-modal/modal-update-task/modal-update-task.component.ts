@@ -596,13 +596,14 @@ export class ModalUpdateTaskComponent
   }
 
   onCloseChain(value: ITaskChain) {
+    this.loading.closeChainTask = true;
     this.autoTaskService.taskChain
       .closeChain(value.id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(finalize(() => (this.loading.closeChainTask = false)), takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.getDetailTask();
+            // this.getDetailTask();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -648,13 +649,15 @@ export class ModalUpdateTaskComponent
   }
 
   onDeleteChain(value: ITaskChain) {
+    if(this.loading.deleteChainTask) return;
+    this.loading.deleteChainTask = true;
     this.autoTaskService.taskChain
       .delete(value.id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(finalize(() => this.loading.deleteChainTask = false), takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.getDetailTask();
+            // this.getDetailTask();
           } else {
             this.commonService.handleResErr(res);
           }

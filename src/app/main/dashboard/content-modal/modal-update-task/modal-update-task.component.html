@@ -471,6 +471,7 @@
                                       "
                                       type="button"
                                       class="btn btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                                      [disabled]="loading.closeChainTask"
                                     >
                                       Đóng chuỗi
                                       <img
@@ -506,6 +507,7 @@
                                     "
                                     type="button"
                                     class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
+                                    [disabled]="loading.deleteChainTask"
                                   >
                                     Xóa
                                     <img
