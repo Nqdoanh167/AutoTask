@@ -82,6 +82,20 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
 
   protected hasPermitRfm = this.authService.checkPermittedModule('rfm');
 
+  public readonly groupRFM: Record<string, string> = {
+    champions: 'Champions',
+    loyal_customers: 'Loyal Customers',
+    potential_loyalist: 'Potential Loyalists',
+    recent_customers: 'Recent Customers',
+    promising: 'Promising',
+    needs_attention: 'Need Attention',
+    about_to_sleep: 'About to Sleep',
+    at_risk: 'At Risk',
+    cannot_lose_them: 'Cannot Lose Them',
+    hibernating: 'Hibernating',
+    lost: 'Lost',
+  };
+
   constructor(
     private readonly apiLocationService: ApiLocationService,
     private readonly commonService: CommonService,
@@ -109,12 +123,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       changes?.['selectedCustomerId']?.currentValue
     ) {
       this.getCustomerDetail(this.selectedCustomerId);
+      this.getBehaviorInfoCustomer();
       this.viewBehavior = true;
-      this.rfmInFo = {
-        point: 0,
-        groupName: '',
-        isGet: false,
-      };
       this.viewOrderType = undefined;
     }
   }
@@ -187,7 +197,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
         .subscribe({
           next: (res) => {
             if (res && res.status === 200) {
-              this.rfmInFo.point = res.data?.point || 0;
+              this.rfmInFo.point = res.data?.rfm || 0;
               this.rfmInFo.groupName = res.data?.groupName || '';
             } else {
             }
@@ -196,10 +206,10 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     }
   }
 
-  getAverageOrder(){
+  getAverageOrder() {
     // Tính giá trị đơn trung bình theo trạng thái completed
     const orders = this.selectedCustomer?.orders.filter(
-      (order) => order.status === 'completed'
+      (order) => order.status === 'completed',
     );
 
     if (!orders || orders.length === 0) return 0;
