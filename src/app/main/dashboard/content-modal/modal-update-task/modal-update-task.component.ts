@@ -603,7 +603,7 @@ export class ModalUpdateTaskComponent
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            // this.getDetailTask();
+            this.getDetailTask();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -657,7 +657,7 @@ export class ModalUpdateTaskComponent
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            // this.getDetailTask();
+            this.getDetailTask();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -692,7 +692,7 @@ export class ModalUpdateTaskComponent
           blocks: this.blocks.rows,
           actionChains: this.actionChains.rows.map((chain) => {
             // check xem nếu chuỗi tồn tại trong task và chưa đóng thi filter ra
-            if (this.sourceData?.taskChains) {
+            if (Array.isArray(this.sourceData?.taskChains)) {
               const chainTask = this.sourceData.taskChains.find(
                 (taskChain) => taskChain.chainActId === chain.id,
               );

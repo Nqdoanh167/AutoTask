@@ -120,7 +120,7 @@
                 <div
                   class="subhead cursor-pointer"
                   (click)="
-                    viewBehavior = !viewBehavior; getBehaviorInfoCustomer()
+                    viewBehavior = !viewBehavior;
                   "
                 >
                   Hành vi mua hàng
@@ -185,7 +185,7 @@
                       />
                       <ng-container *ngIf="rfmInFo.groupName">
                         Thuộc nhóm RFM:
-                        <span class="text-danger">{{ rfmInFo.groupName }}</span>
+                        <span class="text-danger">{{ groupRFM[rfmInFo.groupName] }}</span>
                         <div class="separate"></div>
                       </ng-container>
                       Điểm RFM:
