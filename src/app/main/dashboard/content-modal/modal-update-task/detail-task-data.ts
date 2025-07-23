@@ -9,7 +9,7 @@ import {
   IQueryBase,
   Order,
 } from '@app/types/viewmodels';
-import {ITask, ITaskChain} from '@app/types/flow';
+import {EChainNextActionType, ITask, ITaskChain} from '@app/types/flow';
 import {IBlockAutomation} from '@app/types/automation';
 import {
   AbstractControl,
@@ -82,6 +82,8 @@ export class DetailTaskData extends DashboardData {
     createOrder: false,
     deleteTask: false,
     modal: false,
+    deleteChainTask: false,
+    closeChainTask: false,
   };
 
   protected orders: EntityPagination<Order> = {
@@ -312,7 +314,7 @@ export class DetailTaskData extends DashboardData {
           chainActId: taskChain.chainActId,
           taskChainResults: this.fb.array([]),
         });
-        taskChain.taskChainResults?.forEach((taskChainResult) => {
+        taskChain.taskChainResults?.filter(taskChainResult => taskChainResult?.type === EChainNextActionType.MANUAL)?.forEach((taskChainResult) => {
           let deadlineDay = 0;
           let deadlineHour = 0;
           let deadlineMinute = 0;

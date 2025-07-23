@@ -253,6 +253,11 @@ export interface ILeadDealDto extends Customer {
   type: ELeadDeal;
 }
 
+export enum EChainNextActionType {
+  AUTO,
+  MANUAL,
+}
+
 export enum ETaskChainType {
   ACTIVE = 'ACTIVE',
   CLOSED = 'CLOSED',
@@ -319,6 +324,7 @@ export interface ITaskChainResult {
   feedbacks?: IFeedback[];
   bookings?: IBooking[];
   subActions?: IAction[];
+  type: EChainNextActionType
 }
 
 export interface ITaskChain {

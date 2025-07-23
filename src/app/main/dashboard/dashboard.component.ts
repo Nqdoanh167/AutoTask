@@ -174,7 +174,7 @@ export class DashboardComponent
             }
           }
 
-          taskData.taskChains = taskChains;
+          taskData.taskChains = {...taskChains};
         }
       }
 
@@ -690,6 +690,13 @@ export class DashboardComponent
 
   showModalDeleteMultiTask(action: {value: ETypeBulkUpdate}) {
     if (!action) return;
+    if(this.getRowIds().length > 1000){
+      this.toastrService.warning(
+        'Bạn chỉ có thể xóa tối đa 1000 tác vụ cùng lúc.',
+      );
+      this.selectBatchActions?.handleClearClick();
+      return;
+    }
     try {
       const modalRef = this.modalService.show(ModalDeleteMultiComponent, {
         class: 'modal-dialog-centered',
