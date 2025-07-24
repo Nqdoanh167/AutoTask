@@ -31,6 +31,7 @@ import pick from 'lodash/pick';
 })
 export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
   @Input({required: true}) sourceData!: CombinedUserAcl;
+  @Input() permissions!: Permission[]
   @Output() updateSuccess = new EventEmitter();
 
   public updateForm = this.fb.group({
@@ -50,16 +51,6 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
     data: false,
   };
   public currentBiz = '';
-  public permissions: ICommonDataLazy<Permission, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
 
   private destroy$ = new Subject();
 
@@ -85,7 +76,6 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
-    this.getPermissions();
     if (this.sourceData) {
       this.updateForm.patchValue({
         ...this.sourceData,
@@ -112,23 +102,6 @@ export class ModalEmployeeInfoComponent implements OnDestroy, OnInit {
         }),
       } as any);
     }
-  }
-
-  getPermissions() {
-    this.permissions.loading = true;
-    this.autoTaskService.permission
-      .get(this.permissions.paramsQuery)
-      .pipe(
-        finalize(() => (this.permissions.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((res) => {
-        if (res.status === 200) {
-          this.permissions.rows = res.data;
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      });
   }
 
   handleUpdate() {

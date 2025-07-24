@@ -6,7 +6,11 @@ import {
   IFilterTopTable,
 } from '@app/types/common';
 import {finalize, Subject, takeUntil} from 'rxjs';
-import {ESocialPlatform, IQueryBase} from '@app/types/viewmodels';
+import {
+  ESocialPlatform,
+  ICommonDataLazy,
+  IQueryBase,
+} from '@app/types/viewmodels';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
@@ -21,6 +25,7 @@ import {
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
 import {socialPlatforms} from '@app/variable';
+import {uniqBy} from 'lodash';
 
 @Component({
   selector: 'app-source',
@@ -93,6 +98,17 @@ export class SourceComponent
   };
   protected modalUpdateSource?: BsModalRef;
 
+  public sources: ICommonDataLazy<ISource, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 1000,
+      isActive: true,
+    },
+    isAllowLoadMore: false,
+  };
+
   constructor(
     private readonly modalConfirmService: ModalConfirmService,
     private readonly modalService: BsModalService,
@@ -149,6 +165,36 @@ export class SourceComponent
       });
   }
 
+  getSource() {
+    this.autoTaskService.source
+      .get(this.sources.paramsQuery)
+      .pipe(
+        finalize(() => (this.sources.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.sources.rows = uniqBy(
+              this.sources.rows.concat(res.data),
+              'id',
+            );
+            this.autoTaskService.setListSource(this.sources.rows);
+            this.sources.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.commonService.handleResErr(res);
+            this.sources.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.sources.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
   handleUpdate(data?: ISource) {
     if (data && !this.permission.edit) return;
     try {
@@ -163,11 +209,13 @@ export class SourceComponent
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
           this.getDataSource();
+          this.getSource();
         });
       this.modalUpdateSource.content?.deleteEvent
         .pipe(takeUntil(this.destroy$))
         .subscribe((data: ISource) => {
           this.handleDelete(data);
+          this.getSource();
         });
     } catch (e) {
       console.log(e);
