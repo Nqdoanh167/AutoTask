@@ -27,7 +27,11 @@ import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {ToastrService} from 'ngx-toastr';
-import {EntityPagination} from '@app/types/viewmodels';
+import {
+  EntityPagination,
+  ICommonDataLazy,
+  IQueryBase,
+} from '@app/types/viewmodels';
 import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
@@ -82,6 +86,17 @@ export class EmployeeComponent
     removePer: false,
   };
 
+  public permissions: ICommonDataLazy<Permission, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 1000,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
   constructor(
     private readonly modalService: BsModalService,
     private readonly autoTaskService: AutoTaskService,
@@ -93,6 +108,7 @@ export class EmployeeComponent
   }
 
   override ngOnInit() {
+    this.getPermissions();
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
@@ -141,6 +157,23 @@ export class EmployeeComponent
         if (res.status === 200) {
           this.aclData.rows = res.data;
           this.handleMapData(res.data);
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      });
+  }
+
+  getPermissions() {
+    this.permissions.loading = true;
+    this.autoTaskService.permission
+      .get(this.permissions.paramsQuery)
+      .pipe(
+        finalize(() => (this.permissions.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        if (res.status === 200) {
+          this.permissions.rows = res.data;
         } else {
           this.commonService.handleResErr(res);
         }
@@ -271,6 +304,7 @@ export class EmployeeComponent
     const modalUpdate = this.modalService.show(ModalEmployeeInfoComponent, {
       initialState: {
         sourceData: value,
+        permissions: this.permissions.rows,
       },
       class: 'modal-dialog-centered modal-xl',
     });
@@ -342,5 +376,49 @@ Nhân viên bị loại bỏ quyền có thể không được phép truy cập 
       this.removePerOfEmployees(selectedRows);
     }
     this.selectBatchActions?.handleClearClick();
+  }
+
+  mappingPermission(item: CombinedUserAcl): string[] {
+    const permissionMap = new Set<string>();
+
+    item.aclBranches?.forEach((branch: any) => {
+      const branchName = branch.name;
+
+      // Permission tại branch
+      if (branch.permission) {
+        const permission = this.permissions.rows.find(
+          (p) => p.id === branch.permission,
+        );
+        if (permission) {
+          permissionMap.add(`${branchName} - ${permission.name}`);
+        }
+      }
+
+      branch.departments?.forEach((dept: any) => {
+        // Permission tại department
+        if (dept.permission) {
+          const permission = this.permissions.rows.find(
+            (p) => p.id === dept.permission,
+          );
+          if (permission) {
+            permissionMap.add(`${branchName} - ${permission.name}`);
+          }
+        }
+
+        // Permission tại team
+        dept.teams?.forEach((team: any) => {
+          if (team.permission) {
+            const permission = this.permissions.rows.find(
+              (p) => p.id === team.permission,
+            );
+            if (permission) {
+              permissionMap.add(`${branchName} - ${permission.name}`);
+            }
+          }
+        });
+      });
+    });
+
+    return Array.from(permissionMap);
   }
 }

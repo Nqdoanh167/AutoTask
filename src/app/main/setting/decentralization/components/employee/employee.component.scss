@@ -23,15 +23,19 @@
   }
 
   .column-group {
-    width: 30%;
+    width: 10%;
   }
 
   .column-branch {
-    width: 30%;
+    width: 20%;
     .badge {
       background-color: vars.$secondary-500 !important;
       color: vars.$white !important;
     }
+  }
+
+  .column-permission{
+    width: 30%;
   }
 
   .avatar {

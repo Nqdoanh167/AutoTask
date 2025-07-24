@@ -36,6 +36,7 @@
                       <th class="column-group">Vùng chức năng</th>
                       <th class="column-role">Vai trò</th>
                       <th class="column-branch">Chi nhánh</th>
+                      <th class="column-permission">Quyền</th>
                       <th class="column-status">Trạng thái</th>
                       @if (permission.edit || permission.removePer) {
                         <th class="columns-action">Hành động</th>
@@ -143,6 +144,16 @@
                           >
                             {{ branch.name || '-' }}
                           </span>
+                        </div>
+                      </ng-container>
+                    </td>
+                    <td class="column-permission">
+                      <ng-container *ngIf="item.role === 'OWNER'">
+                        <div class="fw-500">OWNER</div>
+                      </ng-container>
+                      <ng-container *ngIf="item.role !== 'OWNER'">
+                        <div *ngFor="let permission of mappingPermission(item)">
+                          <div class="fw-500">{{ permission }}</div>
                         </div>
                       </ng-container>
                     </td>
