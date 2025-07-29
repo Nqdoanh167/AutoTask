@@ -603,7 +603,7 @@ export class ModalUpdateTaskComponent
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.getDetailTask();
+            // this.getDetailTask();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -657,7 +657,7 @@ export class ModalUpdateTaskComponent
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.getDetailTask();
+            // this.getDetailTask();
           } else {
             this.commonService.handleResErr(res);
           }

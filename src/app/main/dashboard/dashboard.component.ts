@@ -28,7 +28,7 @@ import {
   ITeam,
   ModifiedUserUnit,
 } from '@app/types/flow';
-import {isEqual} from 'lodash';
+import {cloneDeep, isEqual} from 'lodash';
 import {EPerActTask, EPerActType, EScreens, ISetting} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
@@ -173,8 +173,7 @@ export class DashboardComponent
               return;
             }
           }
-
-          taskData.taskChains = {...taskChains};
+          taskData.taskChains = cloneDeep(taskChains);
         }
       }
 
@@ -950,7 +949,7 @@ export class DashboardComponent
 
   override handleAction(name: string) {
     if (name === 'reload' && !this.item.loading) {
-      this.getDataSource(true);
+      this.getDataSource();
     }
     if (name === 'add_new') {
       this.handleUpdate();
