@@ -155,27 +155,6 @@ export class DashboardComponent
     //socket
     this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
       const taskData = data.task as ITask;
-      if (taskData.taskChains && taskData.taskChains.length) {
-        const filterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
-        if (filterQuery.isHideExecute) {
-          const taskChains = taskData.taskChains.filter(
-            (t: ITaskChain) => t.status !== ETaskChainType.CLOSED,
-          );
-          if (!taskChains.length) {
-            const taskIndex = this.item.rows.findIndex(
-              (row) => row.id === taskData.id,
-            );
-            if (taskIndex !== -1) {
-              this.item.rows = this.item.rows.filter(
-                (row) => row.id !== taskData.id,
-              );
-              this.item.total! -= 1;
-              return;
-            }
-          }
-          taskData.taskChains = cloneDeep(taskChains);
-        }
-      }
 
       if (this.checkTaskFilter(taskData)) {
         // Những filter sẽ không thêm hoặc cập nhật task
@@ -1278,6 +1257,7 @@ export class DashboardComponent
   10. actionIds
   11. resultIds
   12. unassignedRoleId
+  13. isHideExecute
   */
   checkTaskFilter(task: ITask): boolean {
     try {
@@ -1428,6 +1408,18 @@ export class DashboardComponent
         if (hasMatchingUnassignedRole) {
           return false;
         }
+      }
+      //isHideExecute
+      if (filterQuery.isHideExecute) {
+        let taskChains = task.taskChains || [];
+        const hasOpenTaskChains = !taskChains.length || taskChains.some((chain) => chain.status === 'ACTIVE');
+        if (!hasOpenTaskChains) {
+          return false;
+        }
+        taskChains = taskChains.filter(
+          (t: ITaskChain) => t.status !== ETaskChainType.CLOSED,
+        );
+        task.taskChains = cloneDeep(taskChains);
       }
 
       return true;
