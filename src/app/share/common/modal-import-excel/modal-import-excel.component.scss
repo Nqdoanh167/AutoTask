@@ -487,3 +487,11 @@
   z-index: 9999 !important;
   position: absolute !important;
 }
+
+.file-select {
+  text-align: center;
+  color: green;
+  i {
+    font-size: 60px;
+  }
+}

@@ -25,6 +25,7 @@ import {
   ETaskChainType,
   ITask,
   ITaskChain,
+  ITaskChainResult,
   ITeam,
   ModifiedUserUnit,
 } from '@app/types/flow';
@@ -154,7 +155,7 @@ export class DashboardComponent
 
     //socket
     this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
-      const taskData = data.task as ITask;
+      const taskData = cloneDeep(data.task) as ITask;
 
       if (this.checkTaskFilter(taskData)) {
         // Những filter sẽ không thêm hoặc cập nhật task
@@ -170,7 +171,7 @@ export class DashboardComponent
 
         switch (data.actionType) {
           case 'CREATE':
-            if(sort === 'createdAt' || sort === 'updatedAt'){
+            if (sort === 'createdAt' || sort === 'updatedAt') {
               break;
             }
             this.item.rows = [taskData, ...this.item.rows];
@@ -250,7 +251,9 @@ export class DashboardComponent
 
     this.socketService.listen('task/BULK_DELETED').subscribe((data) => {
       setTimeout(() => {
-        this.toastrService.success(`Xóa thành công ${data.deletedTasksLength} tác vụ.`);
+        this.toastrService.success(
+          `Xóa thành công ${data.deletedTasksLength} tác vụ.`,
+        );
         this.getDataSource(true);
       }, 1000);
     });
@@ -668,7 +671,7 @@ export class DashboardComponent
 
   showModalDeleteMultiTask(action: {value: ETypeBulkUpdate}) {
     if (!action) return;
-    if(this.getRowIds().length > 1000){
+    if (this.getRowIds().length > 1000) {
       this.toastrService.warning(
         'Bạn chỉ có thể xóa tối đa 1000 tác vụ cùng lúc.',
       );
@@ -684,7 +687,7 @@ export class DashboardComponent
         },
       });
       modalRef.content?.success.subscribe(() => {
-        this.handleRefreshRow()
+        this.handleRefreshRow();
         modalRef.hide();
       });
       this.selectBatchActions?.handleClearClick();
@@ -1175,35 +1178,66 @@ export class DashboardComponent
       this.toastrService.warning('Vui lòng chọn ít nhất 1 tác vụ để xuất file');
       return;
     }
-    const rows = this.getCheckRows().map((item, index) => {
-      return {
-        ...item,
-        stt: index + 1,
-        hasTaskChains: item.hasTaskChains ? 'Đang mở' : 'Đã đóng chuỗi',
-        createdAt: new Date(item.createdAt).toLocaleDateString('vi-VN', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        }),
-        updatedAt: new Date(item.updatedAt).toLocaleDateString('vi-VN', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        }),
-        tags: (item.tags || [])
-          .map((tag: string) => this.getTagById(tag)?.name)
-          .join(', '),
-        taskChains: (item.taskChains || [])
-          .map((chain: ITaskChain) => chain?.name)
-          .join(', '),
-        teams: (item.teams || [])
-          .map((team: ITeam) => team.roleName)
-          .join(', '),
-        platformSources: (item.platformSources || [])
-          .map((source: OrderPlatformSource) => source.name)
-          .join(', '),
-      };
-    });
+    const rows = this.getCheckRows()
+      .map((item, index) => {
+        const baseData = {
+          stt: index + 1,
+          ...item,
+          hasTaskChains: item.hasTaskChains ? 'Đang mở' : 'Đã đóng chuỗi',
+          createdAt: new Date(item.createdAt).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }),
+          updatedAt: new Date(item.updatedAt).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }),
+          tags: (item.tags || [])
+            .map((tag: string) => this.getTagById(tag)?.name)
+            .join(', '),
+          teams: (item.teams || [])
+            .map((team: ITeam) => team.roleName)
+            .join(', '),
+          platformSources: (item.platformSources || [])
+            .map((source: OrderPlatformSource) => source.name)
+            .join(', '),
+        };
+
+        if (!item.taskChains?.length) {
+          return baseData;
+        }
+
+        return item.taskChains.map((chain: ITaskChain, i: number) => {
+          const shared =
+            i === 0
+              ? baseData
+              : Object.fromEntries(
+                  Object.keys(baseData).map((key) => [key, '']),
+                );
+
+          //Lấy thông tin nguyên nhân - kết quả
+          const reasonResults = (chain.taskChainResults || [])
+            .map((result: ITaskChainResult) => {
+              return `${result.result?.name || ''}${
+                result.reason?.name ? ` (${result.reason.name})` : ''
+              }`;
+            })
+            .filter((s) => s.trim()) 
+            .join(', ');
+          return {
+            ...shared,
+            taskChains: {
+              name: chain.name || '-',
+              id: chain.id || '-',
+              status: chain.status || '-',
+              reasonResults: reasonResults || '-',
+            },
+          };
+        });
+      })
+      .flat();
 
     const modal = this.modalService.show(ModalExportExcelComponent, {
       class: 'modal-lg modal-dialog-centered',
@@ -1412,7 +1446,9 @@ export class DashboardComponent
       //isHideExecute
       if (filterQuery.isHideExecute) {
         let taskChains = task.taskChains || [];
-        const hasOpenTaskChains = !taskChains.length || taskChains.some((chain) => chain.status === 'ACTIVE');
+        const hasOpenTaskChains =
+          !taskChains.length ||
+          taskChains.some((chain) => chain.status === 'ACTIVE');
         if (!hasOpenTaskChains) {
           return false;
         }

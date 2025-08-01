@@ -196,7 +196,6 @@
 
                     <span
                       class="fw-500 d-flex align-items-center gap-2"
-                      *ngIf="selectedCustomer?.loyalty?.rankName"
                     >
                       <img
                         class="me-1"
@@ -206,7 +205,7 @@
                       />
                       Hạng thành viên:
                       <span class="text-danger">
-                        {{ selectedCustomer?.loyalty?.rankName }}
+                        {{ selectedCustomer?.loyalty?.rankName || '-' }}
                       </span>
                     </span>
 
