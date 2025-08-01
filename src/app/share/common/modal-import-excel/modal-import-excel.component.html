@@ -6,17 +6,17 @@
       <div role="alert" class="alert alert-warning ng-star-inserted">
         <span class="text-danger fw-500">Lưu ý:</span>
         Tải file mẫu
-        <span class="text-primary text-href" (click)="downloadTemplate()">tại đây</span>
+        <span class="text-primary text-href" (click)="downloadTemplate()">
+          tại đây
+        </span>
         <ul class="ps-4" style="list-style: circle">
           <li class="fw-500" style="list-style: none">
             Một số trường cần lưu ý:
           </li>
           <li>
-            <div>
-              Mã tác vụ (Có thể nhập hoặc không)
-            </div>
+            <div>Mã tác vụ (Có thể nhập hoặc không)</div>
           </li>
-          <li><div>Tên tác vụ  (bắt buộc)</div></li>
+          <li><div>Tên tác vụ (bắt buộc)</div></li>
           <li><div>Chi nhánh: Tên chi nhánh (bắt buộc)</div></li>
           <li>
             <div>Khách hàng</div>
@@ -33,8 +33,9 @@
       </div>
 
       <!-- File upload section -->
-      <div class="upload-section">
-        <label class="form-label fw-bold">
+      <div class="upload-section"(dragover)="$event.preventDefault()"
+            (drop)="onDrop($event)">
+        <label class="form-label fw-bold" *ngIf="!selectedFile">
           Kéo hoặc thả file của bạn tại đây hoặc
         </label>
         <input
@@ -43,19 +44,32 @@
           accept=".xlsx,.xls"
           (change)="onFileSelected($event)"
           #fileInput
+          id="fileExcel"
         />
-        <div class="w-100">
-          <button
-            type="button"
-            class="btn btn-danger"
+        <ng-container *ngIf="!selectedFile; else filePreview">
+          <div class="w-100">
+            <button
+              type="button"
+              class="btn btn-danger"
+              (click)="fileInput.click()"
+              style="width: max-content"
+            >
+              <i class="fas fa-upload me-2"></i>
+              Tải file lên
+            </button>
+          </div>
+          <small class="text-muted">Chỉ chấp nhận file .xlsx hoặc .xls</small>
+        </ng-container>
+
+        <ng-template #filePreview>
+          <div
+            class="file-select cursor-pointer file-select"
             (click)="fileInput.click()"
-            style="width: max-content"
           >
-            <i class="fas fa-upload me-2"></i>
-            Tải file lên
-          </button>
-        </div>
-        <small class="text-muted">Chỉ chấp nhận file .xlsx hoặc .xls</small>
+            <i class="far fa-file-excel"></i>
+            <div class="fw-500">{{ selectedFile?.name }}</div>
+          </div>
+        </ng-template>
       </div>
 
       <!-- Preview data table -->

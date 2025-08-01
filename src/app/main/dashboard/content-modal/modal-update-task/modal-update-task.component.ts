@@ -758,6 +758,11 @@ export class ModalUpdateTaskComponent
                 }),
               );
             }
+             // Cập nhật formSteps để báo hiệu cho form là có sự thay đổi
+             const taskChainForm = this.formTaskChains.at(chainIndex);
+             const updatedTaskChain = JSON.parse(JSON.stringify(taskChainForm.value));
+             taskChainForm.patchValue(updatedTaskChain);
+             
           }
         } catch (e) {
           console.log(e);
@@ -819,9 +824,11 @@ export class ModalUpdateTaskComponent
               undefined,
               'Tạo đơn hàng thành công',
             );
-            this.orders.rows = [{} as any];
-            this.updateSuccess.emit();
-            this.getDetailTask();
+            // this.orders.rows = [{} as any];
+            // this.updateSuccess.emit();
+            // this.getDetailTask();
+            // this.handleAction
+            this.getOrderDetail(res.data?.orderIds);
           } else {
             if (res.data as any) {
               res.data?.forEach((err: any) => {

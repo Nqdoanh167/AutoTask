@@ -43,7 +43,13 @@
                           }}
                         </div>
                       }
-                      @if (
+                      @else if (
+                        f['status'].value === ETaskChainType.CLOSED
+                        && taskChainResult.value?.status !== ETaskChainResultType.COMPLETED
+                      ) {
+                        <span>-</span>
+                      }
+                      @else if (
                         !taskChainResult.value?.executedDate &&
                         taskChainResult.value?.deadlineDate
                       ) {
@@ -163,6 +169,9 @@
                           </div>
                         </ng-template>
                       }
+                      @else {
+                        <span>-</span>
+                      }
                       @if (taskChainResult.value?.reasonEditedDates?.length) {
                         <i
                           [popover]="changeHistoriesPop"
@@ -170,6 +179,7 @@
                           [outsideClick]="true"
                           class="fa-solid fa-circle-exclamation warning-change-time"
                           container=".modal"
+                          [tooltip]="'Lịch sử chỉnh sửa thời gian'"
                         ></i>
                         <ng-template #changeHistoriesPop>
                           <div

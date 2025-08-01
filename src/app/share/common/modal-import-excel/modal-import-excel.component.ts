@@ -145,8 +145,16 @@ export class ModalImportExcelComponent
   }
 
   onFileSelected(event: any): void {
+    const allowedExtensions = ['.xls', '.xlsx'];
     const file = event.target.files[0];
     if (file) {
+      const fileExtension = file.name
+          .substring(file.name.lastIndexOf('.'))
+          .toLowerCase();
+      if (!allowedExtensions.includes(fileExtension)) {
+        this.toastr.warning('Vui lòng chọn file Excel có định dạng .xls hoặc .xlsx');
+        return;
+      }
       this.selectedFile = file;
       this.readExcelFile(file);
     }
@@ -405,6 +413,19 @@ export class ModalImportExcelComponent
     }
   }
 
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    const files = event.dataTransfer?.files;
+    if (files?.[0]) {
+      const fileInput = document.getElementById(
+        'fileExcel',
+      ) as HTMLInputElement;
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(files[0]);
+      fileInput.files = dataTransfer.files;
+      this.onFileSelected({target: fileInput});
+    }
+  }
   
   hideModal(): void {
     this.bsModalRef.hide();

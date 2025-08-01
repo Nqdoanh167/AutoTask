@@ -350,7 +350,7 @@
                                     <span
                                       *ngIf="
                                         !taskChainResult?.executedDate &&
-                                        taskChainResult?.deadlineDate
+                                        taskChainResult?.deadlineDate && taskChain?.status !== ETaskChainType.CLOSED
                                       "
                                     >
                                       <ng-container
@@ -371,6 +371,7 @@
                                           [outsideClick]="true"
                                           class="fa-solid fa-circle-exclamation warning-change-time"
                                           container="body"
+                                          [tooltip]="'Lịch sử chỉnh sửa thời gian'"
                                         ></i>
                                         <ng-template #changeHistoriesPop>
                                           <div
@@ -537,7 +538,6 @@
                                         </span>
                                       </ng-template>
                                     </span>
-                                    -
                                   </span>
                                   <span>
                                     <ng-container

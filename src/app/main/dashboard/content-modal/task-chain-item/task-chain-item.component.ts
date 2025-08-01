@@ -388,7 +388,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       new Date(deadlineDate).getTime()
     ) {
       const body = {
-        deadlineDate: deadlineDate.toISOString(),
+        deadlineDate: deadlineDate,
         note,
         reasonEditedDate: {
           reason: reasonEditedDate?.reason || '',
@@ -581,7 +581,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     }
     this.formTaskChainResults()
       .at(taskChainResultIndex)
-      .patchValue({typeOverDeadline, deadlineDate: newDeadlineDate});
+      .patchValue({typeOverDeadline, deadlineDate: newDeadlineDate?.toISOString()});
   }
 
   handleCheckIsAllowEdit(

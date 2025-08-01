@@ -424,10 +424,6 @@ export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
         code: 'tags',
       },
       {
-        label: 'Chuỗi hành động',
-        code: 'taskChains',
-      },
-      {
         label: 'Các vai trò',
         code: 'teams',
       },
@@ -441,6 +437,28 @@ export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
       },
     ],
   },
+  {
+    titleGroup: 'Chuỗi hành động',
+    codeGroup: 'taskChains',
+    fields: [
+      {
+        label: 'Tên chuỗi hành động',
+        code: 'taskChains_name',
+      },
+      {
+        label: 'Id chuỗi hành động',
+        code: 'taskChains_id',
+      },
+      {
+        label: 'Trạng thái chuỗi hành động',
+        code: 'taskChains_status',
+      },
+      {
+        label: 'Nguyên nhân - Kết quả chuỗi hành động',
+        code: 'taskChains_reasonResults',
+      }
+    ]
+  }
 ];
 
 export const FORM_EXPORT_EXCEL = {
@@ -458,8 +476,11 @@ export const FORM_EXPORT_EXCEL = {
   orderCodes: null,
   platformSources: null,
   tags: null,
-  taskChains: null,
   teams: null,
   updatedAt: null,
   chatLink: null,
+  taskChains_name: null,
+  taskChains_id: null,
+  taskChains_status: null,
+  taskChains_reasonResults: null,
 }
