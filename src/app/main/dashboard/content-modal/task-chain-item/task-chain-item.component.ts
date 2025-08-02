@@ -144,6 +144,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       });
     this.staticDataChainItem?.taskChainResults?.forEach((taskChainResult) => {
       taskChainResult['isEdit'] = true;
+      if(taskChainResult.status === ETaskChainResultType.COMPLETED || taskChainResult.status === ETaskChainResultType.CANCELED){
+        taskChainResult['isEdit'] = false;
+      }
     });
   }
 
@@ -151,6 +154,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     if (changes['staticDataChainItem'] && this.staticDataChainItem) {
       this.staticDataChainItem.taskChainResults?.forEach((taskChainResult) => {
         taskChainResult['isEdit'] = true;
+        if(taskChainResult.status === ETaskChainResultType.COMPLETED || taskChainResult.status === ETaskChainResultType.CANCELED){
+          taskChainResult['isEdit'] = false;
+        }
       });
     }
   }
@@ -440,7 +446,10 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
       .update(taskChainResultId, body)
-      .pipe(finalize(() => (this.loading.submit = false)))
+      .pipe(finalize(() => {
+        this.loading.submit = false
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {

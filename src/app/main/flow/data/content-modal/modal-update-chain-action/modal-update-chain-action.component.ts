@@ -61,7 +61,7 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -72,7 +72,7 @@ export class ModalUpdateChainActionComponent implements OnDestroy, OnInit {
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
       sort: '-createdAt',
       filter: JSON.stringify({
         type: [EActionType.FEEDBACK, EActionType.MANUAL_CREATE_ORDER, EActionType.BOOKING],

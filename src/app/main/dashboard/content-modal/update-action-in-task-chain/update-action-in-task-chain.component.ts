@@ -11,11 +11,13 @@ import {
   EDelayType,
   ENextStepType,
   EOptionCloneTask,
+  ETaskChainType,
   IAction,
   IActResult,
   IChainAct,
   IChainActResult,
   IChainNextAction,
+  ITaskChain,
 } from '@app/types/flow';
 import {Subject} from 'rxjs';
 import {
@@ -44,6 +46,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   @Input() blocks: IBlockAutomation[] = [];
   @Input() actionChains: IChainAct[] = [];
   @Input() chainActId?: string;
+  @Input() taskChains: ITaskChain[] = [];
   @Input() loadingData = {
     results: false,
     blocks: false,
@@ -96,6 +99,17 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   get f(): {[key: string]: AbstractControl} {
     return this.updateForm.controls;
+  }
+
+  get availableActionChains() {
+    return this.actionChains.filter((chain => {
+      const isDisabled = this.taskChains.some(
+        (taskChain) =>
+          taskChain.chainActId === chain.id &&
+          taskChain.status !== ETaskChainType.CLOSED,
+      );
+      return !isDisabled;
+    }));
   }
 
   allOrNoneRequired(form: FormGroup) {
