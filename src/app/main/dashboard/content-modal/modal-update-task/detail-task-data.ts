@@ -84,6 +84,7 @@ export class DetailTaskData extends DashboardData {
     modal: false,
     deleteChainTask: false,
     closeChainTask: false,
+    getOrderDetail: false
   };
 
   protected orders: EntityPagination<Order> = {
@@ -520,8 +521,13 @@ export class DetailTaskData extends DashboardData {
   }
 
   getOrderDetail(orderIds: string[]) {
+    if(this.loading.getOrderDetail || !orderIds || orderIds.length === 0) {
+      return;
+    }
+    this.loading.getOrderDetail = true;
     this.autoTaskService.task
       .retrieveOrdersByTask({orderIds: orderIds})
+      .pipe(finalize(() => (this.loading.getOrderDetail = false)))
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {

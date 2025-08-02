@@ -262,9 +262,10 @@ export class ModalUpdateTaskComponent
     }
   }
 
-  createNewTagAndChoose(tagName: string) {
+  createNewTagAndChoose(tag: any) {
+    if (tag?.id || !tag?.name) return;
     const body: ITag = {
-      name: tagName,
+      name: tag?.name,
       bgColor: '#000000',
     };
     this.autoTaskService.tag
@@ -275,8 +276,12 @@ export class ModalUpdateTaskComponent
           if (res.status === 200) {
             // this.getTag();
             this.ngSelectTagTask.filter('');
-            const formTag: string[] = this.updateForm.value.tags || [];
+            this.tags.rows.push(res.data);
+            Object.assign(tag, res.data);
+
+            let formTag: string[] = this.updateForm.value.tags || [];
             formTag.push(res.data.id as any);
+            formTag = formTag.filter((tag) => tag !== undefined);
             this.updateForm.patchValue({
               tags: formTag as any,
             });
@@ -686,21 +691,12 @@ export class ModalUpdateTaskComponent
       UpdateActionInTaskChainComponent,
       {
         initialState: {
+          taskChains: this.sourceData?.taskChains || [],
           actionOfChain,
           sourceData: actionData,
           results: this.results.rows,
           blocks: this.blocks.rows,
           actionChains: this.actionChains.rows.map((chain) => {
-            // check xem nếu chuỗi tồn tại trong task và chưa đóng thi filter ra
-            if (Array.isArray(this.sourceData?.taskChains)) {
-              const chainTask = this.sourceData.taskChains.find(
-                (taskChain) => taskChain.chainActId === chain.id,
-              );
-
-              if (chainTask && chainTask.status === ETaskChainType.CLOSED) {
-                return null; 
-              }
-            }
             return {
               ...chain,
               actionResults: chain.actionResults?.map((actResult) => {

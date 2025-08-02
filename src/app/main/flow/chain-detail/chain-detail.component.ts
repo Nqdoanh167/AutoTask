@@ -85,7 +85,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 20,
+      limit: 1000,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -96,7 +96,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 20,
+      limit: 1000,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -106,7 +106,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 20,
+      // limit: 20,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -117,7 +117,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 20,
+      limit: 1000,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -182,7 +182,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     this.getResult();
     this.getAction();
     this.getBlock();
-    this.getActionChain();
+    // this.getActionChain();
   }
 
   getDetailChain() {

@@ -189,7 +189,7 @@ export class RoleComponent implements OnDestroy, OnInit {
     return null;
   }
 
-  creatNewTagAndChoose(tag: any) {
+  createNewTagAndChoose(tag: any) {
     if (tag?.id || !tag?.name) return;
     const body: ITag = {
       name: tag?.name,

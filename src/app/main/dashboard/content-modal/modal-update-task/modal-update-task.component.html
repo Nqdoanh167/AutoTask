@@ -212,9 +212,13 @@
                               [multiple]="true"
                               [closeOnSelect]="false"
                               bindValue="id"
+                              bindLabel="name"
                               #ngSelectTagTask
                               [loading]="tags.loading"
                               (click)="clickLoadData('tags')"
+                              (add)="createNewTagAndChoose($event)"
+                              [addTag]="true"
+                              [addTagText]="'Thêm tag mới...'"
                             >
                               <ng-template ng-option-tmp let-item="item">
                                 <div
@@ -242,21 +246,6 @@
                                   [ngStyle]="{background: item.bgColor}"
                                 >
                                   {{ item.name }}
-                                </div>
-                              </ng-template>
-                              <ng-template
-                                ng-notfound-tmp
-                                let-searchTerm="searchTerm"
-                              >
-                                <div
-                                  class="ng-option fs-7"
-                                  (click)="createNewTagAndChoose(searchTerm)"
-                                >
-                                  Không tìm thấy tag
-                                  <span class="fw-bold">
-                                    "{{ searchTerm }}"
-                                  </span>
-                                  Tạo mới?
                                 </div>
                               </ng-template>
                             </ng-select>
@@ -666,6 +655,19 @@
                               >
                                 <i class="fa-solid fa-cart-shopping me-2"></i>
                                 Xem đơn đã tạo
+                              </button>
+
+                              <button
+                                (click)="getOrderDetail(sourceData?.orderIds || [])"
+                                class="btn button-medium button-outline"
+                                type="button"
+                                [disabled]="loading.getOrderDetail"
+                              >
+                                @if (!loading.getOrderDetail) {
+                                  <i class="fa-solid fa-rotate"></i>
+                                } @else {
+                                  <i class="fas fa-spinner fa-spin"></i>
+                                }
                               </button>
                             }
                           </div>
