@@ -19,6 +19,7 @@ import {
 import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {
   EActionType,
+  EChainNextActionType,
   EDelayType,
   ENextStepType,
   EStatusTaskChainResult,
@@ -100,6 +101,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   protected readonly EActionType = EActionType;
   protected readonly today = new Date();
   protected readonly ETaskChainResultType = ETaskChainResultType;
+  protected readonly EChainNextActionType = EChainNextActionType;
 
   public showModal = false;
 
