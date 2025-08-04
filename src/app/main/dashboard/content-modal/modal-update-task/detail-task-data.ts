@@ -315,7 +315,7 @@ export class DetailTaskData extends DashboardData {
           chainActId: taskChain.chainActId,
           taskChainResults: this.fb.array([]),
         });
-        taskChain.taskChainResults?.filter(taskChainResult => taskChainResult?.type === EChainNextActionType.MANUAL)?.forEach((taskChainResult) => {
+        taskChain.taskChainResults?.forEach((taskChainResult) => {
           let deadlineDay = 0;
           let deadlineHour = 0;
           let deadlineMinute = 0;
@@ -393,6 +393,7 @@ export class DetailTaskData extends DashboardData {
             feedbacks: this.fb.array([]),
             bookings: this.fb.array([]),
             subActions: this.fb.array([]),
+            type: taskChainResult?.type,
           });
 
           taskChainResult?.orders?.forEach((order) => {
