@@ -242,7 +242,7 @@
                     </div>
                     <ng-select
                       [items]="
-                        usersByRole | filterData: selectedUserIds : ['id']
+                        usersByRole | filterData: selectedUserIds[selectedRole?.id!] : ['id']
                       "
                       bindLabel="name"
                       bindValue="id"
@@ -253,7 +253,7 @@
                       (change)="handleChooseUser($event)"
                       #ngSelectChooseUser
                       (search)="searchTermUser = $event.term"
-                      (blur)="ngSelectChooseUser?.handleClearClick()"
+                      
                     >
                       <ng-template ng-label-tmp let-item="item"></ng-template>
                       <ng-template ng-option-tmp let-item="item">

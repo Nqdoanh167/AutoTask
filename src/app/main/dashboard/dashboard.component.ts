@@ -1305,6 +1305,50 @@ export class DashboardComponent
         ) {
           return false;
         }
+
+        const filterBranchIds = [task.branch.id]
+        if(task.branch.department) {
+          filterBranchIds.push(task.branch.department)
+        }
+        if(task.branch.team) {
+          filterBranchIds.push(task.branch.team)
+        }
+
+        // Phân quyền theo branch
+        const {branchIds, departmentIds , teamIds , rows} = this.authService.detectFilterBranchIds(filterBranchIds) || {}
+        const rowIds = rows.map((row: any) => row.id);
+        if(!branchIds.length && !departmentIds.length && !teamIds.length) {
+          return false
+        }
+
+        if(branchIds.length && !departmentIds.length && !teamIds.length) {
+          return branchIds.some((branchId: string) => {
+            return rowIds.includes(branchId);
+          });
+        }
+
+        else if(!branchIds.length && departmentIds.length && !teamIds.length) {
+          return departmentIds.some((departmentId: string) => {
+            return rowIds.includes(departmentId);
+          });
+        }
+
+        else if(!branchIds.length && !departmentIds.length && teamIds.length) {
+          return teamIds.some((teamId: string) => {
+            return rowIds.includes(teamId);
+          });
+        }
+
+        else if(branchIds.length || departmentIds.length || teamIds.length) {
+          return rowIds.some((rowId: string) => {
+            return (
+              branchIds.includes(rowId) ||
+              departmentIds.includes(rowId) ||
+              teamIds.includes(rowId)
+            );
+          });
+        }
+
       }
 
       // teamRoles

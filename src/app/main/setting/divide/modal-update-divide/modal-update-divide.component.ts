@@ -63,7 +63,9 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   };
 
   public usersByRole!: Partial<User>[];
-  public selectedUserIds: string[] = [];
+  public selectedUserIds: {
+    [key: string]: string[]
+  } = {};
   public searchTermUser: string = '';
 
   public isOpenBackdrop = false;
@@ -136,7 +138,6 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   }
 
   public updateSelectedUserIds(): void {
-    const allUserIds: string[] = [];
 
     this.roleRatiosFormArray.controls.forEach((roleControl: any) => {
       const roleValue = roleControl.value;
@@ -144,15 +145,16 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
         roleValue.ratioByEmployees &&
         Array.isArray(roleValue.ratioByEmployees)
       ) {
+        const userIds: string[] = []
         roleValue.ratioByEmployees.forEach((employee: RatioByEmployee) => {
-          if (employee.userId && !allUserIds.includes(employee.userId)) {
-            allUserIds.push(employee.userId);
+          if (employee.userId && !userIds.includes(employee.userId)) {
+            userIds.push(employee.userId);
           }
         });
+
+        this.selectedUserIds[roleValue.roleId] = userIds
       }
     });
-
-    this.selectedUserIds = allUserIds;
   }
 
   patchFormValue(): void {
@@ -287,8 +289,10 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   editRoleRatio(roleId: string): void {
     this.isOpenBackdrop = true;
     this.loading.modal = true;
+    this.ngSelectChooseUser?.handleClearClick();
 
     this.getUserByRole(roleId);
+    this.selectedRole = this.roles.rows.find((role) => role.id === roleId) || null;
 
     const existingRoleRatio = this.roleRatiosFormArray.controls.find(
       (c: any) => c.value.roleId === roleId,
@@ -319,7 +323,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
       });
 
       this.roleRatioForm.valueChanges.subscribe((values) => {
-        this.selectedUserIds = values.ratioByEmployees.map(
+        this.selectedUserIds[values.roleId] = values.ratioByEmployees.map(
           (c: RatioByEmployee) => c.userId,
         );
       });
@@ -378,7 +382,7 @@ export class ModalUpdateDivideComponent implements OnInit, OnDestroy {
   handleChooseUser(user: User) {
     if (!user) return;
     if (!this.searchTermUser) {
-      this.ngSelectChooseUser.handleClearClick();
+      this.ngSelectChooseUser?.handleClearClick();
     }
 
     const ratioByEmployeesArray = this.ratioByEmployeesArray;
