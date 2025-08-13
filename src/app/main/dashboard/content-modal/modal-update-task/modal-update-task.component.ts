@@ -754,6 +754,10 @@ export class ModalUpdateTaskComponent
                 }),
               );
             }
+            // Cập nhật formSteps để báo hiệu cho form là có sự thay đổi
+            const taskChainForm = this.formTaskChains.at(chainIndex);
+            const updatedTaskChain = JSON.parse(JSON.stringify(taskChainForm.value));
+            taskChainForm.patchValue(updatedTaskChain);
           }
         } catch (e) {
           console.log(e);
@@ -767,6 +771,10 @@ export class ModalUpdateTaskComponent
         );
         if (value.nextStepIndex !== undefined && value.nextStepIndex >= 0) {
           formSteps.removeAt(value.nextStepIndex!);
+          // Cập nhật formSteps để báo hiệu cho form là có sự thay đổi
+          const taskChainForm = this.formTaskChains.at(chainIndex);
+          const updatedTaskChain = JSON.parse(JSON.stringify(taskChainForm.value));
+          taskChainForm.patchValue(updatedTaskChain);
         }
       }
     });

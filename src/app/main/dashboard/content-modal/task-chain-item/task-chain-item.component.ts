@@ -381,7 +381,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
       nextActions: modifiedNextActions,
       deadlineDate: deadlineDate,
-      chain: this.staticDataChainItem,
+      // chain: this.staticDataChainItem,
       callBlockAutomation: action.callBlockAutomation.blockId
         ? action.callBlockAutomation
         : null,
