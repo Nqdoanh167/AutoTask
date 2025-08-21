@@ -15,7 +15,7 @@
                 <span class="icon-sort" [innerHTML]="sortIcon('name')"></span>
                 Tên cấu hình
               </th>
-              <!-- <th class="text-center">Áp dụng chia cho nhân viên online</th> -->
+              <th class="text-center">Áp dụng chia cho nhân viên online</th>
               <th class="text-center">Áp dụng chia theo giờ làm việc</th>
               <th (click)="sortBy('createdAt')" class="th-allow-sort">
                 <span
@@ -48,7 +48,7 @@
             </tr>
             <tr *ngFor="let item of dataSource.rows; index as i">
               <td>{{ item.name || '-' }}</td>
-              <!-- <td class="text-center">
+              <td class="text-center">
                 <div>
                   <img
                     src="assets/images/icon/{{
@@ -61,7 +61,7 @@
                     alt=""
                   />
                 </div>
-              </td> -->
+              </td>
               <td class="text-center">
                 <div>
                   <img
