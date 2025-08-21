@@ -29,4 +29,23 @@
       background-color: rgba(0, 0, 0, 0.15);
     }
   }
+
+  .page-link{
+    line-height: 18px;
+    border-radius: 20px;
+    height: 40px;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    color: #17234e;
+    padding: 6px 12px;
+    cursor: pointer;
+    background-color: #eef0f3;
+    &.active {
+      background-color: #17234e;
+      color: #fff;
+    }
+  }
 }
