@@ -70,11 +70,9 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   public rfmInFo: {
     point?: number;
     groupName?: string;
-    isGet: boolean;
   } = {
     point: 0,
     groupName: '',
-    isGet: false,
   };
 
   protected hasPermitCustomer =
@@ -122,10 +120,10 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       changes?.['selectedCustomerId'] &&
       changes?.['selectedCustomerId']?.currentValue
     ) {
-      this.getCustomerDetail(this.selectedCustomerId);
-      this.getBehaviorInfoCustomer();
-      this.viewBehavior = true;
-      this.viewOrderType = undefined;
+      this.rfmInFo = {
+        point: 0,
+        groupName: '',
+      };
     }
   }
 
@@ -134,6 +132,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       this.formGroup.disable();
     }
     this.getProvince();
+    this.getCustomerDetail(this.selectedCustomerId);
     // this.formGroup.valueChanges
     //   .pipe(distinctUntilKeyChanged('id'))
     //   .subscribe((value) => {
@@ -152,7 +151,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   }
 
   getCustomerDetail(id: string) {
-    if (!this.hasPermitCustomer) return;
+    if (!this.hasPermitCustomer || !id) return;
     this.loading.customer = true;
     this.customerService.customer
       .getById(id)
@@ -164,7 +163,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
         next: (res) => {
           if (res && res.status === 200) {
             // this.selectedCustomer = res.data;
-            this.handleChooseCustomer(res.data, true);
+            this.handleChooseCustomer(res.data);
+            this.getBehaviorInfoCustomer(res.data?.id!);
             if (res.data?.provinceCode) {
               this.getDistrict(res.data?.provinceCode);
             }
@@ -181,15 +181,13 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       });
   }
 
-  getBehaviorInfoCustomer() {
-    if (this.rfmInFo.isGet) return;
-    if (this.selectedCustomerId && this.hasPermitRfm) {
+  getBehaviorInfoCustomer(id: string) {
+    if (id && this.hasPermitRfm) {
       this.loading.getInfoRfm = true;
       this.rfmService.customerRfm
-        .getBehavior(this.selectedCustomerId)
+        .getBehavior(id)
         .pipe(
           finalize(() => {
-            this.rfmInFo.isGet = true;
             this.loading.getInfoRfm = false;
           }),
           takeUntil(this.destroy$),
@@ -349,7 +347,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     });
   }
 
-  handleChooseCustomer(customer?: Customer, isInit: boolean = false) {
+  handleChooseCustomer(customer?: Customer) {
     if (!customer) return;
     this.trigger.name = false;
 
@@ -378,10 +376,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       patchData[key] = formValues[key];
       const customerValue = customer[key];
 
-      if ((isInit && !patchData[key]) || !isInit) {
-        patchData[key] = customerValue;
-      }
-
+      patchData[key] = customerValue;
+      
       if (key === 'provinceCode') {
         // this.getDistrict(patchData[key]);
       }

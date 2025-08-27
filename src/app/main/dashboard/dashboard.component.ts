@@ -1,6 +1,6 @@
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {distinctUntilChanged, filter, take, takeUntil} from 'rxjs';
+import {distinctUntilChanged, filter, takeUntil} from 'rxjs';
 import {
   EBotherAdvanceBasicFilter,
   ETypeBulkUpdate,
@@ -8,7 +8,6 @@ import {
   ETypeFilter,
 } from '@app/types/common';
 import {
-  Biz,
   BizRole,
   ERole,
   IChangePage,
@@ -27,10 +26,15 @@ import {
   ITaskChain,
   ITaskChainResult,
   ITeam,
-  ModifiedUserUnit,
 } from '@app/types/flow';
 import {cloneDeep, isEqual} from 'lodash';
-import {EPerActTask, EPerActType, EScreens, ISetting} from '@app/types/setting';
+import {
+  EPerActTask,
+  EPerActType,
+  EScreens,
+  ISetting,
+  UserAcl,
+} from '@app/types/setting';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {ModalAssignTeamComponent} from './content-modal/multiple-action/modal-assign-team/modal-assign-team.component';
@@ -54,6 +58,8 @@ import {ModalImportExcelComponent} from '@app/share/common/modal-import-excel/mo
 import {ModalDrawTaskComponent} from './content-modal/modal-draw-task/modal-draw-task.component';
 import {SocketService} from '@app/services/api/socket.service';
 import {ModalDeleteMultiComponent} from './content-modal/multiple-action/modal-delete-multi/modal-delete-multi.component';
+import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/modal-stop-receive.component';
+import {calculateTime} from '@app/utils/common';
 
 @Component({
   selector: 'app-task',
@@ -100,6 +106,15 @@ export class DashboardComponent
 
   public afterHistory: string[] = [];
   public currentAfterIndex: number = -1;
+  public userAcl!: UserAcl;
+
+  get calculateTimeStopReceive(){
+    return calculateTime(this.userAcl.nextReceiveTaskDate, new Date())
+  }
+
+  get isStopReceive(): boolean{
+    return this.userAcl?.stopReceiveTaskDuration !== 0 && new Date(this.userAcl?.nextReceiveTaskDate!) > new Date();
+  }
 
   constructor(
     private readonly modalService: BsModalService,
@@ -281,6 +296,7 @@ export class DashboardComponent
     if (!this.permission.add) {
       this.configButtons[2].hidden = true;
     }
+    this.loadUserAclData();
   }
 
   setupCheckbox() {
@@ -1194,11 +1210,10 @@ export class DashboardComponent
             month: '2-digit',
             day: '2-digit',
           }),
+          orderCodes: (item.orderCodes || [])
+            .join(', '),
           tags: (item.tags || [])
             .map((tag: string) => this.getTagById(tag)?.name)
-            .join(', '),
-          teams: (item.teams || [])
-            .map((team: ITeam) => team.roleName)
             .join(', '),
           platformSources: (item.platformSources || [])
             .map((source: OrderPlatformSource) => source.name)
@@ -1224,7 +1239,7 @@ export class DashboardComponent
                 result.reason?.name ? ` (${result.reason.name})` : ''
               }`;
             })
-            .filter((s) => s.trim()) 
+            .filter((s) => s.trim())
             .join(', ');
           return {
             ...shared,
@@ -1246,6 +1261,7 @@ export class DashboardComponent
         rows,
         fieldGroupExportExcel: TASK_FIELD_GROUP_EXPORT_EXCEL,
         formExportExcel: FORM_EXPORT_EXCEL,
+        roles: this.currentUser?.roles || []
       },
     });
   }
@@ -1306,40 +1322,43 @@ export class DashboardComponent
           return false;
         }
 
-        const filterBranchIds = [task.branch.id]
-        if(task.branch.department) {
-          filterBranchIds.push(task.branch.department)
+        const filterBranchIds = [task.branch.id];
+        if (task.branch.department) {
+          filterBranchIds.push(task.branch.department);
         }
-        if(task.branch.team) {
-          filterBranchIds.push(task.branch.team)
+        if (task.branch.team) {
+          filterBranchIds.push(task.branch.team);
         }
 
         // Phân quyền theo branch
-        const {branchIds, departmentIds , teamIds , rows} = this.authService.detectFilterBranchIds(filterBranchIds) || {}
+        const {branchIds, departmentIds, teamIds, rows} =
+          this.authService.detectFilterBranchIds(filterBranchIds) || {};
         const rowIds = rows.map((row: any) => row.id);
-        if(!branchIds.length && !departmentIds.length && !teamIds.length) {
-          return false
+        if (!branchIds.length && !departmentIds.length && !teamIds.length) {
+          return false;
         }
 
-        if(branchIds.length && !departmentIds.length && !teamIds.length) {
+        if (branchIds.length && !departmentIds.length && !teamIds.length) {
           return branchIds.some((branchId: string) => {
             return rowIds.includes(branchId);
           });
-        }
-
-        else if(!branchIds.length && departmentIds.length && !teamIds.length) {
+        } else if (
+          !branchIds.length &&
+          departmentIds.length &&
+          !teamIds.length
+        ) {
           return departmentIds.some((departmentId: string) => {
             return rowIds.includes(departmentId);
           });
-        }
-
-        else if(!branchIds.length && !departmentIds.length && teamIds.length) {
+        } else if (
+          !branchIds.length &&
+          !departmentIds.length &&
+          teamIds.length
+        ) {
           return teamIds.some((teamId: string) => {
             return rowIds.includes(teamId);
           });
-        }
-
-        else if(branchIds.length || departmentIds.length || teamIds.length) {
+        } else if (branchIds.length || departmentIds.length || teamIds.length) {
           return rowIds.some((rowId: string) => {
             return (
               branchIds.includes(rowId) ||
@@ -1348,7 +1367,6 @@ export class DashboardComponent
             );
           });
         }
-
       }
 
       // teamRoles
@@ -1507,6 +1525,64 @@ export class DashboardComponent
       console.error('Error in checkTaskFilter:', error);
       return true;
     }
+  }
+
+  loadUserAclData(): void {
+    this.autoTaskService.userAcl
+      .get()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const user = response.data.find(
+            (user) => user.userId === this.currentUser?.id,
+          );
+          if (user) {
+            this.userAcl = user;
+          }
+        },
+      });
+  }
+
+  handleContinueOrStopReceive() {
+    if (!this.userAcl) return;
+    if (this.isStopReceive) {
+      this.autoTaskService.userAcl
+        .upsert({
+          ...this.userAcl,
+          stopReceiveTaskDuration: 0,
+        })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.toastrService.success('Cập nhật trạng thái thành công');
+              Object.assign(this.userAcl, res.data);
+            } else {
+              this.toastrService.error('Cập nhật trạng thái thất bại');
+            }
+          },
+        });
+      return;
+    }
+    const bsModalRef = this.modalService.show(ModalStopReceiveComponent, {
+      initialState: {
+        userAcl: this.userAcl,
+      },
+      class: 'modal-xs',
+      ignoreBackdropClick: true,
+      backdrop: 'static',
+      keyboard: false,
+    });
+
+    bsModalRef?.content?.updateSuccess
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user) => {
+          if (user) {
+            Object.assign(this.userAcl, user);
+          }
+        },
+      });
   }
 
   override ngOnDestroy(): void {

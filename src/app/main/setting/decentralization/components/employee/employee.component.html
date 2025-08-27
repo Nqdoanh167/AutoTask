@@ -152,8 +152,13 @@
                         <div class="fw-500">OWNER</div>
                       </ng-container>
                       <ng-container *ngIf="item.role !== 'OWNER'">
-                        <div *ngFor="let permission of mappingPermission(item)">
-                          <div class="fw-500">{{ permission }}</div>
+                        <div class="list-badge d-flex flex-wrap gap-1">
+                          <span
+                            *ngFor="let permission of mappingPermission(item)"
+                            class="badge"
+                          >
+                            {{ permission || '-' }}
+                          </span>
                         </div>
                       </ng-container>
                     </td>

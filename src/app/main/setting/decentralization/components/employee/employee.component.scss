@@ -36,6 +36,10 @@
 
   .column-permission{
     width: 30%;
+    .badge {
+      background-color: vars.$secondary-500 !important;
+      color: vars.$white !important;
+    }
   }
 
   .avatar {
