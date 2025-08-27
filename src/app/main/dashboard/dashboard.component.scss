@@ -137,3 +137,20 @@
   overflow: hidden;
 }
 
+.stop-receive{
+  position: relative;
+  .dot {
+    right: 10px;
+    top: 0;
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 100%;
+    &.active {
+      background-color: var(--bs-success);
+    }
+    &.inactive {
+      background-color: var(--bs-danger);
+    }
+  }
+}

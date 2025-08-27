@@ -85,6 +85,32 @@
           "
         ></custom-date-picker>
       </li>
+
+      <button
+        class="btn btn-light text-secondary ms-2 stop-receive"
+        style="height: 36px"
+        (click)="handleContinueOrStopReceive()"
+        [popover]="popTemplate"
+        placement="bottom"
+        [triggers]="'hover'"
+      >
+        <span class="dot" [ngClass]="{ 'active': !isStopReceive , 'inactive': isStopReceive }"></span>
+        <img src="./assets/images/icon/notify.svg" alt="" />
+      </button>
+      <ng-template #popTemplate>
+        <ng-container
+          *ngIf="!isStopReceive"
+        >
+          Ngừng nhận số
+        </ng-container>
+        <ng-container *ngIf="isStopReceive">
+          <div>
+            Bạn đang ngừng nhận số. Còn lại
+            {{ calculateTimeStopReceive }}
+          </div>
+          <div>Bấm vào đây để tiếp tục nhận số</div>
+        </ng-container>
+      </ng-template>
     </ul>
   </div>
 </app-header>
@@ -316,7 +342,10 @@
                                 let taskChain of item?.taskChains
                                   | inArrayFilter
                                     : 'chainActId'
-                                    : [currentActiveViewMode?.options?.chainActId]
+                                    : [
+                                        currentActiveViewMode?.options
+                                          ?.chainActId
+                                      ]
                               "
                               class="chain-item"
                               [class.item-lock]="
@@ -350,7 +379,9 @@
                                     <span
                                       *ngIf="
                                         !taskChainResult?.executedDate &&
-                                        taskChainResult?.deadlineDate && taskChain?.status !== ETaskChainType.CLOSED
+                                        taskChainResult?.deadlineDate &&
+                                        taskChain?.status !==
+                                          ETaskChainType.CLOSED
                                       "
                                     >
                                       <ng-container
@@ -371,7 +402,9 @@
                                           [outsideClick]="true"
                                           class="fa-solid fa-circle-exclamation warning-change-time"
                                           container="body"
-                                          [tooltip]="'Lịch sử chỉnh sửa thời gian'"
+                                          [tooltip]="
+                                            'Lịch sử chỉnh sửa thời gian'
+                                          "
                                         ></i>
                                         <ng-template #changeHistoriesPop>
                                           <div

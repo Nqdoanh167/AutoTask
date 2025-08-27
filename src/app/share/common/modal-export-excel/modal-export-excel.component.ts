@@ -13,9 +13,10 @@ import {
   Output,
 } from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { ISetting } from '@app/types/setting';
-import { flattenData } from '@app/utils/common';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {ISetting} from '@app/types/setting';
+import {BizRole} from '@app/types/viewmodels';
+import {flattenData} from '@app/utils/common';
 import {BsModalRef, ModalModule} from 'ngx-bootstrap/modal';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {ToastrService} from 'ngx-toastr';
@@ -39,13 +40,14 @@ export class ModalExportExcelComponent implements OnInit, OnDestroy {
   @Input() rows: any = [];
   @Input() fieldGroupExportExcel: any[] = [];
   @Input() formExportExcel: any;
+  @Input() roles: BizRole[] = [];
   @Output() saveConfig = new EventEmitter<string[]>();
 
   private destroy$ = new Subject();
   form!: FormGroup;
   private config!: ISetting;
   private taskExportFields: string[] = [];
-  
+
   headerCode: any[] = [];
   dataMapping: any[] = [];
   loading = {
@@ -82,7 +84,7 @@ export class ModalExportExcelComponent implements OnInit, OnDestroy {
     this.form.patchValue(fieldValues);
   }
 
-   get headerLabel(): string[] {
+  get headerLabel(): string[] {
     return this.mappingLabelByCode(this.headerCode);
   }
 
@@ -135,13 +137,44 @@ export class ModalExportExcelComponent implements OnInit, OnDestroy {
   }
 
   exportToExcel(data: any[], headers: string[], fileName: string): void {
-    const flattenedData = data.map((item) => flattenData(item));
+    const transformHeader = (headers: string[]) => {
+      return headers?.flatMap((header) => {
+        if (header === 'teams') {
+          return this.roles.flatMap((role) => [
+            `Vai trò_${role.name}_Tên`,
+            `Vai trò_${role.name}_Email`,
+          ]);
+        }
+        return this.dataMapping.find((f) => f.code === header)?.label || header;
+      });
+    };
+
+    const transformData = (data: any[]) => {
+      const flattenedData = data.map((item) => flattenData(item));
+      return flattenedData.map((item: any) => {
+        return headers.flatMap((header) => {
+          if (header === 'teams') {
+            // Map theo thứ tự roles giống như transformHeader
+            return this.roles.flatMap((role) => {
+              const teamMember = (item.teams || []).find(
+                (member: any) => member.roleId === role.id,
+              );
+              return [
+                teamMember?.userName || '-',
+                teamMember?.userEmail || '-',
+              ];
+            });
+          }
+          const value = item[header];
+          return value != null && value !== '' ? value : '-';
+        });
+      });
+    };
+
     // Thêm tiêu đề vào dữ liệu
     const dataWithHeaders = [
-      this.mappingLabelByCode(headers), // Tiêu đề
-      ...flattenedData.map((item) => {
-        return headers.map((header) => item[header] || '');
-      }),
+      transformHeader(headers), // Tiêu đề
+      ...transformData(data),
     ];
 
     // Chuyển đổi dữ liệu thành worksheet

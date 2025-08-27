@@ -182,11 +182,11 @@ export class EmployeeComponent
 
   private async handleUpsertUserAcls() {
     for (const user of this.listFilteredBizUsers) {
-      if (!user.isActiveAcl && user.isActive) {
+      if (!user.isActiveAcl && !user.isActive) {
         user.isUpserting = true;
         try {
           const data = {
-            isActive: user.isActiveAcl,
+            isActive: true,
             userId: user.id,
             branches: user.aclBranches,
           } as UserAcl;
@@ -287,17 +287,24 @@ export class EmployeeComponent
     }
   }
 
-  override onSearch(value: {term: string; name: string}) {
-    const {term} = value;
+  override onSearch(value: { term: string; name: string }) {
+    const { term } = value;
     const keyword = removeCharacter(term)
       .toLocaleLowerCase()
-      .replace(/[ ]+/, ' ');
-    this.listFilteredBizUsers = this.listBizUsers.filter(
-      (user) =>
-        !keyword ||
-        (user.name &&
-          removeCharacter(user.name).toLocaleLowerCase().indexOf(keyword) > -1),
-    );
+      .replace(/[ ]+/, ' ').trim();
+
+    this.listFilteredBizUsers = this.listBizUsers.filter((user) => {
+      if (!keyword) return true;
+
+      const name = user.name
+        ? removeCharacter(user.name).toLocaleLowerCase()
+        : '';
+      const email = user.email
+        ? removeCharacter(user.email).toLocaleLowerCase()
+        : '';
+
+      return name.indexOf(keyword) > -1 || email.indexOf(keyword) > -1;
+    });
   }
 
   handleUpdate(value?: CombinedUserAcl) {

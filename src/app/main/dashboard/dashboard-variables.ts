@@ -424,7 +424,7 @@ export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
         code: 'tags',
       },
       {
-        label: 'Các vai trò',
+        label: 'Vai trò',
         code: 'teams',
       },
       {

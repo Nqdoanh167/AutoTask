@@ -400,6 +400,7 @@ export interface ITask {
   utmTerm?: string;
   hasTaskChains?: boolean;
   sourceId?: string;
+  orderCodes: string[];
 }
 
 export interface IBranchTaskDto {

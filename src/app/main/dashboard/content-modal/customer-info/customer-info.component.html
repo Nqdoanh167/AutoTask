@@ -14,7 +14,7 @@
             'Tìm kiếm khách trong Biz theo Họ tên, SĐT hoặc Email khách hàng'
           "
           (valueChange)="onChangeInputSuggestCustomer($event)"
-          (selectCustomer)="handleChooseCustomer($event)"
+          (selectCustomer)="getCustomerDetail($event?.id!)"
         ></app-input-suggest-customer>
       </div>
     }
@@ -585,10 +585,10 @@
           <ng-select
             [clearable]="false"
             [ngClass]="{
-              'input-disabled': !f['provinceCode'].value
+              'input-disabled': !f['provinceCode']?.value
             }"
-            [disabled]="!f['provinceCode'].value"
-            [readonly]="!f['provinceCode'].value"
+            [disabled]="!f['provinceCode']?.value"
+            [readonly]="!f['provinceCode']?.value"
             [placeholder]="'Chọn Quận/Huyện'"
             appearance="outline"
             formControlName="districtCode"
@@ -610,10 +610,10 @@
           <ng-select
             [clearable]="false"
             [ngClass]="{
-              'input-disabled': !f['districtCode'].value
+              'input-disabled': !f['districtCode']?.value
             }"
-            [disabled]="!f['districtCode'].value"
-            [readonly]="!f['districtCode'].value"
+            [disabled]="!f['districtCode']?.value"
+            [readonly]="!f['districtCode']?.value"
             [placeholder]="'Chọn Phường/Xã'"
             class="input-medium"
             appearance="outline"

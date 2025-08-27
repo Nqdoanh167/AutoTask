@@ -61,6 +61,7 @@ import { ModalCreateBookingComponent } from './content-modal/modal-create-bookin
 import { BookingsComponent } from './content-modal/bookings/bookings.component';
 import { ModalDrawTaskComponent } from './content-modal/modal-draw-task/modal-draw-task.component';
 import { InArrayFilterPipe } from '@app/share/pipe/inArrayFilter.pipe';
+import { CdkDragPlaceholder } from "@angular/cdk/drag-drop";
 
 @NgModule({
   declarations: [
@@ -129,7 +130,8 @@ import { InArrayFilterPipe } from '@app/share/pipe/inArrayFilter.pipe';
     HeaderModule,
     InputSelectCheckboxModule,
     InputCheckboxModule,
-    InArrayFilterPipe
-  ],
+    InArrayFilterPipe,
+    CdkDragPlaceholder
+],
 })
 export class DashboardModule { }
