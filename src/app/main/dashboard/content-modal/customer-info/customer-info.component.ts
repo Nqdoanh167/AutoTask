@@ -487,6 +487,20 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
 
   onChangeInputSuggestCustomer(value: any) {}
 
+  onChangePhoneCustomer(value: string | undefined) {
+    // Xử lý khi người dùng nhập số điện thoại
+    if (value) {
+      this.formGroup.patchValue({ phone: value });
+    }
+  }
+
+  getCustomerDetailFromPhone(customerId: string) {
+    // Xử lý khi chọn khách hàng từ danh sách suggest
+    if (customerId) {
+      this.getCustomerDetail(customerId);
+    }
+  }
+
   handleViewOrderType(type: ViewOrderType) {
     if (!this.viewOrderType || this.viewOrderType !== type) {
       this.viewOrderType = type;

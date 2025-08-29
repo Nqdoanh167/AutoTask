@@ -532,7 +532,7 @@
         <label class="form-control-label" for="leadDeal.phone">
           Số điện thoại
         </label>
-        <input
+        <!-- <input
           formControlName="phone"
           type="text"
           name="leadDeal.phone"
@@ -540,7 +540,17 @@
           placeholder="Nhập Số điện thoại..."
           class="form-control"
           [class]="submitted && f['phone'].errors ? 'is-invalid' : ''"
-        />
+        /> -->
+        <app-input-suggest-customer
+          id="input-phone-customer"
+          [uiType]="'text'"
+          [inputId]="'input-phone-customer'"
+          [placeholder]="'Nhập số điện thoại...'"
+          formControlName="phone"
+          [submitted]="submitted"
+          (valueChange)="onChangePhoneCustomer($event)"
+          (selectCustomer)="getCustomerDetailFromPhone($event?.id!)"
+        ></app-input-suggest-customer>
       </div>
       <div class="col-3">
         <label class="form-control-label" for="leadDeal.email">Email</label>

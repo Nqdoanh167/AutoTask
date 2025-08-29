@@ -83,9 +83,10 @@ export class InputSuggestCustomerComponent
       debounce: 600,
     },
     isAllowLoadMore: false,
-    isGet: false, 
+    isGet: false,
   };
   public selectedCustomer: Customer | undefined = undefined;
+  public showSuggestions: string | null = null;
 
   // for FormControl
   onChange = (value: string) => {};
@@ -158,6 +159,11 @@ export class InputSuggestCustomerComponent
   handleBlur($event: any) {}
 
   handleChooseCustomer(customer: Customer) {
+    if (this.uiType === 'text') {
+      this.selectCustomer.emit(customer);
+      this.showSuggestions = null;
+      return;
+    }
     this.select.handleClearClick();
     this.trigger.name = false;
     this.selectCustomer.emit(customer);
@@ -194,7 +200,20 @@ export class InputSuggestCustomerComponent
   }
   // End: for FormControl
 
-  clickLoadData() {
+  clickLoadData(event?: Event) {
+    console.log('clickLoadData', event);
+    if (this.uiType === 'text') {
+      const target = event?.target as HTMLInputElement;
+      const search = target?.value;
+      if (search) {
+        this.showSuggestions = this.inputId;
+        if (this.customers.paramsQuery.q !== search) {
+          this.customers.paramsQuery.q = search;
+          this.searchFn({term: search});
+        }
+      }
+      return;
+    }
     if (!this.customers.isGet) {
       this.customers.isGet = true;
       this.customers.paramsQuery.page = 1;
@@ -207,6 +226,16 @@ export class InputSuggestCustomerComponent
       this.customers.paramsQuery!.page! += 1;
       this.getListCustomer();
     }
+  }
+
+  onInputSearch(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target?.value) {
+      this.showSuggestions = this.inputId;
+      this.searchFn({term: target.value});
+      return;
+    }
+    this.showSuggestions = null;
   }
 
   searchFn(event: {term: string}) {
