@@ -132,7 +132,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       this.formGroup.disable();
     }
     this.getProvince();
-    this.getCustomerDetail(this.selectedCustomerId);
+    this.getCustomerDetail(this.selectedCustomerId, true);
     // this.formGroup.valueChanges
     //   .pipe(distinctUntilKeyChanged('id'))
     //   .subscribe((value) => {
@@ -150,7 +150,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     //   });
   }
 
-  getCustomerDetail(id: string) {
+  getCustomerDetail(id: string, isInit: boolean = false) {
     if (!this.hasPermitCustomer || !id) return;
     this.loading.customer = true;
     this.customerService.customer
@@ -163,7 +163,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
         next: (res) => {
           if (res && res.status === 200) {
             // this.selectedCustomer = res.data;
-            this.handleChooseCustomer(res.data);
+            this.handleChooseCustomer(res.data, isInit);
             this.getBehaviorInfoCustomer(res.data?.id!);
             if (res.data?.provinceCode) {
               this.getDistrict(res.data?.provinceCode);
@@ -347,7 +347,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     });
   }
 
-  handleChooseCustomer(customer?: Customer) {
+  handleChooseCustomer(customer?: Customer, isInit: boolean = false) {
     if (!customer) return;
     this.trigger.name = false;
 
@@ -376,7 +376,10 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       patchData[key] = formValues[key];
       const customerValue = customer[key];
 
-      patchData[key] = customerValue;
+      if ((isInit && !patchData[key]) || !isInit) {
+        patchData[key] = customerValue;
+      }
+
       
       if (key === 'provinceCode') {
         // this.getDistrict(patchData[key]);
@@ -488,10 +491,7 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
   onChangeInputSuggestCustomer(value: any) {}
 
   onChangePhoneCustomer(value: string | undefined) {
-    // Xử lý khi người dùng nhập số điện thoại
-    if (value) {
-      this.formGroup.patchValue({ phone: value });
-    }
+    this.formGroup.patchValue({ phone: value });
   }
 
   getCustomerDetailFromPhone(customerId: string) {

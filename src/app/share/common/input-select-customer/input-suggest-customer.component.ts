@@ -60,6 +60,7 @@ export class InputSuggestCustomerComponent
   @Input() inputId: string = '';
   @Input() placeholder: string = 'Text...';
   @Input() className?: string = '';
+  @Input() isRequired: boolean = false;
   @Output() valueChange: EventEmitter<string | undefined> = new EventEmitter();
   @Output() selectCustomer: EventEmitter<Customer | undefined> =
     new EventEmitter();
@@ -169,14 +170,6 @@ export class InputSuggestCustomerComponent
     this.selectCustomer.emit(customer);
   }
 
-  onSearch(event?: any) {
-    const value = event?.target?.value;
-    this.trigger.name = true;
-    this.valueChange.next(value);
-    this.onChange(value);
-    this.input$.next(value);
-  }
-
   trackByFn(item: Customer) {
     return item.id;
   }
@@ -201,7 +194,6 @@ export class InputSuggestCustomerComponent
   // End: for FormControl
 
   clickLoadData(event?: Event) {
-    console.log('clickLoadData', event);
     if (this.uiType === 'text') {
       const target = event?.target as HTMLInputElement;
       const search = target?.value;
@@ -230,6 +222,7 @@ export class InputSuggestCustomerComponent
 
   onInputSearch(event: Event) {
     const target = event.target as HTMLInputElement;
+    this.valueChange.emit(target?.value);
     if (target?.value) {
       this.showSuggestions = this.inputId;
       this.searchFn({term: target.value});

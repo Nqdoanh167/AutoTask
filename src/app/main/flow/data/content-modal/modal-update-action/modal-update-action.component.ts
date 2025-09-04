@@ -13,8 +13,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {ToastrService} from 'ngx-toastr';
+import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
@@ -89,8 +88,6 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   protected readonly EActionType = EActionType;
 
   constructor(
-    private readonly modalService: BsModalService,
-    private readonly toastr: ToastrService,
     private readonly modalRef: BsModalRef,
     private readonly fb: FormBuilder,
     private readonly configurationService: ConfigurationService,

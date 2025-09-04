@@ -4,7 +4,7 @@
       <input
         autocomplete="off"
         class="form-control {{ className }}"
-        [class.is-invalid]="submitted && !value"
+        [class.is-invalid]="submitted && !value && isRequired"
         (input)="onInputSearch($event)"
         (click)="clickLoadData($event)"
         (blur)="showSuggestions = null"
