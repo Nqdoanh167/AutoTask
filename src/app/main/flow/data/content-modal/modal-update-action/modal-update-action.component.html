@@ -43,16 +43,16 @@
             formControlName="type"
             id="actionType"
             appendTo=".modal"
+            [groupBy]="'type'"
+            [items]="actionTypes"
+            bindLabel="label"
+            bindValue="value"
           >
-            <ng-container>
-              <ng-option
-                *ngFor="let item of actionTypes; index as i"
-                [value]="item.value"
-              >
-                {{ item.label }}
-              </ng-option>
-            </ng-container>
+            <ng-template ng-label-tmp let-item="item">
+                {{ item.label }} <span class="fst-italic text-muted">({{ item.type }})</span>
+            </ng-template>
           </ng-select>
+
           <div *ngIf="submitted && f['type'].errors" class="invalid-feedback">
             <div *ngIf="f['type'].errors?.['required']">
               Loại hành động không được bỏ trống
@@ -111,10 +111,22 @@
           "
           class="mb-2"
         >
-          <label class="form-control-label d-flex gap-2 align-items-center" for="templateId">
+          <label
+            class="form-control-label d-flex gap-2 align-items-center"
+            for="templateId"
+          >
             Template đánh giá
-            <span (click)="handleTransferFeedback()" [tooltip]="'Chuyển hướng sang module feedback'" class="cursor-pointer">
-              <img src="./assets/images/icon/transfer.svg" alt="" width="20" height="20"/>
+            <span
+              (click)="handleTransferFeedback()"
+              [tooltip]="'Chuyển hướng sang module feedback'"
+              class="cursor-pointer"
+            >
+              <img
+                src="./assets/images/icon/transfer.svg"
+                alt=""
+                width="20"
+                height="20"
+              />
             </span>
           </label>
           <ng-select

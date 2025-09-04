@@ -21,26 +21,32 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
     {
       value: EActionType.CALL,
       label: 'Gọi điện',
+      type: 'Hành động chính',
     },
     {
       value: EActionType.SEND_BLOCK_AUTOMATION,
       label: 'Gửi Block Automation',
+      type: 'Hành động chính',
     },
     {
       value: EActionType.FEEDBACK,
       label: 'Đánh giá',
+      type: 'Hành động phụ',
     },
     {
       value: EActionType.MANUAL_CREATE_ORDER,
       label: 'Tạo đơn hàng thủ công',
+      type: 'Hành động phụ',
     },
     {
       value: EActionType.BOOKING,
       label: 'Tạo booking',
+      type: 'Hành động phụ',
     },
     {
       value: EActionType.OTHER,
       label: 'Khác',
+      type: 'Hành động chính',
     },
   ];
 
