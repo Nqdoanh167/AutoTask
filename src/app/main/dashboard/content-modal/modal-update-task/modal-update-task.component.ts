@@ -809,7 +809,7 @@ export class ModalUpdateTaskComponent
     try {
       this.submitted = true;
       if (this.updateForm.invalid) return;
-      // await this.handleUpdate();
+      await this.handleUpdate();
     } catch (e) {
       this.loading.createOrder = false;
       console.log(e);
