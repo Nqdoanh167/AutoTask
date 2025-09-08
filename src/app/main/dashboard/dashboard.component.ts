@@ -108,12 +108,16 @@ export class DashboardComponent
   public currentAfterIndex: number = -1;
   public userAcl!: UserAcl;
 
-  get calculateTimeStopReceive(){
-    return calculateTime(this.userAcl.nextReceiveTaskDate, new Date())
+  get calculateTimeStopReceive() {
+    return calculateTime(this.userAcl.nextReceiveTaskDate, new Date());
   }
 
-  get isStopReceive(): boolean{
-    return this.userAcl?.stopReceiveTaskDuration !== 0 && new Date(this.userAcl?.nextReceiveTaskDate!) > new Date();
+  get isStopReceive(): boolean {
+    return (
+      (this.userAcl?.stopReceiveTaskDuration !== 0 &&
+        new Date(this.userAcl?.nextReceiveTaskDate!) > new Date()) ||
+      this.userAcl?.stopReceiveTaskDuration === -1
+    );
   }
 
   constructor(
@@ -1210,8 +1214,7 @@ export class DashboardComponent
             month: '2-digit',
             day: '2-digit',
           }),
-          orderCodes: (item.orderCodes || [])
-            .join(', '),
+          orderCodes: (item.orderCodes || []).join(', '),
           tags: (item.tags || [])
             .map((tag: string) => this.getTagById(tag)?.name)
             .join(', '),
@@ -1261,7 +1264,7 @@ export class DashboardComponent
         rows,
         fieldGroupExportExcel: TASK_FIELD_GROUP_EXPORT_EXCEL,
         formExportExcel: FORM_EXPORT_EXCEL,
-        roles: this.currentUser?.roles || []
+        roles: this.currentUser?.roles || [],
       },
     });
   }
