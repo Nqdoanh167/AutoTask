@@ -42,3 +42,5 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+git-automate-cli.sh
+.gitcli_config

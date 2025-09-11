@@ -131,6 +131,11 @@ export class ModalUpdateTaskComponent
         this.patchForm(this.sourceData);
       }
     });
+
+    this.socketService.listen('app/ERROR').pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      console.warn('app/ERROR', data);
+      this.toastr.warning(data?.message);
+    })
   }
 
   override async ngOnInit() {

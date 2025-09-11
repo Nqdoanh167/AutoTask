@@ -333,11 +333,17 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.get<EntityResult<ITask>>(
         this.createUrl([this.api.task, id]),
       ),
-    create: (body: ITaskDto) =>
-      this.httpClient.post<EntityResult<ITask>>(
+    create: (body: ITaskDto) => {
+      const headers: any = {};
+      if (this.authService.getCurrentClientSocketId()) {
+        headers['x-socket-client-id'] = this.authService.getCurrentClientSocketId();
+      }
+      return this.httpClient.post<EntityResult<ITask>>(
         this.createUrl([this.api.task]),
         body,
-      ),
+        { headers }
+      );
+    },
     clone: (id: string, body: CloneTaskDto) =>
       this.httpClient.post<EntityResult<ITask>>(
         this.createUrl([this.api.task, id, 'clone']),
@@ -348,11 +354,17 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.task, id, 'create-order']),
         {},
       ),
-    update: (id: string, body: ITaskDto) =>
-      this.httpClient.patch<EntityResult<ITask>>(
+    update: (id: string, body: ITaskDto) => {
+      const headers: any = {};
+      if (this.authService.getCurrentClientSocketId()) {
+        headers['x-socket-client-id'] = this.authService.getCurrentClientSocketId();
+      }
+      return this.httpClient.patch<EntityResult<ITask>>(
         this.createUrl([this.api.task, id]),
         body,
-      ),
+        { headers }
+      );
+    },
     updateTaskChain: (id: string, body: IAddTaskChainDto) =>
       this.httpClient.put<EntityResult<ITask>>(
         this.createUrl([this.api.task, id, 'update-chain']),

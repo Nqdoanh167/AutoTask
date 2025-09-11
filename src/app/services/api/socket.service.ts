@@ -12,6 +12,7 @@ export class SocketService {
   private destroy = new Subject<void>();
   private bizId!: string;
   private bizAlias!: string;
+  private clientId!: string;
 
   constructor(private readonly authService: AuthService) {
     this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
@@ -40,8 +41,9 @@ export class SocketService {
 
     this.socket.on('room/JOIN_SUCCESS', (data) => {
       this.bizId = data.bizId;
+      this.clientId = data.clientId;
+      this.authService.setCurrentClientSocketId(this.clientId);
     });
-
   }
 
   connect(): void {
