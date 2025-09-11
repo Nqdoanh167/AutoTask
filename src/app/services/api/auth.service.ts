@@ -40,6 +40,11 @@ export class AuthService {
     .asObservable()
     .pipe(distinctUntilChanged());
 
+  private currentClientSocketId = new BehaviorSubject<string | null>(null);
+  public currentClientSocketId$ = this.currentClientSocketId
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
   private userAccessPerSubject = new BehaviorSubject<UserPerAccess | null>(
     null,
   );
@@ -114,6 +119,14 @@ export class AuthService {
         this.loginInDev();
       }
     }
+  }
+
+  public setCurrentClientSocketId(clientId: string) {
+    this.currentClientSocketId.next(clientId);
+  }
+  
+  public getCurrentClientSocketId() {
+    return this.currentClientSocketId.getValue();
   }
 
   checkPermittedModule(moduleAlias: string) {
