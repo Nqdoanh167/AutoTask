@@ -401,6 +401,10 @@ export interface ITask {
   hasTaskChains?: boolean;
   sourceId?: string;
   orderCodes: string[];
+
+  closeTaskReason?: string | null;
+  closeTaskResult?: boolean | null;
+  isTaskClosed?: boolean;
 }
 
 export interface IBranchTaskDto {

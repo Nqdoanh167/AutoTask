@@ -1500,6 +1500,7 @@ export enum EInformationContentHistoryTask {
   CHAT_LINK = 'CHAT_LINK',
   DROP_TASK = 'DROP_TASK',
   DRAW_TASK = 'DRAW_TASK',
+  CLOSE_TASK = 'CLOSE_TASK',
 }
 export interface IContentHistoryTask {
   orderProduct?: IOrderProductContentHistoryTask[];

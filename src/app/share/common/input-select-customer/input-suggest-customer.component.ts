@@ -61,6 +61,7 @@ export class InputSuggestCustomerComponent
   @Input() placeholder: string = 'Text...';
   @Input() className?: string = '';
   @Input() isRequired: boolean = false;
+  @Input() readOnly: boolean = false;
   @Output() valueChange: EventEmitter<string | undefined> = new EventEmitter();
   @Output() selectCustomer: EventEmitter<Customer | undefined> =
     new EventEmitter();

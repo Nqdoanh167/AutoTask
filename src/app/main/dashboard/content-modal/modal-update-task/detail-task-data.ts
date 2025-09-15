@@ -70,6 +70,9 @@ export class DetailTaskData extends DashboardData {
     chatLink: null,
     platformSourceIds: [null],
     platformSources: [null],
+    isTaskClosed: false,
+    closeTaskResult: null,
+    closeTaskReason: null,
   });
   protected addTaskChainForm = this.fb.group({
     addChainActIds: [null, [Validators.required]],
@@ -139,6 +142,7 @@ export class DetailTaskData extends DashboardData {
 
   constructor() {
     super();
+    console.log('infoUnit', this.infoUnit$.getValue());
   }
 
   get f(): {[key: string]: AbstractControl} {

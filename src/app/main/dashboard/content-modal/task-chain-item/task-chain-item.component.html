@@ -76,7 +76,7 @@
                             editable:
                               !!staticDataChainItem?.taskChainResults?.[
                                 taskChainResultIndex
-                              ]?.['isEdit']
+                              ]?.['isEdit'] && !task?.isTaskClosed
                           }"
                         >
                           @switch (taskChainResult.value?.typeOverDeadline) {
