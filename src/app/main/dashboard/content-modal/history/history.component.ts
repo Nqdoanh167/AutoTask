@@ -344,6 +344,8 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
         return `Rút số thành công`;
       case EInformationContentHistoryTask.DROP_TASK:
         return `Thả số thành công`;
+      case EInformationContentHistoryTask.CLOSE_TASK:
+        return `Đóng tác vụ`;
       default:
         return '';
     }

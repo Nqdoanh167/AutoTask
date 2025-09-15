@@ -150,6 +150,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         taskChainResult['isEdit'] = false;
       }
     });
+
+    console.log('1this.staticDataChainItem', this.staticDataChainItem);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -161,6 +163,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         }
       });
     }
+
+    console.log('2this.staticDataChainItem', this.staticDataChainItem);
+
   }
 
   handleChangeTaskChainResult(
@@ -596,14 +601,17 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   }
 
   handleCheckIsAllowEdit(
-    type: 'result' | 'timer' | 'block' | 'actionButton',
+    type: 'result' | 'timer' | 'block' | 'actionButton' | 'note',
     taskChainResult: ITaskChainResult,
     taskChainResultIndex: number,
   ) {
     const staticTaskChain =
       this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex];
     if (type !== 'timer' && !this.permissions.canEditAction) return false;
+    // if (type === 'note' && this.staticDataChainItem?.status === ETaskChainType.CLOSED) return false;
     if (type === 'result') {
+      if (this.task?.isTaskClosed) return false;
+
       return (
         ((!staticTaskChain?.action?.callBlockAutomation?.blockId &&
           !staticTaskChain?.action?.callBlockAutomation?.blockId) ||
@@ -615,7 +623,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'timer') {
-      if (!this.permissions.canEditDeadline) return false;
+      if (!this.permissions.canEditDeadline || this.task?.isTaskClosed) return false;
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&
@@ -623,6 +631,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'block') {
+      if (this.task?.isTaskClosed) return false;
+
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&
@@ -630,6 +640,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'actionButton') {
+      if (this.task?.isTaskClosed) return false;
+      
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&

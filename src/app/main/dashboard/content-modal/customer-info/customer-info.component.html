@@ -550,6 +550,7 @@
           [submitted]="submitted"
           (valueChange)="onChangePhoneCustomer($event)"
           (selectCustomer)="getCustomerDetailFromPhone($event?.id!)"
+          [readOnly]="!hasUpdateTaskPer"
         ></app-input-suggest-customer>
       </div>
       <div class="col-3">

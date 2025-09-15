@@ -62,6 +62,7 @@ import { BookingsComponent } from './content-modal/bookings/bookings.component';
 import { ModalDrawTaskComponent } from './content-modal/modal-draw-task/modal-draw-task.component';
 import { InArrayFilterPipe } from '@app/share/pipe/inArrayFilter.pipe';
 import { CdkDragPlaceholder } from "@angular/cdk/drag-drop";
+import { ModalCloseTaskComponent } from './content-modal/modal-close-task/modal-close-task.component';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { CdkDragPlaceholder } from "@angular/cdk/drag-drop";
     TaskCreateSourceComponent,
     ModalCreateBookingComponent,
     BookingsComponent,
-    ModalDrawTaskComponent
+    ModalDrawTaskComponent,
+    ModalCloseTaskComponent,
   ],
   imports: [
     CommonModule,

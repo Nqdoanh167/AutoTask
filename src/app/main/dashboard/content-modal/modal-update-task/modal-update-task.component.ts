@@ -50,6 +50,7 @@ import { ModalCloneComponent } from '../multiple-action/modal-clone/modal-clone.
 import { ActivatedRoute } from '@angular/router';
 import { SocketService } from '@app/services/api/socket.service';
 import { ThrottleEvent } from '@app/share/decorator/throttle-event.decorator';
+import { ModalCloseTaskComponent } from '../modal-close-task/modal-close-task.component';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 
@@ -202,6 +203,13 @@ export class ModalUpdateTaskComponent
             this.patchForm(res.data);
             if (isRefresh) {
               this.customerInfoComponent?.handleClearSelectValue();
+            }
+
+            const isTaskClosed = this.sourceData?.isTaskClosed ?? false;
+            if (isTaskClosed) {
+              this.f['branch'].disable();
+            } else {
+              this.f['branch'].enable();
             }
           } else {
             this.toastr.error('Không tìm thấy dữ liệu');
@@ -1127,5 +1135,81 @@ export class ModalUpdateTaskComponent
           }
         },
       });
+  }
+
+  onConfirmToCloseTask() {
+    this.handleCloseTask();
+  }
+
+  get taskHasNoChainOpen(): boolean {
+    return (this.sourceData?.taskChains || [])
+      .every(chain => chain.status === ETaskChainType.CLOSED) ?? true;
+  }
+
+  handleConfirmToCloseTask(event: any): void {
+    if (!this.sourceData?.id) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Count uncompleted chains
+    const uncompletedChainCount = (this.sourceData.taskChains || [])?.filter(
+      chain => chain.status !== ETaskChainType.CLOSED
+    ).length || 0;
+
+    const modalContent: IModalConfirmContent = {
+      title: 'Đóng tác vụ?',
+      description: `Bạn sắp đóng tác vụ, hành động này không thể hoàn tác.`,
+      okText: 'Đóng tác vụ',
+      type: 'warning',
+      modalType: 'advance',
+      errorState: `Tác vụ này vẫn còn ${uncompletedChainCount} chuỗi chưa hoàn tất. Bạn có chắc chắn muốn đóng tác vụ không?`,
+    }
+
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onConfirmToCloseTask();
+    });
+  }
+
+  protected modalCloseTask?: BsModalRef;
+  handleCloseTask(): void {
+    if (!this.sourceData?.id) {
+      return;
+    }
+
+    this.isOpenBackDrop = true;
+    this.modalCloseTask = this.modalService.show(ModalCloseTaskComponent, {
+      class: 'modal-dialog-centered',
+      initialState: {
+        task: this.sourceData,
+      }
+    });
+
+    this.modalCloseTask.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.modalCloseTask = undefined;
+      this.isOpenBackDrop = false;
+    });
+
+    this.modalCloseTask.content?.closeTaskSuccess
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        if (!res.success) {
+          this.toastrService.warning(res.message);
+          return;
+        }
+
+        this.updateForm.patchValue({
+          isTaskClosed: res.data?.isTaskClosed,
+          closeTaskResult: res.data?.closeTaskResult,
+          closeTaskReason: res.data?.closeTaskReason,
+        })
+        this.updatedTask.emit(res.data);
+      });
+  }
+
+  get isTaskClosed(): boolean {
+    return this.sourceData?.isTaskClosed ?? false;
   }
 }

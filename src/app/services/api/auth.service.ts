@@ -81,11 +81,13 @@ export class AuthService {
     let alias = 'test';
 
     const parsedURL = new URL(location.href);
-    if (!environment.production && !this.isAuthenticated) {
+    if (!environment.production && !this.isAuthenticated()) {
       this.loginInDev();
     }
     if (environment.production) {
       alias = parsedURL.pathname.substring(1).replace(/\/.*/, '');
+    } else {
+      alias = localStorage.getItem('smaxapp_alias') || alias;
     }
 
     if (this.getToken() && alias) {
@@ -436,9 +438,16 @@ export class AuthService {
       window.location.reload();
       return;
     }
+    
+    const email = localStorage.getItem('smaxapp_email');
+    const password = localStorage.getItem('smaxapp_password');
+    let encodedAuthInfo = 'ZHVvbmdsb25nLmRldkBnbWFpbC5jb206MTIzMTIz' // Dương Long
+    if (email && password) {
+      encodedAuthInfo = btoa(unescape(encodeURIComponent(`${email}:${password}`)));
+    }
     const headers = new HttpHeaders().set(
       'Authorization',
-      'Basic ZHVvbmdsb25nLmRldkBnbWFpbC5jb206MTIzMTIz',
+      `Basic ${encodedAuthInfo}`,
     );
     const res = this.httpClient.post(
       'https://dev.smax.app/api/auth',

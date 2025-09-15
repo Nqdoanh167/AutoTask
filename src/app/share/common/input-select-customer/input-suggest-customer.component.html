@@ -12,6 +12,8 @@
         [(ngModel)]="value"
         [id]="inputId"
         type="text"
+        [readonly]="readOnly"
+        [disabled]="readOnly"
       />
 
       @if (customers.loading) {
@@ -75,6 +77,7 @@
         (search)="searchFn($event)"
         [loading]="customers.loading"
         [notFoundText]="'Không có khách hàng'"
+        [disabled]="readOnly"
       >
         <ng-option *ngFor="let item of customers.rows" [value]="item">
           <div

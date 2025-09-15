@@ -49,6 +49,7 @@ export class InterestedProductsComponent implements OnInit, OnDestroy {
   @ViewChild('selectProduct') selectProduct!: NgSelectComponent;
   @ViewChild('selectCombo') selectCombo!: NgSelectComponent;
   @Input() formGroup!: FormGroup | any;
+  @Input() readOnly: boolean = false;
   private destroy$ = new Subject();
 
   public form!: FormArray;
