@@ -573,6 +573,35 @@
                           </div>
                           <div
                             *ngIf="
+                              nextAction.nextAction ===
+                              ENextStepType.CLOSE_TASK
+                            "
+                            class="col-6"
+                          >
+                            <ng-select
+                              [ngClass]="{
+                                'is-invalid':
+                                  submitted &&
+                                  ((result.resultId &&
+                                    nextAction.closeTaskResult === undefined) ||
+                                    !result.resultId)
+                              }"
+                              [(ngModel)]="nextAction.closeTaskResult"
+                              [placeholder]="'Chọn kết quả'"
+                              [searchable]="false"
+                              [items]="closeTaskResults"
+                              [clearable]="false"
+                              class="dropdown-auto-width"
+                              id="closeTaskResult-{{ nextActionIndex }}-{{
+                                resultIndex
+                              }}"
+                              bindLabel="label"
+                              bindValue="value"
+                              appendTo="body"
+                            ></ng-select>
+                          </div>
+                          <div
+                            *ngIf="
                               nextAction.nextAction &&
                               [
                                 ENextStepType.CALL_BLOCK_AUTOMATION,

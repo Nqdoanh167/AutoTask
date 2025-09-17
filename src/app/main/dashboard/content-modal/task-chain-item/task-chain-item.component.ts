@@ -495,6 +495,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       case ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK:
         string += 'Đóng chuỗi và tạo bản sao công việc';
         break;
+      case ENextStepType.CLOSE_TASK:
+        string += 'Đóng tác vụ';
+        break;
       default:
         string += '-';
         break;
@@ -505,6 +508,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
           block.id === nextStep.childNextAction.callBlockAutomation?.blockId,
       );
       string += `: <b>${block?.name}</b>`;
+    }
+    if (nextStep.childNextAction?.closeTaskResult != null) {
+      string += `: <b>${nextStep.childNextAction?.closeTaskResult ? 'Thành công' : 'Thất bại'}</b>`;
     }
     if (nextStep.childNextAction?.moveToAction?.chainActResult) {
       string +=

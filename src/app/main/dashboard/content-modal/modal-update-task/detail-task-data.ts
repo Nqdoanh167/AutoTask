@@ -485,6 +485,7 @@ export class DetailTaskData extends DashboardData {
                 nextAction: nextAction.nextAction,
                 type: nextAction.type,
                 status: nextAction.status,
+                closeTaskResult: nextAction.closeTaskResult,
               });
               (<FormArray>resultForm.controls.nextActions).push(nextActionForm);
             });
@@ -504,7 +505,8 @@ export class DetailTaskData extends DashboardData {
                 delayType: nextAction?.childNextAction?.delayType,
                 moveToAction: nextAction?.childNextAction?.moveToAction,
                 callBlockAutomation:
-                  nextAction?.childNextAction?.callBlockAutomation,
+                nextAction?.childNextAction?.callBlockAutomation,
+                closeTaskResult: [nextAction?.childNextAction?.closeTaskResult],
                 closeCloneTask: [nextAction?.childNextAction?.closeCloneTask],
                 addNewChain: nextAction?.childNextAction?.addNewChain,
                 nextAction: nextAction?.childNextAction?.nextAction,

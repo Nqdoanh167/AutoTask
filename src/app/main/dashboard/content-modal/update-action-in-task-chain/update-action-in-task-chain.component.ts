@@ -70,6 +70,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
         blockId: null,
       }),
       closeCloneTask: [null],
+      closeTaskResult: true,
       addNewChain: this.fb.group({
         chainActResultId: null,
         chainActResult: null,
@@ -82,6 +83,8 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     {validators: [this.allOrNoneRequired]},
   );
   public actionResults: IChainActResult[] = [];
+
+  public closeTaskResults = this.configurationService.closeTaskResults;
 
   private destroy$ = new Subject();
   public loading = {
@@ -153,6 +156,14 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
         closeCloneTask?.setErrors(null);
       }
     }
+    if (nextAction?.value === ENextStepType.CLOSE_TASK) {
+      const closeTaskResult = form.get('closeTaskResult');
+      if (closeTaskResult?.value == null) {
+        closeTaskResult?.setErrors({required: true});
+      } else {
+        closeTaskResult?.setErrors(null);
+      }
+    }
     return null;
   }
 
@@ -216,6 +227,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
         chainId: null,
         chain: null,
       },
+      closeTaskResult: null,
     });
   }
 
