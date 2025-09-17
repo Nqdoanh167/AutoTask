@@ -170,6 +170,10 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     return this.addNextActionForm.controls;
   }
 
+  get closeTaskResults() {
+    return this.configurationService.closeTaskResults;
+  }
+
   filterActionResults(id?: string) {
     return (
       this.detailChain?.actionResults?.filter(
@@ -874,6 +878,11 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       nextAction.closeCloneTask = Object.values(EOptionCloneTask);
     } else {
       nextAction.closeCloneTask = [];
+    }
+    if (nextAction.nextAction === ENextStepType.CLOSE_TASK) {
+      nextAction.closeTaskResult = true;
+    } else {
+      nextAction.closeTaskResult = undefined;
     }
   }
 

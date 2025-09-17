@@ -34,6 +34,7 @@ export enum ENextStepType {
   CLOSE_CHAIN = 'CLOSE_CHAIN',
   CLOSE_CHAIN_AND_CLONE_TASK = 'CLOSE_CHAIN_AND_CLONE_TASK',
   ADD_CHAIN = 'ADD_CHAIN',
+  CLOSE_TASK = 'CLOSE_TASK',
 }
 
 export enum EOptionCloneTask {
@@ -85,6 +86,8 @@ export interface IAction {
   callBlockAutomation?: {
     blockId?: string;
   };
+  closeTaskResult?: boolean;
+  closeTaskReason: string | null;
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;
@@ -124,6 +127,7 @@ export interface IChainNextAction {
   ordering?: number;
   delayValue?: number;
   nextAction?: ENextStepType;
+  closeTaskResult?: boolean;
   moveToAction?: {
     chainActResultId: undefined;
     chainActResult?: IChainActResult;

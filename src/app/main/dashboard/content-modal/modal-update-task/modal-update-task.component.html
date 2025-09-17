@@ -505,7 +505,7 @@
                                     "
                                     type="button"
                                     class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
-                                    [disabled]="loading.deleteChainTask"
+                                    [disabled]="loading.deleteChainTask || isTaskClosed"
                                   >
                                     Xóa
                                     <img
