@@ -36,6 +36,7 @@ export interface IFilterTopTable {
   botherType?: EBotherAdvanceBasicFilter;
   isCreatable?: boolean;
   className?: string;
+  allowedExtraValues?: any[]; // Bên cạnh các giá trị trong options thì query filter có thể được truyền thêm các giá trị trong mảng này
   minWidth?: string;
   clearable?: boolean;
   subType?: any;

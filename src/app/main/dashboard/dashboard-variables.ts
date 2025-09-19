@@ -3,6 +3,7 @@ import {
   ETypeBulkUpdate,
   ETypeButton,
   ETypeFilter,
+  IFilterTopTable,
 } from '@app/types/common';
 import {EActionStates, EEditedDateState} from '@app/types/flow';
 import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
@@ -28,7 +29,7 @@ export const TASK_MULTIPLE_ACTIONS = [
   },
 ];
 
-export const TASK_CONFIG_FILTERS = [
+export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [
   // {
   //   type: ETypeFilter.SEARCH,
   //   placeholder: 'Tìm kiếm...',
@@ -137,6 +138,48 @@ export const TASK_CONFIG_FILTERS = [
     minWidth: '200px',
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
+  {
+    type: ETypeFilter.SELECT,
+    name: 'closeTaskResult',
+    placeholder: 'Kết quả tác vụ',
+    options: [
+      {
+        label: 'Thành công',
+        value: true,
+      },
+      {
+        label: 'Thất bại',
+        value: false,
+      },
+    ],
+    bindLabel: 'label',
+    bindValue: 'value',
+    clearable: false,
+    searchable: false,
+    allowedExtraValues: [false],
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SELECT,
+    name: 'isHideExecute',
+    placeholder: 'Chuỗi hành động đã đóng',
+    options: [
+      {
+        label: 'Ẩn chuỗi đã đóng',
+        value: true,
+      },
+      {
+        label: 'Hiện chuỗi đã đóng',
+        value: false,
+      },
+    ],
+    bindLabel: 'label',
+    bindValue: 'value',
+    allowedExtraValues: [false],
+    clearable: false,
+    searchable: false,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
   // {
   //   type: ETypeFilter.DATE,
   //   name: 'createdAt',
@@ -166,7 +209,7 @@ export const TASK_CONFIG_FILTERS = [
   },
 ];
 
-export const TASK_FLOWS_CONFIG_FILTERS = [
+export const TASK_FLOWS_CONFIG_FILTERS: IFilterTopTable[] = [
   {
     type: ETypeFilter.SELECT,
     name: 'chainActId',
@@ -285,10 +328,10 @@ export const TASK_TAG_SETTING_CONFIG_FILTERS = [
 
 export const TASK_CONFIG_BUTTON = [
   {
-    name: 'isHideExecute',
+    name: 'isTaskClosed',
     type: ETypeButton.DEFAULT,
     icon: './assets/images/icon/keychain.svg',
-    tooltip: 'Ẩn chuỗi đã đóng',
+    tooltip: 'Ẩn tác vụ đã đóng',
     isActive: false,
   },
   {
