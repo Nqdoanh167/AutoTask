@@ -44,3 +44,5 @@ testem.log
 Thumbs.db
 git-automate-cli.sh
 .gitcli_config
+.gitcli_snippets.json
+.playwright-mcp

@@ -73,7 +73,7 @@ export class FilterAdvanceComponent
   configFilterBasic: IFilterTopTable[] = [];
   onSearchingAdvance: string[] = [];
 
-  public cdtList: { key: string; label: string; value: any }[] = [];
+  public conditionList: { key: string; label: string; value: any }[] = [];
 
   protected readonly ETypeFilter = ETypeFilter;
   protected readonly ETypeButton = ETypeButton;
@@ -109,7 +109,7 @@ export class FilterAdvanceComponent
   }
 
   getUsedConditionKeys = (): string[] => {
-    return this.cdtList
+    return this.conditionList
       .filter(item => item.key && item.key.trim() !== '')
       .map(item => item.key);
   }
@@ -133,12 +133,12 @@ export class FilterAdvanceComponent
 
   handleOpenPopover() {
     this.handleActiveViewMode();
-    this.cdtList = this.configFilterAdvance
-      .filter((item) => item.value)
+    this.conditionList = this.configFilterAdvance
+      .filter((item) => item.value || item.allowedExtraValues?.includes(item.value))
       .map((item) => ({
         key: item.name!,
         label: item.placeholder!,
-        value: item.value || '',
+        value: item.value || item.allowedExtraValues?.includes(item.value) ? item.value : '',
       }));
   }
 
@@ -253,10 +253,12 @@ export class FilterAdvanceComponent
     const objFilterQuery = JSON.parse(this.paramsQuery.filter || '{}');
 
     this.configFilterAdvance.forEach((configFilter) => {
-      const cdt = this.cdtList.find((item) => item.key === configFilter.name);
-      if (cdt && cdt.value) {
+      const cdt = this.conditionList.find((item) => item.key === configFilter.name);
+      const allowedExtraValues = configFilter.allowedExtraValues || [];
+      if (cdt && (cdt.value || allowedExtraValues.includes(cdt.value))) {
         objFilterQuery[configFilter.name!] = cdt.value;
-      } else delete objFilterQuery[configFilter.name!];
+      } 
+      else delete objFilterQuery[configFilter.name!];
     });
 
 
@@ -272,6 +274,7 @@ export class FilterAdvanceComponent
       }
     }
 
+    console.log('objFilterQuery', objFilterQuery);
     this.paramsQuery.filter = JSON.stringify(objFilterQuery);
     this.filterAdvanceEvent.emit(JSON.parse(this.paramsQuery.filter || '{}'));
     this.popFilter.hide();
@@ -280,15 +283,15 @@ export class FilterAdvanceComponent
   reset() {
     // this.handleOpenPopover();
     this.paramsQuery.filter = '{}';
-    this.cdtList = [];
+    this.conditionList = [];
   }
 
   addFilterCondition() {
     for (const filter of this._configFilterAdvanceCopy) {
-      if (!this.cdtList.some((item) => item.key === filter.name)) {
+      if (!this.conditionList.some((item) => item.key === filter.name)) {
         if (filter) {
           if (filter.type === ETypeFilter.ACTION_RESULT && !filter.value) {
-            this.cdtList.push({
+            this.conditionList.push({
               key: filter.name!,
               label: filter.placeholder!,
               value: {
@@ -299,7 +302,7 @@ export class FilterAdvanceComponent
             });
            return
           }
-          this.cdtList.push({
+          this.conditionList.push({
             key: filter.name!,
             label: filter.placeholder!,
             value: '',
@@ -311,7 +314,7 @@ export class FilterAdvanceComponent
   }
 
   removeFilterCondition(cdtKey: string) {
-    this.cdtList = this.cdtList.filter((item) => item.key !== cdtKey);
+    this.conditionList = this.conditionList.filter((item) => item.key !== cdtKey);
   }
 
   getCdtLabel(key: string) {
@@ -421,7 +424,7 @@ export class FilterAdvanceComponent
   }
 
   onChangeCondition(key: string) {
-    this.cdtList = this.cdtList.filter((item) => item.key !== key);
+    this.conditionList = this.conditionList.filter((item) => item.key !== key);
     const cdt = this._configFilterAdvanceCopy.find((item) => item.name === key);
     if(key === ETypeFilter.ACTION_RESULT){
       if(cdt && !cdt.value) {
@@ -434,7 +437,7 @@ export class FilterAdvanceComponent
     }
 
     if (cdt) {
-      this.cdtList.push({
+      this.conditionList.push({
         key: cdt.name!,
         label: cdt.placeholder!,
         value: cdt.value || '',
