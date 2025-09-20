@@ -186,7 +186,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     this.getResult();
     this.getAction();
     this.getBlock();
-    // this.getActionChain();
+    this.getActionChain();
   }
 
   getDetailChain() {
@@ -457,40 +457,42 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     index: number,
     chainActResult: IChainActResult,
   ) {
-    if (this.detailChain) {
-      const actionIds: any[] = this.getActionIds();
-      // replace index of actionIds with selectedActionId
-      actionIds[index] = selectedActionId;
+    // NOTE: disable tự động update chainAct vì hàm này gây lỗi lớn -> check sau hoặc bỏ hẳn
+    return;
+    // if (this.detailChain) {
+    //   const actionIds: any[] = this.getActionIds();
+    //   // replace index of actionIds with selectedActionId
+    //   actionIds[index] = selectedActionId;
 
-      const selectedAction = this.actions.rows.find(
-        (action) => action.id === selectedActionId,
-      );
-      const body = {
-        actionIds: actionIds.filter((el) => !!el),
-      } as unknown as IUpdateChainActDto;
-      this.autoTaskService.chainAction
-        .update(this.detailChain.id, body)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (res) => {
-            if (res.status === 200) {
-              this.detailChain!.actionResults[index] = {
-                ...this.detailChain!.actionResults[index],
-                id: res.data.actionResults[index].id,
-                action: cloneDeep(selectedAction),
-              };
-              this.removedChainActResultIds.filter((id) => {
-                id !== res.data.actionResults[index].id;
-              });
-              if (chainActResult.id) {
-                this.clearRemovedActionInChainResult(chainActResult.id);
-              }
-            } else {
-              this.commonService.handleResErr(res);
-            }
-          },
-        });
-    }
+    //   const selectedAction = this.actions.rows.find(
+    //     (action) => action.id === selectedActionId,
+    //   );
+    //   const body = {
+    //     actionIds: actionIds.filter((el) => !!el),
+    //   } as unknown as IUpdateChainActDto;
+    //   this.autoTaskService.chainAction
+    //     .update(this.detailChain.id, body)
+    //     .pipe(takeUntil(this.destroy$))
+    //     .subscribe({
+    //       next: (res) => {
+    //         if (res.status === 200) {
+    //           this.detailChain!.actionResults[index] = {
+    //             ...this.detailChain!.actionResults[index],
+    //             id: res.data.actionResults[index].id,
+    //             action: cloneDeep(selectedAction),
+    //           };
+    //           this.removedChainActResultIds.filter((id) => {
+    //             id !== res.data.actionResults[index].id;
+    //           });
+    //           if (chainActResult.id) {
+    //             this.clearRemovedActionInChainResult(chainActResult.id);
+    //           }
+    //         } else {
+    //           this.commonService.handleResErr(res);
+    //         }
+    //       },
+    //     });
+    // }
   }
 
   newNextAction() {

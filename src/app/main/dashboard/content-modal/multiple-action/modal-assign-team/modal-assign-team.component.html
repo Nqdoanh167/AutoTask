@@ -6,8 +6,8 @@
         <ng-container modalBody>
           <div class="mb-3">
             Loại bỏ nhân sự phụ trách ra khỏi vai trò tương ứng trong tất cả
-            những Tác vụ đã chọn. Nếu vai trò chưa được gán nhân sự thì sẽ không
-            bị ảnh hưởng
+            những Tác vụ đã chọn. Nếu vai trò chưa được gán nhân sự hoặc tác vụ bị đóng thì sẽ không
+            bị ảnh hưởng.
 
             <hr class="border-white my-2" />
             <span class="fw-bold">Lưu ý:</span>
@@ -24,15 +24,18 @@
               let teamIndex = $index
             ) {
               <div class="d-flex align-items-center my-2">
-                <label class="basic-checkbox">
+                <label class="basic-checkbox" [ngClass]="{'disabled': !team.value.canRemove}">
                   <i [ngClass]="team.value.roleIcon" class="fa-solid ms-1"></i>
                   <span class="fw-500">
                     {{ team.value.roleName }}
                   </span>
                   <input
                     type="checkbox"
+                    [disabled]="!team.value.canRemove"
                     (change)="onRemoveTeam(teamIndex, $event)"
                   />
+                  &nbsp;
+                  <span>({{ team.value.validTaskCount }})</span>
                   <span class="checkmark"></span>
                 </label>
               </div>
@@ -62,13 +65,13 @@
             class="w-100 text-success fs-7"
             *ngIf="progressStatus === 'success'"
           >
-            Chia tác vụ thành công.
+            Tiến trình thành công.
           </div>
           <div
             class="w-100 text-danger fs-7"
             *ngIf="progressStatus === 'error'"
           >
-            Chia tác vụ thất bại.
+            Tiến trình thất bại.
           </div>
 
 

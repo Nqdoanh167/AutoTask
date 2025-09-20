@@ -3,6 +3,7 @@ import {
   ETypeBulkUpdate,
   ETypeButton,
   ETypeFilter,
+  IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
 import {EActionStates, EEditedDateState} from '@app/types/flow';
@@ -326,9 +327,9 @@ export const TASK_TAG_SETTING_CONFIG_FILTERS = [
   },
 ];
 
-export const TASK_CONFIG_BUTTON = [
+export const TASK_CONFIG_BUTTON: IFilterTopButton[] = [
   {
-    name: 'isTaskClosed',
+    name: 'hideClosedTask',
     type: ETypeButton.DEFAULT,
     icon: './assets/images/icon/keychain.svg',
     tooltip: 'Ẩn tác vụ đã đóng',

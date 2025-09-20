@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
+import omit from 'lodash/omit';
 import {catchError, concat, finalize, lastValueFrom, Subject, tap} from 'rxjs';
 import {FormArray, FormBuilder, FormGroup} from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
@@ -18,6 +19,7 @@ import {Router} from '@angular/router';
 import {ETypeBulkUpdate} from '@app/types/common';
 import {ProgressbarType} from 'ngx-bootstrap/progressbar';
 import {ToastrService} from 'ngx-toastr';
+import { ITask } from '@app/types/flow';
 
 @Component({
   selector: 'app-modal-assign-team',
@@ -27,12 +29,25 @@ import {ToastrService} from 'ngx-toastr';
 export class ModalAssignTeamComponent implements OnInit, OnDestroy {
   @Input() action!: ETypeBulkUpdate;
   @Input() taskIds!: string[];
+  @Input() selectedTasks!: ITask[];
   @Output() assignTeams = new EventEmitter();
   private destroy$ = new Subject();
   public ETypeBulkUpdate = ETypeBulkUpdate;
   public biz!: Biz;
   public form!: FormGroup;
 
+  public getCurrentValidTaskToRemoveTeam(roleId?: string): number {
+    if (!roleId) return 0;
+
+    const validTasks = this.selectedTasks.filter((task) => {
+      if (task.isTaskClosed) return false;
+      if (task.teams?.some((team) => team.roleId === roleId && team.userId)) return true;
+
+      return false;
+    })
+
+    return validTasks.length;
+  }
   public progressStatus: string | 'progressing' | 'success' | 'error' = '';
   public progressValue = 0;
   public progressMax = 100;
@@ -68,6 +83,7 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
     }
     data?.roles?.forEach((role) => {
       const fRole = this.biz?.roles?.find((roleBiz) => roleBiz.id === role);
+      const validTaskCount = this.getCurrentValidTaskToRemoveTeam(fRole?.id);
       const teamForm = this.fb.group({
         roleId: fRole?.id,
         roleIcon: fRole?.icon,
@@ -77,6 +93,8 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
         userPicture: null,
         userEmail: null,
         beRemove: false,
+        validTaskCount,
+        canRemove: validTaskCount > 0,
       });
       this.formTeams.push(teamForm);
     });
@@ -125,11 +143,12 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       const value = this.form.value;
       value.teams = value.teams
-        .filter((team: any) => team.userId || team.beRemove)
-        .map((team: any) => {
-          delete team.beRemove;
-          return team;
-        });
+        .filter((team: any) => (team.userId || team.beRemove) && team.canRemove)
+        .map((team: any) => omit(team, [
+          'canRemove',
+          'validTaskCount',
+          'beRemove',
+        ]));
 
       if (value.teams.length === 0) {
         this.toastrService.warning('Vui lòng chọn ít nhất 1 vai trò');
@@ -146,7 +165,8 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
           this.toastrService.success(message);
           setTimeout(() => {
             this.assignTeams.emit();
-          }, 1000);
+            this.hideModal();
+          }, 2000);
         })
         .catch((error) => {
           this.toastrService.error('Có lỗi xảy ra trong quá trình xử lý');

@@ -677,6 +677,7 @@ export class DashboardComponent
         initialState: {
           action: action?.value,
           taskIds: this.getRowIds(),
+          selectedTasks: this.getCheckRows(),
         },
       });
 
@@ -847,7 +848,6 @@ export class DashboardComponent
   handleQueryParam(data: any, name: string) {
     const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
     if (name === 'tags') {
-      console.log('data', data);
       if (data) objFilterQuery[name] = [data];
       else delete objFilterQuery[name];
     }
@@ -959,14 +959,20 @@ export class DashboardComponent
     if (name === 'orderableTable') {
       this.showModalOrderableTable();
     }
-    if (name === 'isHideExecute') {
+    if (name === 'hideClosedTask') {
       const configButton = this.configButtons.find(
-        (cf) => cf.name === 'isHideExecute',
+        (cf) => cf.name === 'hideClosedTask',
       );
+
+      const currentBtnActiveState = configButton?.isActive || false;
+      const incomingBtnActiveState = !currentBtnActiveState; // Next state of btn activation
+      
       const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
-      obj['isHideExecute'] = !configButton?.isActive;
+      obj['hideClosedTask'] = incomingBtnActiveState;
+
+      configButton!.isActive = incomingBtnActiveState;
       this.item.paramsQuery.filter = JSON.stringify(obj);
-      configButton!.isActive = !configButton?.isActive;
+
       if (!isEqual(obj, this.currentActiveViewMode?.options)) {
         this.handleViewModeChange(true);
         return;
@@ -1142,10 +1148,12 @@ export class DashboardComponent
 
   showModalAssignTeamV2() {
     // Sort rows by createdAt descending
-    const rows = this.getCheckRows().sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
+    const rows = this.getCheckRows()
+      .filter((row) => !row.isTaskClosed)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
     const taskCodes = rows.map((row) => row.code).filter(Boolean) as string[];
     const taskIds = rows.map((row) => row.id);
 

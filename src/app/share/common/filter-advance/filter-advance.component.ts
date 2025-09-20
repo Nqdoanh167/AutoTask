@@ -71,7 +71,7 @@ export class FilterAdvanceComponent
   configFilterAdvance: IFilterTopTable[] = [];
   _configFilterAdvanceCopy: IFilterTopTable[] = [];
   configFilterBasic: IFilterTopTable[] = [];
-  onSearchingAdvance: string[] = [];
+  onSearchingAdvance: string[] = []; // Hiển thị các filter của bộ lọc nâng cao đang được áp dụng
 
   public conditionList: { key: string; label: string; value: any }[] = [];
 
@@ -79,7 +79,9 @@ export class FilterAdvanceComponent
   protected readonly ETypeButton = ETypeButton;
   constructor() {
     super();
+  }
 
+  override ngOnInit() {
     this.autoTaskService.currentActiveViewMode
       .pipe(takeUntil(this.destroy$))
       .subscribe((currentActiveViewMode) => {
@@ -88,6 +90,14 @@ export class FilterAdvanceComponent
         // if (this.popFilter) {
         //   this.popFilter.hide();
         // }
+        this.configFilterAdvance = this.configFilters.filter(
+          (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
+        );
+        this._configFilterAdvanceCopy = cloneDeep(this.configFilterAdvance);
+        this.configFilterBasic = this.configFilters.filter(
+          (item) => item.botherType !== EBotherAdvanceBasicFilter.ADVANCE,
+        );
+
         Object.keys(currentActiveViewMode?.options || {}).forEach(
           (key: any) => {
             if (this.configFilterAdvance.some((cA) => cA.name === key)) {
@@ -96,16 +106,6 @@ export class FilterAdvanceComponent
           },
         );
       });
-  }
-
-  override ngOnInit() {
-    this.configFilterAdvance = this.configFilters.filter(
-      (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
-    );
-    this._configFilterAdvanceCopy = cloneDeep(this.configFilterAdvance);
-    this.configFilterBasic = this.configFilters.filter(
-      (item) => item.botherType !== EBotherAdvanceBasicFilter.ADVANCE,
-    );
   }
 
   getUsedConditionKeys = (): string[] => {
