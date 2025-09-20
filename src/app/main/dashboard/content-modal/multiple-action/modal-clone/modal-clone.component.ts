@@ -39,6 +39,10 @@ export class ModalCloneComponent implements OnInit, OnDestroy {
       value: EOptionCloneTask.TAG,
     },
     {
+      label: 'Chuỗi hiện tại',
+      value: EOptionCloneTask.CURRENT_CHAIN,
+    },
+    {
       label: 'Thông tin khách hàng',
       value: EOptionCloneTask.LEADDEAL,
     },

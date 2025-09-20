@@ -154,3 +154,25 @@
     }
   }
 }
+
+.close-text-success {
+  color: #FFFFFF;
+  background-color: #008234;
+  border-radius: 24px;
+  padding: 4px 8px;
+  max-width: fit-content;
+  font-weight: 500;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.close-text-failure {
+  color: #FFFFFF;
+  background-color: #FA6E5B;
+  border-radius: 24px;
+  padding: 4px 8px;
+  max-width: fit-content;
+  font-weight: 500;
+  font-size: 12px;
+  margin-bottom: 2px;
+}

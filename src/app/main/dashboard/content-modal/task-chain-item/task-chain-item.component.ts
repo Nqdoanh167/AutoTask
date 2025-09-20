@@ -150,8 +150,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         taskChainResult['isEdit'] = false;
       }
     });
-
-    console.log('1this.staticDataChainItem', this.staticDataChainItem);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -163,9 +161,6 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         }
       });
     }
-
-    console.log('2this.staticDataChainItem', this.staticDataChainItem);
-
   }
 
   handleChangeTaskChainResult(

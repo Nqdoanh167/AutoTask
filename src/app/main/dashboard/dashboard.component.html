@@ -305,6 +305,14 @@
                   <ng-container [ngSwitch]="columns.value">
                     <ng-container *ngSwitchCase="'name'">
                       <td>
+                        <div *ngIf="item.isTaskClosed">
+                          <div *ngIf="item.closeTaskResult === true" class="close-text-success">
+                            <span>Thành công</span>
+                          </div>
+                          <div *ngIf="item.closeTaskResult === false" class="close-text-failure">
+                            <span>Thất bại</span>
+                          </div>
+                        </div>
                         <div
                           class="fw-500 cursor-pointer"
                           [routerLink]="['/']"
