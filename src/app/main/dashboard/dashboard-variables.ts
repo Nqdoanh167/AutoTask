@@ -448,6 +448,10 @@ export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
         code: 'hasTaskChains',
       },
       {
+        label: 'Kết quả tác vụ',
+        code: 'closeTaskResult',
+      },
+      {
         label: 'Ngày tạo',
         code: 'createdAt',
       },
@@ -515,6 +519,7 @@ export const FORM_EXPORT_EXCEL = {
   id: null,
   branch_name: null,
   hasTaskChains: null,
+  closeTaskResult: null,
   createdAt: null,
   createdBy_name: null,
   orderCodes: null,
