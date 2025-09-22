@@ -166,6 +166,17 @@ export class ModalExportExcelComponent implements OnInit, OnDestroy {
             });
           }
           const value = item[header];
+
+          if (header === 'closeTaskResult') {
+            if (value === true) {
+              return 'Thành công';
+            } else if (value === false) {
+              return 'Thất bại';
+            } else {
+              return '-';
+            }
+          }
+
           return value != null && value !== '' ? value : '-';
         });
       });
