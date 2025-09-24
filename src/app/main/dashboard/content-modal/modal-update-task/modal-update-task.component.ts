@@ -862,7 +862,16 @@ export class ModalUpdateTaskComponent
       });
   }
 
-  handleCall() {
+  /**
+   * @param taskChain - Chuỗi hiện tại - nơi chứa nút gọi
+   */
+  handleCall(taskChain?: ITaskChain, event?: ITaskChainResult) {
+    if (!taskChain || !event) {
+      alert('Có lỗi xảy ra');
+      console.warn('taskChain or event is undefined', { taskChain, event });
+      return;
+    }
+
     if (!this.hasPermitSmsOttCall) {
       this.toastr.warning(
         'Bạn không có quyền sử dụng module SMS-OTT-CALL. Vui lòng liên hệ quản trị viên để được hỗ trợ.',
@@ -934,6 +943,10 @@ export class ModalUpdateTaskComponent
                 id: this.sourceData ? this.sourceData.id : '',
                 module: environment.module,
                 code: this.sourceData ? this.sourceData.code : '',
+                taskChainId: taskChain.id,
+                taskChainName: taskChain.name,
+                actionId: event.action?.id,
+                actionName: event.action?.name,
               },
             });
             // this.phoneCallService.setMakeCall({

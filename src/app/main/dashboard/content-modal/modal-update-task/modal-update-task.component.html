@@ -554,7 +554,7 @@
                                     sourceData!.taskChains[chainIndex]!
                                   )
                                 "
-                                (callEvent)="handleCall()"
+                                (callEvent)="handleCall(sourceData?.taskChains?.[chainIndex], $event)"
                                 [task]="sourceData"
                               ></app-task-chain-item>
                             </accordion-group>

@@ -296,7 +296,7 @@
                       @switch (taskChainResult?.value.action?.type) {
                         @case (EActionType.CALL) {
                           <button
-                            (click)="handleCall()"
+                            (click)="handleCall(taskChainResult.value)"
                             type="button"
                             class="btn button-medium button-sub-primary secondary-color"
                             [disabled]="
