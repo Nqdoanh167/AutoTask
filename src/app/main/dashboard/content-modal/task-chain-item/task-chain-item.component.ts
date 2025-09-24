@@ -652,8 +652,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     return true;
   }
 
-  handleCall() {
-    this.callEvent.emit();
+  handleCall(taskChainResult: ITaskChainResult) {
+    this.callEvent.emit(taskChainResult);
   }
 
   handleSendBlock(taskChainResult: ITaskChainResult) {
