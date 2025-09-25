@@ -131,14 +131,14 @@
             <ng-container
               *ngFor="
                 let item of detailChain?.actionResults;
-                index as i;
+                index as idx;
                 let lastAction = last
               "
             >
               <tr cdkDrag cdkDragLockAxis="y" class="rootRow">
                 <td class="columns-index" colspan="1">
                   <div class="d-flex align-items-center">
-                    <span class="fw-500">#{{ i + 1 }}</span>
+                    <span class="fw-500">#{{ idx + 1 }}</span>
                   </div>
                 </td>
                 <td class="columns-action">
@@ -157,14 +157,14 @@
                       (open)="!actions.rows.length && getAction()"
                       [loading]="actions.loading"
                       (scrollToEnd)="handleLoadMore('action')"
-                      (change)="handleChangeAction($event, i, item)"
+                      (change)="handleChangeAction($event, idx, item)"
                       [(ngModel)]="item.actionId"
                       [ngClass]="{
                         'is-invalid': submitted && !item.actionId
                       }"
                       [clearable]="false"
                       class="dropdown-auto-width"
-                      id="actions-{{ i }}"
+                      id="actions-{{ idx }}"
                       appendTo="body"
                     >
                       <ng-option
@@ -196,7 +196,7 @@
                           <button
                             class="dropdown-item"
                             type="button"
-                            (click)="handleAddAction(i)"
+                            (click)="handleAddAction(EPosition.ABOVE, idx)"
                           >
                             <div class="d-flex align-items-center">
                               <i class="fa-solid fa-plus me-2"></i>
@@ -206,7 +206,7 @@
                           <button
                             class="dropdown-item"
                             type="button"
-                            (click)="handleAddAction(i + 1)"
+                            (click)="handleAddAction(EPosition.BELOW, idx)"
                           >
                             <div class="d-flex align-items-center">
                               <i class="fa-solid fa-plus me-2"></i>
@@ -216,7 +216,7 @@
                           <button
                             class="dropdown-item text-danger"
                             type="button"
-                            (click)="handleRemoveAction(i, item)"
+                            (click)="handleRemoveAction(idx, item)"
                           >
                             <div class="d-flex align-items-center">
                               <i
@@ -389,7 +389,7 @@
                               <button
                                 class="dropdown-item"
                                 type="button"
-                                (click)="handleAddResult(item, i, resultIndex)"
+                                (click)="handleAddResult(item, idx, resultIndex)"
                               >
                                 <div class="d-flex align-items-center">
                                   <i class="fa-solid fa-plus me-2"></i>
@@ -400,7 +400,7 @@
                                 class="dropdown-item"
                                 type="button"
                                 (click)="
-                                  handleAddResult(item, i, resultIndex + 1)
+                                  handleAddResult(item, idx, resultIndex + 1)
                                 "
                               >
                                 <div class="d-flex align-items-center">
@@ -411,7 +411,7 @@
                               <button
                                 class="dropdown-item text-danger"
                                 type="button"
-                                (click)="handleRemoveResult(i, resultIndex)"
+                                (click)="handleRemoveResult(idx, resultIndex)"
                               >
                                 <div class="d-flex align-items-center">
                                   <i
@@ -461,7 +461,7 @@
                     <button
                       type="button"
                       class="btn button-add-row text-link w-100 mt-2"
-                      (click)="handleAddResult(item, i)"
+                      (click)="handleAddResult(item, idx)"
                     >
                       <i class="fa-solid fa-plus me-1"></i>
                       Thêm kết quả
@@ -819,7 +819,7 @@
                                 (click)="
                                   handleAddNextAction(
                                     item,
-                                    i,
+                                    idx,
                                     resultIndex,
                                     nextActionIndex
                                   )
@@ -836,7 +836,7 @@
                                 (click)="
                                   handleAddNextAction(
                                     item,
-                                    i,
+                                    idx,
                                     resultIndex,
                                     nextActionIndex + 1
                                   )
@@ -876,7 +876,7 @@
                         *ngIf="item.results.length"
                         type="button"
                         class="btn button-add-row text-link w-100 mt-2"
-                        (click)="handleAddNextAction(item, i, resultIndex)"
+                        (click)="handleAddNextAction(item, idx, resultIndex)"
                       >
                         <i class="fa-solid fa-plus me-1"></i>
                         Thêm hành động kế
@@ -994,7 +994,7 @@
                   <button
                     type="button"
                     class="btn button-add-row text-link w-100 mt-2"
-                    (click)="handleAddAction()"
+                    (click)="handleAddAction(EPosition.BOTTOM)"
                   >
                     <i class="fa-solid fa-plus me-1"></i>
                     Thêm hành động
