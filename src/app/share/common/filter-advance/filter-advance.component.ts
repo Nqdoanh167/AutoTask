@@ -287,29 +287,65 @@ export class FilterAdvanceComponent
   }
 
   addFilterCondition() {
+    // Doanh code
+    // for (const filter of this._configFilterAdvanceCopy) {
+    //   if (!this.conditionList.some((item) => item.key === filter.name)) {
+    //     if (filter) {
+    //       if (filter.type === ETypeFilter.ACTION_RESULT && !filter.value) {
+    //         this.conditionList.push({
+    //           key: filter.name!,
+    //           label: filter.placeholder!,
+    //           value: {
+    //             actionId: null,
+    //             resultId: null,
+    //             type: 'IN',
+    //           },
+    //         });
+    //        return
+    //       }
+    //       this.conditionList.push({
+    //         key: filter.name!,
+    //         label: filter.placeholder!,
+    //         value: '',
+    //       });
+    //       return;
+    //     }
+    //   }
+    // }
+
     for (const filter of this._configFilterAdvanceCopy) {
-      if (!this.conditionList.some((item) => item.key === filter.name)) {
-        if (filter) {
-          if (filter.type === ETypeFilter.ACTION_RESULT && !filter.value) {
-            this.conditionList.push({
-              key: filter.name!,
-              label: filter.placeholder!,
-              value: {
-                actionId: null,
-                resultId: null,
-                type: 'IN',
-              },
-            });
-           return
-          }
-          this.conditionList.push({
-            key: filter.name!,
-            label: filter.placeholder!,
-            value: '',
-          });
-          return;
-        }
+      // Maybe undef
+      if (!filter) continue;
+
+      // Already added
+      if (this.conditionList.some((item) => item.key === filter.name)) continue;
+
+      const allowedExtraValues = filter.allowedExtraValues || [];
+      const defaultValue = '';
+      const computedValue = filter.value || allowedExtraValues.includes(filter.value) 
+        ? filter.value 
+        : defaultValue;
+
+      if (filter.type === ETypeFilter.ACTION_RESULT) {
+        this.conditionList.push({
+          key: filter.name!,
+          label: filter.placeholder!,
+          value: {
+            actionId: null,
+            resultId: null,
+            type: 'IN',
+          },
+        });
+        return;
       }
+
+      this.conditionList.push({
+        key: filter.name!,
+        label: filter.placeholder!,
+        value: computedValue,
+      });
+
+      return;
     }
   }
 

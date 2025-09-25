@@ -562,6 +562,23 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       ),
   };
 
+  private _getData(params = {}) {
+    return this.httpClient
+      .get<EntityResult<IView[]>>(
+        this.createUrl([this.api.settingView, 'retrieve']),
+        {
+          params: this.createParams(
+            Object.assign(params, this.defaultParams),
+          ),
+        },
+      )
+      .pipe(tap((res) => res?.status === 200 && this.setListViewMode(res)));
+  }
+
+  public getListViewModeSubject() {
+    return this.listViewModeSubject.getValue();
+  }
+
   settingView = {
     retrieve: (
       params = {},
@@ -569,24 +586,15 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         cache?: boolean;
       },
     ) => {
-      const getData = this.httpClient
-        .get<EntityResult<IView[]>>(
-          this.createUrl([this.api.settingView, 'retrieve']),
-          {
-            params: this.createParams(
-              Object.assign(params, this.defaultParams),
-            ),
-          },
-        )
-        .pipe(tap((res) => res?.status === 200 && this.setListViewMode(res)));
-
       if (options?.cache) {
         if (!this.listViewModeSubject.getValue()) {
-          return getData;
+          return this._getData(params);
         }
+
         return of(this.listViewModeSubject.getValue());
       }
-      return getData;
+
+      return this._getData(params);
     },
 
     update: (body: IViewDto) =>
