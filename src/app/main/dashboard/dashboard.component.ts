@@ -315,7 +315,6 @@ export class DashboardComponent
   }
 
   setupCheckboxBranch(isChangeTab: boolean = false) {
-    console.log('setupCheckboxBranch');
     this.checkbox.branchIds = [];
 
     this.checkbox.listBranches = this.authService
@@ -352,7 +351,6 @@ export class DashboardComponent
       return;
     }
     const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
-    console.log('objFilterQuery', objFilterQuery);
 
     if (objFilterQuery.branchIds && objFilterQuery.branchIds.length) {
       // Ví dụ có nhiều id chi nhánh thì hàm detectFilterBranchIds sẽ trả về danh sách các chi nhánh, phòng ban, đội nhóm mà user thỏa mãn

@@ -439,6 +439,11 @@ export class ViewModeTabComponent
           next: (res) => {
             if (res.status === 200) {
               this.checkHideButtonNext();
+              // Cập nhật lại list view mode
+              const currentListViewModeSubject = this.autoTaskService.getListViewModeSubject();
+              const currentListViewModeIdx = currentListViewModeSubject.data.findIndex((item) => item.id === tabActive?.id);
+              if (currentListViewModeIdx !== -1) currentListViewModeSubject.data[currentListViewModeIdx] = res.data;
+              // End cập nhật list view mode
               resolve(true);
             } else {
               this.commonService.handleResErr(res);
