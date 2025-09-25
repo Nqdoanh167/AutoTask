@@ -28,7 +28,7 @@ import {
 } from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
-import {cloneDeep, uniqBy} from 'lodash';
+import {cloneDeep, omit, uniqBy} from 'lodash';
 import {EntityResult, ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -37,6 +37,35 @@ import {AutomationService} from '@app/services/api/automation.service';
 import {IBlockAutomation} from '@app/types/automation';
 import {optionToCloneTask} from '@app/variable';
 import {ToastrService} from 'ngx-toastr';
+
+export enum EPosition {
+  ABOVE = 'ABOVE',   // ngay phía trên
+  BELOW = 'BELOW',   // ngay phía dưới
+  TOP = 'TOP',       // thêm vào đầu
+  BOTTOM = 'BOTTOM', // thêm vào cuối
+}
+
+export function modifyInsertion<T>(
+  arr: T[],
+  currentIdx: number,
+  value: T,
+  pos: EPosition
+): void {
+  switch (pos) {
+    case EPosition.ABOVE:
+      arr.splice(currentIdx, 0, value);
+      break;
+    case EPosition.BELOW:
+      arr.splice(currentIdx + 1, 0, value);
+      break;
+    case EPosition.TOP:
+      arr.unshift(value);
+      break;
+    case EPosition.BOTTOM:
+      arr.push(value);
+      break;
+  }
+}
 
 @Component({
   selector: 'app-chain-detail',
@@ -53,6 +82,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   };
   public detailChain?: IChainAct;
   protected readonly EChainNextActType = EChainNextActType;
+  protected readonly EPosition = EPosition;
   protected readonly EDelayType = EDelayType;
   protected readonly ENextStepType = ENextStepType;
   public configButtons: IFilterTopButton[] = [
@@ -360,7 +390,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
             };
           }),
           id: actResult.id,
-          ordering: index + 1,
+          ordering: index,
           chainActId: this.detailChain?.id,
           actionId: actResult.actionId,
           subActionIds: actResult.subActions?.map(subAction=> subAction.id)
@@ -457,42 +487,45 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     index: number,
     chainActResult: IChainActResult,
   ) {
-    // NOTE: disable tự động update chainAct vì hàm này gây lỗi lớn -> check sau hoặc bỏ hẳn
-    return;
-    // if (this.detailChain) {
-    //   const actionIds: any[] = this.getActionIds();
-    //   // replace index of actionIds with selectedActionId
-    //   actionIds[index] = selectedActionId;
+    if (this.detailChain) {
+      console.log('[check-ordering-chain-detail]: selectedActionId', selectedActionId);
+      console.log('[check-ordering-chain-detail]: index', index);
+      console.log('[check-ordering-chain-detail]: chainActResult', chainActResult);
+      console.log('[check-ordering-chain-detail]: this.detailChain', this.detailChain.actionResults);
+      const actionIds: any[] = this.getActionIds();
+      // replace index of actionIds with selectedActionId
+      actionIds[index] = selectedActionId;
 
-    //   const selectedAction = this.actions.rows.find(
-    //     (action) => action.id === selectedActionId,
-    //   );
-    //   const body = {
-    //     actionIds: actionIds.filter((el) => !!el),
-    //   } as unknown as IUpdateChainActDto;
-    //   this.autoTaskService.chainAction
-    //     .update(this.detailChain.id, body)
-    //     .pipe(takeUntil(this.destroy$))
-    //     .subscribe({
-    //       next: (res) => {
-    //         if (res.status === 200) {
-    //           this.detailChain!.actionResults[index] = {
-    //             ...this.detailChain!.actionResults[index],
-    //             id: res.data.actionResults[index].id,
-    //             action: cloneDeep(selectedAction),
-    //           };
-    //           this.removedChainActResultIds.filter((id) => {
-    //             id !== res.data.actionResults[index].id;
-    //           });
-    //           if (chainActResult.id) {
-    //             this.clearRemovedActionInChainResult(chainActResult.id);
-    //           }
-    //         } else {
-    //           this.commonService.handleResErr(res);
-    //         }
-    //       },
-    //     });
-    // }
+      const selectedAction = this.actions.rows.find(
+        (action) => action.id === selectedActionId,
+      );
+      const body = {
+        actionIds: actionIds.filter((el) => !!el),
+      } as unknown as IUpdateChainActDto;
+      this.autoTaskService.chainAction
+        .update(this.detailChain.id, body)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              const actionResultFromDB = res.data.actionResults.find(i => i.ordering === chainActResult.ordering);
+              this.detailChain!.actionResults[index] = {
+                ...this.detailChain!.actionResults[index],
+                id: actionResultFromDB?.id,
+                action: cloneDeep(selectedAction),
+              };
+              this.removedChainActResultIds = this.removedChainActResultIds.filter((id) => 
+                id !== actionResultFromDB?.id
+              );
+              if (chainActResult.id) {
+                this.clearRemovedActionInChainResult(chainActResult.id);
+              }
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+        });
+    }
   }
 
   newNextAction() {
@@ -515,9 +548,42 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     };
   }
 
-  handleAddAction(currentIndex?: number) {
-    if (currentIndex === undefined) {
-      this.detailChain?.actionResults.push({
+  /**
+   * Validate xem ordering có chuẩn không
+   * @param orderings Mảng ordering lấy từ actionResults trong detailChain
+   * @returns 
+   */
+  private _isOrderingValid(orderings?: any[]): boolean {
+    if (!orderings) return false; // Falsy case
+
+    if (orderings.length === 0) return true; // Mảng rỗng hợp lệ
+
+    if (orderings.some(item => !Number.isInteger(item) || (item as number) < 0)) return false; // Là số nguyên không âm
+
+    const max = Math.max(...orderings);
+    const dict: boolean[] = [];
+    dict.length = max;
+    for (let i = 0; i < max; i++) dict[i] = false; // Khởi tạo mảng dict với giá trị false
+    for (let i = 0; i < orderings.length; i++) dict[orderings[i]] = true; // Đánh dấu phần tử đã tồn tại trong dãy
+
+    const missing = orderings.filter((_, idx) => !dict[idx]);
+
+    console.debug('[check-ordering-chain-detail]: missing', missing);
+    if (missing.length > 0) return false; // Sót phần tử trong dãy
+
+    return true;
+  }
+
+  handleAddAction(type: EPosition, currentIndex?: number) {
+    // Lưu ý: Khi thêm line hành động cần đảm bảo ordering chuẩn (min required = 0, unique, không cần theo thứ tự nhưng đảm bảo mảng ordering không sót phần tử trong dãy)
+    // VD: ordering...: 0, 3, 1, 6, 5, 2, 4 là dãy chuẩn vì không sót phần tử trong dãy từ 0 -> 6 (dãy phải luôn có phần tử 0)
+    console.debug('[check-ordering-chain-detail]: currentIndex', currentIndex);
+    console.debug('[check-ordering-chain-detail]: old ordering', this.detailChain?.actionResults.map(item => item.ordering))
+
+    modifyInsertion(
+      this.detailChain?.actionResults || [],
+      currentIndex!,
+      {
         id: undefined,
         results: [
           {
@@ -525,32 +591,21 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
             nextActions: [this.newNextAction()],
           },
         ],
-        ordering: this.detailChain?.actionResults.length + 1,
-      });
-    } else {
-      if (currentIndex === -1) {
-        this.detailChain?.actionResults.unshift({
-          id: undefined,
-          results: [
-            {
-              resultId: undefined,
-              nextActions: [this.newNextAction()],
-            },
-          ],
-          ordering: 1,
-        });
-      } else {
-        this.detailChain?.actionResults.splice(currentIndex!, 0, {
-          id: undefined,
-          results: [
-            {
-              resultId: undefined,
-              nextActions: [this.newNextAction()],
-            },
-          ],
-          ordering: currentIndex! + 1,
-        });
+        ordering: 0,
+      } as IChainActResult,
+      type,
+    )
+
+    this.detailChain?.actionResults?.forEach((item, idx) => {
+      if (this.detailChain?.actionResults?.[idx]) {
+        this.detailChain.actionResults[idx].ordering = idx;
       }
+    })
+
+    const orderings = this.detailChain?.actionResults.map(item => item.ordering)
+    console.debug('[check-ordering-chain-detail]: orderings', orderings);
+    if (!this._isOrderingValid(orderings)) {
+      console.debug('[check-ordering-chain-detail]: Ordering không chuẩn', orderings);
     }
   }
 
