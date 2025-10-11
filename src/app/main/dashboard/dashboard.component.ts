@@ -60,6 +60,7 @@ import {SocketService} from '@app/services/api/socket.service';
 import {ModalDeleteMultiComponent} from './content-modal/multiple-action/modal-delete-multi/modal-delete-multi.component';
 import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/modal-stop-receive.component';
 import {calculateTime} from '@app/utils/common';
+import { ModalCloseMultiTasksComponent } from './content-modal/modal-close-multi-tasks/modal-close-multi-tasks.component';
 
 @Component({
   selector: 'app-task',
@@ -79,7 +80,7 @@ export class DashboardComponent
   private resizingColumn: HTMLElement | null = null;
 
   public isOpenBackDrop: boolean = false;
-  public multipleAction = TASK_MULTIPLE_ACTIONS;
+  public multipleAction!: typeof TASK_MULTIPLE_ACTIONS;
   public dataColumnsShow!: IColumns[];
   public selectedTasks: ITask[] = [];
 
@@ -279,7 +280,6 @@ export class DashboardComponent
   }
 
   override ngOnInit() {
-    console.log('ngOnInit');
     this.setupCheckbox();
 
     this.clickLoadData('tags');
@@ -301,6 +301,14 @@ export class DashboardComponent
       this.configButtons[2].hidden = true;
     }
     this.loadUserAclData();
+
+    this.multipleAction = TASK_MULTIPLE_ACTIONS.filter((action) => {
+      if (action.value === ETypeBulkUpdate.CLOSE_MULTI_TASK) {
+        return this.authService.isOwner();
+      }
+
+      return true;
+    })
   }
 
   setupCheckbox() {
@@ -642,6 +650,15 @@ export class DashboardComponent
         // }
         this.showModalDeleteMultiTask(action);
         break;
+      case ETypeBulkUpdate.CLOSE_MULTI_TASK:
+        if (!this.authService.isOwner()) {
+          this.toastrService.warning(
+            'Bạn không có quyền thực hiện thao tác này!',
+          );
+          break;
+        }
+        this.showModalCloseMultiTask(action)
+        break;
       case ETypeBulkUpdate.ASSIGN_TEAM:
         if (!this.hasPerAssignTasks()) {
           this.toastrService.warning(
@@ -664,6 +681,34 @@ export class DashboardComponent
 
       default:
         break;
+    }
+  }
+
+  showModalCloseMultiTask(action: {value: ETypeBulkUpdate}) {
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    if (!action) return;
+
+    const rows = this.getCheckRows();
+    const tasksNotClosed = rows.filter(row => !row.isTaskClosed);
+
+    try {
+      const modalRef = this.modalService.show(ModalCloseMultiTasksComponent, {
+        class: 'modal-dialog-centered',
+        initialState: {
+          taskIds: tasksNotClosed.map(row => row.id),
+          selectedTasks: tasksNotClosed,
+        },
+      });
+
+      modalRef.content?.closeTaskSuccess.subscribe(async (resp) => {
+        if (resp?.success && resp?.successIds?.length > 0) {
+          await sleep(2000);
+          await this.getDataSource();
+        }
+      });
+      this.selectBatchActions?.handleClearClick();
+    } catch (e) {
+      console.log(e);
     }
   }
 

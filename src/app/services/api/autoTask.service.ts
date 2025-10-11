@@ -417,7 +417,22 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.patch<EntityResult<any>>(
         this.createUrl([this.api.task, id, 'close']), body,
       ),
-    
+
+    bulkCloseTask: (ids: string[], closeTaskResult: boolean, closeTaskReason?: string | null) => {
+      const body: any = {
+        ids,
+        closeTaskResult,
+      }
+      if (closeTaskReason) {
+        body.closeTaskReason = closeTaskReason;
+      }
+
+      return this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.task, 'bulk-close']),
+        body,
+      )
+    },
+
     deleteMulti: (taskIds: string[]) =>
       this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.task, 'delete-requests']),

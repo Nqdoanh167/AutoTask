@@ -153,6 +153,7 @@
                 bindValue="id"
                 groupBy="actionResults"
                 appendTo=".modal-update-action"
+                [trackByFn]="trackByChainActResultId"
               >
                 <ng-template ng-optgroup-tmp let-item="item">
                   {{ item?.name || '-' }}
