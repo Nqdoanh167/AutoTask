@@ -25,6 +25,10 @@ export const TASK_MULTIPLE_ACTIONS = [
     value: ETypeBulkUpdate.REMOVE_TEAM,
   },
   {
+    label: 'Đóng hàng loạt tác vụ',
+    value: ETypeBulkUpdate.CLOSE_MULTI_TASK,
+  },
+  {
     label: 'Xóa hàng loạt tác vụ',
     value: ETypeBulkUpdate.DELETE_MULTI_TASK,
   },

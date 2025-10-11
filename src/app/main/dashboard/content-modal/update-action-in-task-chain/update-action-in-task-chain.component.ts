@@ -104,15 +104,11 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     return this.updateForm.controls;
   }
 
-  get availableActionChains() {
-    return this.actionChains.filter((chain => {
-      const isDisabled = this.taskChains.some(
-        (taskChain) =>
-          taskChain.chainActId === chain.id &&
-          taskChain.status !== ETaskChainType.CLOSED,
-      );
-      return !isDisabled;
-    }));
+  public availableActionChains: IChainAct[] = [];
+
+  // TrackBy cho ng-select items (nested IChainActResult khi dùng groupBy)
+  trackByChainActResultId(index: number, item: IChainActResult): string {
+    return item?.id || `index-${index}`;  // 👈 Unique identifier for nested items with fallback
   }
 
   allOrNoneRequired(form: FormGroup) {
@@ -182,6 +178,15 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
           (actionResult) => actionResult.action?.id !== this.actionOfChain?.id,
         ) || [];
     }
+    
+    this.availableActionChains = this.actionChains.filter((chain => {
+      const isDisabled = this.taskChains.some(
+        (taskChain) =>
+          taskChain.chainActId === chain.id &&
+          taskChain.status !== ETaskChainType.CLOSED,
+      );
+      return !isDisabled;
+    }));
   }
 
   handleUpdate() {

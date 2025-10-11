@@ -488,10 +488,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
     chainActResult: IChainActResult,
   ) {
     if (this.detailChain) {
-      console.log('[check-ordering-chain-detail]: selectedActionId', selectedActionId);
-      console.log('[check-ordering-chain-detail]: index', index);
-      console.log('[check-ordering-chain-detail]: chainActResult', chainActResult);
-      console.log('[check-ordering-chain-detail]: this.detailChain', this.detailChain.actionResults);
       const actionIds: any[] = this.getActionIds();
       // replace index of actionIds with selectedActionId
       actionIds[index] = selectedActionId;
@@ -501,6 +497,7 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
       );
       const body = {
         actionIds: actionIds.filter((el) => !!el),
+        name: selectedAction?.name,
       } as unknown as IUpdateChainActDto;
       this.autoTaskService.chainAction
         .update(this.detailChain.id, body)
@@ -568,7 +565,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
 
     const missing = orderings.filter((_, idx) => !dict[idx]);
 
-    console.debug('[check-ordering-chain-detail]: missing', missing);
     if (missing.length > 0) return false; // Sót phần tử trong dãy
 
     return true;
@@ -577,8 +573,6 @@ export class ChainDetailComponent implements OnDestroy, OnInit {
   handleAddAction(type: EPosition, currentIndex?: number) {
     // Lưu ý: Khi thêm line hành động cần đảm bảo ordering chuẩn (min required = 0, unique, không cần theo thứ tự nhưng đảm bảo mảng ordering không sót phần tử trong dãy)
     // VD: ordering...: 0, 3, 1, 6, 5, 2, 4 là dãy chuẩn vì không sót phần tử trong dãy từ 0 -> 6 (dãy phải luôn có phần tử 0)
-    console.debug('[check-ordering-chain-detail]: currentIndex', currentIndex);
-    console.debug('[check-ordering-chain-detail]: old ordering', this.detailChain?.actionResults.map(item => item.ordering))
 
     modifyInsertion(
       this.detailChain?.actionResults || [],

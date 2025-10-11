@@ -824,6 +824,7 @@ export enum ERole {
   MEMBER = 'MEMBER',
   ADMIN = 'ADMIN',
   MODE = 'MODE',
+  MOD = 'MOD',
 }
 
 export interface AppointmentStatus {

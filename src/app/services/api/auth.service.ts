@@ -78,7 +78,7 @@ export class AuthService {
   }
 
   popular() {
-    let alias = 'test';
+    let alias = localStorage.getItem('smaxapp_bizAlias') || 'test'
 
     const parsedURL = new URL(location.href);
     if (!environment.production && !this.isAuthenticated()) {
@@ -86,8 +86,6 @@ export class AuthService {
     }
     if (environment.production) {
       alias = parsedURL.pathname.substring(1).replace(/\/.*/, '');
-    } else {
-      alias = localStorage.getItem('smaxapp_alias') || alias;
     }
 
     if (this.getToken() && alias) {
@@ -205,6 +203,15 @@ export class AuthService {
     if (this.isOwner()) return true;
     return this.isPerBranch(branch, per);
   }
+
+  isMod() {
+    return this.biz.user.role === ERole.MOD
+  }
+  
+  isAdmin() {
+    return this.biz.user.role === ERole.ADMIN
+  }
+
   getBranchPer(pers: string[] = [], option = { isFullBranch: false }) {
     let branches: Branch[] = [];
 

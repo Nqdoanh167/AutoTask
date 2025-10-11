@@ -181,8 +181,9 @@ export class EmployeeComponent
   }
 
   private async handleUpsertUserAcls() {
+    // console.log(`[employee.component.ts] 'listFilteredBizUsers':`, this.listFilteredBizUsers);
     for (const user of this.listFilteredBizUsers) {
-      if (!user.isActiveAcl && !user.isActive) {
+      if (user.isActiveAcl == null && user.isActive === true && user.role === 'OWNER') {
         user.isUpserting = true;
         try {
           const data = {
