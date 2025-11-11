@@ -211,6 +211,21 @@
 
                     <span
                       class="fw-500 d-flex align-items-center gap-2"
+                    >
+                      <img
+                        class="me-1"
+                        src="assets/images/icon-detail/membership.svg"
+                        width="20"
+                        height="20"
+                      />
+                      Điểm loyalty:
+                      <span class="text-danger">
+                        {{ selectedCustomer?.loyalty?.point || 0 | number }}
+                      </span>
+                    </span>
+
+                    <span
+                      class="fw-500 d-flex align-items-center gap-2"
                       *ngIf="
                         selectedCustomer?.saleCenter?.lastCreatedOrder
                           ?.createdAt
