@@ -2,6 +2,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   TemplateRef,
@@ -38,6 +39,7 @@ import {ModalConfirmCallComponent} from '@main/dashboard/content-modal/modal-con
 import {PhoneCallService} from '@app/services/common/phone-call.service';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
+declare function smaxCallSdkClearCall(): void;
 
 @Component({
   selector: 'app-modal-update-task',
@@ -46,8 +48,7 @@ declare function smaxCallSdkMakeCall(callInfo: any): void;
 })
 export class ModalUpdateTaskComponent
   extends DetailTaskPerms
-  implements OnInit
-{
+  implements OnInit, OnDestroy {
   @ViewChild('templateAddTaskChain') templateAddTaskChain!: TemplateRef<any>;
   public addTaskChainModalRef?: BsModalRef;
 
@@ -60,6 +61,20 @@ export class ModalUpdateTaskComponent
   @Input() taskId?: string;
   @Input() code?: string;
   @Output() updateSuccess = new EventEmitter();
+
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    try {
+      if (typeof smaxCallSdkClearCall === 'function') {
+        smaxCallSdkClearCall();
+        console.info('smaxCallSdkClearCall called')
+      } else {
+        console.error('smaxCallSdkClearCall fn not found')
+      }
+    } catch (error) {
+      console.error('smaxCallSdkClearCall error', error)
+    }
+  }
 
   public selectTag: boolean = false;
   public submittedModal = {
