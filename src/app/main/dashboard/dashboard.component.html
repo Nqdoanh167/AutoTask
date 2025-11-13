@@ -94,15 +94,14 @@
         placement="bottom"
         [triggers]="'hover'"
       >
-        <span class="dot" [ngClass]="{ 'active': !isStopReceive , 'inactive': isStopReceive }"></span>
+        <span
+          class="dot"
+          [ngClass]="{active: !isStopReceive, inactive: isStopReceive}"
+        ></span>
         <img src="./assets/images/icon/notify.svg" alt="" />
       </button>
       <ng-template #popTemplate>
-        <ng-container
-          *ngIf="!isStopReceive"
-        >
-          Ngừng nhận số
-        </ng-container>
+        <ng-container *ngIf="!isStopReceive">Ngừng nhận số</ng-container>
         <ng-container *ngIf="isStopReceive">
           <div>
             Bạn đang ngừng nhận số. Còn lại
@@ -306,10 +305,16 @@
                     <ng-container *ngSwitchCase="'name'">
                       <td>
                         <div *ngIf="item.isTaskClosed">
-                          <div *ngIf="item.closeTaskResult === true" class="close-text-success">
+                          <div
+                            *ngIf="item.closeTaskResult === true"
+                            class="close-text-success"
+                          >
                             <span>Thành công</span>
                           </div>
-                          <div *ngIf="item.closeTaskResult === false" class="close-text-failure">
+                          <div
+                            *ngIf="item.closeTaskResult === false"
+                            class="close-text-failure"
+                          >
                             <span>Thất bại</span>
                           </div>
                         </div>

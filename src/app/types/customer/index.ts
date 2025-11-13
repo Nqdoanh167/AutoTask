@@ -115,7 +115,7 @@ export interface Customer {
   rfm: {
     point?: number;
     groupName?: string;
-  },
+  };
 }
 
 export interface CustomerLoyalty {
@@ -129,7 +129,6 @@ export interface CustomerLoyalty {
   pointUse?: number;
   rank?: string;
   rankName?: string;
-
 }
 
 export interface CustomerTag {
