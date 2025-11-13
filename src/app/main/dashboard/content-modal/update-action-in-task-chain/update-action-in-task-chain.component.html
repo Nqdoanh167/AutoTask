@@ -42,7 +42,8 @@
               ENextStepType.CALL_BLOCK_AUTOMATION,
               ENextStepType.CONTINUE_TO_NEXT_ACTION,
               ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK,
-              ENextStepType.ADD_CHAIN
+              ENextStepType.ADD_CHAIN,
+              ENextStepType.CLOSE_TASK,
             ].includes(f['nextAction'].value)
           "
           class="mb-2"
@@ -103,6 +104,32 @@
               ></ng-select>
             </ng-container>
           </div>
+          <!-- Close Task -->
+          <div
+            *ngIf="
+              f['nextAction'].value === ENextStepType.CLOSE_TASK
+            "
+          >
+            <label class="form-control-label" for="actionType">
+              Kết quả đóng tác vụ
+              <span class="required">*</span>
+            </label>
+            <ng-container>
+              <ng-select
+                [ngClass]="{
+                  'is-invalid': submitted && f['closeTaskResult']?.errors
+                }"
+                formControlName="closeTaskResult"
+                [placeholder]="'Chọn Kết quả'"
+                [searchable]="true"
+                [items]="closeTaskResults"
+                [clearable]="false"
+                class="dropdown-auto-width"
+                bindLabel="label"
+                bindValue="value"
+              ></ng-select>
+            </ng-container>
+          </div>
           <div *ngIf="f['nextAction'].value === ENextStepType.ADD_CHAIN">
             <label class="form-control-label" for="actionType">
               Hành động từ chuỗi khác
@@ -117,7 +144,7 @@
                 [placeholder]="'Chọn HĐ từ chuỗi khác'"
                 [searchable]="true"
                 [searchFn]="customSearchFn"
-                [items]="actionChains"
+                [items]="availableActionChains"
                 (change)="handleChangeNextActionInNewChain($event)"
                 [loading]="loadingData.actionChains"
                 [clearable]="false"
@@ -126,6 +153,7 @@
                 bindValue="id"
                 groupBy="actionResults"
                 appendTo=".modal-update-action"
+                [trackByFn]="trackByChainActResultId"
               >
                 <ng-template ng-optgroup-tmp let-item="item">
                   {{ item?.name || '-' }}

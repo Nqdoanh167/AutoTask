@@ -21,14 +21,32 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
     {
       value: EActionType.CALL,
       label: 'Gọi điện',
+      type: 'Hành động chính',
     },
     {
       value: EActionType.SEND_BLOCK_AUTOMATION,
       label: 'Gửi Block Automation',
+      type: 'Hành động chính',
+    },
+    {
+      value: EActionType.FEEDBACK,
+      label: 'Đánh giá',
+      type: 'Hành động phụ',
+    },
+    {
+      value: EActionType.MANUAL_CREATE_ORDER,
+      label: 'Tạo đơn hàng thủ công',
+      type: 'Hành động phụ',
+    },
+    {
+      value: EActionType.BOOKING,
+      label: 'Tạo booking',
+      type: 'Hành động phụ',
     },
     {
       value: EActionType.OTHER,
       label: 'Khác',
+      type: 'Hành động chính',
     },
   ];
 
@@ -74,6 +92,10 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
       label: 'Đóng chuỗi HĐ',
     },
     {
+      value: ENextStepType.CLOSE_TASK,
+      label: 'Đóng tác vụ',
+    },
+    {
       value: ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK,
       label: 'Đóng chuỗi HĐ và tạo bản sao Tác vụ',
     },
@@ -82,6 +104,18 @@ export class ConfigurationService extends BaseApiService implements OnDestroy {
       label: 'Thêm HĐ từ chuỗi khác',
     },
   ];
+
+  public readonly closeTaskResults: { label: string, value: boolean }[] = [
+    {
+      label: 'Thành công',
+      value: true,
+    },
+    {
+      label: 'Thất bại',
+      value: false,
+    },
+  ]
+
   constructor(
     httpClient: HttpClient,
     private authService: AuthService,

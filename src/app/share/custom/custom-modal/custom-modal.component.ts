@@ -29,6 +29,7 @@ export class CustomModalComponent implements OnInit, OnDestroy {
   @Input() textOk: string = 'Lưu';
   @Input() className: string = '';
   @Input() confirmClose: boolean = false;
+  @Input() showBtnClose: boolean = true;
   @Output() hideModal = new EventEmitter<Event>();
   @Output() submitModal = new EventEmitter<Event>();
 

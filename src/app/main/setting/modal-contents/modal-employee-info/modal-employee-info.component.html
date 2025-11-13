@@ -409,10 +409,9 @@
 >
   <ng-select
     [ngModel]="value"
-    [loading]="permissions.loading"
     [placeholder]="'Chọn Quyền'"
     [searchable]="false"
-    [items]="permissions.rows"
+    [items]="permissions"
     class="dropdown-auto-width"
     id="{{ id }}"
     [notFoundText]="'Không có dữ liệu'"
@@ -506,10 +505,9 @@
     <div class="dot"></div>
     <ng-select
       [ngModel]="value"
-      [loading]="permissions.loading"
       [placeholder]="'Chọn Quyền'"
       [searchable]="false"
-      [items]="permissions.rows"
+      [items]="permissions"
       class="dropdown-auto-width"
       [notFoundText]="'Không có dữ liệu'"
       (change)="handleChangePermission($event, team, department, branch)"

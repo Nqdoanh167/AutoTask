@@ -35,6 +35,7 @@ export class CustomDatePickerComponent implements OnInit, OnChanges {
   @Input() defaultRangeValue?: Date[];
   @Input() maxDate?: string | Date | undefined;
   @Input() showClearButton?: boolean = false;
+  @Input() style?: any
   public bsRangeValue?: Date[] | undefined[] = [];
   public bsValue?: Date;
   private counter = 0;
@@ -49,6 +50,7 @@ export class CustomDatePickerComponent implements OnInit, OnChanges {
     showWeekNumbers: false,
     clearPosition: 'right',
     ranges: undefined,
+    adaptivePosition: true,
   };
 
   ngOnInit(): void {

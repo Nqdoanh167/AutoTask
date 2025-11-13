@@ -743,6 +743,8 @@ ng-select.select-search-icon {
   }
   &.custom-popover-dropdown {
     // z-index of bs-dropdown-menu is 1040
+    margin-right: 180px;
+
     .popover-body {
       width: fit-content;
       padding: 0px 10px;
@@ -763,7 +765,9 @@ ng-select.select-search-icon {
   }
 
   &.filter-advance-popover-tab {
+    margin-right: 180px;
     position: relative;
+    z-index: 998;
     .button-close {
       position: absolute;
       top: -10px;
@@ -776,8 +780,9 @@ ng-select.select-search-icon {
       padding: 0;
     }
     .popover-body {
-      width: 450px;
+      width: 800px;
     }
+
     .ng-select.ng-select-multiple
       .ng-select-container
       .ng-value-container
@@ -885,9 +890,13 @@ progressbar.custom-progress {
     background-color: $white !important;
     //min-width: 1500px !important;
 
-    th,
     td {
       background-color: $white !important;
+    }
+
+    th,
+    td {
+      // background-color: $white !important;
       max-width: 350px;
 
       &.separate-row {
@@ -1112,9 +1121,9 @@ span.required {
   }
   .button-next {
     z-index: 1;
-    position: absolute;
-    right: 180px;
-    top: 0;
+    // position: absolute;
+    // right: 180px;
+    // top: 0;
     width: 50px;
     background: linear-gradient(270deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
     &.hide {
@@ -1123,7 +1132,7 @@ span.required {
   }
   .list-button-header {
     //background-color: $white;
-    height: 33px;
+    height: 36px;
     width: 180px;
     display: flex;
     padding-bottom: 3px;
@@ -1176,9 +1185,9 @@ span.required {
       justify-content: flex-end;
     }
   }
-  .content-tab-filter {
-    width: calc(100% - 180px);
-  }
+  // .content-tab-filter {
+  //   width: calc(100% - 700px);
+  // }
 }
 
 bs-tooltip-container.custom-tooltip-tab-filter {
@@ -1187,6 +1196,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
 
 .custom-tab-basic.tab-filter-data {
   .nav-tabs {
+    max-width: 860px;
     //height: $input-medium;
     display: flex;
     flex-wrap: nowrap;
@@ -1206,13 +1216,13 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       color: #afb2bd !important;
       border-radius: unset !important;
       padding: 5px 20px;
-      height: 33px;
+      height: 36px;
       .button-edit-tab {
         display: none;
       }
 
       .tab-name {
-        max-width: 150px;
+        max-width: 250px;
         @include limit-text-row(1);
       }
 
@@ -1318,8 +1328,8 @@ bs-tooltip-container.custom-tooltip-tab-filter {
         padding: 5px 10px 5px 20px;
         background-color: unset !important;
         border: none;
-        color: $neutral !important;
-        border-bottom: 3px solid $neutral;
+        color: $secondary-500 !important;
+        border-bottom: 3px solid $secondary-500;
         .button-edit-tab {
           display: flex;
         }
@@ -1435,6 +1445,7 @@ $price-tag-dot-background: $white;
   justify-content: center;
   text-shadow: 0 0 1px #999;
   font-size: 12px;
+  background-color: #000;
 
   span {
     overflow: hidden;

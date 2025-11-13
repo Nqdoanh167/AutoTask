@@ -6,7 +6,8 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import {Subject} from 'rxjs';
+import omit from 'lodash/omit';
+import {catchError, concat, finalize, lastValueFrom, Subject, tap} from 'rxjs';
 import {FormArray, FormBuilder, FormGroup} from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {CommonService} from '@app/services/common/common.service';
@@ -16,6 +17,9 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {ISetting} from '@app/types/setting';
 import {Router} from '@angular/router';
 import {ETypeBulkUpdate} from '@app/types/common';
+import {ProgressbarType} from 'ngx-bootstrap/progressbar';
+import {ToastrService} from 'ngx-toastr';
+import { ITask } from '@app/types/flow';
 
 @Component({
   selector: 'app-modal-assign-team',
@@ -24,11 +28,30 @@ import {ETypeBulkUpdate} from '@app/types/common';
 })
 export class ModalAssignTeamComponent implements OnInit, OnDestroy {
   @Input() action!: ETypeBulkUpdate;
+  @Input() taskIds!: string[];
+  @Input() selectedTasks!: ITask[];
   @Output() assignTeams = new EventEmitter();
   private destroy$ = new Subject();
   public ETypeBulkUpdate = ETypeBulkUpdate;
   public biz!: Biz;
   public form!: FormGroup;
+
+  public getCurrentValidTaskToRemoveTeam(roleId?: string): number {
+    if (!roleId) return 0;
+
+    const validTasks = this.selectedTasks.filter((task) => {
+      if (task.isTaskClosed) return false;
+      if (task.teams?.some((team) => team.roleId === roleId && team.userId)) return true;
+
+      return false;
+    })
+
+    return validTasks.length;
+  }
+  public progressStatus: string | 'progressing' | 'success' | 'error' = '';
+  public progressValue = 0;
+  public progressMax = 100;
+  public progressType: ProgressbarType = 'info';
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
@@ -36,6 +59,7 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly router: Router,
+    private readonly toastrService: ToastrService,
   ) {}
 
   get formTeams(): FormArray {
@@ -46,7 +70,7 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
       this.biz = biz;
     });
     this.initForm();
-    this.getAutoTaskSetting();
+    this.getAutoTaskSettingCache();
   }
   initForm() {
     this.form = this.fb.group({
@@ -59,6 +83,7 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
     }
     data?.roles?.forEach((role) => {
       const fRole = this.biz?.roles?.find((roleBiz) => roleBiz.id === role);
+      const validTaskCount = this.getCurrentValidTaskToRemoveTeam(fRole?.id);
       const teamForm = this.fb.group({
         roleId: fRole?.id,
         roleIcon: fRole?.icon,
@@ -68,21 +93,18 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
         userPicture: null,
         userEmail: null,
         beRemove: false,
+        validTaskCount,
+        canRemove: validTaskCount > 0,
       });
       this.formTeams.push(teamForm);
     });
   }
-  getAutoTaskSetting() {
-    this.autoTaskService.setting.retrieve({bizId: this.biz.id}).subscribe({
+  getAutoTaskSettingCache() {
+    return this.autoTaskService.currentSetting.subscribe({
       next: (res) => {
-        if (res && res.status === 200) {
-          this.patchForm(res.data);
-        } else {
-          this.commonService.handleResErr(res);
+        if (res) {
+          this.patchForm(res);
         }
-      },
-      error: (err) => {
-        this.commonService.handleErr(err);
       },
     });
   }
@@ -117,22 +139,79 @@ export class ModalAssignTeamComponent implements OnInit, OnDestroy {
     this.hideModal();
     this.router.navigate(['/setting/role']);
   }
-  onSubmit() {
+  async onSubmit() {
     if (this.form.valid) {
       const value = this.form.value;
-      // remove team without userId
       value.teams = value.teams
-        .filter((team: any) => team.userId || team.beRemove)
-        .map((team: any) => {
-          delete team.beRemove;
-          return team;
+        .filter((team: any) => (team.userId || team.beRemove) && team.canRemove)
+        .map((team: any) => omit(team, [
+          'canRemove',
+          'validTaskCount',
+          'beRemove',
+        ]));
+
+      if (value.teams.length === 0) {
+        this.toastrService.warning('Vui lòng chọn ít nhất 1 vai trò');
+        return;
+      }
+
+      await this.bulkUpdateWithProgress(this.taskIds, value.teams)
+        .then(() => {
+          const message =
+            this.action === ETypeBulkUpdate.ASSIGN_TEAM
+              ? 'Gán nhân viên phụ trách thành công'
+              : 'Xóa nhân viên phụ trách thành công';
+
+          this.toastrService.success(message);
+          setTimeout(() => {
+            this.assignTeams.emit();
+            this.hideModal();
+          }, 2000);
+        })
+        .catch((error) => {
+          this.toastrService.error('Có lỗi xảy ra trong quá trình xử lý');
         });
-      this.assignTeams.emit(value);
-      this.modalRef.hide();
     }
   }
   hideModal(): void {
     this.modalRef.hide();
+  }
+
+  async bulkUpdateWithProgress(
+    taskIds: string[],
+    teams: any[],
+    chunkSize = 20,
+  ): Promise<void> {
+    const chunks = this.chunkArray(taskIds, chunkSize);
+    const totalChunks = chunks.length;
+    const increment = 100 / totalChunks;
+
+    this.progressStatus = 'processing';
+    this.progressValue = 0;
+    this.progressMax = 100;
+
+    for (const chunk of chunks) {
+      try {
+        await lastValueFrom(
+          this.autoTaskService.task.bulkUpdate({taskIds: chunk, teams}),
+        );
+        this.progressValue = Math.min(this.progressValue + increment, 100);
+      } catch (err) {
+        console.error('Error during bulk update:', err);
+        this.progressStatus = 'error';
+        throw err;
+      }
+    }
+
+    this.progressStatus = 'success';
+  }
+
+  private chunkArray<T>(array: T[], chunkSize: number): T[][] {
+    const results: T[][] = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      results.push(array.slice(i, i + chunkSize));
+    }
+    return results;
   }
 
   ngOnDestroy(): void {

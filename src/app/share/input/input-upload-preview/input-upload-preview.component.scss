@@ -1,0 +1,88 @@
+@use '../../../styles/mixins.scss' as mixins;
+@use '../../../styles/variable' as vars;
+
+.input-upload-preview {
+  position: relative;
+  border-radius: vars.$radius-s;
+
+  &:hover {
+    .controls {
+      opacity: 1;
+      background: #000000ab;
+    }
+    .upload-program-image {
+      opacity: 0.5;
+    }
+  }
+
+  &.loading {
+    .upload-program-image {
+      opacity: 0.5;
+    }
+  }
+}
+
+.upload-program-image {
+  width: 100%;
+  height: 100%;
+  transition: all 0.2s linear;
+  border-radius: vars.$radius-s;
+  border: 1px dashed vars.$gray-300;
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: vars.$radius-s;
+    object-fit: cover;
+  }
+}
+
+.desc-upload-image {
+  position: absolute;
+  top: 40%;
+  left: 40%;
+}
+
+.list-image-preview {
+  .input-upload-preview {
+    .upload-program-image {
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    &:hover {
+      .controls {
+        opacity: 1;
+        background: #000000ab;
+      }
+      .upload-program-image {
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+.controls {
+  opacity: 0;
+  transition: all 0.1s linear;
+  font-size: 22px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: vars.$radius-s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  i {
+    cursor: pointer;
+    color: #fff;
+    font-size: 16px !important;
+  }
+}
+
+.modal-view-all-images {
+  .header {
+    text-align: right;
+  }
+}

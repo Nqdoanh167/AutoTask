@@ -9,7 +9,7 @@
           (searchEvent)="onSearch($event)"
           (selectEvent)="onSelectFilter($event)"
         ></app-filter-top-table>
-        <accordion class="accordion-white mt-4" [isAnimated]="true">
+        <accordion class="accordion-white mt-3" [isAnimated]="true">
           <accordion-group *ngFor="let social of socialPlatforms" #myGroup>
             <div
               accordion-heading
@@ -24,7 +24,7 @@
                     [style]="{width: '25px', height: '25px'}"
                   />
                 }
-                {{ social.label }}
+                {{ social.label }} ({{ dataSources[social.value]?.length }})
               </span>
               <i
                 class="me-2 fas"

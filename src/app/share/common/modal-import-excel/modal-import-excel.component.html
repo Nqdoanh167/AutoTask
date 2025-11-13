@@ -1,0 +1,292 @@
+<app-custom-modal (submitModal)="handleSubmit()" [isSubmitting]="loading.save">
+  <ng-container modalTitle>Tạo tác vụ từ Excel</ng-container>
+
+  <ng-container modalBody>
+    <form [formGroup]="form">
+      <div role="alert" class="alert alert-warning ng-star-inserted">
+        <span class="text-danger fw-500">Lưu ý:</span>
+        Tải file mẫu
+        <span class="text-primary text-href" (click)="downloadTemplate()">
+          tại đây
+        </span>
+        <ul class="ps-4" style="list-style: circle">
+          <li class="fw-500" style="list-style: none">
+            Một số trường cần lưu ý:
+          </li>
+          <li>
+            <div>Mã tác vụ (Có thể nhập hoặc không)</div>
+          </li>
+          <li><div>Tên tác vụ (bắt buộc)</div></li>
+          <li><div>Chi nhánh: Tên chi nhánh (bắt buộc)</div></li>
+          <li>
+            <div>Khách hàng</div>
+            <ul>
+              <li>
+                Nếu không có tên khách hàng thì bắt buộc phải có số điện thoại
+              </li>
+              <li>
+                Nếu không có số điện thoại thì bắt buộc phải có tên khách hàng
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- File upload section -->
+      <div class="upload-section"(dragover)="$event.preventDefault()"
+            (drop)="onDrop($event)">
+        <label class="form-label fw-bold" *ngIf="!selectedFile">
+          Kéo hoặc thả file của bạn tại đây hoặc
+        </label>
+        <input
+          type="file"
+          class="d-none"
+          accept=".xlsx,.xls"
+          (change)="onFileSelected($event)"
+          #fileInput
+          id="fileExcel"
+        />
+        <ng-container *ngIf="!selectedFile; else filePreview">
+          <div class="w-100">
+            <button
+              type="button"
+              class="btn btn-danger"
+              (click)="fileInput.click()"
+              style="width: max-content"
+            >
+              <i class="fas fa-upload me-2"></i>
+              Tải file lên
+            </button>
+          </div>
+          <small class="text-muted">Chỉ chấp nhận file .xlsx hoặc .xls</small>
+        </ng-container>
+
+        <ng-template #filePreview>
+          <div
+            class="file-select cursor-pointer file-select"
+            (click)="fileInput.click()"
+          >
+            <i class="far fa-file-excel"></i>
+            <div class="fw-500">{{ selectedFile?.name }}</div>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Preview data table -->
+      <div
+        *ngIf="!loading.import && taskArrayForm.length"
+        class="preview-section my-3"
+      >
+        <div formArrayName="tasks">
+          <cdk-virtual-scroll-viewport
+            [itemSize]="50"
+            class="table-responsive tableFixHead custom-scrollbar"
+            style="overflow-y: auto; height: 600px"
+            #virtualScroll
+          >
+            <table class="table table-bordered table-sm">
+              <thead class="table-dark">
+                <tr>
+                  <th
+                    class="text-nowrap"
+                    [style.top]="
+                      -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                      'px'
+                    "
+                  >
+                    STT
+                  </th>
+                  <th
+                    *ngIf="submitted"
+                    class="text-nowrap"
+                    [style.top]="
+                      -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                      'px'
+                    "
+                  ></th>
+                  <th
+                    *ngFor="let field of fieldDefaults"
+                    class="text-nowrap"
+                    [style.top]="
+                      -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                      'px'
+                    "
+                  >
+                    {{ field.label }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="tbody">
+                <tr
+                  *cdkVirtualFor="
+                    let task of taskArrayForm.controls;
+                    let i = index;
+                    trackBy: trackById
+                  "
+                  [formGroup]="task"
+                >
+                  <td class="text-nowrap">{{ i + 1 }}</td>
+                  <td *ngIf="submitted">
+                    <ng-container *ngIf="!loading.save; else loadingTemplate">
+                      <img
+                        src="./assets/images/icon/{{
+                          task.valid ? 'check' : 'not-check'
+                        }}.svg"
+                        alt="{{ task.valid ? 'Hợp lệ' : 'Không hợp lệ' }}"
+                        [title]="
+                          task.valid ? 'Dữ liệu hợp lệ' : 'Dữ liệu không hợp lệ'
+                        "
+                      />
+                    </ng-container>
+                    <ng-template #loadingTemplate>
+                      <i class="fas fa-spinner fa-spin"></i>
+                    </ng-template>
+                  </td>
+                  <td *ngFor="let field of fieldDefaults">
+                    <ng-container *ngIf="field.type === 'input'">
+                      <input
+                        type="text"
+                        class="form-control custom-input"
+                        [placeholder]="field.label"
+                        [ngClass]="{
+                          'is-invalid': isFieldInvalid(field.key, task)
+                        }"
+                        [formControlName]="field.key"
+                      />
+                    </ng-container>
+                    <ng-container *ngIf="field.key === 'tags'">
+                      <ng-select
+                        class="custom-input-tag full-width"
+                        placeholder="Chọn tags..."
+                        [formControlName]="field.key"
+                        [ngClass]="{
+                          'is-invalid': isFieldInvalid(field.key, task)
+                        }"
+                        [items]="tags.rows"
+                        [multiple]="true"
+                        (click)="!tags.rows.length && clickLoadData('tags')"
+                        [loading]="tags.loading"
+                        [bindLabel]="'name'"
+                        [bindValue]="'name'"
+                        appendTo=".tbody"
+                      >
+                        <ng-template ng-label-tmp let-item="item">
+                          <div
+                            class="tag-item"
+                            [ngClass]="{nonBack: !item.bgColor}"
+                            [ngStyle]="{background: item.bgColor}"
+                          >
+                            {{ item.name }}
+                          </div>
+                        </ng-template>
+                        <ng-template ng-option-tmp let-item="item">
+                          <div
+                            class="tag-item"
+                            [ngClass]="{nonBack: !item.bgColor}"
+                            [ngStyle]="{background: item.bgColor}"
+                          >
+                            {{ item.name }}
+                          </div>
+                        </ng-template>
+                      </ng-select>
+                    </ng-container>
+
+                    <ng-container *ngIf="field.key === 'branch_name'">
+                      <select
+                        class="form-select border-0"
+                        [formControlName]="field.key"
+                        [ngClass]="{
+                          'is-invalid': isFieldInvalid(field.key, task)
+                        }"
+                      >
+                        <option value="">Chọn chi nhánh</option>
+                        <option
+                          *ngFor="let branch of currentUser?.branches"
+                          [value]="branch.name"
+                        >
+                          {{ branch.name }}
+                        </option>
+                      </select>
+                    </ng-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </cdk-virtual-scroll-viewport>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div
+        *ngIf="!loading.import && !taskArrayForm?.length"
+        class="text-center py-5"
+      >
+        <div class="text-muted">
+          <i class="fas fa-file-excel fa-3x mb-3"></i>
+          <p>Vui lòng chọn file Excel để xem trước dữ liệu</p>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div *ngIf="loading.import" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Đang tải...</span>
+        </div>
+        <p class="mt-2 text-muted">Đang đọc file Excel...</p>
+      </div>
+
+      <ng-container *ngIf="taskArrayForm?.length">
+        <div class="options-section">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="overwriteCheck"
+              formControlName="isOverwrite"
+            />
+            <label class="form-check-label fw-bold" for="overwriteCheck">
+              Ghi đề nếu bị trùng
+            </label>
+          </div>
+          <small class="text-muted d-block mt-1">
+            Nếu chọn, dữ liệu trùng sẽ được cập nhật. Nếu không, dữ liệu trùng
+            sẽ bị bỏ qua.
+          </small>
+        </div>
+      </ng-container>
+    </form>
+
+    <div class="d-flex justify-content-end align-items-end gap-2 w-100 mt-2">
+      <div class="w-100" *ngIf="progressStatus === 'processing'">
+        <div class="text-primary fs-7 mb-2">
+          Đang tạo tác vụ, vui lòng không tắt trình duyệt và chờ trong giây
+          lát...
+        </div>
+        <progressbar
+          [value]="progressValue"
+          [max]="progressMax"
+          [type]="progressType"
+          [animate]="true"
+        ></progressbar>
+      </div>
+
+      <div
+        class="w-100 text-success fs-7 mb-2"
+        *ngIf="progressStatus === 'success'"
+      >
+        <i class="fas fa-check-circle me-2"></i>
+        Tạo tác vụ thành công
+      </div>
+
+      <div
+        class="w-100 text-danger fs-7 mb-2"
+        *ngIf="progressStatus === 'error'"
+      >
+        <i class="fas fa-exclamation-circle me-2"></i>
+        Tạo tác vụ thất bại. Vui lòng thử lại.
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container modalFooter></ng-container>
+</app-custom-modal>

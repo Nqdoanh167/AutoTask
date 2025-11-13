@@ -1,85 +1,380 @@
-<div class="roles-site">
-  <div class="card" [formGroup]="settingForm">
-    <div class="card-body">
-      <div class="d-flex align-items-center justify-content-between">
-        <div class="title fw-bold fs-5">Vai trò</div>
-        @if (this.permission.update) {
-          <div class="btn btn-primary" (click)="onsubmit()">Lưu</div>
-        } @else {
-          <div></div>
-        }
+<div class="roles-site" [formGroup]="settingForm">
+  <div class="text-end">
+    @if (this.permission.update) {
+      <div
+        class="btn btn-primary"
+        style="width: max-content"
+        (click)="onSubmit()"
+      >
+        Lưu
       </div>
-      <div class="my-3 state-warning">
-        <div class="fw-500">Lưu ý</div>
-        <ul style="list-style: disc" class="ms-4">
-          <li>
-            Vai trò trong Tác vụ có thể khác với Vai trò trong Đơn hàng (module
-            Quản lý bán hàng)
-          </li>
-          <li>
-            Khi tạo Đơn hàng từ Tác vụ, những người đã được gán vai trò trên Tác
-            vụ sẽ được gán vào Đơn hàng, kể cả khi Đơn không có vai trò của
-            người đó.
-          </li>
-        </ul>
+    } @else {
+      <div></div>
+    }
+  </div>
+  <div>
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="title fw-bold fs-5">Vai trò</div>
+        </div>
+        <div class="my-3 state-warning">
+          <div class="fw-500">Lưu ý</div>
+          <ul style="list-style: disc" class="ms-4">
+            <li>
+              Vai trò trong Tác vụ có thể khác với Vai trò trong Đơn hàng
+              (module Quản lý bán hàng)
+            </li>
+            <li>
+              Khi tạo Đơn hàng từ Tác vụ, những người đã được gán vai trò trên
+              Tác vụ sẽ được gán vào Đơn hàng, kể cả khi Đơn không có vai trò
+              của người đó.
+            </li>
+          </ul>
+        </div>
+        <div class="action-roles">
+          <label for="role">Vai trò trong Tác vụ</label>
+          <ng-select
+            id="role"
+            [items]="roles.rows"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Chọn vai trò"
+            [multiple]="true"
+            [closeOnSelect]="false"
+            [clearable]="true"
+            formControlName="roles"
+            class="dropdown-auto-width custom-input-multiple-round"
+          >
+            <ng-template ng-label-tmp let-item="item" let-clear="clear">
+              <span class="ng-value-icon" (click)="clear(item)">×</span>
+              <div class="ng-value-label">
+                <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+                <span class="ms-2">{{ item.name }}</span>
+              </div>
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item">
+              <div class="ng-value-label">
+                <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+                <span class="ms-2">{{ item.name }}</span>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div class="action-roles-assign mt-4">
+          <label for="role-auto">
+            Tự động gán người tạo Tác vụ vào vai trò
+            <i
+              class="fa-solid fa-question-circle me-1"
+              tooltipHtml="Khi Tác vụ được tạo thì hệ thông sẽ tự gán người đang tạo đơn vào vai trò bạn chọn trong này"
+            ></i>
+          </label>
+          <ng-select
+            id="role-auto"
+            [items]="roles.rows"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Chọn vai trò"
+            [multiple]="false"
+            [closeOnSelect]="false"
+            [clearable]="true"
+            formControlName="assignRole"
+            class="dropdown-auto-width custom-input-single-round"
+          >
+            <ng-template ng-option-tmp ng-label-tmp let-item="item">
+              <div class="ng-value-label">
+                <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
+                <span class="ms-2">{{ item.name }}</span>
+              </div>
+            </ng-template>
+          </ng-select>
+        </div>
       </div>
-      <div class="action-roles">
-        <label for="role">Vai trò trong Tác vụ</label>
-        <ng-select
-          id="role"
-          [items]="roles.rows"
-          bindLabel="name"
-          bindValue="id"
-          placeholder="Chọn vai trò"
-          [multiple]="true"
-          [closeOnSelect]="false"
-          [clearable]="true"
-          formControlName="roles"
-          class="dropdown-auto-width custom-input-multiple-round"
-        >
-          <ng-template ng-label-tmp let-item="item" let-clear="clear">
-            <span class="ng-value-icon" (click)="clear(item)">×</span>
-            <div class="ng-value-label">
-              <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
-              <span class="ms-2">{{ item.name }}</span>
+    </div>
+
+    <div class="d-flex align-items-start mb-3 gap-3">
+      <div class="card" style="flex: 1">
+        <div class="card-body" style="height: max-content">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="title fw-bold fs-5">Giờ làm việc</div>
+            <div class="form-check form-switch mb-0">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="isActive"
+                formControlName="workHourEnable"
+              />
             </div>
-          </ng-template>
-          <ng-template ng-option-tmp let-item="item">
-            <div class="ng-value-label">
-              <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
-              <span class="ms-2">{{ item.name }}</span>
+          </div>
+          @if (settingForm?.get('workHourEnable')?.value) {
+            <div class="mt-3">
+              <ng-select
+                [items]="[{id: 'fixed_daily', name: 'Cố định hàng ngày'}]"
+                bindLabel="name"
+                bindValue="id"
+                placeholder="Chọn loại giờ làm việc"
+                [clearable]="false"
+                formControlName="workHourType"
+                class="dropdown-auto-width custom-input-single-round"
+              >
+                <ng-template ng-option-tmp ng-label-tmp let-item="item">
+                  <div class="ng-value-label">
+                    <span>{{ item.name }}</span>
+                  </div>
+                </ng-template>
+              </ng-select>
             </div>
-          </ng-template>
-        </ng-select>
+
+            <div class="mt-3">
+              <custom-input-range-time
+                [values]="getTimeRange(settingForm.value.workHours)"
+                [showMeridian]="false"
+                [hourStep]="1"
+                [minuteStep]="30"
+                [showMinutes]="true"
+                [showSeconds]="false"
+                [disabled]="false"
+                (changeValue)="onTimeRangeChange($event)"
+              ></custom-input-range-time>
+              <small class="text-danger mt-2">{{ workHourError }}</small>
+            </div>
+          }
+        </div>
       </div>
 
-      <div class="action-roles-assign mt-4">
-        <label for="role-auto">
-          Tự động gán người tạo Tác vụ vào vai trò
-          <i
-            class="fa-solid fa-question-circle me-1"
-            tooltipHtml="Khi Tác vụ được tạo thì hệ thông sẽ tự gán người đang tạo đơn vào vai trò bạn chọn trong này"
-          ></i>
-        </label>
-        <ng-select
-          id="role-auto"
-          [items]="roles.rows"
-          bindLabel="name"
-          bindValue="id"
-          placeholder="Chọn vai trò"
-          [multiple]="false"
-          [closeOnSelect]="false"
-          [clearable]="true"
-          formControlName="assignRole"
-          class="dropdown-auto-width custom-input-single-round"
-        >
-          <ng-template ng-option-tmp ng-label-tmp let-item="item">
-            <div class="ng-value-label">
-              <i class="fa-solid" *ngIf="item.icon" [ngClass]="item.icon"></i>
-              <span class="ms-2">{{ item.name }}</span>
+      <div class="card" style="flex: 1">
+        <div class="card-body" formGroupName="drawAndDropConfig">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="title fw-bold fs-5">Cấu hình rút & thả số</div>
+
+            <div class="form-check form-switch mb-0">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="isActive"
+                formControlName="isEnabled"
+              />
             </div>
-          </ng-template>
-        </ng-select>
+          </div>
+
+          @if (drawAndDropConfig?.get('isEnabled')?.value) {
+            <div class="mt-3">
+              <div class="form-group mb-3">
+                <label class="form-label">
+                  Vai trò được phép rút & thả số
+                  <span class="required">*</span>
+                </label>
+                <ng-select
+                  id="role"
+                  [items]="userRoles || []"
+                  bindLabel="name"
+                  bindValue="id"
+                  placeholder="Chọn vai trò"
+                  [multiple]="true"
+                  [closeOnSelect]="false"
+                  [clearable]="true"
+                  formControlName="roleIds"
+                  class="dropdown-auto-width"
+                  [ngClass]="{
+                    'is-invalid':
+                      submitted && drawAndDropConfig.get('roleIds')?.invalid
+                  }"
+                >
+                  <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                    <span class="ng-value-icon" (click)="clear(item)">×</span>
+                    <div class="ng-value-label">
+                      <i
+                        class="fa-solid"
+                        *ngIf="item.icon"
+                        [ngClass]="item.icon"
+                      ></i>
+                      <span class="ms-2">{{ item.name }}</span>
+                    </div>
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item">
+                    <div class="ng-value-label">
+                      <i
+                        class="fa-solid"
+                        *ngIf="item.icon"
+                        [ngClass]="item.icon"
+                      ></i>
+                      <span class="ms-2">{{ item.name }}</span>
+                    </div>
+                  </ng-template>
+                </ng-select>
+              </div>
+
+              <div class="form-group mb-3" formGroupName="drawConfig">
+                <div class="d-flex gap-3">
+                  <label class="form-label fw-bold">Cấu hình rút số</label>
+                  <div class="form-check form-switch mb-0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="isActive"
+                      [checked]="settingForm.get('viewDrawConfig')?.value"
+                      (change)="
+                        settingForm.get('viewDrawConfig')?.setValue(
+                          !settingForm.get('viewDrawConfig')?.value
+                        )"
+                    />
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-3 gap-2">
+                  <span>Không cho phép rút số khi đang có</span>
+                  <div
+                    style="width: 100px"
+                    [tooltip]="'Nhập 0 nghĩa là không giới hạn số lượng rút số'"
+                  >
+                    <app-input-mask
+                      className="text-end"
+                      [isQuantity]="true"
+                      [value]="drawConfig.get('maxOpenTasks')?.value || 0"
+                      (changeValue)="
+                        drawConfig.get('maxOpenTasks')?.setValue($event)
+                      "
+                    ></app-input-mask>
+                  </div>
+                  <span>tác vụ đang mở</span>
+                </div>
+              </div>
+
+              <!-- Cấu hình thả số -->
+              <div formGroupName="dropConfig">
+                <div class="form-group mb-3">
+
+                  <div class="d-flex gap-3">
+                    <label class="form-label fw-bold">Cấu hình thả số</label>
+                    <div class="form-check form-switch mb-0">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        id="isActive"
+                        [checked]="settingForm.get('viewDropConfig')?.value"
+                        (change)="
+                          settingForm.get('viewDropConfig')?.setValue(
+                            !settingForm.get('viewDropConfig')?.value
+                          )"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="form-label">
+                      Chi nhánh được chuyển tới sau khi thả số
+                      <i
+                        class="fa-regular fa-circle-question ms-1"
+                        [tooltip]="
+                          'Nếu không chọn chi nhánh, tác vụ sẽ giữ nguyên chi nhánh sau khi thả số.'
+                        "
+                        placement="right"
+                      ></i>
+                    </label>
+                    <app-dropdown-search
+                      [value]="
+                        transferToBranch?.team ||
+                        transferToBranch?.department ||
+                        transferToBranch?.id ||
+                        null
+                      "
+                      bindValue="id"
+                      class="bg-white"
+                      placeholder="Chi nhánh"
+                      nextLevel1="departments"
+                      nextLevel2="teams"
+                      [isSearch]="roleBranches!.length > 10"
+                      (change)="onChangeBranch($event)"
+                      [items]="roleBranches"
+                      [clearable]="true"
+                    >
+                      <ng-template ng-option-tmp let-item="item">
+                        <div class="text-truncate">{{ item.name }}</div>
+                      </ng-template>
+                      <ng-template ng-label-value-tmp let-item="item">
+                        <ng-container *ngIf="transferToBranch?.team">
+                          <div
+                            tooltip="{{ transferToBranch?.name }} > {{
+                              transferToBranch?.departmentName
+                            }} > {{ transferToBranch?.teamName }}"
+                          >
+                            ...{{ transferToBranch?.teamName }}
+                          </div>
+                        </ng-container>
+                        <ng-container
+                          *ngIf="
+                            !transferToBranch?.team &&
+                            transferToBranch?.department
+                          "
+                        >
+                          <div
+                            tooltip="{{ transferToBranch?.name }} > {{
+                              transferToBranch?.departmentName
+                            }}"
+                          >
+                            ...{{ transferToBranch?.departmentName }}
+                          </div>
+                        </ng-container>
+                        <ng-container
+                          *ngIf="
+                            !transferToBranch?.team &&
+                            !transferToBranch?.department &&
+                            transferToBranch?.id
+                          "
+                        >
+                          {{ transferToBranch?.name }}
+                        </ng-container>
+                      </ng-template>
+                    </app-dropdown-search>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Gán tag sau khi thả số</label>
+                  <ng-select
+                    formControlName="assignedTagIds"
+                    placeholder="Chọn tag..."
+                    [items]="tag.rows"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                    bindValue="id"
+                    bindLabel="name"
+                    [loading]="tag.loading"
+                    [addTag]="true"
+                    [addTagText]="'Thêm tag mới...'"
+                    (add)="createNewTagAndChoose($event)"
+                    #ngSelectTagTask
+                  >
+                    <ng-template ng-option-tmp let-item="item">
+                      <div
+                        class="tag-item"
+                        [ngClass]="{nonBack: !item.bgColor}"
+                        [ngStyle]="{background: item.bgColor}"
+                      >
+                        {{ item.name }}
+                      </div>
+                    </ng-template>
+                    <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                      <span class="ng-value-icon" (click)="clear(item)">×</span>
+                      <div
+                        class="tag-item"
+                        [ngClass]="{nonBack: !item.bgColor}"
+                        [ngStyle]="{background: item.bgColor}"
+                      >
+                        {{ item.name }}
+                      </div>
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
       </div>
     </div>
   </div>

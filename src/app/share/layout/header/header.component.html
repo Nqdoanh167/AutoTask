@@ -9,44 +9,46 @@
     <div>
       <div class="d-flex">
         <ng-content select=".right"></ng-content>
-        @if (user) {
-          <div class="frame-avatar d-flex align-items-center">
-            <div class="btn-group" dropdown placement="bottom right">
-              <img
-                id="button-alignment"
-                dropdownToggle
-                class="avatar"
-                aria-controls="dropdown-alignment"
-                [src]="user.picture"
-                alt="avatar"
-              />
-              <ul
-                id="dropdown-alignment"
-                *dropdownMenu
-                class="dropdown-menu dropdown-menu-right"
-                role="menu"
-                aria-labelledby="button-alignment"
-              >
-                @if (['MOD', 'ADMIN'].includes(user.role!)) {
+        <div class="d-flex align-items-center">
+          @if (user) {
+            <div class="frame-avatar d-flex align-items-center ms-2">
+              <div class="btn-group" dropdown placement="bottom right">
+                <img
+                  id="button-alignment"
+                  dropdownToggle
+                  class="avatar"
+                  aria-controls="dropdown-alignment"
+                  [src]="user.picture"
+                  alt="avatar"
+                />
+                <ul
+                  id="dropdown-alignment"
+                  *dropdownMenu
+                  class="dropdown-menu dropdown-menu-right"
+                  role="menu"
+                  aria-labelledby="button-alignment"
+                >
+                  @if (['MOD', 'ADMIN'].includes(user.role!)) {
+                    <li role="menuitem">
+                      <a
+                        class="dropdown-item"
+                        [routerLink]="'/admin/setting/job'"
+                      >
+                        Quản trị
+                      </a>
+                    </li>
+                  }
                   <li role="menuitem">
-                    <a
-                      class="dropdown-item"
-                      [routerLink]="'/admin/setting/job'"
-                    >
-                      Quản trị
-                    </a>
+                    <a class="dropdown-item" href="/user">Thông tin cá nhân</a>
                   </li>
-                }
-                <li role="menuitem">
-                  <a class="dropdown-item" href="/user">Thông tin cá nhân</a>
-                </li>
-                <li role="menuitem" (click)="logout()">
-                  <a class="dropdown-item" href="#">Đăng xuất</a>
-                </li>
-              </ul>
+                  <li role="menuitem" (click)="logout()">
+                    <a class="dropdown-item" href="#">Đăng xuất</a>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
-        }
+          }
+        </div>
       </div>
     </div>
   </div>

@@ -413,15 +413,15 @@ export class MainService extends BaseApiService implements OnDestroy {
    * @param pers : Danh sách quyền, Nếu có quyền cấp cao này sẽ trả về toàn bộ chi nhánh của Biz
    * @returns User[]
    */
-  getBranchPer(pers: string[] = []) {
-    if (this.isOwner() || pers.some((per) => this.hasPerRole(null, per))) {
-      return this.biz.branches;
-    }
-    const branches = this.bizConfig.staff.branches
-      .filter((b: any) => b.permission)
-      .map((b: any) => b.id);
-    return this.biz.branches.filter((b) => branches.includes(b.id));
-  }
+  // getBranchPer(pers: string[] = []) {
+  //   if (this.isOwner() || pers.some((per) => this.hasPerRole(null, per))) {
+  //     return this.biz.branches;
+  //   }
+  //   const branches = this.bizConfig.staff.branches
+  //     .filter((b: any) => b.permission)
+  //     .map((b: any) => b.id);
+  //   return this.biz.branches.filter((b) => branches.includes(b.id));
+  // }
 
   /**
    * Trả về toàn bộ user của chi nhánh

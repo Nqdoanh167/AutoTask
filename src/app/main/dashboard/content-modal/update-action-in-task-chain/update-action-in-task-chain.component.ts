@@ -11,11 +11,13 @@ import {
   EDelayType,
   ENextStepType,
   EOptionCloneTask,
+  ETaskChainType,
   IAction,
   IActResult,
   IChainAct,
   IChainActResult,
   IChainNextAction,
+  ITaskChain,
 } from '@app/types/flow';
 import {Subject} from 'rxjs';
 import {
@@ -44,6 +46,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   @Input() blocks: IBlockAutomation[] = [];
   @Input() actionChains: IChainAct[] = [];
   @Input() chainActId?: string;
+  @Input() taskChains: ITaskChain[] = [];
   @Input() loadingData = {
     results: false,
     blocks: false,
@@ -67,6 +70,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
         blockId: null,
       }),
       closeCloneTask: [null],
+      closeTaskResult: true,
       addNewChain: this.fb.group({
         chainActResultId: null,
         chainActResult: null,
@@ -79,6 +83,8 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
     {validators: [this.allOrNoneRequired]},
   );
   public actionResults: IChainActResult[] = [];
+
+  public closeTaskResults = this.configurationService.closeTaskResults;
 
   private destroy$ = new Subject();
   public loading = {
@@ -96,6 +102,13 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
 
   get f(): {[key: string]: AbstractControl} {
     return this.updateForm.controls;
+  }
+
+  public availableActionChains: IChainAct[] = [];
+
+  // TrackBy cho ng-select items (nested IChainActResult khi dùng groupBy)
+  trackByChainActResultId(index: number, item: IChainActResult): string {
+    return item?.id || `index-${index}`;  // 👈 Unique identifier for nested items with fallback
   }
 
   allOrNoneRequired(form: FormGroup) {
@@ -139,6 +152,14 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
         closeCloneTask?.setErrors(null);
       }
     }
+    if (nextAction?.value === ENextStepType.CLOSE_TASK) {
+      const closeTaskResult = form.get('closeTaskResult');
+      if (closeTaskResult?.value == null) {
+        closeTaskResult?.setErrors({required: true});
+      } else {
+        closeTaskResult?.setErrors(null);
+      }
+    }
     return null;
   }
 
@@ -157,6 +178,15 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
           (actionResult) => actionResult.action?.id !== this.actionOfChain?.id,
         ) || [];
     }
+    
+    this.availableActionChains = this.actionChains.filter((chain => {
+      const isDisabled = this.taskChains.some(
+        (taskChain) =>
+          taskChain.chainActId === chain.id &&
+          taskChain.status !== ETaskChainType.CLOSED,
+      );
+      return !isDisabled;
+    }));
   }
 
   handleUpdate() {
@@ -202,6 +232,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
         chainId: null,
         chain: null,
       },
+      closeTaskResult: null,
     });
   }
 
@@ -221,6 +252,7 @@ export class UpdateActionInTaskChainComponent implements OnDestroy, OnInit {
   }
 
   handleChangeNextActionInNewChain(chainAct: IChainActResult) {
+    console.log('handleChangeNextActionInNewChain', chainAct);
     const selectedChain = this.actionChains.find(
       (actionChain) => actionChain.id === chainAct.chainActId,
     );

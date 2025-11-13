@@ -115,3 +115,11 @@
   padding-bottom: 3px;
   border-bottom: 1px solid #dcdcdc;
 }
+
+::ng-deep .ng-select-custom{
+  &.ng-select-opened {
+    .ng-arrow {
+      top: -1px !important;
+    }
+  }
+}

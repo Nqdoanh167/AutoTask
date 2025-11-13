@@ -1,0 +1,59 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Ngừng nhận số</h4>
+    <button
+      type="button"
+      class="btn-close close pull-right"
+      aria-label="Close"
+      (click)="bsModalRef.hide()"
+    >
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <!-- <div class="alert alert-info mt-3">Hệ thống sẽ không chia số cho bạn</div> -->
+  <div class="modal-body">
+    <div>
+      <div class="stop-options">
+        <div *ngFor="let option of stopOptions" class="option-item">
+          <div class="form-check d-flex align-items-center gap-2">
+            <input
+              class="form-check-input"
+              type="radio"
+              [id]="option.id"
+              [value]="option.value"
+              [(ngModel)]="userAcl.stopReceiveTaskDuration"
+            />
+            <label class="form-check-label" [for]="option.id">
+              {{ option.label }}
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="text-muted small">Hệ thống sẽ không chia số cho bạn</div>
+
+      <div class="d-flex justify-content-end mt-3 gap-2">
+        <button
+          type="button"
+          class="btn button-default-modal"
+          (click)="bsModalRef.hide()"
+        >
+          Hủy
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading"
+          (click)="onSubmit()"
+        >
+          <span
+            *ngIf="loading"
+            class="spinner-border spinner-border-sm me-1"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          Lưu lại
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

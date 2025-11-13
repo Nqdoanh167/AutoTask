@@ -140,6 +140,18 @@ export class AddEditPermissionComponent
                 '<div>Cần kích hoạt tính năng "Sửa tác vụ" trước.</div>',
               dependsOnPer: EPerActTask.UPDATE_TASK,
             },
+            {
+              key: EPerActTask.SPLIT_TEAM_TASK,
+              name: 'Chia tác vụ cho nhân viên',
+              tooltip:
+                'Chia tác vụ cho nhân viên.' 
+            },
+            {
+              key: EPerActTask.REMOVE_TEAM_TASK,
+              name: 'Bỏ gán tác vụ khỏi nhân viên',
+              tooltip:
+                'Bỏ gán tác vụ khỏi nhân viên'
+            },
           ],
         },
       ],
@@ -172,10 +184,10 @@ export class AddEditPermissionComponent
           permissions: [
             {
               key: EPerActSetting.VIEW_MASTER_DATA,
-              name: 'Truy cập Menu Cài đặt và Xem Nguồn dữ liệu, Tag, Phân quyền và Vai trò ',
+              name: 'Truy cập Menu Cài đặt và Xem Nguồn dữ liệu, Tag, Phân quyền, Vai trò và Cấu hình chia số ',
               isRootPer: true,
               tooltip: `<ul>
-                <li>- Nhân viên có thể được truy cập vào các menu con bên trong menu Cài đặt để xem các master data như Nguồn dữ liệu, Thẻ tag, Vai trò, Quyền.</li>
+                <li>- Nhân viên có thể được truy cập vào các menu con bên trong menu Cài đặt để xem các master data như Nguồn dữ liệu, Thẻ tag, Vai trò, Quyền, Chia số.</li>
                 <li>- Đối với danh sách Nhân viên trong Phân quyền:</li>
                 <li>1. Nhân viên bình thường chỉ thấy được chính họ trên danh sách.</li>
                 <li>2. Quản trị đội nhóm xem được toàn bộ nhân viên trong đội mà họ trên danh sách.</li>
@@ -198,6 +210,11 @@ export class AddEditPermissionComponent
             {
               key: EPerActSetting.UPDATE_ROLE_SETTING,
               name: 'Thêm, Sửa, Xóa Vai trò',
+              class: 'col-4',
+            },
+            {
+              key: EPerActSetting.MANAGE_TASK_DISTRIBUTION_CONFIG,
+              name: 'Thêm, Sửa, Xóa Cấu hình chia số',
               class: 'col-4',
             },
           ],
@@ -295,7 +312,14 @@ export class AddEditPermissionComponent
 
   handleUpdate() {
     this.loading.submit = true;
-    const data = this.updateForm.value as unknown as PermissionDto;
+    const data = this.updateForm.value as any;
+
+    Object.keys(data.permissionAction).forEach((key: string) => {
+      if(key){
+        data.permissionAction[key] = Array.from(new Set(data.permissionAction[key]));
+      }
+    });
+
     if (this.sourceData) {
       this.autoTaskService.permission
         .update(this.sourceData.id, data)

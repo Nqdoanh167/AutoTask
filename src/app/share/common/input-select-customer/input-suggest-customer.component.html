@@ -1,69 +1,103 @@
 <div class="input-suggest-customer">
   @if (uiType === 'text') {
-    <input
-      autocomplete="off"
-      class="form-control input-main {{ className }}"
-      (input)="onSearch($event)"
-      (blur)="trigger.name = false"
-      (focus)="trigger.name = true"
-      [placeholder]="placeholder"
-      [(ngModel)]="value"
-      id="{{ inputId }}"
-      type="text"
-    />
-  } @else {
-    <div class="input-search-main form-control {{ className }}">
-      <div class="input-search-icon">
-        @if (customers.loading) {
-          <i class="fas fa-spinner fa-spin"></i>
-        } @else {
-          <i class="fa-solid fa-magnifying-glass"></i>
-        }
-      </div>
+    <div class="position-relative">
       <input
         autocomplete="off"
-        (input)="onSearch($event)"
-        (blur)="trigger.name = false"
-        (focus)="trigger.name = true"
+        class="form-control {{ className }}"
+        [class.is-invalid]="submitted && !value && isRequired"
+        (input)="onInputSearch($event)"
+        (click)="clickLoadData($event)"
+        (blur)="showSuggestions = null"
         [placeholder]="placeholder"
         [(ngModel)]="value"
-        id="{{ inputId }}"
+        [id]="inputId"
         type="text"
+        [readonly]="readOnly"
+        [disabled]="readOnly"
       />
-    </div>
-  }
-  <ng-select
-    [(ngModel)]="selectedCustomer"
-    class="suggest-select"
-    (change)="handleChooseCustomer($event)"
-    (blur)="handleBlur($event)"
-    [items]="customers.rows"
-    [trackByFn]="trackByFn"
-    bindLabel="name"
-    bindValue="id"
-    [clearable]="false"
-    [isOpen]="trigger.name && customers.rows.length > 0"
-    [closeOnSelect]="true"
-    [placeholder]="'Nhập Tên...'"
-    appendTo=".modal"
-  >
-    <ng-template ng-option-tmp let-item="item">
-      <div
-        class="person-info d-flex justify-content-between align-items-center"
-      >
-        <div class="d-flex justify-content-between align-items-center">
-          <img
-            class="avatar"
-            alt=""
-            fallback="assets/images/avatar.svg"
-            src="{{ item?.picture }}"
-          />
-          <div class="d-flex flex-column mx-3">
-            <span class="account-name fw-500">{{ item?.name }}</span>
-            <span class="account-phone">{{ item?.phone }}</span>
+
+      @if (customers.loading) {
+        <i
+          class="fas fa-spinner fa-spin position-absolute"
+          style="right: 10px; top: 12px; z-index: 3"
+        ></i>
+      }
+
+      @if (showSuggestions === inputId && customers.rows.length > 0) {
+        <div
+          class="suggestions-dropdown"
+        >
+          <div
+            class="person-info d-flex justify-content-between align-items-center p-2 cursor-pointer"
+            *ngFor="let item of customers.rows"
+          >
+            <div
+              class="d-flex justify-content-between align-items-center"
+              (click)="handleChooseCustomer(item)"
+              (mousedown)="$event.preventDefault()"
+            >
+              <img
+                class="avatar"
+                alt=""
+                fallback="assets/images/avatar.svg"
+                src="{{ item?.picture }}"
+              />
+              <div class="d-flex flex-column mx-3">
+                <span class="account-name fw-500">{{ item?.name }}</span>
+                <span class="account-phone">{{ item?.phone }}</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </ng-template>
-  </ng-select>
+      }
+    </div>
+  } @else {
+    <div class="input-suffix input-prefix">
+      @if (customers.loading) {
+        <div style="z-index: 2; left: 14px; top: 9px" class="position-absolute">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+      } @else {
+        <div style="z-index: 2; left: 14px; top: 9px" class="position-absolute">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+      }
+      <ng-select
+        [(ngModel)]="selectedCustomer"
+        class="suggest-select"
+        (change)="handleChooseCustomer($event)"
+        (blur)="handleBlur($event)"
+        [trackByFn]="trackByFn"
+        [clearable]="false"
+        [closeOnSelect]="true"
+        [placeholder]="placeholder"
+        (click)="clickLoadData()"
+        #select
+        (scrollToEnd)="handleLoadMore()"
+        (search)="searchFn($event)"
+        [loading]="customers.loading"
+        [notFoundText]="'Không có khách hàng'"
+        [disabled]="readOnly"
+      >
+        <ng-option *ngFor="let item of customers.rows" [value]="item">
+          <div
+            class="person-info d-flex justify-content-between align-items-center p-1"
+          >
+            <div class="d-flex justify-content-between align-items-center">
+              <img
+                class="avatar"
+                alt=""
+                fallback="assets/images/avatar.svg"
+                src="{{ item?.picture }}"
+              />
+              <div class="d-flex flex-column mx-3">
+                <span class="account-name fw-500">{{ item?.name }}</span>
+                <span class="account-phone">{{ item?.phone }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-option>
+      </ng-select>
+    </div>
+  }
 </div>

@@ -21,6 +21,9 @@ export enum ETabConfigData {
 export enum EActionType {
   CALL = 'CALL',
   SEND_BLOCK_AUTOMATION = 'SEND_BLOCK_AUTOMATION',
+  FEEDBACK = 'FEEDBACK',
+  MANUAL_CREATE_ORDER = 'MANUAL_CREATE_ORDER',
+  BOOKING = 'BOOKING',
   OTHER = 'OTHER',
 }
 
@@ -31,6 +34,7 @@ export enum ENextStepType {
   CLOSE_CHAIN = 'CLOSE_CHAIN',
   CLOSE_CHAIN_AND_CLONE_TASK = 'CLOSE_CHAIN_AND_CLONE_TASK',
   ADD_CHAIN = 'ADD_CHAIN',
+  CLOSE_TASK = 'CLOSE_TASK',
 }
 
 export enum EOptionCloneTask {
@@ -82,10 +86,14 @@ export interface IAction {
   callBlockAutomation?: {
     blockId?: string;
   };
+  closeTaskResult?: boolean;
+  closeTaskReason: string | null;
   createdBy: AccountPublic;
   updatedBy: AccountPublic;
   createdAt: Date;
   updatedAt: Date;
+  subActions?: IAction[];
+  templateId?: string;
 }
 
 export interface IBodyAction {
@@ -119,6 +127,7 @@ export interface IChainNextAction {
   ordering?: number;
   delayValue?: number;
   nextAction?: ENextStepType;
+  closeTaskResult?: boolean;
   moveToAction?: {
     chainActResultId: undefined;
     chainActResult?: IChainActResult;
@@ -161,6 +170,7 @@ export interface IChainActResult {
   updatedAt?: Date;
   createdBy?: AccountPublic;
   updatedBy?: AccountPublic;
+  subActions?: IAction[];
 }
 
 export interface IFistActionDelayDto {
@@ -191,6 +201,7 @@ export interface IUpdateChainActDto {
   isActive: boolean;
   actionIds: string[];
   fistActionDelay: IFistActionDelayDto;
+  subActionIds?: string[][];
 }
 
 export interface IBodyChainResult {
@@ -246,6 +257,11 @@ export interface ILeadDealDto extends Customer {
   type: ELeadDeal;
 }
 
+export enum EChainNextActionType {
+  AUTO,
+  MANUAL,
+}
+
 export enum ETaskChainType {
   ACTIVE = 'ACTIVE',
   CLOSED = 'CLOSED',
@@ -264,6 +280,25 @@ export interface ReasonEditedDate {
   newDate: Date;
   reason: string;
   editedBy: AccountPublic;
+}
+
+export interface IFeedback {
+  id: string;
+  rate: number;
+  comment: string;
+  subActionId: string;
+}
+
+export interface IOrderManual {
+  id: string;
+  code: string;
+  subActionId: string;
+}
+
+export interface IBooking {
+  id: string;
+  title: string;
+  subActionId: string;
 }
 
 export interface ITaskChainResult {
@@ -289,6 +324,11 @@ export interface ITaskChainResult {
   createdAt: Date;
   updatedAt: Date;
   [key: string]: any;
+  orders?: IOrderManual[];
+  feedbacks?: IFeedback[];
+  bookings?: IBooking[];
+  subActions?: IAction[];
+  type: EChainNextActionType
 }
 
 export interface ITaskChain {
@@ -331,9 +371,10 @@ export interface ITask {
   name: string;
   note: string;
   leadDeal?: ILeadDealDto;
-  tags?: ITag[];
+  tags?: string[];
   cart: ITaskCartDto;
   orderIds: string[];
+  bookingIds: string[];
   orders: Pick<Order, 'code' | 'id'>[];
   counselor: AccountPublic;
   taskChainIds: string[];
@@ -345,6 +386,29 @@ export interface ITask {
   updatedBy: AccountPublic;
   createdAt: Date;
   updatedAt: Date;
+  platformSourceIds: string[];
+  platformSources: {
+    id: string;
+    name: string;
+    platformId: string;
+    platform: string;
+    picture: string;
+    link: string;
+  }[];
+
+  fbAdId?: string;
+  utmCampaign?: string;
+  utmContent?: string;
+  utmMedium?: string;
+  utmSource?: string;
+  utmTerm?: string;
+  hasTaskChains?: boolean;
+  sourceId?: string;
+  orderCodes: string[];
+
+  closeTaskReason?: string | null;
+  closeTaskResult?: boolean | null;
+  isTaskClosed?: boolean;
 }
 
 export interface IBranchTaskDto {
@@ -364,6 +428,15 @@ export interface ITaskDto {
   products: IProductDto[];
   counselorId: string;
   addChainActIds?: string[];
+  platformSourceIds?: string[];
+  platformSources?: {
+    id: string;
+    name: string;
+    platformId: string;
+    platform: string;
+    picture: string;
+    link: string;
+  }[];
 }
 export interface CloneTaskDto {
   options: string[];

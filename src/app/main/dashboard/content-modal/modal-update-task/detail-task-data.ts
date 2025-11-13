@@ -1,28 +1,16 @@
-import {BaseComponentsComponent} from '@share/common/base-components/base-components.component';
 import {inject} from '@angular/core';
 import {BehaviorSubject, finalize, takeUntil} from 'rxjs';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {CommonService} from '@app/services/common/common.service';
-import {cloneDeep, uniqBy} from 'lodash';
+import {cloneDeep, template, uniqBy} from 'lodash';
 import {
   EntityPagination,
   FlatBranch,
   ICommonDataLazy,
   ICommonDataSource,
   IQueryBase,
-  ITag,
   Order,
 } from '@app/types/viewmodels';
-import {
-  IAction,
-  IActResult,
-  IChainAct,
-  ITask,
-  ITaskChain,
-} from '@app/types/flow';
-import {ISetting, ISource} from '@app/types/setting';
+import {EChainNextActionType, ITask, ITaskChain} from '@app/types/flow';
 import {IBlockAutomation} from '@app/types/automation';
-import {AutomationService} from '@app/services/api/automation.service';
 import {
   AbstractControl,
   FormArray,
@@ -33,16 +21,15 @@ import {
 import {calculateTime} from '@app/utils/common';
 import moment from 'moment/moment';
 import {ETabTaskDetail} from '@app/types/task';
+import {DashboardData} from '../../dashboard-data';
 
-export class DetailTaskData extends BaseComponentsComponent {
-  protected autoTaskService = inject(AutoTaskService);
-  protected commonService = inject(CommonService);
-  protected automationService = inject(AutomationService);
+export class DetailTaskData extends DashboardData {
   protected fb = inject(FormBuilder);
 
   protected detailTask?: ITask;
   protected submitted = false;
   protected updateForm = this.fb.group({
+    id: null,
     name: [null, [Validators.required]],
     note: null,
     code: null,
@@ -81,6 +68,11 @@ export class DetailTaskData extends BaseComponentsComponent {
     addChainActIds: null,
     branch: [null],
     chatLink: null,
+    platformSourceIds: [null],
+    platformSources: [null],
+    isTaskClosed: false,
+    closeTaskResult: null,
+    closeTaskReason: null,
   });
   protected addTaskChainForm = this.fb.group({
     addChainActIds: [null, [Validators.required]],
@@ -93,46 +85,19 @@ export class DetailTaskData extends BaseComponentsComponent {
     createOrder: false,
     deleteTask: false,
     modal: false,
+    deleteChainTask: false,
+    closeChainTask: false,
+    getOrderDetail: false
   };
-  protected tags: EntityPagination<ITag> = {
-    rows: [],
-    loading: false,
-  };
+
   protected orders: EntityPagination<Order> = {
     rows: [],
     loading: false,
   };
-  protected results: ICommonDataLazy<IActResult, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
 
-  protected sources: ICommonDataLazy<ISource, IQueryBase> = {
+  protected bookings: EntityPagination<any> = {
     rows: [],
     loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-
-  protected actions: ICommonDataLazy<IAction, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
   };
 
   protected blocks: ICommonDataLazy<IBlockAutomation, IQueryBase> = {
@@ -142,18 +107,6 @@ export class DetailTaskData extends BaseComponentsComponent {
       page: 1,
       limit: 100,
       sort: '-createdAt',
-    },
-    isAllowLoadMore: false,
-  };
-
-  protected actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
-    rows: [],
-    loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 100,
-      sort: '-createdAt',
-      filter: JSON.stringify({isActive: true}),
     },
     isAllowLoadMore: false,
   };
@@ -168,7 +121,7 @@ export class DetailTaskData extends BaseComponentsComponent {
     },
     total: 0,
   };
-  protected autoTaskSetting!: ISetting;
+
   protected activeTab = ETabTaskDetail.INFO;
   protected tabs = [
     {
@@ -179,12 +132,17 @@ export class DetailTaskData extends BaseComponentsComponent {
       label: 'Đơn hàng & Sản phẩm',
       value: ETabTaskDetail.ORDER,
     },
+    // {
+    //   label: 'Đơn booking',
+    //   value: ETabTaskDetail.BOOKING,
+    // },
   ];
 
   public infoUnit$ = new BehaviorSubject<FlatBranch | undefined>(undefined);
 
   constructor() {
     super();
+    console.log('infoUnit', this.infoUnit$.getValue());
   }
 
   get f(): {[key: string]: AbstractControl} {
@@ -292,14 +250,29 @@ export class DetailTaskData extends BaseComponentsComponent {
     try {
       this.detailTask = dataSource && cloneDeep(dataSource);
       this.mappingTeams();
-      if (!dataSource) return;
+      if (!dataSource) {
+        let branch = this.autoTaskService.getFirstUnit();
+        if (this.currentActiveViewMode?.options?.branchIds) {
+          const branchUnit = this.autoTaskService.getFirstUnitByIds(
+            this.currentActiveViewMode.options.branchIds,
+          );
+          if (branchUnit) {
+            branch = branchUnit;
+          }
+        }
+        this.getInfoUnit(branch?.team || branch?.department || branch?.id);
+        this.updateForm.patchValue({
+          branch,
+        } as any);
+        return;
+      }
       if (dataSource.branch) {
         const {branch} = dataSource;
         this.getInfoUnit(branch?.team || branch?.department || branch?.id);
       }
-      if (dataSource.orderIds?.length > 0) {
-        this.getOrderDetail(dataSource.orderIds);
-      }
+      // if (dataSource.orderIds?.length > 0) {
+      //   this.getOrderDetail(dataSource.orderIds);
+      // }
       if (!this.tabs.find((tab) => tab.value === ETabTaskDetail.HISTORY)) {
         this.tabs = [
           ...this.tabs,
@@ -328,9 +301,12 @@ export class DetailTaskData extends BaseComponentsComponent {
         });
       }
       if (dataSource.tags?.length) {
+        this.clickLoadData('tags');
         if (dataSource.tags.every((tag) => typeof tag === 'object')) {
           this.updateForm.patchValue({
-            tags: dataSource.tags?.map((tag) => tag.id),
+            tags: this.tags.rows.filter(
+              (tag) => dataSource.tags?.some((t) => t === tag.id),
+            ),
           } as any);
         }
       }
@@ -417,6 +393,55 @@ export class DetailTaskData extends BaseComponentsComponent {
             results: this.fb.array([]),
             nextActions: this.fb.array([]),
             isEdit: false,
+            orders: this.fb.array([]),
+            feedbacks: this.fb.array([]),
+            bookings: this.fb.array([]),
+            subActions: this.fb.array([]),
+            type: taskChainResult?.type,
+          });
+
+          taskChainResult?.orders?.forEach((order) => {
+            const orderForm = this.fb.group({
+              id: order.id,
+              code: order.code,
+              subActionId: order.subActionId,
+            });
+            (<FormArray>taskChainResultForm.controls.orders).push(orderForm);
+          });
+          taskChainResult?.feedbacks?.forEach((feedback) => {
+            const feedbackForm = this.fb.group({
+              id: feedback.id,
+              rate: feedback.rate,
+              comment: feedback.comment,
+              subActionId: feedback.subActionId,
+            });
+            (<FormArray>taskChainResultForm.controls.feedbacks).push(
+              feedbackForm,
+            );
+          });
+
+          taskChainResult?.bookings?.forEach((booking) => {
+            const bookingForm = this.fb.group({
+              id: booking.id,
+              title: booking.title,
+              subActionId: booking.subActionId,
+            });
+            (<FormArray>taskChainResultForm.controls.bookings).push(
+              bookingForm,
+            );
+          });
+
+          taskChainResult?.subActions?.forEach((subAction) => {
+            const subActionForm = this.fb.group({
+              id: subAction.id,
+              name: subAction.name,
+              type: subAction.type,
+              callBlockAutomation: subAction.callBlockAutomation,
+              templateId: subAction.templateId,
+            });
+            (<FormArray>taskChainResultForm.controls.subActions).push(
+              subActionForm,
+            );
           });
           taskChainResult?.reasonEditedDate?.forEach((reasonEditedDate) => {
             const reasonEditedDateForm = this.fb.group({
@@ -460,6 +485,7 @@ export class DetailTaskData extends BaseComponentsComponent {
                 nextAction: nextAction.nextAction,
                 type: nextAction.type,
                 status: nextAction.status,
+                closeTaskResult: nextAction.closeTaskResult,
               });
               (<FormArray>resultForm.controls.nextActions).push(nextActionForm);
             });
@@ -479,7 +505,8 @@ export class DetailTaskData extends BaseComponentsComponent {
                 delayType: nextAction?.childNextAction?.delayType,
                 moveToAction: nextAction?.childNextAction?.moveToAction,
                 callBlockAutomation:
-                  nextAction?.childNextAction?.callBlockAutomation,
+                nextAction?.childNextAction?.callBlockAutomation,
+                closeTaskResult: [nextAction?.childNextAction?.closeTaskResult],
                 closeCloneTask: [nextAction?.childNextAction?.closeCloneTask],
                 addNewChain: nextAction?.childNextAction?.addNewChain,
                 nextAction: nextAction?.childNextAction?.nextAction,
@@ -500,30 +527,14 @@ export class DetailTaskData extends BaseComponentsComponent {
     }
   }
 
-  getTag() {
-    this.autoTaskService.tag
-      .get()
-      .pipe(
-        finalize(() => {}),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res && res.status === 200) {
-            this.tags.rows = res.data;
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
   getOrderDetail(orderIds: string[]) {
+    if(this.loading.getOrderDetail || !orderIds || orderIds.length === 0) {
+      return;
+    }
+    this.loading.getOrderDetail = true;
     this.autoTaskService.task
       .retrieveOrdersByTask({orderIds: orderIds})
+      .pipe(finalize(() => (this.loading.getOrderDetail = false)))
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
@@ -538,134 +549,25 @@ export class DetailTaskData extends BaseComponentsComponent {
       });
   }
 
-  getActionChain() {
-    this.actionChains.loading = true;
-    this.autoTaskService.chainAction
-      .get(this.actionChains.paramsQuery)
-      .pipe(
-        finalize(() => (this.actionChains.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.actionChains.rows = uniqBy(
-              this.actionChains.rows.concat(res.data),
-              'id',
-            );
-            this.actionChains.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.actionChains.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.actionChains.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getSource() {
-    this.sources.loading = true;
-    this.autoTaskService.source
-      .get(this.sources.paramsQuery)
-      .pipe(
-        finalize(() => (this.sources.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.sources.rows = uniqBy(
-              this.sources.rows.concat(res.data),
-              'id',
-            );
-            this.sources.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.sources.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.sources.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getResult() {
-    this.results.loading = true;
-    this.autoTaskService.actionResult
-      .get(this.results.paramsQuery)
-      .pipe(
-        finalize(() => (this.results.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.results.rows = uniqBy(
-              this.results.rows.concat(res.data),
-              'id',
-            );
-            this.results.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.results.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.results.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  getAction() {
-    this.actions.loading = true;
-    this.autoTaskService.action
-      .get(this.actions.paramsQuery)
-      .pipe(
-        finalize(() => (this.actions.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.actions.rows = uniqBy(
-              this.actions.rows.concat(res.data),
-              'id',
-            );
-            this.actions.isAllowLoadMore = res.meta
-              ? res.meta.currentPage < res.meta.totalPage
-              : false;
-          } else {
-            this.commonService.handleResErr(res);
-            this.actions.isAllowLoadMore = false;
-          }
-        },
-        error: (err) => {
-          this.actions.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
+  getBookingDetail(bookingIds: string[]) {
+    this.autoTaskService.task.retrieveBookingsByTask({bookingIds}).subscribe({
+      next: (res) => {
+        if (res && res.status === 200) {
+          this.bookings.rows = res.data;
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+      error: (err) => {
+        this.commonService.handleErr(err);
+      },
+    });
   }
 
   getBlock() {
-    this.blocks.loading = true;
     this.automationService.block
-      .getMany({})
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.blocks.loading = false)),
-      )
+      .getMany({}, {cache: true})
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -674,13 +576,6 @@ export class DetailTaskData extends BaseComponentsComponent {
             this.commonService.handleResErr(res);
           }
         },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
       });
-  }
-
-  getAutoTaskSetting() {
-    return this.autoTaskService.setting.retrieve({bizId: this.currentBiz?.id});
   }
 }

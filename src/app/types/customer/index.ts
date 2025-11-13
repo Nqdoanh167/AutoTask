@@ -61,7 +61,7 @@ export interface IOrderCustomer {
   source?: ESourceOrderCustomer;
   sourceName?: string;
   sourceId?: string;
-  cart?: ICartItem;
+  cart?: ICartItem[];
   amount?: number;
   amountCartRefund?: number;
   totalAmountPaid?: number;
@@ -80,6 +80,7 @@ export interface ISaleCenter {
   lastCompletedOrder?: IOrderCustomer;
   createdAt: Date;
   updatedAt: Date;
+  totalOrderTrash?: number;
 }
 
 export interface Customer {
@@ -110,6 +111,11 @@ export interface Customer {
   createdAt: Date;
   updatedAt: Date;
   loyalty?: CustomerLoyalty;
+  birthday?: Date;
+  rfm: {
+    point?: number;
+    groupName?: string;
+  };
 }
 
 export interface CustomerLoyalty {
@@ -123,7 +129,6 @@ export interface CustomerLoyalty {
   pointUse?: number;
   rank?: string;
   rankName?: string;
-
 }
 
 export interface CustomerTag {

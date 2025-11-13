@@ -13,13 +13,14 @@ import {CommonModule} from '@angular/common';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {FormsModule} from '@angular/forms';
 import {NgSelectModule} from '@ng-select/ng-select';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 
 @Component({
   selector: 'custom-pagination',
   templateUrl: './custom-pagination.component.html',
   styleUrls: ['./custom-pagination.component.scss'],
   standalone: true,
-  imports: [CommonModule, PaginationModule, FormsModule, NgSelectModule],
+  imports: [CommonModule, PaginationModule, FormsModule, NgSelectModule, TooltipModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomPaginationComponent implements OnInit, OnChanges {
@@ -36,6 +37,7 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
   @Input() optionSize = [10, 20, 50, 100];
   @Output() changePageEvent = new EventEmitter<{page: number; limit: number}>();
   @Output() changePageLazyEvent = new EventEmitter<IChangePage>();
+  @Input() maxRecords: number = 10000; // Giới hạn tối đa của Elasticsearch
   public dataInfo = {
     ...this.metaData,
     start: 0,
@@ -43,12 +45,29 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
   };
 
   constructor(private readonly cdr: ChangeDetectorRef) {}
+  public Math = Math;
 
   ngOnChanges(changes: any) {
     // this.cdr.detectChanges();
   }
 
   ngOnInit(): void {}
+
+  get maxAllowedPage(): number {
+    return Math.floor(this.maxRecords / this.selectedSize);
+  }
+  
+  get shouldUseLazyMode(): boolean {
+    return this.type === 'lazy' || this.currentPage >= this.maxAllowedPage;
+  }
+  
+  get canGoNext(): boolean {
+    return this.total > this.selectedSize * this.currentPage
+  }
+  
+  get canGoPrevious(): boolean {
+    return this.currentPage > 1;
+  }
 
   calculateInfo() {
     const start = this.selectedSize * (this.currentPage - 1) + 1;
@@ -83,4 +102,6 @@ export class CustomPaginationComponent implements OnInit, OnChanges {
   changePageLazy(value: IChangePage): void {
     this.changePageLazyEvent.emit(value);
   }
+
+  
 }

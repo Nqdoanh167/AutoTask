@@ -1,0 +1,278 @@
+<div class="modal-draw-task">
+  <app-custom-modal [hideFooter]="true" className="modal-xl">
+    <ng-container modalTitle>
+      <h4 class="modal-title">Danh sách tác vụ được phép rút số</h4>
+    </ng-container>
+
+    <ng-container modalBody>
+      <!-- Bộ lọc -->
+      <div class="filter-section mb-3">
+        <div class="d-flex align-items-end justify-content-end gap-3">
+          <div>
+            <label class="form-label">Tìm kiếm</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Tìm kiếm..."
+              (keyup.enter)="getItems(true)"
+              [(ngModel)]="item.paramsQuery.q"
+            />
+          </div>
+
+          <div>
+            <label class="form-label">Tags</label>
+            <ng-select
+              class="custom-select"
+              placeholder="Chọn tag"
+              (click)="clickLoadData('tags')"
+              [loading]="tags.loading"
+              [(ngModel)]="item.paramsQuery.filter.tags"
+              style="width: 200px"
+              (ngModelChange)="getItems(true)"
+              [tooltip]="getTagName()"
+            >
+              <ng-option *ngFor="let tag of tags.rows" [value]="tag.id">
+                <span class="text-capitalize" [ngStyle]="{color: tag.bgColor}">
+                  {{ tag.name }}
+                </span>
+              </ng-option>
+            </ng-select>
+          </div>
+
+          <div>
+            <label class="form-label">Chi nhánh</label>
+            <ng-select
+              style="width: 200px"
+              placeholder="Chọn chi nhánh"
+              class="custom-select"
+              [items]="currentUser?.branches || []"
+              [bindLabel]="'name'"
+              [bindValue]="'id'"
+              [clearable]="true"
+              [(ngModel)]="item.paramsQuery.filter.branchIds"
+              (ngModelChange)="getItems(true)"
+              [tooltip]="getBranchName()"
+            ></ng-select>
+          </div>
+
+          <div>
+            <label class="form-label">Nguồn</label>
+            <ng-select
+              style="width: 200px"
+              placeholder="Chọn nguồn"
+              class="custom-select"
+              [items]="sources.rows"
+              [loading]="sources.loading"
+              [tooltip]="getSourceName()"
+              (click)="clickLoadData('sources')"
+              [bindLabel]="'name'"
+              [bindValue]="'id'"
+              [clearable]="true"
+              [(ngModel)]="item.paramsQuery.filter.sourceIds"
+              (ngModelChange)="getItems(true)"
+            ></ng-select>
+          </div>
+
+          <div class="d-flex align-items-end">
+            <button
+              type="button"
+              class="btn button-medium button-outline"
+              (click)="getItems(true)"
+            >
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <cdk-virtual-scroll-viewport
+        #virtualScroll
+        [itemSize]="82"
+        class="table-responsive tableFixHead"
+      >
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
+                Task
+              </th>
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
+                Lead/Deal
+              </th>
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
+                Tags
+              </th>
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
+                Chi nhánh
+              </th>
+              <th
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
+                Nguồn
+              </th>
+              <th
+                class="text-end"
+                [style.top]="
+                  -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
+                  'px'
+                "
+                style="z-index: 1"
+              >
+                Thao tác
+              </th>
+            </tr>
+          </thead>
+          <tbody class="table-body">
+            <tr class="text-center" *ngIf="!item.rows.length && !item.loading">
+              <td colspan="12">
+                <div>Không có dữ liệu</div>
+              </td>
+            </tr>
+            <tr class="text-center" *ngIf="item.loading">
+              <td colspan="12">
+                <div class="spinner-grow text-primary" role="status">
+                  <span class="visually-hidden">Loading</span>
+                </div>
+                <div>Loading</div>
+              </td>
+            </tr>
+            <tr *cdkVirtualFor="let task of item.rows">
+              <td>
+                <div class="fw-500 cursor-pointer">
+                  {{ task.name || '-' }}
+                </div>
+                <div class="fw-500 cursor-pointer text-link mt-1">
+                  {{ task.code || '-' }}
+                </div>
+              </td>
+              <td>
+                <div class="lead-deal">
+                  <div
+                    class="d-flex flex-column"
+                    *ngIf="task.leadDeal; else noLead"
+                  >
+                    <div class="d-flex">
+                      <img
+                        height="30px"
+                        width="30px"
+                        class="me-2 rounded-circle"
+                        [src]="
+                          task.leadDeal?.picture ||
+                          './assets/images/noavatar.png'
+                        "
+                        style="line-height: 130%"
+                      />
+                      <div class="d-flex flex-column">
+                        <span class="fw-500">
+                          {{ task.leadDeal?.name || '-' }}
+                        </span>
+                        <span
+                          class="fs-7 text-link"
+                          *ngIf="task.leadDeal?.phone"
+                        >
+                          {{ task.leadDeal?.phone || '-' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <ng-template #noLead>-</ng-template>
+                </div>
+              </td>
+              <td>
+                <div *ngFor="let tagId of task.tags">
+                  <span
+                    *ngIf="getTagById(tagId) as tag"
+                    class="text-capitalize me-2 tag-item mb-1"
+                    [ngClass]="{nonBack: !tag.bgColor}"
+                    [ngStyle]="{background: tag.bgColor}"
+                  >
+                    <span>{{ tag.name }}</span>
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div>
+                  <div
+                    *ngIf="getBranch(task?.branch) as branch; else nonBranch"
+                  >
+                    {{ branch?.teamName && branch?.teamName + ', ' }}
+                    {{
+                      branch?.departmentName && branch?.departmentName + ', '
+                    }}
+                    {{ branch?.name || '-' }}
+                  </div>
+                  <ng-template #nonBranch>
+                    <div>-</div>
+                  </ng-template>
+                </div>
+              </td>
+              <td>
+                <div>
+                 <span>{{getPlatformSources(task.platformSources)}}</span>
+                </div>
+              </td>
+
+              <td class="text-end">
+                <div class="action-buttons">
+                  <button
+                    type="button"
+                    class="btn button-medium button-outline"
+                    (click)="drawTask(task)"
+                  >
+                    <img src="./assets/images/icon/draw.svg" class="icon" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </cdk-virtual-scroll-viewport>
+
+      <!-- Phân trang -->
+      <custom-pagination
+        [showConfig]="true"
+        [selectedSize]="item.paramsQuery.limit"
+        [currentPage]="item.paramsQuery.page"
+        (changePageEvent)="pageChanged($event)"
+        [total]="item.total"
+        [optionSize]="[10, 20, 50, 100, 500, 1000]"
+        [type]="item.rows.length > 10000 ? 'lazy' : 'number'"
+        (changePageLazyEvent)="handleChangePageLazy($event)"
+        [maxRecords]="10000"
+      />
+    </ng-container>
+  </app-custom-modal>
+</div>
+
+@if (isOpenBackDrop) {
+  <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
+}

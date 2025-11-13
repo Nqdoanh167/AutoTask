@@ -1,0 +1,40 @@
+.modal-assign-team {
+  .avatar img {
+    object-fit: cover;
+  }
+
+  input[type='number'] {
+    padding-right: 0.25rem;
+  }
+
+  .disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.filter__assign-team {
+  padding-left: 16px;
+  padding-right: 16px;
+
+  > div {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+}
+.is-invalid {
+  i {
+    color: inherit;
+  }
+}
+
+.user-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+::ng-deep .ng-dropdown-panel {
+  z-index: 9999 !important;
+  position: absolute !important;
+}

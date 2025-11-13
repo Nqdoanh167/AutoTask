@@ -6,13 +6,12 @@
   left: 0;
   width: 100%;
   z-index: 999;
-  padding: 0 24px 0 50px;
+  padding: 0 16px 0 66px;
   height: 50px;
 
   .frame-avatar {
-    padding-left: 24px;
+    // padding-left: 24px;
     // border-left: 1px solid #eeeff1;
-    margin-left: 20px;
     .avatar {
       cursor: pointer;
       border-radius: 50%;

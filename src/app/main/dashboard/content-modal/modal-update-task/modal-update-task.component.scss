@@ -66,3 +66,59 @@
 ::ng-deep bs-dropdown-container {
   z-index: 1060 !important;
 }
+
+.subhead {
+  padding: 20px 16px;
+  border-right: 1px solid var(--bs-gray-200);
+}
+
+.btn-dropdown {
+  // width: 30px;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 0 14px 16px;
+}
+
+.dropdown-menu {
+  padding: 8px 0;
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 20px;
+
+  &:active {
+    color: #fff;
+    text-decoration: none;
+    background-color: #2077fa;
+  }
+}
+
+.btn-close-task {
+  color: #0B2A78;
+  background-color: #EEF3FF;
+
+  &:hover {
+    background-color: #d2d9e7;
+  }
+  &:active {
+    background-color: #b6bcc9;
+  }
+}
+
+.close-text-success {
+  color: #FFFFFF;
+  background-color: #008234;
+  border-radius: 24px;
+  padding: 8px 12px;
+}
+
+.close-text-failure {
+  color: #FFFFFF;
+  background-color: #FA6E5B;
+  border-radius: 24px;
+  padding: 8px 24px;
+}

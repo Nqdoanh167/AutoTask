@@ -14,6 +14,10 @@ export class CheckBoxTable<T> {
     return Array.from(this.selectItems.keys());
   }
 
+  getRowCodes() {
+    return Array.from(this.selectItems.values()).map((item: any) => item?.code);
+  }
+
   getLengthRow() {
     return this.selectItems.size;
   }

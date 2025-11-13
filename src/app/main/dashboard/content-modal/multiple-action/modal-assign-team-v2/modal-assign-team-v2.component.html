@@ -1,0 +1,382 @@
+<div class="modal-assign-team">
+  <app-custom-modal (hideModal)="hideModal()" className="modal-body-hidden">
+    <ng-container modalTitle>
+      Chia tác vụ đã chọn ({{ selectedTaskCount }} tác vụ)
+    </ng-container>
+
+    <ng-container modalBody>
+      @defer (when !loading.modal) {
+        <div class="row mb-3">
+          <div class="col-12">
+            <!-- Selected Task IDs -->
+            <!-- <div class="mb-3 d-flex flex-wrap">
+              <ng-container *ngFor="let taskCode of selectedTaskCodes">
+                <span class="badge bg-primary me-1 mb-1">{{ taskCode }}</span>
+              </ng-container>
+            </div> -->
+
+            <div class="filter__assign-team mb-3 row flex-wrap">
+              <div [ngClass]="modalOpenByTaskSelection ? 'col-10' : 'col-3'">
+                <label class="form-label d-flex align-items-center">
+                  Vai trò
+                </label>
+                <ng-select
+                  class="ng-select-custom has-error"
+                  [items]="availableRoles"
+                  [(ngModel)]="currentRole"
+                  bindLabel="name"
+                  [clearable]="false"
+                  [searchable]="true"
+                  (change)="onRoleChange($event)"
+                  placeholder="Chọn vai trò"
+                  class="w-100"
+                  required
+                  [ngClass]="{
+                    'is-invalid': roleError
+                  }"
+                >
+                  <ng-template ng-label-tmp let-item="item">
+                    <div class="d-flex align-items-center" [tooltip]="item.name">
+                      <i [class]="item.icon" class="me-2"></i>
+                      <span>{{ item.name }}</span>
+                    </div>
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item">
+                    <div class="d-flex align-items-center" [tooltip]="item.name">
+                      <i [class]="item.icon" class="me-2"></i>
+                      <span>{{ item.name }}</span>
+                    </div>
+                  </ng-template>
+                </ng-select>
+                <div class="invalid-feedback-select" *ngIf="roleError">
+                  Vui lòng chọn vai trò
+                </div>
+              </div>
+
+              <ng-container *ngIf="!modalOpenByTaskSelection">
+                <div class="col-3">
+                  <label class="form-label d-flex align-items-center">
+                    Chi nhánh
+                  </label>
+                  <p-treeSelect
+                    [filter]="true"
+                    [options]="branches"
+                    [(ngModel)]="selectedBranch"
+                    (onNodeSelect)="handleChangeBranch($event)"
+                    (onNodeUnselect)="handleChangeBranch($event)"
+                    [metaKeySelection]="false"
+                    class="w-100"
+                    containerStyleClass="w-100 input-medium custom-tree-select fw-normal"
+                    placeholder="Chọn Chi nhánh..."
+                  ></p-treeSelect>
+                </div>
+
+                <!-- Time Selector -->
+                <div class="col-4" style="max-height: 36px">
+                  <label class="form-label d-flex align-items-center">
+                    Thời gian tạo
+                  </label>
+                  <custom-date-picker
+                    [id]="'timeRange'"
+                    [showClearButton]="true"
+                    [style]="{height: '36px', minWidth: '200px'}"
+                    [className]="'input-small'"
+                    [typePicker]="'range'"
+                    (changeDateEmmit)="onTimeChange($event)"
+                    [placeholder]="'Chọn khoảng thời gian tạo'"
+                    [rangeChoose]="ranges"
+                    [showClearButton]="true"
+                  ></custom-date-picker>
+                </div>
+              </ng-container>
+
+              <!-- Nhập tổng số tác vụ thực chia -->
+              <div class="col-2">
+                <label class="form-label d-flex align-items-center">
+                  Số tác vụ
+                  <i
+                    class="fas fa-question-circle ms-1 text-muted small"
+                    [tooltip]="'Số lượng tác vụ chưa gán vai trò đã chọn'"
+                    [tooltipPlacement]="'left top'"
+                  ></i>
+                </label>
+                <div class="d-flex align-items-center">
+                  <div class="flex-grow-1 me-1">
+                    <app-input-mask
+                      [id]="'actualSplitTaskCount'"
+                      [isQuantity]="true"
+                      [value]="actualSplitTaskCount"
+                      (changeValue)="handleChangeActualSplitTask($event)"
+                    ></app-input-mask>
+                  </div>
+                  <button
+                    style="height: 36px"
+                    (click)="onDistributeTasksClick()"
+                    class="btn btn-primary"
+                    title="Chia tác vụ"
+                    [tooltip]="'Phân lại'"
+                  >
+                    <i class="fas fa-sync"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Explain filter -->
+            <div class="alert alert-warning">
+              <p class="fw-bold mb-2">
+                Bộ lọc: Vai trò 
+                <ng-container *ngIf="!modalOpenByTaskSelection">
+                  & Chi nhánh & Thời gian tạo
+                </ng-container>
+              </p>
+              <ul class="mb-0 ps-3">
+                <li>
+                  Vai trò: Chọn vai trò cần gắn cho đơn hàng đồng thời hệ thống
+                  sẽ kiểm tra tổng số lượng đơn chưa được gắn vai trò bạn chọn
+                </li>
+                <ng-container *ngIf="!modalOpenByTaskSelection">
+                  <li>
+                    Chi nhánh: Lọc ra những đơn chưa có vai trò ở chi nhánh bạn
+                    chọn
+                  </li>
+                  <li>
+                    Thời gian tạo: Lọc ra những đơn chưa có vai trò ở khoảng
+                    thời gian tạo đã chọn
+                  </li>
+                </ng-container>
+              </ul>
+
+              <br />
+
+              <!-- Warning Rules -->
+              <p class="fw-bold mb-2">Lưu ý: Quy tắc chia tác vụ</p>
+              <ul class="mb-0 ps-3">
+                <li>
+                  Tổng số lượng nhập cho các thành viên phải nhỏ hơn hoặc bằng
+                  với tổng số tác vụ có thể chia.
+                </li>
+                <li>Chia lần lượt cho các thành viên từ trên xuống dưới.</li>
+                <li>Chia từ tác vụ cũ nhất cho đến tác vụ gần nhất.</li>
+                <li>
+                  <i class="fas fa-exclamation-triangle text-warning"></i>
+                  Các tác vụ <strong>đã đóng</strong> sẽ không được đưa vào danh sách chia vai trò.
+                </li>
+              </ul>
+            </div>
+
+            <!-- User List with Toggle -->
+            @if (selectedTaskIds.length > 0) {
+              <div class="mb-3 d-flex align-items-center gap-2">
+                <ng-select
+                  [items]="selectTypeList"
+                  [(ngModel)]="selectType"
+                  [clearable]="false"
+                  [bindLabel]="'label'"
+                  [bindValue]="'id'"
+                  style="width: 250px"
+                  (change)="handleChangeType($event)"
+                >
+                  <ng-template ng-label-tmp let-item="item">
+                    {{ item.label }}
+                  </ng-template>
+                </ng-select>
+
+                <ng-container *ngIf="selectType === 'search'">
+                  <div class="input-suffix input-prefix">
+                    <div
+                      style="z-index: 2; left: 14px; top: 9px"
+                      class="position-absolute"
+                    >
+                      <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <ng-select
+                      [items]="users | filterData: selectedUserIds : ['id']"
+                      bindLabel="name"
+                      bindValue="id"
+                      [clearable]="true"
+                      [closeOnSelect]="false"
+                      [placeholder]="'Chọn nhân viên'"
+                      [notFoundText]="'Không có nhân viên'"
+                      (change)="handleChooseUser($event)"
+                      style="width: 250px"
+                      appendTo="body"
+                      [clearable]="false"
+                    >
+                      <ng-template ng-label-tmp let-item="item"></ng-template>
+                      <ng-template ng-option-tmp let-item="item">
+                        <div
+                          class="person-info d-flex justify-content-between align-items-center p-1"
+                        >
+                          <div
+                            class="d-flex justify-content-between align-items-center"
+                          >
+                            <img
+                              alt=""
+                              fallback="./assets/images/avatar.svg"
+                              src="{{ item?.picture }}"
+                              class="img-fluid rounded-circle"
+                              style="width: 32px; height: 32px"
+                            />
+                            <div class="d-flex flex-column mx-3">
+                              <span class="account-name fw-500">
+                                {{ item?.name }}
+                              </span>
+                              <span class="text-muted small">
+                                {{ item?.email }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </ng-select>
+                  </div>
+                </ng-container>
+              </div>
+
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="selectAllUsers"
+                  [(ngModel)]="selectAll"
+                  (ngModelChange)="toggleSelectAll()"
+                />
+                <label class="form-check-label" for="selectAllUsers">
+                  Chọn toàn bộ ({{ userSelections?.length }} thành viên)
+                </label>
+              </div>
+
+              <!-- User Items -->
+              <div style="min-height: 250px">
+                <ng-container
+                  *ngFor="let userSelection of userSelections; let i = index"
+                >
+                  <div class="d-flex align-items-center mb-2">
+                    <div class="me-2">
+                      {{ i + 1 }}
+                    </div>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        [id]="'userSwitch' + i"
+                        [(ngModel)]="userSelection.selected"
+                        (ngModelChange)="onUserSelectionChange($event)"
+                      />
+                    </div>
+                    <div class="d-flex align-items-center ms-2 flex-grow-1">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="avatar me-2">
+                          <img
+                            [src]="
+                              userSelection.user.picture ||
+                              'assets/images/avatar.png'
+                            "
+                            alt="avt"
+                            class="img-fluid rounded-circle"
+                            style="width: 32px; height: 32px"
+                          />
+                        </div>
+                        <div>
+                          <div class="fw-bold">
+                            {{ userSelection.user.name }}
+                          </div>
+                          <div class="text-muted small">
+                            {{ userSelection.user.email }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- handleRemoveUser -->
+                      <div class="ms-auto" *ngIf="selectType === 'search'">
+                        <button
+                          class="btn btn-link text-danger"
+                          (click)="handleRemoveUser(userSelection.user)"
+                        >
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="ms-auto" style="width: 100px">
+                      <div [class.disabled]="!userSelection.selected">
+                        <app-input-mask
+                          [id]="'count' + i"
+                          [isQuantity]="true"
+                          [value]="userSelection.count || 0"
+                          (changeValue)="
+                            handleChangeValueRangeNumber($event, i)
+                          "
+                        ></app-input-mask>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+
+              <!-- Total distribution count -->
+              <div class="d-flex justify-content-end mt-3">
+                <span class="fw-bold">
+                  Tổng chia: {{ calculateTotalDistributed }} tác vụ
+                </span>
+              </div>
+            } @else {
+              <div class="text-center">Không có thành viên để chia tác vụ</div>
+            }
+          </div>
+        </div>
+      } @placeholder (minimum 100ms) {
+        <div class="center-item" [style.height]="'300px'">
+          <div class="spinner-custom"></div>
+        </div>
+      }
+    </ng-container>
+
+    <div
+      modalFooter
+      class="d-flex justify-content-end align-items-center gap-2"
+    >
+      <!-- Add progress bar when processing -->
+      <div class="w-100" *ngIf="progressStatus === 'processing'">
+        <div class="text-primary fs-7">
+          Quá trình chia đơn đang thực hiện, vui lòng không tắt trình duyệt và
+          chờ trong giây lát.
+        </div>
+        <progressbar
+          [value]="progressValue"
+          [max]="progressMax"
+          [type]="progressType"
+          [animate]="true"
+        ></progressbar>
+      </div>
+
+      <div class="w-100 text-success fs-7" *ngIf="progressStatus === 'success'">
+        Chia tác vụ thành công.
+      </div>
+      <div class="w-100 text-danger fs-7" *ngIf="progressStatus === 'error'">
+        Chia tác vụ thất bại.
+      </div>
+
+      <button
+        (click)="hideModal()"
+        class="btn button-default-modal"
+        type="button"
+        [disabled]="progressStatus === 'processing'"
+      >
+        Đóng
+      </button>
+      <ng-container *ngIf="progressStatus !== 'success'">
+        <button
+          (click)="onSubmit()"
+          [disabled]="!isFormValid || progressStatus === 'processing'"
+          class="btn btn-primary text-white"
+          type="button"
+        >
+          Chia tác vụ
+        </button>
+      </ng-container>
+    </div>
+  </app-custom-modal>
+</div>

@@ -341,3 +341,55 @@ export function removeCharacter(str: string): string {
   str = str.replace(/Đ/g, 'D');
   return str;
 }
+
+export function filterItems<T>(
+  items: T[],
+  fields: (keyof T)[],
+  value: string,
+): T[] {
+  const lowerValue = value.toLowerCase();
+  return items.filter((item) =>
+    fields.some((field) => {
+      const fieldValue = item[field];
+      return (
+        typeof fieldValue === 'string' &&
+        fieldValue.toLowerCase().includes(lowerValue)
+      );
+    }),
+  );
+}
+
+export function normalizeToNumberArray(value: any): number[] {
+  if (Array.isArray(value)) return value.map(Number);
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.map(Number);
+    } catch {}
+    const num = Number(value);
+    return isNaN(num) ? [] : [num];
+  }
+
+  if (typeof value === 'number') {
+    return [value];
+  }
+
+  return [];
+}
+
+
+export const flattenData = (data: any, prefix: string = ''): Record<string, any> => {
+  return Object.keys(data).reduce((acc: Record<string, any>, key) => {
+    const value = data[key];
+    const newKey = prefix ? `${prefix}_${key}` : key;
+
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      Object.assign(acc, flattenData(value, newKey));
+    } else {
+      acc[newKey] = value;
+    }
+
+    return acc;
+  }, {} as Record<string, any>);
+};

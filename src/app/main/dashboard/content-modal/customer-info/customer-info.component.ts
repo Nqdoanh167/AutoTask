@@ -26,8 +26,9 @@ import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.co
 import {ToastrService} from 'ngx-toastr';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateCustomerComponent} from '@main/dashboard/content-modal/modal-update-customer/modal-update-customer.component';
+import {RfmService} from '@app/services/api/rfm.service';
 
-type ViewOrderType = 'completed' | 'cancelled';
+type ViewOrderType = 'completed' | 'cancelled' | 'trash';
 
 @Component({
   selector: 'app-customer-info',
@@ -54,21 +55,44 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   public trigger = {
     name: false,
   };
-  public tags: EntityPagination<CustomerTag> = {
-    rows: [],
-    loading: false,
-  };
+
   public loading = {
     customer: false,
     updateCustomer: false,
+    getInfoRfm: false,
   };
+  //Hành vi mua hàng
+  public viewBehavior: boolean = true;
   public viewOrderType?: ViewOrderType;
   public viewOrCustomerOrders: IOrderCustomer[] = [];
   public selectedCustomer: Customer | null = null;
   public selectTag: boolean = false;
+  public rfmInFo: {
+    point?: number;
+    groupName?: string;
+  } = {
+    point: 0,
+    groupName: '',
+  };
 
   protected hasPermitCustomer =
     this.authService.checkPermittedModule('customers');
+
+  protected hasPermitRfm = this.authService.checkPermittedModule('rfm');
+
+  public readonly groupRFM: Record<string, string> = {
+    champions: 'Champions',
+    loyal_customers: 'Loyal Customers',
+    potential_loyalist: 'Potential Loyalists',
+    recent_customers: 'Recent Customers',
+    promising: 'Promising',
+    needs_attention: 'Need Attention',
+    about_to_sleep: 'About to Sleep',
+    at_risk: 'At Risk',
+    cannot_lose_them: 'Cannot Lose Them',
+    hibernating: 'Hibernating',
+    lost: 'Lost',
+  };
 
   constructor(
     private readonly apiLocationService: ApiLocationService,
@@ -78,6 +102,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly toarst: ToastrService,
     private readonly modalService: BsModalService,
+    private readonly rfmService: RfmService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -95,7 +120,10 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       changes?.['selectedCustomerId'] &&
       changes?.['selectedCustomerId']?.currentValue
     ) {
-      this.getCustomerDetail(this.selectedCustomerId);
+      this.rfmInFo = {
+        point: 0,
+        groupName: '',
+      };
     }
   }
 
@@ -103,8 +131,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     if (!this.hasUpdateTaskPer) {
       this.formGroup.disable();
     }
-    this.getTag();
     this.getProvince();
+    this.getCustomerDetail(this.selectedCustomerId, true);
     // this.formGroup.valueChanges
     //   .pipe(distinctUntilKeyChanged('id'))
     //   .subscribe((value) => {
@@ -122,8 +150,8 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     //   });
   }
 
-  getCustomerDetail(id: string) {
-    if (!this.hasPermitCustomer) return;
+  getCustomerDetail(id: string, isInit: boolean = false) {
+    if (!this.hasPermitCustomer || !id) return;
     this.loading.customer = true;
     this.customerService.customer
       .getById(id)
@@ -134,18 +162,61 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
-            this.selectedCustomer = res.data;
+            // this.selectedCustomer = res.data;
+            this.handleChooseCustomer(res.data, isInit);
+            this.getBehaviorInfoCustomer(res.data?.id!);
             if (res.data?.provinceCode) {
               this.getDistrict(res.data?.provinceCode);
             }
             if (res.data?.districtCode) {
               this.getWard(res.data?.provinceCode, res.data?.districtCode);
             }
+
+            this.handleViewOrderType('completed');
           } else {
-            this.commonService.handleResErr(res);
+            // this.commonService.handleResErr(res);
+            this.toarst.warning('Không tìm thấy khách hàng!');
           }
         },
       });
+  }
+
+  getBehaviorInfoCustomer(id: string) {
+    if (id && this.hasPermitRfm) {
+      this.loading.getInfoRfm = true;
+      this.rfmService.customerRfm
+        .getBehavior(id)
+        .pipe(
+          finalize(() => {
+            this.loading.getInfoRfm = false;
+          }),
+          takeUntil(this.destroy$),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res && res.status === 200) {
+              this.rfmInFo.point = res.data?.rfm || 0;
+              this.rfmInFo.groupName = res.data?.groupName || '';
+            } else {
+            }
+          },
+        });
+    }
+  }
+
+  getAverageOrder() {
+    // Tính giá trị đơn trung bình theo trạng thái completed
+    const orders = this.selectedCustomer?.orders.filter(
+      (order) => order.status === 'completed',
+    );
+
+    if (!orders || orders.length === 0) return 0;
+
+    const amount = orders.reduce((sum, order) => {
+      return sum + (order.amount || 0);
+    }, 0);
+
+    return amount / orders.length;
   }
 
   handleViewCustomer(customerId?: string) {
@@ -166,9 +237,12 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
 
   getProvince() {
     this.apiLocationService
-      .getProvince({
-        location: 'VN',
-      })
+      .getProvince(
+        {
+          location: 'VN',
+        },
+        {cache: true},
+      )
       .subscribe({
         next: (res) => {
           this.listProvince = res.data;
@@ -210,22 +284,6 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
           this.commonService.handleErr(err);
         },
       });
-  }
-
-  getTag() {
-    if (!this.hasPermitCustomer) return;
-    this.customerService.tag.get().subscribe({
-      next: (res) => {
-        if (res && res.status === 200) {
-          this.tags.rows = res.data;
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      error: (err) => {
-        this.commonService.handleErr(err);
-      },
-    });
   }
 
   handleChangeLocation(value: string, type: 'province' | 'district' | 'ward') {
@@ -289,27 +347,50 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     });
   }
 
-  handleChooseCustomer(customer?: Customer) {
+  handleChooseCustomer(customer?: Customer, isInit: boolean = false) {
     if (!customer) return;
     this.trigger.name = false;
 
-    this.formGroup.patchValue({
-      id: customer.id,
-      name: customer.name,
-      picture: customer.picture,
-      phone: customer.phone,
-      email: customer.email,
-      province: customer.province,
-      provinceCode: customer.provinceCode,
-      district: customer.district,
-      districtCode: customer.districtCode,
-      ward: customer.ward,
-      wardCode: customer.wardCode,
-      tags: customer.tags,
-      address: customer.address,
-      gender: customer.gender,
-      street: customer.street,
-    });
+    const patchData: any = {};
+    const formValues = this.formGroup.value;
+
+    const fields: (keyof Customer)[] = [
+      'id',
+      'name',
+      'picture',
+      'phone',
+      'email',
+      'province',
+      'provinceCode',
+      'district',
+      'districtCode',
+      'ward',
+      'wardCode',
+      'tags',
+      'address',
+      'gender',
+      'street',
+    ];
+
+    for (const key of fields) {
+      patchData[key] = formValues[key];
+      const customerValue = customer[key];
+
+      if ((isInit && !patchData[key]) || !isInit) {
+        patchData[key] = customerValue;
+      }
+
+      
+      if (key === 'provinceCode') {
+        // this.getDistrict(patchData[key]);
+      }
+
+      if (key === 'districtCode' && patchData[key]) {
+        // this.getWard(patchData['provinceCode'], patchData[key]);
+      }
+    }
+
+    this.formGroup.patchValue(patchData);
     this.selectedCustomer = customer;
   }
 
@@ -408,6 +489,17 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
   }
 
   onChangeInputSuggestCustomer(value: any) {}
+
+  onChangePhoneCustomer(value: string | undefined) {
+    this.formGroup.patchValue({ phone: value });
+  }
+
+  getCustomerDetailFromPhone(customerId: string) {
+    // Xử lý khi chọn khách hàng từ danh sách suggest
+    if (customerId) {
+      this.getCustomerDetail(customerId);
+    }
+  }
 
   handleViewOrderType(type: ViewOrderType) {
     if (!this.viewOrderType || this.viewOrderType !== type) {

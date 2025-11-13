@@ -1,0 +1,103 @@
+<div class="modal-close-task">
+  <form [formGroup]="closeTaskForm" [ngClass]="{'was-validated': submitted}">
+    <app-custom-modal>
+      <ng-container modalTitle>Đóng tác vụ</ng-container>
+      <ng-container modalBody>
+        <div class="mb-3">
+          <label class="form-control-label fw-bold mb-2">
+            Chọn kết quả của tác vụ
+            <span class="required">*</span>
+          </label>
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="closeTaskResult"
+              id="successOption"
+              [value]="true"
+              formControlName="closeTaskResult"
+              [ngClass]="{
+                'is-invalid': submitted && f['closeTaskResult'].errors
+              }"
+            />
+            <label class="form-check-label" for="successOption">
+              Thành công
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="closeTaskResult"
+              id="failureOption"
+              [value]="false"
+              formControlName="closeTaskResult"
+              [ngClass]="{
+                'is-invalid': submitted && f['closeTaskResult'].errors
+              }"
+            />
+            <label class="form-check-label" for="failureOption">
+              Thất bại
+            </label>
+          </div>
+          @if (submitted && f['closeTaskResult'].errors) {
+            <div class="invalid-feedback d-block">
+              @if (f['closeTaskResult'].errors?.['required']) {
+                <div>Vui lòng chọn kết quả của tác vụ</div>
+              }
+            </div>
+          }
+        </div>
+
+        @if (f['closeTaskResult'].value === true) {
+          <div class="mb-3">
+            <label class="form-control-label fw-bold mb-2" for="closeTaskReason">
+              Lý do thành công
+            </label>
+            <textarea
+              id="closeTaskReason"
+              name="closeTaskReason"
+              placeholder="Nhập lý do hoàn thành thành công tác vụ..."
+              formControlName="closeTaskReason"
+              rows="4"
+              class="form-control"
+            ></textarea>
+          </div>
+        }
+
+        @if (f['closeTaskResult'].value === false) {
+          <div class="mb-3">
+            <label class="form-control-label fw-bold mb-2" for="closeTaskReason">
+              Lý do thất bại
+            </label>
+            <textarea
+              id="closeTaskReason"
+              name="closeTaskReason"
+              placeholder="Nhập lý do không thể hoàn thành tác vụ..."
+              formControlName="closeTaskReason"
+              rows="4"
+              class="form-control"
+            ></textarea>
+          </div>
+        }
+      </ng-container>
+      <div modalFooter class="d-flex justify-content-end gap-2">
+        <button
+          (click)="hideModal()"
+          class="btn button-default-modal"
+          type="button"
+        >
+          Hủy
+        </button>
+        <custom-button-loading
+          [isLoading]="loading.submit"
+          [isDisabled]="loading.submit"
+          (action)="onSubmit()"
+          [type]="'button'"
+          [textButton]="'Xác nhận'"
+          [className]="'button-submit-modal'"
+        ></custom-button-loading>
+      </div>
+    </app-custom-modal>
+  </form>
+</div>

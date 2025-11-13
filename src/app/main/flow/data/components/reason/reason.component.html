@@ -5,7 +5,7 @@
     (clickButtonEvent)="handleAction($event)"
     (searchEvent)="onSearch($event)"
   ></app-filter-top-table>
-  <div class="table-responsive tableFixHead custom-scrollbar">
+  <div class="table-responsive tableFixHead custom-scrollbar mt-3">
     <table class="table">
       <thead>
         <tr>
@@ -40,7 +40,10 @@
           </td>
         </tr>
         <tr *ngFor="let item of dataSource.rows; index as i">
-          <td>{{ item.name || '-' }}</td>
+          <td>
+            <div>{{ item.name || '-'}} </div>
+            <div class="fst-italic fs-7">({{item.id}})</div>
+          </td>
           <td>{{ item.createdAt | timeView }}</td>
           @if (hasEditPer) {
             <td class="columns-action">
