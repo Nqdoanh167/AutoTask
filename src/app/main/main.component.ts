@@ -22,7 +22,7 @@ export class MainComponent extends BaseComponentsComponent implements OnInit {
     private readonly mainService: MainService,
   ) {
     super();
-    this.title.setTitle(`Smax App | ${this.currentBiz?.name} | Auto Task`);
+    this.title.setTitle(`App.vn | ${this.currentBiz?.name} | Auto Task`);
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -43,7 +43,7 @@ export class MainComponent extends BaseComponentsComponent implements OnInit {
       .subscribe((title: string) => {
         if (title) {
           this.title.setTitle(
-            `Smax App | ${this.currentBiz?.name || ''} | ${title}`,
+            `App.vn | ${this.currentBiz?.name || ''} | ${title}`,
           );
         }
       });

@@ -1,0 +1,271 @@
+<ng-container
+  [ngTemplateOutlet]="templateInput"
+  [ngTemplateOutletContext]="{
+    previewAll: previewAll,
+    width: width,
+    height: height,
+    viewAllMode: false,
+    byUrl: byUrl,
+    loadingUpload: loading.upload
+  }"
+></ng-container>
+<ng-template
+  #templateInput
+  let-previewAll="previewAll"
+  let-width="width"
+  let-height="height"
+  let-viewAllMode="viewAllMode"
+  let-byUrl="byUrl"
+  let-loadingUpload="loadingUpload"
+>
+  <div class="d-flex gap-2 align-items-center">
+    <div
+      class="input-upload-preview"
+      [class.loading]="loadingUpload"
+      [style.width]="width + 'px'"
+      [style.height]="height + 'px'"
+    >
+      @if (!multiple) {
+        <div class="align-items-center d-flex gap-2 mb-3 w-100 h-100">
+          <div class="position-relative cursor-pointer upload-program-image">
+            <div
+              class="w-100 h-100"
+              *ngIf="url && !imagesSrc[0]"
+              (click)="uploadFile()"
+            >
+              <img [src]="url" class="" alt="" loading="lazy" />
+            </div>
+            <div
+              class="w-100 h-100"
+              *ngIf="imagesSrc[0]"
+              (click)="uploadFile()"
+            >
+              <img [src]="imagesSrc[0]" class="" alt="" loading="lazy" />
+            </div>
+            <div
+              class="w-100 h-100"
+              *ngIf="!url && !imagesSrc[0]"
+              (click)="uploadFile()"
+            >
+              <img src="./assets/images/no-image.jpeg" class="" alt="" />
+            </div>
+          </div>
+        </div>
+        <i
+          *ngIf="!loading.upload"
+          (click)="uploadFile()"
+          class="fas fa-upload desc-upload-image icon-center"
+          [ngClass]="{'d-none': !imagesSrc[0]}"
+        ></i>
+        <i
+          *ngIf="loading.upload"
+          class="fas fa-spinner fa-spin desc-upload-image icon-center"
+        ></i>
+      } @else if (!previewAll) {
+        <div class="align-items-center d-flex gap-2 mb-3 w-100 h-100">
+          <div class="position-relative cursor-pointer upload-program-image">
+            <div
+              class="w-100 h-100"
+              *ngIf="urls.length && !imagesSrc[0]"
+              (click)="uploadFile()"
+            >
+              <img [src]="urls[0]" class="" alt="" loading="lazy" />
+            </div>
+            <div
+              class="w-100 h-100"
+              *ngIf="imagesSrc[0]"
+              (click)="uploadFile()"
+            >
+              <img [src]="imagesSrc[0]" class="" alt="" loading="lazy" />
+            </div>
+            <div
+              class="w-100 h-100"
+              *ngIf="!urls[0] && !imagesSrc[0]"
+              (click)="uploadFile()"
+            >
+              <img src="./assets/images/no-image.jpeg" class="" alt="" />
+            </div>
+          </div>
+        </div>
+        <i
+          *ngIf="!loading.upload"
+          (click)="uploadFile()"
+          class="fas fa-upload desc-upload-image icon-center"
+        ></i>
+        <i
+          *ngIf="loading.upload"
+          class="fas fa-spinner fa-spin desc-upload-image icon-center"
+        ></i>
+      } @else {
+        <div class="align-items-center d-flex gap-2 mb-3 w-100 h-100">
+          <div class="position-relative cursor-pointer upload-program-image">
+            <div class="w-100 h-100" (click)="uploadFile()">
+              <img src="./assets/images/no-image.jpeg" class="" alt="" />
+            </div>
+          </div>
+        </div>
+        <i
+          *ngIf="!loading.upload"
+          (click)="uploadFile()"
+          class="fas fa-upload desc-upload-image icon-center"
+        ></i>
+        <i
+          *ngIf="loading.upload"
+          class="fas fa-spinner fa-spin desc-upload-image icon-center"
+        ></i>
+      }
+    </div>
+    @if (showButtonRight) {
+      <div>
+        <div
+          (click)="uploadFile()"
+          [style.width]="'fit-content'"
+          class="btn button-outline primary-color d-flex align-items-center justify-content-center"
+        >
+          <i class="fa-solid fa-upload me-1"></i>
+          Tải lên ảnh
+        </div>
+        <div class="sub-text callout-regular mt-1">
+          Kích thước không vượt quá {{ sizeMb }}MB
+        </div>
+      </div>
+    }
+    @if (multiple && previewAll) {
+      <div
+        class="list-image-preview d-flex gap-2 flex-wrap"
+        [ngStyle]="{width: 'calc(100% - ' + width + 'px)'}"
+      >
+        @if (urls) {
+          @for (url of urls; track $index) {
+            <div
+              class="input-upload-preview"
+              [style.width]="width + 'px'"
+              [style.height]="height + 'px'"
+            >
+              <div class="align-items-center d-flex gap-2 mb-3 w-100 h-100">
+                <div
+                  class="position-relative cursor-pointer upload-program-image"
+                  *ngIf="url"
+                >
+                  <div class="w-100 h-100">
+                    <img [src]="url" class="" alt="" loading="lazy" />
+                  </div>
+                </div>
+              </div>
+              <div
+                class="controls"
+                [style.width]="width + 'px'"
+                [style.height]="height + 'px'"
+              >
+                <i
+                  class="fa-solid fa-thumbtack fa-rotate-by icon-center"
+                  style="--fa-rotate-angle: 45deg"
+                  (click)="handleUpTop($index)"
+                ></i>
+                <i
+                  class="fa-regular fa-trash-can icon-center"
+                  (click)="removeImage($index, 'url')"
+                ></i>
+              </div>
+            </div>
+          }
+        }
+        @if (!viewAllMode) {
+          @for (url of imagesSrc; track $index) {
+            <div
+              class="input-upload-preview"
+              [style.width]="width + 'px'"
+              [style.height]="height + 'px'"
+            >
+              <div class="align-items-center d-flex gap-2 mb-3 w-100 h-100">
+                <div
+                  class="position-relative cursor-pointer upload-program-image"
+                  *ngIf="url"
+                >
+                  <div class="w-100 h-100">
+                    <img [src]="url" class="" alt="" loading="lazy" />
+                  </div>
+                </div>
+              </div>
+              <div
+                class="controls"
+                [style.width]="width + 'px'"
+                [style.height]="height + 'px'"
+              >
+                <i
+                  class="fa-regular fa-trash-can icon-center"
+                  (click)="removeImage($index, 'file')"
+                ></i>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+  @if (byUrl) {
+    <div [style.max-width]="'250px'" class="input-group mt-2">
+      <span class="input-group-text">
+        <i class="fa-solid fa-link fs-8"></i>
+      </span>
+      <input
+        #inputElementUrl
+        type="text"
+        class="form-control"
+        placeholder="Thêm URL và nhấn Enter"
+        (keydown.enter)="handleAddByUrl($event, inputElementUrl)"
+      />
+    </div>
+  }
+</ng-template>
+@if (!previewAll) {
+  <div (click)="openModal(templateViewAllPicture)" class="text-link mt-2">
+    <div [style.text-decoration]="'underline'">URL</div>
+    {{ urls.length }} hình ảnh
+  </div>
+}
+
+<input
+  #inputMultipleFileImage
+  type="file"
+  [style.display]="'none'"
+  (change)="handleChooseFile($event)"
+  multiple="multiple"
+  accept="image/x-png,image/gif,image/jpeg,image/x-icon,image/webp"
+/>
+
+<input
+  #inputSingleFileImage
+  type="file"
+  [style.display]="'none'"
+  (change)="handleChooseFile($event)"
+  accept="image/x-png,image/gif,image/jpeg,image/x-icon,image/webp"
+/>
+
+<ng-template #templateViewAllPicture>
+  <div class="modal-body modal-view-all-images">
+    <div class="header">
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        (click)="viewAllImageModalRef?.hide()"
+      ></button>
+    </div>
+    <ng-container
+      [ngTemplateOutlet]="templateInput"
+      [ngTemplateOutletContext]="{
+        previewAll: true,
+        width: 80,
+        height: 80,
+        viewAllMode: true,
+        byUrl: true,
+        loadingUpload: loading.upload
+      }"
+    ></ng-container>
+  </div>
+</ng-template>
+
+@if (isOpenBackdrop) {
+  <bs-modal-backdrop></bs-modal-backdrop>
+}

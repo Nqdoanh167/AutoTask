@@ -1,17 +1,18 @@
-import {ICommonDataLazy, IQueryBase, ITag} from '@app/types/viewmodels';
-import {IAction, IActResult, IChainAct, ITask} from '@app/types/flow';
-import {ISource} from '@app/types/setting';
-import {finalize, shareReplay, Subject, takeUntil} from 'rxjs';
-import {uniqBy} from 'lodash';
-import {CommonService} from '@app/services/common/common.service';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {IFilterTopButton, IFilterTopTable} from '@app/types/common';
+import { ICommonDataLazy, IQueryBase, ITag } from '@app/types/viewmodels';
+import { IAction, IActResult, IChainAct, ITask } from '@app/types/flow';
+import { ISetting, ISource, IViewModeDto } from '@app/types/setting';
+import { finalize, shareReplay, takeUntil, filter } from 'rxjs';
+import { isEqual, uniqBy } from 'lodash';
+import { CommonService } from '@app/services/common/common.service';
+import { AutoTaskService } from '@app/services/api/autoTask.service';
+import { IFilterTopButton, IFilterTopTable } from '@app/types/common';
 import {
   TASK_CONFIG_BUTTON,
   TASK_CONFIG_FILTERS,
 } from '@main/dashboard/dashboard-variables';
-import {inject} from '@angular/core';
-import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
+import { inject } from '@angular/core';
+import { CheckboxSortTableComponent } from '@share/common/checkbox-table/checkbox-sort-table.component';
+import { AutomationService } from '@app/services/api/automation.service';
 
 export class DashboardData extends CheckboxSortTableComponent<
   ITask,
@@ -19,6 +20,9 @@ export class DashboardData extends CheckboxSortTableComponent<
 > {
   protected readonly commonService = inject(CommonService);
   protected readonly autoTaskService = inject(AutoTaskService);
+  protected readonly automationService = inject(AutomationService);
+
+  public currentActiveViewMode?: IViewModeDto;
 
   public override configFilters: IFilterTopTable[] = TASK_CONFIG_FILTERS;
   public override configButtons: IFilterTopButton[] = TASK_CONFIG_BUTTON;
@@ -26,14 +30,16 @@ export class DashboardData extends CheckboxSortTableComponent<
     updatedAt: 0,
     createdAt: 0,
   };
+
+  protected autoTaskSetting!: ISetting;
   public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
     rows: [],
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
       sort: '-createdAt',
-      filter: JSON.stringify({isActive: true}),
+      filter: JSON.stringify({ isActive: true }),
     },
     isAllowLoadMore: false,
   };
@@ -42,7 +48,7 @@ export class DashboardData extends CheckboxSortTableComponent<
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -52,7 +58,7 @@ export class DashboardData extends CheckboxSortTableComponent<
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
       sort: '-createdAt',
     },
     isAllowLoadMore: false,
@@ -61,8 +67,8 @@ export class DashboardData extends CheckboxSortTableComponent<
     rows: [],
     loading: false,
     paramsQuery: {
-      page: 1,
-      limit: 100,
+      // page: 1,
+      // limit: 100,
     },
     isAllowLoadMore: false,
   };
@@ -71,13 +77,20 @@ export class DashboardData extends CheckboxSortTableComponent<
     loading: false,
     paramsQuery: {
       page: 1,
-      limit: 100,
+      limit: 1000,
+      isActive: true,
     },
     isAllowLoadMore: false,
   };
 
   constructor() {
     super();
+    this.getAutoTaskSettingCache();
+    this.getTagCache();
+    this.getSourceCache();
+    this.getActionChainCache();
+    this.getResultCache();
+    this.getActionCache();
   }
 
   override getDataSource(isReset?: boolean) {
@@ -85,7 +98,7 @@ export class DashboardData extends CheckboxSortTableComponent<
     if (isReset) {
       this.item.paramsQuery.page = 1;
     }
-    let params = {...this.item.paramsQuery};
+    let params = { ...this.item.paramsQuery };
 
     Object.keys(this.sort).forEach((key) => {
       if (this.sort[key] !== 0) {
@@ -94,12 +107,12 @@ export class DashboardData extends CheckboxSortTableComponent<
         params.sort = sortAll.join(',');
       }
     });
+    this.item.rows = [];
     this.autoTaskService.task
       .get(params)
       .pipe(
         finalize(() => {
-          this.item.loading = false;
-          this.cdr.detectChanges();
+          this.item = { ...this.item, loading: false };
         }),
         shareReplay(1),
         takeUntil(this.destroy$),
@@ -107,11 +120,9 @@ export class DashboardData extends CheckboxSortTableComponent<
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.item = {
-              ...this.item,
-              rows: res.data,
-              total: res.meta?.total || 0,
-            };
+            this.item.rows = res.data;
+            this.item.total = res.meta?.total || 0;
+            if(res.meta?.after) this.item.after = res.meta.after;
           } else {
             this.commonService.handleResErr(res);
           }
@@ -136,12 +147,13 @@ export class DashboardData extends CheckboxSortTableComponent<
               this.actionChains.rows.concat(res.data),
               'id',
             );
+            this.autoTaskService.setListChainAct(this.actionChains.rows);
             const configFilterChain = this.configFilters.find(
               (filter) => filter.name === 'chainActId',
             );
             if (configFilterChain) {
               configFilterChain.options = [
-                {id: 'NONE', name: 'Chưa gán chuỗi'},
+                { id: 'NONE', name: 'Chưa gán chuỗi' },
               ].concat(this.actionChains.rows);
             }
             this.actionChains.isAllowLoadMore = res.meta
@@ -176,6 +188,7 @@ export class DashboardData extends CheckboxSortTableComponent<
               this.results.rows.concat(res.data),
               'id',
             );
+            this.autoTaskService.setListActResult(this.results.rows);
             const configFilterResult = this.configFilters.find(
               (filter) => filter.name === 'resultIds',
             );
@@ -212,6 +225,7 @@ export class DashboardData extends CheckboxSortTableComponent<
               this.actions.rows.concat(res.data),
               'id',
             );
+            this.autoTaskService.setListAction(this.actions.rows);
             const configFilterAction = this.configFilters.find(
               (filter) => filter.name === 'actionIds',
             );
@@ -248,6 +262,7 @@ export class DashboardData extends CheckboxSortTableComponent<
               this.sources.rows.concat(res.data),
               'id',
             );
+            this.autoTaskService.setListSource(this.sources.rows);
             const configFilterSource = this.configFilters.find(
               (filter) => filter.name === 'sourceIds',
             );
@@ -281,6 +296,7 @@ export class DashboardData extends CheckboxSortTableComponent<
         next: (res) => {
           if (res.status === 200) {
             this.tags.rows = uniqBy(this.tags.rows.concat(res.data), 'id');
+            this.autoTaskService.setListTag(this.tags.rows);
             const configFilterTag = this.configFilters.find(
               (filter) => filter.name === 'tags',
             );
@@ -297,6 +313,161 @@ export class DashboardData extends CheckboxSortTableComponent<
         },
         error: (err) => {
           this.tags.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getRole() {
+    const configFilterResult = this.configFilters.find(
+      (filter) => filter.name === 'teamRoles' || filter.name === 'unassignedRoleId',
+    );
+    if (configFilterResult) {
+      configFilterResult.options = this.currentBiz?.roles || [];
+    }
+  }
+
+  clickLoadData(
+    dataName: 'tags' | 'sources' | 'actions' | 'results' | 'actionChains',
+  ) {
+    if (!this[dataName].rows.length) {
+      if (dataName === 'tags') {
+        this.getTag();
+      }
+      if (dataName === 'sources') {
+        this.getSource();
+      }
+      if (dataName === 'actions') {
+        this.getAction();
+      }
+      if (dataName === 'results') {
+        this.getResult();
+      }
+      if (dataName === 'actionChains') {
+        this.getActionChain();
+      }
+    }
+  }
+
+  getAutoTaskSettingCache() {
+    return this.autoTaskService.currentSetting.subscribe({
+      next: (res) => {
+        if (res) {
+          this.autoTaskSetting = res;
+        }
+      },
+    });
+  }
+
+  getActionChainCache() {
+    this.autoTaskService.listChainActObservable
+      .pipe(
+        finalize(() => (this.actionChains.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          this.actionChains.rows = res || [];
+          const configFilterAction = this.configFilters.find(
+            (filter) => filter.name === 'actionChains',
+          );
+          if (configFilterAction) {
+            configFilterAction.options = this.actions.rows;
+          }
+        },
+        error: (err) => {
+          this.actionChains.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getSourceCache() {
+    this.autoTaskService.listSourceObservable
+      .pipe(
+        finalize(() => (this.sources.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          this.sources.rows = res || [];
+          const configFilterSource = this.configFilters.find(
+            (filter) => filter.name === 'sourceIds',
+          );
+          if (configFilterSource) {
+            configFilterSource.options = this.sources.rows;
+          }
+        },
+        error: (err) => {
+          this.sources.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getResultCache() {
+    this.autoTaskService.listActResultObservable
+      .pipe(
+        finalize(() => (this.results.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          this.results.rows = res || [];
+          const configFilterResult = this.configFilters.find(
+            (filter) => filter.name === 'resultIds',
+          );
+          if (configFilterResult) {
+            configFilterResult.options = this.results.rows;
+          }
+        },
+        error: (err) => {
+          this.results.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getActionCache() {
+    this.autoTaskService.listActionObservable
+      .pipe(
+        finalize(() => (this.actions.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          this.actions.rows = res || [];
+          const configFilterAction = this.configFilters.find(
+            (filter) => filter.name === 'actionIds',
+          );
+          if (configFilterAction) {
+            configFilterAction.options = this.actions.rows;
+          }
+        },
+        error: (err) => {
+          this.actions.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getTagCache() {
+    this.autoTaskService.listTagObservable
+      .pipe(
+        finalize(() => { }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          this.tags.rows = res || [];
+          const configFilterTag = this.configFilters.find(
+            (filter) => filter.name === 'tags',
+          );
+          if (configFilterTag) {
+            configFilterTag.options = this.tags.rows;
+          }
+        },
+        error: (err) => {
           this.commonService.handleErr(err);
         },
       });

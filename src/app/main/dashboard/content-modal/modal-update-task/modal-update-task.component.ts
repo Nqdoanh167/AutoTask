@@ -21,22 +21,40 @@ import {
 import {finalize, lastValueFrom, take, takeUntil} from 'rxjs';
 import {FormArray, FormGroup, ValidationErrors} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {ERole, ESocialPlatform, ITag, User} from '@app/types/viewmodels';
-import {intersection} from 'lodash';
+import {
+  ERole,
+  ESocialPlatform,
+  ITag,
+  OrderPlatformSource,
+  User,
+} from '@app/types/viewmodels';
+import {intersection, uniqueId} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {environment} from '../../../../../environments/environment';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
-import {ISource, IUpdateSourceDto} from '@app/types/setting';
+import {
+  EPerActTask,
+  ISource,
+  IUpdateSourceDto,
+  IViewModeDto,
+} from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 import {ETabTaskDetail} from '@app/types/task';
 import {MainService} from '@app/services/api/main.service';
 import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
 import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
-import {ModalConfirmCallComponent} from '@main/dashboard/content-modal/modal-confirm-call/modal-confirm-call.component';
 import {PhoneCallService} from '@app/services/common/phone-call.service';
+import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
+import {ActivatedRoute} from '@angular/router';
+import {SocketService} from '@app/services/api/socket.service';
+import {ThrottleEvent} from '@app/share/decorator/throttle-event.decorator';
+import {ModalCloseTaskComponent} from '../modal-close-task/modal-close-task.component';
+
+declare function smaxCallSdkMakeCall(callInfo: any): void;
+declare function smaxCallSdkClearCall(): void;
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 declare function smaxCallSdkClearCall(): void;
@@ -48,7 +66,8 @@ declare function smaxCallSdkClearCall(): void;
 })
 export class ModalUpdateTaskComponent
   extends DetailTaskPerms
-  implements OnInit, OnDestroy {
+  implements OnInit
+{
   @ViewChild('templateAddTaskChain') templateAddTaskChain!: TemplateRef<any>;
   public addTaskChainModalRef?: BsModalRef;
 
@@ -61,24 +80,28 @@ export class ModalUpdateTaskComponent
   @Input() taskId?: string;
   @Input() code?: string;
   @Output() updateSuccess = new EventEmitter();
+  @Output() createdTask = new EventEmitter<ITask>();
+  @Output() updatedTask = new EventEmitter<ITask>();
+  @Output() deleteTask = new EventEmitter<string>();
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     try {
       if (typeof smaxCallSdkClearCall === 'function') {
         smaxCallSdkClearCall();
-        console.info('smaxCallSdkClearCall called')
+        console.info('smaxCallSdkClearCall called');
       } else {
-        console.error('smaxCallSdkClearCall fn not found')
+        console.error('smaxCallSdkClearCall fn not found');
       }
     } catch (error) {
-      console.error('smaxCallSdkClearCall error', error)
+      console.error('smaxCallSdkClearCall error', error);
     }
   }
 
   public selectTag: boolean = false;
   public submittedModal = {
     addTaskChain: false,
+    dropTask: false,
   };
 
   public isOpenBackDrop: boolean = false;
@@ -98,6 +121,9 @@ export class ModalUpdateTaskComponent
     private readonly toastr: ToastrService,
     private readonly mainService: MainService,
     private readonly phoneCallService: PhoneCallService,
+    private readonly toastrService: ToastrService,
+    private readonly route: ActivatedRoute,
+    private socketService: SocketService,
   ) {
     super();
     this.authService.currentBiz
@@ -109,35 +135,67 @@ export class ModalUpdateTaskComponent
         this.listBizUsers = biz.users;
         this.currentBiz = biz;
       });
+
+    this.autoTaskService.currentActiveViewMode.subscribe((mode) => {
+      this.currentActiveViewMode = mode;
+    });
+
+    this.route.fragment.subscribe((fragment) => {
+      if (fragment) {
+        this.activeTab = fragment as ETabTaskDetail;
+      }
+    });
+
+    this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
+      if (data.task?.id === this.sourceData?.id) {
+        Object.assign(this.sourceData || {}, data.task || {});
+        this.patchForm(this.sourceData);
+      }
+    });
+
+    this.socketService
+      .listen('app/ERROR')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        console.warn('app/ERROR', data);
+        this.toastr.warning(data?.message);
+      });
   }
 
-  async ngOnInit() {
+  override async ngOnInit() {
     this.loading.modal = true;
-    const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
-    if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {
-      this.autoTaskSetting = autoTaskSettingRes.data;
-    } else {
-      this.commonService.handleResErr(autoTaskSettingRes);
-    }
+    // const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
+    // if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {
+    //   this.autoTaskSetting = autoTaskSettingRes.data;
+    // } else {
+    //   this.commonService.handleResErr(autoTaskSettingRes);
+    // }
     if (!this.sourceData && !this.taskId && !this.code) {
       this.loading.modal = false;
       this.patchForm();
     }
     this.handleCheckPermission();
-    if (this.sourceData) {
-    } else {
-      const branch = this.autoTaskService.getFirstUnit();
-      this.updateForm.patchValue({
-        branch,
-      } as any);
-      this.getInfoUnit(branch?.team || branch?.department || branch?.id);
-    }
     if (this.code) {
       this.getTaskByCode();
     } else {
       this.getDetailTask();
     }
     this.getBlock();
+  }
+
+  public generateResetTaskKey(): string {
+    const bizId = this.currentBiz?.id ?? 'unknown-biz';
+    const userId = this.currentUser?.id ?? 'unknown-user';
+    const sourceId = this.sourceData?.id ?? 'unknown-source';
+    return `reset-task:${bizId}:${userId}:${sourceId}`;
+  }
+
+  @ThrottleEvent({
+    durationMs: 300,
+    keyGenerator: (taskKey) => taskKey,
+  })
+  handleResetTask(taskKey: any) {
+    this.getDetailTask(true);
   }
 
   getDetailTask(isRefresh = false) {
@@ -151,18 +209,39 @@ export class ModalUpdateTaskComponent
       )
       .subscribe({
         next: (res) => {
-          if (res.status === 200) {
+          if (res.status === 200 && res.data) {
+            const unitId =
+              res.data?.branch?.team ||
+              res.data?.branch?.department ||
+              res.data?.branch?.id;
+            if (!this.authService.hasPerRole(unitId, EPerActTask.UPDATE_TASK)) {
+              this.toastr.warning(
+                'Bạn không có quyền cập nhật task ở chi nhánh này <3',
+              );
+              this.hideModal();
+              return;
+            }
+
             this.sourceData = res.data;
             this.patchForm(res.data);
             if (isRefresh) {
               this.customerInfoComponent?.handleClearSelectValue();
             }
+
+            const isTaskClosed = this.sourceData?.isTaskClosed ?? false;
+            if (isTaskClosed) {
+              this.f['branch'].disable();
+            } else {
+              this.f['branch'].enable();
+            }
           } else {
-            this.commonService.handleResErr(res);
+            this.toastr.error('Không tìm thấy dữ liệu');
+            this.hideModal();
           }
         },
         error: (err) => {
           this.commonService.handleErr(err);
+          this.hideModal();
         },
       });
   }
@@ -182,7 +261,8 @@ export class ModalUpdateTaskComponent
             this.sourceData = detailTask;
             this.patchForm(detailTask);
           } else {
-            this.commonService.handleResErr(res);
+            this.toastr.error('Không tìm thấy dữ liệu');
+            this.hideModal();
           }
         },
       });
@@ -218,9 +298,10 @@ export class ModalUpdateTaskComponent
     }
   }
 
-  createNewTagAndChoose(tagName: string) {
+  createNewTagAndChoose(tag: any) {
+    if (tag?.id || !tag?.name) return;
     const body: ITag = {
-      name: tagName,
+      name: tag?.name,
       bgColor: '#000000',
     };
     this.autoTaskService.tag
@@ -229,10 +310,14 @@ export class ModalUpdateTaskComponent
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.getTag();
+            // this.getTag();
             this.ngSelectTagTask.filter('');
-            const formTag: string[] = this.updateForm.value.tags || [];
+            this.tags.rows.push(res.data);
+            Object.assign(tag, res.data);
+
+            let formTag: string[] = this.updateForm.value.tags || [];
             formTag.push(res.data.id as any);
+            formTag = formTag.filter((tag) => tag !== undefined);
             this.updateForm.patchValue({
               tags: formTag as any,
             });
@@ -266,9 +351,24 @@ export class ModalUpdateTaskComponent
     });
   }
 
+  handleChangePlatFormSource(data: OrderPlatformSource[]) {
+    this.updateForm.patchValue({
+      platformSourceIds: data.map((item) => item.id),
+      platformSources: data,
+    } as any);
+  }
+
   async handleUpdate() {
     const branchForm = this.f['branch'].value;
     const sourceForm = this.f['sourceForm'].value;
+
+    if (
+      !this.sourceData?.id &&
+      !this.authService.hasPerRole(branchForm?.data, EPerActTask.CREATE_TASK)
+    ) {
+      this.toastr.warning('Bạn không có quyền tạo tác vụ cho chi nhánh này <3');
+      return;
+    }
 
     if (sourceForm) {
       const newSource = await this.handleCreateSourceForm();
@@ -314,11 +414,15 @@ export class ModalUpdateTaskComponent
               this.commonService.handleResSuccess(
                 this.sourceData?.id ? 'update' : 'create',
               );
-              this.updateSuccess.emit();
+              if (this.sourceData?.id) {
+                this.updatedTask.emit(res.data);
+              } else {
+                this.createdTask.emit(res.data);
+              }
               this.sourceData = res.data;
               this.patchForm(res.data);
               resolve(res.data);
-              this.getDetailTask();
+              // this.getDetailTask();
             } else {
               this.handleErrorResponse(res, reject);
             }
@@ -375,6 +479,15 @@ export class ModalUpdateTaskComponent
   }
 
   handleDeleteTask() {
+    const unitId =
+      this.sourceData?.branch?.team ||
+      this.sourceData?.branch?.department ||
+      this.sourceData?.branch?.id;
+    if (!this.authService.hasPerRole(unitId!, EPerActTask.DELETE_TASK)) {
+      this.toastr.warning('Bạn không có quyền xóa task này <3');
+      return;
+    }
+
     const title = 'Xóa Tác vụ';
     const description = `Bạn sắp xóa Tác vụ <b>${
       this.sourceData?.name || ''
@@ -408,7 +521,7 @@ export class ModalUpdateTaskComponent
         next: (res) => {
           if (res.status === 200) {
             this.commonService.handleResSuccess('delete');
-            this.updateSuccess.emit();
+            this.deleteTask.emit(value.id);
             this.hideModal();
           } else {
             this.commonService.handleResErr(res);
@@ -460,8 +573,10 @@ export class ModalUpdateTaskComponent
         .subscribe({
           next: (res) => {
             if (res.status === 200) {
-              this.getDetailTask();
-              this.updateSuccess.emit();
+              // this.getDetailTask();
+              // this.updateSuccess.emit();
+              this.sourceData = res.data;
+              this.patchForm(res.data);
               this.addTaskChainModalRef?.hide();
             } else {
               this.commonService.handleResErr(res);
@@ -524,13 +639,17 @@ export class ModalUpdateTaskComponent
   }
 
   onCloseChain(value: ITaskChain) {
+    this.loading.closeChainTask = true;
     this.autoTaskService.taskChain
       .closeChain(value.id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        finalize(() => (this.loading.closeChainTask = false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.getDetailTask();
+            // this.getDetailTask();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -577,13 +696,18 @@ export class ModalUpdateTaskComponent
   }
 
   onDeleteChain(value: ITaskChain) {
+    if (this.loading.deleteChainTask) return;
+    this.loading.deleteChainTask = true;
     this.autoTaskService.taskChain
       .delete(value.id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        finalize(() => (this.loading.deleteChainTask = false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.getDetailTask();
+            // this.getDetailTask();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -612,27 +736,30 @@ export class ModalUpdateTaskComponent
       UpdateActionInTaskChainComponent,
       {
         initialState: {
+          taskChains: this.sourceData?.taskChains || [],
           actionOfChain,
           sourceData: actionData,
           results: this.results.rows,
           blocks: this.blocks.rows,
-          actionChains: this.actionChains.rows.map((chain) => {
-            return {
-              ...chain,
-              actionResults: chain.actionResults?.map((actResult) => {
-                return {
-                  ...actResult,
-                  chainAct: {
-                    id: chain.id,
-                    name: chain.name,
-                  },
-                  action: {
-                    ...actResult.action,
-                  },
-                };
-              }),
-            };
-          }) as unknown as IChainAct[],
+          actionChains: this.actionChains.rows
+            .map((chain) => {
+              return {
+                ...chain,
+                actionResults: chain.actionResults?.map((actResult) => {
+                  return {
+                    ...actResult,
+                    chainAct: {
+                      id: chain.id,
+                      name: chain.name,
+                    },
+                    action: {
+                      ...actResult.action,
+                    },
+                  };
+                }),
+              };
+            })
+            .filter(Boolean) as unknown as IChainAct[],
           chainActId,
           loadingData: {
             results: this.results.loading,
@@ -674,6 +801,12 @@ export class ModalUpdateTaskComponent
                 }),
               );
             }
+            // Cập nhật formSteps để báo hiệu cho form là có sự thay đổi
+            const taskChainForm = this.formTaskChains.at(chainIndex);
+            const updatedTaskChain = JSON.parse(
+              JSON.stringify(taskChainForm.value),
+            );
+            taskChainForm.patchValue(updatedTaskChain);
           }
         } catch (e) {
           console.log(e);
@@ -687,15 +820,40 @@ export class ModalUpdateTaskComponent
         );
         if (value.nextStepIndex !== undefined && value.nextStepIndex >= 0) {
           formSteps.removeAt(value.nextStepIndex!);
+          // Cập nhật formSteps để báo hiệu cho form là có sự thay đổi
+          const taskChainForm = this.formTaskChains.at(chainIndex);
+          const updatedTaskChain = JSON.parse(
+            JSON.stringify(taskChainForm.value),
+          );
+          taskChainForm.patchValue(updatedTaskChain);
         }
       }
     });
+
+    // Cập nhật formSteps để báo hiệu cho form là có sự thay đổi
+    const taskChainForm = this.formTaskChains.at(chainIndex);
+    const updatedTaskChain = JSON.parse(JSON.stringify(taskChainForm.value));
+    taskChainForm.patchValue(updatedTaskChain);
   }
 
   handleViewCreatedOrder() {
     let url = `${environment.urlDomain}/${
       this.currentBiz!.alias
     }/sale-center/?sourceId=${this.sourceData?.id}`;
+    window.open(url, '_blank');
+  }
+
+  handleViewCreatedBooking() {
+    let url = `${environment.urlDomain}/${
+      this.currentBiz!.alias
+    }/booking/booking-list/?taskId=${this.sourceData?.id}`;
+    window.open(url, '_blank');
+  }
+
+  handleViewCallSmsOtt() {
+    let url = `${environment.urlDomain}/${
+      this.currentBiz!.alias
+    }/sms-ott-call/history/?taskCode=${this.sourceData?.code}`;
     window.open(url, '_blank');
   }
 
@@ -724,9 +882,11 @@ export class ModalUpdateTaskComponent
               undefined,
               'Tạo đơn hàng thành công',
             );
-            this.orders.rows = [{} as any];
-            this.updateSuccess.emit();
-            this.getDetailTask();
+            // this.orders.rows = [{} as any];
+            // this.updateSuccess.emit();
+            // this.getDetailTask();
+            // this.handleAction
+            this.getOrderDetail(res.data?.orderIds);
           } else {
             if (res.data as any) {
               res.data?.forEach((err: any) => {
@@ -743,7 +903,16 @@ export class ModalUpdateTaskComponent
       });
   }
 
-  handleCall() {
+  /**
+   * @param taskChain - Chuỗi hiện tại - nơi chứa nút gọi
+   */
+  handleCall(taskChain?: ITaskChain, event?: ITaskChainResult) {
+    if (!taskChain || !event) {
+      alert('Có lỗi xảy ra');
+      console.warn('taskChain or event is undefined', {taskChain, event});
+      return;
+    }
+
     if (!this.hasPermitSmsOttCall) {
       this.toastr.warning(
         'Bạn không có quyền sử dụng module SMS-OTT-CALL. Vui lòng liên hệ quản trị viên để được hỗ trợ.',
@@ -815,7 +984,11 @@ export class ModalUpdateTaskComponent
                 id: this.sourceData ? this.sourceData.id : '',
                 module: environment.module,
                 code: this.sourceData ? this.sourceData.code : '',
-              }
+                taskChainId: taskChain.id,
+                taskChainName: taskChain.name,
+                actionId: event.action?.id,
+                actionName: event.action?.name,
+              },
             });
             // this.phoneCallService.setMakeCall({
             //   customer: this.formLeadDeal.value,
@@ -838,11 +1011,22 @@ export class ModalUpdateTaskComponent
   handleChangeUnit(value: TreeNodeSelectEvent | TreeNodeUnSelectEvent) {
     const node = value.node as ModifiedUserUnit;
     this.getInfoUnit(node?.team || node?.department || node?.id);
-    this.formTeams.controls?.forEach((form) => {
-      form.patchValue({
-        userId: null,
-      });
-    });
+    // this.formTeams.controls?.forEach((form) => {
+    //   form.patchValue({
+    //     userId: null,
+    //   });
+    // });
+  }
+
+  preventUnselect(value: TreeNodeUnSelectEvent) {
+    const currentBranchValue = this.updateForm.get('branch')?.value;
+    if (currentBranchValue) {
+      setTimeout(() => {
+        this.updateForm.patchValue({
+          branch: currentBranchValue,
+        });
+      }, 0);
+    }
   }
 
   handleChangeChatLink() {
@@ -916,5 +1100,174 @@ export class ModalUpdateTaskComponent
         });
       }
     }
+  }
+
+  handleCopy(task: ITask) {
+    const modalClone = this.modalService.show(ModalCloneComponent, {
+      initialState: {
+        task: task,
+      },
+      ignoreBackdropClick: true,
+      keyboard: false,
+    });
+    modalClone.content?.submitEvent.subscribe((res) => {
+      if (res) {
+        modalClone.hide();
+        this.cloneTask(task.id, res);
+      }
+    });
+
+    modalClone.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isOpenBackDrop = false;
+    });
+  }
+
+  cloneTask(id: string, options: string[]) {
+    this.autoTaskService.task
+      .clone(id, {
+        options: options,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toastrService.success('Sao chép tác vụ thành công');
+
+            this.createdTask.emit(res.data);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
+  }
+
+  handleActiveTabChange(tab: ETabTaskDetail) {
+    if (tab === ETabTaskDetail.INFO) {
+      this.getDetailTask(true);
+    } else if (tab === ETabTaskDetail.ORDER) {
+      if (this.sourceData?.orderIds.length) {
+        this.getOrderDetail(this.sourceData?.orderIds!);
+      }
+    } else if (tab === ETabTaskDetail.BOOKING) {
+      if (this.sourceData?.bookingIds.length) {
+        this.getBookingDetail(this.sourceData?.bookingIds!);
+      }
+    }
+  }
+
+  handleUpdateTaskChainData(taskChain: ITaskChain, chainIndex: number) {
+    if (this.sourceData && taskChain) {
+      this.sourceData.taskChains[chainIndex] = taskChain;
+
+      // setTimeout(() => {
+      //   this.getDetailTask(true)
+      //   this.updatedTask.emit(this.sourceData);
+      // }, 3000);
+    }
+  }
+
+  handleDropTask(id?: string) {
+    if (!id) return;
+    this.submittedModal.dropTask = true;
+    this.autoTaskService.task
+      .dropTask(id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.submittedModal.dropTask = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toastrService.success('Thả số thành công');
+            this.sourceData = res.data;
+            this.patchForm(res.data);
+            this.updatedTask.emit(res.data);
+          } else {
+            this.toastrService.error(
+              'Bạn không nằm trong vai trò được phép thả số',
+            );
+          }
+        },
+      });
+  }
+
+  onConfirmToCloseTask() {
+    this.handleCloseTask();
+  }
+
+  get taskHasNoChainOpen(): boolean {
+    return (
+      (this.sourceData?.taskChains || []).every(
+        (chain) => chain.status === ETaskChainType.CLOSED,
+      ) ?? true
+    );
+  }
+
+  handleConfirmToCloseTask(event: any): void {
+    if (!this.sourceData?.id) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Count uncompleted chains
+    const uncompletedChainCount =
+      (this.sourceData.taskChains || [])?.filter(
+        (chain) => chain.status !== ETaskChainType.CLOSED,
+      ).length || 0;
+
+    const modalContent: IModalConfirmContent = {
+      title: 'Đóng tác vụ?',
+      description: `Bạn sắp đóng tác vụ, hành động này không thể hoàn tác.`,
+      okText: 'Đóng tác vụ',
+      type: 'warning',
+      modalType: 'advance',
+      errorState: `Tác vụ này vẫn còn ${uncompletedChainCount} chuỗi chưa hoàn tất. Bạn có chắc chắn muốn đóng tác vụ không?`,
+    };
+
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onConfirmToCloseTask();
+    });
+  }
+
+  protected modalCloseTask?: BsModalRef;
+  handleCloseTask(): void {
+    if (!this.sourceData?.id) {
+      return;
+    }
+
+    this.isOpenBackDrop = true;
+    this.modalCloseTask = this.modalService.show(ModalCloseTaskComponent, {
+      class: 'modal-dialog-centered',
+      initialState: {
+        task: this.sourceData,
+      },
+    });
+
+    this.modalCloseTask.onHide?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.modalCloseTask = undefined;
+      this.isOpenBackDrop = false;
+    });
+
+    this.modalCloseTask.content?.closeTaskSuccess
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        if (!res.success) {
+          this.toastrService.warning(res.message);
+          return;
+        }
+
+        this.updateForm.patchValue({
+          isTaskClosed: res.data?.isTaskClosed,
+          closeTaskResult: res.data?.closeTaskResult,
+          closeTaskReason: res.data?.closeTaskReason,
+        });
+        this.updatedTask.emit(res.data);
+      });
+  }
+
+  get isTaskClosed(): boolean {
+    return this.sourceData?.isTaskClosed ?? false;
   }
 }

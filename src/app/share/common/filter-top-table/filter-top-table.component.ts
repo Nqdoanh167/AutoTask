@@ -24,6 +24,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {Subject, takeUntil} from 'rxjs';
 import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
 import {specialQueryTaskKeys} from '@main/dashboard/dashboard-variables';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
 
 @Component({
   selector: 'app-filter-top-table',
@@ -34,6 +35,7 @@ import {specialQueryTaskKeys} from '@main/dashboard/dashboard-variables';
     CustomInputSearchComponent,
     CustomSelectSearchComponent,
     CustomDatePickerComponent,
+    TooltipModule,
   ],
   templateUrl: './filter-top-table.component.html',
   styleUrls: ['./filter-top-table.component.scss'],

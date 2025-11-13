@@ -1,0 +1,120 @@
+.order-source {
+  border: 1px solid #e7e9ef;
+  width: 100%;
+  padding: 4.5px 2rem 4.5px 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 24px;
+  border-radius: 6px;
+}
+
+.source {
+  position: relative;
+  display: none;
+  cursor: pointer;
+
+  .dropdown-item {
+    padding: 0;
+
+    &.active {
+      background-color: #e9eefc;
+      color: var(--bs-body-color);
+    }
+  }
+  .ng-arrow-wrapper {
+    cursor: pointer;
+    position: absolute;
+    text-align: center;
+    -webkit-user-select: none;
+    user-select: none;
+    width: 25px;
+    padding-right: 5px;
+    right: 0;
+
+    .ng-arrow {
+      pointer-events: none;
+      display: inline-block;
+      height: 0;
+      width: 0;
+      position: relative;
+      border-color: #999 transparent transparent;
+      border-style: solid;
+      border-width: 5px 5px 2.5px;
+    }
+  }
+
+  &__header {
+    padding: 11px 16px;
+    .text-name {
+      word-break: break-all;
+    }
+  }
+
+  &__list {
+    display: none;
+    position: absolute;
+    top: 34px;
+    right: 0;
+    margin: 0;
+    width: 200px;
+    &.custom-scrollbar {
+      max-height: 400px;
+    }
+
+    .item {
+      cursor: pointer;
+
+      &.input-search {
+        padding: 16px 16px 10px 16px;
+        .h-sm {
+          height: 35px;
+        }
+        // &:focus,
+        // &:active {
+        //   background-color: #fff;
+        //   border-color: #80bdff;
+        //   outline: 0;
+        //   box-shadow: unset;
+        // }
+        // &.disabled {
+        //   background-color: #e9ecef;
+        //   box-shadow: none;
+        //   cursor: not-allowed;
+        // }
+      }
+    }
+
+    .source {
+      &__list {
+        overflow-x: hidden;
+        top: 0;
+        right: 100%;
+        max-height: 400px;
+
+        &::before {
+          position: absolute;
+          top: 10px;
+          content: '';
+          right: -10px;
+          border: 5px solid transparent;
+          border-left-color: white;
+        }
+      }
+    }
+  }
+
+  &.show {
+    > .source__list {
+      display: block;
+    }
+  }
+  &.readonly {
+    background-color: #eef0f3;
+    cursor: not-allowed;
+  }
+}
+
+.dropdown-item img {
+  width: 28px;
+  height: 28px;
+}

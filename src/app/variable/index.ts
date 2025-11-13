@@ -34,19 +34,29 @@ export const listColumns: IDataColumns = {
       tooltip: 'Chi nhánh/Phòng ban/Nhóm',
     },
     {
-      name: 'Sản phẩm quan tâm',
+      name: 'Sản phẩm',
       value: 'cart',
       tooltip: 'Sản phẩm quan tâm',
     },
     {
-      name: 'Đơn hàng đã tạo',
+      name: 'Đơn hàng',
       value: 'orderIds',
-      tooltip: 'Đơn hàng đã tạo',
+      tooltip: 'Đơn hàng',
     },
     {
-      name: 'Nhân viên phụ trách',
+      name: 'Nhân viên',
       value: 'teams',
       tooltip: 'Nhân viên phụ trách',
+    },
+    {
+      name: 'Facebook Ads ID',
+      value: 'fbAdId',
+      tooltip: 'Facebook Ads ID',
+    },
+    {
+      name: 'Thông tin UTM',
+      value: 'utm',
+      tooltip: 'Thông tin UTM',
     },
     {
       name: 'Ngày tạo',
@@ -81,6 +91,8 @@ export const listColumnsDashboardDefault: IColumns[] =
       'cart',
       'orderIds',
       'leadDeal',
+      'fbAdId',
+      'utm',
       'createdAt',
     ].includes(el.value),
   );
@@ -110,7 +122,14 @@ export const listSettingNavItems: ISidebar[] = [
   {
     link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
     alias: ESettingTab.ROLE,
-    name: 'Vai trò',
+    name: 'Cấu hình',
+    isActive: true,
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
+  },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.DIVIDE}`,
+    alias: ESettingTab.DIVIDE,
+    name: 'Chia số',
     isActive: true,
     permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
@@ -185,18 +204,40 @@ export const socialPlatforms: {
   {
     label: 'Facebook',
     value: ESocialPlatform.FACEBOOK,
-    image: './assets/images/socials/facebook.svg',
+    image: './assets/images/platform_facebook.png',
   },
   {
-    label: 'Zalo',
-    value: ESocialPlatform.ZALO,
-    image: './assets/images/socials/zalo.svg',
+    label: 'Shopee',
+    value: ESocialPlatform.SHOPEE,
+    image: './assets/images/platform_shopee.png',
+  },
+  {
+    label: 'TikTok',
+    value: ESocialPlatform.TIKTOK,
+    image: './assets/images/platform_tiktok.png',
+  },
+  {
+    label: 'Lazada',
+    value: ESocialPlatform.LAZADA,
+    image: './assets/images/platform_lazada.png',
   },
   {
     label: 'LadiPage',
     value: ESocialPlatform.LADIPAGE,
-    image: './assets/images/socials/landipage.svg',
+    image: './assets/images/platform_ladipage.png',
   },
+  {
+    label: 'Tiki',
+    value: ESocialPlatform.TIKI,
+    image: './assets/images/platform_tiki.png',
+  },
+
+  {
+    label: 'Zalo',
+    value: ESocialPlatform.ZALO,
+    image: './assets/images/platform_zalo.png',
+  },
+
   {
     label: 'Other',
     value: ESocialPlatform.OTHER,

@@ -7,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -15,17 +16,22 @@ import {
   FormGroup,
   FormGroupDirective,
 } from '@angular/forms';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {
   EActionType,
+  EChainNextActionType,
   EDelayType,
   ENextStepType,
   EStatusTaskChainResult,
   ETaskChainResultType,
   ETaskChainType,
   IActResult,
+  IBooking,
   IChainAct,
   IChainResult,
+  IFeedback,
+  IOrderManual,
+  ITask,
   ITaskChain,
   ITaskChainResult,
   IUpdateDeadlineTaskResult,
@@ -37,6 +43,13 @@ import {CommonService} from '@app/services/common/common.service';
 import {IBlockAutomation} from '@app/types/automation';
 import moment from 'moment/moment';
 import {optionToCloneTask} from '@app/variable';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {ModalFeedbackComponent} from '../modal-feedback/modal-feedback.component';
+import {AuthService} from '@app/services/api/auth.service';
+import {ModalCreateOrderComponent} from '../modal-create-order/modal-create-order.component';
+import {environment} from 'src/environments/environment';
+import {ModalCreateBookingComponent} from '../modal-create-booking/modal-create-booking.component';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-task-chain-item',
@@ -52,6 +65,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     canEditAction: false,
     canEditDeadline: false,
   };
+
   @Input() formItem!: FormGroup | any;
   @Input() submitted: boolean = false;
   @Input() results: IActResult[] = [];
@@ -63,6 +77,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     actionChains: false,
   };
   @Input() staticDataChainItem?: ITaskChain;
+  @Input() task?: ITask;
 
   @Output() updateNextStepEvent = new EventEmitter<{
     taskChainResultIndex: number;
@@ -72,25 +87,39 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
   @Output() updateTaskChainEvent = new EventEmitter();
   @Output() cancelUpdateTaskChainEvent = new EventEmitter();
   @Output() callEvent = new EventEmitter();
+  protected bizAlias?: string;
   public optionToCloneTask = optionToCloneTask;
   public loading = {
     submit: false,
     sendBlock: false,
   };
+  protected hasPermitFeedback =
+    this.authService.checkPermittedModule('feedback');
   protected readonly ETaskChainType = ETaskChainType;
 
   private destroy$ = new Subject();
   protected readonly EActionType = EActionType;
   protected readonly today = new Date();
   protected readonly ETaskChainResultType = ETaskChainResultType;
+  protected readonly EChainNextActionType = EChainNextActionType;
+
+  public showModal = false;
 
   constructor(
-    private rootFormGroup: FormGroupDirective,
+    private authService: AuthService,
     private readonly fb: FormBuilder,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly cdr: ChangeDetectorRef,
-  ) {}
+    private modalService: BsModalService,
+    private readonly toarst: ToastrService,
+  ) {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.bizAlias = biz.alias;
+      });
+  }
 
   get f(): {[key: string]: AbstractControl} {
     return this.formItem.controls;
@@ -116,8 +145,22 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         this.cdr.detectChanges();
       });
     this.staticDataChainItem?.taskChainResults?.forEach((taskChainResult) => {
-      taskChainResult['isEdit'] = false;
+      taskChainResult['isEdit'] = true;
+      if(taskChainResult.status === ETaskChainResultType.COMPLETED || taskChainResult.status === ETaskChainResultType.CANCELED){
+        taskChainResult['isEdit'] = false;
+      }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['staticDataChainItem'] && this.staticDataChainItem) {
+      this.staticDataChainItem.taskChainResults?.forEach((taskChainResult) => {
+        taskChainResult['isEdit'] = true;
+        if(taskChainResult.status === ETaskChainResultType.COMPLETED || taskChainResult.status === ETaskChainResultType.CANCELED){
+          taskChainResult['isEdit'] = false;
+        }
+      });
+    }
   }
 
   handleChangeTaskChainResult(
@@ -212,6 +255,65 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResultIndex: number,
     taskChainResult: ITaskChainResult,
   ) {
+    // Lấy dữ liệu gốc từ staticDataChainItem
+    const originalTaskChainResult = this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex];
+    
+    // Nếu có dữ liệu gốc, khôi phục về giá trị đó
+    if (originalTaskChainResult) {
+      this.formTaskChainResults()
+        .at(taskChainResultIndex)
+        .patchValue({
+          result: {
+            id: originalTaskChainResult.result?.id || null,
+            name: originalTaskChainResult.result?.name || null,
+          },
+          reason: {
+            id: originalTaskChainResult.reason?.id || null,
+            name: originalTaskChainResult.reason?.name || null,
+          },
+        });
+
+      // Khôi phục nextActions nếu có
+      const nextActionsFormArray = <FormArray>(
+        this.formTaskChainResults().at(taskChainResultIndex).get('nextActions')
+      );
+      nextActionsFormArray.clear();
+      
+      if (originalTaskChainResult.nextActions?.length) {
+        originalTaskChainResult.nextActions.forEach((nextAction) => {
+          const delayDate = nextAction.deadlineDate ? new Date(nextAction.deadlineDate) : new Date();
+          const executedDate = nextAction.executedDate ? new Date(nextAction.executedDate) : new Date();
+          const action = nextAction.action || {};
+          const nextActionForm = this.fb.group({
+            action: action,
+            deadlineDate: delayDate,
+            status: nextAction.status || EStatusTaskChainResult.UNDONE,
+            executedDate: executedDate,
+            childNextAction: nextAction,
+          });
+          nextActionsFormArray.push(nextActionForm);
+        });
+      }
+    } else {
+      // Nếu không có dữ liệu gốc, reset về null như cũ
+      this.formTaskChainResults()
+        .at(taskChainResultIndex)
+        .patchValue({
+          result: {
+            id: null,
+            name: null,
+          },
+          reason: {
+            id: null,
+            name: null,
+          },
+        });
+
+      (<FormArray>(
+        this.formTaskChainResults().at(taskChainResultIndex).get('nextActions')
+      )).clear();
+    }
+
     this.cancelUpdateTaskChainEvent.emit(taskChainResultIndex);
   }
 
@@ -220,6 +322,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     taskChainResult: ITaskChainResult,
   ) {
     if (!taskChainResult.id) return;
+    this.submitted = true;
+
     const {
       note,
       resultIndex,
@@ -229,6 +333,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       action,
       reasonEditedDate,
     } = this.formTaskChainResults().at(taskChainResultIndex).value;
+
     const modifiedNextActions = nextActions.map((nextAction: any) => {
       if (nextAction?.childNextAction) {
         const modify = {
@@ -276,7 +381,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       reasonIndex: reasonIndex || reasonIndex === 0 ? reasonIndex : null,
       nextActions: modifiedNextActions,
       deadlineDate: deadlineDate,
-      chain: this.staticDataChainItem,
+      // chain: this.staticDataChainItem,
       callBlockAutomation: action.callBlockAutomation.blockId
         ? action.callBlockAutomation
         : null,
@@ -291,7 +396,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       new Date(deadlineDate).getTime()
     ) {
       const body = {
-        deadlineDate: deadlineDate.toISOString(),
+        deadlineDate: deadlineDate,
         note,
         reasonEditedDate: {
           reason: reasonEditedDate?.reason || '',
@@ -343,7 +448,10 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     this.loading.submit = true;
     this.autoTaskService.taskChainResult
       .update(taskChainResultId, body)
-      .pipe(finalize(() => (this.loading.submit = false)))
+      .pipe(finalize(() => {
+        this.loading.submit = false
+        this.cdr.detectChanges();
+      }))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -382,6 +490,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       case ENextStepType.CLOSE_CHAIN_AND_CLONE_TASK:
         string += 'Đóng chuỗi và tạo bản sao công việc';
         break;
+      case ENextStepType.CLOSE_TASK:
+        string += 'Đóng tác vụ';
+        break;
       default:
         string += '-';
         break;
@@ -392,6 +503,9 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
           block.id === nextStep.childNextAction.callBlockAutomation?.blockId,
       );
       string += `: <b>${block?.name}</b>`;
+    }
+    if (nextStep.childNextAction?.closeTaskResult != null) {
+      string += `: <b>${nextStep.childNextAction?.closeTaskResult ? 'Thành công' : 'Thất bại'}</b>`;
     }
     if (nextStep.childNextAction?.moveToAction?.chainActResult) {
       string +=
@@ -484,18 +598,21 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     }
     this.formTaskChainResults()
       .at(taskChainResultIndex)
-      .patchValue({typeOverDeadline, deadlineDate: newDeadlineDate});
+      .patchValue({typeOverDeadline, deadlineDate: newDeadlineDate?.toISOString()});
   }
 
   handleCheckIsAllowEdit(
-    type: 'result' | 'timer' | 'block' | 'actionButton',
+    type: 'result' | 'timer' | 'block' | 'actionButton' | 'note',
     taskChainResult: ITaskChainResult,
     taskChainResultIndex: number,
   ) {
     const staticTaskChain =
       this.staticDataChainItem?.taskChainResults?.[taskChainResultIndex];
     if (type !== 'timer' && !this.permissions.canEditAction) return false;
+    // if (type === 'note' && this.staticDataChainItem?.status === ETaskChainType.CLOSED) return false;
     if (type === 'result') {
+      if (this.task?.isTaskClosed) return false;
+
       return (
         ((!staticTaskChain?.action?.callBlockAutomation?.blockId &&
           !staticTaskChain?.action?.callBlockAutomation?.blockId) ||
@@ -507,7 +624,7 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'timer') {
-      if (!this.permissions.canEditDeadline) return false;
+      if (!this.permissions.canEditDeadline || this.task?.isTaskClosed) return false;
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&
@@ -515,6 +632,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'block') {
+      if (this.task?.isTaskClosed) return false;
+
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&
@@ -522,6 +641,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
       );
     }
     if (type === 'actionButton') {
+      if (this.task?.isTaskClosed) return false;
+      
       return (
         this.f['status'].value !== ETaskChainType.CLOSED &&
         !taskChainResult?.result?.id &&
@@ -531,8 +652,8 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
     return true;
   }
 
-  handleCall() {
-    this.callEvent.emit();
+  handleCall(taskChainResult: ITaskChainResult) {
+    this.callEvent.emit(taskChainResult);
   }
 
   handleSendBlock(taskChainResult: ITaskChainResult) {
@@ -552,6 +673,176 @@ export class TaskChainItemComponent implements OnDestroy, OnInit {
         },
         error: (err) => this.commonService.handleErr(err),
       });
+  }
+
+  handleFeedback(
+    taskChainResult: ITaskChainResult,
+    taskChainResultIndex: number,
+    subActionId: string,
+  ) {
+    if (!taskChainResult.id) return;
+    this.showModal = true;
+    const modal = this.modalService.show(ModalFeedbackComponent, {
+      class: 'modal-lg modal-dialog-centered',
+      initialState: {
+        taskChainResult,
+        subActionId,
+      },
+    });
+
+    modal.content?.successEvent.pipe(take(1)).subscribe((feedbacks) => {
+      //Cập nhật lại kết quả của taskChainResult
+      const taskChainResults = this.formTaskChainResults();
+      const taskChainResultForm = taskChainResults.at(
+        taskChainResultIndex,
+      ) as FormGroup;
+      const feedbacksFormArray = taskChainResultForm.get(
+        'feedbacks',
+      ) as FormArray;
+      feedbacksFormArray.clear();
+
+      feedbacks.forEach((feedback: IFeedback) => {
+        const feedbackForm = this.fb.group({
+          id: feedback.id,
+          rate: feedback.rate,
+          comment: feedback.comment,
+          subActionId: feedback.subActionId,
+        });
+        feedbacksFormArray.push(feedbackForm);
+      });
+      this.updateTaskChainEvent.emit();
+    });
+
+    modal.onHidden?.pipe(take(1)).subscribe(() => {
+      this.showModal = false;
+      this.cdr.markForCheck();
+    });
+  }
+
+  handleCreateOrder(
+    taskChainResult: ITaskChainResult,
+    taskChainResultIndex: number,
+    subActionId: string,
+    orderId: string | null = null,
+  ) {
+    if (!taskChainResult.id) return;
+    this.showModal = true;
+    const modal = this.modalService.show(ModalCreateOrderComponent, {
+      class: 'modal-xl modal-dialog-centered',
+      initialState: {
+        taskChainResultId: taskChainResult.id,
+        taskId: this.task?.id,
+        subActionId,
+        orderId,
+      },
+    });
+
+    modal.content?.successEvent.pipe(take(1)).subscribe((orders) => {
+      //Cập nhật lại kết quả của taskChainResult
+      const taskChainResults = this.formTaskChainResults();
+      const taskChainResultForm = taskChainResults.at(
+        taskChainResultIndex,
+      ) as FormGroup;
+      const ordersFormArray = taskChainResultForm.get('orders') as FormArray;
+      ordersFormArray.clear();
+
+      orders.forEach((order: IOrderManual) => {
+        const orderForm = this.fb.group({
+          id: order.id,
+          code: order.code,
+          subActionId: order.subActionId,
+        });
+        ordersFormArray.push(orderForm);
+      });
+      this.updateTaskChainEvent.emit();
+    });
+
+    modal.onHidden?.pipe(take(1)).subscribe(() => {
+      this.showModal = false;
+      this.cdr.markForCheck();
+    });
+  }
+
+  handleCreateBooking(
+    taskChainResult: ITaskChainResult,
+    taskChainResultIndex: number,
+    subActionId: string,
+  ) {
+    if (!taskChainResult.id) return;
+    this.showModal = true;
+    const modal = this.modalService.show(ModalCreateBookingComponent, {
+      class: 'modal-xl modal-dialog-centered',
+      initialState: {
+        taskChainResultId: taskChainResult.id,
+        taskId: this.task?.id,
+        subActionId,
+      },
+    });
+
+    modal.content?.successEvent.pipe(take(1)).subscribe((bookings) => {
+      //Cập nhật lại kết quả của taskChainResult
+      const taskChainResults = this.formTaskChainResults();
+      const taskChainResultForm = taskChainResults.at(
+        taskChainResultIndex,
+      ) as FormGroup;
+      const bookingsFormArray = taskChainResultForm.get(
+        'bookings',
+      ) as FormArray;
+      bookingsFormArray.clear();
+
+      bookings.forEach((booking: IBooking) => {
+        const bookingForm = this.fb.group({
+          id: booking.id,
+          title: booking.title,
+          subActionId: booking.subActionId,
+        });
+        bookingsFormArray.push(bookingForm);
+      });
+      this.updateTaskChainEvent.emit();
+    });
+
+    modal.onHidden?.pipe(take(1)).subscribe(() => {
+      this.showModal = false;
+      this.cdr.markForCheck();
+    });
+  }
+
+  handleViewOrder({id, code}: {id: string; code?: string}) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/sale-center/?code=${
+      code || id
+    }`;
+    window.open(url, '_blank');
+  }
+
+  handleViewFeedback(id: string) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/feedback/list?id=${id}`;
+    window.open(url, '_blank');
+  }
+
+  handleViewBooking(id: string) {
+    let url = `${environment.urlDomain}/${this.bizAlias}/booking/?id=${id}`;
+    window.open(url, '_blank');
+  }
+
+  getSubActionFeedback(feedbacks: IFeedback[], subActionId?: string) {
+    if (!feedbacks || !subActionId) return null;
+    return feedbacks.find(
+      (feedback: IFeedback) => feedback.subActionId === subActionId,
+    );
+  }
+
+  getSubActionOrder(orders: IOrderManual[], subActionId?: string) {
+    if (!orders || !subActionId) return null;
+    return orders.find(
+      (order: IOrderManual) => order.subActionId === subActionId,
+    );
+  }
+
+  getSubActionBooking(bookings: IBooking[], subActionId?: string) {
+    if (!bookings || !subActionId) return null;
+    return bookings.find(
+      (booking: IBooking) => booking.subActionId === subActionId,
+    );
   }
 
   ngOnDestroy(): void {

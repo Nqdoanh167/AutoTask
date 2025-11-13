@@ -1,0 +1,497 @@
+.modal-xl {
+  max-width: 1200px;
+}
+
+.upload-section {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: border-color 0.3s ease;
+  
+  &:hover {
+    border-color: #007bff;
+  }
+  
+  .form-control {
+    border: none;
+    background: transparent;
+    
+    &:focus {
+      box-shadow: none;
+      border: none;
+    }
+  }
+}
+
+.options-section {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  
+  .form-check-input {
+    &:checked {
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+  }
+}
+
+.preview-section {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #fff;
+  
+  .table {
+    margin-bottom: 0;
+    
+    th {
+      background-color: #343a40 !important;
+      color: white;
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 12px 8px;
+      border: 1px solid #495057;
+    }
+    
+    td {
+      padding: 8px;
+      font-size: 0.875rem;
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .table-success {
+      background-color: #d1f2eb !important;
+      
+      td {
+        border-color: #a3e4d7;
+      }
+    }
+    
+    .table-warning {
+      background-color: #fef9e7 !important;
+      
+      td {
+        border-color: #f7dc6f;
+      }
+    }
+  }
+}
+
+.alert {
+  border-left: 4px solid #ffc107;
+  
+  ul {
+    padding-left: 20px;
+    
+    li {
+      margin-bottom: 4px;
+    }
+  }
+}
+
+// Edit Mode Styles
+.edit-mode-header {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  
+  h5 {
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  .btn-outline-success {
+    border-color: white;
+    color: white;
+    
+    &:hover {
+      background-color: white;
+      color: #28a745;
+      border-color: white;
+    }
+  }
+}
+
+.edit-table-container {
+  max-height: 500px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  
+  .table {
+    margin-bottom: 0;
+    
+    thead.table-success {
+      th {
+        background-color: #28a745 !important;
+        color: white;
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 12px 8px;
+        border: 1px solid #20c997;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+    }
+    
+    tbody {
+      tr {
+        &:hover {
+          background-color: #f8f9fa;
+        }
+        
+        td {
+          padding: 8px;
+          vertical-align: middle;
+          
+          .form-control-sm,
+          .form-select-sm {
+            font-size: 0.875rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            
+            &:focus {
+              border-color: #28a745;
+              box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+            }
+          }
+          
+          .btn-outline-danger {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            
+            &:hover {
+              background-color: #dc3545;
+              border-color: #dc3545;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.footer-info {
+  .text-muted {
+    font-size: 0.875rem;
+    
+    i {
+      color: #28a745;
+    }
+  }
+}
+
+.footer-actions {
+  .btn {
+    min-width: 100px;
+    
+    &.btn-success {
+      background-color: #28a745;
+      border-color: #28a745;
+      
+      &:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+      }
+      
+      &:disabled {
+        background-color: #6c757d;
+        border-color: #6c757d;
+      }
+    }
+  }
+}
+
+.modal-header {
+  background-color: #007bff;
+  color: white;
+  border-bottom: none;
+  
+  .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+  
+  .btn-close {
+    filter: invert(1);
+  }
+}
+
+.modal-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  
+  .btn {
+    min-width: 100px;
+    font-weight: 500;
+    
+    &.btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+      
+      &:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+      }
+      
+      &:disabled {
+        background-color: #6c757d;
+        border-color: #6c757d;
+      }
+    }
+  }
+}
+
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.text-nowrap {
+  white-space: nowrap;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .modal-xl {
+    max-width: 95%;
+    margin: 10px auto;
+  }
+  
+  .upload-section,
+  .options-section {
+    margin-bottom: 20px;
+  }
+  
+  .table-responsive {
+    font-size: 0.75rem;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+    gap: 10px;
+    
+    .d-flex {
+      flex-direction: column;
+      width: 100%;
+      
+      > div {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  }
+}
+
+// Animation for loading
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.preview-section {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+// Custom scrollbar for table
+.table-responsive::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #a8a8a8;
+  }
+}
+
+// Edit Mode Styles
+.edit-mode {
+  .table {
+    font-size: 0.8rem;
+
+    th {
+      background-color: #28a745 !important;
+      color: white;
+      font-weight: 600;
+      text-align: center;
+      vertical-align: middle;
+      padding: 8px 4px;
+      
+      small {
+        font-size: 0.7rem;
+        opacity: 0.8;
+        display: block;
+        margin-top: 2px;
+      }
+    }
+
+    td {
+      padding: 4px 2px;
+      vertical-align: middle;
+    }
+
+    .form-control,
+    .form-select {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ced4da;
+      width: 100%;
+      min-width: 100px;
+      
+      &:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+      
+      &.is-invalid {
+        border-color: #dc3545;
+      }
+    }
+
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      line-height: 1;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+    }
+  }
+
+  // Mode toggle buttons
+  .btn-group {
+    .btn {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-1px);
+      }
+      
+      &.active {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+    }
+  }
+}
+
+// Status indicators for edit mode
+.edit-mode {
+  .table-success {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+  }
+
+  .table-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+  }
+  
+  .table-danger {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+  }
+}
+
+// Enhanced responsive for edit mode
+@media (max-width: 768px) {
+  .edit-mode {
+    .table {
+      font-size: 0.7rem;
+      
+      th {
+        min-width: 100px;
+        padding: 6px 2px;
+        
+        small {
+          font-size: 0.6rem;
+        }
+      }
+      
+      .form-control,
+      .form-select {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.3rem;
+        min-width: 80px;
+      }
+      
+      .btn-sm {
+        padding: 0.2rem 0.3rem;
+        font-size: 0.65rem;
+      }
+    }
+  }
+  
+  .d-flex.gap-2 {
+    flex-direction: column;
+    gap: 0.5rem !important;
+    
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
+// Smooth transitions for mode switching
+.edit-mode,
+.preview-section > div:first-child {
+  transition: all 0.3s ease;
+}
+
+// Loading overlay for edit mode
+.edit-mode .table-container {
+  position: relative;
+  
+  &.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 100;
+  }
+}
+
+
+::ng-deep .ng-dropdown-panel {
+  z-index: 9999 !important;
+  position: absolute !important;
+}
+
+.file-select {
+  text-align: center;
+  color: green;
+  i {
+    font-size: 60px;
+  }
+}

@@ -7,8 +7,16 @@ import {
   IHistory,
   ITag,
   Order,
+  TaskDistributionConfig,
 } from 'src/app/types/viewmodels';
-import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  of,
+  Subject,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
 import {
@@ -52,6 +60,15 @@ import {
   UserAcl,
   UserPerAccess,
 } from '@app/types/setting';
+import {omitBy} from 'lodash';
+import {ISubmitPayload} from '@app/main/dashboard/content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
+import {IFeedback} from '@app/types/feedback';
+
+interface IFilterCanSplitTask {
+  roleId: string;
+  branchId?: string;
+  createdAt?: string[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -76,6 +93,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     setting: 'setting',
     permission: 'permission',
     userAcl: 'user-acl',
+    taskDistributionConfig: 'task-distribution-config',
   };
 
   private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
@@ -89,6 +107,58 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     IViewModeDto | undefined
   >(undefined);
   public currentActiveViewMode = this.currentActiveViewMode$.asObservable();
+
+  private listTagSubject = new BehaviorSubject<ITag[]>(
+    null as unknown as ITag[],
+  );
+  public listTagObservable = this.listTagSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
+  private listViewModeSubject = new BehaviorSubject<EntityResult<IView[]>>(
+    null as unknown as EntityResult<IView[]>,
+  );
+
+  private listSourceSubject = new BehaviorSubject<ISource[]>(
+    null as unknown as ISource[],
+  );
+
+  public listSourceObservable = this.listSourceSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
+  private listChainActSubject = new BehaviorSubject<IChainAct[]>(
+    null as unknown as IChainAct[],
+  );
+  public listChainActObservable = this.listChainActSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
+  private listActResultSubject = new BehaviorSubject<IActResult[]>(
+    null as unknown as IActResult[],
+  );
+  public listActResultObservable = this.listActResultSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
+  private listActReasonSubject = new BehaviorSubject<
+    EntityResult<IActReason[]>
+  >(null as unknown as EntityResult<IActReason[]>);
+
+  private listActionSubject = new BehaviorSubject<IAction[]>(
+    null as unknown as IAction[],
+  );
+  public listActionObservable = this.listActionSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
+  private currentSettingObject = new BehaviorSubject<ISetting>(
+    null as unknown as ISetting,
+  );
+
+  public currentSetting = this.currentSettingObject
+    .asObservable()
+    .pipe(distinctUntilChanged());
 
   constructor(
     httpClient: HttpClient,
@@ -160,13 +230,25 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   actionReason = {
-    get: (params = {}) =>
-      this.httpClient.get<EntityResult<IActReason[]>>(
-        this.createUrl([this.api.actionReason]),
-        {
-          params: this.createParams(Object.assign(params, this.defaultParams)),
-        },
-      ),
+    get: (params = {}, options?: {cache?: boolean}) => {
+      const getData = this.httpClient
+        .get<EntityResult<IActReason[]>>(
+          this.createUrl([this.api.actionReason]),
+          {
+            params: this.createParams(
+              Object.assign(params, this.defaultParams),
+            ),
+          },
+        )
+        .pipe(tap((res) => res?.status === 200 && this.setListActReason(res)));
+      if (options?.cache) {
+        if (!this.listActReasonSubject.getValue()) {
+          return getData;
+        }
+        return of(this.listActReasonSubject.getValue());
+      }
+      return getData;
+    },
     create: (body: IBodyResultReason) =>
       this.httpClient.post<EntityResult<IActReason>>(
         this.createUrl([this.api.actionReason]),
@@ -240,30 +322,49 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
+    retrieveBookingsByTask: (params = {}) =>
+      this.httpClient.get<EntityResult<any[]>>(
+        this.createUrl([this.api.task, 'retrieve-booking-by-task']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
     getOne: (id: string) =>
       this.httpClient.get<EntityResult<ITask>>(
         this.createUrl([this.api.task, id]),
       ),
-    create: (body: ITaskDto) =>
-      this.httpClient.post<EntityResult<ITask>>(
+    create: (body: ITaskDto) => {
+      const headers: any = {};
+      if (this.authService.getCurrentClientSocketId()) {
+        headers['x-socket-client-id'] = this.authService.getCurrentClientSocketId();
+      }
+      return this.httpClient.post<EntityResult<ITask>>(
         this.createUrl([this.api.task]),
         body,
-      ),
+        { headers }
+      );
+    },
     clone: (id: string, body: CloneTaskDto) =>
       this.httpClient.post<EntityResult<ITask>>(
         this.createUrl([this.api.task, id, 'clone']),
         body,
       ),
     createOrder: (id: string) =>
-      this.httpClient.post<EntityResult<any[]>>(
+      this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.task, id, 'create-order']),
         {},
       ),
-    update: (id: string, body: ITaskDto) =>
-      this.httpClient.patch<EntityResult<ITask>>(
+    update: (id: string, body: ITaskDto) => {
+      const headers: any = {};
+      if (this.authService.getCurrentClientSocketId()) {
+        headers['x-socket-client-id'] = this.authService.getCurrentClientSocketId();
+      }
+      return this.httpClient.patch<EntityResult<ITask>>(
         this.createUrl([this.api.task, id]),
         body,
-      ),
+        { headers }
+      );
+    },
     updateTaskChain: (id: string, body: IAddTaskChainDto) =>
       this.httpClient.put<EntityResult<ITask>>(
         this.createUrl([this.api.task, id, 'update-chain']),
@@ -277,6 +378,65 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     delete: (id: string) =>
       this.httpClient.delete<EntityResult<null>>(
         this.createUrl([this.api.task, id]),
+      ),
+    canSplit: (filter: IFilterCanSplitTask) => {
+      return this.httpClient.get<
+        EntityResult<{
+          count: number;
+          taskIds: string[];
+          totalWithoutLimit: number;
+        }>
+      >(this.createUrl([this.api.task, `can-split`]), {
+        params: this.createParams(filter),
+      });
+    },
+    bulkAssignTeam: (body: ISubmitPayload) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, 'bulk-assign']),
+        body,
+      ),
+    drawable: (params = {}) =>
+      this.httpClient.get<EntityResult<ITask[]>>(
+        this.createUrl([this.api.task, 'drawable']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+
+    drawTask: (id: string) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, id, 'draw']), {},
+      ),
+
+    dropTask: (id: string) =>
+      this.httpClient.post<EntityResult<ITask>>(
+        this.createUrl([this.api.task, id, 'drop']), {},
+      ),
+    
+    closeTask: (id: string, body: any) =>
+      this.httpClient.patch<EntityResult<any>>(
+        this.createUrl([this.api.task, id, 'close']), body,
+      ),
+
+    bulkCloseTask: (ids: string[], closeTaskResult: boolean, closeTaskReason?: string | null) => {
+      const body: any = {
+        ids,
+        closeTaskResult,
+      }
+      if (closeTaskReason) {
+        body.closeTaskReason = closeTaskReason;
+      }
+
+      return this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.task, 'bulk-close']),
+        body,
+      )
+    },
+
+    deleteMulti: (taskIds: string[]) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.task, 'delete-requests']),
+        { taskIds },
       ),
   };
 
@@ -314,6 +474,24 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.taskChainResult, id, 'send-block']),
         {},
       ),
+
+    sendFeedback: (id: string, body: IFeedback) =>
+      this.httpClient.post<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'send-feedback']),
+        body,
+      ),
+
+    manualCreateOrder: (id: string, body: any) =>
+      this.httpClient.post<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'manual-create-order']),
+        body,
+      ),
+
+    createBooking: (id: string, body: any) =>
+      this.httpClient.post<EntityResult<ITaskChainResult>>(
+        this.createUrl([this.api.taskChainResult, id, 'create-booking']),
+        body,
+      ),
   };
 
   chainActResult = {
@@ -327,7 +505,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.chainActionResult, 'update-many']),
         body,
       ),
-    upsertMany: (body: IManyUpsertChainActResultDto) =>
+    upsertMany: (body: IManyUpsertChainActResultDto[]) =>
       this.httpClient.put<EntityResult<IChainResult>>(
         this.createUrl([this.api.chainActionResult, 'upsert-many']),
         body,
@@ -399,18 +577,62 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       ),
   };
 
-  settingView = {
-    retrieve: (params = {}) =>
-      this.httpClient.get<EntityResult<IView>>(
+  private _getData(params = {}) {
+    return this.httpClient
+      .get<EntityResult<IView[]>>(
         this.createUrl([this.api.settingView, 'retrieve']),
         {
-          params: this.createParams(Object.assign(params, this.defaultParams)),
+          params: this.createParams(
+            Object.assign(params, this.defaultParams),
+          ),
         },
-      ),
+      )
+      .pipe(tap((res) => res?.status === 200 && this.setListViewMode(res)));
+  }
+
+  public getListViewModeSubject() {
+    return this.listViewModeSubject.getValue();
+  }
+
+  settingView = {
+    retrieve: (
+      params = {},
+      options?: {
+        cache?: boolean;
+      },
+    ) => {
+      if (options?.cache) {
+        if (!this.listViewModeSubject.getValue()) {
+          return this._getData(params);
+        }
+
+        return of(this.listViewModeSubject.getValue());
+      }
+
+      return this._getData(params);
+    },
+
     update: (body: IViewDto) =>
       this.httpClient.put<EntityResult<IView>>(
         this.createUrl([this.api.settingView]),
         body,
+      ),
+
+    create: (body: IViewDto) =>
+      this.httpClient.post<EntityResult<IView>>(
+        this.createUrl([this.api.settingView]),
+        body,
+      ),
+
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<IView>>(
+        this.createUrl([this.api.settingView, id]),
+      ),
+
+    updatePos: (id: string, pos: number) =>
+      this.httpClient.put<EntityResult<IView>>(
+        this.createUrl([this.api.settingView, id, 'pos']),
+        {pos},
       ),
   };
 
@@ -422,8 +644,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       ),
-    update: (body: IViewDto) =>
-      this.httpClient.put<EntityResult<IView>>(
+    update: (body: ISetting) =>
+      this.httpClient.put<EntityResult<ISetting>>(
         this.createUrl([this.api.setting]),
         body,
       ),
@@ -478,6 +700,30 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       ),
   };
 
+  taskDistributionConfig = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<TaskDistributionConfig[]>>(
+        this.createUrl([this.api.taskDistributionConfig]),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      ),
+    create: (body: IBodyResultReason) =>
+      this.httpClient.post<EntityResult<TaskDistributionConfig>>(
+        this.createUrl([this.api.taskDistributionConfig]),
+        body,
+      ),
+    update: (id: string, body: IBodyResultReason) =>
+      this.httpClient.patch<EntityResult<TaskDistributionConfig>>(
+        this.createUrl([this.api.taskDistributionConfig, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.taskDistributionConfig, id]),
+      ),
+  };
+
   setDashboardViewModes(viewModes: IViewModeDto[]) {
     this.dashboardViewModes$.next(viewModes);
   }
@@ -494,7 +740,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     return this.changedDashboardViewModes$.getValue();
   }
 
-  setCurrentActiveViewMode(data: IViewModeDto) {
+  setCurrentActiveViewMode(data: IViewModeDto, isChangeTab: boolean = false) {
+    data.isChangeTab = isChangeTab;
+    data.options = data.options || {};
     this.currentActiveViewMode$.next(data);
     // replace the current active view mode in the list changedDashboardViewModes
     const viewModes = this.changedDashboardViewModes$.getValue();
@@ -509,7 +757,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   findUnitsByIds(ids: string[]) {
     const units = this.getUserUnits();
-    return units.flatMap((branch) => {
+    console.log('units', units);
+    const branchs = units.flatMap((branch) => {
       if (ids.includes(branch.data)) {
         const departments = branch.children || [];
         const teams = departments.flatMap(
@@ -528,6 +777,8 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         }) || []
       );
     });
+    console.log('branchs', branchs);
+    return branchs;
   }
 
   getFirstUnit() {
@@ -536,6 +787,21 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     const firstDepartment = units?.[0]?.children?.[0];
     const firstTeam = units?.[0]?.children?.[0]?.children?.[0];
     return firstTeam || firstDepartment || firstBranch;
+  }
+
+  // nhận vào mảng ids gồm id của cả chi nhánh , phòng ban và đội nhóm
+  // trả về đơn vị đầu tiên tìm thấy trong mảng ids nếu là chi nhánh thì tìm phòng ban và đội nhóm đầu tiên của chi nhánh đó
+  // nếu là phòng ban thì tìm đội nhóm đầu tiên của phòng ban đó
+  // nếu là đội nhóm thì trả về đội nhóm đó
+  getFirstUnitByIds(ids: string[]) {
+    const dfs = (units: any): any => {
+      for (const u of units) {
+        if (ids.includes(u.data)) {
+          return u.children?.length ? dfs(u.children) : u;
+        }
+      }
+    };
+    return dfs(this.getUserUnits());
   }
 
   findUnitFromData(data: IBranchTaskDto) {
@@ -609,6 +875,38 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       });
     }
     return units;
+  }
+
+  setListTag(items: ITag[]) {
+    this.listTagSubject.next(items);
+  }
+
+  setListViewMode(item: EntityResult<IView[]>) {
+    this.listViewModeSubject.next(item);
+  }
+
+  setListSource(items: ISource[]) {
+    this.listSourceSubject.next(items);
+  }
+
+  setListChainAct(items: IChainAct[]) {
+    this.listChainActSubject.next(items || []);
+  }
+
+  setListActResult(items: IActResult[]) {
+    this.listActResultSubject.next(items);
+  }
+
+  setListActReason(items: EntityResult<IActReason[]>) {
+    this.listActReasonSubject.next(items);
+  }
+
+  setListAction(items: IAction[]) {
+    this.listActionSubject.next(items);
+  }
+
+  setCurrentSetting(item: ISetting) {
+    this.currentSettingObject.next(item);
   }
 
   ngOnDestroy(): void {

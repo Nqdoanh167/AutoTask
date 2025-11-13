@@ -1,6 +1,6 @@
 <div class="modal-update-task">
   <form [formGroup]="updateForm">
-    <app-custom-modal>
+    <app-custom-modal [showBtnClose]="false">
       <ng-container modalTitle>
         <div class="d-flex align-items-center justify-content-between">
           <input
@@ -11,19 +11,71 @@
             [ngClass]="{
               'is-invalid': submitted && f['name'].errors
             }"
+            [readonly]="isTaskClosed"
           />
         </div>
       </ng-container>
       <ng-container modalTitleRight>
-        <div
-          class="d-flex align-items-center justify-content-between gap-3 me-2"
-        >
+        <app-order-create-source
+          (changePlatformSource)="handleChangePlatFormSource($event)"
+          [values]="f['platformSources'].value || []"
+          [valueIds]="f['platformSourceIds'].value || []"
+          [readonly]="isTaskClosed"
+        ></app-order-create-source>
+        <div class="d-flex align-items-center justify-content-between">
           @if (f['code'].value) {
             <div
               (click)="copyText(f['code'].value)"
               class="subhead cursor-pointer"
             >
               Mã tác vụ:&nbsp; #{{ f['code'].value }}
+            </div>
+          }
+          @if (f['isTaskClosed'].value) {
+            <div *ngIf="f['closeTaskResult'].value === true" class="close-text-success">Thành công</div>
+            <div *ngIf="f['closeTaskResult'].value === false" class="close-text-failure">Thất bại</div>
+          }
+          @if (f['id'].value && sourceData) {
+            <div
+              class="btn-group cursor-pointer btn-dropdown"
+              dropdown
+              placement="bottom right"
+              dropdownToggle
+            >
+              <div id="button-alignment">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+              <ul
+                id="dropdown-basic"
+                *dropdownMenu
+                class="dropdown-menu dropdown-menu-right"
+                role="menu"
+              >
+                <li role="menuitem" (click)="copyText(f['id'].value)">
+                  <div href="#" class="dropdown-item cursor-pointer">
+                    <i
+                      class="fa-regular fa-clipboard me-2"
+                      style="width: 14px"
+                    ></i>
+                    Sao chép ID
+                  </div>
+                </li>
+                <li
+                  role="menuitem"
+                  (click)="handleCopy(sourceData); isOpenBackDrop = true"
+                >
+                  <div href="#" class="dropdown-item cursor-pointer">
+                    <i class="far fa-clone me-2"></i>
+                    Tạo bản sao
+                  </div>
+                </li>
+                <li role="menuitem" (click)="handleDeleteTask()">
+                  <div href="#" class="dropdown-item cursor-pointer">
+                    <i class="far fa-trash-alt me-2"></i>
+                    Xóa task
+                  </div>
+                </li>
+              </ul>
             </div>
           }
         </div>
@@ -34,7 +86,7 @@
             <app-custom-tab-set
               [tabs]="tabs"
               [(activeTab)]="activeTab"
-              (activeTabChange)="getDetailTask(true)"
+              (activeTabChange)="handleActiveTabChange($event)"
             >
               <ng-container right>
                 <div
@@ -52,10 +104,11 @@
                       }"
                       placeholder="Chọn Đơn vị..."
                       (onNodeSelect)="handleChangeUnit($event)"
-                      (onNodeUnselect)="handleChangeUnit($event)"
+                      (onNodeUnselect)="preventUnselect($event)"
+                      [disabled]="isTaskClosed"
                     ></p-treeSelect>
                   </div>
-                  <ng-select
+                  <!-- <ng-select
                     [style.width]="'200px'"
                     [clearable]="false"
                     [searchable]="true"
@@ -85,25 +138,33 @@
                         {{ item.name }}
                       </div>
                     </ng-option>
-                  </ng-select>
+                  </ng-select> -->
                   <div class="input-group" [style.width]="'250px !important'">
                     <input
-                      [style.width]="'170px !important'"
                       formControlName="chatLink"
                       type="text"
                       class="input-medium"
                       placeholder="Gán Link cuộc hội thoại"
+                      [tooltip]="
+                        'Gán link cuộc hội thoại để hệ thống có thể tự động kiểm tra và bổ sung thông tin Nguồn dữ liệu vào Tác vụ'
+                      "
+                      [placement]="'bottom'"
+                      (change)="handleChangeChatLink()"
+                      [readOnly]="isTaskClosed"
                     />
-                    <span
-                      class="input-group-text cursor-pointer button-fill secondary-color fw-500"
-                      id="basic-addon2"
-                      tooltip="Gán link cuộc hội thoại để hệ thống có thể tự động kiểm tra và bổ sung thông tin Nguồn dữ liệu vào Tác vụ"
-                      container=".modal-update-task"
-                      (click)="handleChangeChatLink()"
-                    >
-                      Áp dụng
-                    </span>
                   </div>
+                  <button
+                    [tooltip]="'Nghe ghi âm cuộc gọi'"
+                    [placement]="'left'"
+                    class="btn button-outline"
+                    (click)="handleViewCallSmsOtt()"
+                  >
+                    <img
+                      src="./assets/images/icon-detail/record.svg"
+                      alt=""
+                      style="width: 16px"
+                    />
+                  </button>
                 </div>
               </ng-container>
             </app-custom-tab-set>
@@ -159,7 +220,13 @@
                               [multiple]="true"
                               [closeOnSelect]="false"
                               bindValue="id"
+                              bindLabel="name"
                               #ngSelectTagTask
+                              [loading]="tags.loading"
+                              (click)="clickLoadData('tags')"
+                              (add)="createNewTagAndChoose($event)"
+                              [addTag]="true"
+                              [addTagText]="'Thêm tag mới...'"
                             >
                               <ng-template ng-option-tmp let-item="item">
                                 <div
@@ -189,26 +256,11 @@
                                   {{ item.name }}
                                 </div>
                               </ng-template>
-                              <ng-template
-                                ng-notfound-tmp
-                                let-searchTerm="searchTerm"
-                              >
-                                <div
-                                  class="ng-option fs-7"
-                                  (click)="createNewTagAndChoose(searchTerm)"
-                                >
-                                  Không tìm thấy tag
-                                  <span class="fw-bold">
-                                    "{{ searchTerm }}"
-                                  </span>
-                                  Tạo mới?
-                                </div>
-                              </ng-template>
                             </ng-select>
                           }
                         </div>
                         <div
-                          class="d-flex align-items-center"
+                          class="d-flex align-items-center gap-2"
                           formArrayName="teams"
                         >
                           @if (autoTaskSetting?.roles?.length) {
@@ -222,8 +274,9 @@
                             let settingRoleIndex = $index
                           ) {
                             <div
-                              class="btn-group mx-2"
+                              class="btn-group"
                               dropdown
+                              [isDisabled]="isTaskClosed"
                               container=".modal-update-task"
                               [autoClose]="true"
                             >
@@ -293,12 +346,9 @@
                                         "
                                         [class.disabled]="!item.isActive"
                                         (click)="
-                                          item.id === settingRole.value.userId
-                                            ? onRemoveTeam(settingRoleIndex)
-                                            : onChooseTeam(
-                                                settingRoleIndex,
-                                                item
-                                              )
+                                          item.id !==
+                                            settingRole.value.userId &&
+                                            onChooseTeam(settingRoleIndex, item)
                                         "
                                       >
                                         <div
@@ -326,7 +376,24 @@
                           <div class="action-reload">
                             @if (sourceData?.id) {
                               <button
-                                (click)="getDetailTask(true)"
+                                (click)="handleDropTask(sourceData?.id)"
+                                class="btn button-medium button-outline me-2"
+                                type="button"
+                                [disabled]="submittedModal.dropTask || isTaskClosed"
+                                [tooltip]="'Thả số'"
+                                *ngIf="autoTaskSetting?.viewDropConfig"
+                              >
+                                <img
+                                  src="./assets/images/icon/drop.svg"
+                                  alt=""
+                                  style="width: 16px; height: 16px"
+                                />
+                              </button>
+
+                              <button
+                                (click)="
+                                  handleResetTask(generateResetTaskKey())
+                                "
                                 class="btn button-medium button-outline"
                                 type="button"
                                 [disabled]="loading.getDetail"
@@ -402,6 +469,7 @@
                                       "
                                       type="button"
                                       class="btn btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                                      [disabled]="loading.closeChainTask || isTaskClosed"
                                     >
                                       Đóng chuỗi
                                       <img
@@ -437,6 +505,7 @@
                                     "
                                     type="button"
                                     class="btn btn button-medium button-sub-primary red-color d-flex align-items-center"
+                                    [disabled]="loading.deleteChainTask || isTaskClosed"
                                   >
                                     Xóa
                                     <img
@@ -473,7 +542,10 @@
                                   )
                                 "
                                 (updateTaskChainEvent)="
-                                  getDetailTask(); updateSuccess.emit()
+                                  handleUpdateTaskChainData(
+                                    taskChain.value,
+                                    chainIndex
+                                  )
                                 "
                                 (cancelUpdateTaskChainEvent)="
                                   handleCancelUpdateChain(
@@ -482,13 +554,15 @@
                                     sourceData!.taskChains[chainIndex]!
                                   )
                                 "
-                                (callEvent)="handleCall()"
+                                (callEvent)="handleCall(sourceData?.taskChains?.[chainIndex], $event)"
+                                [task]="sourceData"
                               ></app-task-chain-item>
                             </accordion-group>
                           }
                         </accordion>
                         <div class="mt-2">
                           <button
+                            [disabled]="isTaskClosed"
                             (click)="handleAddTaskChain()"
                             type="button"
                             class="btn button-medium text-link"
@@ -504,12 +578,14 @@
                         Thông tin khách hàng
                         <i
                           class="fa-regular fa-circle-question ms-1"
-                          tooltip="Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới"
+                          [tooltip]="
+                            'Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới'
+                          "
                           placement="right"
                         ></i>
                       </div>
                       <app-customer-info
-                        [hasUpdateTaskPer]="permissions.canEditTask"
+                        [hasUpdateTaskPer]="permissions.canEditTask && !isTaskClosed"
                         [submitted]="submitted"
                         [formGroup]="formLeadDeal"
                         [selectedCustomerId]="formLeadDeal.value.id"
@@ -539,7 +615,9 @@
                             Sản phẩm quan tâm
                             <i
                               class="fa-regular fa-circle-question ms-1"
-                              tooltip="Những sản phẩm và dịch vụ mà khách quan tâm có thể được tạo thành đơn hàng bằng cách sử dụng nút Tạo đơn hàng cho Tác vụ ở kế bên."
+                              [tooltip]="
+                                'Những sản phẩm và dịch vụ mà khách quan tâm có thể được tạo thành đơn hàng bằng cách sử dụng nút Tạo đơn hàng cho Tác vụ ở kế bên.'
+                              "
                               placement="right"
                             ></i>
                           </div>
@@ -547,7 +625,7 @@
                             @if (!!sourceData?.id) {
                               <button
                                 (click)="handleCreateTaskOrder()"
-                                [disabled]="loading.createOrder"
+                                [disabled]="loading.createOrder || isTaskClosed"
                                 class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
                                 type="button"
                               >
@@ -565,6 +643,7 @@
                         </div>
                         <app-interested-products
                           [formGroup]="updateForm"
+                          [readOnly]="isTaskClosed"
                         ></app-interested-products>
                       </div>
                     }
@@ -588,6 +667,19 @@
                                 <i class="fa-solid fa-cart-shopping me-2"></i>
                                 Xem đơn đã tạo
                               </button>
+
+                              <button
+                                (click)="getOrderDetail(sourceData?.orderIds || [])"
+                                class="btn button-medium button-outline"
+                                type="button"
+                                [disabled]="loading.getOrderDetail"
+                              >
+                                @if (!loading.getOrderDetail) {
+                                  <i class="fa-solid fa-rotate"></i>
+                                } @else {
+                                  <i class="fas fa-spinner fa-spin"></i>
+                                }
+                              </button>
                             }
                           </div>
                         </div>
@@ -599,6 +691,37 @@
                     }
                   </div>
                 }
+                <!-- @case (ETabTaskDetail.BOOKING) {
+                  <div class="mt-3 content-tab custom-scrollbar">
+                    <div class="group-content mt-3">
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <div class="headline">Đơn booking đã tạo</div>
+                        <div class="d-flex gap-2">
+                          @if (
+                            !!sourceData?.id &&
+                            sourceData?.bookingIds &&
+                            sourceData!.bookingIds.length
+                          ) {
+                            <button
+                              (click)="handleViewCreatedBooking()"
+                              class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                              type="button"
+                            >
+                              <i class="fa-solid fa-calendar me-2"></i>
+                              Xem đơn booking đã tạo
+                            </button>
+                          }
+                        </div>
+                      </div>
+                      <app-bookings
+                        [bookings]="bookings.rows"
+                        [loading]="bookings.loading"
+                      ></app-bookings>
+                    </div>
+                  </div>
+                } -->
                 @case (ETabTaskDetail.HISTORY) {
                   <div class="mt-3 content-tab custom-scrollbar">
                     <div class="group-content">
@@ -617,21 +740,14 @@
           </div>
         }
       </ng-container>
-      <div
-        modalFooter
-        class="d-flex justify-content-between align-items-center"
-      >
-        <div>
-          @if (sourceData) {
-            <button
-              (click)="handleDeleteTask()"
-              class="btn button-delete-modal"
-              type="button"
-            >
-              Xóa
-            </button>
-          }
-        </div>
+      <div modalFooter class="d-flex align-items-center justify-content-between">
+        @if (sourceData?.id) {
+          <div *ngIf="sourceData?.isTaskClosed" style="display: hidden;"></div>
+          <ng-container *ngIf="!sourceData?.isTaskClosed" [ngTemplateOutlet]="templateCloseTask"></ng-container>
+        } @else {
+          <div style="display: hidden;"></div>
+        }
+
         <div class="d-flex gap-2">
           <button
             (click)="hideModal()"
@@ -687,6 +803,8 @@
             class="dropdown-auto-width custom-input-multiple-round"
             id="action-modal"
             appendTo=".modal-add-chain-action"
+            [loading]="actionChains.loading"
+            (click)="clickLoadData('actionChains')"
           >
             @for (option of actionChains.rows; track $index) {
               <ng-option [value]="option.id">
@@ -731,3 +849,20 @@
 @if (isOpenBackDrop) {
   <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
 }
+
+<ng-template #templateCloseTask>
+  <div>
+    <button
+      class="btn btn-close-task"
+      type="button"
+      (click)="taskHasNoChainOpen ? handleCloseTask() : handleConfirmToCloseTask($event)"
+    >
+      <span>Đóng tác vụ</span>
+      &nbsp;
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 9.5C8.41421 9.5 8.75 9.16421 8.75 8.75C8.75 8.33579 8.41421 8 8 8C7.58579 8 7.25 8.33579 7.25 8.75C7.25 9.16421 7.58579 9.5 8 9.5Z" fill="#0B2A78"/>
+        <path d="M13 5H6.25V3.25C6.25 2.78587 6.43437 2.34075 6.76256 2.01256C7.09075 1.68437 7.53587 1.5 8 1.5C8.46413 1.5 8.90925 1.68437 9.23744 2.01256C9.56563 2.34075 9.75 2.78587 9.75 3.25C9.75 3.38261 9.80268 3.50979 9.89645 3.60355C9.99021 3.69732 10.1174 3.75 10.25 3.75C10.3826 3.75 10.5098 3.69732 10.6036 3.60355C10.6973 3.50979 10.75 3.38261 10.75 3.25C10.75 2.52065 10.4603 1.82118 9.94454 1.30546C9.42882 0.789731 8.72935 0.5 8 0.5C7.27065 0.5 6.57118 0.789731 6.05546 1.30546C5.53973 1.82118 5.25 2.52065 5.25 3.25V5H3C2.73478 5 2.48043 5.10536 2.29289 5.29289C2.10536 5.48043 2 5.73478 2 6V13C2 13.2652 2.10536 13.5196 2.29289 13.7071C2.48043 13.8946 2.73478 14 3 14H13C13.2652 14 13.5196 13.8946 13.7071 13.7071C13.8946 13.5196 14 13.2652 14 13V6C14 5.73478 13.8946 5.48043 13.7071 5.29289C13.5196 5.10536 13.2652 5 13 5ZM8.5 10.425V11.5C8.5 11.6326 8.44732 11.7598 8.35355 11.8536C8.25979 11.9473 8.13261 12 8 12C7.86739 12 7.74021 11.9473 7.64645 11.8536C7.55268 11.7598 7.5 11.6326 7.5 11.5V10.425C7.09717 10.3049 6.75103 10.0438 6.52487 9.68948C6.29871 9.33515 6.20765 8.91125 6.26833 8.4953C6.32902 8.07935 6.5374 7.69914 6.85537 7.4242C7.17334 7.14925 7.57965 6.99795 8 6.99795C8.42035 6.99795 8.82666 7.14925 9.14463 7.4242C9.4626 7.69914 9.67098 8.07935 9.73167 8.4953C9.79235 8.91125 9.70129 9.33515 9.47513 9.68948C9.24897 10.0438 8.90283 10.3049 8.5 10.425Z" fill="#0B2A78"/>
+      </svg>
+    </button>
+  </div>
+</ng-template>

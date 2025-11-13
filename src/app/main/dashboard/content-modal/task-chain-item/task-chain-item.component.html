@@ -6,7 +6,7 @@
       <table class="table">
         <thead>
           <tr>
-            <th class="column-timer">Hẹn giờ/Thời gian thực hiện</th>
+            <th class="column-timer">Thực hiện</th>
             <th class="columns-action-main">Hành động</th>
             <th class="column-take-action">Thực hiện hành động</th>
             <th class="column-result">Kết quả & Nguyên nhân</th>
@@ -31,7 +31,7 @@
               track taskChainResultIndex;
               let taskChainResultIndex = $index
             ) {
-              <ng-container>
+              <ng-container *ngIf="taskChainResult.value.type === EChainNextActionType.MANUAL">
                 <tr [formGroupName]="taskChainResultIndex">
                   <td class="column-timer">
                     <div class="d-flex gap-2 align-items-center">
@@ -43,7 +43,13 @@
                           }}
                         </div>
                       }
-                      @if (
+                      @else if (
+                        f['status'].value === ETaskChainType.CLOSED
+                        && taskChainResult.value?.status !== ETaskChainResultType.COMPLETED
+                      ) {
+                        <span>-</span>
+                      }
+                      @else if (
                         !taskChainResult.value?.executedDate &&
                         taskChainResult.value?.deadlineDate
                       ) {
@@ -70,7 +76,7 @@
                             editable:
                               !!staticDataChainItem?.taskChainResults?.[
                                 taskChainResultIndex
-                              ]?.['isEdit']
+                              ]?.['isEdit'] && !task?.isTaskClosed
                           }"
                         >
                           @switch (taskChainResult.value?.typeOverDeadline) {
@@ -163,6 +169,9 @@
                           </div>
                         </ng-template>
                       }
+                      @else {
+                        <span>-</span>
+                      }
                       @if (taskChainResult.value?.reasonEditedDates?.length) {
                         <i
                           [popover]="changeHistoriesPop"
@@ -170,6 +179,7 @@
                           [outsideClick]="true"
                           class="fa-solid fa-circle-exclamation warning-change-time"
                           container=".modal"
+                          [tooltip]="'Lịch sử chỉnh sửa thời gian'"
                         ></i>
                         <ng-template #changeHistoriesPop>
                           <div
@@ -274,15 +284,19 @@
                       }
                     </div>
                   </td>
+
+                  <!--Tên hành động -->
                   <td class="columns-action-main">
                     {{ taskChainResult.value.action?.name || '-' }}
                   </td>
+
+                  <!-- Thực hiện hành động -->
                   <td class="column-take-action">
-                    <div formGroupName="action">
+                    <div class="d-flex flex-column mb-3" formGroupName="action">
                       @switch (taskChainResult?.value.action?.type) {
                         @case (EActionType.CALL) {
                           <button
-                            (click)="handleCall()"
+                            (click)="handleCall(taskChainResult.value)"
                             type="button"
                             class="btn button-medium button-sub-primary secondary-color"
                             [disabled]="
@@ -370,7 +384,181 @@
                         }
                       }
                     </div>
+
+                    @if ((taskChainResult.value?.subActions || []).length > 0) {
+                      @for (
+                        subAction of taskChainResult.value?.subActions || [];
+                        track subActionIndex;
+                        let subActionIndex = $index
+                      ) {
+                        <div class="d-flex flex-column mb-2 ms-2">
+                          @switch (subAction.type) {
+                            @case (EActionType.FEEDBACK) {
+                              <div
+                                *ngIf="
+                                  getSubActionFeedback(
+                                    taskChainResult.value?.feedbacks,
+                                    subAction.id
+                                  ) as feedback;
+                                  else noFeedback
+                                "
+                              >
+                                <b>Đánh giá:</b>
+                                <span>
+                                  {{ feedback.comment }}
+                                </span>
+
+                                <div class="d-inline-flex align-items-center">
+                                  <span>{{ feedback.rate }}⭐</span>
+                                  <div
+                                    class="fst-italic text-primary fs-7 cursor-pointer"
+                                    (click)="handleViewFeedback(feedback.id)"
+                                  >
+                                    Xem đánh giá
+                                  </div>
+                                </div>
+                              </div>
+
+                              <ng-template #noFeedback>
+                                <button
+                                  (click)="
+                                    handleFeedback(
+                                      taskChainResult.value,
+                                      taskChainResultIndex,
+                                      subAction.id
+                                    )
+                                  "
+                                  type="button"
+                                  class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+                                  [disabled]="
+                                    !handleCheckIsAllowEdit(
+                                      'actionButton',
+                                      taskChainResult.value,
+                                      taskChainResultIndex
+                                    ) || !hasPermitFeedback
+                                  "
+                                >
+                                  Đánh giá
+                                  <i class="fa-solid fa-comment ms-2"></i>
+                                </button>
+                              </ng-template>
+                            }
+                            @case (EActionType.MANUAL_CREATE_ORDER) {
+                              <div
+                                *ngIf="
+                                  getSubActionOrder(
+                                    taskChainResult.value?.orders,
+                                    subAction.id
+                                  ) as order;
+                                  else noOrder
+                                "
+                              >
+                                <b>Đơn hàng:</b>
+                                <span
+                                  class="text-primary fs-7 fst-italic"
+                                  style="cursor: pointer"
+                                  (click)="
+                                    handleCreateOrder(
+                                      taskChainResult.value,
+                                      taskChainResultIndex,
+                                      subAction.id,
+                                      order?.id
+                                    )
+                                  "
+                                >
+                                  {{ order?.code || order?.id }}
+                                </span>
+                              </div>
+
+                              <ng-template #noOrder>
+                                <button
+                                  (click)="
+                                    handleCreateOrder(
+                                      taskChainResult.value,
+                                      taskChainResultIndex,
+                                      subAction.id
+                                    )
+                                  "
+                                  type="button"
+                                  class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+                                  [disabled]="
+                                    !handleCheckIsAllowEdit(
+                                      'actionButton',
+                                      taskChainResult.value,
+                                      taskChainResultIndex
+                                    )
+                                  "
+                                >
+                                  Tạo đơn hàng
+                                  <i class="fa-solid fa-cart-shopping ms-2"></i>
+                                </button>
+                              </ng-template>
+                            }
+                            @case (EActionType.BOOKING) {
+                              <div
+                                *ngIf="
+                                  getSubActionBooking(
+                                    taskChainResult.value?.bookings,
+                                    subAction.id
+                                  ) as booking;
+                                  else noBooking
+                                "
+                                class="d-flex align-items-center"
+                              >
+                                <b>Lịch hẹn:</b>
+                                <span
+                                  class="text-primary fs-7 fst-italic ms-1"
+                                  style="
+                                    cursor: pointer;
+                                    display: inline-block;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    white-space: nowrap;
+                                    max-width: 100px;
+                                  "
+                                  (click)="handleViewBooking(booking?.id!)"
+                                >
+                                  {{ booking?.title }}
+                                </span>
+                              </div>
+
+                              <ng-template #noBooking>
+                                <button
+                                  (click)="
+                                    handleCreateBooking(
+                                      taskChainResult.value,
+                                      taskChainResultIndex,
+                                      subAction.id
+                                    )
+                                  "
+                                  type="button"
+                                  class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+                                  [disabled]="
+                                    !handleCheckIsAllowEdit(
+                                      'actionButton',
+                                      taskChainResult.value,
+                                      taskChainResultIndex
+                                    )
+                                  "
+                                >
+                                  Tạo booking
+                                  <i class="fa-solid fa-calendar ms-2"></i>
+                                </button>
+                              </ng-template>
+                            }
+                            @case (EActionType.OTHER) {
+                              <div>Khác</div>
+                            }
+                            @default {
+                              <div>-</div>
+                            }
+                          }
+                        </div>
+                      }
+                    }
                   </td>
+
+                  <!-- Kết quả hành động -->
                   <td class="column-result">
                     @if (
                       !!staticDataChainItem?.taskChainResults?.[
@@ -440,6 +628,8 @@
                       </div>
                     }
                   </td>
+
+                  <!-- Bước tiếp theo -->
                   <td
                     class="column-next-step"
                     [class.dontEdit]="
@@ -509,6 +699,8 @@
                       }
                     </div>
                   </td>
+
+                  <!-- Ghi chú -->
                   <td class="columns-desc">
                     @if (
                       staticDataChainItem?.taskChainResults?.[
@@ -534,6 +726,7 @@
                       </div>
                     }
                   </td>
+
                   @if (f['status'].value !== ETaskChainType.CLOSED) {
                     <td class="columns-action">
                       @if (
@@ -573,6 +766,7 @@
                                 taskChainResult.value
                               )
                             "
+                            [disabled]="loading.submit"
                           >
                             Lưu
                           </button>
@@ -601,3 +795,8 @@
     </div>
   </div>
 </form>
+
+<bs-modal-backdrop
+  *ngIf="showModal"
+  class="modal-backdrop fade in show"
+></bs-modal-backdrop>

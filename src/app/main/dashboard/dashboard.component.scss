@@ -1,12 +1,18 @@
 @use 'src/app/styles/variable' as vars;
 @use 'src/app/styles/mixins' as mixins;
 
+.header {
+  .input-checkbox {
+    width: 140px;
+  }
+}
 .dashboard-site {
-  padding: 16px;
+  padding: 14px;
 }
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '248px');
+  @include mixins.calculateSize('max-height', '100vh', '227px');
+  @include mixins.calculateSize('height', '100vh', '227px');
 }
 
 .avatar {
@@ -19,10 +25,11 @@
 .column-action-chain {
   .list-chain {
     .chain-item {
-      border: 1px solid vars.$secondary-500;
-      padding: 8px;
-      border-radius: vars.$radius-l;
+      // border: 1px solid vars.$secondary-500;
+      padding: 6px 12px;
+      border-radius: vars.$radius-s;
       position: relative;
+      background-color: #4277ff0d;
 
       .lock {
         display: none;
@@ -84,4 +91,88 @@
 .warning-change-time {
   color: vars.$orange-500;
   cursor: pointer;
+}
+.team-img {
+  position: relative;
+  width: 30px;
+  cursor: pointer;
+}
+.team-img .icon-add {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 10px;
+  width: 10px;
+  background: var(--bs-primary);
+  color: #fff;
+  border-radius: 100%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon-light {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #e7e9ef;
+  box-sizing: border-box;
+  border-radius: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.virtual-scroll-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.table-header {
+  overflow: hidden;
+}
+
+.stop-receive{
+  position: relative;
+  .dot {
+    right: 10px;
+    top: 0;
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 100%;
+    &.active {
+      background-color: var(--bs-success);
+    }
+    &.inactive {
+      background-color: var(--bs-danger);
+    }
+  }
+}
+
+.close-text-success {
+  color: #FFFFFF;
+  background-color: #008234;
+  border-radius: 24px;
+  padding: 4px 8px;
+  max-width: fit-content;
+  font-weight: 500;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.close-text-failure {
+  color: #FFFFFF;
+  background-color: #FA6E5B;
+  border-radius: 24px;
+  padding: 4px 8px;
+  max-width: fit-content;
+  font-weight: 500;
+  font-size: 12px;
+  margin-bottom: 2px;
 }

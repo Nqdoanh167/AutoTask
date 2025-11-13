@@ -15,23 +15,49 @@
         [dropdownPosition]="'top'"
       ></ng-select>
     </div>
-    <ng-container *ngIf="type === 'number'">
+    <ng-container>
       <span>trong tổng số {{ total }} bản ghi</span>
     </ng-container>
   </div>
   <div class="mt-2 mt-sm-2 mt-md-0">
     <ng-container
-      *ngIf="type === 'number'; then number; else lazy"
+      *ngIf="!shouldUseLazyMode; then number; else lazy"
     ></ng-container>
   </div>
 </div>
 
 <ng-template #lazy>
-  <div class="custom-change-page">
-    <button (click)="changePageLazy('before')" type="button" class="btn mx-2">
+  <div class="custom-change-page d-flex align-items-center">
+    <button
+      (click)="changePageLazy('before')"
+      type="button"
+      class="btn mx-2"
+      [disabled]="!canGoPrevious"
+      [title]="'Trang ' + (currentPage - 1)"
+    >
       <i class="fa-solid fa-arrow-left"></i>
     </button>
-    <button (click)="changePageLazy('after')" type="button" class="btn">
+
+    <div class="mx-2 page-link" (click)="pageChanged({page: 1}, null)">1</div>
+    <div class="mx-2">...</div>
+    <div
+      class="mx-2 page-link"
+      [ngClass]="{active: maxAllowedPage === currentPage}"
+      (click)="pageChanged({page: maxAllowedPage}, null)"
+    >
+      {{ maxAllowedPage }}
+    </div>
+    <div class="mx-2 page-link active" *ngIf="maxAllowedPage < currentPage">
+      {{ currentPage }}
+    </div>
+
+    <button
+      (click)="changePageLazy('after')"
+      type="button"
+      class="btn"
+      [disabled]="!canGoNext"
+      [title]="'Trang ' + (currentPage + 1)"
+    >
       <i class="fa-solid fa-arrow-right"></i>
     </button>
   </div>
@@ -39,7 +65,7 @@
 
 <ng-template #number>
   <pagination
-    [totalItems]="total"
+    [totalItems]="Math.min(total, maxRecords)"
     [ngModel]="currentPage"
     (pageChanged)="pageChanged($event, null)"
     [itemsPerPage]="selectedSize"
@@ -48,7 +74,7 @@
     [rotate]="false"
     previousText="&lsaquo;"
     nextText="&rsaquo;"
-    firstText="Trang đầu"
-    lastText="Trang cuối"
+    firstText="&lsaquo;&lsaquo;"
+    lastText="&rsaquo;&rsaquo;"
   ></pagination>
 </ng-template>

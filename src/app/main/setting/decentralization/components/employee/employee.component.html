@@ -11,7 +11,7 @@
         >
           <ng-container bodyTable>
             <div
-              class="table-responsive tableFixHead custom-scrollbar"
+              class="table-responsive tableFixHead custom-scrollbar mt-3"
               [class.thin-table]="isInPermissionModal"
             >
               <table class="table">
@@ -36,6 +36,7 @@
                       <th class="column-group">Vùng chức năng</th>
                       <th class="column-role">Vai trò</th>
                       <th class="column-branch">Chi nhánh</th>
+                      <th class="column-permission">Quyền</th>
                       <th class="column-status">Trạng thái</th>
                       @if (permission.edit || permission.removePer) {
                         <th class="columns-action">Hành động</th>
@@ -87,7 +88,7 @@
                         <div>
                           <img
                             class="avatar me-2"
-                            src="{{ item.picture }}"
+                            src="{{ item?.picture }}"
                             fallback="assets/images/avatar.svg"
                             alt=""
                           />
@@ -146,6 +147,21 @@
                         </div>
                       </ng-container>
                     </td>
+                    <td class="column-permission">
+                      <ng-container *ngIf="item.role === 'OWNER'">
+                        <div class="fw-500">OWNER</div>
+                      </ng-container>
+                      <ng-container *ngIf="item.role !== 'OWNER'">
+                        <div class="list-badge d-flex flex-wrap gap-1">
+                          <span
+                            *ngFor="let permission of mappingPermission(item)"
+                            class="badge"
+                          >
+                            {{ permission || '-' }}
+                          </span>
+                        </div>
+                      </ng-container>
+                    </td>
                     <td class="column-status">
                       <div>
                         <img
@@ -166,6 +182,7 @@
                               <span
                                 (click)="handleUpdate(item)"
                                 class="d-flex align-items-center btn-action-table"
+                                [class.disabled]="item.isUpserting"
                               >
                                 <img
                                   src="./assets/images/icon/edit.svg"

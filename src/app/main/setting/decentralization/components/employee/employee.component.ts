@@ -5,7 +5,7 @@ import {
   IFilterTopButton,
   IFilterTopTable,
 } from '@app/types/common';
-import {finalize, takeUntil} from 'rxjs';
+import {finalize, lastValueFrom, takeUntil} from 'rxjs';
 import {removeCharacter} from '@app/utils/common';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {environment} from '../../../../../../environments/environment';
@@ -27,7 +27,11 @@ import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {ToastrService} from 'ngx-toastr';
-import {EntityPagination} from '@app/types/viewmodels';
+import {
+  EntityPagination,
+  ICommonDataLazy,
+  IQueryBase,
+} from '@app/types/viewmodels';
 import {NgSelectComponent} from '@ng-select/ng-select';
 
 @Component({
@@ -82,6 +86,17 @@ export class EmployeeComponent
     removePer: false,
   };
 
+  public permissions: ICommonDataLazy<Permission, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 1000,
+      sort: '-createdAt',
+    },
+    isAllowLoadMore: false,
+  };
+
   constructor(
     private readonly modalService: BsModalService,
     private readonly autoTaskService: AutoTaskService,
@@ -93,6 +108,7 @@ export class EmployeeComponent
   }
 
   override ngOnInit() {
+    this.getPermissions();
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
@@ -147,6 +163,55 @@ export class EmployeeComponent
       });
   }
 
+  getPermissions() {
+    this.permissions.loading = true;
+    this.autoTaskService.permission
+      .get(this.permissions.paramsQuery)
+      .pipe(
+        finalize(() => (this.permissions.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        if (res.status === 200) {
+          this.permissions.rows = res.data;
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      });
+  }
+
+  private async handleUpsertUserAcls() {
+    // console.log(`[employee.component.ts] 'listFilteredBizUsers':`, this.listFilteredBizUsers);
+    for (const user of this.listFilteredBizUsers) {
+      if (user.isActiveAcl == null && user.isActive === true && user.role === 'OWNER') {
+        user.isUpserting = true;
+        try {
+          const data = {
+            isActive: true,
+            userId: user.id,
+            branches: user.aclBranches,
+          } as UserAcl;
+
+          const res = await lastValueFrom(
+            this.autoTaskService.userAcl.upsert(data).pipe(
+              takeUntil(this.destroy$),
+              finalize(() => (user.isUpserting = false)),
+            ),
+          );
+
+          if (res.status === 200) {
+            const userData = this.aclData.rows.find(
+              (user) => user.userId === res.data.userId,
+            );
+            if (userData) {
+              Object.assign(userData, res.data);
+            }
+          }
+        } catch (error) {}
+      }
+    }
+  }
+
   private findAclById(aclList: UserAcl[], id: string): UserAcl | undefined {
     return aclList?.find((item) => item.userId === id);
   }
@@ -183,7 +248,7 @@ export class EmployeeComponent
     });
   }
 
-  handleMapData(data: UserAcl[], onlyHasAcl = false) {
+  handleMapData(data: UserAcl[], onlyHasAcl = false, shouldUpsert = true) {
     this.listFilteredBizUsers = data?.map((item) => {
       const user = this.listBizUsers?.find((u) => u.id === item.userId);
       if (user) {
@@ -205,6 +270,12 @@ export class EmployeeComponent
     if (this.isInPermissionModal) {
       this.item.rows = this.listFilteredBizUsers;
     }
+
+    if (shouldUpsert) {
+      this.handleUpsertUserAcls().then(() => {
+        this.handleMapData(this.aclData.rows, onlyHasAcl, false);
+      });
+    }
   }
 
   override handleAction(name: string) {
@@ -217,29 +288,46 @@ export class EmployeeComponent
     }
   }
 
-  override onSearch(value: {term: string; name: string}) {
-    const {term} = value;
+  override onSearch(value: { term: string; name: string }) {
+    const { term } = value;
     const keyword = removeCharacter(term)
       .toLocaleLowerCase()
-      .replace(/[ ]+/, ' ');
-    this.listFilteredBizUsers = this.listBizUsers.filter(
-      (user) =>
-        !keyword ||
-        (user.name &&
-          removeCharacter(user.name).toLocaleLowerCase().indexOf(keyword) > -1),
-    );
+      .replace(/[ ]+/, ' ').trim();
+
+    this.listFilteredBizUsers = this.listBizUsers.filter((user) => {
+      if (!keyword) return true;
+
+      const name = user.name
+        ? removeCharacter(user.name).toLocaleLowerCase()
+        : '';
+      const email = user.email
+        ? removeCharacter(user.email).toLocaleLowerCase()
+        : '';
+
+      return name.indexOf(keyword) > -1 || email.indexOf(keyword) > -1;
+    });
   }
 
   handleUpdate(value?: CombinedUserAcl) {
     const modalUpdate = this.modalService.show(ModalEmployeeInfoComponent, {
       initialState: {
         sourceData: value,
+        permissions: this.permissions.rows,
       },
       class: 'modal-dialog-centered modal-xl',
     });
     modalUpdate?.content?.updateSuccess
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.getUserAcl());
+      .subscribe((user) => {
+        const userData = this.aclData.rows.find(
+          (u) => u.userId === user.userId,
+        );
+
+        if (userData) {
+          Object.assign(userData, user);
+          this.handleMapData(this.aclData.rows);
+        }
+      });
   }
 
   removePerOfEmployees(employees: CombinedUserAcl[]) {
@@ -296,5 +384,49 @@ Nhân viên bị loại bỏ quyền có thể không được phép truy cập 
       this.removePerOfEmployees(selectedRows);
     }
     this.selectBatchActions?.handleClearClick();
+  }
+
+  mappingPermission(item: CombinedUserAcl): string[] {
+    const permissionMap = new Set<string>();
+
+    item.aclBranches?.forEach((branch: any) => {
+      const branchName = branch.name;
+
+      // Permission tại branch
+      if (branch.permission) {
+        const permission = this.permissions.rows.find(
+          (p) => p.id === branch.permission,
+        );
+        if (permission) {
+          permissionMap.add(`${branchName} - ${permission.name}`);
+        }
+      }
+
+      branch.departments?.forEach((dept: any) => {
+        // Permission tại department
+        if (dept.permission) {
+          const permission = this.permissions.rows.find(
+            (p) => p.id === dept.permission,
+          );
+          if (permission) {
+            permissionMap.add(`${branchName} - ${permission.name}`);
+          }
+        }
+
+        // Permission tại team
+        dept.teams?.forEach((team: any) => {
+          if (team.permission) {
+            const permission = this.permissions.rows.find(
+              (p) => p.id === team.permission,
+            );
+            if (permission) {
+              permissionMap.add(`${branchName} - ${permission.name}`);
+            }
+          }
+        });
+      });
+    });
+
+    return Array.from(permissionMap);
   }
 }

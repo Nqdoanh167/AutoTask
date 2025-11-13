@@ -173,7 +173,9 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
 
         this.history.paramsQuery.filter = JSON.stringify(obj);
       }
-      this.getHistory();
+      if (obj[name]?.length) {
+        this.getHistory();
+      }
     } catch (e) {
       console.log(e);
     }
@@ -338,6 +340,12 @@ export class HistoryComponent implements OnDestroy, OnInit, OnChanges {
         return ``;
       case ESubOrderProductHistoryTask.NONE:
         return ``;
+      case EInformationContentHistoryTask.DRAW_TASK:
+        return `Rút số thành công`;
+      case EInformationContentHistoryTask.DROP_TASK:
+        return `Thả số thành công`;
+      case EInformationContentHistoryTask.CLOSE_TASK:
+        return `Đóng tác vụ`;
       default:
         return '';
     }

@@ -30,7 +30,7 @@
             Độ trễ chuỗi
             <i
               class="fa-regular fa-circle-question ms-1"
-              tooltip="Sau bao lâu thực hiện hành động đầu tiên của chuỗi"
+              [tooltip]="'Sau bao lâu thực hiện hành động đầu tiên của chuỗi'"
               placement="right"
             ></i>
           </label>
@@ -91,7 +91,7 @@
                   [items]="
                     actions.rows | filterData: selectedActionIds : ['id']
                   "
-                  [style.width]="'90%'"
+                  [style.width]="'100%'"
                   [ngClass]="{'is-invalid': submitted && !action?.value?.value}"
                   (open)="!actions.rows.length && getAction()"
                   [loading]="actions.loading"
@@ -116,6 +116,74 @@
                 >
                   <img src="./assets/images/icon/x.svg" alt="" />
                 </span>
+              </div>
+
+              <div class="sub-actions ms-5 mt-2" *ngIf="action?.value?.value">
+                <ng-container
+                  formArrayName="subActions"
+                  *ngIf="action.get('subActions')"
+                >
+                  <div
+                    *ngFor="
+                      let subAction of getSubActionsControls(i);
+                      let j = index
+                    "
+                    [formGroupName]="j"
+                    class="mb-2"
+                  >
+                    <label
+                      class="form-control-label small"
+                      for="subAction{{ i }}_{{ j }}"
+                    >
+                      Hành động phụ {{ i + 1 }}.{{ j + 1 }}
+                    </label>
+                    <div class="d-flex">
+                      <ng-select
+                        (open)="!subActions.rows.length && getSubActions()"
+                        [placeholder]="'Chọn Hành động phụ'"
+                        [searchable]="false"
+                        [items]="
+                          subActions.rows
+                            | filterData
+                              : selectedSubActionObject[action?.value?.value]
+                              : ['id']
+                        "
+                        [style.width]="'100%'"
+                        [loading]="subActions.loading"
+                        (scrollToEnd)="handleLoadMoreSubActions()"
+                        class="dropdown-auto-width input-medium"
+                        formControlName="value"
+                        id="subAction{{ i }}_{{ j }}"
+                        bindValue="id"
+                        bindLabel="name"
+                        appendTo=".modal"
+                      >
+                        <ng-template ng-label-tmp let-item="item">
+                          <div>
+                            {{ item.name ?? subAction?.value?.label ?? '-' }}
+                          </div>
+                        </ng-template>
+                      </ng-select>
+                      <span
+                        (click)="removeSubAction(i, j)"
+                        class="d-flex align-items-center btn-action-table"
+                      >
+                        <img src="./assets/images/icon/x.svg" alt="" />
+                      </span>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+
+              <div class="mt-2 ms-5" *ngIf="action?.value?.value">
+                <button
+                  type="button"
+                  (click)="addSubAction(i)"
+                  class="btn btn-sm text-link button-sub-primary secondary-color"
+                >
+                  <i class="fas fa-plus me-1"></i>
+                  Thêm hành động phụ
+                </button>
               </div>
             </div>
           </ng-container>

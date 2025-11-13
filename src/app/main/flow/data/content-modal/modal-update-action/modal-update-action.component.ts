@@ -13,8 +13,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {ToastrService} from 'ngx-toastr';
+import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ConfigurationService} from '@app/services/api/configuration.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
@@ -23,6 +22,10 @@ import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import uniqBy from 'lodash/uniqBy';
 import {IBlockAutomation} from '@app/types/automation';
 import {AutomationService} from '@app/services/api/automation.service';
+import {Template} from '@app/types/feedback';
+import {FeedbackService} from '@app/services/api/feeback.service';
+import {environment} from 'src/environments/environment';
+import {AuthService} from '@app/services/api/auth.service';
 
 @Component({
   selector: 'app-modal-update-action',
@@ -33,6 +36,10 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
   @Input() sourceData?: IAction;
   @Output() updateSuccess = new EventEmitter();
   private destroy$ = new Subject();
+  protected bizAlias?: string;
+  protected hasPermitModuleFeedback =
+    this.authService.checkPermittedModule('feedback');
+  protected hasPermitModuleBooking = this.authService.checkPermittedModule('booking');
 
   public actionTypes: {value: EActionType; label: string}[] = [];
   public submitted = false;
@@ -45,6 +52,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       callBlockAutomation: this.fb.group({
         blockId: null,
       }),
+      templateId: [null],
     },
     {validators: [this.allOrNoneRequired]},
   );
@@ -75,19 +83,26 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     data: false,
   };
 
+  public listTemplateFeedback: Template[] = [];
+
   protected readonly EActionType = EActionType;
 
   constructor(
-    private readonly modalService: BsModalService,
-    private readonly toastr: ToastrService,
     private readonly modalRef: BsModalRef,
     private readonly fb: FormBuilder,
     private readonly configurationService: ConfigurationService,
     private readonly autoTaskService: AutoTaskService,
     private readonly commonService: CommonService,
     private readonly automationService: AutomationService,
+    private readonly feedbackService: FeedbackService,
+    private readonly authService: AuthService,
   ) {
     this.actionTypes = configurationService.actionTypes;
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.bizAlias = biz.alias;
+      });
   }
 
   get f(): {[key: string]: AbstractControl} {
@@ -117,6 +132,7 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
       }
     }
     this.getBlock();
+    this.getTemplates();
   }
 
   getBlock() {
@@ -166,6 +182,21 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
         },
         error: (err) => {
           this.reasons.isAllowLoadMore = false;
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  getTemplates() {
+    this.feedbackService.currentConfig$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res) {
+            this.listTemplateFeedback = res.templates;
+          }
+        },
+        error: (err) => {
           this.commonService.handleErr(err);
         },
       });
@@ -248,6 +279,11 @@ export class ModalUpdateActionComponent implements OnDestroy, OnInit {
     this.f['callBlockAutomation'].patchValue({
       blockId: null,
     });
+  }
+
+  handleTransferFeedback() {
+    const url = `${environment.urlDomain}/${this.bizAlias}/feedback/config?tab=template`;
+    window.open(url, '_blank');
   }
 
   ngOnDestroy(): void {

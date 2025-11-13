@@ -27,6 +27,7 @@ import {ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {CustomerService} from '@app/services/api/customer.service';
 import {CommonService} from '@app/services/common/common.service';
 import {Customer} from '@app/types/customer';
+import {uniqBy} from 'lodash';
 
 @Component({
   selector: 'app-input-suggest-customer',
@@ -59,6 +60,8 @@ export class InputSuggestCustomerComponent
   @Input() inputId: string = '';
   @Input() placeholder: string = 'Text...';
   @Input() className?: string = '';
+  @Input() isRequired: boolean = false;
+  @Input() readOnly: boolean = false;
   @Output() valueChange: EventEmitter<string | undefined> = new EventEmitter();
   @Output() selectCustomer: EventEmitter<Customer | undefined> =
     new EventEmitter();
@@ -78,10 +81,14 @@ export class InputSuggestCustomerComponent
       page: 1,
       limit: 20,
       sort: '-createdAt',
+      timeout: 300,
+      debounce: 600,
     },
     isAllowLoadMore: false,
+    isGet: false,
   };
   public selectedCustomer: Customer | undefined = undefined;
+  public showSuggestions: string | null = null;
 
   // for FormControl
   onChange = (value: string) => {};
@@ -103,18 +110,18 @@ export class InputSuggestCustomerComponent
           ...this.customers.paramsQuery,
           q: data,
         };
-        this.getListCustomer(true, true);
+        this.getListCustomer(true);
       });
   }
 
   getListCustomer(isInit: boolean = false, isSearching: boolean = false) {
     try {
-      this.customers.loading = true;
-      const ids: string[] = [];
+      if (isInit) this.customers.paramsQuery.page = 1;
       const query = {
         ...this.customers.paramsQuery,
-        ...(isInit && ids.length && {ids: ids}),
       };
+
+      this.customers.loading = true;
       if (isSearching) {
         this.customers.paramsQuery.page = 1;
         this.customers.rows = [];
@@ -128,13 +135,21 @@ export class InputSuggestCustomerComponent
         )
         .subscribe({
           next: (res) => {
-            if (res && res.status === 200) {
-              this.customers.rows = res.data;
+            if (res.status === 200) {
+              this.customers.rows = uniqBy(
+                this.customers.rows.concat(res.data),
+                'id',
+              );
+              this.customers.isAllowLoadMore = res.meta
+                ? res.meta.currentPage < res.meta.totalPage
+                : false;
             } else {
               this.commonService.handleResErr(res);
+              this.customers.isAllowLoadMore = false;
             }
           },
           error: (err) => {
+            this.customers.isAllowLoadMore = false;
             this.commonService.handleErr(err);
           },
         });
@@ -146,16 +161,14 @@ export class InputSuggestCustomerComponent
   handleBlur($event: any) {}
 
   handleChooseCustomer(customer: Customer) {
+    if (this.uiType === 'text') {
+      this.selectCustomer.emit(customer);
+      this.showSuggestions = null;
+      return;
+    }
+    this.select.handleClearClick();
     this.trigger.name = false;
     this.selectCustomer.emit(customer);
-  }
-
-  onSearch(event?: any) {
-    const value = event?.target?.value;
-    this.trigger.name = true;
-    this.valueChange.next(value);
-    this.onChange(value);
-    this.input$.next(value);
   }
 
   trackByFn(item: Customer) {
@@ -180,4 +193,50 @@ export class InputSuggestCustomerComponent
     this.disabled = disabled;
   }
   // End: for FormControl
+
+  clickLoadData(event?: Event) {
+    if (this.uiType === 'text') {
+      const target = event?.target as HTMLInputElement;
+      const search = target?.value;
+      if (search) {
+        this.showSuggestions = this.inputId;
+        if (this.customers.paramsQuery.q !== search) {
+          this.customers.paramsQuery.q = search;
+          this.searchFn({term: search});
+        }
+      }
+      return;
+    }
+    if (!this.customers.isGet) {
+      this.customers.isGet = true;
+      this.customers.paramsQuery.page = 1;
+      this.getListCustomer();
+    }
+  }
+
+  handleLoadMore() {
+    if (this.customers.isAllowLoadMore) {
+      this.customers.paramsQuery!.page! += 1;
+      this.getListCustomer();
+    }
+  }
+
+  onInputSearch(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.valueChange.emit(target?.value);
+    if (target?.value) {
+      this.showSuggestions = this.inputId;
+      this.searchFn({term: target.value});
+      return;
+    }
+    this.showSuggestions = null;
+  }
+
+  searchFn(event: {term: string}) {
+    clearTimeout(this.customers.paramsQuery['timeout']);
+    this.customers.paramsQuery['timeout'] = setTimeout(() => {
+      this.customers.paramsQuery.q = event.term;
+      this.getListCustomer(true, true);
+    }, this.customers.paramsQuery['debounce']);
+  }
 }

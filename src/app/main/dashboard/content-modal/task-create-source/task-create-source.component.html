@@ -1,0 +1,131 @@
+<div
+  class="order-source source d-flex align-items-center flex-wrap"
+  [ngClass]="{show: isHover, readonly}"
+>
+  <ng-container *ngIf="values.length; else noneValue">
+    <div class="d-flex flex-wrap" (click)="show()">
+      <ng-container *ngFor="let value of values">
+        <a
+          *ngIf="value.link"
+          href="{{ value.link }}"
+          target="_blank"
+          [tooltip]="'Nguồn đơn: ' + value.name"
+          class="ms-2 d-inline-flex"
+        >
+          <img
+            src="{{ value.picture || './assets/images/default-product.png' }}"
+            height="24px"
+            width="24px"
+            class="rounded-circle"
+            alt=""
+          />
+        </a>
+        <div
+          *ngIf="!value.link"
+          [tooltip]="'Nguồn đơn: ' + value.name"
+          class="ms-2 d-inline-flex"
+        >
+          <img
+            src="{{ value.picture || './assets/images/default-product.png' }}"
+            height="24px"
+            width="24px"
+            class="rounded-circle"
+            alt=""
+          />
+        </div>
+      </ng-container>
+      <span class="ng-arrow-wrapper" *ngIf="!readonly">
+        <span class="ng-arrow"></span>
+      </span>
+    </div>
+  </ng-container>
+  <ng-template #noneValue>
+    <div class="source__header p-0" (click)="show()">
+      Nguồn đơn
+      <span class="ng-arrow-wrapper" *ngIf="!readonly">
+        <span class="ng-arrow"></span>
+      </span>
+    </div>
+  </ng-template>
+
+  <div
+    class="source__list dropdown-menu"
+    [ngClass]="{
+      'custom-scrollbar': search.isActive && _filteredItems.length > 8
+    }"
+  >
+    <div class="item input-search" *ngIf="enableSearch">
+      <!-- (keyup)="onChangeInputSearch($event)" -->
+      <input
+        style="padding-left: 12px"
+        type="text"
+        (keyup)="onChangeInputSearch($event)"
+        #inputSearch
+        class="form-control h-sm"
+        placeholder="Tìm kiếm"
+      />
+    </div>
+    <div
+      class="item text-center text-secondary fs-7"
+      *ngIf="!_filteredItems.length"
+    >
+      Không tìm thấy
+    </div>
+    <div
+      class="item dropdown-item"
+      *ngFor="let item of _filteredItems"
+      [ngClass]="{active: valueIds.includes(item.id)}"
+    >
+      <div
+        class="source d-flex align-items-center flex-wrap"
+        (mouseover)="mouseover(item)"
+        [ngClass]="{show: item.isHover}"
+      >
+        <div
+          class="source__header text-truncate w-100"
+          (click)="onSelect($event, item)"
+        >
+          <img
+            *ngIf="item.picture"
+            src="{{ item.picture }}"
+            class="rounded me-2"
+            height="28px"
+            width="28px"
+            alt=""
+          />
+          <span class="fw-500 text-truncate">
+            {{ item.name }}
+            <ng-container *ngIf="item.rows.length">
+              ({{ item.rows.length }})
+            </ng-container>
+          </span>
+        </div>
+        <div
+          class="source__list dropdown-menu custom-scrollbar"
+          *ngIf="item.rows.length"
+        >
+          <div
+            class="item dropdown-item"
+            *ngFor="let row of item.rows"
+            [ngClass]="{active: valueIds.includes(row.id)}"
+          >
+            <div
+              class="source__header text-truncate"
+              (click)="onSelect($event, item, row)"
+            >
+              <img
+                *ngIf="row.picture"
+                src="{{ row.picture }}"
+                class="rounded me-2"
+                height="28px"
+                width="28px"
+                alt=""
+              />
+              <span class="fw-500 text-truncate">{{ row.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

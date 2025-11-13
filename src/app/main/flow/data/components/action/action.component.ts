@@ -16,6 +16,7 @@ import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.ser
 import {EActionType, IAction} from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {sortBy, sortIcon} from '@app/utils/common';
+import { FeedbackService } from '@app/services/api/feeback.service';
 
 @Component({
   selector: 'app-action',
@@ -73,10 +74,12 @@ export class ActionComponent implements OnInit, OnDestroy {
     private readonly commonService: CommonService,
     private readonly modalConfirmService: ModalConfirmService,
     private readonly autoTaskService: AutoTaskService,
+    private readonly feedbackService: FeedbackService,
   ) {}
 
   ngOnInit() {
     this.getDataSource();
+    this.getConfigFeedback();
     if (!this.hasEditPer) {
       this.configButtons = this.configButtons.filter(
         (item) => item.name !== 'add_new',
@@ -102,6 +105,21 @@ export class ActionComponent implements OnInit, OnDestroy {
           if (res.status === 200) {
             this.dataSource.rows = res.data;
             this.dataSource.total = res.total;
+          }
+        },
+      });
+  }
+
+  getConfigFeedback() {
+    this.feedbackService.config
+      .get()
+      .pipe(
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.feedbackService.setConfig(res.data);
           }
         },
       });
@@ -197,7 +215,7 @@ export class ActionComponent implements OnInit, OnDestroy {
       const filter = this.dataSource.paramsQuery?.filter || '{}';
       let obj = JSON.parse(filter);
       if (value || Number(value) === 0) {
-        obj[name] = value;
+        obj[name] = [value];
       } else {
         delete obj[name];
       }
@@ -210,7 +228,7 @@ export class ActionComponent implements OnInit, OnDestroy {
 
   renderNameType(value: EActionType) {
     return (
-      this.actionTypes?.find((type: any) => type.value == value).label ?? '-'
+      this.actionTypes?.find((type: any) => type.value == value)?.label ?? '-'
     );
   }
 
