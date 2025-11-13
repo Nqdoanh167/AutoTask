@@ -2,6 +2,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   TemplateRef,
@@ -53,6 +54,7 @@ import { ThrottleEvent } from '@app/share/decorator/throttle-event.decorator';
 import { ModalCloseTaskComponent } from '../modal-close-task/modal-close-task.component';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
+declare function smaxCallSdkClearCall(): void;
 
 @Component({
   selector: 'app-modal-update-task',
@@ -77,6 +79,20 @@ export class ModalUpdateTaskComponent
   @Output() createdTask = new EventEmitter<ITask>();
   @Output() updatedTask = new EventEmitter<ITask>();
   @Output() deleteTask = new EventEmitter<string>();
+
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    try {
+      if (typeof smaxCallSdkClearCall === 'function') {
+        smaxCallSdkClearCall();
+        console.info('smaxCallSdkClearCall called')
+      } else {
+        console.error('smaxCallSdkClearCall fn not found')
+      }
+    } catch (error) {
+      console.error('smaxCallSdkClearCall error', error)
+    }
+  }
 
   public selectTag: boolean = false;
   public submittedModal = {

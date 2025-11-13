@@ -60,7 +60,7 @@ import {SocketService} from '@app/services/api/socket.service';
 import {ModalDeleteMultiComponent} from './content-modal/multiple-action/modal-delete-multi/modal-delete-multi.component';
 import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/modal-stop-receive.component';
 import {calculateTime} from '@app/utils/common';
-import { ModalCloseMultiTasksComponent } from './content-modal/modal-close-multi-tasks/modal-close-multi-tasks.component';
+import {ModalCloseMultiTasksComponent} from './content-modal/modal-close-multi-tasks/modal-close-multi-tasks.component';
 
 @Component({
   selector: 'app-task',
@@ -308,7 +308,7 @@ export class DashboardComponent
       }
 
       return true;
-    })
+    });
   }
 
   setupCheckbox() {
@@ -657,7 +657,7 @@ export class DashboardComponent
           );
           break;
         }
-        this.showModalCloseMultiTask(action)
+        this.showModalCloseMultiTask(action);
         break;
       case ETypeBulkUpdate.ASSIGN_TEAM:
         if (!this.hasPerAssignTasks()) {
@@ -685,17 +685,18 @@ export class DashboardComponent
   }
 
   showModalCloseMultiTask(action: {value: ETypeBulkUpdate}) {
-    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    const sleep = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
     if (!action) return;
 
     const rows = this.getCheckRows();
-    const tasksNotClosed = rows.filter(row => !row.isTaskClosed);
+    const tasksNotClosed = rows.filter((row) => !row.isTaskClosed);
 
     try {
       const modalRef = this.modalService.show(ModalCloseMultiTasksComponent, {
         class: 'modal-dialog-centered',
         initialState: {
-          taskIds: tasksNotClosed.map(row => row.id),
+          taskIds: tasksNotClosed.map((row) => row.id),
           selectedTasks: tasksNotClosed,
         },
       });
@@ -1009,7 +1010,7 @@ export class DashboardComponent
 
       const currentBtnActiveState = configButton?.isActive || false;
       const incomingBtnActiveState = !currentBtnActiveState; // Next state of btn activation
-      
+
       const obj = JSON.parse(this.item.paramsQuery.filter || '{}');
       obj['hideClosedTask'] = incomingBtnActiveState;
 
