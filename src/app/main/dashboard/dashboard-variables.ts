@@ -508,9 +508,9 @@ export const TASK_FIELD_GROUP_EXPORT_EXCEL = [
       {
         label: 'Nguyên nhân - Kết quả chuỗi hành động',
         code: 'taskChains_reasonResults',
-      }
-    ]
-  }
+      },
+    ],
+  },
 ];
 
 export const FORM_EXPORT_EXCEL = {
@@ -536,4 +536,4 @@ export const FORM_EXPORT_EXCEL = {
   taskChains_id: null,
   taskChains_status: null,
   taskChains_reasonResults: null,
-}
+};
