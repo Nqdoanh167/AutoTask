@@ -1,0 +1,89 @@
+.lead-status {
+  &__header {
+    .btn-primary {
+      padding: 0.5rem 1.25rem;
+      font-weight: 500;
+      
+      i {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  &__table {
+    .table {
+      margin-bottom: 0;
+
+      thead {
+        background-color: #f8f9fa;
+
+        th {
+          font-weight: 600;
+          color: #495057;
+          border-bottom: 2px solid #dee2e6;
+          padding: 0.75rem;
+          font-size: 0.9rem;
+        }
+      }
+
+      tbody {
+        tr {
+          transition: background-color 0.15s ease;
+
+          &:hover {
+            background-color: #f8f9fa;
+          }
+
+          td {
+            padding: 0.75rem;
+            vertical-align: middle;
+          }
+        }
+      }
+    }
+
+    .status-preview {
+      font-size: 0.85rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      font-weight: 600;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+
+      i {
+        font-size: 0.875rem;
+      }
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+    }
+
+    .fa-star {
+      font-size: 0.9rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .spinner-border {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

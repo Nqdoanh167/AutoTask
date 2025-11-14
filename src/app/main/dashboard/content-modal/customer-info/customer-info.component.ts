@@ -10,7 +10,7 @@ import {
   SimpleChanges,
   ViewChildren,
 } from '@angular/core';
-import {distinctUntilKeyChanged, finalize, Subject, takeUntil} from 'rxjs';
+import {distinctUntilKeyChanged, finalize, Subject, takeUntil, forkJoin, of} from 'rxjs';
 import {AbstractControl, FormGroup} from '@angular/forms';
 import {ApiLocationService} from '@app/services/api/location';
 import {IDistrict, IProvince, IWard} from '@app/types/location';
@@ -27,6 +27,9 @@ import {ToastrService} from 'ngx-toastr';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateCustomerComponent} from '@main/dashboard/content-modal/modal-update-customer/modal-update-customer.component';
 import {RfmService} from '@app/services/api/rfm.service';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import { ILeadStatus } from '@app/types/lead-status';
+import { ILeadTag } from '@app/types/lead-tag';
 
 type ViewOrderType = 'completed' | 'cancelled' | 'trash';
 
@@ -42,9 +45,18 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   @Input() submitted: boolean = false;
   @Input() hasUpdateTaskPer: boolean = false;
   @Input() selectedCustomerId: string = '';
-
+  @Input() leadId?: string;
   @Input() isOpenBackdrop: boolean = false;
   @Output() isOpenBackdropChange = new EventEmitter<boolean>();
+
+  // Lead-related properties when creating task from lead
+  public leadStatuses: any[] = [];
+  public leadTags: any[] = [];
+  public loadingLeadData = false;
+
+  // Store original values for revert on cancel
+  public originalLeadStatusId: string | null = null;
+  public originalLeadTags: string[] = [];
 
   private currentBiz = '';
   private destroy$ = new Subject();
@@ -103,6 +115,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     private readonly toarst: ToastrService,
     private readonly modalService: BsModalService,
     private readonly rfmService: RfmService,
+    private readonly autoTaskService: AutoTaskService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -128,26 +141,40 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    console.log(`[customer-info.component.ts] label:formGroup`, this.formGroup.value);
+    console.log(`[customer-info.component.ts] label:leadId`, this.leadId);
     if (!this.hasUpdateTaskPer) {
       this.formGroup.disable();
     }
     this.getProvince();
-    this.getCustomerDetail(this.selectedCustomerId, true);
-    // this.formGroup.valueChanges
-    //   .pipe(distinctUntilKeyChanged('id'))
-    //   .subscribe((value) => {
-    //     if (value?.id) {
-    //       this.getCustomerDetail(value.id);
-    //       if (value?.provinceCode) {
-    //         this.getDistrict(value?.provinceCode);
-    //       }
-    //       if (value?.districtCode) {
-    //         this.getWard(value?.provinceCode, value?.districtCode);
-    //       }
-    //     } else {
-    //       this.selectedCustomer = null;
-    //     }
-    //   });
+    if (this.leadId) {
+      this.loadLeadStatusesAndTags();
+      this.autoTaskService.lead.getById(this.leadId).subscribe((res) => {
+        if (res.status === 200) {
+          // Store original values for revert
+          this.originalLeadStatusId = res.data?.statusId || null;
+          this.originalLeadTags = res.data?.tagIds || [];
+
+          this.formGroup.patchValue({
+            leadStatusId: res.data?.statusId,
+            leadTags: res.data?.tagIds,
+          });
+        }
+      })
+    } else {
+      this.getCustomerDetail(this.selectedCustomerId, true);
+    }
+    // Load district và ward nếu form đã có provinceCode và districtCode (từ lead data)
+    const provinceCode = this.formGroup.get('provinceCode')?.value;
+    const districtCode = this.formGroup.get('districtCode')?.value;
+    
+    if (provinceCode) {
+      this.getDistrict(provinceCode);
+    }
+    
+    if (provinceCode && districtCode) {
+      this.getWard(provinceCode, districtCode);
+    }
   }
 
   getCustomerDetail(id: string, isInit: boolean = false) {
@@ -162,20 +189,56 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
       .subscribe({
         next: (res) => {
           if (res && res.status === 200) {
-            // this.selectedCustomer = res.data;
-            this.handleChooseCustomer(res.data, isInit);
-            this.getBehaviorInfoCustomer(res.data?.id!);
-            if (res.data?.provinceCode) {
-              this.getDistrict(res.data?.provinceCode);
+            const customer = res.data;
+            this.getBehaviorInfoCustomer(customer?.id!);
+            
+            // Load district và ward trước khi patch data
+            const loadRequests = [];
+            if (customer?.provinceCode) {
+              loadRequests.push(
+                this.apiLocationService.getDistrict({
+                  provinceCode: customer.provinceCode,
+                  location: 'VN',
+                })
+              );
+            } else {
+              loadRequests.push(of(null));
             }
-            if (res.data?.districtCode) {
-              this.getWard(res.data?.provinceCode, res.data?.districtCode);
+            
+            if (customer?.provinceCode && customer?.districtCode) {
+              loadRequests.push(
+                this.apiLocationService.getWard({
+                  provinceCode: customer.provinceCode,
+                  districtCode: customer.districtCode,
+                  location: 'VN',
+                })
+              );
+            } else {
+              loadRequests.push(of(null));
             }
-
-            this.handleViewOrderType('completed');
+            
+            // Đợi load xong rồi mới patch data
+            forkJoin(loadRequests).subscribe({
+              next: ([districtRes, wardRes]) => {
+                if (districtRes && districtRes.data) {
+                  this.listDistrict = districtRes.data;
+                }
+                if (wardRes && wardRes.data) {
+                  this.listWard = wardRes.data as IWard[];
+                }
+                
+                // Giờ mới patch data vào form
+                this.handleChooseCustomer(customer, isInit);
+                this.handleViewOrderType('completed');
+              },
+              error: (err) => {
+                // Nếu lỗi vẫn patch data
+                this.handleChooseCustomer(customer, isInit);
+                this.handleViewOrderType('completed');
+              }
+            });
           } else {
-            // this.commonService.handleResErr(res);
-            this.toarst.warning('Không tìm thấy khách hàng!');
+            console.info('Không tìm thấy khách hàng!', res);
           }
         },
       });
@@ -512,6 +575,160 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
       this.viewOrderType = undefined;
       this.viewOrCustomerOrders = [];
     }
+  }
+
+  loadLeadStatusesAndTags() {
+    this.loadingLeadData = true;
+
+    // Fetch lead statuses and tags in parallel
+    const leadStatuses$ = this.autoTaskService.leadStatus.get();
+    const leadTags$ = this.autoTaskService.leadTag.get();
+
+    // Wait for both requests to complete
+    Promise.all([
+      leadStatuses$.toPromise(),
+      leadTags$.toPromise()
+    ]).then(([statusesRes, tagsRes]) => {
+      // Set lead statuses
+      if (statusesRes?.status === 200) {
+        this.leadStatuses = statusesRes.data || [];
+      }
+
+      // Set lead tags
+      if (tagsRes?.status === 200) {
+        this.leadTags = tagsRes.data || [];
+      }
+
+      this.loadingLeadData = false;
+    }).catch((error) => {
+      console.error('Error loading lead statuses and tags:', error);
+      this.loadingLeadData = false;
+    });
+  }
+
+  onLeadStatusChange(status: ILeadStatus) {
+    if (!status) return;
+
+    // Store current value for revert on cancel
+    const currentStatusId = this.formGroup.get('leadStatusId')?.value;
+
+    // Get current and new status names for display
+    const currentStatus = this.leadStatuses.find(s => s.id === currentStatusId);
+    const newStatus = status;
+
+    const message = `Bạn đang thay đổi trạng thái lead từ "${currentStatus?.name || 'Không có'}" thành "${newStatus.name}". Việc cập nhật sẽ ảnh hưởng tới tất cả các tác vụ khác có lead này.`;
+
+    this.showConfirmModal(
+      'Cập nhật trạng thái Lead',
+      message,
+      () => {
+        this.formGroup.patchValue({ leadStatusId: status.id });
+        this.updateLeadStatus(status.id);
+      },
+      () => {
+        // Revert to original value when cancelled
+        this.formGroup.patchValue({ leadStatusId: this.originalLeadStatusId });
+      }
+    );
+  }
+
+  onLeadTagsChange(tags: ILeadTag[]) {
+    console.log(`[customer-info.component.ts] tags:`, tags);
+    if (!tags) return;
+
+    // Store current value for revert on cancel
+    const currentTags = this.formGroup.get('leadTags')?.value || [];
+
+    // Get tag names for display
+    const currentTagNames = currentTags.map((tagId: string) => {
+      const tag = this.leadTags.find(t => t.id === tagId);
+      return tag?.name || tagId;
+    }).join(', ') || 'Không có';
+
+    const newTagNames = tags.map(tag => tag.name).join(', ');
+
+    const message = `Bạn đang thay đổi tag lead từ "${currentTagNames}" thành "${newTagNames}". Việc cập nhật sẽ ảnh hưởng tới tất cả các tác vụ khác có lead này.`;
+
+    this.showConfirmModal(
+      'Cập nhật Tag Lead',
+      message,
+      () => {
+        this.updateLeadTags(tags.map((tag) => tag.id));
+      },
+      () => {
+        // Revert to original value when cancelled
+        this.formGroup.patchValue({ leadTags: this.originalLeadTags });
+      }
+    );
+  }
+
+  private showConfirmModal(
+    title: string,
+    description: string,
+    onConfirm: () => void,
+    onCancel?: () => void
+  ) {
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText: 'Tiếp tục',
+      cancelText: 'Hủy',
+      type: 'warning',
+      modalType: 'advance',
+    };
+
+    this.modalConfirmService.openModal(modalContent, undefined, onConfirm, onCancel);
+  }
+
+
+  private updateLeadStatus(statusId: string) {
+    const leadId = this.leadId;
+    if (!leadId || !statusId) return;
+
+    this.loadingLeadData = true;
+    this.autoTaskService.lead.update(leadId, { id: leadId, statusId })
+      .pipe(
+        finalize(() => this.loadingLeadData = false),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toarst.success('Cập nhật trạng thái lead thành công');
+          } else {
+            this.toarst.error('Có lỗi xảy ra khi cập nhật trạng thái lead');
+          }
+        },
+        error: (err) => {
+          this.toarst.error('Có lỗi xảy ra khi cập nhật trạng thái lead');
+          console.error('Update lead status error:', err);
+        }
+      });
+  }
+
+  private updateLeadTags(tagIds: string[]) {
+    const leadId = this.leadId;
+    if (!leadId) return;
+
+    this.loadingLeadData = true;
+    this.autoTaskService.lead.update(leadId, { id: leadId, tagIds })
+      .pipe(
+        finalize(() => this.loadingLeadData = false),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.toarst.success('Cập nhật tag lead thành công');
+          } else {
+            this.toarst.error('Có lỗi xảy ra khi cập nhật tag lead');
+          }
+        },
+        error: (err) => {
+          this.toarst.error('Có lỗi xảy ra khi cập nhật tag lead');
+          console.error('Update lead tags error:', err);
+        }
+      });
   }
 
   ngOnDestroy(): void {

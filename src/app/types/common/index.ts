@@ -47,6 +47,7 @@ export interface IFilterTopTable {
 }
 
 export type NameButton = 'reload' | 'add_new' | 'save' | string;
+export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right' | 'auto';
 
 export interface IFilterTopButton {
   className?: string;
@@ -60,6 +61,7 @@ export interface IFilterTopButton {
   value?: any;
   hidden?: boolean;
   tooltip?: string;
+  tooltipPlacement?: TooltipPlacement;
   isActive?: boolean;
   children?: IFilterTopButton[];
 }

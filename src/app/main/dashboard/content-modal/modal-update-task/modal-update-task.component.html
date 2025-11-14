@@ -589,6 +589,7 @@
                         [submitted]="submitted"
                         [formGroup]="formLeadDeal"
                         [selectedCustomerId]="formLeadDeal.value.id"
+                        [leadId]="leadData?.id || f['leadId']?.value"
                         [(isOpenBackdrop)]="isOpenBackDrop"
                       ></app-customer-info>
                     </div>

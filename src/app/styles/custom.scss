@@ -767,7 +767,7 @@ ng-select.select-search-icon {
   &.filter-advance-popover-tab {
     margin-right: 180px;
     position: relative;
-    z-index: 998;
+    z-index: 1050;
     .button-close {
       position: absolute;
       top: -10px;
@@ -1196,7 +1196,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
 
 .custom-tab-basic.tab-filter-data {
   .nav-tabs {
-    max-width: 860px;
+    max-width: 100%;
     //height: $input-medium;
     display: flex;
     flex-wrap: nowrap;

@@ -98,6 +98,9 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
     );
 
     console.log('configFilterAdvance', this.configFilterAdvance);
+    
+    // Update active filters count on init
+    this.updateActiveFiltersCount();
   }
 
   getDefaultValuePopover(name?: string) {
@@ -108,7 +111,9 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
   }
 
   handleOpenPopover(event: any) {
-    // this.filteredTabs = this.tabs;
+    // Update active filters count when opening popover
+    // This ensures the UI shows the current state
+    this.updateActiveFiltersCount();
   }
 
   onSearch(term: string, name: string = 'search') {
@@ -162,11 +167,25 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
     //   }
     // }
     this.handleSearchingView(value, name);
+    
+    // Update the config filter value immediately for UI feedback
+    const filter = this.configFilterAdvance.find(f => f.name === name);
+    if (filter) {
+      filter.value = value;
+    }
+    
     this.pickerDateEvent.emit({value, name});
   }
 
   onSelectValueAdvance(value?: string, name: string = 'select') {
     this.handleSearchingView(value, name);
+    
+    // Update the config filter value immediately for UI feedback
+    const filter = this.configFilterAdvance.find(f => f.name === name);
+    if (filter) {
+      filter.value = value;
+    }
+    
     this.selectEvent.emit({value, name});
   }
 
@@ -181,12 +200,58 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
 
   handleApply() {
     this.eventApply.emit('FILTER');
+    // Update active filters count after applying
+    this.updateActiveFiltersCount();
     this.popFilter.hide();
   }
 
   reset() {
     this.eventReset.emit('RESET');
+    // Update active filters count after reset
+    this.updateActiveFiltersCount();
     this.popFilter.hide();
+  }
+
+  /**
+   * Update the count of active advanced filters
+   * This checks which filters in configFilterAdvance have actual values
+   */
+  updateActiveFiltersCount() {
+    this.onSearchingAdvance = [];
+    
+    this.configFilterAdvance.forEach(filter => {
+      // Check if filter has a value
+      const hasValue = this.hasFilterValue(filter);
+      
+      if (hasValue && filter.name) {
+        this.onSearchingAdvance.push(filter.name);
+      }
+    });
+  }
+
+  /**
+   * Check if a filter has a meaningful value
+   */
+  private hasFilterValue(filter: IFilterTopTable): boolean {
+    const value = filter.value;
+    
+    // No value
+    if (value === undefined || value === null || value === '') {
+      return false;
+    }
+    
+    // Array type (e.g., multi-select)
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+    
+    // Date range type
+    if (typeof value === 'object' && 'fromDate' in value && 'toDate' in value) {
+      return !!(value.fromDate || value.toDate);
+    }
+    
+    // Other types with value
+    return true;
   }
 
   ngOnDestroy(): void {

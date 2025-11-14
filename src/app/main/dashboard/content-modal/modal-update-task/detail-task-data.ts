@@ -50,6 +50,8 @@ export class DetailTaskData extends DashboardData {
       districtCode: null,
       province: null,
       provinceCode: null,
+      leadStatusId: null,
+      leadTags: null,
     }),
     tags: null,
     taskChains: this.fb.array([]),
@@ -73,6 +75,7 @@ export class DetailTaskData extends DashboardData {
     isTaskClosed: false,
     closeTaskResult: null,
     closeTaskReason: null,
+    leadId: null,
   });
   protected addTaskChainForm = this.fb.group({
     addChainActIds: [null, [Validators.required]],

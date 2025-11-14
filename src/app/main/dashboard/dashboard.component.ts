@@ -160,6 +160,9 @@ export class DashboardComponent
       if (q['code']) {
         this.handleUpdate(undefined, undefined, q['code']);
       }
+      if (q['leadId']) {
+        this.handleCreateTaskFromLead(q['leadId']);
+      }
     });
     const typeColumn = 'columnDashboardAutoTask';
     const defaultColumn = listColumnsDashboardDefault;
@@ -884,6 +887,7 @@ export class DashboardComponent
       queryParams: {
         id: null,
         code: null,
+        leadId: null,
       },
       queryParamsHandling: 'merge',
     });
@@ -925,6 +929,48 @@ export class DashboardComponent
 
     this.handleViewModeChange(true);
     // this.getDataSource(true);
+  }
+
+  handleCreateTaskFromLead(leadId: string) {
+    // Fetch lead detail and open task creation modal
+    this.autoTaskService.lead.getById(leadId).subscribe({
+      next: (res: any) => {
+        if (res.status === 200 && res.data) {
+          this.openTaskCreationModalWithLeadData(res.data);
+        } else {
+          this.toastrService.error('Không thể lấy thông tin lead');
+        }
+      },
+      error: (err: any) => {
+        this.toastrService.error('Không thể lấy thông tin lead');
+      },
+    });
+  }
+
+  private openTaskCreationModalWithLeadData(lead: any) {
+    this.isOpenBackDrop = true;
+    const modalUpdate = this.modalService.show(ModalUpdateTaskComponent, {
+      initialState: {
+        leadData: lead, // Pass lead data separately
+      },
+      class: 'modal-xl',
+      keyboard: true,
+      backdrop: false,
+    });
+
+    // modalUpdate.content?.createdTask.subscribe((createdTask: any) => {
+    //   this.toastrService.success('Tạo task thành công');
+    //   this.getDataSource(true);
+    // });
+
+    // modalUpdate.content?.updatedTask.subscribe((updatedTask: any) => {
+    //   this.getDataSource(true);
+    // });
+
+    modalUpdate?.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isOpenBackDrop = false;
+      this.handleClearQueryParams();
+    });
   }
 
   handleUpdate(value?: any, taskId?: string, code?: string) {
@@ -1388,39 +1434,41 @@ export class DashboardComponent
         // Phân quyền theo branch
         const {branchIds, departmentIds, teamIds, rows} =
           this.authService.detectFilterBranchIds(filterBranchIds) || {};
-        const rowIds = rows.map((row: any) => row.id);
+        const rowIds = rows?.map((row: any) => row.id);
         if (!branchIds.length && !departmentIds.length && !teamIds.length) {
           return false;
         }
 
+        let hasPermission = false;
         if (branchIds.length && !departmentIds.length && !teamIds.length) {
-          return branchIds.some((branchId: string) => {
-            return rowIds.includes(branchId);
-          });
+          hasPermission = branchIds.some((branchId: string) =>
+            rowIds.includes(branchId),
+          );
         } else if (
           !branchIds.length &&
           departmentIds.length &&
           !teamIds.length
         ) {
-          return departmentIds.some((departmentId: string) => {
-            return rowIds.includes(departmentId);
-          });
+          hasPermission = departmentIds.some((departmentId: string) =>
+            rowIds.includes(departmentId),
+          );
         } else if (
           !branchIds.length &&
           !departmentIds.length &&
           teamIds.length
         ) {
-          return teamIds.some((teamId: string) => {
-            return rowIds.includes(teamId);
-          });
+          hasPermission = teamIds.some((teamId: string) =>
+            rowIds.includes(teamId),
+          );
         } else if (branchIds.length || departmentIds.length || teamIds.length) {
-          return rowIds.some((rowId: string) => {
-            return (
-              branchIds.includes(rowId) ||
-              departmentIds.includes(rowId) ||
-              teamIds.includes(rowId)
-            );
-          });
+          hasPermission = rowIds.some((rowId: string) =>
+            branchIds.includes(rowId) ||
+            departmentIds.includes(rowId) ||
+            teamIds.includes(rowId),
+          );
+        }
+        if (!hasPermission) {
+          return false;
         }
       }
 

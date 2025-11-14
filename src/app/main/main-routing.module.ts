@@ -35,6 +35,12 @@ const routes: Routes = [
         loadChildren: () =>
           import('./setting/setting.module').then((m) => m.SettingModule),
       },
+      {
+        path: EModule.LEAD,
+        canActivate: [HasPermissionAccessModuleGuard],
+        loadChildren: () =>
+          import('./lead/lead.module').then((m) => m.LeadModule),
+      },
     ],
   },
   {path: '**', component: NotfoundComponent},

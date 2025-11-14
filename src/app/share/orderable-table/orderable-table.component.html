@@ -35,8 +35,8 @@
       </div>
       <div class="col-6 colum-drop pt-2 pb-2">
         <div class="headline mb-2">
-          Các cột đang hiển thị ({{ listColumnsActive.length }}/{{
-            listColumns.length
+          Các cột đang hiển thị ({{ listColumnsActive?.length || 0 }}/{{
+            listColumns?.length || 0
           }})
         </div>
         <bs-sortable

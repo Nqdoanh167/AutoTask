@@ -376,6 +376,7 @@
       </div>
     }
 
+    <!-- Row 1: Tên KH, SĐT, Email, Giới tính -->
     <div style="padding-left: 1px" class="row mt-2">
       <div class="col-3">
         <label class="form-control-label" for="leadDeal.name">
@@ -401,60 +402,37 @@
         }
       </div>
       <div class="col-3">
-        <label class="form-control-label" for="leadDeal.gender">
-          Loại khách hàng
-          <i
-            class="fa-regular fa-circle-question ms-1"
-            [tooltip]="
-              'Lead: Khách hàng tiềm năng, có khả năng sẽ mua hàng của doanh nghiệp sau khi được chăm sóc Deal: Những khách hàng đã mua hàng hoặc khả năng cao là sẽ mua hàng (thường đã được chăm sóc hoặc lên hợp đồng)'
-            "
-            placement="right"
-          ></i>
+        <label class="form-control-label" for="leadDeal.phone">
+          Số điện thoại
         </label>
-        <div class="d-flex align-items-center gap-4 input-medium">
-          <div class="basic-radio">
-            <input
-              formControlName="type"
-              type="radio"
-              name="type"
-              class="check"
-              id="lead"
-              [value]="'LEAD'"
-            />
-            <label for="lead">
-              <div class="container">
-                <div class="cRadioBtn">
-                  <div class="overlay"></div>
-                  <div class="drops xsDrop"></div>
-                  <div class="drops mdDrop"></div>
-                  <div class="drops lgDrop"></div>
-                </div>
-              </div>
-              <span>Lead</span>
-            </label>
-          </div>
-          <div class="basic-radio">
-            <input
-              formControlName="type"
-              [value]="'DEAL'"
-              type="radio"
-              name="type"
-              class="check"
-              id="deal"
-            />
-            <label for="deal">
-              <div class="container">
-                <div class="cRadioBtn">
-                  <div class="overlay"></div>
-                  <div class="drops xsDrop"></div>
-                  <div class="drops mdDrop"></div>
-                  <div class="drops lgDrop"></div>
-                </div>
-              </div>
-              <span>Deal</span>
-            </label>
-          </div>
-        </div>
+        <app-input-suggest-customer
+          id="input-phone-customer"
+          [uiType]="'text'"
+          [inputId]="'input-phone-customer'"
+          [placeholder]="'Nhập số điện thoại...'"
+          formControlName="phone"
+          [submitted]="submitted"
+          (valueChange)="onChangePhoneCustomer($event)"
+          (selectCustomer)="getCustomerDetailFromPhone($event?.id!)"
+          [readOnly]="!hasUpdateTaskPer"
+        ></app-input-suggest-customer>
+      </div>
+      <div class="col-3">
+        <label class="form-control-label" for="leadDeal.email">Email</label>
+        <input
+          formControlName="email"
+          type="text"
+          name="leadDeal.email"
+          id="leadDeal.email"
+          placeholder="Nhập Email..."
+          class="form-control"
+          [class]="submitted && f['email'].errors ? 'is-invalid' : ''"
+        />
+        @if (submitted && f['email'].errors) {
+          @if (f['email'].errors?.['email']) {
+            <div class="invalid-feedback">Email không hợp lệ</div>
+          }
+        }
       </div>
       <div class="col-3">
         <label class="form-control-label" for="leadDeal.gender">
@@ -529,57 +507,6 @@
           </div>
         </div>
       </div>
-      <div class="col-3">
-        <!-- @if (selectedCustomer && hasPermitCustomer && hasUpdateTaskPer) {
-          <label class="form-control-label"></label>
-          <button
-            (click)="handleSyncCustomer()"
-            class="w-100 btn button-medium button-sub-primary secondary-color d-flex align-items-center justify-content-center"
-          >
-            <i class="fa-solid fa-arrow-right-arrow-left fa-rotate-90 me-2"></i>
-            Cập nhật cho bản ghi Khách hàng
-          </button>
-        } -->
-      </div>
-    </div>
-    <div class="row mt-2">
-      <div class="col-3">
-        <label class="form-control-label" for="leadDeal.phone">
-          Số điện thoại
-        </label>
-        <!-- <input
-          formControlName="phone"
-          type="text"
-          name="leadDeal.phone"
-          id="leadDeal.phone"
-          placeholder="Nhập Số điện thoại..."
-          class="form-control"
-          [class]="submitted && f['phone'].errors ? 'is-invalid' : ''"
-        /> -->
-        <app-input-suggest-customer
-          id="input-phone-customer"
-          [uiType]="'text'"
-          [inputId]="'input-phone-customer'"
-          [placeholder]="'Nhập số điện thoại...'"
-          formControlName="phone"
-          [submitted]="submitted"
-          (valueChange)="onChangePhoneCustomer($event)"
-          (selectCustomer)="getCustomerDetailFromPhone($event?.id!)"
-          [readOnly]="!hasUpdateTaskPer"
-        ></app-input-suggest-customer>
-      </div>
-      <div class="col-3">
-        <label class="form-control-label" for="leadDeal.email">Email</label>
-        <input
-          formControlName="email"
-          type="text"
-          name="leadDeal.email"
-          id="leadDeal.email"
-          placeholder="Nhập Email..."
-          class="form-control"
-          [class]="submitted && f['email'].errors ? 'is-invalid' : ''"
-        />
-      </div>
     </div>
     <div class="mt-2">
       <label class="form-control-label" for="leadDeal.address">Địa chỉ</label>
@@ -595,16 +522,12 @@
             formControlName="provinceCode"
             id="province"
             labelForId="province"
+            [items]="listProvince"
+            bindValue="provinceCode"
+            bindLabel="province"
             (change)="handleChangeLocation($event, 'province')"
             appendTo=".modal"
           >
-            @for (item of listProvince; track $index) {
-              <ng-option [value]="item?.provinceCode">
-                {{ item?.province }}
-              </ng-option>
-            } @empty {
-              <ng-container [ngTemplateOutlet]="selectNoData"></ng-container>
-            }
           </ng-select>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
@@ -620,16 +543,12 @@
             formControlName="districtCode"
             id="district"
             labelForId="district"
+            [items]="listDistrict"
+            bindValue="districtCode"
+            bindLabel="district"
             (change)="handleChangeLocation($event, 'district')"
             appendTo=".modal"
           >
-            @for (item of listDistrict; track $index) {
-              <ng-option [value]="item?.districtCode">
-                {{ item?.district }}
-              </ng-option>
-            } @empty {
-              <ng-container [ngTemplateOutlet]="selectNoData"></ng-container>
-            }
           </ng-select>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
@@ -646,16 +565,12 @@
             formControlName="wardCode"
             id="ward"
             labelForId="ward"
+            [items]="listWard"
+            bindValue="wardCode"
+            bindLabel="ward"
             (change)="handleChangeLocation($event, 'ward')"
             appendTo=".modal"
           >
-            @for (item of listWard; track $index) {
-              <ng-option [value]="item?.wardCode">
-                {{ item?.ward }}
-              </ng-option>
-            } @empty {
-              <ng-container [ngTemplateOutlet]="selectNoData"></ng-container>
-            }
           </ng-select>
         </div>
         <div class="col-lg-3 col-md-4 col-sm-6 col-12">
@@ -670,6 +585,45 @@
             id="street"
             type="text"
           />
+        </div>
+      </div>
+
+      <!-- Lead Status and Tags Section -->
+      <div *ngIf="leadId" class="mt-2">
+        <div class="headline">Thông tin Lead</div>
+        <div class="row mt-3">
+          <div class="col-6">
+            <label class="form-label">Trạng thái Lead</label>
+            <ng-select
+              formControlName="leadStatusId"
+              placeholder="Chọn trạng thái lead..."
+              [items]="leadStatuses"
+              bindValue="id"
+              bindLabel="name"
+              [loading]="loadingLeadData"
+              [clearable]="false"
+              appendTo=".modal"
+              (change)="onLeadStatusChange($event)"
+            >
+            </ng-select>
+          </div>
+
+          <div class="col-6">
+            <label class="form-label">Tag Lead</label>
+            <ng-select
+              formControlName="leadTags"
+              placeholder="Chọn tag lead..."
+              [items]="leadTags"
+              bindValue="id"
+              bindLabel="name"
+              [multiple]="true"
+              [loading]="loadingLeadData"
+              [closeOnSelect]="false"
+              appendTo=".modal"
+              (change)="onLeadTagsChange($event)"
+            >
+            </ng-select>
+          </div>
         </div>
       </div>
     </div>

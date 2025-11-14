@@ -16,6 +16,7 @@ import {
   EPerActFlow,
   EPerActSetting,
   EPerActTask,
+  EPerActLead,
   EPerActType,
   UserPerAccess,
 } from '@app/types/setting';
@@ -23,6 +24,7 @@ import {
   listConfigNavItems,
   listDashboardNavItems,
   listSettingNavItems,
+  listLeadNavItems,
 } from '@app/variable';
 
 @Injectable({
@@ -142,6 +144,7 @@ export class AuthService {
       [EModule.DASHBOARD]: [],
       [EModule.CONFIG]: [],
       [EModule.SETTING]: [],
+      [EModule.LEAD]: [],
     };
     const accessibleModules = this.getAccessibleModules();
     const userPer = this.userAccessPerSubject.getValue();
@@ -161,6 +164,10 @@ export class AuthService {
           key = EPerActType.SETTING;
           listNavItems = listSettingNavItems;
           break;
+        case EModule.LEAD:
+          // Lead module doesn't check permissions yet, allow all nav items
+          accessibleSites[module] = listLeadNavItems.map(item => item.alias!);
+          return;
       }
       const sites = listNavItems
         ?.filter((item) => {
@@ -180,7 +187,7 @@ export class AuthService {
 
   getAccessibleModules() {
     let accessibleModules: EModule[] = [];
-    const modules = [EModule.SETTING, EModule.CONFIG, EModule.DASHBOARD];
+    const modules = [EModule.SETTING, EModule.CONFIG, EModule.DASHBOARD, EModule.LEAD];
     modules.forEach((module) => {
       if (this.checkUserAccessModule(module)) {
         accessibleModules.push(module);
@@ -365,6 +372,10 @@ export class AuthService {
         return userPer[EPerActType.SETTING].includes(
           EPerActSetting.VIEW_MASTER_DATA,
         );
+      case EModule.LEAD:
+        // TODO: Implement permission check for lead module later
+        return true;
+        // return userPer[EPerActType.LEAD].includes(EPerActLead.VIEW_LEAD);
       default:
         return false;
     }
@@ -372,7 +383,7 @@ export class AuthService {
 
   checkUserPer(
     type: EPerActType,
-    roles: (EPerActTask | EPerActFlow | EPerActSetting)[],
+    roles: (EPerActTask | EPerActFlow | EPerActSetting | EPerActLead)[],
   ): boolean {
     const userPer = this.userAccessPerSubject.getValue();
     if (!userPer) return false;

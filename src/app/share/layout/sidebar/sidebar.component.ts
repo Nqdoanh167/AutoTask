@@ -7,6 +7,8 @@ import {
   listConfigNavItems,
   listDashboardNavItems,
   listSettingNavItems,
+  listLeadNavItems,
+  listLeadSettingNavItems,
 } from '@app/variable';
 import { MainService } from '@app/services/api/main.service';
 
@@ -19,14 +21,24 @@ export class SidebarComponent implements OnInit {
   public listConfigNavItems: ISidebar[] = listConfigNavItems;
   public listDashboardNavItems: ISidebar[] = listDashboardNavItems;
   public listSettingNavItems: ISidebar[] = listSettingNavItems;
+  public listLeadNavItems: ISidebar[] = listLeadNavItems;
+  public listLeadSettingNavItems: ISidebar[] = listLeadSettingNavItems;
   public sidebars: ISidebar[] = [
     {
       link: `/${EModule.DASHBOARD}`,
       alias: EModule.DASHBOARD,
-      name: 'Dashboard',
+      name: 'Tác vụ',
       icon: './assets/images/module/table.svg',
       iconActive: './assets/images/module/table-active.svg',
       isActive: true,
+    },
+    {
+      link: `/${EModule.LEAD}`,
+      alias: EModule.LEAD,
+      name: 'Quản lý Lead',
+      icon: './assets/images/module/lead-dashboard-active.svg',
+      iconActive: './assets/images/module/lead-dashboard.svg',
+      isActive: false,
     },
     {
       link: `/${EModule.CONFIG}`,
@@ -84,15 +96,15 @@ export class SidebarComponent implements OnInit {
 
   activeSidebar(url: string) {
     let mainModule;
-    if (url.includes(`/${EModule.CONFIG}`)) {
+    if (url.startsWith(`/${EModule.CONFIG}`)) {
       mainModule = EModule.CONFIG;
       this.mainService.setHeaderTabs(this.listConfigNavItems);
-    } else if (url.includes(`/${EModule.SETTING}`)) {
+    } else if (url.startsWith(`/${EModule.SETTING}`)) {
       mainModule = EModule.SETTING;
       this.mainService.setHeaderTabs(this.listSettingNavItems);
-    } else if (url.includes(`/${EModule.DASHBOARD}`)) {
-      mainModule = EModule.DASHBOARD;
-      this.mainService.setHeaderTabs(this.listDashboardNavItems);
+    } else if (url.startsWith(`/${EModule.LEAD}`)) {
+      mainModule = EModule.LEAD;
+      this.mainService.setHeaderTabs(this.listLeadNavItems);
     } else {
       this.mainService.setHeaderTabs([]);
     }

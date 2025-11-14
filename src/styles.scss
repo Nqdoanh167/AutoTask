@@ -201,6 +201,14 @@ body {
   height: 100%;
 }
 
+app-root,
+app-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
 .modal {
   z-index: 9999;
 }

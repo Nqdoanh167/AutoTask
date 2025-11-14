@@ -1,0 +1,225 @@
+<div class="lead-folder-sidebar" (click)="onDocumentClick()">
+  <div class="sidebar-header">
+    <div class="header-top">
+      <div class="search-box">
+        <i class="fa fa-search"></i>
+        <input type="text" placeholder="Tìm phễu" class="form-control" (input)="onSearchFunnelEvent($event)" />
+      </div>
+      <div>
+        <button
+          class="btn btn-light border text-secondary btn-collapse-toggle"
+          (click)="onToggleSidebar()"
+          tooltip="Thu gọn sidebar"
+          placement="bottom"
+          container="body"
+        >
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-content">
+    <div *ngIf="loading" class="loading-container">
+      <i class="fa fa-spinner fa-spin"></i>
+      <span>Đang tải...</span>
+    </div>
+
+    <!-- Header Content -->
+    <div class="header-content">
+      <div class="header-content__title">
+        <span>Danh sách phễu</span>
+      </div>
+      <div class="header-content__actions">
+        <button
+          class="btn-action"
+          (click)="handleHardRefresh()"
+          [disabled]="loading"
+          tooltip="Làm mới dữ liệu phễu và thư mục"
+          [placement]="'bottom'"
+        >
+          <i class="fa fa-refresh" [class.fa-spin]="loading"></i>
+        </button>
+        <div class="dropdown-add-new" (click)="$event.stopPropagation()">
+          <button
+            class="btn-action"
+            (click)="toggleDropdown()"
+            [class.active]="showAddDropdown"
+            tooltip="Thêm"
+            [placement]="'bottom'"
+          >
+            <i class="fa fa-plus"></i>
+          </button>
+          <div class="dropdown-menu-custom" *ngIf="showAddDropdown">
+            <div class="dropdown-item-menu" (click)="handleDropdownAction('add-funnel')">
+              <img src="assets/images/icon/funnel-blur.svg" alt="add-funnel">
+              <span>Tạo phễu mới</span>
+            </div>
+            <div class="dropdown-item-menu" (click)="handleDropdownAction('add-folder')">
+              <img src="assets/images/icon/folder-blur.svg" alt="add-folder">
+              <span>Tạo thư mục mới</span>
+            </div>
+            <div class="dropdown-item-menu" (click)="handleDropdownAction('show-hidden')">
+              <i class="fa fa-eye"></i>
+              <span>Hiển thị phễu ẩn</span>
+            </div>
+          </div>
+        </div>
+        <button
+          class="btn-action"
+          (click)="toggleAllFolders()"
+          [tooltip]="getExpandAllTooltip()"
+        >
+          <i [ngClass]="getExpandAllIcon()"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Results -->
+    <div *ngIf="!loading && searchQuery && searchResults.length > 0" class="search-results">
+      <div class="search-header">
+        <span class="search-title">Kết quả tìm kiếm "{{ searchQuery }}"</span>
+        <span class="search-count">{{ searchResults.length }} phễu</span>
+      </div>
+      <div class="search-list">
+        <div
+          *ngFor="let funnel of searchResults"
+          class="search-item"
+          (click)="selectFunnelFromSearch(funnel)"
+        >
+          <img src="assets/images/icon/funnel.svg" alt="funnel" class="search-icon">
+          <div class="search-info">
+            <span class="search-name">
+              {{ funnel.name }}
+              <span class="search-lead-count" *ngIf="funnel.statLeadCount > 0">
+                ({{ funnel.statLeadCount }})
+              </span>
+            </span>
+            <span class="search-folder" *ngIf="funnel.folderName">{{ funnel.folderName }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Search Results -->
+    <div *ngIf="!loading && searchQuery && searchResults.length === 0 && !isSearching" class="no-results">
+      <i class="fa fa-search"></i>
+      <span>Không tìm thấy phễu nào với từ khóa "{{ searchQuery }}"</span>
+    </div>
+
+    <!-- Loading Search -->
+    <div *ngIf="isSearching" class="loading-container">
+      <i class="fa fa-spinner fa-spin"></i>
+      <span>Đang tìm kiếm...</span>
+    </div>
+
+    <div *ngIf="!loading && (!searchQuery || searchResults.length === 0)" class="folder-list">
+      <div *ngFor="let folder of folders" class="folder-item">
+        <div
+          class="folder-header"
+          [class.active]="selectedFolder?.id === folder.id"
+          [class.system-folder]="folder.isSystem || folder.isPinned"
+          [class.readonly-folder]="folder.isPinned"
+          (click)="toggleFolder(folder)"
+          (contextmenu)="onContextMenu($event, folder)"
+        >
+          <div class="d-flex align-items-center">
+            <div class="folder-icon">
+              <i *ngIf="folder.isPinned"
+                 class="fa fa-thumbtack"
+                 [class.rotated]="folder.isExpanded"></i>
+              <img *ngIf="folder.type === 'folder' && !folder.isPinned"
+                   [src]="'assets/images/icon/folder-blur.svg'"
+                   alt="folder">
+              <img *ngIf="folder.type === 'funnel' && !folder.isPinned"
+                   src="assets/images/icon/funnel.svg"
+                   alt="funnel">
+            </div>
+            <span class="folder-name" [class.expanded]="folder.isExpanded">
+              {{ folder.name }}
+              <span class="folder-lead-count-inline" *ngIf="folder.type === 'funnel' && getLeadCount(folder) > 0">
+                ({{ getLeadCount(folder) }})
+              </span>
+            </span>
+            <span class="folder-count" *ngIf="(folder.children && folder.children.length > 0) || (folder.isPinned)">
+              {{ folder.children?.length || 0 }}
+            </span>
+          </div>
+          <div class="folder-actions" *ngIf="folder.type === 'folder' && !folder.isPinned && !folder.isSystem">
+            <i class="fa fa-ellipsis-v" (click)="onContextMenu($event, folder)"></i>
+          </div>
+        </div>
+
+        <div class="folder-children" *ngIf="folder.isExpanded && folder.children">
+          <div
+            *ngFor="let child of folder.children"
+            class="folder-child"
+            [class.active]="selectedFolder?.id === child.id"
+            (click)="selectFolder(child); $event.stopPropagation()"
+            (contextmenu)="onContextMenu($event, child)"
+          >
+            <img src="assets/images/icon/funnel.svg" alt="funnel" class="child-icon">
+            <span class="child-name">{{ child.name }}</span>
+            <span class="child-lead-count" *ngIf="getLeadCount(child) > 0">
+              ({{ getLeadCount(child) }})
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Context Menu -->
+<div
+  *ngIf="showContextMenu"
+  class="context-menu"
+  [style.left.px]="contextMenuPosition.x"
+  [style.top.px]="contextMenuPosition.y"
+  (click)="$event.stopPropagation()"
+>
+  <div class="context-menu-items">
+    <div
+      *ngIf="contextMenuType === 'folder'"
+      class="context-menu-item"
+      (click)="handleContextMenuAction('rename')"
+    >
+      <i class="fa fa-pencil"></i>
+      <span>Đổi tên</span>
+    </div>
+    <div
+      *ngIf="contextMenuType === 'funnel' && !contextMenuFolder?.isSystem && !contextMenuFolder?.funnels?.[0]?.isSystem"
+      class="context-menu-item"
+      (click)="handleContextMenuAction('edit')"
+    >
+      <i class="fa fa-edit"></i>
+      <span>Chỉnh sửa</span>
+    </div>
+    <div
+      *ngIf="contextMenuType === 'funnel'"
+      class="context-menu-item"
+      (click)="handleContextMenuAction('pin')"
+    >
+      <i class="fa fa-thumbtack"></i>
+      <span>{{ (contextMenuFolder?.isPinned || contextMenuFolder?.funnels?.[0]?.isPinned) ? 'Bỏ ghim' : 'Ghim' }}</span>
+    </div>
+    <div
+      *ngIf="contextMenuType === 'funnel' && !contextMenuFolder?.isSystem && !contextMenuFolder?.funnels?.[0]?.isSystem"
+      class="context-menu-item"
+      (click)="handleContextMenuAction('hide')"
+    >
+      <i class="fa fa-eye-slash"></i>
+      <span>Ẩn phễu</span>
+    </div>
+    <div
+      *ngIf="!contextMenuFolder?.isSystem && !contextMenuFolder?.funnels?.[0]?.isSystem"
+      class="context-menu-item delete"
+      [class.disabled]="contextMenuType === 'funnel' && !canDeleteFunnel(contextMenuFolder!)"
+      (click)="handleContextMenuAction('delete')"
+      [attr.title]="contextMenuType === 'funnel' && !canDeleteFunnel(contextMenuFolder!) ? 'Không thể xóa phễu có lead. Vui lòng ẩn phễu.' : ''"
+    >
+      <i class="fa fa-trash"></i>
+      <span>Xóa</span>
+    </div>
+  </div>
+</div>

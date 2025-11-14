@@ -22,6 +22,10 @@ import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-
 import moment from 'moment';
 import {BaseComponentsComponent} from '@app/share/common/base-components/base-components.component';
 import { UserAcl } from '@app/types/setting';
+import { snooze } from '@app/utils/common';
+
+const RETRY_DELAY = 10 * 1000; // 10 seconds
+const MAX_RETRIES = 5;
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -178,26 +182,19 @@ export class ModalAssignTeamV2Component
 
   initUserSelections() {
     this.selectAll = true;
-
-    this.userSelections = this.users!.filter((user) => !!user.isActive).map((user) => ({
-      user: {
-        id: user.id,
-        name: user.name,
-        picture: user.picture,
-        email: user.email,
-      },
-      selected: true,
-      count: 0,
-    }));
-
-    this.currentSelectedUserCount = this.userSelections.length;
+    const roleToSelect = this.currentRole || this.availableRoles?.[0];
+    if (roleToSelect) {
+      this.onRoleChange(roleToSelect);
+    }
   }
 
   getUsers(){
     this.autoTaskService.userAcl.get().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
-        if (res && res.status === 200) {
-          this.users = this.bizUsers?.filter((user)=> res.data.some((acl: UserAcl) => acl.userId === user.id && !!acl.isActive)) || [];
+        if (res && res.status === 200 && Array.isArray(res.data)) {
+          this.users = this.bizUsers?.filter((user)=> 
+            res.data.some((acl: UserAcl) => acl?.userId === user.id && acl?.isActive === true)
+          ) || [];
           this.initUserSelections();
         } else {
           this.commonService.handleResErr(res);
@@ -209,8 +206,8 @@ export class ModalAssignTeamV2Component
   getAutoTaskSettingCache() {
     return this.autoTaskService.currentSetting.subscribe({
       next: (res) => {
-        if (res) {
-          const fRoles = this.currentBiz!.roles.filter((role) => {
+        if (res && this.currentBiz?.roles) {
+          const fRoles = this.currentBiz.roles.filter((role) => {
             return res.roles?.includes(role.id);
           });
           this.availableRoles = [...fRoles];
@@ -332,6 +329,11 @@ export class ModalAssignTeamV2Component
   }
 
   onSubmit() {
+    if (!this.currentRole) {
+      this.toastService.warning('Vui lòng chọn vai trò trước khi gán task');
+      return;
+    }
+
     if (this.calculateTotalDistributed > this.selectedTaskIds.length) {
       this.toastService.warning(
         'Số lượng tác đã chia vượt quá tổng số lượng cho phép',
@@ -362,9 +364,9 @@ export class ModalAssignTeamV2Component
       allAssignments.push({
         taskIds: assignTaskIds,
         assignTo: {
-          roleId: this.currentRole!.id,
-          roleIcon: this.currentRole!.icon || '',
-          roleName: this.currentRole!.name || '',
+          roleId: this.currentRole.id,
+          roleIcon: this.currentRole.icon || '',
+          roleName: this.currentRole.name || '',
           userId: user.id,
           userName: user.name,
           userPicture: user.picture || '',
@@ -381,12 +383,14 @@ export class ModalAssignTeamV2Component
     totalTasks: number,
   ) {
     let processedTasks = 0;
+    const successIds: any[] = []
+    const failedResponse: any[] = []
 
     const processBatch = () => {
       const batchAssignments: ITaskAssignment[] = [];
       let batchTaskCount = 0;
       let i = 0;
-      const maxBatchSize = 20; // Maximum number of tasks per batch
+      const maxBatchSize = 30; // Maximum number of tasks per batch
 
       while (i < allAssignments.length && batchTaskCount < maxBatchSize) {
         const assignment = allAssignments[i];
@@ -418,6 +422,8 @@ export class ModalAssignTeamV2Component
           this.progressStatus = 'success';
           // this.modalRef.hide();
           this.assignTeams.emit();
+          console.log('total success', successIds, successIds.length)
+          console.log('total failed', failedResponse, failedResponse.length)
         }, 1000);
         return;
       }
@@ -434,39 +440,126 @@ export class ModalAssignTeamV2Component
         this.progressStatus = 'error';
         this.progressType = 'danger';
         this.toastService.warning('Quá thời gian xử lý yêu cầu');
+        console.log('total success', successIds, successIds.length)
+        console.log('total failed', failedResponse, failedResponse.length)
       }, 20000);
 
-      this.autoTaskService.task
-        .bulkAssignTeam(payload)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (res) => {
-            clearTimeout(timeoutId);
-            if (requestTimedOut) return;
-            if (res && res.status === 200) {
-              processedTasks += tasksInThisBatch;
-              this.progressValue = Math.round(
-                (processedTasks / totalTasks) * 100,
-              );
-              processBatch();
-            } else {
-              this.progressStatus = 'error';
-              this.commonService.handleResErr(res);
-            }
-          },
-          error: (err) => {
-            clearTimeout(timeoutId);
-            if (requestTimedOut) return;
-            this.progressStatus = 'error';
-            this.commonService.handleErr(err);
-          },
+      // Calculate retry delay from exponential backoff
+      const calculateRetryDelay = (retryCount: number): number => {
+        // exponential backoff (20s * 2^retryCount)
+        const delay = RETRY_DELAY * Math.pow(2, retryCount);
+        console.log(`Using exponential backoff: ${delay / 1000}s`);
+        return delay;
+      };
+
+      // Retry logic for handling rate limiting (429)
+      const attemptRequest = async (retryCount = 0): Promise<void> => {
+        return new Promise((resolve, reject) => {
+          this.autoTaskService.task
+            .bulkAssignTeam(payload)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: async (httpResponse) => {
+                // Extract data from HttpResponse
+                const resData = httpResponse.body;
+                const resStatus = httpResponse.body?.status; // HTTP STATUS luôn là 200 nên phải dựa vào body status
+                const rateLimitResetHeader = httpResponse.headers?.get('x-ratelimit-reset');
+                const rateLimitReset = rateLimitResetHeader ? Number(rateLimitResetHeader) : 0;
+                console.log('retry count:', retryCount, 'status:', resStatus, 'rateLimitReset:', rateLimitReset);
+
+                clearTimeout(timeoutId);
+                if (requestTimedOut) {
+                  resolve();
+                  return;
+                }
+
+                // Handle rate limiting with retry
+                if (resStatus === 429 && retryCount < MAX_RETRIES) {
+                  const retryDelay = retryCount === 0 ? rateLimitReset * 1000 + 2 * 1000 : calculateRetryDelay(retryCount - 1);
+                  const retryDelaySeconds = Math.round(retryDelay / 1000);
+                  
+                  // this.toastService.info(
+                  //   `Đang thử lại do giới hạn tốc độ sau ${retryDelaySeconds}s... (Lần ${retryCount + 1}/${MAX_RETRIES})`
+                  // );
+                  
+                  console.log(`Retrying after ${retryDelaySeconds}s (retry ${retryCount + 1}/${MAX_RETRIES})`);
+                  
+                  await snooze(retryDelay);
+                  try {
+                    await attemptRequest(retryCount + 1);
+                    resolve();
+                  } catch (err) {
+                    reject(err);
+                  }
+                  return;
+                }
+
+                // If still 429 after max retries
+                if (resStatus === 429 && retryCount >= MAX_RETRIES) {
+                  this.progressStatus = 'error';
+                  this.progressType = 'danger';
+                  this.toastService.info(
+                    `Hệ thống đang bận, vui lòng thử lại sau một lát.`
+                  );
+                  // this.toastService.warning(
+                  //   `Vượt quá số lần thử lại (${MAX_RETRIES}). Vui lòng thử lại sau.`
+                  // );
+                  reject(new Error('Max retries exceeded'));
+                  return;
+                }
+
+                try {
+                  if (resData?.data) {
+                    const successTaskIds = resData.data.successTaskIds;
+                    const failedTaskReasons = resData.data.failedTaskReasons;
+                    
+                    if (Array.isArray(successTaskIds)) {
+                      successIds.push(...successTaskIds);
+                    }
+                    if (Array.isArray(failedTaskReasons)) {
+                      failedResponse.push(...failedTaskReasons);
+                    }
+                  }
+                } catch (err) {
+                  console.error('Error processing response data:', err);
+                }
+
+                processedTasks += tasksInThisBatch;
+                this.progressValue = Math.round(
+                  (processedTasks / totalTasks) * 100,
+                );
+                await snooze(150);
+                processBatch();
+                resolve();
+              },
+              error: (err) => {
+                clearTimeout(timeoutId);
+                if (requestTimedOut) {
+                  resolve();
+                  return;
+                }
+                this.progressStatus = 'error';
+                this.commonService.handleErr(err);
+                reject(err);
+              },
+            });
         });
+      };
+
+      attemptRequest().catch((err) => {
+        console.error('Request failed after retries:', err);
+      });
     };
 
     processBatch();
   }
 
   private _filterLackOfRoleInTasks() {
+    if (!this.currentRole) {
+      this.selectedTasks = [];
+      return;
+    }
+
     this.selectedTasks = this._cachedSelectedTasks.filter((task) => {
       const teams = task.teams || [];
       return teams.every(
@@ -486,8 +579,13 @@ export class ModalAssignTeamV2Component
     this.roleError = false;
 
     // Filter out users whom lack of current role in their roleIds
-    this.userSelections = this.users!.filter((user) =>
-      user.roleIds!.includes(this.currentRole!.id),
+    if (!this.users || !this.currentRole) {
+      this.userSelections = [];
+      return;
+    }
+
+    this.userSelections = this.users.filter((user) =>
+      user.roleIds?.includes(this.currentRole!.id)
     ).map((user) => ({
       user: {
         id: user.id,
@@ -510,9 +608,10 @@ export class ModalAssignTeamV2Component
       return;
     }
 
-    this.filter.roleId = this.currentRole!.id;
-
-    this.getTasksCanSplit();
+    if (this.currentRole) {
+      this.filter.roleId = this.currentRole.id;
+      this.getTasksCanSplit();
+    }
   }
 
   toggleSelectAll(): void {

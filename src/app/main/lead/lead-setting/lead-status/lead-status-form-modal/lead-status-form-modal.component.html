@@ -1,0 +1,134 @@
+<app-custom-modal
+  [isSubmitting]="isSubmitting"
+  [textOk]="'Lưu'"
+  (hideModal)="onCancel()"
+  (submitModal)="onSubmit()"
+>
+  <h5 modalTitle>
+    {{ isEditMode ? 'Chỉnh sửa Trạng thái' : 'Thêm Trạng thái mới' }}
+  </h5>
+
+  <div modalBody>
+    <form [formGroup]="statusForm" (ngSubmit)="onSubmit()">
+      <!-- Preview Status -->
+      <div class="status-preview-section mb-3">
+        <label class="form-label">Xem trước</label>
+        <div class="status-preview" [ngStyle]="previewStyle">
+          <span>{{ statusForm.get('name')?.value || 'Trạng thái mẫu' }}</span>
+          <small class="ms-2">({{ statusTypeLabels[selectedType] }})</small>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Tên Trạng thái -->
+        <div class="col-md-8 mb-2">
+          <label class="form-label">
+            Tên trạng thái <span class="text-danger">*</span>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="name"
+            placeholder="Nhập tên trạng thái..."
+            [class.is-invalid]="isFieldInvalid('name')"
+          />
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('name')">
+            {{ getErrorMessage('name') }}
+          </div>
+        </div>
+
+        <!-- Loại trạng thái -->
+        <div class="col-md-4 mb-2">
+          <label class="form-label">
+            Loại <span class="text-danger">*</span>
+          </label>
+          <ng-select
+            formControlName="type"
+            [items]="statusTypeOptions"
+            bindLabel="label"
+            bindValue="value"
+            placeholder="Chọn loại"
+            [clearable]="false"
+            [class.is-invalid]="isFieldInvalid('type')"
+          >
+          </ng-select>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('type')">
+            {{ getErrorMessage('type') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Mô tả -->
+      <div class="form-group mb-2">
+        <label class="form-label">Mô tả</label>
+        <textarea
+          class="form-control"
+          formControlName="description"
+          placeholder="Nhập mô tả trạng thái..."
+          rows="2"
+        ></textarea>
+      </div>
+
+      <!-- Trạng thái & Mặc định -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              formControlName="isActive"
+              id="isActive"
+            />
+            <label class="form-check-label" for="isActive" style="transform: translate(8px, 6px)">
+              Kích hoạt
+            </label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-check form-switch">
+            <input
+              tooltip="Trạng thái này sẽ được áp dụng cho lead mới"
+              class="form-check-input"
+              type="checkbox"
+              formControlName="isDefault"
+              id="isDefault"
+            />
+            <label style="transform: translate(8px, 6px)" class="form-check-label" tooltip="Trạng thái này sẽ được áp dụng cho lead mới" for="isDefault">
+              Trạng thái mặc định
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Màu sắc -->
+      <div class="section-divider">
+        <span class="section-title">Màu sắc hiển thị</span>
+      </div>
+
+      <div class="form-group mb-2">
+        <div class="color-picker-grid">
+          <div
+            *ngFor="let colorOption of predefinedColors"
+            class="color-option"
+            [class.selected]="statusForm.get('bgColor')?.value === colorOption.bg"
+            [style.background-color]="colorOption.bg"
+            [attr.title]="colorOption.name"
+            (click)="selectColor(colorOption.bg)"
+          >
+            <i class="fas fa-check" *ngIf="statusForm.get('bgColor')?.value === colorOption.bg"></i>
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-md-12">
+            <label class="form-label-sm">Hoặc chọn màu tùy chỉnh</label>
+            <input
+              type="color"
+              class="form-control form-control-color"
+              formControlName="bgColor"
+            />
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</app-custom-modal>

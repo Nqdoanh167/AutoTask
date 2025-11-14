@@ -8,7 +8,9 @@ import {
   ITag,
   Order,
   TaskDistributionConfig,
+  IQueryBase,
 } from 'src/app/types/viewmodels';
+import { ILead, ILeadQuery, ILeadCreateDto, ILeadUpdateDto, ILeadStatus, ILeadTag } from '@app/types/lead';
 import {
   BehaviorSubject,
   distinctUntilChanged,
@@ -94,6 +96,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     permission: 'permission',
     userAcl: 'user-acl',
     taskDistributionConfig: 'task-distribution-config',
+    lead: 'lead',
   };
 
   private dashboardViewModes$ = new BehaviorSubject<IViewModeDto[]>([]);
@@ -151,6 +154,14 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   public listActionObservable = this.listActionSubject
     .asObservable()
     .pipe(distinctUntilChanged());
+
+  private leadFoldersWithFunnelsSubject = new BehaviorSubject<EntityResult<any[]>>(
+    null as unknown as EntityResult<any[]>,
+  );
+
+  // Subject to notify when funnel data changes (for cross-component updates)
+  private funnelDataChangedSubject = new BehaviorSubject<boolean>(false);
+  public funnelDataChanged$ = this.funnelDataChangedSubject.asObservable();
 
   private currentSettingObject = new BehaviorSubject<ISetting>(
     null as unknown as ISetting,
@@ -391,10 +402,18 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       });
     },
     bulkAssignTeam: (body: ISubmitPayload) =>
-      this.httpClient.post<EntityResult<ITask>>(
-        this.createUrl([this.api.task, 'bulk-assign']),
-        body,
-      ),
+      this.httpClient.post<
+        EntityResult<{
+          failedTaskIds: string[];
+          failedTaskIdsLength: number;
+          failedTaskReasons: any[];
+          successTaskIds: string[];
+          successTaskIdsLength: number;
+          totalTasksLength: number;
+        }>
+      >(this.createUrl([this.api.task, 'bulk-assign']), body, {
+        observe: 'response',
+      }),
     drawable: (params = {}) =>
       this.httpClient.get<EntityResult<ITask[]>>(
         this.createUrl([this.api.task, 'drawable']),
@@ -724,6 +743,160 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       ),
   };
 
+  lead = {
+    get: (params: ILeadQuery = {}) =>
+      this.httpClient.get<EntityResult<ILead[]>>(
+        this.createUrl([this.api.lead]),
+        {
+          params: this.createParams(params),
+        },
+      ),
+    getById: (id: string) =>
+      this.httpClient.get<EntityResult<ILead>>(
+        this.createUrl([this.api.lead, id]),
+      ),
+    create: (body: ILeadCreateDto) =>
+      this.httpClient.post<EntityResult<ILead>>(
+        this.createUrl([this.api.lead]),
+        body,
+      ),
+    update: (id: string, body: ILeadUpdateDto) =>
+      this.httpClient.patch<EntityResult<ILead>>(
+        this.createUrl([this.api.lead, id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.lead, id]),
+      ),
+    bulkDelete: (ids: string[]) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'bulk']),
+        { body: { ids } },
+      ),
+    bulkUpdate: (body: { ids: string[]; payload: any }) =>
+      this.httpClient.patch<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'bulk']),
+        body,
+      ),
+  };
+
+  leadStatus = {
+    get: (params: IQueryBase = {}) =>
+      this.httpClient.get<EntityResult<ILeadStatus[]>>(
+        this.createUrl([this.api.lead, 'status']),
+        {
+          params: this.createParams(params),
+        },
+      ),
+    create: (body: any) =>
+      this.httpClient.post<EntityResult<ILeadStatus>>(
+        this.createUrl([this.api.lead, 'status']),
+        body,
+      ),
+    update: (id: string, body: any) =>
+      this.httpClient.patch<EntityResult<ILeadStatus>>(
+        this.createUrl([this.api.lead, 'status', id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'status', id]),
+      ),
+  };
+
+  leadTag = {
+    get: (params: IQueryBase = {}) =>
+      this.httpClient.get<EntityResult<ILeadTag[]>>(
+        this.createUrl([this.api.lead, 'tag']),
+        {
+          params: this.createParams(params),
+        },
+      ),
+    create: (body: any) =>
+      this.httpClient.post<EntityResult<ILeadTag>>(
+        this.createUrl([this.api.lead, 'tag']),
+        body,
+      ),
+    update: (id: string, body: any) =>
+      this.httpClient.patch<EntityResult<ILeadTag>>(
+        this.createUrl([this.api.lead, 'tag', id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'tag', id]),
+      ),
+  };
+  
+  leadFolder = {
+    get: (params: IQueryBase = {}) =>
+      this.httpClient.get<EntityResult<any[]>>(
+        this.createUrl([this.api.lead, 'folder']),
+        {
+          params: this.createParams(params),
+        },
+      ),
+    getWithFunnels: (params: IQueryBase = {}) =>
+      this.httpClient.get<EntityResult<any[]>>(
+        this.createUrl([this.api.lead, 'folder', 'with-funnels']),
+        {
+          params: this.createParams(params),
+        },
+      ),
+    getById: (id: string) =>
+      this.httpClient.get<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'folder', id]),
+      ),
+    create: (body: any) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'folder']),
+        body,
+      ),
+    update: (id: string, body: any) =>
+      this.httpClient.patch<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'folder', id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'folder', id]),
+      ),
+  };
+
+  leadFunnel = {
+    get: (params: IQueryBase = {}) =>
+      this.httpClient.get<EntityResult<any[]>>(
+        this.createUrl([this.api.lead, 'funnel']),
+        {
+          params: this.createParams(params),
+        },
+      ),
+    getById: (id: string) =>
+      this.httpClient.get<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'funnel', id]),
+      ),
+    create: (body: any) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'funnel']),
+        body,
+      ),
+    update: (id: string, body: any) =>
+      this.httpClient.patch<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'funnel', id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'funnel', id]),
+      ),
+    unhideAll: () =>
+      this.httpClient.patch<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'funnel', 'unhide-all']),
+        {},
+      ),
+  };
+
   setDashboardViewModes(viewModes: IViewModeDto[]) {
     this.dashboardViewModes$.next(viewModes);
   }
@@ -907,6 +1080,21 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
   setCurrentSetting(item: ISetting) {
     this.currentSettingObject.next(item);
+  }
+
+  setLeadFoldersWithFunnels(items: EntityResult<any[]>) {
+    this.leadFoldersWithFunnelsSubject.next(items);
+  }
+
+  /**
+   * Notify that funnel data has changed - used for cross-component updates
+   */
+  notifyFunnelDataChanged() {
+    this.funnelDataChangedSubject.next(true);
+    // Reset after a short delay
+    setTimeout(() => {
+      this.funnelDataChangedSubject.next(false);
+    }, 100);
   }
 
   ngOnDestroy(): void {

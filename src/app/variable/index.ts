@@ -2,12 +2,14 @@ import {
   EFlowTab,
   EModule,
   ESettingTab,
+  ELeadTab,
+  ELeadSettingTab,
   ESocialPlatform,
   IColumns,
   IDataColumns,
   ISidebar,
 } from '../types/viewmodels';
-import {EPerActFlow, EPerActSetting, EPerActTask} from '@app/types/setting';
+import {EPerActFlow, EPerActSetting, EPerActTask, EPerActLead} from '@app/types/setting';
 import {EOptionCloneTask} from '@app/types/flow';
 import {EStringeeErrorCode} from '@app/types/sms-ott-call';
 
@@ -81,7 +83,121 @@ export const listColumns: IDataColumns = {
       tooltip: 'Người cập nhật',
     },
   ],
+  columnLeadDashboard: [
+    {
+      name: 'Tên',
+      value: 'name',
+      fieldSort: 'name',
+      tooltip: 'Tên khách hàng',
+    },
+    {
+      name: 'Số điện thoại',
+      value: 'phone',
+      tooltip: 'Số điện thoại',
+    },
+    {
+      name: 'Email',
+      value: 'email',
+      tooltip: 'Email',
+    },
+    {
+      name: 'Tổng tiền',
+      value: 'totalPrice',
+      fieldSort: 'totalPrice',
+      tooltip: 'Tổng tiền',
+    },
+    {
+      name: 'Trạng thái Leads',
+      value: 'status',
+      tooltip: 'Trạng thái hiện tại của lead',
+    },
+    {
+      name: 'Tác vụ',
+      value: 'taskId',
+      tooltip: 'Tác vụ liên quan',
+    },
+    {
+      name: 'Đơn hàng',
+      value: 'orderId',
+      tooltip: 'Đơn hàng liên quan',
+    },
+    {
+      name: 'Ngày tạo',
+      value: 'createdAt',
+      fieldSort: 'createdAt',
+      tooltip: 'Ngày tạo',
+    },
+    {
+      name: 'Ngày cập nhật',
+      value: 'updatedAt',
+      fieldSort: 'updatedAt',
+      tooltip: 'Ngày cập nhật',
+    },
+    {
+      name: 'Người tạo',
+      value: 'createdBy',
+      tooltip: 'Người tạo',
+    },
+  ],
 };
+
+export const listColumnsLead: IColumns[] = [
+  {
+    name: 'Tên',
+    value: 'name',
+    fieldSort: 'name',
+    tooltip: 'Tên khách hàng',
+  },
+  {
+    name: 'Số điện thoại',
+    value: 'phone',
+    tooltip: 'Số điện thoại',
+  },
+  {
+    name: 'Email',
+    value: 'email',
+    tooltip: 'Email',
+  },
+  {
+    name: 'Tổng tiền',
+    value: 'totalPrice',
+    fieldSort: 'totalPrice',
+    tooltip: 'Tổng tiền',
+  },
+  {
+    name: 'Trạng thái Leads',
+    value: 'status',
+    tooltip: 'Trạng thái hiện tại của lead',
+  },
+  {
+    name: 'Tác vụ',
+    value: 'taskId',
+    tooltip: 'Tác vụ liên quan',
+  },
+  {
+    name: 'Đơn hàng',
+    value: 'orderId',
+    tooltip: 'Đơn hàng liên quan',
+  },
+  {
+    name: 'Ngày tạo',
+    value: 'createdAt',
+    fieldSort: 'createdAt',
+    tooltip: 'Ngày tạo',
+  },
+  {
+    name: 'Ngày cập nhật',
+    value: 'updatedAt',
+    fieldSort: 'updatedAt',
+    tooltip: 'Ngày cập nhật',
+  },
+  {
+    name: 'Người tạo',
+    value: 'createdBy',
+    tooltip: 'Người tạo',
+  },
+];
+
 export const listColumnsDashboardDefault: IColumns[] =
   listColumns.columnDashboardAutoTask.filter((el) =>
     [
@@ -96,6 +212,10 @@ export const listColumnsDashboardDefault: IColumns[] =
       'createdAt',
     ].includes(el.value),
   );
+
+export const listColumnsLeadDefault: IColumns[] = listColumnsLead.filter((el) =>
+  ['name', 'phone', 'email', 'totalPrice', 'status', 'taskId', 'orderId', 'createdAt'].includes(el.value)
+);
 
 export const listSettingNavItems: ISidebar[] = [
   {
@@ -142,6 +262,38 @@ export const listDashboardNavItems: ISidebar[] = [
     name: 'Quản lý tác vụ',
     isActive: true,
     permissions: [EPerActTask.VIEW_TASK, EPerActTask.VIEW_TASK_SAME_LEVEL],
+  },
+];
+
+export const listLeadNavItems: ISidebar[] = [
+  {
+    link: `/${EModule.LEAD}/${ELeadTab.DASHBOARD}`,
+    alias: ELeadTab.DASHBOARD,
+    name: 'Danh sách Leads',
+    isActive: true,
+  },
+  {
+    link: `/${EModule.LEAD}/${ELeadTab.SETTING}`,
+    alias: ELeadTab.SETTING,
+    name: 'Cấu hình',
+    isActive: true,
+  },
+];
+
+export const listLeadSettingNavItems: ISidebar[] = [
+  {
+    link: `/${EModule.LEAD}/${ELeadTab.SETTING}?tab=STATUS`,
+    alias: 'STATUS',
+    name: 'Trạng thái',
+    isActive: true,
+    permissions: [EPerActLead.VIEW_LEAD_STATUS_SETTING, EPerActLead.UPDATE_LEAD_STATUS_SETTING],
+  },
+  {
+    link: `/${EModule.LEAD}/${ELeadTab.SETTING}?tab=TAG`,
+    alias: 'TAG',
+    name: 'Tags',
+    isActive: true,
+    permissions: [EPerActLead.VIEW_LEAD_TAG_SETTING, EPerActLead.UPDATE_LEAD_TAG_SETTING],
   },
 ];
 

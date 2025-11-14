@@ -1,0 +1,79 @@
+import {NgModule} from '@angular/core';
+import {CommonModule, DatePipe} from '@angular/common';
+import {LeadComponent} from './lead.component';
+import {LeadRoutingModule} from './lead-routing.module';
+import {LeadDashboardComponent} from './lead-dashboard/lead-dashboard.component';
+import {LeadSettingComponent} from './lead-setting/lead-setting.component';
+import {LeadStatusComponent} from './lead-setting/lead-status/lead-status.component';
+import {LeadTagComponent} from './lead-setting/lead-tag/lead-tag.component';
+import {LeadFolderSidebarComponent} from './lead-dashboard/lead-folder-sidebar/lead-folder-sidebar.component';
+import {LeadFormModalComponent} from './lead-dashboard/lead-form-modal/lead-form-modal.component';
+import {LeadFunnelFormModalComponent} from './lead-dashboard/lead-funnel-form-modal/lead-funnel-form-modal.component';
+import {LeadBulkMoveModalComponent} from './lead-dashboard/lead-bulk-move-modal/lead-bulk-move-modal.component';
+import {LeadTagFormModalComponent} from './lead-setting/lead-tag/lead-tag-form-modal/lead-tag-form-modal.component';
+import {LeadStatusFormModalComponent} from './lead-setting/lead-status/lead-status-form-modal/lead-status-form-modal.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {HeaderModule} from '@share/layout/header/header.module';
+import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-pagination.component';
+import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top-table.component';
+import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
+import {NgSelectModule} from '@ng-select/ng-select';
+import {TabsModule} from 'ngx-bootstrap/tabs';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
+import {CustomButtonLoadingComponent} from '@share/custom/custom-button-loading/custom-button-loading.component';
+import {CustomTabSetComponent} from '@share/common/custom-tab-set/custom-tab-set.component';
+import {ScrollingModule} from '@angular/cdk/scrolling';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
+import {FilterAdvanceComponent} from '@share/common/filter-advance/filter-advance.component';
+import {RouterModule} from '@angular/router';
+import { InputUploadModule } from '@app/share/input/input-upload/input-upload.module';
+import { SelectLocationComponent } from '@share/common/select-location/select-location.component';
+import { InputSuggestCustomerComponent } from '@share/common/input-select-customer/input-suggest-customer.component';
+
+@NgModule({
+  declarations: [
+    LeadComponent,
+    LeadDashboardComponent,
+    LeadSettingComponent,
+    LeadStatusComponent,
+    LeadTagComponent,
+    LeadFolderSidebarComponent,
+    LeadFormModalComponent,
+    LeadFunnelFormModalComponent,
+    LeadBulkMoveModalComponent,
+    LeadTagFormModalComponent,
+    LeadStatusFormModalComponent,
+  ],
+  imports: [
+    CommonModule,
+    LeadRoutingModule,
+    InputUploadModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    HeaderModule,
+    CustomPaginationComponent,
+    FilterTopTableComponent,
+    FilterAdvanceComponent,
+    ModalConfirmComponent,
+    CustomModalComponent,
+    NgSelectModule,
+    TabsModule,
+    TooltipModule,
+    BsDropdownModule,
+    StandardTableComponent,
+    CustomButtonLoadingComponent,
+    CustomTabSetComponent,
+    ScrollingModule,
+    DragDropModule,
+    CustomInputSearchComponent,
+    SelectLocationComponent,
+    InputSuggestCustomerComponent,
+  ],
+  providers: [DatePipe],
+})
+export class LeadModule {}

@@ -1,0 +1,32 @@
+<div class="lead-setting">
+  <div class="card">
+    <div class="card-body">
+      <tabset class="custom-tab-basic">
+        <tab
+          *ngFor="let tab of tabs"
+          [active]="tab.key === activeTab"
+          (selectTab)="selectTab(tab.key)"
+        >
+          <ng-template tabHeading>
+            <div class="title-tab">
+              <span>{{ tab.name }}</span>
+            </div>
+          </ng-template>
+        </tab>
+      </tabset>
+      <div class="content-site mt-2">
+        @switch (activeTab) {
+          @case (ETabLeadSettings.STATUS) {
+            <app-lead-status></app-lead-status>
+          }
+          @case (ETabLeadSettings.TAG) {
+            <app-lead-tag></app-lead-tag>
+          }
+          @default {
+            <div class="center-item mt-5 mb-5">Không có quyền truy cập</div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

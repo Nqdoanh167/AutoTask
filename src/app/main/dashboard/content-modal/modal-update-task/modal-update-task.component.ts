@@ -79,6 +79,8 @@ export class ModalUpdateTaskComponent
   @Input() sourceData?: ITask;
   @Input() taskId?: string;
   @Input() code?: string;
+  @Input() leadData?: any;
+  @Input() leadId?: string;
   @Output() updateSuccess = new EventEmitter();
   @Output() createdTask = new EventEmitter<ITask>();
   @Output() updatedTask = new EventEmitter<ITask>();
@@ -172,7 +174,11 @@ export class ModalUpdateTaskComponent
     // }
     if (!this.sourceData && !this.taskId && !this.code) {
       this.loading.modal = false;
-      this.patchForm();
+      if (this.leadData) {
+        this.patchFormWithLeadData();
+      } else {
+        this.patchForm();
+      }
     }
     this.handleCheckPermission();
     if (this.code) {
@@ -226,6 +232,11 @@ export class ModalUpdateTaskComponent
             this.patchForm(res.data);
             if (isRefresh) {
               this.customerInfoComponent?.handleClearSelectValue();
+
+              // Reload lead data if task has leadId
+              if (res.data.leadId) {
+                this.loadLeadDataForTask(res.data.leadId);
+              }
             }
 
             const isTaskClosed = this.sourceData?.isTaskClosed ?? false;
@@ -245,6 +256,92 @@ export class ModalUpdateTaskComponent
         },
       });
   }
+
+  private loadLeadDataForTask(leadId: string) {
+    this.autoTaskService.lead
+      .getById(leadId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200 && res.data) {
+            const leadData = res.data;
+
+            // Update form with lead status and tags
+            this.updateForm.patchValue({
+              leadDeal: {
+                ...this.updateForm.value.leadDeal,
+                leadStatusId: (leadData.statusId || null) as any,
+                leadTags: (leadData.tagIds || null) as any,
+              },
+            });
+
+            // Set leadId for customer-info component and load statuses/tags
+            if (this.customerInfoComponent) {
+              this.customerInfoComponent.leadId = leadId;
+              // Update original values for revert functionality
+              this.customerInfoComponent.originalLeadStatusId = leadData.statusId || null;
+              this.customerInfoComponent.originalLeadTags = leadData.tagIds || [];
+              this.customerInfoComponent.loadLeadStatusesAndTags();
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Error loading lead data:', err);
+        },
+      });
+  }
+
+  patchFormWithLeadData() {
+    if (!this.leadData) return;
+
+    // Map lead data to form
+    const leadDealData = {
+      id: null, // Set id to null instead of leadId
+      type: 'LEAD',
+      name: this.leadData.name,
+      picture: this.leadData.picture,
+      gender: this.leadData.gender || 'other',
+      phone: this.leadData.phone,
+      email: this.leadData.email,
+      address: this.leadData.address,
+      street: this.leadData.street,
+      tags: this.leadData.tagIds,
+      ward: this.leadData.ward,
+      wardCode: this.leadData.wardCode,
+      district: this.leadData.district,
+      districtCode: this.leadData.districtCode,
+      province: this.leadData.province,
+      provinceCode: this.leadData.provinceCode,
+    };
+
+    this.updateForm.patchValue({
+      name: `Task từ lead: ${this.leadData.name}`,
+      note: this.leadData.note || '',
+      leadId: this.leadData.id, // Add leadId as separate field
+      leadDeal: {
+        ...leadDealData,
+        leadStatusId: this.leadData.statusId,
+        leadTags: this.leadData.tagIds || [],
+      },
+    } as any);
+
+    // Set default branch if available
+    let branch = this.autoTaskService.getFirstUnit();
+    if (this.currentActiveViewMode?.options?.branchIds) {
+      const branchUnit = this.autoTaskService.getFirstUnitByIds(
+        this.currentActiveViewMode.options.branchIds,
+      );
+      if (branchUnit) {
+        branch = branchUnit;
+      }
+    }
+    if (branch) {
+      this.updateForm.patchValue({ branch } as any);
+      this.getInfoUnit(branch?.team || branch?.department || branch?.id);
+    }
+  }
+
+
 
   getTaskByCode() {
     this.loading.getDetail = true;
@@ -393,6 +490,11 @@ export class ModalUpdateTaskComponent
           }
         : null,
     };
+
+    // Add leadId if creating task from lead
+    if (this.leadData?.id && !this.sourceData?.id) {
+      body.leadId = this.leadData.id;
+    }
 
     this.loading.submit = true;
     const taskObservable = this.sourceData?.id

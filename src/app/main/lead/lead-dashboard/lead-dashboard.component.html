@@ -1,0 +1,509 @@
+<div class="dashboard-site with-sidebar">
+  <app-lead-folder-sidebar
+    *ngIf="!sidebarCollapsed"
+    (folderSelected)="onFolderSelected($event)"
+    (folderAction)="onFolderAction($event)"
+    (addLeadClick)="openLeadModal()"
+    (addFunnelClick)="openFunnelModal()"
+    (foldersLoaded)="onFoldersLoaded()"
+    (hardRefreshCompleted)="onHardRefreshCompleted()"
+    (toggleSidebar)="toggleSidebar()"
+  ></app-lead-folder-sidebar>
+
+  <div class="main-content">
+    <!-- Filter & Search Toolbar -->
+    <div class="lead-dashboard__toolbar">
+      <div class="toolbar-wrapper">
+        <!-- Expand Sidebar Button -->
+        <div class="sidebar-expand-toggle" *ngIf="sidebarCollapsed">
+          <button
+            class="btn btn-light border text-secondary"
+            (click)="toggleSidebar()"
+            tooltip="Mở rộng sidebar"
+            placement="bottom"
+            container="body"
+          >
+            <i class="fa-solid fa-angles-right"></i>
+          </button>
+        </div>
+
+        <!-- View Mode Toggle -->
+        <div class="view-mode-toggle">
+          <div class="btn-group btn-group-sm">
+            <button
+              class="btn"
+              [class.btn-primary]="viewMode === 'list'"
+              [class.btn-outline-secondary]="viewMode !== 'list'"
+              tooltip="Chế độ danh sách"
+              placement="bottom"
+              container="body"
+              (click)="viewMode = 'list'"
+            >
+              <i class="fa fa-th-list"></i>
+            </button>
+            <button
+              class="btn"
+              [class.btn-primary]="viewMode === 'kanban'"
+              [class.btn-outline-secondary]="viewMode !== 'kanban'"
+              tooltip="Chế độ Kanban"
+              placement="bottom"
+              container="body"
+              (click)="viewMode = 'kanban'"
+            >
+              <i class="fa fa-columns"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Component -->
+        <div class="filter-wrapper">
+          <app-filter-top-table
+            [configFilters]="configFilters"
+            [configButtons]="filteredConfigButtons"
+            (searchEvent)="onSearchEvent($event)"
+            (selectEvent)="onSelectEvent($event)"
+            (pickerDateEvent)="onPickerDateEvent($event)"
+            (popoverEvent)="onPopoverEvent($event)"
+            (clickButtonEvent)="handleAction($event)"
+            (eventApply)="onApplyEvent($event)"
+            (eventReset)="onResetEvent($event)"
+          ></app-filter-top-table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lead Table -->
+    <div class="content-table" *ngIf="viewMode === 'list'">
+      <div class="lead-table-container">
+        <table class="table table-hover">
+          <thead>
+            <tr *ngIf="!getLengthCheckRow()">
+              <th style="width: 50px;">
+                <input
+                  type="checkbox"
+                  [checked]="checkRow.isAllChecked(item.rows)"
+                  (change)="handleSelectRow({type: 'all', event: $event})"
+                />
+              </th>
+              <th
+                *ngFor="let col of dataColumnsShow"
+                [ngClass]="{ 'sortable': col.fieldSort }"
+                (click)="col.fieldSort && changeSort(col.fieldSort)"
+              >
+                {{ col.name }}
+                <i
+                  *ngIf="col.fieldSort && sort[col.fieldSort] === 1"
+                  class="fa fa-sort-up ms-1"
+                ></i>
+                <i
+                  *ngIf="col.fieldSort && sort[col.fieldSort] === -1"
+                  class="fa fa-sort-down ms-1"
+                ></i>
+              </th>
+              <th class="text-end col-actions">Thao tác</th>
+            </tr>
+            <tr *ngIf="getLengthCheckRow()">
+              <th style="width: 50px;">
+                <input
+                  type="checkbox"
+                  [checked]="checkRow.isAllChecked(item.rows)"
+                  (change)="handleSelectRow({type: 'all', event: $event})"
+                />
+              </th>
+              <th [attr.colspan]="dataColumnsShow.length + 1">
+                <div class="d-flex align-items-center gap-3">
+                  <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
+                  <ng-select
+                    #selectBatchActions
+                    appearance="outline"
+                    [clearable]="false"
+                    placeholder="Thao tác hàng loạt"
+                    style="width: 250px"
+                    [items]="multipleAction"
+                    bindLabel="label"
+                    bindValue="value"
+                    (change)="showModalMultipleAction($event)"
+                    appendTo="body"
+                    class="ng-select ng-select-single"
+                  ></ng-select>
+                  <button
+                    class="btn btn-sm btn-outline-secondary"
+                    (click)="handleRefreshRow()"
+                  >
+                    Bỏ chọn tất cả
+                  </button>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="item.loading">
+              <td [attr.colspan]="dataColumnsShow.length + 2" class="text-center py-5">
+                <i class="fa fa-spinner fa-spin"></i> Đang tải...
+              </td>
+            </tr>
+            <tr *ngIf="!item.loading && !item.rows.length">
+              <td [attr.colspan]="dataColumnsShow.length + 2" class="text-center py-5">
+                Không có dữ liệu
+              </td>
+            </tr>
+            <tr
+              *ngFor="let lead of item.rows; let i = index"
+              [class.table-active]="isCheckRow(lead)"
+              (click)="openLeadDetail(lead.id)"
+              style="cursor: pointer;"
+            >
+              <td (click)="$event.stopPropagation()">
+                <input
+                  type="checkbox"
+                  [checked]="isCheckRow(lead)"
+                  (change)="handleSelectRow({item: lead, event: $event})"
+                />
+              </td>
+
+              <!-- Dynamic columns -->
+              <td *ngFor="let col of dataColumnsShow">
+                <!-- Name -->
+                <div *ngIf="col.value === 'name'" class="d-flex align-items-center">
+                  <div class="lead-avatar me-2">
+                    <i *ngIf="!lead.picture" class="fa fa-user"></i>
+                    <img *ngIf="lead.picture" [src]="lead.picture" alt="Avatar" class="img-fluid rounded-circle">
+                  </div>
+                  <div>
+                    <div class="fw-semibold">{{ lead.name }}</div>
+                    <small class="text-muted" *ngIf="lead.code">{{ lead.code }}</small>
+                    <div class="d-flex flex-row flex-wrap gap-1 mt-1">
+                      <div *ngFor="let tagId of lead.tagIds">
+                        <span
+                          *ngIf="getTagById(tagId) as tag"
+                          class="badge text-capitalize me-2"
+                          [style.background-color]="tag.bgColor || '#6c757d'"
+                        >
+                          {{ tag.name }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Phone -->
+                <span *ngIf="col.value === 'phone'">
+                  <a *ngIf="lead.phone" [href]="'tel:' + lead.phone" (click)="$event.stopPropagation()" class="text-primary">
+                    {{ lead.phone }}
+                  </a>
+                  <span *ngIf="!lead.phone">-</span>
+                </span>
+
+                <!-- Email -->
+                <span *ngIf="col.value === 'email'">
+                  <a *ngIf="lead.email" [href]="'mailto:' + lead.email" (click)="$event.stopPropagation()" class="text-primary">
+                    {{ lead.email }}
+                  </a>
+                  <span *ngIf="!lead.email">-</span>
+                </span>
+
+                <!-- Total Price -->
+                <span *ngIf="col.value === 'totalPrice'" class="fw-semibold text-success">
+                  {{ formatCurrency(lead.totalPrice) }}
+                </span>
+
+                <!-- Status -->
+                <span *ngIf="col.value === 'status'">
+                  <span
+                    *ngIf="hasStatusById(lead.statusId)"
+                    class="badge"
+                    [style.background-color]="getStatusById(lead.statusId)?.bgColor"
+                  >
+                    {{ getStatusById(lead.statusId)?.name }}
+                  </span>
+                  <span *ngIf="!hasStatusById(lead.statusId)">-</span>
+                </span>
+
+                <!-- Task ID -->
+                <span *ngIf="col.value === 'taskId'">
+                  <span *ngIf="lead.taskId" class="text-primary" style="cursor: pointer;">{{ lead.taskId }}</span>
+                  <span *ngIf="!lead.taskId">-</span>
+                </span>
+
+                <!-- Order ID -->
+                <span *ngIf="col.value === 'orderId'">
+                  <span *ngIf="lead.orderId" class="text-primary" style="cursor: pointer;">{{ lead.orderId }}</span>
+                  <span *ngIf="!lead.orderId">-</span>
+                </span>
+
+                <!-- Created At -->
+                <span *ngIf="col.value === 'createdAt'">
+                  {{ formatDate(lead.createdAt) }}
+                </span>
+
+                <!-- Updated At -->
+                <span *ngIf="col.value === 'updatedAt'">
+                  {{ formatDate(lead.updatedAt) }}
+                </span>
+
+                <!-- Created By -->
+                <span *ngIf="col.value === 'createdBy'">
+                  <span *ngIf="lead.createdBy">{{ lead.createdBy.name || lead.createdBy.email }}</span>
+                  <span *ngIf="!lead.createdBy">-</span>
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="text-end col-actions" (click)="$event.stopPropagation()">
+                <div class="action-buttons">
+                  <button
+                    class="btn btn-sm btn-link"
+                    tooltip="Tạo tác vụ"
+                    placement="top"
+                    container="body"
+                  >
+                    <a [href]="getLinkCreateTaskByLead(lead.id)" target="_blank">
+                      <img style="width: 22px;" src="assets/images/icon/menu-plus.svg" alt="add-task-by-lead">
+                    </a>
+                  </button>
+                  <button
+                    class="btn btn-sm btn-link"
+                    tooltip="Chỉnh sửa"
+                    placement="top"
+                    container="body"
+                    (click)="openLeadModal(lead.id)"
+                  >
+                    <i class="fa fa-edit"></i>
+                  </button>
+                  <button
+                    class="btn btn-sm btn-link text-danger"
+                    tooltip="Xóa"
+                    placement="top"
+                    container="body"
+                    (click)="handleDeleteMultiple([lead])"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="table-footer d-flex justify-content-between align-items-center p-3 border-top" *ngIf="!item.loading && item.rows.length">
+        <div>
+          <span class="text-muted">
+            Hiển thị {{ (item.paramsQuery.page - 1) * item.paramsQuery.limit + 1 }} 
+            - {{ Math.min(item.paramsQuery.page * item.paramsQuery.limit, item.total) }} 
+            trong tổng số {{ item.total }} bản ghi
+          </span>
+        </div>
+        <div>
+          <div class="btn-group">
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              [disabled]="item.paramsQuery.page === 1"
+              (click)="onChangePage({page: 1, limit: item.paramsQuery.limit})"
+            >
+              Trang đầu
+            </button>
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              [disabled]="item.paramsQuery.page === 1"
+              (click)="onChangePage({page: item.paramsQuery.page - 1, limit: item.paramsQuery.limit})"
+            >
+              <i class="fa fa-chevron-left"></i>
+            </button>
+            
+            <button class="btn btn-sm btn-outline-secondary" disabled>
+              {{ item.paramsQuery.page }} / {{ Math.ceil(item.total / item.paramsQuery.limit) || 1 }}
+            </button>
+            
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              [disabled]="item.paramsQuery.page >= Math.ceil(item.total / item.paramsQuery.limit)"
+              (click)="onChangePage({page: item.paramsQuery.page + 1, limit: item.paramsQuery.limit})"
+            >
+              <i class="fa fa-chevron-right"></i>
+            </button>
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              [disabled]="item.paramsQuery.page >= Math.ceil(item.total / item.paramsQuery.limit)"
+              (click)="onChangePage({page: Math.ceil(item.total / item.paramsQuery.limit), limit: item.paramsQuery.limit})"
+            >
+              Trang cuối
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kanban View -->
+    <div class="content-kanban" *ngIf="viewMode === 'kanban'">
+      <div class="kanban-board" *ngIf="!item.loading">
+        <div
+          class="kanban-column"
+          cdkDropList
+          [cdkDropListData]="leadsByStatus.get(status.id) || []"
+          [cdkDropListConnectedTo]="getConnectedDropLists()"
+          [id]="status.id"
+          (cdkDropListDropped)="onDrop($event, status.id)"
+          *ngFor="let status of activeStatuses; trackBy: trackByStatusId"
+          [style.background-color]="getStatusBgColorWithOpacity(status.bgColor)"
+        >
+          <div class="kanban-column-header">
+            <div class="column-title">
+              <span class="status-indicator" [style.background-color]="status.bgColor"></span>
+              <h3>{{ status.name }}</h3>
+            </div>
+            <span class="lead-count">{{ (leadsByStatus.get(status.id) || []).length }}</span>
+          </div>
+
+          <div class="kanban-column-content">
+            <div
+              class="kanban-card"
+              cdkDrag
+              [cdkDragData]="lead"
+              *ngFor="let lead of leadsByStatus.get(status.id) || []; trackBy: trackByLeadId"
+              (click)="openLeadDetail(lead.id)"
+            >
+              <!-- Custom Drag Placeholder -->
+              <div class="kanban-card-placeholder" *cdkDragPlaceholder></div>
+
+              <!-- Custom Drag Preview (giống hệt card bình thường) -->
+              <div class="kanban-card kanban-card--dragging" *cdkDragPreview>
+                <div class="card-header">
+                  <div class="lead-info">
+                    <div class="lead-avatar-small">
+                      <i *ngIf="!lead.picture" class="fa fa-user"></i>
+                      <img *ngIf="lead.picture" [src]="lead.picture" alt="Avatar" class="img-fluid rounded-circle">
+                    </div>
+                    <div class="lead-name-code">
+                      <div class="lead-name" [title]="lead.name">{{ lead.name }}</div>
+                      <div class="lead-code" *ngIf="lead.code">{{ lead.code }}</div>
+                    </div>
+                  </div>
+                  <div class="d-flex flex-row flex-wrap gap-1 mt-2">
+                    <div *ngFor="let tagId of lead.tagIds">
+                      <span
+                        *ngIf="getTagById(tagId) as tag"
+                        class="badge text-capitalize"
+                        [style.background-color]="tag.bgColor || '#6c757d'"
+                      >
+                        {{ tag.name }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  <div class="card-info-row" *ngIf="lead.phone">
+                    <i class="fa fa-phone text-muted"></i>
+                    <span class="text-primary">{{ lead.phone }}</span>
+                  </div>
+
+                  <div class="card-info-row" *ngIf="lead.email">
+                    <i class="fa fa-envelope text-muted"></i>
+                    <span class="text-primary text-truncate">{{ lead.email }}</span>
+                  </div>
+
+                  <div class="card-info-row" *ngIf="lead.totalPrice">
+                    <i class="fa fa-money text-muted"></i>
+                    <span class="fw-semibold text-success">{{ formatCurrency(lead.totalPrice) }}</span>
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <small class="text-muted">
+                    <i class="fa fa-clock-o"></i> {{ formatDate(lead.createdAt) }}
+                  </small>
+                </div>
+              </div>
+
+              <div class="card-header">
+                <div class="lead-info">
+                  <div class="lead-avatar-small">
+                    <i *ngIf="!lead.picture" class="fa fa-user"></i>
+                    <img *ngIf="lead.picture" [src]="lead.picture" alt="Avatar" class="img-fluid rounded-circle">
+                  </div>
+                  <div class="lead-name-code">
+                    <div class="lead-name" [title]="lead.name">{{ lead.name }}</div>
+                    <div class="lead-code" *ngIf="lead.code">{{ lead.code }}</div>
+                  </div>
+                </div>
+                <div class="d-flex flex-row flex-wrap gap-1 mt-2">
+                  <div *ngFor="let tagId of lead.tagIds">
+                    <span
+                      *ngIf="getTagById(tagId) as tag"
+                      class="badge text-capitalize"
+                      [style.background-color]="tag.bgColor || '#6c757d'"
+                    >
+                      {{ tag.name }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div class="card-info-row" *ngIf="lead.phone">
+                  <i class="fa fa-phone text-muted"></i>
+                  <a [href]="'tel:' + lead.phone" (click)="$event.stopPropagation()" class="text-primary">
+                    {{ lead.phone }}
+                  </a>
+                </div>
+
+                <div class="card-info-row" *ngIf="lead.email">
+                  <i class="fa fa-envelope text-muted"></i>
+                  <a [href]="'mailto:' + lead.email" (click)="$event.stopPropagation()" class="text-primary text-truncate">
+                    {{ lead.email }}
+                  </a>
+                </div>
+
+                <div class="card-info-row" *ngIf="lead.totalPrice">
+                  <i class="fa fa-money text-muted"></i>
+                  <span class="fw-semibold text-success">{{ formatCurrency(lead.totalPrice) }}</span>
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <small class="text-muted">
+                  <i class="fa fa-clock-o"></i> {{ formatDate(lead.createdAt) }}
+                </small>
+                <div class="card-actions" (click)="$event.stopPropagation()">
+                  <button
+                    class="btn btn-sm btn-link"
+                    tooltip="Chỉnh sửa"
+                    placement="top"
+                    container="body"
+                    (click)="openLeadModal(lead.id)"
+                  >
+                    <i class="fa fa-pencil"></i>
+                  </button>
+                  <button
+                    class="btn btn-sm btn-link text-danger"
+                    tooltip="Xóa"
+                    placement="top"
+                    container="body"
+                    (click)="handleDeleteMultiple([lead])"
+                  >
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty state for column -->
+            <div class="kanban-column-empty" *ngIf="!(leadsByStatus.get(status.id) || []).length">
+              <i class="fa fa-inbox"></i>
+              <p>Không có lead nào</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div class="kanban-loading" *ngIf="item.loading">
+        <i class="fa fa-spinner fa-spin fa-3x"></i>
+        <p>Đang tải...</p>
+      </div>
+    </div>
+
+</div>
+</div>

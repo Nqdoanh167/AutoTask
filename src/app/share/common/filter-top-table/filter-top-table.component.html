@@ -218,6 +218,8 @@
             (click)="onClick(filter.name || 'button')"
             [disabled]="filter.disabled"
             [tooltip]="filter.tooltip"
+            [placement]="filter.tooltipPlacement || 'top'"
+            container="body"
             [ngStyle]="{
               'background-color': filter.isActive ? '#f18658' : null
             }"

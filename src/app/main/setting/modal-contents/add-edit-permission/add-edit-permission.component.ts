@@ -23,6 +23,7 @@ import {
   IPermissionGroups,
   IPermissionItem,
   Permission,
+  PermissionAction,
   PermissionDto,
 } from '@app/types/setting';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
@@ -289,19 +290,20 @@ export class AddEditPermissionComponent
     this.updateForm.patchValue({
       ...data,
     } as Permission as any);
-    const permissionAction = data?.permissionAction || {
-      task: [],
-      flow: [],
-      setting: [],
+    const defaultPermissionAction: PermissionAction = {
+      [EPerActType.TASK]: [],
+      [EPerActType.FLOW]: [],
+      [EPerActType.SETTING]: [],
+      [EPerActType.LEAD]: [],
     };
+    const permissionAction: PermissionAction = data?.permissionAction || defaultPermissionAction;
     if (permissionAction) {
-      Object.keys(permissionAction).forEach((key) => {
-        const values = permissionAction[key as EPerActType] || [];
+      (Object.keys(permissionAction) as Array<keyof PermissionAction>).forEach((key) => {
+        const values = permissionAction[key] || [];
         if (!values.length) return;
+
         const group = this.permissionGroups.find((item) => item.key === key);
-        if (group) {
-          group.isOpen = true;
-        }
+        if (group) group.isOpen = true;
       });
     }
   }

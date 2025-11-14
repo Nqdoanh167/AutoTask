@@ -36,7 +36,7 @@ export class OrderableTableComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const defaultListCl = listColumns[this.typeColumn as keyof IDataColumns];
+    const defaultListCl = listColumns[this.typeColumn as keyof IDataColumns] || [];
     this.listColumns = defaultListCl;
     this.listColumnsActive = defaultListCl;
     const data = JSON.parse(localStorage.getItem(this.typeColumn) as string);

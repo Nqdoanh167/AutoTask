@@ -1,0 +1,67 @@
+<div class="modal-header">
+  <h5 class="modal-title">Di chuyển hàng loạt Lead</h5>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="cancel()"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <div *ngIf="isLoading" class="text-center py-4">
+    <i class="fa fa-spinner fa-spin fa-2x"></i>
+    <p class="mt-2">Đang tải danh sách phễu...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <p class="mb-3">
+      Bạn đang di chuyển <strong>{{ leadIds.length }}</strong> lead. Vui lòng chọn phễu đích:
+    </p>
+
+    <div class="form-group">
+      <label for="funnelSelect">Chọn phễu <span class="text-danger">*</span></label>
+      <ng-select
+        id="funnelSelect"
+        [(ngModel)]="selectedFunnelId"
+        [items]="funnels"
+        bindLabel="name"
+        bindValue="id"
+        placeholder="Chọn phễu"
+        [searchable]="true"
+        [clearable]="true"
+        class="ng-select"
+      >
+        <ng-template ng-option-tmp let-item="item">
+          <div class="d-flex align-items-center">
+            <span>{{ item.name }}</span>
+            <span *ngIf="item.id === currentFunnelId" class="badge bg-info ms-2">Phễu hiện tại</span>
+          </div>
+        </ng-template>
+      </ng-select>
+      <small class="text-muted d-block mt-1">
+        Tất cả lead đã chọn sẽ được di chuyển sang phễu này
+      </small>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="cancel()"
+    [disabled]="isSubmitting"
+  >
+    Hủy
+  </button>
+  <button
+    type="button"
+    class="btn btn-primary"
+    (click)="onSubmit()"
+    [disabled]="!selectedFunnelId || isSubmitting || isLoading"
+  >
+    <i *ngIf="isSubmitting" class="fa fa-spinner fa-spin me-1"></i>
+    {{ isSubmitting ? 'Đang xử lý...' : 'Di chuyển' }}
+  </button>
+</div>

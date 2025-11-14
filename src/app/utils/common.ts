@@ -393,3 +393,7 @@ export const flattenData = (data: any, prefix: string = ''): Record<string, any>
     return acc;
   }, {} as Record<string, any>);
 };
+
+export async function snooze(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

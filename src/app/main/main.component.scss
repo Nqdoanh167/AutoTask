@@ -2,8 +2,24 @@
 @use 'src/app/styles/mixins' as mixins;
 
 .wrapper {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+
   .content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     padding: 50px 0 0 50px;
+    overflow: hidden;
+    min-width: 0;
+
+    .router-outlet-container {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
 
     .loading {
       background-color: #fff;

@@ -1,0 +1,95 @@
+<div class="lead-tag">
+  <!-- Top Actions -->
+  <div class="lead-tag__header mb-3">
+    <div class="d-flex justify-content-end align-items-center">
+      <button class="btn btn-primary" (click)="onAddNew()">
+        <i class="fas fa-plus me-2"></i>
+        Thêm Tag
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter & Search -->
+  <app-filter-top-table
+    [configFilters]="configFilters"
+    (searchEvent)="onSearchEvent($event)"
+  ></app-filter-top-table>
+
+  <!-- Table -->
+  <div class="lead-tag__table mt-3">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th style="width: 25%;">Tên & Preview</th>
+            <th style="width: 30%;">Mô tả</th>
+            <th style="width: 10%;" class="text-center">Trạng thái</th>
+            <th style="width: 20%;">Cập nhật cuối</th>
+            <th style="width: 15%;" class="text-end">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="loading">
+            <td colspan="5" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && dataSource.length === 0">
+            <td colspan="5" class="text-center py-4">
+              <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+              <p class="text-muted mb-0">Chưa có tag nào</p>
+            </td>
+          </tr>
+          <tr *ngFor="let item of dataSource">
+            <td>
+              <div>
+                <div class="fw-bold mb-1">{{ item.name }}</div>
+                <span 
+                  class="badge tag-preview" 
+                  [style.background-color]="item.bgColor"
+                  [style.color]="item.color"
+                >
+                  <i class="fas {{ item.icon }} me-1"></i>
+                  {{ item.name }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="text-muted">{{ item.description || '—' }}</span>
+            </td>
+            <td class="text-center">
+              <span 
+                class="badge" 
+                [class.bg-success]="item.isActive"
+                [class.bg-secondary]="!item.isActive"
+              >
+                {{ item.isActive ? 'Kích hoạt' : 'Tắt' }}
+              </span>
+            </td>
+            <td>
+              <small class="text-muted">{{ item.updatedAt | date: 'HH:mm dd/MM/yyyy' }}</small>
+            </td>
+            <td class="text-end">
+              <button 
+                class="btn btn-sm btn-outline-primary me-1" 
+                (click)="onEdit(item)"
+                title="Chỉnh sửa"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-outline-danger" 
+                (click)="onDelete(item)"
+                title="Xóa"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

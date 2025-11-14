@@ -810,6 +810,7 @@ export enum ETypeAppointment {
 }
 export interface IDataColumns {
   columnDashboardAutoTask: IColumns[];
+  columnLeadDashboard?: IColumns[];
 }
 export interface IColumns {
   name: string;
@@ -1545,6 +1546,7 @@ export enum EModule {
   DASHBOARD = 'dashboard',
   CONFIG = 'config',
   SETTING = 'setting',
+  LEAD = 'lead',
 }
 export enum ETabHistoryKey {
   NOTE = 'note',
@@ -1562,6 +1564,16 @@ export enum ESettingTab {
   DECENTRALIZATION = 'decentralization',
   ROLE = 'role',
   DIVIDE = 'divide',
+}
+
+export enum ELeadTab {
+  DASHBOARD = 'dashboard',
+  SETTING = 'setting',
+}
+
+export enum ELeadSettingTab {
+  STATUS = 'status',
+  TAG = 'tag',
 }
 
 export type ITypePaginate = 'number' | 'lazy';
@@ -1677,3 +1689,14 @@ export interface RatioByEmployee {
   userId: string;
   ratio: number;
 }
+
+export interface ILeadFolder {
+  id: string;
+  name: string;
+  icon?: string;
+  parentId?: string;
+  children?: ILeadFolder[];
+  isExpanded?: boolean;
+  isPinned?: boolean;
+  isSystem?: boolean;
+} 

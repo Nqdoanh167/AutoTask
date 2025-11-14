@@ -126,6 +126,7 @@ export interface IViewModeDto {
   isRename?: boolean;
   isEditView?: boolean;
   pos?: number;
+  tabViewModeBorderColor?: string;
 }
 
 export interface IView {
@@ -145,6 +146,7 @@ export interface IView {
   isEdit?: boolean;
   isActive?: boolean;
   isEditView?: boolean;
+  tabViewModeBorderColor?: string;
 }
 
 export interface ISetting {
@@ -187,11 +189,17 @@ export interface IViewDto
     | 'isEdit'
     | 'isActive'
     | 'name'
+    | 'tabViewModeBorderColor'
   > {}
 
 export enum ETabPermissions {
   EMPLOYEE = 'EMPLOYEE',
   PERMISSION = 'PERMISSION',
+}
+
+export enum ETabLeadSettings {
+  STATUS = 'STATUS',
+  TAG = 'TAG',
 }
 
 export enum ETabUpdatePermissionsModal {
@@ -238,18 +246,30 @@ export enum EPerActSetting {
   UPDATE_USER_ACCESS = 'UPDATE_USER_ACCESS',
 }
 
+export enum EPerActLead {
+  VIEW_LEAD = 'VIEW_LEAD',
+  CREATE_LEAD = 'CREATE_LEAD',
+  UPDATE_LEAD = 'UPDATE_LEAD',
+  DELETE_LEAD = 'DELETE_LEAD',
+  VIEW_LEAD_STATUS_SETTING = 'VIEW_LEAD_STATUS_SETTING',
+  UPDATE_LEAD_STATUS_SETTING = 'UPDATE_LEAD_STATUS_SETTING',
+  VIEW_LEAD_TAG_SETTING = 'VIEW_LEAD_TAG_SETTING',
+  UPDATE_LEAD_TAG_SETTING = 'UPDATE_LEAD_TAG_SETTING',
+}
+
 export enum EPerActType {
   TASK = 'task',
   FLOW = 'flow',
   SETTING = 'setting',
+  LEAD = 'lead',
 }
 
 export interface IPermissionItem {
-  key: EPerActSetting | EPerActFlow | EPerActTask;
+  key: EPerActSetting | EPerActFlow | EPerActTask | EPerActLead;
   name: string;
   isRootPer?: boolean;
   tooltip?: string;
-  dependsOnPer?: EPerActTask | EPerActFlow | EPerActSetting;
+  dependsOnPer?: EPerActTask | EPerActFlow | EPerActSetting | EPerActLead;
   class?: string;
 }
 
@@ -266,6 +286,7 @@ export interface PermissionAction {
   [EPerActType.TASK]: EPerActTask[];
   [EPerActType.FLOW]: EPerActFlow[];
   [EPerActType.SETTING]: EPerActSetting[];
+  [EPerActType.LEAD]: EPerActLead[];
 }
 
 export enum EPermDefault {
