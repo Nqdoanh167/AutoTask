@@ -1388,39 +1388,41 @@ export class DashboardComponent
         // Phân quyền theo branch
         const {branchIds, departmentIds, teamIds, rows} =
           this.authService.detectFilterBranchIds(filterBranchIds) || {};
-        const rowIds = rows.map((row: any) => row.id);
+        const rowIds = rows?.map((row: any) => row.id);
         if (!branchIds.length && !departmentIds.length && !teamIds.length) {
           return false;
         }
 
+        let hasPermission = false;
         if (branchIds.length && !departmentIds.length && !teamIds.length) {
-          return branchIds.some((branchId: string) => {
-            return rowIds.includes(branchId);
-          });
+          hasPermission = branchIds.some((branchId: string) =>
+            rowIds.includes(branchId),
+          );
         } else if (
           !branchIds.length &&
           departmentIds.length &&
           !teamIds.length
         ) {
-          return departmentIds.some((departmentId: string) => {
-            return rowIds.includes(departmentId);
-          });
+          hasPermission = departmentIds.some((departmentId: string) =>
+            rowIds.includes(departmentId),
+          );
         } else if (
           !branchIds.length &&
           !departmentIds.length &&
           teamIds.length
         ) {
-          return teamIds.some((teamId: string) => {
-            return rowIds.includes(teamId);
-          });
+          hasPermission = teamIds.some((teamId: string) =>
+            rowIds.includes(teamId),
+          );
         } else if (branchIds.length || departmentIds.length || teamIds.length) {
-          return rowIds.some((rowId: string) => {
-            return (
-              branchIds.includes(rowId) ||
-              departmentIds.includes(rowId) ||
-              teamIds.includes(rowId)
-            );
-          });
+          hasPermission = rowIds.some((rowId: string) =>
+            branchIds.includes(rowId) ||
+            departmentIds.includes(rowId) ||
+            teamIds.includes(rowId),
+          );
+        }
+        if (!hasPermission) {
+          return false;
         }
       }
 
