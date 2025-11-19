@@ -381,6 +381,8 @@ export class ModalAssignTeamV2Component
     totalTasks: number,
   ) {
     let processedTasks = 0;
+    const successIds: any[] = []
+    const failedResponse: any[] = []
 
     const processBatch = () => {
       const batchAssignments: ITaskAssignment[] = [];
@@ -418,6 +420,8 @@ export class ModalAssignTeamV2Component
           this.progressStatus = 'success';
           // this.modalRef.hide();
           this.assignTeams.emit();
+          console.log('total success', successIds, successIds.length)
+          console.log('total failed', failedResponse, failedResponse.length)
         }, 1000);
         return;
       }
@@ -434,6 +438,8 @@ export class ModalAssignTeamV2Component
         this.progressStatus = 'error';
         this.progressType = 'danger';
         this.toastService.warning('Quá thời gian xử lý yêu cầu');
+        console.log('total success', successIds, successIds.length)
+        console.log('total failed', failedResponse, failedResponse.length)
       }, 20000);
 
       this.autoTaskService.task
@@ -441,18 +447,18 @@ export class ModalAssignTeamV2Component
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (res) => {
+            console.log('res', res)
+            try {
+              successIds.push(...res.data.successTaskIds)
+              failedResponse.push(...res.data.failedTaskReasons)              
+            } catch (err) {}
             clearTimeout(timeoutId);
             if (requestTimedOut) return;
-            if (res && res.status === 200) {
-              processedTasks += tasksInThisBatch;
-              this.progressValue = Math.round(
-                (processedTasks / totalTasks) * 100,
-              );
-              processBatch();
-            } else {
-              this.progressStatus = 'error';
-              this.commonService.handleResErr(res);
-            }
+            processedTasks += tasksInThisBatch;
+            this.progressValue = Math.round(
+              (processedTasks / totalTasks) * 100,
+            );
+            processBatch();
           },
           error: (err) => {
             clearTimeout(timeoutId);

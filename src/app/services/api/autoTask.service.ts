@@ -391,10 +391,16 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       });
     },
     bulkAssignTeam: (body: ISubmitPayload) =>
-      this.httpClient.post<EntityResult<ITask>>(
-        this.createUrl([this.api.task, 'bulk-assign']),
-        body,
-      ),
+      this.httpClient.post<
+        EntityResult<{
+          failedTaskIds: string[];
+          failedTaskIdsLength: number;
+          failedTaskReasons: any[];
+          successTaskIds: string[];
+          successTaskIdsLength: number;
+          totalTasksLength: number;
+        }>
+      >(this.createUrl([this.api.task, 'bulk-assign']), body),
     drawable: (params = {}) =>
       this.httpClient.get<EntityResult<ITask[]>>(
         this.createUrl([this.api.task, 'drawable']),
