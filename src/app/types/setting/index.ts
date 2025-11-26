@@ -126,6 +126,7 @@ export interface IViewModeDto {
   isRename?: boolean;
   isEditView?: boolean;
   pos?: number;
+  tabViewModeBorderColor?: string;
 }
 
 export interface IView {
@@ -145,6 +146,7 @@ export interface IView {
   isEdit?: boolean;
   isActive?: boolean;
   isEditView?: boolean;
+  tabViewModeBorderColor?: string;
 }
 
 export interface ISetting {
@@ -187,6 +189,7 @@ export interface IViewDto
     | 'isEdit'
     | 'isActive'
     | 'name'
+    | 'tabViewModeBorderColor'
   > {}
 
 export enum ETabPermissions {
