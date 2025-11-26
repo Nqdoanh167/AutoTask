@@ -144,3 +144,34 @@
 .nav-list.cdk-drop-list-dragging .nav-box:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
+
+::ng-deep .custom-tab-basic.tab-filter-data {
+  .nav-tabs {
+    .nav-link {
+      margin-right: 4px ;
+    }
+  }
+}
+
+::ng-deep.header-filter .list-button-header.btn-all-and-create-view {
+  min-width: 105px;
+  width: auto;
+}
+
+//HD 
+@media (min-width: 1280px) and (max-width: 1359px) {
+  ::ng-deep .custom-tab-basic.tab-filter-data {
+    .nav-tabs {
+      max-width: 1015px;
+    }
+  }
+}
+
+/* 1366 × 768 */
+@media (min-width: 1366px) and (max-width: 1919.98px) {
+  ::ng-deep .custom-tab-basic.tab-filter-data {
+    .nav-tabs {
+      max-width: 1100px;
+    }
+  }
+}

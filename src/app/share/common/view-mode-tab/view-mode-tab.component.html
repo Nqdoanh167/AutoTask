@@ -175,8 +175,8 @@
     <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
     <i *ngIf="!loading" class="fa-solid fa-plus"></i>
   </div> -->
-  <div class="list-button-header d-flex align-items-center">
-    <div class="d-flex me-2" style="width: 167px">
+  <div class="list-button-header d-flex align-items-center btn-all-and-create-view">
+    <div class="d-flex">
       <button
         type="button"
         class="button-all-view fw-500"
@@ -184,9 +184,11 @@
         [popover]="!loading ? popTemplate : ''"
         [outsideClick]="true"
         [placement]="'bottom right'"
+        [adaptivePosition]="false"
         containerClass="custom-popover-tab"
       >
-        Tất cả chế độ xem
+        <span class="me-2">Tất cả</span>
+        <i class="fa-solid fa-ellipsis-vertical"></i>
       </button>
       <div class="separate"></div>
       <button
