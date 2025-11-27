@@ -802,9 +802,8 @@ export class LeadDashboardComponent
     this.autoTaskService.lead.update(leadId, { statusId } as any).subscribe({
       next: (res: any) => {
         if (res.status === 200) {
-          this.toastrService.success('Cập nhật trạng thái lead thành công');
-          // Refresh data to ensure consistency
-          this.getDataSource(false);
+          // API thành công - không cần làm gì thêm, UI đã được cập nhật optimistically
+          // Không reload data để tránh làm chậm UX
         } else {
           this.commonService.handleResErr(res);
           // Revert the change on error
