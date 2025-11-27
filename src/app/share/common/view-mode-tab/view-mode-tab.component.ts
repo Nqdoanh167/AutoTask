@@ -89,7 +89,7 @@ export class ViewModeTabComponent
 
   public selectedTab?: IViewModeDto;
   public selectedTabForColor?: IViewModeDto;
-  public currentColorForTab: string = '#000000';
+  public currentColorForTab: string = '#fa0000';
 
   public modeTypes = [
     {label: 'Cá nhân', value: 'personal'},
@@ -97,6 +97,23 @@ export class ViewModeTabComponent
     {label: 'Vai trò', value: 'role', role: 'OWNER'},
     {label: 'Tất cả', value: 'all', role: 'OWNER'},
   ];
+
+  public colorList: string[] = [
+    '#2C2C2B',
+    '#7D7A75',
+    '#9F765A',
+    '#D27B2D',
+    '#CB9434',
+    '#50946E',
+    '#387DC9',
+    '#9A6BB4',
+    '#C14C8A',
+    '#EB6553',
+    '#FFB800',
+    '#3AC34C',
+    '#4277FF',
+  ];
+  
   constructor(
     private readonly toastr: ToastrService,
     private readonly modalConfirmService: ModalConfirmService,
@@ -806,6 +823,19 @@ export class ViewModeTabComponent
       });
   }
 
+  handleQuickColorChange(tab: IViewModeDto, color: string, event: any): void {
+    event.stopPropagation();
+    if (!tab.isEditView) {
+      this.toastr.warning('Bạn không có quyền thay đổi màu tab này');
+      return;
+    }
+
+    this.selectedTabForColor = {...tab};
+    this.currentColorForTab = color;
+    
+    this.saveTabViewColor();
+  }
+
   handleOpenColorPicker(tab: IViewModeDto, event: any): void {
     event.stopPropagation();
     if (!tab.isEditView) {
@@ -814,7 +844,7 @@ export class ViewModeTabComponent
     }
 
     this.selectedTabForColor = {...tab};
-    this.currentColorForTab = tab.tabViewModeBorderColor || '#000000';
+    this.currentColorForTab = tab.tabViewModeBorderColor || '#fa0000';
 
     this.modalRef = this.modalService.show(this.colorPickerModal, {
       class: 'modal-dialog-centered modal-sm',
@@ -824,7 +854,7 @@ export class ViewModeTabComponent
 
     this.modalRef?.onHidden?.subscribe(() => {
       this.selectedTabForColor = undefined;
-      this.currentColorForTab = '#000000';
+      this.currentColorForTab = '#fa0000';
     });
   }
 
@@ -850,7 +880,7 @@ export class ViewModeTabComponent
         next: (res) => {
           if (res.status === 200) {
             const tabIndex = this.tabs.findIndex(
-              (t) => t.id === this.selectedTabForColor!.id,
+              (tab) => tab.id === this.selectedTabForColor!.id,
             );
             if (tabIndex !== -1) {
               this.tabs[tabIndex].tabViewModeBorderColor =
@@ -870,13 +900,13 @@ export class ViewModeTabComponent
   }
 
   applyTabViewColor() {
-    this.tabs.forEach((tab, index) => {
+    this.tabs.forEach((tab) => {
       if (tab?.tabViewModeBorderColor) {
         const navLinkTabElement = document.getElementById(
           `view-mode-id-${tab.id}-link`,
         );
         if (navLinkTabElement) {
-          navLinkTabElement.style.borderTop = `2px solid ${tab.tabViewModeBorderColor}`;
+          navLinkTabElement.style.borderTop = `3px solid ${tab.tabViewModeBorderColor}`;
         }
       }
     });
