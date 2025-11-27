@@ -31,8 +31,8 @@ import {CustomInputSearchComponent} from '@share/custom/custom-input-search/cust
 import {FilterAdvanceComponent} from '@share/common/filter-advance/filter-advance.component';
 import {RouterModule} from '@angular/router';
 import { InputUploadModule } from '@app/share/input/input-upload/input-upload.module';
-import { SelectLocationComponent } from '@share/common/select-location/select-location.component';
 import { InputSuggestCustomerComponent } from '@share/common/input-select-customer/input-suggest-customer.component';
+import { CollapseModule } from "ngx-bootstrap/collapse";
 
 @NgModule({
   declarations: [
@@ -71,9 +71,9 @@ import { InputSuggestCustomerComponent } from '@share/common/input-select-custom
     ScrollingModule,
     DragDropModule,
     CustomInputSearchComponent,
-    SelectLocationComponent,
     InputSuggestCustomerComponent,
-  ],
+    CollapseModule
+],
   providers: [DatePipe],
 })
 export class LeadModule {}

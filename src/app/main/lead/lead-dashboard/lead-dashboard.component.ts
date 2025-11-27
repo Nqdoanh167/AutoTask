@@ -146,7 +146,7 @@ export class LeadDashboardComponent
   openLeadModal(leadId?: string) {
     // If editing, fetch lead detail first
     if (leadId) {
-      this.autoTaskService.lead.getById(leadId).subscribe({
+      this.autoTaskService.lead.getById(leadId, { populate: ['taskIds'] }).subscribe({
         next: (res: any) => {
           if (res.status === 200 && res.data) {
             this.showLeadModal(res.data);
@@ -170,7 +170,7 @@ export class LeadDashboardComponent
     const cachedSources = this.getCachedPublicSources();
 
     const modalRef = this.modalService.show(LeadFormModalComponent, {
-      class: 'modal-lg modal-dialog-centered',
+      class: 'modal-xl modal-dialog-centered',
       initialState: {
         lead: lead,
         statuses: this.statuses.rows,
@@ -190,7 +190,7 @@ export class LeadDashboardComponent
               if (res.status === 200) {
                 this.toastrService.success('Cập nhật lead thành công');
                 this.getDataSource(true);
-                modalRef.hide();
+                // modalRef.hide();
               } else {
                 this.commonService.handleResErr(res);
               }
@@ -208,7 +208,7 @@ export class LeadDashboardComponent
               if (res.status === 200 || res.status === 201) {
                 this.toastrService.success('Tạo lead thành công');
                 this.getDataSource(true);
-                modalRef.hide();
+                // modalRef.hide();
               } else {
                 this.commonService.handleResErr(res);
               }

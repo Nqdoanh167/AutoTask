@@ -3,6 +3,7 @@ import { ITag, AccountPublic } from '../viewmodels';
 import { ILeadStatus } from '../lead-status';
 import { ILeadTag, ILeadTag as ILeadTagType } from '../lead-tag';
 import { ITeam } from '../flow';
+import { ITask } from '@app/main/lead/lead-dashboard/lead-form-modal/lead-form-modal.interface';
 
 export enum EGenderType {
   MALE = 'male',
@@ -42,6 +43,7 @@ export interface ILead {
   sourceId?: string;
   funnelId?: string;
   teams?: ITeam[]; // Danh sách nhân sự phụ trách theo vai trò
+  tasks?: ITask[]; // Danh sách các task
 }
 
 // Re-export from dedicated type files for external consumers

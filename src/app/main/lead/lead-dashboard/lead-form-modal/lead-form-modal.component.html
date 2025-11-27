@@ -4,24 +4,131 @@
   (hideModal)="onCancel()"
   (submitModal)="onSubmit()"
 >
-  <h5 modalTitle>
-    {{ isEditMode ? 'Chỉnh sửa Lead' : 'Chi tiết Leads' }}
-  </h5>
+  <ng-container modalTitle>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <input
+        required
+        class="input__title basic-input-title input-medium"
+        [formControl]="nameControl"
+        [placeholder]="'Nhập tên Lead...'"
+        [ngClass]="{
+          'is-invalid': isFieldInvalid('name')
+        }"
+      />
+      <div class="tags-edit-container" (click)="onTagsClick($event)">
+        <!-- View mode: Display tags as tag-items -->
+        <div *ngIf="!isEditingTags" class="tags-view-mode">
+          <span
+            *ngFor="let tag of getSelectedTags()"
+            class="text-capitalize me-2 tag-item"
+            [ngClass]="{nonBack: !tag.bgColor}"
+            [ngStyle]="{background: tag.bgColor}"
+          >
+            <span>{{ tag.name }}</span>
+          </span>
+          <span
+            *ngIf="getSelectedTags().length === 0"
+            class="tags-placeholder"
+          >
+            Chọn tags
+          </span>
+        </div>
+        <!-- Edit mode: Display ng-select -->
+        <div *ngIf="isEditingTags" class="tags-edit-mode">
+          <ng-select
+            [formControl]="tagIdsControl"
+            [items]="tags"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Chọn Tag"
+            [multiple]="true"
+            [clearable]="true"
+            (change)="onTagsChange()"
+            [closeOnSelect]="false"
+            appendTo=".modal"
+          >
+            <ng-template ng-option-tmp let-item="item">
+              <span
+                class="text-capitalize tag-item"
+                [ngClass]="{nonBack: !item.bgColor}"
+                [ngStyle]="{background: item.bgColor}"
+              >
+                <span>{{ item.name }}</span>
+              </span>
+            </ng-template>
+            <ng-template ng-label-tmp let-item="item">
+              <span
+                class="text-capitalize tag-item"
+                [ngClass]="{nonBack: !item.bgColor}"
+                [ngStyle]="{background: item.bgColor}"
+              >
+                <span>{{ item.name }}</span>
+              </span>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <div modalTitleRight class="d-flex align-items-center gap-2 mr-1">
+    <div class="status-edit-container" (click)="onStatusClick($event)">
+      <div *ngIf="!isEditingStatus" class="status-view-mode">
+        <span
+          *ngIf="getSelectedStatus()"
+          class="text-capitalize status-item"
+          [ngClass]="{nonBack: !getSelectedStatus()?.bgColor || getSelectedStatus()?.bgColor === '#ccc'}"
+          [ngStyle]="{background: getSelectedStatus()?.bgColor || '#ccc'}"
+        >
+          <span>{{ getSelectedStatus()?.name }}</span>
+        </span>
+        <span
+          *ngIf="!getSelectedStatus()"
+          class="status-placeholder"
+        >
+          Chọn trạng thái
+        </span>
+      </div>
+      <!-- Edit mode: Display ng-select -->
+      <div *ngIf="isEditingStatus" class="status-edit-mode">
+        <ng-select
+          #statusSelect
+          [formControl]="statusIdControl"
+          [items]="statuses"
+          bindLabel="name"
+          bindValue="id"
+          [multiple]="false"
+          [clearable]="false"
+          (change)="onStatusChange()"
+          appendTo=".modal"
+        >
+          <ng-template ng-option-tmp let-item="item">
+            <span
+              class="text-capitalize status-item"
+              [ngClass]="{nonBack: !item.bgColor}"
+              [ngStyle]="{background: item.bgColor}"
+            >
+              <span>{{ item.name }}</span>
+            </span>
+          </ng-template>
+          <ng-template ng-label-tmp let-item="item">
+            <span
+              class="text-capitalize status-item"
+              [ngClass]="{nonBack: !item.bgColor || item.bgColor === '#ccc'}"
+              [ngStyle]="{background: item.bgColor || '#ccc'}"
+            >
+              <span>{{ item.name }}</span>
+            </span>
+          </ng-template>
+        </ng-select>
+      </div>
+    </div>
+  </div>
 
   <div modalBody>
     <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
-      <!-- Row with Search and Avatar -->
-      <div class="row mb-2" *ngIf="!isEditMode">
-        <div class="col-md-8">
-          <app-input-suggest-customer
-            id="input-search-customer-lead"
-            [uiType]="'search'"
-            [inputId]="'input-search-customer-lead'"
-            [placeholder]="'Tìm kiếm khách hàng trong Biz theo Họ tên, SĐT hoặc Email'"
-            (selectCustomer)="onCustomerSelect($event)"
-          ></app-input-suggest-customer>
-        </div>
-        <div class="col-md-4 text-center">
+      <div class="mb-1 row">
+        <div class="col-3 d-flex align-items-center justify-content-center">
           <div 
             class="avatar-placeholder" 
             (click)="onAvatarClick()"
@@ -37,46 +144,8 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Avatar only for edit mode -->
-      <div class="form-group mb-2 text-center" *ngIf="isEditMode">
-        <div 
-          class="avatar-placeholder" 
-          (click)="onAvatarClick()"
-          [class.uploading]="isUploadingAvatar"
-        >
-          <img [src]="avatarUrl" alt="Avatar" class="rounded-circle" />
-          <div class="avatar-overlay" *ngIf="!isUploadingAvatar">
-            <i class="fa fa-camera"></i>
-            <span>Chọn ảnh</span>
-          </div>
-          <div class="avatar-loading" *ngIf="isUploadingAvatar">
-            <i class="fa fa-spinner fa-spin"></i>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <!-- Tên khách hàng -->
-        <div class="col-md-6 mb-2">
-          <label class="form-label">
-            Tên khách hàng <span class="text-danger">*</span>
-          </label>
-          <input
-            type="text"
-            class="form-control"
-            formControlName="name"
-            placeholder="Nhập tên khách hàng..."
-            [class.is-invalid]="isFieldInvalid('name')"
-          />
-          <div class="invalid-feedback" *ngIf="isFieldInvalid('name')">
-            {{ getErrorMessage('name') }}
-          </div>
-        </div>
-
-        <!-- Số điện thoại -->
-        <div class="col-md-6 mb-2">
+        <div class="col-3">
           <label class="form-label">
             Số điện thoại <span class="text-danger">*</span>
           </label>
@@ -91,11 +160,8 @@
             {{ getErrorMessage('phone') }}
           </div>
         </div>
-      </div>
-
-      <div class="row">
-        <!-- Email -->
-        <div class="col-md-6 mb-2">
+      
+        <div class="col-3">
           <label class="form-label">Email</label>
           <input
             type="email"
@@ -109,143 +175,139 @@
           </div>
         </div>
 
-        <!-- Giới tính -->
-        <div class="col-md-6 mb-2">
-          <label class="form-label">Giới tính</label>
-          <div class="d-flex gap-3">
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="gender"
-                id="genderMale"
-                [value]="EGenderType.MALE"
-                formControlName="gender"
-              />
-              <label class="form-check-label" for="genderMale"> Nam </label>
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="gender"
-                id="genderFemale"
-                [value]="EGenderType.FEMALE"
-                formControlName="gender"
-              />
-              <label class="form-check-label" for="genderFemale"> Nữ </label>
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="gender"
-                id="genderOther"
-                [value]="EGenderType.OTHER"
-                formControlName="gender"
-              />
-              <label class="form-check-label" for="genderOther"> Khác </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <!-- Trạng thái Leads -->
-        <div class="col-md-6 mb-2">
+        <div class="col-3">
           <label class="form-label">
-            Trạng thái Leads <span class="text-danger">*</span>
+            Giới tính
           </label>
-          <ng-select
-            formControlName="statusId"
-            [items]="statuses"
-            bindLabel="name"
-            bindValue="id"
-            placeholder="Chọn trạng thái Lead"
-            [clearable]="true"
-            [class.is-invalid]="isFieldInvalid('statusId')"
-          >
-            <ng-template ng-option-tmp let-item="item">
-              <span
-                class="badge"
-                [style.background-color]="item.bgColor"
-              >
-                {{ item.name }}
-              </span>
-            </ng-template>
-          </ng-select>
-          <div class="invalid-feedback" *ngIf="isFieldInvalid('statusId')">
-            {{ getErrorMessage('statusId') }}
+          <div class="d-flex gap-3">
+            <div class="form-check" *ngFor="let option of genderOptions">
+              <input
+                class="form-check-input"
+                type="radio"
+                [id]="'gender-' + option.value"
+                [value]="option.value"
+                formControlName="gender"
+                [class.is-invalid]="isFieldInvalid('gender')"
+              />
+              <label class="form-check-label" [for]="'gender-' + option.value">
+                {{ option.label }}
+              </label>
+            </div>
           </div>
-        </div>
-
-        <!-- Tags -->
-        <div class="col-md-6 mb-2">
-          <label class="form-label">Tags</label>
-          <ng-select
-            formControlName="tagIds"
-            [items]="tags"
-            bindLabel="name"
-            bindValue="id"
-            placeholder="Chọn Tag"
-            [multiple]="true"
-            [clearable]="true"
-          >
-          </ng-select>
+          <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('gender')">
+            {{ getErrorMessage('gender') }}
+          </div>
         </div>
       </div>
 
-      <!-- Địa chỉ -->
-      <div class="form-group mb-2">
-        <label class="form-label">Địa chỉ</label>
-        <div class="address-section">
-          <select-location
-            [selected]="selectedLocation"
-            (emitData)="handleEmittedEvent($event)"
-            [type]="'wardCode'"
-            [typeDisplay]="'horizontal'"
-            [showLabel]="false"
-          ></select-location>
+      <!-- Row 2: Tỉnh/thành phố, Quận/huyện, Phường/xã, Địa chỉ chi tiết -->
+      <div class="row">
+        <div class="col-3 mb-2">
+          <label class="form-label">Tỉnh/Thành phố</label>
+          <ng-select
+            [clearable]="false"
+            [ngClass]="{
+              'is-invalid': isFieldInvalid('provinceCode')
+            }"
+            [placeholder]="'Chọn Tỉnh/Thành phố'"
+            formControlName="provinceCode"
+            [items]="provinces"
+            bindValue="provinceCode"
+            bindLabel="province"
+            (change)="handleChangeLocation($event, 'province')"
+            appendTo=".modal"
+          >
+          </ng-select>
+        </div>
+        <div class="col-3 mb-2">
+          <label class="form-label">Quận/Huyện</label>
+          <ng-select
+            [clearable]="false"
+            [ngClass]="{
+              'input-disabled': !f['provinceCode']?.value
+            }"
+            [disabled]="!f['provinceCode']?.value"
+            [readonly]="!f['provinceCode']?.value"
+            [placeholder]="'Chọn Quận/Huyện'"
+            formControlName="districtCode"
+            [items]="districts"
+            bindValue="districtCode"
+            bindLabel="district"
+            (change)="handleChangeLocation($event, 'district')"
+            appendTo=".modal"
+          >
+          </ng-select>
+        </div>
+        <div class="col-3 mb-2">
+          <label class="form-label">Phường/Xã</label>
+          <ng-select
+            [clearable]="false"
+            [ngClass]="{
+              'input-disabled': !f['districtCode']?.value
+            }"
+            [disabled]="!f['districtCode']?.value"
+            [readonly]="!f['districtCode']?.value"
+            [placeholder]="'Chọn Phường/Xã'"
+            formControlName="wardCode"
+            [items]="wards"
+            bindValue="wardCode"
+            bindLabel="ward"
+            (change)="handleChangeLocation($event, 'ward')"
+            appendTo=".modal"
+          >
+          </ng-select>
+        </div>
+        <div class="col-3 mb-2">
+          <label class="form-label">Địa chỉ chi tiết</label>
           <input
-            type="text"
-            class="form-control mt-2"
-            placeholder="Số nhà, ngõ, ngách, đường..."
+            class="form-control"
+            [ngClass]="{
+              'is-invalid': isFieldInvalid('street')
+            }"
+            (change)="handleCombineAddress()"
+            [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
             formControlName="street"
-            (change)="onStreetChange()"
+            type="text"
           />
         </div>
       </div>
 
-      <!-- Phân loại & Quản lý Lead -->
-      <div class="section-divider">
-        <span class="section-title">Phân loại & Quản lý</span>
-      </div>
-
       <div class="row">
-        <!-- Phễu -->
-        <div class="col-md-6 mb-2">
-          <label class="form-label">
-            <i class="fa fa-filter text-muted me-1"></i>
-            Phễu <span class="text-danger">*</span>
-          </label>
+        <div class="col-3 mb-2">
+          <label class="form-label">Nguồn dữ liệu</label>
+          <ng-select
+            formControlName="sourceId"
+            [items]="sources"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Nguồn dữ liệu"
+            [clearable]="true"
+            appendTo=".modal"
+          >
+          </ng-select>
+        </div>
+
+        <div class="col-3 mb-2">
+          <label class="form-label">Phễu</label>
           <ng-select
             formControlName="funnelId"
             [items]="funnelFolders"
             bindLabel="name"
             bindValue="id"
-            placeholder="Chọn phễu"
+            placeholder="Chọn Phễu"
             [clearable]="true"
             [loading]="loadingFunnels"
             groupBy="group"
             [class.is-invalid]="isFieldInvalid('funnelId')"
+            appendTo=".modal"
           >
-            <ng-template ng-optgroup-tmp let-item="item" let-item$="item$" let-index="index">
+            <ng-template ng-optgroup-tmp let-item="item">
               <div class="d-flex align-items-center">
                 <i class="fa fa-folder text-warning me-2"></i>
                 <strong>{{ item.group }}</strong>
               </div>
             </ng-template>
-            <ng-template ng-option-tmp let-item="item" let-index="index">
+            <ng-template ng-option-tmp let-item="item">
               <div class="d-flex align-items-center" *ngIf="item.type === 'funnel'">
                 <i class="fa fa-filter text-primary me-2"></i>
                 <span>{{ item.name }}</span>
@@ -257,47 +319,23 @@
           </div>
         </div>
 
-        <!-- Nguồn dữ liệu -->
-        <div class="col-md-6 mb-2">
-          <label class="form-label">
-            <i class="fa fa-database text-muted me-1"></i>
-            Nguồn dữ liệu
-          </label>
-          <ng-select
-            formControlName="sourceId"
-            [items]="sources"
-            bindLabel="name"
-            bindValue="id"
-            placeholder="Chọn nguồn dữ liệu"
-            [clearable]="true"
-          >
-          </ng-select>
-        </div>
-      </div>
-
-      <!-- Teams section -->
-      <div class="row" formArrayName="teams" *ngIf="autoTaskSetting?.roles?.length">
-        <div class="col-md-12 mb-2">
-          <label class="form-label d-block">
-            <i class="fa fa-users text-muted me-1"></i>
-            Nhân sự phụ trách / Vai trò
+        <div class="col-3 mb-2" formArrayName="teams" *ngIf="autoTaskSetting?.roles?.length">
+          <label class="form-label mb-2">
+            Vai trò / Nhân sự phụ trách
           </label>
           <div class="d-flex align-items-center gap-2 flex-wrap">
             <ng-container *ngFor="let teamControl of formTeams.controls; let i = index">
-              <div class="btn-group dropup" dropdown>
+              <div class="btn-group dropup role-item-wrapper" dropdown>
                 <button
                   dropdownToggle
                   type="button"
-                  class="btn btn-default border button-role"
+                  class="btn btn-sm role-item-btn"
                   [attr.title]="teamControl.value?.userName ? (teamControl.value?.roleName + ': ' + teamControl.value?.userName) : teamControl.value?.roleName"
-                  [attr.popoverTitle]="'Vai trò: ' + teamControl.value?.roleName"
-                  [attr.popover]="'Thông tin: ' + (teamControl.value?.userName || 'Chưa chọn') + ' - ' + (teamControl.value?.userEmail || '')"
-                  triggers="mouseenter:mouseleave"
                 > 
                   <ng-container *ngIf="teamControl.value.userId">
                     <img
-                      width="32"
-                      height="32"
+                      width="24"
+                      height="24"
                       class="rounded-circle"
                       [src]="teamControl.value?.userPicture || 'assets/images/avatar.svg'"
                       alt=""
@@ -307,11 +345,9 @@
                   <ng-container *ngIf="!teamControl.value.userId">
                     <i
                       class="fa-solid"
-                      [ngClass]="teamControl.value?.roleIcon"
-                      style="font-size: 20px;"
+                      [ngClass]="teamControl.value?.roleIcon || 'fa-user'"
                     ></i>
                   </ng-container>
-                  <span class="ms-1">{{ teamControl.value?.roleName }}</span>
                 </button>
                 <ul
                   *dropdownMenu
@@ -357,6 +393,68 @@
             </ng-container>
           </div>
         </div>
+      </div>
+
+      <!-- Tasks Section -->
+      <div class="tasks-section mt-3" *ngIf="lead?.tasks?.length">
+        <ng-container *ngFor="let task of lead?.tasks">
+          <div class="task-card mb-3">
+            <!-- Task Header -->
+            <div class="task-header d-flex align-items-center gap-2">
+              <span class="task-code fw-bold">{{ task.code }}</span>
+              <ng-container *ngFor="let tag of task.tags">
+                <span class="task-tag">
+                  <span class="tag-dot"></span>
+                  {{ tag }}
+                </span>
+              </ng-container>
+            </div>
+            <div class="task-name" *ngIf="task.name">{{ task.name }}</div>
+
+            <!-- Task Chains -->
+            <ng-container *ngFor="let chain of task.taskChains">
+              <div class="task-chain-card">
+                <!-- Chain Header -->
+                <div class="chain-header d-flex justify-content-between align-items-center">
+                  <span class="chain-name text-uppercase fw-semibold">{{ getChainName(chain) }}</span>
+                  <span class="chain-status" [class.closed]="chain.status === 'CLOSED'">
+                    <i class="fa fa-lock me-1" *ngIf="chain.status === 'CLOSED'"></i>
+                    {{ chain.status === 'CLOSED' ? 'Đã đóng' : 'Đang mở' }}
+                  </span>
+                </div>
+
+                <!-- Chain Results Table -->
+                <div class="chain-results-table">
+                  <div class="table-header">
+                    <div class="col-date">Thực hiện</div>
+                    <div class="col-action">Tên hành động</div>
+                    <div class="col-result">Kết quả & Nguyên nhân</div>
+                    <div class="col-note">Ghi chú</div>
+                  </div>
+                  <div class="table-body">
+                    <div class="table-row" *ngFor="let result of chain.taskChainResults">
+                      @if (result.type === EChainNextActionType.MANUAL) {
+                        <div class="col-date">
+                          {{ result.executedDate ? (result.executedDate | date:'HH:mm dd/MM/yyyy') : '-' }}
+                        </div>
+                        <div class="col-action">{{ result.action?.name || '-' }}</div>
+                        <div class="col-result">
+                          <div class="result-name">
+                            {{ result.result?.name || '-' }}
+                          </div>
+                          <div class="result-reason" *ngIf="result.reason">
+                            <em>{{ result.reason.name }}</em>
+                          </div>
+                        </div>
+                        <div class="col-note">{{ result.note || '-' }}</div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
       </div>
     </form>
   </div>

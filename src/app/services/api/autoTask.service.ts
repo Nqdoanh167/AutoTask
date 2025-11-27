@@ -751,9 +751,12 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(params),
         },
       ),
-    getById: (id: string) =>
+    getById: (id: string, params: { populate?: ('taskIds' | 'tagIds' | 'statusId' | 'funnelId')[] } = {}) =>
       this.httpClient.get<EntityResult<ILead>>(
         this.createUrl([this.api.lead, id]),
+        {
+          params: this.createParams(params),
+        },
       ),
     create: (body: ILeadCreateDto) =>
       this.httpClient.post<EntityResult<ILead>>(

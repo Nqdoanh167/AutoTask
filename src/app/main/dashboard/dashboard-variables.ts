@@ -195,6 +195,14 @@ export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [
   // },
   {
     type: ETypeFilter.DATE,
+    name: 'executedDateAt',
+    placeholder: 'Ngày tác nghiệp cuối',
+    subType: 'range',
+    clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.DATE,
     name: 'updatedAt',
     placeholder: 'Ngày cập nhật cuối',
     subType: 'range',

@@ -1,17 +1,19 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject, finalize, takeUntil } from 'rxjs';
 import { ILead, ILeadCreateDto, ILeadUpdateDto, EGenderType } from '@app/types/lead';
 import { StorageService } from '@app/services/api/storage.service';
 import { ToastrService } from 'ngx-toastr';
-import { ISelectedLocation } from '@app/types/location';
+import { IProvince, IDistrict, IWard } from '@app/types/location';
 import { AutoTaskService } from '@app/services/api/autoTask.service';
 import { Customer } from '@app/types/customer';
 import { UserAcl } from '@app/types/setting';
 import { User } from '@app/types/viewmodels';
 import { AuthService } from '@app/services/api/auth.service';
-import { ITeam } from '@app/types/flow';
+import { EChainNextActionType, ETaskChainType, ITeam } from '@app/types/flow';
+import { ApiLocationService } from '@app/services/api/location';
+import { ITask, ITaskChain, ITaskChainResult } from './lead-form-modal.interface';
 
 @Component({
   selector: 'app-lead-form-modal',
@@ -32,17 +34,99 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   isUploadingAvatar = false;
   loadingFunnels = false;
-  selectedLocation?: ISelectedLocation = {
-    province: undefined,
-    district: undefined,
-    ward: undefined,
-  };
+  isEditingTags = false;
+  isEditingStatus = false;
+
+  @ViewChild('statusSelect') statusSelect: any;
+  
+  // Location properties
+  provinces: IProvince[] = [];
+  districts: IDistrict[] = [];
+  wards: IWard[] = [];
+  loadingProvinces = false;
+  loadingDistricts = false;
+  loadingWards = false;
   
   // Teams-related properties
   autoTaskSetting?: any;
   currentBiz?: any;
   listBizUsers: User[] = [];
 
+  // Gender options for dropdown
+  genderOptions = [
+    { value: EGenderType.MALE, label: 'Nam' },
+    { value: EGenderType.FEMALE, label: 'Nữ' },
+    { value: EGenderType.OTHER, label: 'Khác' },
+  ];
+
+
+  // Mock tasks data
+  // mockTasks: ITask[] = [
+  //   {
+  //     id: '1',
+  //     code: 'TV30293',
+  //     name: 'Cường chăm lần 1',
+  //     tags: ['Tag 01'],
+  //     leadId: 'lead-1',
+  //     taskChains: [
+  //       {
+  //         id: 'chain-1',
+  //         name: 'CHỐT ĐƠN LẦN 1',
+  //         status: ETaskChainType.CLOSED,
+  //         taskChainResults: [
+  //           {
+  //             id: 'result-1',
+  //             name: 'Gọi lần 1',
+  //             executedDate: new Date('2024-01-25T10:00:00'),
+  //             result: { id: 'r1', name: 'Thất bại' },
+  //             reason: { id: 'reason-1', name: 'Khách đang dần do' },
+  //             note: 'khách bận',
+  //           },
+  //           {
+  //             id: 'result-2',
+  //             name: 'Gọi lần 2',
+  //             executedDate: new Date('2024-01-26T10:00:00'),
+  //             result: { id: 'r2', name: 'Khách mua hàng' },
+  //             reason: null,
+  //             note: '',
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: '2',
+  //     code: 'TV30293',
+  //     name: 'Cường chăm lần 2',
+  //     tags: ['Tag 02'],
+  //     leadId: 'lead-1',
+  //     taskChains: [
+  //       {
+  //         id: 'chain-2',
+  //         name: 'LÀM HOÁ ĐƠN CHO KHÁCH',
+  //         status: ETaskChainType.ACTIVE,
+  //         taskChainResults: [
+  //           {
+  //             id: 'result-3',
+  //             name: 'Gọi lần 1',
+  //             executedDate: new Date('2024-01-25T10:00:00'),
+  //             result: { id: 'r1', name: 'Thất bại' },
+  //             reason: { id: 'reason-1', name: 'Khách đang dần do' },
+  //             note: 'khách bận',
+  //           },
+  //           {
+  //             id: 'result-4',
+  //             name: 'Gửi tin chăm sóc',
+  //             executedDate: undefined,
+  //             result: { id: '', name: '-' },
+  //             reason: null,
+  //             note: '',
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  // ];
 
   // Expose enum for template
   public EGenderType = EGenderType;
@@ -57,6 +141,9 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private autoTaskService: AutoTaskService,
     private authService: AuthService,
+    private locationService: ApiLocationService,
+    private elementRef: ElementRef,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -66,12 +153,15 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     this.subscribeToFunnelChanges();
     this.loadBizUsers();
     this.loadAutoTaskSetting();
+    this.loadProvinces();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  public EChainNextActionType = EChainNextActionType;
 
   initializeSources(): void {
     // Use cached sources if available to avoid re-fetching
@@ -177,36 +267,47 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       funnelId: [this.lead?.['funnelId'] || '', [Validators.required]], // Required field
       address: [this.lead?.address || ''],
       street: [this.lead?.street || ''],
-      province: [this.lead?.province || ''],
-      provinceCode: [this.lead?.provinceCode || ''],
-      district: [this.lead?.district || ''],
-      districtCode: [this.lead?.districtCode || ''],
-      ward: [this.lead?.ward || ''],
-      wardCode: [this.lead?.wardCode || ''],
+      province: [this.lead?.province || null],
+      provinceCode: [this.lead?.provinceCode || null],
+      district: [this.lead?.district || null],
+      districtCode: [this.lead?.districtCode || null],
+      ward: [this.lead?.ward || null],
+      wardCode: [this.lead?.wardCode || null],
       teams: this.fb.array([]), // Teams form array
     });
 
-    // Initialize location if editing
-    if (this.lead) {
-      this.selectedLocation = {
-        province: this.lead.province && this.lead.provinceCode ? {
-          province: this.lead.province,
-          provinceCode: this.lead.provinceCode,
-        } as any : undefined,
-        district: this.lead.district && this.lead.districtCode ? {
-          district: this.lead.district,
-          districtCode: this.lead.districtCode,
-        } as any : undefined,
-        ward: this.lead.ward && this.lead.wardCode ? {
-          ward: this.lead.ward,
-          wardCode: this.lead.wardCode,
-        } as any : undefined,
-      };
-    }
   }
 
   get formTeams(): FormArray {
     return this.leadForm.get('teams') as FormArray;
+  }
+
+  get tagIdsControl(): FormControl {
+    return this.leadForm?.get('tagIds') as FormControl;
+  }
+
+  get statusIdControl(): FormControl {
+    return this.leadForm?.get('statusId') as FormControl;
+  }
+
+  get nameControl(): FormControl {
+    return this.leadForm?.get('name') as FormControl;
+  }
+
+  getStatusBgColor(statusId: string | null | undefined): string {
+    if (!statusId) return '#ccc';
+    const status = this.statuses.find(s => s.id === statusId);
+    return status?.bgColor || '#ccc';
+  }
+
+  getStatusName(statusId: string | null | undefined): string {
+    if (!statusId) return '';
+    const status = this.statuses.find(s => s.id === statusId);
+    return status?.name || '';
+  }
+
+  get f(): {[key: string]: any} {
+    return this.leadForm.controls;
   }
 
   get isEditMode(): boolean {
@@ -338,19 +439,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     return this.leadForm.get('picture')?.value || 'assets/images/avatar.svg';
   }
 
-  handleEmittedEvent(data: ISelectedLocation): void {
-    this.selectedLocation = {...data};
-    this.leadForm.patchValue({
-      province: data.province?.province || null,
-      provinceCode: data.province?.provinceCode || null,
-      district: data.district?.district || null,
-      districtCode: data.district?.districtCode || null,
-      ward: data.ward?.ward || null,
-      wardCode: data.ward?.wardCode || null,
-    } as any);
-    this.handleCombineAddress();
-  }
-
   handleCombineAddress(): void {
     const {street, district, ward, province} = this.leadForm.value;
     const addressParts = [street, ward, district, province].filter(Boolean);
@@ -359,9 +447,145 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     });
   }
 
-  onStreetChange(): void {
+  // ============ LOCATION METHODS ============
+
+  loadProvinces(): void {
+    this.loadingProvinces = true;
+    this.locationService.getProvince({ location: 'VN' }, { cache: true })
+      .pipe(
+        finalize(() => this.loadingProvinces = false),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (res) => {
+          if (res?.status === 200 && res.data) {
+            this.provinces = res.data;
+            // If editing and has provinceCode, load districts
+            if (this.lead?.provinceCode) {
+              this.loadDistricts(this.lead.provinceCode, true);
+            }
+          }
+        },
+        error: (err) => console.error('Error loading provinces:', err),
+      });
+  }
+
+  loadDistricts(provinceCode: string, isInitial = false): void {
+    if (!provinceCode) {
+      this.districts = [];
+      this.wards = [];
+      return;
+    }
+
+    this.loadingDistricts = true;
+    this.locationService.getDistrict({ provinceCode, location: 'VN' })
+      .pipe(
+        finalize(() => this.loadingDistricts = false),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (res) => {
+          if (res?.status === 200 && res.data) {
+            this.districts = res.data;
+            // If editing and has districtCode, load wards
+            if (isInitial && this.lead?.districtCode && this.lead?.provinceCode) {
+              this.loadWards(this.lead.provinceCode, this.lead.districtCode);
+            }
+          }
+        },
+        error: (err) => console.error('Error loading districts:', err),
+      });
+  }
+
+  loadWards(provinceCode: string, districtCode: string): void {
+    if (!districtCode) {
+      this.wards = [];
+      return;
+    }
+
+    this.loadingWards = true;
+    this.locationService.getWard({ provinceCode, districtCode, location: 'VN' })
+      .pipe(
+        finalize(() => this.loadingWards = false),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (res) => {
+          if (res?.status === 200 && res.data) {
+            this.wards = res.data;
+          }
+        },
+        error: (err) => console.error('Error loading wards:', err),
+      });
+  }
+
+  handleChangeLocation(value: { 
+    id: string, 
+    province?: string, 
+    provinceCode?: string, 
+    district?: string, 
+    districtCode?: string, 
+    ward?: string, 
+    wardCode?: string,
+  }, type: 'province' | 'district' | 'ward') {
+    console.log(`[lead-form-modal.component.ts] label:`, value, type);
+    switch (type) {
+      case 'province':
+        // Reset districts and wards arrays immediately
+        this.districts = [];
+        this.wards = [];
+        this.leadForm.patchValue({
+          district: null,
+          districtCode: null,
+          ward: null,
+          wardCode: null,
+        });
+        if (!value?.provinceCode) {
+          this.leadForm.patchValue({
+            province: null,
+            provinceCode: null,
+          });
+          return;
+        }
+        this.leadForm.patchValue({
+          province: value.province,
+          provinceCode: value.provinceCode,
+        });
+        this.loadDistricts(value.provinceCode);
+        break;
+      case 'district':
+        // Reset wards array immediately
+        this.wards = [];
+        this.leadForm.patchValue({
+          ward: null,
+          wardCode: null,
+        });
+        if (!value?.districtCode || !value?.provinceCode) {
+          this.leadForm.patchValue({
+            district: null,
+            districtCode: null,
+            ward: null,
+            wardCode: null,
+          });
+          return;
+        }
+        this.leadForm.patchValue({
+          district: value.district,
+          districtCode: value.districtCode,
+        });
+        this.loadWards(value.provinceCode, value.districtCode);
+        break;
+      case 'ward':
+        if (!value?.wardCode || !value?.provinceCode || !value?.districtCode) return;
+        this.leadForm.patchValue({
+          ward: value.ward,
+          wardCode: value.wardCode,
+        });
+        break;
+    }
     this.handleCombineAddress();
   }
+
 
   groupByFolder = (item: any) => {
     return item.name; // Group by folder name
@@ -446,22 +670,12 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     // Update form with mapped data
     this.leadForm.patchValue(mappedData);
 
-    // Update selected location for address components
-    if (customer.provinceCode || customer.districtCode || customer.wardCode) {
-      this.selectedLocation = {
-        province: customer.province && customer.provinceCode ? {
-          province: customer.province,
-          provinceCode: customer.provinceCode,
-        } : undefined,
-        district: customer.district && customer.districtCode ? {
-          district: customer.district,
-          districtCode: customer.districtCode,
-        } : undefined,
-        ward: customer.ward && customer.wardCode ? {
-          ward: customer.ward,
-          wardCode: customer.wardCode,
-        } : undefined,
-      };
+    // Load districts and wards if customer has location data
+    if (customer.provinceCode) {
+      this.loadDistricts(customer.provinceCode, false);
+      if (customer.districtCode) {
+        this.loadWards(customer.provinceCode, customer.districtCode);
+      }
     }
 
     // Combine address if street is set
@@ -567,5 +781,120 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       const userRoleIds = user.roleIds || [];
       return userRoleIds.includes(roleId);
     });
+  }
+
+
+  /**
+   * Get chain name for display
+   */
+  getChainName(chain: ITaskChain): string {
+    if (chain.name) {
+      return chain.name;
+    }
+    // Fallback: generate name based on status
+    if (chain.status === ETaskChainType.CLOSED) {
+      return 'CHỐT ĐƠN';
+    }
+    return 'TÁC VỤ ĐANG MỞ';
+  }
+
+  /**
+   * Get selected tags objects from tagIds
+   */
+  getSelectedTags(): any[] {
+    const tagIds = this.tagIdsControl?.value || [];
+    if (!Array.isArray(tagIds) || tagIds.length === 0) {
+      return [];
+    }
+    return this.tags.filter(tag => tagIds.includes(tag.id));
+  }
+
+  /**
+   * Get selected status object from statusId
+   */
+  getSelectedStatus(): any | null {
+    const statusId = this.statusIdControl?.value;
+    if (!statusId) {
+      return null;
+    }
+    return this.statuses.find(status => status.id === statusId) || null;
+  }
+
+  /**
+   * Handle click on tags area to enter edit mode
+   */
+  onTagsClick(event: Event): void {
+    event.stopPropagation();
+    this.isEditingTags = true;
+  }
+
+  /**
+   * Handle click on status area to enter edit mode
+   */
+  onStatusClick(event: Event): void {
+    event.stopPropagation();
+    this.isEditingStatus = true;
+    // Trigger change detection to render ng-select
+    this.cdr.detectChanges();
+    
+    // Open dropdown after ng-select is rendered
+    setTimeout(() => {
+      if (this.statusSelect) {
+        // Try to open dropdown using ng-select API
+        if (this.statusSelect.dropdownPanel) {
+          this.statusSelect.open();
+        } else {
+          // Fallback: click on container
+          const container = this.statusSelect.element?.nativeElement?.querySelector('.ng-select-container');
+          if (container) {
+            container.click();
+          }
+        }
+      }
+    }, 0);
+  }
+
+  /**
+   * Handle click outside tags/status area to exit edit mode
+   */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.isEditingTags) {
+      const tagsContainer = this.elementRef.nativeElement.querySelector('.tags-edit-container');
+      const ngSelectPanel = document.querySelector('.ng-dropdown-panel');
+      
+      const clickedInsideTags = tagsContainer?.contains(event.target as Node);
+      const clickedInsideNgSelect = ngSelectPanel?.contains(event.target as Node);
+      
+      if (!clickedInsideTags && !clickedInsideNgSelect) {
+        this.isEditingTags = false;
+      }
+    }
+
+    if (this.isEditingStatus) {
+      const statusContainer = this.elementRef.nativeElement.querySelector('.status-edit-container');
+      const ngSelectPanel = document.querySelector('.ng-dropdown-panel');
+      
+      const clickedInsideStatus = statusContainer?.contains(event.target as Node);
+      const clickedInsideNgSelect = ngSelectPanel?.contains(event.target as Node);
+      
+      if (!clickedInsideStatus && !clickedInsideNgSelect) {
+        this.isEditingStatus = false;
+      }
+    }
+  }
+
+  /**
+   * Handle tags change
+   */
+  onTagsChange(): void {
+    // Tags changed, stay in edit mode until user clicks outside
+  }
+
+  /**
+   * Handle status change
+   */
+  onStatusChange(): void {
+    // Status changed, stay in edit mode until user clicks outside
   }
 }

@@ -774,3 +774,9 @@
   border-radius: 8px;
   max-width: 100px;
 }
+
+::ng-deep {
+  .modal-dialog-centered {
+    max-height: calc(100% - 100px) !important;
+  }
+}

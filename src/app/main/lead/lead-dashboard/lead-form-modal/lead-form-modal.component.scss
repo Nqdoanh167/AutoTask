@@ -1,3 +1,169 @@
+.input__title {
+  width: 263px;
+
+  &.is-invalid {
+    border: .5px solid #dc3545 !important;
+    box-shadow: none !important;
+  }
+}
+
+// .tag-item {
+//   display: inline-flex;
+//   align-items: center;
+//   padding: 2px 8px;
+//   border-radius: 12px;
+//   font-size: 11px;
+//   font-weight: 500;
+//   color: white;
+//   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+//   white-space: nowrap;
+//   max-width: 120px;
+
+//   &.nonBack {
+//     background-color: #6c757d !important;
+//   }
+
+//   span {
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//     white-space: nowrap;
+//   }
+// }
+
+.status-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+
+  &.nonBack {
+    background-color: #6c757d !important;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// Tags in modal title
+.tags-edit-container {
+  position: relative;
+  min-width: 120px;
+  
+  .tags-view-mode {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: border-color 0.2s ease;
+    
+    &:hover {
+      border-color: #ced4da;
+    }
+    
+    .tags-placeholder {
+      color: #6c757d;
+      font-size: 0.875rem;
+      font-style: italic;
+    }
+    
+    .tag-item {
+      .tag-icon {
+        font-size: 0.7rem;
+        margin-right: 4px;
+        opacity: 0.9;
+      }
+    }
+  }
+  
+  .tags-edit-mode {
+    max-width: 200px;
+    overflow: hidden;
+    
+    ::ng-deep .ng-select {
+      .ng-select-container {
+        min-height: 32px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        
+        &:focus,
+        &.ng-select-focused {
+          border-color: #80bdff;
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+      }
+      
+      .ng-placeholder {
+        font-size: 0.75rem;
+        color: #6c757d;
+      }
+    }
+  }
+}
+
+// Status in modal title right
+.status-edit-container {
+  position: relative;
+  min-width: 120px;
+  
+  .status-view-mode {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: border-color 0.2s ease;
+    
+    &:hover {
+      border-color: #ced4da;
+    }
+    
+    .status-placeholder {
+      color: #6c757d;
+      font-size: 0.875rem;
+      font-style: italic;
+    }
+  }
+  
+  .status-edit-mode {
+    min-width: 140px;
+    
+    ::ng-deep .ng-select {
+      .ng-select-container {
+        min-height: 32px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        
+        &:focus,
+        &.ng-select-focused {
+          border-color: #80bdff;
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+      }
+      
+      .ng-placeholder {
+        font-size: 0.75rem;
+        color: #6c757d;
+      }
+    }
+  }
+}
+
 .search-customer {
   position: relative;
 
@@ -21,6 +187,7 @@
   display: inline-block;
   cursor: pointer;
   transition: transform 0.2s ease;
+  max-width: 70px;
 
   &:hover {
     transform: scale(1.05);
@@ -335,24 +502,32 @@
   }
 }
 
-// Teams section styling
-.button-role {
-  inset: auto auto 0px auto !important;
-  overflow: hidden;
-  width: 50px;
-  height: 50px;
+// Teams section styling - Vai trò / Nhân sự phụ trách
+.role-item-wrapper {
+  position: relative;
+}
+
+.role-item-btn {
+  width: 32px;
+  height: 32px;
   border-radius: 50% !important;
   padding: 0 !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0;
+  border: 1px solid #dee2e6;
+  background-color: #fff;
   transition: all 0.2s ease;
   position: relative;
 
   &:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-color: #adb5bd;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   }
 
   img {
@@ -364,19 +539,12 @@
   }
 
   i {
-    font-size: 24px;
+    font-size: 16px;
+    color: #495057;
     flex-shrink: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
   }
 
-  span {
-    display: none; // Ẩn text trong hình tròn để giữ gọn
-  }
-
-  // Tooltip sẽ hiển thị tên role
+  // Tooltip sẽ hiển thị tên role và user
   &::after {
     content: attr(title);
     position: absolute;
@@ -387,7 +555,7 @@
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
@@ -430,5 +598,161 @@
     top: auto !important;
     bottom: 100% !important;
     margin-bottom: 0.125rem !important;
+  }
+}
+
+// Tasks Section Styles
+.tasks-section {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.task-card {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #fff;
+
+  .task-header {
+    .task-code {
+      font-size: 0.95rem;
+      color: #212529;
+    }
+
+    .task-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background-color: #3b82f6;
+      color: #fff;
+
+      .tag-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #22c55e;
+      }
+    }
+  }
+
+  .task-name {
+    font-size: 0.9rem;
+    color: #495057;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.task-chain-card {
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-top: 0.75rem;
+  overflow: hidden;
+
+  .chain-header {
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+
+    .chain-name {
+      font-size: 0.85rem;
+      color: #495057;
+      letter-spacing: 0.3px;
+    }
+
+    .chain-status {
+      font-size: 0.8rem;
+      color: #6c757d;
+      display: flex;
+      align-items: center;
+
+      &.closed {
+        color: #6c757d;
+      }
+    }
+  }
+
+  .chain-results-table {
+    .table-header {
+      display: flex;
+      padding: 0.5rem 1rem;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #3b82f6;
+    }
+
+    .table-body {
+      .table-row {
+        display: flex;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.85rem;
+        color: #212529;
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+
+    .col-date {
+      flex: 0 0 25%;
+      min-width: 140px;
+    }
+
+    .col-action {
+      flex: 0 0 20%;
+      min-width: 120px;
+    }
+
+    .col-result {
+      flex: 0 0 30%;
+      min-width: 180px;
+
+      .result-name {
+        font-weight: 500;
+      }
+
+      .result-reason {
+        font-size: 0.8rem;
+        color: #ef4444;
+        font-style: italic;
+      }
+    }
+
+    .col-note {
+      flex: 1;
+      min-width: 100px;
+      color: #6c757d;
+    }
+  }
+}
+
+.funnel-select-header {
+  width: 140px;
+  
+  ::ng-deep .ng-select {
+    .ng-select-container {
+      min-height: 32px;
+      font-size: 0.875rem;
+    }
+  }
+}
+.source-select-header {
+  min-width: 140px;
+  
+  ::ng-deep .ng-select {
+    .ng-select-container {
+      min-height: 32px;
+      font-size: 0.875rem;
+    }
   }
 }
