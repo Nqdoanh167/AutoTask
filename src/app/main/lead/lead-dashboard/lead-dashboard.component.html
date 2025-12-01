@@ -219,11 +219,18 @@
                   <span *ngIf="!hasStatusById(lead.statusId)">-</span>
                 </span>
 
-                <!-- Task ID -->
-                <span *ngIf="col.value === 'taskId'">
-                  <span *ngIf="lead.taskId" class="text-primary" style="cursor: pointer;">{{ lead.taskId }}</span>
-                  <span *ngIf="!lead.taskId">-</span>
-                </span>
+                <!-- Task Codes -->
+                @if (col.value === 'taskIds') {
+                  @if (lead.taskCodes && lead.taskCodes.length > 0 && lead.taskIds && lead.taskIds.length > 0 && lead.taskCodes.length === lead.taskIds.length) {
+                    <span>
+                      <span *ngFor="let taskCode of lead.taskCodes; let idx = index" class="text-primary task-code" style="cursor: pointer;" (click)="openTaskDetail(idx, lead)">
+                        {{ taskCode }}<span *ngIf="idx < lead.taskCodes.length - 1">, </span>
+                      </span>
+                    </span>
+                  } @else {
+                    <span>-</span>
+                  }
+                }
 
                 <!-- Order ID -->
                 <span *ngIf="col.value === 'orderId'">

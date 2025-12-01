@@ -1,3 +1,16 @@
+::ng-deep {
+  .modal-body {
+    padding: 0 !important;
+    border-bottom: rgb(232, 236, 242) 1px solid;
+  }
+
+  // Override z-index cho ng-select dropdown panel khi append to body
+  // Cần cao hơn address-modal-overlay (z-index: 1060)
+  body > .ng-dropdown-panel {
+    z-index: 1100 !important;
+  }
+}
+
 .input__title {
   width: 263px;
 
@@ -7,35 +20,84 @@
   }
 }
 
-// .tag-item {
-//   display: inline-flex;
-//   align-items: center;
-//   padding: 2px 8px;
-//   border-radius: 12px;
-//   font-size: 11px;
-//   font-weight: 500;
-//   color: white;
-//   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-//   white-space: nowrap;
-//   max-width: 120px;
+.body-container {
+  display: flex;
+  height: 100%;
 
-//   &.nonBack {
-//     background-color: #6c757d !important;
-//   }
+  .content-wrapper {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
 
-//   span {
-//     overflow: hidden;
-//     text-overflow: ellipsis;
-//     white-space: nowrap;
-//   }
-// }
+  form {
+    padding: 16px 16px 0px 16px;
+    flex-basis: 95%;
+    border-right: rgb(232, 236, 242) 1px solid;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    .navigation-tabs {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid rgb(232, 236, 242);
+      background-color: #fff;
+      padding: 0;
+      margin: 0;
+      margin-top: 16px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex-shrink: 0;
+
+      .tab-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
+        position: relative;
+
+        &:hover {
+          color: #495057;
+          background-color: #f8f9fa;
+        }
+
+        &.active {
+          color: #007bff;
+          border-bottom-color: #007bff;
+          font-weight: 600;
+        }
+
+        span {
+          display: inline-block;
+        }
+      }
+    }
+  }
+
+  .body-actions {
+    flex-basis: 5%;
+    padding: 16px 4px;
+    flex-shrink: 0;
+
+    img {
+      width: 20px;
+    }
+  }
+}
+
 
 .status-item {
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
   border-radius: 12px;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -625,19 +687,11 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 12px;
+      padding: 4px;
       border-radius: 4px;
       font-size: 0.8rem;
       font-weight: 500;
-      background-color: #3b82f6;
       color: #fff;
-
-      .tag-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background-color: #22c55e;
-      }
     }
   }
 
@@ -753,6 +807,229 @@
     .ng-select-container {
       min-height: 32px;
       font-size: 0.875rem;
+    }
+  }
+}
+
+// ============ INLINE EDIT FIELD STYLES ============
+.inline-edit-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 4px 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #adb5bd;
+    background-color: #fff;
+  }
+
+  .field-value {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #212529;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.empty {
+      color: #6c757d;
+      font-style: italic;
+    }
+  }
+
+  .form-control {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 0.9rem;
+    box-shadow: none !important;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .btn-edit-inline {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    color: #6c757d;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+
+    &:hover {
+      background-color: #e9ecef;
+      color: #495057;
+      border-color: #dee2e6;
+    }
+
+    &:active {
+      background-color: #dee2e6;
+    }
+
+    i {
+      font-size: 12px;
+    }
+  }
+}
+
+// ============ ADDRESS MODAL STYLES ============
+.address-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1060;
+  animation: fadeIn 0.2s ease;
+
+  // Đảm bảo ng-select dropdown panel hiển thị trên modal
+  ::ng-deep .ng-dropdown-panel {
+    z-index: 1070 !important;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.address-modal {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideIn 0.2s ease;
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .address-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e9ecef;
+
+    h5 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #212529;
+    }
+
+    .btn-close {
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      opacity: 0.5;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  .address-modal-body {
+    padding: 20px;
+    overflow: visible;
+
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #495057;
+      font-size: 0.9rem;
+    }
+
+    .mb-3 {
+      position: relative;
+    }
+
+    ::ng-deep .ng-select {
+      .ng-select-container {
+        border-radius: 6px;
+        min-height: 40px;
+      }
+
+      // Đảm bảo dropdown panel hiển thị đúng trong modal
+      .ng-dropdown-panel {
+        position: absolute !important;
+        z-index: 10 !important;
+      }
+
+      // Style cho trạng thái disabled
+      &.ng-select-disabled,
+      &.input-disabled {
+        .ng-select-container {
+          background-color: #e9ecef;
+          cursor: not-allowed;
+          opacity: 0.65;
+        }
+
+        .ng-arrow-wrapper {
+          opacity: 0.5;
+        }
+      }
+    }
+
+    // Class riêng cho input-disabled
+    .input-disabled {
+      pointer-events: none;
+      
+      ::ng-deep .ng-select-container {
+        background-color: #e9ecef !important;
+        cursor: not-allowed !important;
+      }
+    }
+
+    .form-control {
+      border-radius: 6px;
+      min-height: 40px;
+    }
+  }
+
+  .address-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 20px;
+    border-top: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+
+    .btn {
+      min-width: 80px;
     }
   }
 }

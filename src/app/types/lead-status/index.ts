@@ -16,6 +16,7 @@ export interface ILeadStatus {
   bgColor?: string; // For UI display
   createdAt: Date;
   updatedAt: Date;
+  pos: number;
 }
 
 export interface ILeadStatusCreateDto {
@@ -25,6 +26,7 @@ export interface ILeadStatusCreateDto {
   description?: string;
   isDefault?: boolean;
   bgColor?: string;
+  pos?: number;
 }
 
 export interface ILeadStatusUpdateDto extends Partial<ILeadStatusCreateDto> {

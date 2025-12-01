@@ -397,3 +397,20 @@ export const flattenData = (data: any, prefix: string = ''): Record<string, any>
 export async function snooze(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+/**
+ * Hàm tính toán vị trí của phần tử sau khi di chuyển trong danh sách mà không cần thay đổi vị trí của các phần tử khác
+ * @param posList Danh sách vị trí của các item (sau khi di chuyển)
+ * @param currentIdx Index của item hiện tại (sau khi di chuyển)
+ * @returns Giá trị pos mới của item hiện tại
+ */
+export function calculateNextPos(posList: number[], currentIdx: number) {
+  // Nếu di chuyển lên đầu -> result = posList[0] / 2
+  if (currentIdx === 0) return posList[0] / 2;
+
+  // Nếu di chuyển xuống cuối -> result = posList[length-1] + 1000
+  if (currentIdx === posList.length - 1) return posList[currentIdx] + 1000;
+  
+  // Còn lại -> result = (posList[currentIdx-1] + posList[currentIdx+1]) / 2
+  return (posList[currentIdx-1] + posList[currentIdx+1]) / 2;
+}

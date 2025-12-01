@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
-import { BsModalRef } from 'ngx-bootstrap/modal';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Subject, finalize, takeUntil } from 'rxjs';
 import { ILead, ILeadCreateDto, ILeadUpdateDto, EGenderType } from '@app/types/lead';
 import { StorageService } from '@app/services/api/storage.service';
@@ -11,9 +11,12 @@ import { Customer } from '@app/types/customer';
 import { UserAcl } from '@app/types/setting';
 import { User } from '@app/types/viewmodels';
 import { AuthService } from '@app/services/api/auth.service';
-import { EChainNextActionType, ETaskChainType, ITeam } from '@app/types/flow';
+import { EChainNextActionType, ETaskChainType, ITeam, ModifiedUserUnit } from '@app/types/flow';
+import { TreeNodeSelectEvent, TreeNodeUnSelectEvent } from 'primeng/tree';
 import { ApiLocationService } from '@app/services/api/location';
-import { ITask, ITaskChain, ITaskChainResult } from './lead-form-modal.interface';
+import { ITask, ITaskChain, ITaskChainResult, IPlatform } from './lead-form-modal.interface';
+import { environment } from 'src/environments/environment';
+import { LeadConnectionsModalComponent } from '../lead-connections-modal/lead-connections-modal.component';
 
 @Component({
   selector: 'app-lead-form-modal',
@@ -36,6 +39,8 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   loadingFunnels = false;
   isEditingTags = false;
   isEditingStatus = false;
+  isAddressModalOpen = false;
+  platforms: IPlatform[] = [];
 
   @ViewChild('statusSelect') statusSelect: any;
   
@@ -51,6 +56,9 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   autoTaskSetting?: any;
   currentBiz?: any;
   listBizUsers: User[] = [];
+  
+  // Branch-related properties
+  public units = this.autoTaskService.getUserUnits(false);
 
   // Gender options for dropdown
   genderOptions = [
@@ -59,6 +67,25 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     { value: EGenderType.OTHER, label: 'Khác' },
   ];
 
+  getTaskDetailUrl(taskId: string) {
+    return `${environment.urlDomain}/${this.currentBiz?.alias || ''}/${environment.module}/dashboard?id=${taskId}`;
+  }
+
+  get provinceCodeControl(): FormControl {
+    return this.leadForm?.get('provinceCode') as FormControl;
+  }
+
+  get districtCodeControl(): FormControl {
+    return this.leadForm?.get('districtCode') as FormControl;
+  }
+
+  get wardCodeControl(): FormControl {
+    return this.leadForm?.get('wardCode') as FormControl;
+  }
+
+  get streetControl(): FormControl {
+    return this.leadForm?.get('street') as FormControl;
+  }
 
   // Mock tasks data
   // mockTasks: ITask[] = [
@@ -137,6 +164,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private modalRef: BsModalRef,
+    private modalService: BsModalService,
     private storageService: StorageService,
     private toastr: ToastrService,
     private autoTaskService: AutoTaskService,
@@ -154,6 +182,8 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     this.loadBizUsers();
     this.loadAutoTaskSetting();
     this.loadProvinces();
+    this.loadPlatforms();
+    this.initializeBranch();
   }
 
   ngOnDestroy(): void {
@@ -274,6 +304,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       ward: [this.lead?.ward || null],
       wardCode: [this.lead?.wardCode || null],
       teams: this.fb.array([]), // Teams form array
+      branch: [null, [Validators.required]], // Branch field - required
     });
 
   }
@@ -346,6 +377,21 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       });
     }
 
+    // Process branch separately (required field)
+    const branchForm = formData.branch;
+    let branch = null;
+    if (branchForm) {
+      branch = {
+        unit: branchForm.level,
+        id: branchForm.id,
+        name: branchForm.name,
+        department: branchForm.department,
+        departmentName: branchForm.departmentName,
+        team: branchForm.team,
+        teamName: branchForm.teamName,
+      };
+    }
+
     // Remove empty/null values but preserve required fields
     const cleanedData: Partial<ILeadCreateDto> = {};
     Object.entries(formData).forEach(([key, value]) => {
@@ -353,8 +399,8 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       if (allowedFieldNames.includes(key)) {
         (cleanedData as any)[key] = value;
       }
-      // Skip teams as we handle it separately
-      else if (key === 'teams') {
+      // Skip teams and branch as we handle them separately
+      else if (key === 'teams' || key === 'branch') {
         return;
       }
       // For other fields, only include non-empty values
@@ -366,6 +412,16 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     // Add teams if any
     if (teams.length > 0) {
       (cleanedData as any).teams = teams;
+    }
+
+    // Add branch (required field, should always be present when form is valid)
+    if (branch) {
+      (cleanedData as any).branch = branch;
+    }
+
+    // Add platforms if any
+    if (this.platforms.length > 0) {
+      (cleanedData as any).platforms = this.platforms;
     }
 
     if (this.isEditMode && this.lead) {
@@ -395,6 +451,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     if (control?.hasError('required')) {
       if (fieldName === 'statusId') return 'Vui lòng chọn trạng thái Lead';
       if (fieldName === 'funnelId') return 'Vui lòng chọn Phễu';
+      if (fieldName === 'branch') return 'Vui lòng chọn Chi nhánh';
       return 'Trường này là bắt buộc';
     }
     if (control?.hasError('email')) {
@@ -896,5 +953,169 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
    */
   onStatusChange(): void {
     // Status changed, stay in edit mode until user clicks outside
+  }
+
+  // ============ INLINE EDIT METHODS ============
+
+  /**
+   * Toggle Facebook edit mode - Open connections modal
+   */
+  toggleEditFacebook(): void {
+    this.openConnectionsModal();
+  }
+
+  /**
+   * Toggle Zalo edit mode - Open connections modal
+   */
+  toggleEditZalo(): void {
+    this.openConnectionsModal();
+  }
+
+  /**
+   * Open connections management modal
+   */
+  openConnectionsModal(): void {
+    const modalRef = this.modalService.show(LeadConnectionsModalComponent, {
+      class: 'modal-lg modal-dialog-centered',
+      initialState: {
+        platforms: this.platforms,
+      } as any,
+    });
+
+    if (modalRef.content) {
+      (modalRef.content as any).saveEvent?.subscribe((platforms: IPlatform[]) => {
+        this.platforms = platforms;
+        // Trigger change detection to update display values
+        this.cdr.detectChanges();
+      });
+    }
+  }
+
+  /**
+   * Load platforms from lead data
+   */
+  loadPlatforms(): void {
+    if (this.lead?.platforms) {
+      this.platforms = JSON.parse(JSON.stringify(this.lead.platforms));
+    } else {
+      // Initialize empty platforms array
+      this.platforms = [];
+    }
+  }
+
+  /**
+   * Get Facebook display value from platforms
+   */
+  getFacebookDisplayValue(): string {
+    const facebookPlatform = this.platforms.find(p => p.platform === 'FACEBOOK');
+    if (facebookPlatform && facebookPlatform.connections.length > 0) {
+      const firstConnection = facebookPlatform.connections[0];
+      return firstConnection.platformId;
+    }
+    return '';
+  }
+
+  /**
+   * Get Zalo display value from platforms
+   */
+  getZaloDisplayValue(): string {
+    const zaloPersonalPlatform = this.platforms.find(p => p.platform === 'ZALO_PERSONAL');
+    const zaloOAPlatform = this.platforms.find(p => p.platform === 'ZALO_OA');
+    const zaloPlatform = zaloPersonalPlatform || zaloOAPlatform;
+    if (zaloPlatform && zaloPlatform.connections.length > 0) {
+      const firstConnection = zaloPlatform.connections[0];
+      return firstConnection.platformId;
+    }
+    return '';
+  }
+
+  /**
+   * Get total connections count for Facebook
+   */
+  getFacebookConnectionsCount(): number {
+    const facebookPlatform = this.platforms.find(p => p.platform === 'FACEBOOK');
+    return facebookPlatform?.connections.length || 0;
+  }
+
+  /**
+   * Get total connections count for Zalo
+   */
+  getZaloConnectionsCount(): number {
+    const zaloPersonalPlatform = this.platforms.find(p => p.platform === 'ZALO_PERSONAL');
+    const zaloOAPlatform = this.platforms.find(p => p.platform === 'ZALO_OA');
+    return (zaloPersonalPlatform?.connections.length || 0) + (zaloOAPlatform?.connections.length || 0);
+  }
+
+
+  // ============ ADDRESS MODAL METHODS ============
+
+  /**
+   * Open address edit modal
+   */
+  openAddressModal(): void {
+    this.isAddressModalOpen = true;
+  }
+
+  /**
+   * Close address edit modal
+   */
+  closeAddressModal(): void {
+    this.isAddressModalOpen = false;
+    this.handleCombineAddress();
+  }
+
+  /**
+   * Get full address string from form fields
+   */
+  getFullAddress(): string {
+    const { street, ward, district, province } = this.leadForm.value;
+    const parts = [street, ward, district, province].filter(Boolean);
+    return parts.join(', ');
+  }
+
+  // ============ BRANCH METHODS ============
+
+  /**
+   * Initialize branch field when form loads
+   */
+  initializeBranch(): void {
+    if (this.lead?.branch) {
+      // If editing and lead has branch, find and set it
+      const foundUnit = this.autoTaskService.findUnitFromData(this.lead.branch);
+      if (foundUnit) {
+        this.leadForm.patchValue({
+          branch: foundUnit as any,
+        });
+      }
+    } else {
+      // For new leads, set default branch
+      let branch = this.autoTaskService.getFirstUnit();
+      if (branch) {
+        this.leadForm.patchValue({ branch } as any);
+      }
+    }
+  }
+
+  /**
+   * Handle change when user selects a unit
+   */
+  handleChangeUnit(value: TreeNodeSelectEvent | TreeNodeUnSelectEvent): void {
+    const node = value.node as ModifiedUserUnit;
+    // Optionally load info unit if needed
+    // this.getInfoUnit(node?.team || node?.department || node?.id);
+  }
+
+  /**
+   * Prevent unselecting branch (keep current value)
+   */
+  preventUnselect(value: TreeNodeUnSelectEvent): void {
+    const currentBranchValue = this.leadForm.get('branch')?.value;
+    if (currentBranchValue) {
+      setTimeout(() => {
+        this.leadForm.patchValue({
+          branch: currentBranchValue,
+        });
+      }, 0);
+    }
   }
 }

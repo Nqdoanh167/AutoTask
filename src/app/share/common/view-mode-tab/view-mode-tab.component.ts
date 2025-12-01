@@ -40,6 +40,7 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import {SortByPipe} from '@app/share/pipe/sort-by.pipe';
+import { calculateNextPos } from '@app/utils/common';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -762,28 +763,29 @@ export class ViewModeTabComponent
   drop(event: CdkDragDrop<IViewModeDto[]>) {
     const previousIndex = event.previousIndex;
     const currentIndex = event.currentIndex;
-
     // Di chuyển item trong mảng filteredTabs
     moveItemInArray(this.filteredTabs, previousIndex, currentIndex);
+    const afterMovedPosList = this.filteredTabs.map((item) => item.pos || 0);
 
     if (previousIndex === currentIndex) return;
 
     const movedTab = this.filteredTabs[currentIndex];
     if (!movedTab.id || !movedTab.pos === undefined) return;
 
-    let newPos: number = movedTab.pos! || 0;
+    // let newPos: number = movedTab.pos! || 0;
 
-    if (currentIndex === 0) {
-      const nextTab = this.filteredTabs[1];
-      newPos = nextTab ? nextTab.pos! / 2 : 0;
-    } else if (currentIndex === this.filteredTabs.length - 1) {
-      newPos = (this.filteredTabs[currentIndex - 1].pos! || 0) + 1000;
-    } else {
-      const prevTab = this.filteredTabs[currentIndex - 1];
-      const nextTab = this.filteredTabs[currentIndex + 1];
-      newPos = (prevTab.pos! + nextTab.pos!) / 2;
-    }
+    // if (currentIndex === 0) {
+    //   const nextTab = this.filteredTabs[1];
+    //   newPos = nextTab ? nextTab.pos! / 2 : 0;
+    // } else if (currentIndex === this.filteredTabs.length - 1) {
+    //   newPos = (this.filteredTabs[currentIndex - 1].pos! || 0) + 1000;
+    // } else {
+    //   const prevTab = this.filteredTabs[currentIndex - 1];
+    //   const nextTab = this.filteredTabs[currentIndex + 1];
+    //   newPos = (prevTab.pos! + nextTab.pos!) / 2;
+    // }
 
+    const newPos = calculateNextPos(afterMovedPosList, currentIndex) || movedTab.pos!;
     movedTab.pos = newPos;
 
     this.autoTaskService.settingView

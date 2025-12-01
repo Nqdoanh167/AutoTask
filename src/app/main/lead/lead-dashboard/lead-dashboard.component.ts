@@ -15,7 +15,7 @@ import {
   LEAD_MULTIPLE_ACTIONS,
   ELeadBulkAction,
 } from './lead-dashboard-variables';
-import {takeUntil, finalize, shareReplay} from 'rxjs';
+import {takeUntil, finalize, shareReplay, first} from 'rxjs';
 import {OrderableTableComponent} from '@share/orderable-table/orderable-table.component';
 import {
   ILeadFolder,
@@ -822,6 +822,34 @@ export class LeadDashboardComponent
     return `${environment.urlDomain}/${this.currentBiz!.alias}/${
       environment.module
     }/?leadId=${leadId}`;
+  }
+
+  /**
+   * Open task detail in new tab
+   * @param taskCode - Task code to find corresponding taskId
+   * @param lead - Lead object containing taskCodes and taskIds arrays
+   */
+  openTaskDetail(taskIdx: number, lead: ILead): void {
+    if (!lead.taskCodes || !lead.taskIds) {
+      return;
+    }
+
+    // Find index of taskCode in taskCodes array
+    const taskId = lead.taskIds[taskIdx];
+    if (!taskId) {
+      console.warn(`No taskId found at index ${taskIdx}`, lead.taskIds);
+      return;
+    }
+
+    // Build URL and open in new tab
+    this.authService.currentBiz
+      .pipe(first())
+      .subscribe((biz) => {
+        if (biz?.alias) {
+          const url = `${environment.urlDomain}/${biz.alias}/${environment.module}/dashboard?id=${taskId}`;
+          window.open(url, '_blank');
+        }
+      });
   }
 
   onApplyEvent(event: any) {

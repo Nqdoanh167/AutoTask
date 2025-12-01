@@ -26,6 +26,7 @@ export const LEAD_CONFIG_FILTERS: IFilterTopTable[] = [
     searchable: true,
     multiple: true,
     minWidth: '200px',
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
   {
     type: ETypeFilter.SELECT,
@@ -38,6 +39,7 @@ export const LEAD_CONFIG_FILTERS: IFilterTopTable[] = [
     searchable: false,
     multiple: true,
     minWidth: '200px',
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
   {
     type: ETypeFilter.POPOVER,
@@ -140,24 +142,18 @@ export const LEAD_COLUMNS: IColumns[] = [
     tooltip: 'Email',
   },
   {
-    name: 'Tổng tiền',
-    value: 'totalPrice',
-    fieldSort: 'totalPrice',
-    tooltip: 'Tổng tiền',
-  },
-  {
     name: 'Trạng thái Leads',
     value: 'status',
     tooltip: 'Trạng thái hiện tại của lead',
   },
   {
     name: 'Tác vụ',
-    value: 'taskId',
+    value: 'taskIds',
     tooltip: 'Tác vụ liên quan',
   },
   {
     name: 'Đơn hàng',
-    value: 'orderId',
+    value: 'orderIds',
     tooltip: 'Đơn hàng liên quan',
   },
   {
@@ -181,7 +177,7 @@ export const LEAD_COLUMNS: IColumns[] = [
 
 // Default visible columns
 export const LEAD_COLUMNS_DEFAULT: IColumns[] = LEAD_COLUMNS.filter((col) =>
-  ['name', 'phone', 'email', 'totalPrice', 'status', 'taskId', 'orderId', 'createdAt'].includes(col.value)
+  ['name', 'phone', 'email', 'status', 'taskIds', 'orderIds', 'createdAt'].includes(col.value)
 );
 
 // Multiple actions for leads

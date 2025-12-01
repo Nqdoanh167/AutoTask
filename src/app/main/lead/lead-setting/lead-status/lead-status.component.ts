@@ -4,6 +4,8 @@ import {ToastrService} from 'ngx-toastr';
 import {ILeadStatus, ILeadStatusCreateDto, ILeadStatusUpdateDto, ELeadStatusType, LEAD_STATUS_TYPE_LABELS} from '@app/types/lead-status';
 import {LeadStatusFormModalComponent} from './lead-status-form-modal/lead-status-form-modal.component';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {calculateNextPos} from '@app/utils/common';
 
 @Component({
   selector: 'app-lead-status',
@@ -28,9 +30,11 @@ export class LeadStatusComponent implements OnInit {
 
   loadData() {
     this.loading = true;
-    this.autoTaskService.leadStatus.get({}).subscribe({
+    this.autoTaskService.leadStatus.get({sort: 'pos'}).subscribe({
       next: (res) => {
         this.dataSource = res.data || [];
+        // Nếu có items chưa có pos, tự động gán pos dựa trên index
+        this.initializePositions();
         this.loading = false;
       },
       error: (err) => {
@@ -213,5 +217,107 @@ export class LeadStatusComponent implements OnInit {
   private invalidateLeadStatusesCache() {
     localStorage.removeItem('leadStatuses_cache');
     localStorage.removeItem('leadStatuses_cache_timestamp');
+  }
+
+  /**
+   * Khởi tạo pos cho các items chưa có pos
+   * Gán pos dựa trên index (index * 1000) để đảm bảo có khoảng cách đủ lớn
+   */
+  private initializePositions() {
+    let hasItemsWithoutPos = false;
+    const itemsToUpdate: Array<{id: string; pos: number}> = [];
+
+    this.dataSource.forEach((item, index) => {
+      if (item.pos === undefined || item.pos === null) {
+        hasItemsWithoutPos = true;
+        // Gán pos tạm thời cho UI
+        item.pos = (index + 1) * 1000;
+        // Lưu vào danh sách để update
+        if (item.id) {
+          itemsToUpdate.push({ id: item.id, pos: item.pos });
+        }
+      }
+    });
+
+    // Nếu có items chưa có pos, batch update để lưu vào DB
+    if (hasItemsWithoutPos && itemsToUpdate.length > 0) {
+      this.batchUpdatePositions(itemsToUpdate);
+    }
+  }
+
+  /**
+   * Batch update positions cho nhiều items
+   */
+  private batchUpdatePositions(items: Array<{id: string; pos: number}>) {
+    // Update từng item (có thể tối ưu thành batch API nếu backend hỗ trợ)
+    let completed = 0;
+    const total = items.length;
+
+    items.forEach(({ id, pos }) => {
+      this.autoTaskService.leadStatus.update(id, { pos }).subscribe({
+        next: (res) => {
+          completed++;
+          if (completed === total) {
+            // Tất cả đã update xong, invalidate cache
+            this.invalidateLeadStatusesCache();
+          }
+        },
+        error: (err) => {
+          console.error(`Error updating pos for item ${id}:`, err);
+          completed++;
+        }
+      });
+    });
+  }
+
+  onDrop(event: CdkDragDrop<ILeadStatus[]>) {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+
+    if (!this.dataSource[event.previousIndex]?.id) {
+      return;
+    }
+
+    // Đảm bảo tất cả items đều có pos trước khi tính toán
+    // Nếu có item chưa có pos, gán pos tạm thời dựa trên index
+    this.dataSource.forEach((item, index) => {
+      if (item.pos === undefined || item.pos === null) {
+        item.pos = (index + 1) * 1000;
+      }
+    });
+
+    // Di chuyển item trong mảng dataSource
+    moveItemInArray(this.dataSource, event.previousIndex, event.currentIndex);
+    
+    // Lấy danh sách pos sau khi di chuyển
+    const afterMovedPosList = this.dataSource.map((item) => item.pos || 0);
+    
+    // Lấy item đã di chuyển
+    const movedItem = this.dataSource[event.currentIndex];
+
+    // Tính toán pos mới sử dụng calculateNextPos
+    const newPos = calculateNextPos(afterMovedPosList, event.currentIndex);
+    movedItem.pos = newPos;
+
+    // Gọi API để update pos
+    this.autoTaskService.leadStatus.update(movedItem.id, { pos: newPos }).subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.toastrService.success('Cập nhật vị trí thành công');
+          this.invalidateLeadStatusesCache();
+        } else {
+          // Rollback nếu có lỗi
+          moveItemInArray(this.dataSource, event.currentIndex, event.previousIndex);
+          this.toastrService.error('Không thể cập nhật vị trí');
+        }
+      },
+      error: (err) => {
+        console.error('Error updating position:', err);
+        // Rollback nếu có lỗi
+        moveItemInArray(this.dataSource, event.currentIndex, event.previousIndex);
+        this.toastrService.error('Không thể cập nhật vị trí');
+      }
+    });
   }
 }

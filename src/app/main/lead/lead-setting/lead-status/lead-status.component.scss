@@ -38,6 +38,53 @@
             padding: 0.75rem;
             vertical-align: middle;
           }
+
+          // CDK Drag styles
+          &.cdk-drag-preview {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+            background-color: #ffffff;
+          }
+
+          &.cdk-drag-animating {
+            transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+          }
+
+          .drag-handle-cell {
+            width: 3%;
+            padding: 0.5rem;
+            text-align: center;
+
+            .drag-handle {
+              cursor: grab;
+              transition: color 0.2s ease;
+              border: none;
+              background: transparent;
+
+              &:hover {
+                color: #007bff;
+              }
+
+              &:active {
+                cursor: grabbing;
+                color: #0056b3;
+              }
+
+              i {
+                font-size: 1rem;
+              }
+            }
+          }
+        }
+
+        // Placeholder khi kéo
+        .cdk-drop-list-dragging tr:not(.cdk-drag-placeholder) {
+          transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        .cdk-drag-placeholder {
+          opacity: 0.3;
+          background-color: #e7f3ff;
         }
       }
     }
@@ -71,6 +118,7 @@
       font-size: 0.9rem;
       animation: pulse 2s ease-in-out infinite;
     }
+
 
     .spinner-border {
       width: 2rem;

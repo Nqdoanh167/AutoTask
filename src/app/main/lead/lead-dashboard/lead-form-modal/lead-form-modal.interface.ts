@@ -40,7 +40,11 @@ export interface ITask {
   id: string;
   code: string;
   name?: string;
-  tags: string[];
+  tags: {
+    id: string;
+    name: string;
+    bgColor: string;
+  }[];
   leadId: string;
   taskChains: ITaskChain[];
 }
@@ -69,4 +73,19 @@ export interface ILeadFormModalSubmitData {
 
 export interface ILeadFormModalVisibleData extends ILeadFormModalSubmitData {
   tasks: ITask[];
+}
+
+export interface IConnection {
+  id?: string;
+  platformId: string; // ID Nền tảng
+  customerId: string; // ID Khách hàng
+  customerName?: string; // Tên khách hàng (nếu có)
+  isInterested?: boolean; // Quan tâm (cho Zalo OA)
+}
+
+export interface IPlatform {
+  platform: string; // Platform type: FACEBOOK, ZALO, etc.
+  platformName: string; // Platform name: Facebook, Zalo Cá Nhân, Zalo OA, etc.
+  platformIcon: string; // Icon URL hoặc class name
+  connections: IConnection[];
 }

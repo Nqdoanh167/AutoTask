@@ -2,8 +2,8 @@ import { Customer } from '../customer';
 import { ITag, AccountPublic } from '../viewmodels';
 import { ILeadStatus } from '../lead-status';
 import { ILeadTag, ILeadTag as ILeadTagType } from '../lead-tag';
-import { ITeam } from '../flow';
-import { ITask } from '@app/main/lead/lead-dashboard/lead-form-modal/lead-form-modal.interface';
+import { ITeam, IBranchTaskDto } from '../flow';
+import { ITask, IPlatform } from '@app/main/lead/lead-dashboard/lead-form-modal/lead-form-modal.interface';
 
 export enum EGenderType {
   MALE = 'male',
@@ -26,12 +26,14 @@ export interface ILead {
   districtCode?: string;
   province?: string;
   provinceCode?: string;
+  platforms?: IPlatform[]; // Danh sách nền tảng và kết nối
   totalPrice?: number;
   status?: ILeadStatus;
   statusId?: string;
   tags?: ILeadTag[]; // Populated tag objects (for display)
   tagIds?: string[]; // Tag IDs (matches backend response)
-  taskId?: string;
+  taskIds: string[];
+  taskCodes: string[];
   orderId?: string;
   customer?: Customer;
   createdBy?: AccountPublic;
@@ -44,6 +46,7 @@ export interface ILead {
   funnelId?: string;
   teams?: ITeam[]; // Danh sách nhân sự phụ trách theo vai trò
   tasks?: ITask[]; // Danh sách các task
+  branch?: IBranchTaskDto; // Chi nhánh / phòng ban / đội nhóm
 }
 
 // Re-export from dedicated type files for external consumers
@@ -73,11 +76,13 @@ export interface ILeadCreateDto {
   districtCode?: string;                
   province?: string;
   provinceCode?: string;
+  platforms?: IPlatform[]; // Danh sách nền tảng và kết nối
   tagIds?: string[]; // Array of tag IDs (matches backend DTO)
   picture?: string; // Avatar URL
   sourceId?: string; // Nguồn dữ liệu (Data source)
   funnelId?: string; // Phễu
   teams?: ITeam[]; // Danh sách nhân sự phụ trách theo vai trò
+  branch?: IBranchTaskDto; // Chi nhánh / phòng ban / đội nhóm
 }
 
 export interface ILeadUpdateDto extends Partial<ILeadCreateDto> {

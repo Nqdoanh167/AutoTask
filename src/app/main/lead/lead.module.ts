@@ -10,6 +10,7 @@ import {LeadFolderSidebarComponent} from './lead-dashboard/lead-folder-sidebar/l
 import {LeadFormModalComponent} from './lead-dashboard/lead-form-modal/lead-form-modal.component';
 import {LeadFunnelFormModalComponent} from './lead-dashboard/lead-funnel-form-modal/lead-funnel-form-modal.component';
 import {LeadBulkMoveModalComponent} from './lead-dashboard/lead-bulk-move-modal/lead-bulk-move-modal.component';
+import {LeadConnectionsModalComponent} from './lead-dashboard/lead-connections-modal/lead-connections-modal.component';
 import {LeadTagFormModalComponent} from './lead-setting/lead-tag/lead-tag-form-modal/lead-tag-form-modal.component';
 import {LeadStatusFormModalComponent} from './lead-setting/lead-status/lead-status-form-modal/lead-status-form-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -19,6 +20,7 @@ import {FilterTopTableComponent} from '@share/common/filter-top-table/filter-top
 import {ModalConfirmComponent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {CustomModalComponent} from '@share/custom/custom-modal/custom-modal.component';
 import {NgSelectModule} from '@ng-select/ng-select';
+import {TreeSelectModule} from 'primeng/treeselect';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
@@ -45,6 +47,7 @@ import { CollapseModule } from "ngx-bootstrap/collapse";
     LeadFormModalComponent,
     LeadFunnelFormModalComponent,
     LeadBulkMoveModalComponent,
+    LeadConnectionsModalComponent,
     LeadTagFormModalComponent,
     LeadStatusFormModalComponent,
   ],
@@ -62,6 +65,7 @@ import { CollapseModule } from "ngx-bootstrap/collapse";
     ModalConfirmComponent,
     CustomModalComponent,
     NgSelectModule,
+    TreeSelectModule,
     TabsModule,
     TooltipModule,
     BsDropdownModule,

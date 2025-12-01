@@ -779,4 +779,17 @@
   .modal-dialog-centered {
     max-height: calc(100% - 100px) !important;
   }
+  .custom-popover-tab {
+    left: 225px !important;
+  }
+  .popover-arrow {
+    left: 260px !important;
+  }
+}
+
+.task-code {
+  &:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
 }
