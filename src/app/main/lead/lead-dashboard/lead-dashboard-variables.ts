@@ -107,6 +107,13 @@ export const LEAD_CONFIG_BUTTON: IFilterTopButton[] = [
     tooltipPlacement: 'bottom',
   },
   {
+    name: 'sortLeadStatus',
+    type: ETypeButton.DEFAULT,
+    icon: './assets/images/icon/dragDrop.svg',
+    tooltip: 'Sắp xếp vị trí trạng thái lead',
+    tooltipPlacement: 'bottom',
+  },
+  {
     name: 'reload',
     type: ETypeButton.DEFAULT,
     icon: './assets/images/icon/reload.svg',

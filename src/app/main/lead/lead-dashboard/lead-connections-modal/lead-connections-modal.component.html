@@ -12,6 +12,7 @@
     <button
       type="button"
       class="btn btn-primary btn-sm"
+      style="margin-right: 6px;"
       (click)="handleAddNewClick()"
       [disabled]="isSubmitting"
     >
@@ -29,10 +30,9 @@
     <div *ngFor="let platform of platforms; let platformIndex = index" class="platform-section mb-4">
       <!-- Platform Header -->
       <div class="platform-header d-flex align-items-center mb-3">
-        <i class="fa {{ platform.platformIcon }} me-2" [ngClass]="{
-          'text-primary': platform.platform === 'FACEBOOK',
-          'text-info': platform.platform === 'ZALO_PERSONAL' || platform.platform === 'ZALO_OA'
-        }"></i>
+        <img *ngIf="platform.platform === 'FACEBOOK'" src="assets/images/socials/facebook-platform.svg" alt="Facebook" class="me-2">
+        <img *ngIf="platform.platform === 'ZALO_PERSONAL'" src="assets/images/socials/zalo-platform.svg" alt="Zalo" class="me-2">
+        <img *ngIf="platform.platform === 'ZALO_OA'" src="assets/images/socials/zalo-platform.svg" alt="Zalo OA" class="me-2">
         <h6 class="mb-0">{{ platform.platformName }}</h6>
       </div>
 
@@ -209,14 +209,16 @@
         <div class="connection-form-footer">
           <button
             type="button"
+            style="padding: 0.25rem 1.25rem !important;"
             class="btn button-default-modal"
             (click)="closeConnectionForm()"
-          >
+            >
             Hủy
           </button>
           <button
             type="button"
             class="btn button-submit-modal"
+            style="padding: 0.25rem 1.25rem !important;"
             (click)="saveConnection()"
             [disabled]="connectionForm.invalid"
           >

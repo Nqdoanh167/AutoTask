@@ -86,6 +86,5 @@ export interface IConnection {
 export interface IPlatform {
   platform: string; // Platform type: FACEBOOK, ZALO, etc.
   platformName: string; // Platform name: Facebook, Zalo Cá Nhân, Zalo OA, etc.
-  platformIcon: string; // Icon URL hoặc class name
   connections: IConnection[];
 }

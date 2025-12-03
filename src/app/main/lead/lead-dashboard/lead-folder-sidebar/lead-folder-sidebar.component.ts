@@ -71,13 +71,6 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Invalidate lead folders with funnels cache
-   */
-  private invalidateLeadFoldersCache() {
-    localStorage.removeItem('leadFoldersWithFunnels_cache');
-    localStorage.removeItem('leadFoldersWithFunnels_cache_timestamp');
-  }
 
   loadFoldersWithFunnels(forceRefresh = false, markAsLocalAction = false, autoSelectFirst = false) {
     // Mark as local action if requested (to prevent socket event conflicts)
@@ -85,50 +78,13 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
       this.markLocalAction();
     }
 
-    // Check cache first (cache for 5 minutes)
-    const CACHE_KEY = 'leadFoldersWithFunnels_cache';
-    const CACHE_TIMESTAMP_KEY = 'leadFoldersWithFunnels_cache_timestamp';
-    const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
-
-    if (!forceRefresh) {
-      const cachedData = localStorage.getItem(CACHE_KEY);
-      const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-
-      if (cachedData && cachedTimestamp) {
-        const now = Date.now();
-        const timestamp = parseInt(cachedTimestamp, 10);
-
-        // If cache is still valid, use it
-        if (now - timestamp < CACHE_TTL) {
-          try {
-            const parsedData = JSON.parse(cachedData);
-            this.folders = this.transformFoldersData(parsedData);
-            
-            // Auto-select first funnel if requested
-            if (autoSelectFirst) {
-              this.autoSelectFirstFunnel();
-            }
-            
-            return; // Skip API call
-          } catch (e) {
-            console.error('Error parsing cached folders with funnels:', e);
-            // Continue to API call if cache parsing fails
-          }
-        }
-      }
-    }
-
-    // Cache miss or expired - fetch from API
+    // Fetch from API
     this.loading = true;
     this.autoTaskService.leadFolder.getWithFunnels().subscribe({
       next: (response) => {
         if (response?.status === 200 && response.data) {
           this.folders = this.transformFoldersData(response.data);
 
-          // Cache the data
-          localStorage.setItem(CACHE_KEY, JSON.stringify(response.data));
-          localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
-          
           // Auto-select first funnel if requested
           if (autoSelectFirst) {
             this.autoSelectFirstFunnel();
@@ -375,8 +331,7 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
           if (response?.status === 200) {
             console.log('Updated folder name successfully');
             
-            // Invalidate cache and reload
-            this.invalidateLeadFoldersCache();
+            // Reload folders
             this.loadFoldersWithFunnels(true);
             
             // Mark this as a local action to ignore socket event
@@ -425,10 +380,7 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
               
               // Update UI immediately - filter out deleted funnel from local state
               this.removeFunnelFromLocalState(funnelId);
-              
-              // Invalidate cache for future loads
-              this.invalidateLeadFoldersCache();
-              
+
               // Notify other components about funnel data changes
               this.autoTaskService.notifyFunnelDataChanged();
               
@@ -460,9 +412,6 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
             
             // Update UI immediately - filter out deleted folder from local state
             this.folders = this.folders.filter(f => f.id !== folder.id);
-
-            // Invalidate cache for future loads
-            this.invalidateLeadFoldersCache();
 
             // Notify other components about funnel data changes
             this.autoTaskService.notifyFunnelDataChanged();
@@ -509,8 +458,7 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
         if (response?.status === 200) {
           console.log(`${currentPinStatus ? 'Unpinned' : 'Pinned'} funnel successfully`);
 
-          // Invalidate cache since data has changed
-          this.invalidateLeadFoldersCache();
+          // Notify other components about funnel data changes
           this.autoTaskService.notifyFunnelDataChanged();
 
           // Update local state instead of reloading from API
@@ -644,10 +592,7 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
             
             // Update UI immediately - remove hidden funnel from local state
             this.removeFunnelFromLocalState(funnelId);
-            
-            // Invalidate cache for future loads
-            this.invalidateLeadFoldersCache();
-            
+
             // Notify other components about funnel data changes
             this.autoTaskService.notifyFunnelDataChanged();
             
@@ -736,7 +681,6 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
         }
 
         // Reload entire folder structure when major changes happen from other users/tabs
-        this.invalidateLeadFoldersCache();
         this.loadFoldersWithFunnels(true);
       });
   }
@@ -876,9 +820,8 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response?.status === 200 || response?.status === 201) {
             console.log('Created folder successfully');
-            
-            // Invalidate cache and reload (need server data like id)
-            this.invalidateLeadFoldersCache();
+
+            // Reload folders (need server data like id)
             this.loadFoldersWithFunnels(true);
             
             // Mark this as a local action to ignore socket event
@@ -907,8 +850,7 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
           if (response?.status === 200) {
             this.toastrService.success('Hiển thị tất cả phễu ẩn thành công');
 
-            // Invalidate cache and reload to show unhidden funnels
-            this.invalidateLeadFoldersCache();
+            // Reload to show unhidden funnels
             this.loadFoldersWithFunnels(true);
 
             // Notify other components about funnel data changes
@@ -1013,8 +955,7 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
     this.loading = true;
     // this.toastrService.info('Đang làm mới dữ liệu phễu và thư mục...');
 
-    // Clear cache and reload folders with funnels
-    this.invalidateLeadFoldersCache();
+    // Reload folders with funnels
     this.loadFoldersWithFunnels(true, true);
 
     // Notify dashboard component to refresh leads data

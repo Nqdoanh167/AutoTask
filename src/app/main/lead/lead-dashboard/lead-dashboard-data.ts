@@ -112,54 +112,16 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
   }
 
   /**
-   * Generic method for cached data fetching with post-processing callbacks
+   * Generic method for data fetching with post-processing callbacks
    */
-  protected getCachedData<T>(
-    cacheKey: string,
-    cacheTimestampKey: string,
+  protected getData<T>(
     serviceMethod: Observable<any>,
     filterName: string,
     dataContainer: ICommonDataLazy<T, IQueryBase>,
-    onCacheHit?: (data: T[]) => void,
-    onApiSuccess?: (data: T[]) => void,
+    onSuccess?: (data: T[]) => void,
     forceRefresh = false
   ): void {
-    const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
-
-    // Check cache first
-    if (!forceRefresh) {
-      const cachedData = localStorage.getItem(cacheKey);
-      const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
-
-      if (cachedData && cachedTimestamp) {
-        const now = Date.now();
-        const timestamp = parseInt(cachedTimestamp, 10);
-
-        // If cache is still valid, use it
-        if (now - timestamp < CACHE_TTL) {
-          try {
-            const parsedData = JSON.parse(cachedData);
-            dataContainer.rows = parsedData;
-
-            // Update filter options
-            const filter = this.configFilters.find((f) => f.name === filterName);
-            if (filter) {
-              filter.options = parsedData;
-            }
-
-            // Call post-processing callback
-            onCacheHit?.(parsedData);
-
-            return; // Skip API call
-          } catch (e) {
-            console.error(`Error parsing cached ${cacheKey}:`, e);
-            // Continue to API call if cache parsing fails
-          }
-        }
-      }
-    }
-
-    // Cache miss or expired - fetch from API
+    // Fetch from API
     dataContainer.loading = true;
     serviceMethod
       .pipe(
@@ -173,10 +135,6 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
           if (res.status === 200) {
             dataContainer.rows = res.data;
 
-            // Cache the data
-            localStorage.setItem(cacheKey, JSON.stringify(res.data));
-            localStorage.setItem(cacheTimestampKey, Date.now().toString());
-
             // Update filter options
             const filter = this.configFilters.find((f) => f.name === filterName);
             if (filter) {
@@ -184,7 +142,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
             }
 
             // Call post-processing callback
-            onApiSuccess?.(res.data);
+            onSuccess?.(res.data);
           } else {
             this.commonService.handleResErr(res);
           }
@@ -193,51 +151,10 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
   }
 
   /**
-   * Hook method called when status cache is invalidated
-   * Override in child classes to implement custom cleanup logic
-   */
-  protected onStatusesCacheInvalidated(): void {
-    // Default implementation: do nothing
-  }
-
-  /**
-   * Hook method called when tag cache is invalidated
-   * Override in child classes to implement custom cleanup logic
-   */
-  protected onTagsCacheInvalidated(): void {
-    // Default implementation: do nothing
-  }
-
-  /**
-   * Invalidate lead statuses cache (call this after create/update/delete status)
-   */
-  invalidateLeadStatusesCache() {
-    localStorage.removeItem('leadStatuses_cache');
-    localStorage.removeItem('leadStatuses_cache_timestamp');
-    this.onStatusesCacheInvalidated();
-  }
-
-  /**
-   * Hook method for status map building after cache hit
-   * Override in child classes to implement custom logic
-   */
-  protected onStatusesCacheHit(statuses: ILeadStatus[]): void {
-    // Default implementation: do nothing
-  }
-
-  /**
    * Hook method for status map building after API success
    * Override in child classes to implement custom logic
    */
-  protected onStatusesApiSuccess(statuses: ILeadStatus[]): void {
-    // Default implementation: do nothing
-  }
-
-  /**
-   * Hook method for tag map building after cache hit
-   * Override in child classes to implement custom logic
-   */
-  protected onTagsCacheHit(tags: ILeadTag[]): void {
+  protected onStatusesSuccess(statuses: ILeadStatus[]): void {
     // Default implementation: do nothing
   }
 
@@ -245,47 +162,32 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
    * Hook method for tag map building after API success
    * Override in child classes to implement custom logic
    */
-  protected onTagsApiSuccess(tags: ILeadTag[]): void {
+  protected onTagsSuccess(tags: ILeadTag[]): void {
     // Default implementation: do nothing
   }
 
   /**
-   * Get lead statuses with caching (5 minutes TTL)
+   * Get lead statuses
    */
   getLeadStatuses(forceRefresh = false) {
-    this.getCachedData<ILeadStatus>(
-      'leadStatuses_cache',
-      'leadStatuses_cache_timestamp',
+    this.getData<ILeadStatus>(
       this.autoTaskService.leadStatus.get(this.statuses.paramsQuery),
       'statusId_in',
       this.statuses,
-      (statuses) => this.onStatusesCacheHit(statuses),
-      (statuses) => this.onStatusesApiSuccess(statuses),
+      (statuses) => this.onStatusesSuccess(statuses),
       forceRefresh
     );
   }
 
   /**
-   * Invalidate lead tags cache (call this after create/update/delete tag)
-   */
-  invalidateLeadTagsCache() {
-    localStorage.removeItem('leadTags_cache');
-    localStorage.removeItem('leadTags_cache_timestamp');
-    this.onTagsCacheInvalidated();
-  }
-
-  /**
-   * Get lead tags with caching (5 minutes TTL)
+   * Get lead tags
    */
   getLeadTags(forceRefresh = false) {
-    this.getCachedData<ILeadTag>(
-      'leadTags_cache',
-      'leadTags_cache_timestamp',
+    this.getData<ILeadTag>(
       this.autoTaskService.leadTag.get(this.tags.paramsQuery),
       'tagIds_in',
       this.tags,
-      (tags) => this.onTagsCacheHit(tags),
-      (tags) => this.onTagsApiSuccess(tags),
+      (tags) => this.onTagsSuccess(tags),
       forceRefresh
     );
   }
@@ -313,43 +215,6 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     this.getDataSource(true);
   }
 
-  /**
-   * Get cached funnels data for use in modals
-   */
-  getCachedFunnels() {
-    const CACHE_KEY = 'leadFoldersWithFunnels_cache';
-    const cachedData = localStorage.getItem(CACHE_KEY);
-    const cachedTimestamp = localStorage.getItem('leadFoldersWithFunnels_cache_timestamp');
-
-    if (cachedData && cachedTimestamp) {
-      const now = Date.now();
-      const timestamp = parseInt(cachedTimestamp, 10);
-      const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-      if (now - timestamp < CACHE_TTL) {
-        try {
-          return JSON.parse(cachedData);
-        } catch (e) {
-          console.error('Error parsing cached funnels:', e);
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Reload funnels data - called after funnel create/update/delete operations
-   * This invalidates the cache so that LeadFormModalComponent and other components
-   * will fetch fresh data from API on their next load
-   */
-  reloadFunnels() {
-    // Invalidate funnel cache - components using funnel data will reload automatically
-    localStorage.removeItem('leadFoldersWithFunnels_cache');
-    localStorage.removeItem('leadFoldersWithFunnels_cache_timestamp');
-
-    // Note: LeadFormModalComponent will automatically fetch fresh data when opened again
-    // because the cache has been invalidated
-  }
 
   /**
    * Get public sources from cache (BehaviorSubject)

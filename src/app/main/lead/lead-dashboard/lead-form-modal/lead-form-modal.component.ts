@@ -977,6 +977,8 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   openConnectionsModal(): void {
     const modalRef = this.modalService.show(LeadConnectionsModalComponent, {
       class: 'modal-lg modal-dialog-centered',
+      backdrop: true,
+      keyboard: false,
       initialState: {
         platforms: this.platforms,
       } as any,
@@ -987,6 +989,11 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         this.platforms = platforms;
         // Trigger change detection to update display values
         this.cdr.detectChanges();
+        modalRef.hide();
+      });
+
+      (modalRef.content as any).cancelEvent?.subscribe(() => {
+        // modalRef.hide();
       });
     }
   }

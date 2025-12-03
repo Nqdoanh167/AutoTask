@@ -24,6 +24,7 @@ import {
 import {LeadFormModalComponent} from './lead-form-modal/lead-form-modal.component';
 import {LeadFunnelFormModalComponent} from './lead-funnel-form-modal/lead-funnel-form-modal.component';
 import {LeadBulkMoveModalComponent} from './lead-bulk-move-modal/lead-bulk-move-modal.component';
+import {SortLeadStatusModalComponent} from './sort-lead-status-modal/sort-lead-status-modal.component';
 import {ETypeFilter, EBotherAdvanceBasicFilter} from '@app/types/common';
 import {AuthService} from '@app/services/api/auth.service';
 import {environment} from 'src/environments/environment';
@@ -141,6 +142,9 @@ export class LeadDashboardComponent
     if (name === 'orderableTable') {
       this.showModalOrderableTable();
     }
+    if (name === 'sortLeadStatus') {
+      this.showModalSortLeadStatus();
+    }
   }
 
   openLeadModal(leadId?: string) {
@@ -165,8 +169,7 @@ export class LeadDashboardComponent
   }
 
   private showLeadModal(lead?: ILead) {
-    // Get cached funnels data to avoid re-fetching in modal
-    const cachedFunnels = this.getCachedFunnels();
+    // Get cached sources data to avoid re-fetching in modal
     const cachedSources = this.getCachedPublicSources();
 
     const modalRef = this.modalService.show(LeadFormModalComponent, {
@@ -175,7 +178,6 @@ export class LeadDashboardComponent
         lead: lead,
         statuses: this.statuses.rows,
         tags: this.tags.rows,
-        cachedFunnels: cachedFunnels, // Pass cached funnels to avoid re-fetching
         cachedSources: cachedSources, // Pass cached sources to avoid re-fetching
         selectedFolder: this.selectedFolder, // Pass currently selected funnel/folder
       } as any,
@@ -243,6 +245,28 @@ export class LeadDashboardComponent
         .subscribe((sequenceColumns: IColumns[]) => {
           this.dataColumnsShow = [...sequenceColumns];
         });
+    }
+  }
+
+  showModalSortLeadStatus() {
+    const modalRef = this.modalService.show(SortLeadStatusModalComponent, {
+      class: 'modal-lg modal-dialog-centered',
+      initialState: {
+        statuses: this.statuses.rows,
+      } as any,
+    });
+
+    if (modalRef.content) {
+      modalRef.content.onStatusUpdated.subscribe((updatedStatuses: ILeadStatus[]) => {
+        // Update trực tiếp danh sách statuses mà không cần gọi API
+        this.statuses.rows = updatedStatuses;
+        // Rebuild status map và tag map để đảm bảo consistency
+        this.buildStatusMap();
+        // Cập nhật lại kanban view nếu đang ở chế độ kanban
+        if (this.viewMode === 'kanban') {
+          this.groupLeadsByStatus();
+        }
+      });
     }
   }
 
@@ -443,40 +467,17 @@ export class LeadDashboardComponent
   }
 
   /**
-   * Override hook methods to build status map
+   * Hook methods to build status map
    */
-  protected override onStatusesCacheHit(statuses: ILeadStatus[]): void {
-    this.buildStatusMap();
-  }
-
-  protected override onStatusesApiSuccess(statuses: ILeadStatus[]): void {
+  protected override onStatusesSuccess(statuses: ILeadStatus[]): void {
     this.buildStatusMap();
   }
 
   /**
-   * Override hook methods to build tag map
+   * Hook methods to build tag map
    */
-  protected override onTagsCacheHit(tags: ILeadTag[]): void {
+  protected override onTagsSuccess(tags: ILeadTag[]): void {
     this.buildTagMap();
-  }
-
-  protected override onTagsApiSuccess(tags: ILeadTag[]): void {
-    this.buildTagMap();
-  }
-
-  /**
-   * Override hook methods to clear maps when cache is invalidated
-   */
-  protected override onStatusesCacheInvalidated(): void {
-    if (this.statusMap) {
-      this.statusMap.clear();
-    }
-  }
-
-  protected override onTagsCacheInvalidated(): void {
-    if (this.tagMap) {
-      this.tagMap.clear();
-    }
   }
 
   hasStatusById(statusId?: string): boolean {
@@ -613,8 +614,7 @@ export class LeadDashboardComponent
             next: (res: any) => {
               if (res.status === 200) {
                 this.toastrService.success('Cập nhật phễu thành công');
-                // Invalidate cache and notify other components
-                this.reloadFunnels();
+                // Notify other components
                 this.autoTaskService.notifyFunnelDataChanged();
                 // Reload sidebar and mark as local action to prevent duplicate socket reload
                 this.folderSidebar?.loadFoldersWithFunnels(true, true);
@@ -635,8 +635,7 @@ export class LeadDashboardComponent
             next: (res: any) => {
               if (res.status === 200 || res.status === 201) {
                 this.toastrService.success('Tạo phễu thành công');
-                // Invalidate cache and notify other components
-                this.reloadFunnels();
+                // Notify other components
                 this.autoTaskService.notifyFunnelDataChanged();
                 // Reload sidebar and mark as local action to prevent duplicate socket reload
                 this.folderSidebar?.loadFoldersWithFunnels(true, true);
@@ -914,9 +913,6 @@ export class LeadDashboardComponent
     // We only need to:
     // 1. Notify other components (e.g. modals) about funnel data changes
     this.autoTaskService.notifyFunnelDataChanged();
-
-    // 2. Invalidate cache to ensure fresh data
-    this.reloadFunnels();
 
     // No need to call folderSidebar.loadFoldersWithFunnels() here
     // as sidebar component listens to the same socket event and handles reload itself

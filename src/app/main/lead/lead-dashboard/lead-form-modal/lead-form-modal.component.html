@@ -129,528 +129,532 @@
     <div class="content-wrapper">
       <!-- Form Lead -->
       <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
-        <div class="mb-1 row">
-          <div class="col-3 d-flex align-items-center justify-content-center">
-            <div 
-              class="avatar-placeholder" 
-              (click)="onAvatarClick()"
-              [class.uploading]="isUploadingAvatar"
-            >
-              <img [src]="avatarUrl" alt="Avatar" class="rounded-circle" />
-              <div class="avatar-overlay" *ngIf="!isUploadingAvatar">
-                <i class="fa fa-camera"></i>
-                <span>Chọn ảnh</span>
-              </div>
-              <div class="avatar-loading" *ngIf="isUploadingAvatar">
-                <i class="fa fa-spinner fa-spin"></i>
-              </div>
-            </div>
-          </div>
-  
-          <div class="col-2">
-            <label class="form-label">
-              Số điện thoại <span class="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              class="form-control"
-              formControlName="phone"
-              placeholder="Nhập số điện thoại..."
-              [class.is-invalid]="isFieldInvalid('phone')"
-            />
-            <div class="invalid-feedback" *ngIf="isFieldInvalid('phone')">
-              {{ getErrorMessage('phone') }}
-            </div>
-          </div>
-        
-          <div class="col-4">
-            <label class="form-label">Email</label>
-            <input
-              type="email"
-              class="form-control"
-              formControlName="email"
-              placeholder="Nhập Email..."
-              [class.is-invalid]="isFieldInvalid('email')"
-            />
-            <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
-              {{ getErrorMessage('email') }}
-            </div>
-          </div>
-  
-          <div class="col-2">
-            <label class="form-label">
-              Giới tính
-            </label>
-            <div class="d-flex gap-3">
-              <div class="form-check" *ngFor="let option of genderOptions">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  [id]="'gender-' + option.value"
-                  [value]="option.value"
-                  formControlName="gender"
-                  [class.is-invalid]="isFieldInvalid('gender')"
-                />
-                <label class="form-check-label" [for]="'gender-' + option.value">
-                  {{ option.label }}
-                </label>
-              </div>
-            </div>
-            <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('gender')">
-              {{ getErrorMessage('gender') }}
-            </div>
-          </div>
-        </div>
-  
-        <!-- Row 2: Facebook Link, Zalo Link, Address -->
-        <div class="row">
-          <!-- Facebook -->
-          <div class="col-3 mb-2">
-            <label class="form-label">Facebook</label>
-            <div class="inline-edit-field">
-              <span class="field-value" [class.empty]="!getFacebookDisplayValue()">
-                <span *ngIf="getFacebookDisplayValue()">
-                  {{ getFacebookDisplayValue() }}
-                  <span class="badge bg-secondary ms-1" *ngIf="getFacebookConnectionsCount() > 1">
-                    +{{ getFacebookConnectionsCount() - 1 }}
-                  </span>
-                </span>
-                <span *ngIf="!getFacebookDisplayValue()">Chưa có</span>
-              </span>
-              <button
-                type="button"
-                class="btn btn-sm btn-edit-inline"
-                (click)="toggleEditFacebook()"
-                title="Quản lý kết nối Facebook"
+        <div class="form-content-wrapper">
+          <!-- Row 1: Avatar, Tên Lead, Số điện thoại, Email, Giới tính -->
+          <div class="row">
+            <div class="col-3 d-flex align-items-center justify-content-center">
+              <div 
+                class="avatar-placeholder" 
+                (click)="onAvatarClick()"
+                [class.uploading]="isUploadingAvatar"
               >
-                <i class="fa fa-pen"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Zalo -->
-          <div class="col-3 mb-2">
-            <label class="form-label">Zalo</label>
-            <div class="inline-edit-field">
-              <span class="field-value" [class.empty]="!getZaloDisplayValue()">
-                <span *ngIf="getZaloDisplayValue()">
-                  {{ getZaloDisplayValue() }}
-                  <span class="badge bg-secondary ms-1" *ngIf="getZaloConnectionsCount() > 1">
-                    +{{ getZaloConnectionsCount() - 1 }}
-                  </span>
-                </span>
-                <span *ngIf="!getZaloDisplayValue()">Chưa có</span>
-              </span>
-              <button
-                type="button"
-                class="btn btn-sm btn-edit-inline"
-                (click)="toggleEditZalo()"
-                title="Quản lý kết nối Zalo"
-              >
-                <i class="fa fa-pen"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Address (combined display) -->
-          <div class="col-6 mb-2">
-            <label class="form-label">Địa chỉ</label>
-            <div class="inline-edit-field">
-              <span class="field-value" [class.empty]="!getFullAddress()">
-                {{ getFullAddress() || 'Chưa có địa chỉ' }}
-              </span>
-              <button
-                type="button"
-                class="btn btn-sm btn-edit-inline"
-                (click)="openAddressModal()"
-                title="Chỉnh sửa địa chỉ"
-              >
-                <i class="fa fa-pen"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Address Modal -->
-        <div class="address-modal-overlay" *ngIf="isAddressModalOpen" (click)="closeAddressModal()">
-          <div class="address-modal" (click)="$event.stopPropagation()">
-            <div class="address-modal-header">
-              <h5>Chỉnh sửa địa chỉ</h5>
-              <button type="button" class="btn-close" (click)="closeAddressModal()"></button>
-            </div>
-            <div class="address-modal-body">
-              <!-- Row 1: Tỉnh/Thành phố -->
-              <div class="mb-3">
-                <label class="form-label">Tỉnh/Thành phố</label>
-                <ng-select
-                  [clearable]="true"
-                  [placeholder]="'Chọn Tỉnh/Thành phố'"
-                  [formControl]="provinceCodeControl"
-                  [items]="provinces"
-                  bindValue="provinceCode"
-                  bindLabel="province"
-                  (change)="handleChangeLocation($event, 'province')"
-                  class="address-modal-select"
-                >
-                </ng-select>
-              </div>
-              <!-- Row 2: Quận/Huyện -->
-              <div class="mb-3">
-                <label class="form-label">Quận/Huyện</label>
-                <ng-select
-                  [clearable]="true"
-                  [ngClass]="{ 'input-disabled': !f['provinceCode']?.value }"
-                  [disabled]="!f['provinceCode']?.value"
-                  [placeholder]="'Chọn Quận/Huyện'"
-                  [formControl]="districtCodeControl"
-                  [items]="districts"
-                  bindValue="districtCode"
-                  bindLabel="district"
-                  (change)="handleChangeLocation($event, 'district')"
-                  class="address-modal-select"
-                >
-                </ng-select>
-              </div>
-              <!-- Row 3: Phường/Xã -->
-              <div class="mb-3">
-                <label class="form-label">Phường/Xã</label>
-                <ng-select
-                  [clearable]="true"
-                  [ngClass]="{ 'input-disabled': !f['districtCode']?.value }"
-                  [disabled]="!f['districtCode']?.value"
-                  [placeholder]="'Chọn Phường/Xã'"
-                  [formControl]="wardCodeControl"
-                  [items]="wards"
-                  bindValue="wardCode"
-                  bindLabel="ward"
-                  (change)="handleChangeLocation($event, 'ward')"
-                  class="address-modal-select"
-                >
-                </ng-select>
-              </div>
-              <!-- Row 4: Địa chỉ chi tiết -->
-              <div class="mb-3">
-                <label class="form-label">Địa chỉ chi tiết</label>
-                <input
-                  class="form-control"
-                  [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
-                  [formControl]="streetControl"
-                  type="text"
-                  (input)="handleCombineAddress()"
-                />
-              </div>
-            </div>
-            <div class="address-modal-footer">
-              <button type="button" class="btn button-default-modal" (click)="closeAddressModal()">
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 2 OLD: Tỉnh/thành phố, Quận/huyện, Phường/xã, Địa chỉ chi tiết (COMMENTED)
-        <div class="row">
-          <div class="col-2 mb-2">
-            <label class="form-label">Tỉnh/Thành phố</label>
-            <ng-select
-              [clearable]="false"
-              [ngClass]="{
-                'is-invalid': isFieldInvalid('provinceCode')
-              }"
-              [placeholder]="'Chọn Tỉnh/Thành phố'"
-              formControlName="provinceCode"
-              [items]="provinces"
-              bindValue="provinceCode"
-              bindLabel="province"
-              (change)="handleChangeLocation($event, 'province')"
-              appendTo=".modal"
-            >
-            </ng-select>
-          </div>
-          <div class="col-2 mb-2">
-            <label class="form-label">Quận/Huyện</label>
-            <ng-select
-              [clearable]="false"
-              [ngClass]="{
-                'input-disabled': !f['provinceCode']?.value
-              }"
-              [disabled]="!f['provinceCode']?.value"
-              [readonly]="!f['provinceCode']?.value"
-              [placeholder]="'Chọn Quận/Huyện'"
-              formControlName="districtCode"
-              [items]="districts"
-              bindValue="districtCode"
-              bindLabel="district"
-              (change)="handleChangeLocation($event, 'district')"
-              appendTo=".modal"
-            >
-            </ng-select>
-          </div>
-          <div class="col-2 mb-2">
-            <label class="form-label">Phường/Xã</label>
-            <ng-select
-              [clearable]="false"
-              [ngClass]="{
-                'input-disabled': !f['districtCode']?.value
-              }"
-              [disabled]="!f['districtCode']?.value"
-              [readonly]="!f['districtCode']?.value"
-              [placeholder]="'Chọn Phường/Xã'"
-              formControlName="wardCode"
-              [items]="wards"
-              bindValue="wardCode"
-              bindLabel="ward"
-              (change)="handleChangeLocation($event, 'ward')"
-              appendTo=".modal"
-            >
-            </ng-select>
-          </div>
-          <div class="col-4 mb-2">
-            <label class="form-label">Địa chỉ chi tiết</label>
-            <input
-              class="form-control"
-              [ngClass]="{
-                'is-invalid': isFieldInvalid('street')
-              }"
-              (change)="handleCombineAddress()"
-              [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
-              formControlName="street"
-              type="text"
-            />
-          </div>
-        </div>
-        -->
-
-        <div class="row">
-          <div class="col-3 mb-2">
-            <label class="form-label">Chi nhánh<span class="text-danger">*</span></label>
-            <p-treeSelect
-              [filter]="true"
-              [options]="units"
-              formControlName="branch"
-              class="w-100"
-              containerStyleClass="w-100 input-medium custom-tree-select"
-              [ngClass]="{
-                'is-invalid': isFieldInvalid('branch')
-              }"
-              placeholder="Chọn Đơn vị..."
-              (onNodeSelect)="handleChangeUnit($event)"
-              (onNodeUnselect)="preventUnselect($event)"
-            ></p-treeSelect>
-            <div class="invalid-feedback" *ngIf="isFieldInvalid('branch')">
-              {{ getErrorMessage('branch') }}
-            </div>
-          </div>
-
-          <div class="col-3 mb-2">
-            <label class="form-label">Nguồn dữ liệu</label>
-            <ng-select
-              formControlName="sourceId"
-              [items]="sources"
-              bindLabel="name"
-              bindValue="id"
-              placeholder="Nguồn dữ liệu"
-              [clearable]="true"
-              appendTo=".modal"
-            >
-            </ng-select>
-          </div>
-  
-          <div class="col-3 mb-2">
-            <label class="form-label">Phễu</label>
-            <ng-select
-              formControlName="funnelId"
-              [items]="funnelFolders"
-              bindLabel="name"
-              bindValue="id"
-              placeholder="Chọn Phễu"
-              [clearable]="true"
-              [loading]="loadingFunnels"
-              groupBy="group"
-              [class.is-invalid]="isFieldInvalid('funnelId')"
-              appendTo=".modal"
-            >
-              <ng-template ng-optgroup-tmp let-item="item">
-                <div class="d-flex align-items-center">
-                  <i class="fa fa-folder text-warning me-2"></i>
-                  <strong>{{ item.group }}</strong>
+                <img [src]="avatarUrl" alt="Avatar" class="rounded-circle" />
+                <div class="avatar-overlay" *ngIf="!isUploadingAvatar">
+                  <i class="fa fa-camera"></i>
+                  <span>Chọn ảnh</span>
                 </div>
-              </ng-template>
-              <ng-template ng-option-tmp let-item="item">
-                <div class="d-flex align-items-center" *ngIf="item.type === 'funnel'">
-                  <i class="fa fa-filter text-primary me-2"></i>
-                  <span>{{ item.name }}</span>
+                <div class="avatar-loading" *ngIf="isUploadingAvatar">
+                  <i class="fa fa-spinner fa-spin"></i>
                 </div>
-              </ng-template>
-            </ng-select>
-            <div class="invalid-feedback" *ngIf="isFieldInvalid('funnelId')">
-              {{ getErrorMessage('funnelId') }}
+              </div>
+            </div>
+
+            <div class="col-2">
+              <label class="form-label">
+                Số điện thoại <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="phone"
+                placeholder="Nhập số điện thoại..."
+                [class.is-invalid]="isFieldInvalid('phone')"
+              />
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('phone')">
+                {{ getErrorMessage('phone') }}
+              </div>
+            </div>
+
+            <div class="col-4">
+              <label class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                formControlName="email"
+                placeholder="Nhập Email..."
+                [class.is-invalid]="isFieldInvalid('email')"
+              />
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
+                {{ getErrorMessage('email') }}
+              </div>
+            </div>
+
+            <div class="col-2">
+              <label class="form-label">
+                Giới tính
+              </label>
+              <div class="d-flex gap-3">
+                <div class="form-check" *ngFor="let option of genderOptions">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    [id]="'gender-' + option.value"
+                    [value]="option.value"
+                    formControlName="gender"
+                    [class.is-invalid]="isFieldInvalid('gender')"
+                  />
+                  <label class="form-check-label" [for]="'gender-' + option.value">
+                    {{ option.label }}
+                  </label>
+                </div>
+              </div>
+              <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('gender')">
+                {{ getErrorMessage('gender') }}
+              </div>
             </div>
           </div>
 
-          <div class="col-3 mb-2" formArrayName="teams" *ngIf="autoTaskSetting?.roles?.length">
-            <label class="form-label mb-2">
-              Vai trò / Nhân sự phụ trách
-            </label>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-              <ng-container *ngFor="let teamControl of formTeams.controls; let i = index">
-                <div class="btn-group dropup role-item-wrapper" dropdown>
-                  <button
-                    dropdownToggle
-                    type="button"
-                    class="btn btn-sm role-item-btn"
-                    [attr.title]="teamControl.value?.userName ? (teamControl.value?.roleName + ': ' + teamControl.value?.userName) : teamControl.value?.roleName"
-                  > 
-                    <ng-container *ngIf="teamControl.value.userId">
-                      <img
-                        width="24"
-                        height="24"
-                        class="rounded-circle"
-                        [src]="teamControl.value?.userPicture || 'assets/images/avatar.svg'"
-                        alt=""
-                        style="object-fit: cover;"
-                      />
-                    </ng-container>
-                    <ng-container *ngIf="!teamControl.value.userId">
-                      <i
-                        class="fa-solid"
-                        [ngClass]="teamControl.value?.roleIcon || 'fa-user'"
-                      ></i>
-                    </ng-container>
-                  </button>
-                  <ul
-                    *dropdownMenu
-                    class="dropdown-menu"
-                    role="menu"
-                    style="max-height: 300px; overflow-y: auto;"
-                  >
-                    <li
-                      *ngFor="let user of getAvailableUsers(teamControl.value?.roleId)"
-                      role="menuitem"
-                      class="dropdown-item"
-                      [class.active]="user.id === teamControl.value.userId"
-                      (click)="onChooseTeam(i, user)"
-                      style="cursor: pointer;"
-                    >
-                      <div class="d-flex align-items-center p-2">
-                        <img
-                          class="rounded-circle me-2"
-                          [src]="user.picture || 'assets/images/avatar.svg'"
-                          alt=""
-                          style="width: 32px; height: 32px; object-fit: cover;"
-                        />
-                        <div class="text-truncate">
-                          <div>{{ user.name }}</div>
-                          <small class="text-muted" *ngIf="user.email">{{ user.email }}</small>
-                        </div>
-                      </div>
-                    </li>
-                    <li
-                      *ngIf="teamControl.value.userId"
-                      role="menuitem"
-                      class="dropdown-item text-danger"
-                      (click)="onRemoveTeam(i)"
-                      style="cursor: pointer; border-top: 1px solid #ddd;"
-                    >
-                      <div class="p-2">
-                        <i class="fa fa-times me-2"></i>
-                        Xóa người phụ trách
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-        </div>
-  
-        <!-- Navigation Tabs -->
-        <div class="navigation-tabs">
-          <div class="tab-item">
-            <span>Đơn hàng</span>
-          </div>
-          <div class="tab-item">
-            <span>Sản phẩm</span>
-          </div>
-          <div class="tab-item active">
-            <span>Tác vụ</span>
-          </div>
-          <div class="tab-item">
-            <span>Gói cước</span>
-          </div>
-          <div class="tab-item">
-            <span>Khóa học - Sự kiện</span>
-          </div>
-          <div class="tab-item">
-            <span>Dịch vụ</span>
-          </div>
-        </div>
-
-        <!-- Tasks Section -->
-        <div class="tasks-section" *ngIf="lead?.tasks?.length">
-          <ng-container *ngFor="let task of lead?.tasks">
-            <div class="task-card mb-3">
-              <!-- Task Header -->
-              <div class="task-header d-flex align-items-center gap-2">
-                <a [href]="getTaskDetailUrl(task.id)" target="_blank">
-                  <span class="task-code fw-bold">{{ task.code }}</span>
-                  &nbsp;
-                  <i class="fa-solid fa-link"></i>
-                </a>
-                <ng-container *ngFor="let tag of task.tags">
-                  <span class="task-tag">
-                    <span class="tag-item" [ngClass]="{nonBack: !tag.bgColor}" [ngStyle]="{background: tag.bgColor}">
-                      {{ tag.name }}
+          <!-- Row 2: Facebook Link, Zalo Link, Address -->
+          <div class="row">
+            <!-- Facebook -->
+            <div class="col-3 mb-2">
+              <label class="form-label">Facebook</label>
+              <div class="inline-edit-field">
+                <span class="field-value" [class.empty]="!getFacebookDisplayValue()">
+                  <span *ngIf="getFacebookDisplayValue()">
+                    {{ getFacebookDisplayValue() }}
+                    <span class="badge bg-secondary ms-1" *ngIf="getFacebookConnectionsCount() > 1">
+                      +{{ getFacebookConnectionsCount() - 1 }}
                     </span>
                   </span>
+                  <span *ngIf="!getFacebookDisplayValue()">Chưa có</span>
+                </span>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-edit-inline"
+                  (click)="toggleEditFacebook()"
+                  title="Quản lý kết nối Facebook"
+                >
+                  <i class="fa fa-pen"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Zalo -->
+            <div class="col-3 mb-2">
+              <label class="form-label">Zalo</label>
+              <div class="inline-edit-field">
+                <span class="field-value" [class.empty]="!getZaloDisplayValue()">
+                  <span *ngIf="getZaloDisplayValue()">
+                    {{ getZaloDisplayValue() }}
+                    <span class="badge bg-secondary ms-1" *ngIf="getZaloConnectionsCount() > 1">
+                      +{{ getZaloConnectionsCount() - 1 }}
+                    </span>
+                  </span>
+                  <span *ngIf="!getZaloDisplayValue()">Chưa có</span>
+                </span>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-edit-inline"
+                  (click)="toggleEditZalo()"
+                  title="Quản lý kết nối Zalo"
+                >
+                  <i class="fa fa-pen"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Address (combined display) -->
+            <div class="col-6 mb-2">
+              <label class="form-label">Địa chỉ</label>
+              <div class="inline-edit-field">
+                <span class="field-value" [class.empty]="!getFullAddress()">
+                  {{ getFullAddress() || 'Chưa có địa chỉ' }}
+                </span>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-edit-inline"
+                  (click)="openAddressModal()"
+                  title="Chỉnh sửa địa chỉ"
+                >
+                  <i class="fa fa-pen"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Modal -->
+          <div class="address-modal-overlay" *ngIf="isAddressModalOpen" (click)="closeAddressModal()">
+            <div class="address-modal" (click)="$event.stopPropagation()">
+              <div class="address-modal-header">
+                <h5>Chỉnh sửa địa chỉ</h5>
+                <button type="button" class="btn-close" (click)="closeAddressModal()"></button>
+              </div>
+              <div class="address-modal-body">
+                <!-- Row 1: Tỉnh/Thành phố -->
+                <div class="mb-3">
+                  <label class="form-label">Tỉnh/Thành phố</label>
+                  <ng-select
+                    [clearable]="true"
+                    [placeholder]="'Chọn Tỉnh/Thành phố'"
+                    [formControl]="provinceCodeControl"
+                    [items]="provinces"
+                    bindValue="provinceCode"
+                    bindLabel="province"
+                    (change)="handleChangeLocation($event, 'province')"
+                    class="address-modal-select"
+                  >
+                  </ng-select>
+                </div>
+                <!-- Row 2: Quận/Huyện -->
+                <div class="mb-3">
+                  <label class="form-label">Quận/Huyện</label>
+                  <ng-select
+                    [clearable]="true"
+                    [ngClass]="{ 'input-disabled': !f['provinceCode']?.value }"
+                    [disabled]="!f['provinceCode']?.value"
+                    [placeholder]="'Chọn Quận/Huyện'"
+                    [formControl]="districtCodeControl"
+                    [items]="districts"
+                    bindValue="districtCode"
+                    bindLabel="district"
+                    (change)="handleChangeLocation($event, 'district')"
+                    class="address-modal-select"
+                  >
+                  </ng-select>
+                </div>
+                <!-- Row 3: Phường/Xã -->
+                <div class="mb-3">
+                  <label class="form-label">Phường/Xã</label>
+                  <ng-select
+                    [clearable]="true"
+                    [ngClass]="{ 'input-disabled': !f['districtCode']?.value }"
+                    [disabled]="!f['districtCode']?.value"
+                    [placeholder]="'Chọn Phường/Xã'"
+                    [formControl]="wardCodeControl"
+                    [items]="wards"
+                    bindValue="wardCode"
+                    bindLabel="ward"
+                    (change)="handleChangeLocation($event, 'ward')"
+                    class="address-modal-select"
+                  >
+                  </ng-select>
+                </div>
+                <!-- Row 4: Địa chỉ chi tiết -->
+                <div class="mb-3">
+                  <label class="form-label">Địa chỉ chi tiết</label>
+                  <input
+                    class="form-control"
+                    [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
+                    [formControl]="streetControl"
+                    type="text"
+                    (input)="handleCombineAddress()"
+                  />
+                </div>
+              </div>
+              <div class="address-modal-footer">
+                <button type="button" class="btn button-default-modal" (click)="closeAddressModal()">
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2 OLD: Tỉnh/thành phố, Quận/huyện, Phường/xã, Địa chỉ chi tiết (COMMENTED)
+          <div class="row">
+            <div class="col-2 mb-2">
+              <label class="form-label">Tỉnh/Thành phố</label>
+              <ng-select
+                [clearable]="false"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid('provinceCode')
+                }"
+                [placeholder]="'Chọn Tỉnh/Thành phố'"
+                formControlName="provinceCode"
+                [items]="provinces"
+                bindValue="provinceCode"
+                bindLabel="province"
+                (change)="handleChangeLocation($event, 'province')"
+                appendTo=".modal"
+              >
+              </ng-select>
+            </div>
+            <div class="col-2 mb-2">
+              <label class="form-label">Quận/Huyện</label>
+              <ng-select
+                [clearable]="false"
+                [ngClass]="{
+                  'input-disabled': !f['provinceCode']?.value
+                }"
+                [disabled]="!f['provinceCode']?.value"
+                [readonly]="!f['provinceCode']?.value"
+                [placeholder]="'Chọn Quận/Huyện'"
+                formControlName="districtCode"
+                [items]="districts"
+                bindValue="districtCode"
+                bindLabel="district"
+                (change)="handleChangeLocation($event, 'district')"
+                appendTo=".modal"
+              >
+              </ng-select>
+            </div>
+            <div class="col-2 mb-2">
+              <label class="form-label">Phường/Xã</label>
+              <ng-select
+                [clearable]="false"
+                [ngClass]="{
+                  'input-disabled': !f['districtCode']?.value
+                }"
+                [disabled]="!f['districtCode']?.value"
+                [readonly]="!f['districtCode']?.value"
+                [placeholder]="'Chọn Phường/Xã'"
+                formControlName="wardCode"
+                [items]="wards"
+                bindValue="wardCode"
+                bindLabel="ward"
+                (change)="handleChangeLocation($event, 'ward')"
+                appendTo=".modal"
+              >
+              </ng-select>
+            </div>
+            <div class="col-4 mb-2">
+              <label class="form-label">Địa chỉ chi tiết</label>
+              <input
+                class="form-control"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid('street')
+                }"
+                (change)="handleCombineAddress()"
+                [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
+                formControlName="street"
+                type="text"
+              />
+            </div>
+          </div>
+          -->
+
+          <!-- Row 3: Chi nhánh, Nguồn dữ liệu, Phễu, Vai trò / Nhân sự phụ trách -->
+          <div class="row">
+            <div class="col-3 mb-2">
+              <label class="form-label">Chi nhánh<span class="text-danger">*</span></label>
+              <p-treeSelect
+                [filter]="true"
+                [options]="units"
+                formControlName="branch"
+                class="w-100"
+                containerStyleClass="w-100 input-medium custom-tree-select"
+                [ngClass]="{
+                  'is-invalid': isFieldInvalid('branch')
+                }"
+                placeholder="Chọn Đơn vị..."
+                (onNodeSelect)="handleChangeUnit($event)"
+                (onNodeUnselect)="preventUnselect($event)"
+              ></p-treeSelect>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('branch')">
+                {{ getErrorMessage('branch') }}
+              </div>
+            </div>
+
+            <div class="col-3 mb-2">
+              <label class="form-label">Nguồn dữ liệu</label>
+              <ng-select
+                formControlName="sourceId"
+                [items]="sources"
+                bindLabel="name"
+                bindValue="id"
+                placeholder="Nguồn dữ liệu"
+                [clearable]="true"
+                appendTo=".modal"
+              >
+              </ng-select>
+            </div>
+
+            <div class="col-3 mb-2">
+              <label class="form-label">Phễu<span class="text-danger">*</span></label>
+              <ng-select
+                formControlName="funnelId"
+                [items]="funnelFolders"
+                bindLabel="name"
+                bindValue="id"
+                placeholder="Chọn Phễu"
+                [clearable]="false"
+                [loading]="loadingFunnels"
+                groupBy="group"
+                [class.is-invalid]="isFieldInvalid('funnelId')"
+                appendTo=".modal"
+              >
+                <ng-template ng-optgroup-tmp let-item="item">
+                  <div class="d-flex align-items-center">
+                    <i class="fa fa-folder text-warning me-2"></i>
+                    <strong>{{ item.group }}</strong>
+                  </div>
+                </ng-template>
+                <ng-template ng-option-tmp let-item="item">
+                  <div class="d-flex align-items-center" *ngIf="item.type === 'funnel'">
+                    <i class="fa fa-filter text-primary me-2"></i>
+                    <span>{{ item.name }}</span>
+                  </div>
+                </ng-template>
+              </ng-select>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('funnelId')">
+                {{ getErrorMessage('funnelId') }}
+              </div>
+            </div>
+
+            <div class="col-3 mb-2" formArrayName="teams" *ngIf="autoTaskSetting?.roles?.length">
+              <label class="form-label mb-2">
+                Vai trò / Nhân sự phụ trách
+              </label>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <ng-container *ngFor="let teamControl of formTeams.controls; let i = index">
+                  <div class="btn-group dropup role-item-wrapper" dropdown>
+                    <button
+                      dropdownToggle
+                      type="button"
+                      class="btn btn-sm role-item-btn"
+                      [attr.title]="teamControl.value?.userName ? (teamControl.value?.roleName + ': ' + teamControl.value?.userName) : teamControl.value?.roleName"
+                    > 
+                      <ng-container *ngIf="teamControl.value.userId">
+                        <img
+                          width="24"
+                          height="24"
+                          class="rounded-circle"
+                          [src]="teamControl.value?.userPicture || 'assets/images/avatar.svg'"
+                          alt=""
+                          style="object-fit: cover;"
+                        />
+                      </ng-container>
+                      <ng-container *ngIf="!teamControl.value.userId">
+                        <i
+                          class="fa-solid"
+                          [ngClass]="teamControl.value?.roleIcon || 'fa-user'"
+                        ></i>
+                      </ng-container>
+                    </button>
+                    <ul
+                      *dropdownMenu
+                      class="dropdown-menu"
+                      role="menu"
+                      style="max-height: 300px; overflow-y: auto;"
+                    >
+                      <li
+                        *ngFor="let user of getAvailableUsers(teamControl.value?.roleId)"
+                        role="menuitem"
+                        class="dropdown-item"
+                        [class.active]="user.id === teamControl.value.userId"
+                        (click)="onChooseTeam(i, user)"
+                        style="cursor: pointer;"
+                      >
+                        <div class="d-flex align-items-center p-2">
+                          <img
+                            class="rounded-circle me-2"
+                            [src]="user.picture || 'assets/images/avatar.svg'"
+                            alt=""
+                            style="width: 32px; height: 32px; object-fit: cover;"
+                          />
+                          <div class="text-truncate">
+                            <div>{{ user.name }}</div>
+                            <small class="text-muted" *ngIf="user.email">{{ user.email }}</small>
+                          </div>
+                        </div>
+                      </li>
+                      <li
+                        *ngIf="teamControl.value.userId"
+                        role="menuitem"
+                        class="dropdown-item text-danger"
+                        (click)="onRemoveTeam(i)"
+                        style="cursor: pointer; border-top: 1px solid #ddd;"
+                      >
+                        <div class="p-2">
+                          <i class="fa fa-times me-2"></i>
+                          Xóa người phụ trách
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
                 </ng-container>
               </div>
-              <div class="task-name" *ngIf="task.name">{{ task.name }}</div>
-  
-              <!-- Task Chains -->
-              <ng-container *ngFor="let chain of task.taskChains">
-                <div class="task-chain-card">
-                  <!-- Chain Header -->
-                  <div class="chain-header d-flex justify-content-between align-items-center">
-                    <span class="chain-name text-uppercase fw-semibold">{{ getChainName(chain) }}</span>
-                    <span class="chain-status" [class.closed]="chain.status === 'CLOSED'">
-                      <i class="fa fa-lock me-1" *ngIf="chain.status === 'CLOSED'"></i>
-                      {{ chain.status === 'CLOSED' ? 'Đã đóng' : 'Đang mở' }}
+            </div>
+          </div>
+
+          <!-- Navigation Tabs -->
+          <div class="navigation-tabs">
+            <div class="tab-item">
+              <span>Đơn hàng</span>
+            </div>
+            <div class="tab-item">
+              <span>Sản phẩm</span>
+            </div>
+            <div class="tab-item active">
+              <span>Tác vụ</span>
+            </div>
+            <div class="tab-item">
+              <span>Gói cước</span>
+            </div>
+            <div class="tab-item">
+              <span>Khóa học - Sự kiện</span>
+            </div>
+            <div class="tab-item">
+              <span>Dịch vụ</span>
+            </div>
+          </div>
+
+          <!-- Tasks Section -->
+          <div class="tasks-section" *ngIf="lead?.tasks?.length">
+            <ng-container *ngFor="let task of lead?.tasks">
+              <div class="task-card mb-3">
+                <!-- Task Header -->
+                <div class="task-header d-flex align-items-center gap-2">
+                  <a [href]="getTaskDetailUrl(task.id)" target="_blank">
+                    <span class="task-code fw-bold">{{ task.code }}</span>
+                    &nbsp;
+                    <i class="fa-solid fa-link"></i>
+                  </a>
+                  <ng-container *ngFor="let tag of task.tags">
+                    <span class="task-tag">
+                      <span class="tag-item" [ngClass]="{nonBack: !tag.bgColor}" [ngStyle]="{background: tag.bgColor}">
+                        {{ tag.name }}
+                      </span>
                     </span>
-                  </div>
-  
-                  <!-- Chain Results Table -->
-                  <div class="chain-results-table">
-                    <div class="table-header">
-                      <div class="col-date">Thực hiện</div>
-                      <div class="col-action">Tên hành động</div>
-                      <div class="col-result">Kết quả & Nguyên nhân</div>
-                      <div class="col-note">Ghi chú</div>
+                  </ng-container>
+                </div>
+                <div class="task-name" *ngIf="task.name">{{ task.name }}</div>
+
+                <!-- Task Chains -->
+                <ng-container *ngFor="let chain of task.taskChains">
+                  <div class="task-chain-card">
+                    <!-- Chain Header -->
+                    <div class="chain-header d-flex justify-content-between align-items-center">
+                      <span class="chain-name text-uppercase fw-semibold">{{ getChainName(chain) }}</span>
+                      <span class="chain-status" [class.closed]="chain.status === 'CLOSED'">
+                        <i class="fa fa-lock me-1" *ngIf="chain.status === 'CLOSED'"></i>
+                        {{ chain.status === 'CLOSED' ? 'Đã đóng' : 'Đang mở' }}
+                      </span>
                     </div>
-                    <div class="table-body">
-                      <div class="table-row" *ngFor="let result of chain.taskChainResults">
-                        @if (result.type === EChainNextActionType.MANUAL) {
-                          <div class="col-date">
-                            {{ result.executedDate ? (result.executedDate | date:'HH:mm dd/MM/yyyy') : '-' }}
-                          </div>
-                          <div class="col-action">{{ result.action?.name || '-' }}</div>
-                          <div class="col-result">
-                            <div class="result-name">
-                              {{ result.result?.name || '-' }}
+
+                    <!-- Chain Results Table -->
+                    <div class="chain-results-table">
+                      <div class="table-header">
+                        <div class="col-date">Thực hiện</div>
+                        <div class="col-action">Tên hành động</div>
+                        <div class="col-result">Kết quả & Nguyên nhân</div>
+                        <div class="col-note">Ghi chú</div>
+                      </div>
+                      <div class="table-body">
+                        <div class="table-row" *ngFor="let result of chain.taskChainResults">
+                          @if (result.type === EChainNextActionType.MANUAL) {
+                            <div class="col-date">
+                              {{ result.executedDate ? (result.executedDate | date:'HH:mm dd/MM/yyyy') : '-' }}
                             </div>
-                            <div class="result-reason" *ngIf="result.reason">
-                              <em>{{ result.reason.name }}</em>
+                            <div class="col-action">{{ result.action?.name || '-' }}</div>
+                            <div class="col-result">
+                              <div class="result-name">
+                                {{ result.result?.name || '-' }}
+                              </div>
+                              <div class="result-reason" *ngIf="result.reason">
+                                <em>{{ result.reason.name }}</em>
+                              </div>
                             </div>
-                          </div>
-                          <div class="col-note">{{ result.note || '-' }}</div>
-                        }
+                            <div class="col-note">{{ result.note || '-' }}</div>
+                          }
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </ng-container>
-            </div>
-          </ng-container>
+                </ng-container>
+              </div>
+            </ng-container>
+          </div>
         </div>
       </form>
 

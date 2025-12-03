@@ -76,7 +76,6 @@ export class LeadTagComponent implements OnInit {
         this.autoTaskService.leadTag.create(data).subscribe({
           next: (res) => {
             this.toastrService.success('Thêm tag thành công');
-            this.invalidateLeadTagsCache();
             this.loadData();
             modalRef.hide();
           },
@@ -103,7 +102,6 @@ export class LeadTagComponent implements OnInit {
           this.autoTaskService.leadTag.update(data.id, data).subscribe({
             next: (res) => {
               this.toastrService.success('Cập nhật tag thành công');
-              this.invalidateLeadTagsCache();
               this.loadData();
               modalRef.hide();
             },
@@ -121,9 +119,8 @@ export class LeadTagComponent implements OnInit {
     if (confirm(`Bạn có chắc muốn xóa tag "${item.name}"?`)) {
       this.autoTaskService.leadTag.delete(item.id).subscribe({
         next: (res) => {
-          this.toastrService.success('Xóa tag thành công');
-          this.invalidateLeadTagsCache();
-          this.loadData();
+            this.toastrService.success('Xóa tag thành công');
+            this.loadData();
         },
         error: (err) => {
           console.error('Error deleting tag:', err);
@@ -138,11 +135,4 @@ export class LeadTagComponent implements OnInit {
     console.log('Search:', event);
   }
 
-  /**
-   * Invalidate lead tags cache (shared with dashboard)
-   */
-  private invalidateLeadTagsCache() {
-    localStorage.removeItem('leadTags_cache');
-    localStorage.removeItem('leadTags_cache_timestamp');
-  }
 }

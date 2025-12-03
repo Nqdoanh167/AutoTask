@@ -10,6 +10,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class LeadConnectionsModalComponent implements OnInit {
   @Output() saveEvent = new EventEmitter<IPlatform[]>();
+  @Output() cancelEvent = new EventEmitter<void>();
 
   public platforms: IPlatform[] = [];
   public isSubmitting = false;
@@ -19,9 +20,9 @@ export class LeadConnectionsModalComponent implements OnInit {
   
   public connectionForm!: FormGroup;
   public availablePlatforms = [
-    { value: 'FACEBOOK', name: 'Facebook', icon: 'fa-brands fa-facebook' },
-    { value: 'ZALO_PERSONAL', name: 'Zalo Cá Nhân', icon: 'fa-brands fa-zalo' },
-    { value: 'ZALO_OA', name: 'Zalo OA', icon: 'fa-brands fa-zalo' },
+    { value: 'FACEBOOK', name: 'Facebook' },
+    { value: 'ZALO_PERSONAL', name: 'Zalo Cá Nhân' },
+    { value: 'ZALO_OA', name: 'Zalo OA' },
   ];
 
   constructor(
@@ -48,11 +49,6 @@ export class LeadConnectionsModalComponent implements OnInit {
     });
   }
 
-  getPlatformIcon(platform: string): string {
-    const platformConfig = this.availablePlatforms.find(p => p.value === platform);
-    return platformConfig?.icon || 'fa-link';
-  }
-
   getPlatformName(platform: string): string {
     const platformConfig = this.availablePlatforms.find(p => p.value === platform);
     return platformConfig?.name || platform;
@@ -73,10 +69,11 @@ export class LeadConnectionsModalComponent implements OnInit {
         isInterested: false,
       });
     } else {
-      // Adding new - no platform selected yet
-      this.addingPlatformType = null;
+      // Adding new - auto-select first platform
+      const firstPlatform = this.availablePlatforms[0]?.value || '';
+      this.addingPlatformType = firstPlatform;
       this.connectionForm.reset({
-        platform: '',
+        platform: firstPlatform,
         platformId: '',
         customerId: '',
         customerName: '',
@@ -185,7 +182,6 @@ export class LeadConnectionsModalComponent implements OnInit {
     const newPlatform: IPlatform = {
       platform: platformType,
       platformName: platformConfig.name,
-      platformIcon: platformConfig.icon,
       connections: [],
     };
     this.platforms.push(newPlatform);
@@ -198,7 +194,7 @@ export class LeadConnectionsModalComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.bsModalRef.hide();
+    this.cancelEvent.emit();
   }
 
   isZaloOA(platform: string): boolean {

@@ -114,7 +114,6 @@ export class LeadStatusComponent implements OnInit {
         this.autoTaskService.leadStatus.create(data).subscribe({
           next: (res) => {
             this.toastrService.success('Thêm trạng thái thành công');
-            this.invalidateLeadStatusesCache();
             this.loadData();
             modalRef.hide();
           },
@@ -147,7 +146,6 @@ export class LeadStatusComponent implements OnInit {
                 this.toastrService.error(res.message);
               } else if (res.status === 200) {
                 this.toastrService.success('Cập nhật trạng thái thành công');
-                this.invalidateLeadStatusesCache();
                 this.loadData();
                 modalRef.hide();
               } else {
@@ -174,7 +172,6 @@ export class LeadStatusComponent implements OnInit {
       this.autoTaskService.leadStatus.update(item.id, { isDefault: true }).subscribe({
         next: (res) => {
           this.toastrService.success('Đặt trạng thái mặc định thành công');
-          this.invalidateLeadStatusesCache();
           this.loadData();
         },
         error: (err) => {
@@ -195,7 +192,6 @@ export class LeadStatusComponent implements OnInit {
       this.autoTaskService.leadStatus.delete(item.id).subscribe({
         next: (res) => {
           this.toastrService.success('Xóa trạng thái thành công');
-          this.invalidateLeadStatusesCache();
           this.loadData();
         },
         error: (err) => {
@@ -211,13 +207,6 @@ export class LeadStatusComponent implements OnInit {
     console.log('Search:', event);
   }
 
-  /**
-   * Invalidate lead statuses cache (shared with dashboard)
-   */
-  private invalidateLeadStatusesCache() {
-    localStorage.removeItem('leadStatuses_cache');
-    localStorage.removeItem('leadStatuses_cache_timestamp');
-  }
 
   /**
    * Khởi tạo pos cho các items chưa có pos
@@ -258,8 +247,7 @@ export class LeadStatusComponent implements OnInit {
         next: (res) => {
           completed++;
           if (completed === total) {
-            // Tất cả đã update xong, invalidate cache
-            this.invalidateLeadStatusesCache();
+            // All updates completed
           }
         },
         error: (err) => {
@@ -305,7 +293,6 @@ export class LeadStatusComponent implements OnInit {
       next: (res) => {
         if (res.status === 200) {
           this.toastrService.success('Cập nhật vị trí thành công');
-          this.invalidateLeadStatusesCache();
         } else {
           // Rollback nếu có lỗi
           moveItemInArray(this.dataSource, event.currentIndex, event.previousIndex);

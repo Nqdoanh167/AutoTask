@@ -78,7 +78,7 @@
         <table class="table table-hover">
           <thead>
             <tr *ngIf="!getLengthCheckRow()">
-              <th style="width: 50px;">
+              <th style="width: 50px">
                 <input
                   type="checkbox"
                   [checked]="checkRow.isAllChecked(item.rows)"
@@ -87,7 +87,7 @@
               </th>
               <th
                 *ngFor="let col of dataColumnsShow"
-                [ngClass]="{ 'sortable': col.fieldSort }"
+                [ngClass]="{sortable: col.fieldSort}"
                 (click)="col.fieldSort && changeSort(col.fieldSort)"
               >
                 {{ col.name }}
@@ -103,7 +103,7 @@
               <th class="text-end col-actions">Thao tác</th>
             </tr>
             <tr *ngIf="getLengthCheckRow()">
-              <th style="width: 50px;">
+              <th style="width: 50px">
                 <input
                   type="checkbox"
                   [checked]="checkRow.isAllChecked(item.rows)"
@@ -138,12 +138,19 @@
           </thead>
           <tbody>
             <tr *ngIf="item.loading">
-              <td [attr.colspan]="dataColumnsShow.length + 2" class="text-center py-5">
-                <i class="fa fa-spinner fa-spin"></i> Đang tải...
+              <td
+                [attr.colspan]="dataColumnsShow.length + 2"
+                class="text-center py-5"
+              >
+                <i class="fa fa-spinner fa-spin"></i>
+                Đang tải...
               </td>
             </tr>
             <tr *ngIf="!item.loading && !item.rows.length">
-              <td [attr.colspan]="dataColumnsShow.length + 2" class="text-center py-5">
+              <td
+                [attr.colspan]="dataColumnsShow.length + 2"
+                class="text-center py-5"
+              >
                 Không có dữ liệu
               </td>
             </tr>
@@ -151,7 +158,7 @@
               *ngFor="let lead of item.rows; let i = index"
               [class.table-active]="isCheckRow(lead)"
               (click)="openLeadDetail(lead.id)"
-              style="cursor: pointer;"
+              style="cursor: pointer"
             >
               <td (click)="$event.stopPropagation()">
                 <input
@@ -164,14 +171,24 @@
               <!-- Dynamic columns -->
               <td *ngFor="let col of dataColumnsShow">
                 <!-- Name -->
-                <div *ngIf="col.value === 'name'" class="d-flex align-items-center">
+                <div
+                  *ngIf="col.value === 'name'"
+                  class="d-flex align-items-center"
+                >
                   <div class="lead-avatar me-2">
                     <i *ngIf="!lead.picture" class="fa fa-user"></i>
-                    <img *ngIf="lead.picture" [src]="lead.picture" alt="Avatar" class="img-fluid rounded-circle">
+                    <img
+                      *ngIf="lead.picture"
+                      [src]="lead.picture"
+                      alt="Avatar"
+                      class="img-fluid rounded-circle"
+                    />
                   </div>
                   <div>
                     <div class="fw-semibold">{{ lead.name }}</div>
-                    <small class="text-muted" *ngIf="lead.code">{{ lead.code }}</small>
+                    <small class="text-muted" *ngIf="lead.code">
+                      {{ lead.code }}
+                    </small>
                     <div class="d-flex flex-row flex-wrap gap-1 mt-1">
                       <div *ngFor="let tagId of lead.tagIds">
                         <span
@@ -188,7 +205,12 @@
 
                 <!-- Phone -->
                 <span *ngIf="col.value === 'phone'">
-                  <a *ngIf="lead.phone" [href]="'tel:' + lead.phone" (click)="$event.stopPropagation()" class="text-primary">
+                  <a
+                    *ngIf="lead.phone"
+                    [href]="'tel:' + lead.phone"
+                    (click)="$event.stopPropagation()"
+                    class="text-primary"
+                  >
                     {{ lead.phone }}
                   </a>
                   <span *ngIf="!lead.phone">-</span>
@@ -196,14 +218,22 @@
 
                 <!-- Email -->
                 <span *ngIf="col.value === 'email'">
-                  <a *ngIf="lead.email" [href]="'mailto:' + lead.email" (click)="$event.stopPropagation()" class="text-primary">
+                  <a
+                    *ngIf="lead.email"
+                    [href]="'mailto:' + lead.email"
+                    (click)="$event.stopPropagation()"
+                    class="text-primary"
+                  >
                     {{ lead.email }}
                   </a>
                   <span *ngIf="!lead.email">-</span>
                 </span>
 
                 <!-- Total Price -->
-                <span *ngIf="col.value === 'totalPrice'" class="fw-semibold text-success">
+                <span
+                  *ngIf="col.value === 'totalPrice'"
+                  class="fw-semibold text-success"
+                >
                   {{ formatCurrency(lead.totalPrice) }}
                 </span>
 
@@ -212,7 +242,9 @@
                   <span
                     *ngIf="hasStatusById(lead.statusId)"
                     class="badge"
-                    [style.background-color]="getStatusById(lead.statusId)?.bgColor"
+                    [style.background-color]="
+                      getStatusById(lead.statusId)?.bgColor
+                    "
                   >
                     {{ getStatusById(lead.statusId)?.name }}
                   </span>
@@ -221,10 +253,22 @@
 
                 <!-- Task Codes -->
                 @if (col.value === 'taskIds') {
-                  @if (lead.taskCodes && lead.taskCodes.length > 0 && lead.taskIds && lead.taskIds.length > 0 && lead.taskCodes.length === lead.taskIds.length) {
+                  @if (
+                    lead.taskCodes &&
+                    lead.taskCodes.length > 0 &&
+                    lead.taskIds &&
+                    lead.taskIds.length > 0 &&
+                    lead.taskCodes.length === lead.taskIds.length
+                  ) {
                     <span>
-                      <span *ngFor="let taskCode of lead.taskCodes; let idx = index" class="text-primary task-code" style="cursor: pointer;" (click)="openTaskDetail(idx, lead)">
-                        {{ taskCode }}<span *ngIf="idx < lead.taskCodes.length - 1">, </span>
+                      <span
+                        *ngFor="let taskCode of lead.taskCodes; let idx = index"
+                        class="text-primary task-code"
+                        style="cursor: pointer"
+                        (click)="openTaskDetail(idx, lead)"
+                      >
+                        {{ taskCode }}
+                        <span *ngIf="idx < lead.taskCodes.length - 1">,</span>
                       </span>
                     </span>
                   } @else {
@@ -234,7 +278,13 @@
 
                 <!-- Order ID -->
                 <span *ngIf="col.value === 'orderId'">
-                  <span *ngIf="lead.orderId" class="text-primary" style="cursor: pointer;">{{ lead.orderId }}</span>
+                  <span
+                    *ngIf="lead.orderId"
+                    class="text-primary"
+                    style="cursor: pointer"
+                  >
+                    {{ lead.orderId }}
+                  </span>
                   <span *ngIf="!lead.orderId">-</span>
                 </span>
 
@@ -250,13 +300,18 @@
 
                 <!-- Created By -->
                 <span *ngIf="col.value === 'createdBy'">
-                  <span *ngIf="lead.createdBy">{{ lead.createdBy.name || lead.createdBy.email }}</span>
+                  <span *ngIf="lead.createdBy">
+                    {{ lead.createdBy.name || lead.createdBy.email }}
+                  </span>
                   <span *ngIf="!lead.createdBy">-</span>
                 </span>
               </td>
 
               <!-- Actions -->
-              <td class="text-end col-actions" (click)="$event.stopPropagation()">
+              <td
+                class="text-end col-actions"
+                (click)="$event.stopPropagation()"
+              >
                 <div class="action-buttons">
                   <button
                     class="btn btn-sm btn-link"
@@ -264,8 +319,15 @@
                     placement="top"
                     container="body"
                   >
-                    <a [href]="getLinkCreateTaskByLead(lead.id)" target="_blank">
-                      <img style="width: 22px;" src="assets/images/icon/menu-plus.svg" alt="add-task-by-lead">
+                    <a
+                      [href]="getLinkCreateTaskByLead(lead.id)"
+                      target="_blank"
+                    >
+                      <img
+                        style="width: 22px"
+                        src="assets/images/icon/menu-plus.svg"
+                        alt="add-task-by-lead"
+                      />
                     </a>
                   </button>
                   <button
@@ -294,11 +356,20 @@
       </div>
 
       <!-- Pagination -->
-      <div class="table-footer d-flex justify-content-between align-items-center p-3 border-top" *ngIf="!item.loading && item.rows.length">
+      <div
+        class="table-footer d-flex justify-content-between align-items-center p-3 border-top"
+        *ngIf="!item.loading && item.rows.length"
+      >
         <div>
           <span class="text-muted">
-            Hiển thị {{ (item.paramsQuery.page - 1) * item.paramsQuery.limit + 1 }} 
-            - {{ Math.min(item.paramsQuery.page * item.paramsQuery.limit, item.total) }} 
+            Hiển thị
+            {{ (item.paramsQuery.page - 1) * item.paramsQuery.limit + 1 }} -
+            {{
+              Math.min(
+                item.paramsQuery.page * item.paramsQuery.limit,
+                item.total
+              )
+            }}
             trong tổng số {{ item.total }} bản ghi
           </span>
         </div>
@@ -314,26 +385,48 @@
             <button
               class="btn btn-sm btn-outline-secondary"
               [disabled]="item.paramsQuery.page === 1"
-              (click)="onChangePage({page: item.paramsQuery.page - 1, limit: item.paramsQuery.limit})"
+              (click)="
+                onChangePage({
+                  page: item.paramsQuery.page - 1,
+                  limit: item.paramsQuery.limit
+                })
+              "
             >
               <i class="fa fa-chevron-left"></i>
             </button>
-            
+
             <button class="btn btn-sm btn-outline-secondary" disabled>
-              {{ item.paramsQuery.page }} / {{ Math.ceil(item.total / item.paramsQuery.limit) || 1 }}
+              {{ item.paramsQuery.page }} /
+              {{ Math.ceil(item.total / item.paramsQuery.limit) || 1 }}
             </button>
-            
+
             <button
               class="btn btn-sm btn-outline-secondary"
-              [disabled]="item.paramsQuery.page >= Math.ceil(item.total / item.paramsQuery.limit)"
-              (click)="onChangePage({page: item.paramsQuery.page + 1, limit: item.paramsQuery.limit})"
+              [disabled]="
+                item.paramsQuery.page >=
+                Math.ceil(item.total / item.paramsQuery.limit)
+              "
+              (click)="
+                onChangePage({
+                  page: item.paramsQuery.page + 1,
+                  limit: item.paramsQuery.limit
+                })
+              "
             >
               <i class="fa fa-chevron-right"></i>
             </button>
             <button
               class="btn btn-sm btn-outline-secondary"
-              [disabled]="item.paramsQuery.page >= Math.ceil(item.total / item.paramsQuery.limit)"
-              (click)="onChangePage({page: Math.ceil(item.total / item.paramsQuery.limit), limit: item.paramsQuery.limit})"
+              [disabled]="
+                item.paramsQuery.page >=
+                Math.ceil(item.total / item.paramsQuery.limit)
+              "
+              (click)="
+                onChangePage({
+                  page: Math.ceil(item.total / item.paramsQuery.limit),
+                  limit: item.paramsQuery.limit
+                })
+              "
             >
               Trang cuối
             </button>
@@ -357,10 +450,15 @@
         >
           <div class="kanban-column-header">
             <div class="column-title">
-              <span class="status-indicator" [style.background-color]="status.bgColor"></span>
+              <span
+                class="status-indicator"
+                [style.background-color]="status.bgColor"
+              ></span>
               <h3>{{ status.name }}</h3>
             </div>
-            <span class="lead-count">{{ (leadsByStatus.get(status.id) || []).length }}</span>
+            <span class="lead-count">
+              {{ (leadsByStatus.get(status.id) || []).length }}
+            </span>
           </div>
 
           <div class="kanban-column-content">
@@ -368,7 +466,10 @@
               class="kanban-card"
               cdkDrag
               [cdkDragData]="lead"
-              *ngFor="let lead of leadsByStatus.get(status.id) || []; trackBy: trackByLeadId"
+              *ngFor="
+                let lead of leadsByStatus.get(status.id) || [];
+                trackBy: trackByLeadId
+              "
               (click)="openLeadDetail(lead.id)"
             >
               <!-- Custom Drag Placeholder -->
@@ -380,11 +481,20 @@
                   <div class="lead-info">
                     <div class="lead-avatar-small">
                       <i *ngIf="!lead.picture" class="fa fa-user"></i>
-                      <img *ngIf="lead.picture" [src]="lead.picture" alt="Avatar" class="img-fluid rounded-circle">
+                      <img
+                        *ngIf="lead.picture"
+                        [src]="lead.picture"
+                        alt="Avatar"
+                        class="img-fluid rounded-circle"
+                      />
                     </div>
                     <div class="lead-name-code">
-                      <div class="lead-name" [title]="lead.name">{{ lead.name }}</div>
-                      <div class="lead-code" *ngIf="lead.code">{{ lead.code }}</div>
+                      <div class="lead-name" [title]="lead.name">
+                        {{ lead.name }}
+                      </div>
+                      <div class="lead-code" *ngIf="lead.code">
+                        {{ lead.code }}
+                      </div>
                     </div>
                   </div>
                   <div class="d-flex flex-row flex-wrap gap-1 mt-2">
@@ -408,18 +518,23 @@
 
                   <div class="card-info-row" *ngIf="lead.email">
                     <i class="fa fa-envelope text-muted"></i>
-                    <span class="text-primary text-truncate">{{ lead.email }}</span>
+                    <span class="text-primary text-truncate">
+                      {{ lead.email }}
+                    </span>
                   </div>
 
                   <div class="card-info-row" *ngIf="lead.totalPrice">
                     <i class="fa fa-money text-muted"></i>
-                    <span class="fw-semibold text-success">{{ formatCurrency(lead.totalPrice) }}</span>
+                    <span class="fw-semibold text-success">
+                      {{ formatCurrency(lead.totalPrice) }}
+                    </span>
                   </div>
                 </div>
 
                 <div class="card-footer">
                   <small class="text-muted">
-                    <i class="fa fa-clock-o"></i> {{ formatDate(lead.createdAt) }}
+                    <i class="fa fa-clock-o"></i>
+                    {{ formatDate(lead.createdAt) }}
                   </small>
                 </div>
               </div>
@@ -428,11 +543,20 @@
                 <div class="lead-info">
                   <div class="lead-avatar-small">
                     <i *ngIf="!lead.picture" class="fa fa-user"></i>
-                    <img *ngIf="lead.picture" [src]="lead.picture" alt="Avatar" class="img-fluid rounded-circle">
+                    <img
+                      *ngIf="lead.picture"
+                      [src]="lead.picture"
+                      alt="Avatar"
+                      class="img-fluid rounded-circle"
+                    />
                   </div>
                   <div class="lead-name-code">
-                    <div class="lead-name" [title]="lead.name">{{ lead.name }}</div>
-                    <div class="lead-code" *ngIf="lead.code">{{ lead.code }}</div>
+                    <div class="lead-name" [title]="lead.name">
+                      {{ lead.name }}
+                    </div>
+                    <div class="lead-code" *ngIf="lead.code">
+                      {{ lead.code }}
+                    </div>
                   </div>
                 </div>
                 <div class="d-flex flex-row flex-wrap gap-1 mt-2">
@@ -451,27 +575,38 @@
               <div class="card-body">
                 <div class="card-info-row" *ngIf="lead.phone">
                   <i class="fa fa-phone text-muted"></i>
-                  <a [href]="'tel:' + lead.phone" (click)="$event.stopPropagation()" class="text-primary">
+                  <a
+                    [href]="'tel:' + lead.phone"
+                    (click)="$event.stopPropagation()"
+                    class="text-primary"
+                  >
                     {{ lead.phone }}
                   </a>
                 </div>
 
                 <div class="card-info-row" *ngIf="lead.email">
                   <i class="fa fa-envelope text-muted"></i>
-                  <a [href]="'mailto:' + lead.email" (click)="$event.stopPropagation()" class="text-primary text-truncate">
+                  <a
+                    [href]="'mailto:' + lead.email"
+                    (click)="$event.stopPropagation()"
+                    class="text-primary text-truncate"
+                  >
                     {{ lead.email }}
                   </a>
                 </div>
 
                 <div class="card-info-row" *ngIf="lead.totalPrice">
                   <i class="fa fa-money text-muted"></i>
-                  <span class="fw-semibold text-success">{{ formatCurrency(lead.totalPrice) }}</span>
+                  <span class="fw-semibold text-success">
+                    {{ formatCurrency(lead.totalPrice) }}
+                  </span>
                 </div>
               </div>
 
               <div class="card-footer">
                 <small class="text-muted">
-                  <i class="fa fa-clock-o"></i> {{ formatDate(lead.createdAt) }}
+                  <i class="fa fa-clock-o"></i>
+                  {{ formatDate(lead.createdAt) }}
                 </small>
                 <div class="card-actions" (click)="$event.stopPropagation()">
                   <button
@@ -497,7 +632,10 @@
             </div>
 
             <!-- Empty state for column -->
-            <div class="kanban-column-empty" *ngIf="!(leadsByStatus.get(status.id) || []).length">
+            <div
+              class="kanban-column-empty"
+              *ngIf="!(leadsByStatus.get(status.id) || []).length"
+            >
               <i class="fa fa-inbox"></i>
               <p>Không có lead nào</p>
             </div>
@@ -511,6 +649,5 @@
         <p>Đang tải...</p>
       </div>
     </div>
-
-</div>
+  </div>
 </div>

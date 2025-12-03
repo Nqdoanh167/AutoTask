@@ -11,6 +11,7 @@ import {LeadFormModalComponent} from './lead-dashboard/lead-form-modal/lead-form
 import {LeadFunnelFormModalComponent} from './lead-dashboard/lead-funnel-form-modal/lead-funnel-form-modal.component';
 import {LeadBulkMoveModalComponent} from './lead-dashboard/lead-bulk-move-modal/lead-bulk-move-modal.component';
 import {LeadConnectionsModalComponent} from './lead-dashboard/lead-connections-modal/lead-connections-modal.component';
+import {SortLeadStatusModalComponent} from './lead-dashboard/sort-lead-status-modal/sort-lead-status-modal.component';
 import {LeadTagFormModalComponent} from './lead-setting/lead-tag/lead-tag-form-modal/lead-tag-form-modal.component';
 import {LeadStatusFormModalComponent} from './lead-setting/lead-status/lead-status-form-modal/lead-status-form-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -48,6 +49,7 @@ import { CollapseModule } from "ngx-bootstrap/collapse";
     LeadFunnelFormModalComponent,
     LeadBulkMoveModalComponent,
     LeadConnectionsModalComponent,
+    SortLeadStatusModalComponent,
     LeadTagFormModalComponent,
     LeadStatusFormModalComponent,
   ],
