@@ -259,6 +259,10 @@ export class DashboardComponent
       }
     });
 
+    this.socketService.listen('app/ACTIVITY_CHECK').subscribe((data) => {
+      console.log('app/ACTIVITY_CHECK', data);
+    });
+
     this.socketService.listen('task/DELETED').subscribe((data) => {
       const taskIndex = this.item.rows.findIndex(
         (row) => row.id === data.taskId,
