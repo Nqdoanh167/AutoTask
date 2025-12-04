@@ -125,7 +125,14 @@
     </div>
   </div>
 
-  <div modalBody class="body-container">
+  <div modalBody class="body-container" [class.has-sidebar-open]="isCommentsSidebarOpen">
+    <!-- Comments Sidebar -->
+    <app-lead-comments-sidebar
+      [isOpen]="isCommentsSidebarOpen"
+      [lead]="lead"
+      (close)="closeCommentsSidebar()"
+    ></app-lead-comments-sidebar>
+
     <div class="content-wrapper">
       <!-- Form Lead -->
       <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
@@ -660,7 +667,12 @@
 
       <!-- Actions column -->
       <div class="body-actions d-flex flex-column gap-4">
-        <button class="btn">
+        <button 
+          class="btn"
+          *ngIf="isEditMode"
+          (click)="openCommentsSidebar()"
+          title="Thảo luận"
+        >
           <img src="assets/images/icon/message-notif.svg" alt="message" />
         </button>
         <button class="btn">

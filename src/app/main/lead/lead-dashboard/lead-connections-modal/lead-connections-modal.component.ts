@@ -190,7 +190,6 @@ export class LeadConnectionsModalComponent implements OnInit {
   onSubmit(): void {
     this.isSubmitting = true;
     this.saveEvent.emit(this.platforms);
-    this.bsModalRef.hide();
   }
 
   onCancel(): void {

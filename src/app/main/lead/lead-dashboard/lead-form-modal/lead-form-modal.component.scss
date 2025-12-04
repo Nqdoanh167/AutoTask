@@ -9,6 +9,10 @@
   body > .ng-dropdown-panel {
     z-index: 1100 !important;
   }
+
+  .content-wrapper {
+    height: 70vh;
+  }
 }
 
 .input__title {
@@ -23,6 +27,23 @@
 .body-container {
   display: flex;
   height: 100%;
+  position: relative; // Required for absolute positioning of sidebar
+  overflow: hidden; // Prevent sidebar from overflowing modal
+
+  // Add overlay effect when sidebar is open
+  &.has-sidebar-open {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.3);
+      z-index: 1069;
+      pointer-events: none;
+    }
+  }
 
   .content-wrapper {
     display: flex;

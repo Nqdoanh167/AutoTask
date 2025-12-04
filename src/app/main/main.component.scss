@@ -31,3 +31,16 @@
     }
   }
 }
+
+.lead-header-filters {
+  width: 300px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+
+  .input-checkbox {
+    flex: 1;
+    min-width: 0;
+  }
+}

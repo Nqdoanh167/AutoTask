@@ -14,6 +14,7 @@ import {ModalCallInComponent} from '@share/common/modal-call-in/modal-call-in.co
 import {QuickCallComponent} from '@share/common/quick-call/quick-call.component';
 import {ModalCallOutComponent} from '@share/common/modal-call-out/modal-call-out.component';
 import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/modal-stop-receive.component';
+import {InputCheckboxModule} from '@share/input/input-checkbox/input-checkbox.module';
 // component
 
 @NgModule({
@@ -34,6 +35,7 @@ import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/mo
     QuickCallComponent,
     ModalCallOutComponent,
     ModalStopReceiveComponent,
+    InputCheckboxModule,
   ],
 })
 export class MainModule {}

@@ -4,7 +4,7 @@
   <div class="content-wrapper" [ngClass]="{'ps-0': isHiddenSidebar}">
     <ng-container *ngIf="currentBiz; else nonBiz">
       <app-header>
-        <div class="left">
+        <div class="left d-flex flex-wrap align-items-center">
           <ul class="nav flex-nowrap">
             <li *ngFor="let item of listNavItems" class="nav-item">
               <a
@@ -16,6 +16,43 @@
               </a>
             </li>
           </ul>
+          
+          <!-- Lead Dashboard Filters (only show in lead module) -->
+          <div 
+            *ngIf="isLeadModule" 
+            class="lead-header-filters ms-3"
+          >
+            <app-input-checkbox
+              [value]="leadCheckbox.branchIds"
+              [listItemSelect]="leadCheckbox.listBranches"
+              [enableRemove]="false"
+              [isSelectAll]="true"
+              [isValidPermissionCheckbox]="true"
+              tooltipText="Chi nhánh"
+              tooltipPlacement="right"
+              customClass="h-sm"
+              class="input-checkbox"
+              placeholder="Chi nhánh"
+              [enableSearch]="false"
+              (onChange)="onLeadBranchChange($event)"
+              [templateValue]="tempBranchValue"
+            ></app-input-checkbox>
+            <ng-template #tempBranchValue let-model="item">
+              {{ leadCheckbox.branchDisplayInputText }}
+            </ng-template>
+            <app-input-checkbox
+              [value]="leadCheckbox.roleIds"
+              [listItemSelect]="leadCheckbox.listRoles"
+              [enableRemove]="false"
+              tooltipText="Vai trò"
+              tooltipPlacement="right"
+              customClass="h-sm"
+              class="input-checkbox"
+              placeholder="Vai trò"
+              [enableSearch]="false"
+              (onChange)="onLeadRoleChange($event)"
+            ></app-input-checkbox>
+          </div>
         </div>
       </app-header>
       <div class="router-outlet-container">

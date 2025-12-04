@@ -37,6 +37,11 @@ export class MainService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
 
+  private leadDashboardComponentSubject = new BehaviorSubject<any>(null);
+  public leadDashboardComponent$ = this.leadDashboardComponentSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
   private currentConfigSubject = new BehaviorSubject<Config>(
     null as unknown as Config,
   );
@@ -344,7 +349,6 @@ export class MainService extends BaseApiService implements OnDestroy {
     selBox.select();
     document.execCommand('copy');
     document.body.removeChild(selBox);
-    console.log('Copy text to Clipboard success!');
   }
 
   hasPermissionRole({
@@ -465,6 +469,14 @@ export class MainService extends BaseApiService implements OnDestroy {
 
   clearHeaderTabs() {
     this.headerTabsSubject.next([]);
+  }
+
+  setLeadDashboardComponent(component: any) {
+    this.leadDashboardComponentSubject.next(component);
+  }
+
+  getLeadDashboardComponent() {
+    return this.leadDashboardComponentSubject.value;
   }
 
   ngOnDestroy(): void {

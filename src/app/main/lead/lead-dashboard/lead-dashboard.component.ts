@@ -1,3 +1,4 @@
+import {isEqual} from 'lodash';
 import {Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
@@ -9,7 +10,8 @@ import {LeadDashboardData} from './lead-dashboard-data';
 import {ILead} from '@app/types/lead';
 import {ILeadStatus} from '@app/types/lead-status';
 import {ILeadTag} from '@app/types/lead-tag';
-import {IColumns, User} from '@app/types/viewmodels';
+import {IColumns, User, BizRole, ERole} from '@app/types/viewmodels';
+import {ISetting} from '@app/types/setting';
 import {
   LEAD_COLUMNS_DEFAULT,
   LEAD_MULTIPLE_ACTIONS,
@@ -28,6 +30,7 @@ import {SortLeadStatusModalComponent} from './sort-lead-status-modal/sort-lead-s
 import {ETypeFilter, EBotherAdvanceBasicFilter} from '@app/types/common';
 import {AuthService} from '@app/services/api/auth.service';
 import {environment} from 'src/environments/environment';
+import {MainService} from '@app/services/api/main.service';
 
 @Component({
   selector: 'app-lead-dashboard',
@@ -53,6 +56,17 @@ export class LeadDashboardComponent
   public statusMap: Map<string, ILeadStatus> = new Map(); // Cache for O(1) status lookup
   public tagMap: Map<string, ILeadTag> = new Map(); // Cache for O(1) tag lookup
   public sidebarCollapsed = false; // Controls sidebar collapse/expand state
+
+  // Checkbox filter for branch and role
+  public checkbox: any = {
+    branchIds: [],
+    accessibleIds: [],
+    roleIds: [],
+    listBranches: [],
+    listRoles: [],
+    branchDisplayInputText: '',
+  };
+  public setting!: ISetting;
 
   // Computed property for filtered config buttons
   get filteredConfigButtons() {
@@ -80,6 +94,7 @@ export class LeadDashboardComponent
     private readonly router: Router,
     override readonly cdr: ChangeDetectorRef,
     override readonly authService: AuthService,
+    private readonly mainService: MainService,
   ) {
     super();
 
@@ -103,6 +118,12 @@ export class LeadDashboardComponent
     this.buildStatusMap();
     this.buildTagMap();
 
+    // Setup checkbox filters
+    this.setupCheckbox();
+
+    // Register with main component for header filters via service
+    this.mainService.setLeadDashboardComponent(this);
+
     // Don't call getDataSource() here - wait for sidebar to auto-select first funnel
     // which will trigger onFolderSelected() and then getDataSource() with proper filter
 
@@ -110,6 +131,23 @@ export class LeadDashboardComponent
 
     // Load users for advanced filter
     this.loadUsersForFilter();
+
+    // Subscribe to setting changes
+    this.autoTaskService.currentSetting
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((setting) => {
+        this.setting = setting || {};
+        this.setupCheckbox();
+      });
+
+    // Subscribe to biz changes
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        if (biz) {
+          this.setupCheckbox();
+        }
+      });
 
     // Listen to query params for opening lead detail
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((q) => {
@@ -517,7 +555,6 @@ export class LeadDashboardComponent
 
   onFolderSelected(folder: ILeadFolder) {
     this.selectedFolder = folder;
-    console.log('Folder selected:', folder);
 
     // Apply funnel filter to API query
     if (folder.type === 'funnel') {
@@ -563,8 +600,6 @@ export class LeadDashboardComponent
   }
 
   onFolderAction(event: {action: string; folder: ILeadFolder}) {
-    console.log('Folder action:', event);
-
     if (event.action === 'edit-funnel') {
       // Open funnel edit modal
       const funnelId = event.folder.funnels?.[0]?.id || event.folder.id;
@@ -703,6 +738,38 @@ export class LeadDashboardComponent
     });
 
     this.item.rows = [];
+    
+    // Lấy các selected Branch và Role Ids từ checkbox filter và gán vào params
+    // Parse filter object từ params
+    const filterObj = JSON.parse(params.filter || '{}');
+    
+    // Áp dụng accessibleIds từ checkbox filter
+    if (this.checkbox.accessibleIds?.length) {  
+      filterObj['accessibleIds'] = this.checkbox.accessibleIds;
+    } else {
+      // Nếu không có accessibleIds trong checkbox, xóa khỏi filter
+      delete filterObj['accessibleIds'];
+    }
+    
+    // Xóa branchIds khỏi filter (không sử dụng nữa)
+    delete filterObj['branchIds'];
+    
+    // Áp dụng roleIds từ checkbox filter -> teams.roleId_in
+    // Đảm bảo roleIds là mảng hợp lệ
+    const validRoleIds = Array.isArray(this.checkbox.roleIds) 
+      ? this.checkbox.roleIds.filter((id: any) => id != null && id !== '')
+      : [];
+    
+    if (validRoleIds.length > 0) {
+      filterObj['teams.roleId_in'] = validRoleIds;
+    } else {
+      // Nếu không có roleIds trong checkbox, xóa khỏi filter
+      delete filterObj['teams.roleId_in'];
+    }
+    
+    // Cập nhật params.filter với filter object đã được cập nhật
+    params.filter = JSON.stringify(filterObj);
+    
     this.autoTaskService.lead
       .get(params)
       .pipe(
@@ -916,6 +983,206 @@ export class LeadDashboardComponent
 
     // No need to call folderSidebar.loadFoldersWithFunnels() here
     // as sidebar component listens to the same socket event and handles reload itself
+  }
+
+  /**
+   * Setup checkbox data for branch and role filters
+   */
+  setupCheckbox() {
+    if (this.currentBiz) {
+      this.checkbox.listRoles =
+        this.currentBiz.user.roles?.filter(
+          (r: BizRole) => this.setting?.roles?.includes(r.id) && r.isActive,
+        ) || [];
+      this.checkbox.listBranches = this.authService.getBranchPer();
+      
+      // Setup branch structure with children
+      this.checkbox.listBranches = this.checkbox.listBranches.map((branch: any) => {
+        if (branch.departments?.length) {
+          branch.children = branch.departments.map((department: any) => {
+            if (department.teams?.length) {
+              department.children = department.teams;
+            }
+            return department;
+          });
+        }
+        return branch;
+      });
+
+      // Initialize accessibleIds from filter if exists (migrate from branchIds if needed)
+      const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+      
+      // Nếu có accessibleIds trong filter, sử dụng trực tiếp
+      if (objFilterQuery.accessibleIds && objFilterQuery.accessibleIds.length) {
+        this.checkbox.accessibleIds = objFilterQuery.accessibleIds;
+        // Cần tính lại branchIds từ accessibleIds để hiển thị UI
+        // Tạm thời để trống, sẽ được tính khi user thay đổi filter
+        this.checkbox.branchIds = [];
+      } 
+      // Migration: Nếu vẫn còn branchIds trong filter (backward compatibility)
+      else if (objFilterQuery.branchIds && objFilterQuery.branchIds.length) {
+        const detectBranchFilter = this.authService.detectFilterBranchIds(
+          objFilterQuery.branchIds,
+        );
+        if (detectBranchFilter.nestedIds?.length) {
+          this.checkbox.branchIds = detectBranchFilter.nestedIds.flat();
+        }
+        this.updateBranchDisplayText(detectBranchFilter);
+        this.checkbox.accessibleIds = [
+          ...(detectBranchFilter.branchIds || []),
+          ...(detectBranchFilter.departmentIds || []),
+          ...(detectBranchFilter.teamIds || [])
+        ];
+      } 
+      // Default: không có filter
+      else {
+        // Default: select all branches user has access to
+        this.checkbox.branchIds = [];
+        this.checkbox.listBranches.forEach((branch: any) => {
+          this.checkbox.branchIds.push(branch.id);
+          if (branch.departments?.length) {
+            branch.departments.forEach((department: any) => {
+              if (branch.role !== 'OWNER') {
+                this.checkbox.branchIds.push(department.id);
+              }
+              if (department.teams?.length && department.role !== 'OWNER') {
+                this.checkbox.branchIds.push(
+                  ...department.teams.map((t: any) => t.id),
+                );
+              }
+            });
+          }
+        });
+        if (this.checkbox.branchIds.length) {
+          const detectFilter = this.authService.detectFilterBranchIds(
+            this.checkbox.branchIds,
+          );
+          this.updateBranchDisplayText(detectFilter);
+          this.checkbox.accessibleIds = [
+            ...(detectFilter.branchIds || []),
+            ...(detectFilter.departmentIds || []),
+            ...(detectFilter.teamIds || [])
+          ];
+        }
+      }
+
+      // Initialize roleIds from filter if exists
+      if (objFilterQuery.teamRoles && Array.isArray(objFilterQuery.teamRoles) && objFilterQuery.teamRoles.length) {
+        this.checkbox.roleIds = objFilterQuery.teamRoles.filter((id: any) => id != null && id !== '');
+      } else if (objFilterQuery['teams.roleId_in'] && Array.isArray(objFilterQuery['teams.roleId_in']) && objFilterQuery['teams.roleId_in'].length) {
+        // Fallback: check for teams.roleId_in format
+        this.checkbox.roleIds = objFilterQuery['teams.roleId_in'].filter(id => id != null && id !== '');
+      } else {
+        this.checkbox.roleIds = [];
+      }
+    }
+  }
+
+  /**
+   * Update branch display text
+   */
+  private updateBranchDisplayText(detectFilter: any) {
+    this.checkbox.branchDisplayInputText = 'Lựa chọn';
+    const lengthBranch = detectFilter.branchIds?.length;
+    const lengthDepartment = detectFilter.departmentIds?.length;
+    const lengthTeam = detectFilter.teamIds?.length;
+    if (lengthBranch && lengthDepartment && lengthTeam) {
+      this.checkbox.branchDisplayInputText = `${lengthBranch} CN, ${lengthDepartment} PB, ${lengthTeam} ĐN`;
+    } else if (
+      [lengthBranch, lengthDepartment, lengthTeam].filter((t) => t > 0).length >
+      1
+    ) {
+      const strValue = [];
+      if (lengthBranch) strValue.push(`${lengthBranch} CN`);
+      if (lengthDepartment) strValue.push(`${lengthDepartment} PB`);
+      if (lengthTeam) strValue.push(`${lengthTeam} ĐN`);
+      this.checkbox.branchDisplayInputText = strValue.join(', ');
+    } else {
+      this.checkbox.branchDisplayInputText = '';
+      if (lengthBranch)
+        this.checkbox.branchDisplayInputText += `${lengthBranch} chi nhánh`;
+      if (lengthDepartment)
+        this.checkbox.branchDisplayInputText += `${lengthDepartment} phòng ban`;
+      if (lengthTeam)
+        this.checkbox.branchDisplayInputText += `${lengthTeam} đội nhóm`;
+    }
+  }
+
+  /**
+   * Handle branch filter change
+   */
+  changeBranch({branchIds = []}: {branchIds: string[]}) {
+    this.checkbox.branchIds = branchIds;
+    
+    if (branchIds.length) {
+      const detectFilter = this.authService.detectFilterBranchIds(branchIds);
+      this.updateBranchDisplayText(detectFilter);
+      this.checkbox.accessibleIds = [
+        ...(detectFilter.branchIds || []),
+        ...(detectFilter.departmentIds || []),
+        ...(detectFilter.teamIds || [])
+      ];
+    } else {
+      this.checkbox.branchDisplayInputText = '';
+      this.checkbox.accessibleIds = [];
+    }
+
+    this.handleChangeCheckbox();
+  }
+
+  /**
+   * Handle role filter change
+   */
+  changeRole(roleIds: string[] | any) {
+    // Ensure roleIds is a valid array
+    let validRoleIds: string[] = [];
+    if (Array.isArray(roleIds)) {
+      validRoleIds = roleIds.filter(id => id != null && id !== '');
+    } else if (roleIds != null && roleIds !== '') {
+      validRoleIds = [roleIds];
+    }
+    
+    this.checkbox.roleIds = validRoleIds;
+    this.handleChangeCheckbox();
+  }
+
+  /**
+   * Handle checkbox filter changes and update query params
+   */
+  handleChangeCheckbox(isReload: boolean = false) {
+    const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+    
+    // Update accessibleIds (thay thế branchIds)
+    if (this.checkbox.accessibleIds?.length) {
+      objFilterQuery['accessibleIds'] = this.checkbox.accessibleIds;
+    } else {
+      delete objFilterQuery['accessibleIds'];
+    }
+    
+    // Xóa branchIds khỏi filter (không sử dụng nữa)
+    delete objFilterQuery['branchIds'];
+
+    // Update teamRoles (roleIds) - ensure it's a valid array
+    const validRoleIds = Array.isArray(this.checkbox.roleIds) 
+      ? this.checkbox.roleIds.filter((id: any) => id != null && id !== '')
+      : [];
+    
+    if (validRoleIds.length > 0) {
+      objFilterQuery.teamRoles = validRoleIds; // Keep for backward compatibility
+      objFilterQuery['teams.roleId_in'] = validRoleIds; // API format
+    } else {
+      delete objFilterQuery.teamRoles;
+      delete objFilterQuery['teams.roleId_in'];
+    }
+
+    this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
+    
+    if (isReload) {
+      this.getDataSource(true);
+    } else {
+      // Only reload if filter actually changed
+      this.getDataSource(true);
+    }
   }
 
   /**

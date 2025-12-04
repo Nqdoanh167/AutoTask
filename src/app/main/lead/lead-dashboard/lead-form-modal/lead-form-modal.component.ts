@@ -40,6 +40,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   isEditingTags = false;
   isEditingStatus = false;
   isAddressModalOpen = false;
+  isCommentsSidebarOpen = false;
   platforms: IPlatform[] = [];
 
   @ViewChild('statusSelect') statusSelect: any;
@@ -439,6 +440,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         ...cleanedData,
       };
       this.saveEvent.next(createData);
+      this.onCancel();
     }
   }
 
@@ -585,7 +587,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     ward?: string, 
     wardCode?: string,
   }, type: 'province' | 'district' | 'ward') {
-    console.log(`[lead-form-modal.component.ts] label:`, value, type);
     switch (type) {
       case 'province':
         // Reset districts and wards arrays immediately
@@ -687,7 +688,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       const selectedFunnel = this.funnels.find(f => f.id === selectedFunnelId);
       if (selectedFunnel) {
         this.leadForm.patchValue({ funnelId: selectedFunnel.id });
-        console.log('Set selected funnel from dashboard:', selectedFunnel.name, selectedFunnel.id);
         return;
       }
     }
@@ -696,7 +696,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     const systemFunnel = this.funnelFolders.find(f => f.isSystem === true);
     if (systemFunnel) {
       this.leadForm.patchValue({ funnelId: systemFunnel.id });
-      console.log('Set default system funnel:', systemFunnel.name, systemFunnel.id);
     }
   }
 
@@ -1124,5 +1123,21 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         });
       }, 0);
     }
+  }
+
+  // ============ COMMENTS SIDEBAR METHODS ============
+
+  /**
+   * Open comments sidebar
+   */
+  openCommentsSidebar(): void {
+    this.isCommentsSidebarOpen = true;
+  }
+
+  /**
+   * Close comments sidebar
+   */
+  closeCommentsSidebar(): void {
+    this.isCommentsSidebarOpen = false;
   }
 }
