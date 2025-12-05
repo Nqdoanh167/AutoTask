@@ -62,8 +62,10 @@ export class LeadDashboardComponent
     branchIds: [],
     accessibleIds: [],
     roleIds: [],
+    userIds: [],
     listBranches: [],
     listRoles: [],
+    listUsers: [],
     branchDisplayInputText: '',
   };
   public setting!: ISetting;
@@ -971,6 +973,13 @@ export class LeadDashboardComponent
           if (createdByFilter) {
             createdByFilter.options = activeUsers;
           }
+
+          const memberFilter = this.configFilters.find(
+            (filter) => filter.name === 'teams.userId_in',
+          );
+          if (memberFilter) {
+            memberFilter.options = activeUsers;
+          }
         }
       });
   }
@@ -990,10 +999,16 @@ export class LeadDashboardComponent
    */
   setupCheckbox() {
     if (this.currentBiz) {
+      // Fallback: nếu chưa có setting.roles thì cho phép tất cả role đang active của user
+      const allowedRoleIds =
+        (this.setting?.roles?.length ? this.setting.roles : this.currentBiz.user.roles?.map((r: BizRole) => r.id)) || [];
+
       this.checkbox.listRoles =
         this.currentBiz.user.roles?.filter(
-          (r: BizRole) => this.setting?.roles?.includes(r.id) && r.isActive,
+          (r: BizRole) => allowedRoleIds.includes(r.id) && r.isActive,
         ) || [];
+      this.checkbox.listUsers =
+        this.currentBiz.users?.filter((u: User) => u.isActive) || [];
       this.checkbox.listBranches = this.authService.getBranchPer();
       
       // Setup branch structure with children
@@ -1067,13 +1082,27 @@ export class LeadDashboardComponent
       }
 
       // Initialize roleIds from filter if exists
-      if (objFilterQuery.teamRoles && Array.isArray(objFilterQuery.teamRoles) && objFilterQuery.teamRoles.length) {
-        this.checkbox.roleIds = objFilterQuery.teamRoles.filter((id: any) => id != null && id !== '');
-      } else if (objFilterQuery['teams.roleId_in'] && Array.isArray(objFilterQuery['teams.roleId_in']) && objFilterQuery['teams.roleId_in'].length) {
+      if (objFilterQuery['teams.roleId_in'] && Array.isArray(objFilterQuery['teams.roleId_in']) && objFilterQuery['teams.roleId_in'].length) {
         // Fallback: check for teams.roleId_in format
         this.checkbox.roleIds = objFilterQuery['teams.roleId_in'].filter(id => id != null && id !== '');
       } else {
-        this.checkbox.roleIds = [];
+        // Default: no pre-selected roles
+        this.checkbox.roleIds = Array.isArray(this.checkbox.roleIds)
+          ? this.checkbox.roleIds.filter((id: any) => id != null && id !== '')
+          : [];
+      }
+
+      // Initialize userIds from filter if exists
+      if (
+        objFilterQuery['teams.userId_in'] &&
+        Array.isArray(objFilterQuery['teams.userId_in']) &&
+        objFilterQuery['teams.userId_in'].length
+      ) {
+        this.checkbox.userIds = objFilterQuery['teams.userId_in'].filter(
+          (id: any) => id != null && id !== '',
+        );
+      } else {
+        this.checkbox.userIds = this.checkbox.userIds || [];
       }
     }
   }
@@ -1162,17 +1191,17 @@ export class LeadDashboardComponent
     // Xóa branchIds khỏi filter (không sử dụng nữa)
     delete objFilterQuery['branchIds'];
 
-    // Update teamRoles (roleIds) - ensure it's a valid array
-    const validRoleIds = Array.isArray(this.checkbox.roleIds) 
+    // Update teams.roleId_in (roleIds) - deprecated teamRoles removed
+    const validRoleIds = Array.isArray(this.checkbox.roleIds)
       ? this.checkbox.roleIds.filter((id: any) => id != null && id !== '')
       : [];
-    
+
     if (validRoleIds.length > 0) {
-      objFilterQuery.teamRoles = validRoleIds; // Keep for backward compatibility
       objFilterQuery['teams.roleId_in'] = validRoleIds; // API format
+      delete objFilterQuery.teamRoles; // drop deprecated field
     } else {
-      delete objFilterQuery.teamRoles;
       delete objFilterQuery['teams.roleId_in'];
+      delete objFilterQuery.teamRoles;
     }
 
     this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
@@ -1183,6 +1212,27 @@ export class LeadDashboardComponent
       // Only reload if filter actually changed
       this.getDataSource(true);
     }
+  }
+
+  /**
+   * Update filter by team members (teams.userId_in) from header filter
+   */
+  changeMembers(userIds: string[] | any) {
+    const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+    const validUserIds = Array.isArray(userIds)
+      ? userIds.filter((id: any) => id != null && id !== '')
+      : [];
+
+    this.checkbox.userIds = validUserIds;
+
+    if (validUserIds.length) {
+      objFilterQuery['teams.userId_in'] = validUserIds;
+    } else {
+      delete objFilterQuery['teams.userId_in'];
+    }
+
+    this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
+    this.getDataSource(true);
   }
 
   /**

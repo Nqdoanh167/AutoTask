@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import { ILead, ILeadComment, ELeadCommentContentType, ILeadCommentHistory } from '@app/types/lead';
+import { ILead, ILeadComment, ELeadCommentContentType } from '@app/types/lead';
 import { StorageService } from '@app/services/api/storage.service';
 import { AutoTaskService } from '@app/services/api/autoTask.service';
 import { ToastrService } from 'ngx-toastr';
@@ -50,6 +50,16 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
   textareaHeight = 'auto';
   destroy$ = new Subject<void>();
 
+  private readonly IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+  private readonly DOC_EXT = ['doc', 'docx', 'xls', 'xlsx', 'pdf', 'md'];
+  private readonly AUDIO_EXT = ['mp3', 'wav', 'm4a', 'aac'];
+  private readonly VIDEO_EXT = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+  private readonly MAX_IMAGE_MB = 5;
+  private readonly MAX_FILE_MB = 10;
+  private readonly MAX_VIDEO_MB = 50;
+  private readonly MAX_FILES = 3;
+  private readonly MAX_IMAGES = 5;
+
   constructor(
     private storageService: StorageService,
     private autoTaskService: AutoTaskService,
@@ -72,8 +82,11 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
     if (!this.lead?.id) return;
 
     this.isLoadingComments = true;
+    const filterObj = {
+      leadId: this.lead.id
+    };
     this.autoTaskService.leadComment.get({
-      leadId: this.lead.id,
+      filter: JSON.stringify(filterObj),
       sort: 'createdAt' // Sort by createdAt ascending
     })
     .pipe(
@@ -83,7 +96,7 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
     .subscribe({
       next: (response) => {
         if (response?.data) {
-          this.comments = response.data.map(history => this.mapCommentHistoryToComment(history));
+          this.comments = response.data.map(comment => this.mapCommentToComment(comment));
         }
       },
       error: (error) => {
@@ -94,22 +107,22 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Map ILeadCommentHistory to IComment interface
+   * Map ILeadComment to IComment interface
    */
-  private mapCommentHistoryToComment(history: ILeadCommentHistory): IComment {
+  private mapCommentToComment(comment: ILeadComment): IComment {
     return {
-      id: history.id,
-      createdBy: history.createdBy,
-      content: history.content || '',
-      contentType: this.mapContentType(history.contentType),
-      imageUrl: history.imageUrl,
-      videoUrl: history.videoUrl,
-      audioUrl: history.audioUrl,
-      fileUrl: history.fileUrl,
-      fileName: history.fileName,
-      fileType: history.fileType,
-      createdAt: new Date(history.createdAt),
-      updatedAt: new Date(history.updatedAt),
+      id: comment.id,
+      createdBy: comment.createdBy,
+      content: comment.content || '',
+      contentType: this.mapContentType(comment.contentType),
+      imageUrl: comment.imageUrl,
+      videoUrl: comment.videoUrl,
+      audioUrl: comment.audioUrl,
+      fileUrl: comment.fileUrl,
+      fileName: comment.fileName,
+      fileType: comment.fileType,
+      createdAt: new Date(comment.createdAt),
+      updatedAt: new Date(comment.updatedAt),
     };
   }
 
@@ -252,7 +265,7 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response?.data) {
-            const newComment = this.mapCommentHistoryToComment(response.data);
+            const newComment = this.mapCommentToComment(response.data);
             this.comments.push(newComment);
 
             // Clear input
@@ -307,7 +320,7 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
                 .subscribe({
                   next: (commentResponse) => {
                     if (commentResponse?.data) {
-                      const newComment = this.mapCommentHistoryToComment(commentResponse.data);
+                      const newComment = this.mapCommentToComment(commentResponse.data);
                       this.comments.push(newComment);
                       uploadedCount++;
 
@@ -403,20 +416,78 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
 
     const files = Array.from(input.files);
 
-    if (this.selectedFiles.length + files.length > 3) {
+    const incomingImages = files.filter((file) =>
+      this.IMAGE_EXT.includes(this.getFileType(file.name)),
+    );
+    const incomingNonImages = files.filter(
+      (file) => !this.IMAGE_EXT.includes(this.getFileType(file.name)),
+    );
+
+    if (this.selectedFiles.length + incomingNonImages.length > this.MAX_FILES) {
       this.toastr.warning('Chỉ được chọn tối đa 3 file');
       return;
     }
 
-    // Check file size (10MB each)
-    const oversizedFiles = files.filter(file => file.size > 10 * 1024 * 1024);
-    if (oversizedFiles.length > 0) {
-      this.toastr.warning('Mỗi file không được vượt quá 10MB');
-      return;
+    const invalidMessages: string[] = [];
+    const acceptedFiles: File[] = [];
+    const acceptedImages: File[] = [];
+
+    incomingNonImages.forEach((file) => {
+      const ext = this.getFileType(file.name);
+      if (
+        !this.DOC_EXT.includes(ext) &&
+        !this.AUDIO_EXT.includes(ext) &&
+        !this.VIDEO_EXT.includes(ext)
+      ) {
+        invalidMessages.push(`Định dạng không hỗ trợ: ${file.name}`);
+        return;
+      }
+
+      if (this.VIDEO_EXT.includes(ext)) {
+        if (file.size > this.MAX_VIDEO_MB * 1024 * 1024) {
+          invalidMessages.push(
+            `Video ${file.name} vượt quá ${this.MAX_VIDEO_MB}MB`,
+          );
+          return;
+        }
+      } else {
+        if (file.size > this.MAX_FILE_MB * 1024 * 1024) {
+          invalidMessages.push(
+            `File ${file.name} vượt quá ${this.MAX_FILE_MB}MB`,
+          );
+          return;
+        }
+      }
+
+      acceptedFiles.push(file);
+    });
+
+    // Images selected via file picker also respected
+    incomingImages.forEach((file) => {
+      if (file.size > this.MAX_IMAGE_MB * 1024 * 1024) {
+        invalidMessages.push(
+          `Ảnh ${file.name} vượt quá ${this.MAX_IMAGE_MB}MB`,
+        );
+        return;
+      }
+      acceptedImages.push(file);
+    });
+
+    if (this.selectedImages.length + acceptedImages.length > this.MAX_IMAGES) {
+      invalidMessages.push('Chỉ được chọn tối đa 5 hình ảnh');
     }
 
-    // Add to selected files
-    this.selectedFiles = [...this.selectedFiles, ...files];
+    if (invalidMessages.length) {
+      this.toastr.warning(invalidMessages.join('\n'));
+    }
+
+    if (acceptedFiles.length) {
+      this.selectedFiles = [...this.selectedFiles, ...acceptedFiles];
+    }
+
+    if (acceptedImages.length) {
+      this.selectedImages = [...this.selectedImages, ...acceptedImages];
+    }
 
     // Clear input
     input.value = '';
@@ -437,25 +508,25 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
     if (!input.files || input.files.length === 0) return;
 
     const files = Array.from(input.files);
-    // Filter for image files only
-    const imageFiles = files.filter(file =>
-      file.type.startsWith('image/')
+    const imageFiles = files.filter((file) =>
+      this.IMAGE_EXT.includes(this.getFileType(file.name)),
     );
 
     if (imageFiles.length === 0) {
-      this.toastr.warning('Vui lòng chọn file hình ảnh');
+      this.toastr.warning('Vui lòng chọn file hình ảnh (jpg, jpeg, png, gif, webp)');
       return;
     }
 
-    if (this.selectedImages.length + imageFiles.length > 5) {
+    if (this.selectedImages.length + imageFiles.length > this.MAX_IMAGES) {
       this.toastr.warning('Chỉ được chọn tối đa 5 hình ảnh');
       return;
     }
 
-    // Check file size (5MB each)
-    const oversizedFiles = imageFiles.filter(file => file.size > 5 * 1024 * 1024);
+    const oversizedFiles = imageFiles.filter(
+      (file) => file.size > this.MAX_IMAGE_MB * 1024 * 1024,
+    );
     if (oversizedFiles.length > 0) {
-      this.toastr.warning('Mỗi hình ảnh không được vượt quá 5MB');
+      this.toastr.warning(`Mỗi hình ảnh không được vượt quá ${this.MAX_IMAGE_MB}MB`);
       return;
     }
 
@@ -509,16 +580,49 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
   /**
    * Get file type from filename
    */
-  private getFileType(fileName: string): string {
+  getFileType(fileName: string): string {
     return fileName.split('.').pop()?.toLowerCase() || '';
+  }
+
+  getFileIcon(fileType?: string): string {
+    const ext = (fileType || '').toLowerCase();
+    if (['doc', 'docx'].includes(ext)) return 'fa-file-word';
+    if (['xls', 'xlsx', 'csv'].includes(ext)) return 'fa-file-excel';
+    if (ext === 'pdf') return 'fa-file-pdf';
+    if (ext === 'md' || ext === 'txt') return 'fa-file-lines';
+    if (this.IMAGE_EXT.includes(ext)) return 'fa-file-image';
+    if (this.AUDIO_EXT.includes(ext)) return 'fa-file-audio';
+    if (this.VIDEO_EXT.includes(ext)) return 'fa-file-video';
+    return 'fa-file';
   }
 
   /**
    * Handle download file
    */
-  onDownloadFile(comment: IComment): void {
-    if (comment.fileUrl) {
-      // TODO: Implement file download
+  async onDownloadFile(comment: IComment): Promise<void> {
+    if (!comment.fileUrl) return;
+
+    const fileNameFromUrl = comment.fileUrl.split('/').pop()?.split('?')[0];
+    const fileName = comment.fileName || fileNameFromUrl || 'file';
+
+    try {
+      const response = await fetch(comment.fileUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to download file (${response.status})`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download file error:', error);
+      this.toastr.error('Tải file thất bại, vui lòng thử lại');
     }
   }
 

@@ -134,50 +134,5 @@ export interface ILeadCommentQuery {
   page?: number;
   limit?: number;
   sort?: string;
-  leadId?: string;
+  filter?: string;
 }
-
-export interface ILeadCommentHistory {
-  id: string;
-  leadId: string;
-  content?: string;
-  createdBy: {
-    id: string;
-    name: string;
-    email: string;
-    picture: string;
-  };
-  contentType: ELeadCommentContentType;
-  imageUrl?: string;
-  videoUrl?: string;
-  audioUrl?: string;
-  fileUrl?: string;
-  fileName?: string;
-  fileType?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface ILeadCommentHistoryCreateDto {
-  leadId: string;
-  content?: string;
-  contentType: ELeadCommentContentType;
-  imageUrl?: string;
-  videoUrl?: string;
-  audioUrl?: string;
-  fileUrl?: string;
-  fileName?: string;
-  fileType?: string;
-}
-
-export interface ILeadCommentHistoryQuery {
-  page?: number;
-  limit?: number;
-  sort?: string;
-  leadId?: string;
-}
-
-// Aliases for backward compatibility
-export type ILeadHistory = ILeadCommentHistory;
-export type ILeadHistoryCreateDto = ILeadCommentHistoryCreateDto;
-export type ILeadHistoryQuery = ILeadCommentHistoryQuery;

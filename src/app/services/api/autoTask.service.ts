@@ -10,7 +10,7 @@ import {
   TaskDistributionConfig,
   IQueryBase,
 } from 'src/app/types/viewmodels';
-import { ILead, ILeadQuery, ILeadCreateDto, ILeadUpdateDto, ILeadStatus, ILeadTag, ILeadCommentHistory, ILeadCommentHistoryCreateDto, ILeadCommentHistoryQuery } from '@app/types/lead';
+import { ILead, ILeadQuery, ILeadCreateDto, ILeadUpdateDto, ILeadStatus, ILeadTag, ILeadCommentQuery, ILeadComment, ILeadCommentCreateDto } from '@app/types/lead';
 import {
   BehaviorSubject,
   distinctUntilChanged,
@@ -901,15 +901,15 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   leadComment = {
-    get: (params: ILeadCommentHistoryQuery = {}) =>
-      this.httpClient.get<EntityResult<ILeadCommentHistory[]>>(
+    get: (params: ILeadCommentQuery = {}) =>
+      this.httpClient.get<EntityResult<ILeadComment[]>>(
         this.createUrl([this.api.lead, 'comments']),
         {
           params: this.createParams({ ...params }),
         },
       ),
-    create: (body: ILeadCommentHistoryCreateDto) =>
-      this.httpClient.post<EntityResult<ILeadCommentHistory>>(
+    create: (body: ILeadCommentCreateDto) =>
+      this.httpClient.post<EntityResult<ILeadComment>>(
         this.createUrl([this.api.lead, 'comments']),
         body,
       ),

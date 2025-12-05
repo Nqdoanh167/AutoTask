@@ -9,7 +9,7 @@ import {BaseComponentsComponent} from '@share/common/base-components/base-compon
 import {ECallType} from '@app/types/call';
 import {AuthService} from '@app/services/api/auth.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {BizRole} from '@app/types/viewmodels';
+import {BizRole, User} from '@app/types/viewmodels';
 import {ISetting} from '@app/types/setting';
 
 @Component({
@@ -21,13 +21,16 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
   public isHiddenSidebar = false;
   public listNavItems: ISidebar[] = [];
   public isLeadModule = false;
+  public isLeadDashboard = false;
   
   // Lead filters state
   public leadCheckbox: any = {
     branchIds: [],
     roleIds: [],
+    userIds: [],
     listBranches: [],
     listRoles: [],
+    listUsers: [],
     branchDisplayInputText: '',
   };
   public leadSetting!: ISetting;
@@ -86,9 +89,11 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
           if (component.checkbox) {
             this.leadCheckbox.branchIds = component.checkbox.branchIds || [];
             this.leadCheckbox.roleIds = component.checkbox.roleIds || [];
+            this.leadCheckbox.userIds = component.checkbox.userIds || [];
             this.leadCheckbox.branchDisplayInputText = component.checkbox.branchDisplayInputText || '';
             this.leadCheckbox.listBranches = component.checkbox.listBranches || [];
             this.leadCheckbox.listRoles = component.checkbox.listRoles || [];
+            this.leadCheckbox.listUsers = component.checkbox.listUsers || [];
           }
         }
       });
@@ -102,6 +107,7 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
       )
       .subscribe((url) => {
         this.isLeadModule = url.includes(`/${EModule.LEAD}`);
+        this.isLeadDashboard = url.includes(`/${EModule.LEAD}/dashboard`);
         if (this.isLeadModule) {
           this.setupLeadFilters();
           // Re-register component if needed
@@ -114,6 +120,7 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
 
     // Initial check
     this.isLeadModule = this.router.url.includes(`/${EModule.LEAD}`);
+    this.isLeadDashboard = this.router.url.includes(`/${EModule.LEAD}/dashboard`);
     if (this.isLeadModule) {
       this.setupLeadFilters();
       const component = this.mainService.getLeadDashboardComponent();
@@ -153,6 +160,8 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
         this.currentBiz.user.roles?.filter(
           (r: BizRole) => this.leadSetting?.roles?.includes(r.id) && r.isActive,
         ) || [];
+      this.leadCheckbox.listUsers =
+        this.currentBiz.users?.filter((u: User) => u.isActive) || [];
       this.leadCheckbox.listBranches = this.authService.getBranchPer();
       
       // Setup branch structure with children
@@ -209,6 +218,21 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
     }
   }
 
+  onLeadUserChange(userIds: string[] | any) {
+    let validUserIds: string[] = [];
+    if (Array.isArray(userIds)) {
+      validUserIds = userIds.filter((id) => id != null && id !== '');
+    } else if (userIds != null && userIds !== '') {
+      validUserIds = [userIds];
+    }
+
+    this.leadCheckbox.userIds = validUserIds;
+
+    if (this.leadDashboardComponent) {
+      this.leadDashboardComponent.changeMembers(validUserIds);
+    }
+  }
+
   private updateBranchDisplayText(detectFilter: any) {
     this.leadCheckbox.branchDisplayInputText = 'Lựa chọn';
     const lengthBranch = detectFilter.branchIds?.length;
@@ -243,7 +267,9 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
     if (component && component.checkbox) {
       this.leadCheckbox.branchIds = component.checkbox.branchIds || [];
       this.leadCheckbox.roleIds = component.checkbox.roleIds || [];
+      this.leadCheckbox.userIds = component.checkbox.userIds || [];
       this.leadCheckbox.branchDisplayInputText = component.checkbox.branchDisplayInputText || '';
+      this.leadCheckbox.listUsers = component.checkbox.listUsers || this.leadCheckbox.listUsers;
     }
   }
 

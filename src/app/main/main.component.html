@@ -1,7 +1,7 @@
 <div class="wrapper">
   <!-- <app-sidebar></app-sidebar> -->
   <app-sidebar *ngIf="currentBiz && !isHiddenSidebar"></app-sidebar>
-  <div class="content-wrapper" [ngClass]="{'ps-0': isHiddenSidebar}">
+  <div class="content-wrapper" style="height: 100vh;" [ngClass]="{'ps-0': isHiddenSidebar}">
     <ng-container *ngIf="currentBiz; else nonBiz">
       <app-header>
         <div class="left d-flex flex-wrap align-items-center">
@@ -19,7 +19,7 @@
           
           <!-- Lead Dashboard Filters (only show in lead module) -->
           <div 
-            *ngIf="isLeadModule" 
+            *ngIf="isLeadDashboard" 
             class="lead-header-filters ms-3"
           >
             <app-input-checkbox
@@ -51,6 +51,19 @@
               placeholder="Vai trò"
               [enableSearch]="false"
               (onChange)="onLeadRoleChange($event)"
+            ></app-input-checkbox>
+            <app-input-checkbox
+              [value]="leadCheckbox.userIds"
+              [listItemSelect]="leadCheckbox.listUsers"
+              [enableRemove]="false"
+              tooltipText="Thành viên"
+              tooltipPlacement="right"
+              customClass="h-sm"
+              class="input-checkbox"
+              placeholder="Thành viên"
+              [enableSearch]="true"
+              [isSelectAll]="true"
+              (onChange)="onLeadUserChange($event)"
             ></app-input-checkbox>
           </div>
         </div>

@@ -67,7 +67,7 @@
             <p class="mb-2">{{ comment.content }}</p>
             <div class="comment-file" (click)="onDownloadFile(comment)">
               <div class="file-icon">
-                <i class="fa-solid fa-file-{{ comment.fileType }} text-success"></i>
+                <i class="fa-solid" [ngClass]="getFileIcon(comment.fileType)"></i>
               </div>
               <div class="file-info">
                 <p class="file-name">{{ comment.fileName }}</p>
@@ -133,7 +133,7 @@
       <div class="attachment-preview" *ngIf="selectedFiles?.length || selectedImages?.length">
         <div class="attachment-item" *ngFor="let file of selectedFiles; let i = index">
           <div class="attachment-icon">
-            <i class="fa-solid fa-file"></i>
+            <i class="fa-solid" [ngClass]="getFileIcon(getFileType(file.name))"></i>
           </div>
           <div class="attachment-info">
             <p class="attachment-name">{{ file.name }}</p>
@@ -175,7 +175,7 @@
       multiple
       style="display: none"
       (change)="onFileSelected($event)"
-      accept=".xlsx,.xls,.docx,.doc,.pdf,.txt,.zip,.rar,.csv"
+      accept=".doc,.docx,.xls,.xlsx,.pdf,.md,.mp3,.wav,.m4a,.aac,.mp4,.mov,.avi,.mkv,.webm"
     />
     <input
       #imageInput
@@ -183,7 +183,7 @@
       multiple
       style="display: none"
       (change)="onImageSelected($event)"
-      accept="image/*"
+      accept=".jpg,.jpeg,.png,.gif,.webp"
     />
   </div>
 </div>
