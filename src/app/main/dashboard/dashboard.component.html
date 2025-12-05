@@ -46,46 +46,6 @@
 
   <div class="right">
     <ul class="nav flex-nowrap align-items-center">
-      <li style="padding-left: 5px; height: 35px">
-        <custom-input-search
-          [className]="'input-medium'"
-          (searchEvent)="onSearch({term: $event, name: 'search'})"
-          [placeholder]="'Tìm kiếm...'"
-          [isCollapsible]="false"
-        ></custom-input-search>
-      </li>
-
-      <li style="padding-left: 5px; height: 35px">
-        <ng-select
-          class="ng-select-custom"
-          placeholder="Chọn tag"
-          (click)="clickLoadData('tags')"
-          (change)="handleQueryParam($event, 'tags')"
-          [loading]="tags.loading"
-          [(ngModel)]="filter.tag"
-        >
-          <ng-option *ngFor="let tag of tags.rows" [value]="tag.id">
-            <span class="text-capitalize" [ngStyle]="{color: tag.bgColor}">
-              {{ tag.name }}
-            </span>
-          </ng-option>
-        </ng-select>
-      </li>
-
-      <li style="padding-left: 5px; height: 35px">
-        <custom-date-picker
-          [className]="'input-medium'"
-          [typePicker]="'range'"
-          (changeDateEmmit)="handleQueryParam($event, 'createdAt')"
-          [placeholder]="'Từ ngày -  Đến ngày'"
-          [showClearButton]="true"
-          [rangeChoose]="ranges"
-          [defaultRangeValue]="
-            currentActiveViewMode?.options?.createdAt || null
-          "
-        ></custom-date-picker>
-      </li>
-
       <button
         class="btn btn-light text-secondary ms-2 stop-receive"
         style="height: 36px"
@@ -117,15 +77,65 @@
   <div class="card">
     <div class="card-body">
       <div class="content-site">
-        <div
-          class="d-flex justify-content-between align-items-start mb-3 flex-wrap"
-        >
+        <div class="d-flex align-items-center mb-2">
           <app-view-mode-tab
             [isActiveChangeTab]="!item.loading"
             [key]="EScreens.DASHBOARD"
             [quantity]="item.total"
             [checkbox]="checkbox"
           ></app-view-mode-tab>
+        </div>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="d-flex align-items-center">
+            <ul
+              class="d-flex align-items-center flex-wrap gap-2"
+              style="list-style: none"
+            >
+              <li style="height: 35px; width: 200px">
+                <custom-input-search
+                  [className]="'input-medium'"
+                  (searchEvent)="onSearch({term: $event, name: 'search'})"
+                  [placeholder]="'Tìm kiếm...'"
+                  [isCollapsible]="false"
+                ></custom-input-search>
+              </li>
+
+              <li style="height: 35px; width: 150px">
+                <ng-select
+                  class="ng-select-custom"
+                  placeholder="Chọn tag"
+                  (click)="clickLoadData('tags')"
+                  (change)="handleQueryParam($event, 'tags')"
+                  [loading]="tags.loading"
+                  [(ngModel)]="filter.tag"
+                >
+                  <ng-option *ngFor="let tag of tags.rows" [value]="tag.id">
+                    <span
+                      class="text-capitalize"
+                      [ngStyle]="{color: tag.bgColor}"
+                    >
+                      {{ tag.name }}
+                    </span>
+                  </ng-option>
+                </ng-select>
+              </li>
+
+              <li style="height: 35px">
+                <custom-date-picker
+                  [className]="'input-medium'"
+                  [typePicker]="'range'"
+                  (changeDateEmmit)="handleQueryParam($event, 'createdAt')"
+                  [placeholder]="'Từ ngày -  Đến ngày'"
+                  [showClearButton]="true"
+                  [rangeChoose]="ranges"
+                  [defaultRangeValue]="
+                    currentActiveViewMode?.options?.createdAt || null
+                  "
+                ></custom-date-picker>
+              </li>
+            </ul>
+          </div>
+
           <app-filter-advance
             (clickButtonEvent)="handleAction($event)"
             (filterAdvanceEvent)="handleFilterAdvance($event)"
