@@ -96,7 +96,7 @@
                   (click)="handleSettingsViewMode(tabz)"
                   class="dropdown-item d-flex align-items-center gap-2"
                 >
-                  <img src="./assets/images/icon/setting.svg" alt="" />
+                  <img src="./assets/images/icon/setting-blue.svg" alt="" />
                   Cài đặt chế độ xem
                 </div>
               </li>
@@ -105,8 +105,31 @@
                   (click)="handleEditTab(tabz, $event, index)"
                   class="dropdown-item d-flex align-items-center gap-2"
                 >
-                  <img src="./assets/images/icon/edit.svg" alt="" />
+                  <img src="./assets/images/icon/edit-blue.svg" alt="" />
                   Đổi tên chế độ xem
+                </div>
+              </li>
+              <li role="menuitem" *ngIf="tabz.isEditView" class="color-picker-container">
+                <div class="dropdown-item d-flex align-items-center gap-2">
+                  <img src="./assets/images/icon/fill-color-blue.svg" alt="" />
+                  <span>Đổi màu chế độ xem</span>
+                  <i class="fa-solid fa-chevron-right ms-auto"></i>
+                </div>
+                <div class="color-picker-menu right">
+                  <div class="color-grid">
+                    <div
+                      *ngFor="let color of colorList"
+                      class="color-option"
+                      [style.background-color]="color"
+                      (click)="handleQuickColorChange(tabz, color, $event)"
+                    ></div>
+                    <div 
+                      class="color-option" 
+                      style="border-radius: 50%" 
+                      (click)="handleOpenColorPicker(tabz, $event)">
+                      <img src="./assets/images/icon/color-wheel.png" alt="" />
+                    </div>
+                  </div>
                 </div>
               </li>
               <li role="menuitem">
@@ -114,7 +137,7 @@
                   (click)="addNewAndCloneTab(tabz)"
                   class="dropdown-item d-flex align-items-center gap-2"
                 >
-                  <img src="./assets/images/icon/copy.svg" alt="" />
+                  <img src="./assets/images/icon/copy-blue.svg" alt="" />
                   Sao chép chế độ xem
                 </div>
               </li>
@@ -175,8 +198,8 @@
     <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
     <i *ngIf="!loading" class="fa-solid fa-plus"></i>
   </div> -->
-  <div class="list-button-header d-flex align-items-center">
-    <div class="d-flex me-2" style="width: 167px">
+  <div class="list-button-header d-flex align-items-center btn-all-and-create-view">
+    <div class="d-flex">
       <button
         type="button"
         class="button-all-view fw-500"
@@ -184,9 +207,11 @@
         [popover]="!loading ? popTemplate : ''"
         [outsideClick]="true"
         [placement]="'bottom right'"
+        [adaptivePosition]="false"
         containerClass="custom-popover-tab"
       >
-        Tất cả chế độ xem
+        <span class="me-2">Tất cả</span>
+        <i class="fa-solid fa-ellipsis-vertical"></i>
       </button>
       <div class="separate"></div>
       <button
@@ -241,7 +266,7 @@
                           (click)="handleSettingsViewMode(tabz)"
                           class="dropdown-item d-flex align-items-center gap-2"
                         >
-                          <img src="./assets/images/icon/setting.svg" alt="" />
+                          <img src="./assets/images/icon/setting-blue.svg" alt="" />
                           Cài đặt chế độ xem
                         </div>
                       </li>
@@ -250,8 +275,31 @@
                           (click)="handleEditTab(tabz, $event, index)"
                           class="dropdown-item d-flex align-items-center gap-2"
                         >
-                          <img src="./assets/images/icon/edit.svg" alt="" />
+                          <img src="./assets/images/icon/edit-blue.svg" alt="" />
                           Đổi tên chế độ xem
+                        </div>
+                      </li>
+                      <li role="menuitem" *ngIf="tabz.isEditView" class="color-picker-container">
+                        <div class="dropdown-item d-flex align-items-center gap-2">
+                          <img src="./assets/images/icon/fill-color-blue.svg" alt="" />
+                          <span>Đổi màu chế độ xem</span> 
+                          <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                        <div class="color-picker-menu left">
+                          <div class="color-grid">
+                            <div
+                              *ngFor="let color of colorList"
+                              class="color-option"
+                              [style.background-color]="color"
+                              (click)="handleQuickColorChange(tabz, color, $event)"
+                            ></div>
+                            <div 
+                              class="color-option" 
+                              style="border-radius: 50%" 
+                              (click)="handleOpenColorPicker(tabz, $event)">
+                              <img src="./assets/images/icon/color-wheel.png" alt="" />
+                            </div>
+                          </div>
                         </div>
                       </li>
                       <li role="menuitem">
@@ -259,7 +307,7 @@
                           (click)="addNewAndCloneTab(tabz)"
                           class="dropdown-item d-flex align-items-center gap-2"
                         >
-                          <img src="./assets/images/icon/copy.svg" alt="" />
+                          <img src="./assets/images/icon/copy-blue.svg" alt="" />
                           Sao chép chế độ xem
                         </div>
                       </li>
@@ -462,13 +510,46 @@
             <div>
               <button
                 class="btn btn-link text-danger"
-                   (click)="handleRemoveUser(user)"
+                (click)="handleRemoveUser(user)"
               >
                 <i class="fas fa-trash"></i>
               </button>
             </div>
           </div>
         </div>
+      </div>
+    </ng-container>
+  </app-custom-modal>
+</ng-template>
+
+<ng-template #colorPickerModal>
+  <app-custom-modal
+    (submitModal)="saveTabViewColor()"
+    (hideModal)="modalRef?.hide()"
+    *ngIf="selectedTabForColor"
+  >
+    <ng-container modalTitle>Đổi màu chế độ xem</ng-container>
+    <ng-container modalBody>
+      <div class="mb-3">
+        <label class="form-label fw-500">Chọn màu</label>
+        <div class="custom-color-picker">
+          <input
+            type="color"
+            class="form-control form-control-color w-100"
+            [value]="currentColorForTab"
+            (input)="onColorInputChange($event)"
+          />
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-500">Mã màu Hex</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentColorForTab"
+          placeholder="#fa0000"
+          maxlength="7"
+        />
       </div>
     </ng-container>
   </app-custom-modal>

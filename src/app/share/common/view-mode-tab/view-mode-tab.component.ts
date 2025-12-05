@@ -69,6 +69,7 @@ export class ViewModeTabComponent
 {
   @ViewChild('staticTabs') staticTabs!: TabsetComponent;
   @ViewChild('viewSettingsModal') viewSettingsModal!: TemplateRef<void>;
+  @ViewChild('colorPickerModal') colorPickerModal!: TemplateRef<void>;
 
   @Input() MAX_TAB = 15;
   @Input() key?: EScreens;
@@ -87,6 +88,8 @@ export class ViewModeTabComponent
   public branches: any[] = [];
 
   public selectedTab?: IViewModeDto;
+  public selectedTabForColor?: IViewModeDto;
+  public currentColorForTab: string = '#fa0000';
 
   public modeTypes = [
     {label: 'Cá nhân', value: 'personal'},
@@ -94,6 +97,23 @@ export class ViewModeTabComponent
     {label: 'Vai trò', value: 'role', role: 'OWNER'},
     {label: 'Tất cả', value: 'all', role: 'OWNER'},
   ];
+
+  public colorList: string[] = [
+    '#2C2C2B',
+    '#7D7A75',
+    '#9F765A',
+    '#D27B2D',
+    '#CB9434',
+    '#50946E',
+    '#387DC9',
+    '#9A6BB4',
+    '#C14C8A',
+    '#EB6553',
+    '#FFB800',
+    '#3AC34C',
+    '#4277FF',
+  ];
+  
   constructor(
     private readonly toastr: ToastrService,
     private readonly modalConfirmService: ModalConfirmService,
@@ -115,6 +135,7 @@ export class ViewModeTabComponent
           this.tabs = res;
           setTimeout(() => {
             this.checkHideButtonNext();
+            this.applyTabViewColor();
           }, 100);
         });
     }
@@ -139,6 +160,7 @@ export class ViewModeTabComponent
 
   ngAfterViewInit() {
     this.checkHideButtonNext();
+    this.applyTabViewColor();
   }
 
   modifyTabs(tabs: IViewModeDto[], isInit: boolean = false) {
@@ -799,5 +821,94 @@ export class ViewModeTabComponent
           this.commonService.handleErr(err);
         },
       });
+  }
+
+  handleQuickColorChange(tab: IViewModeDto, color: string, event: any): void {
+    event.stopPropagation();
+    if (!tab.isEditView) {
+      this.toastr.warning('Bạn không có quyền thay đổi màu tab này');
+      return;
+    }
+
+    this.selectedTabForColor = {...tab};
+    this.currentColorForTab = color;
+    
+    this.saveTabViewColor();
+  }
+
+  handleOpenColorPicker(tab: IViewModeDto, event: any): void {
+    event.stopPropagation();
+    if (!tab.isEditView) {
+      this.toastr.warning('Bạn không có quyền thay đổi màu tab này');
+      return;
+    }
+
+    this.selectedTabForColor = {...tab};
+    this.currentColorForTab = tab.tabViewModeBorderColor || '#fa0000';
+
+    this.modalRef = this.modalService.show(this.colorPickerModal, {
+      class: 'modal-dialog-centered modal-sm',
+      backdrop: 'static',
+      ignoreBackdropClick: true,
+    });
+
+    this.modalRef?.onHidden?.subscribe(() => {
+      this.selectedTabForColor = undefined;
+      this.currentColorForTab = '#fa0000';
+    });
+  }
+
+  onColorInputChange(event: any): void {
+    this.currentColorForTab = event.target.value;
+  }
+
+  saveTabViewColor(): void {
+    if (!this.selectedTabForColor) return;
+
+    this.autoTaskService.settingView
+      .update({
+        ...this.selectedTabForColor,
+        tabViewModeBorderColor: this.currentColorForTab,
+      } as IViewDto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.modalRef?.hide();
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            const tabIndex = this.tabs.findIndex(
+              (tab) => tab.id === this.selectedTabForColor!.id,
+            );
+            if (tabIndex !== -1) {
+              this.tabs[tabIndex].tabViewModeBorderColor =
+                this.currentColorForTab;
+            }
+
+            this.toastr.success('Cập nhật màu tab thành công');
+            this.autoTaskService.setChangedDashboardViewModes([...this.tabs]);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  applyTabViewColor() {
+    this.tabs.forEach((tab) => {
+      if (tab?.tabViewModeBorderColor) {
+        const navLinkTabElement = document.getElementById(
+          `view-mode-id-${tab.id}-link`,
+        );
+        if (navLinkTabElement) {
+          navLinkTabElement.style.borderTop = `3px solid ${tab.tabViewModeBorderColor}`;
+        }
+      }
+    });
   }
 }

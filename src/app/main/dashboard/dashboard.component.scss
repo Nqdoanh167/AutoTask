@@ -11,8 +11,8 @@
 }
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '227px');
-  @include mixins.calculateSize('height', '100vh', '227px');
+  @include mixins.calculateSize('max-height', '100vh', '270px');
+  @include mixins.calculateSize('height', '100vh', '270px');
 }
 
 .avatar {
@@ -175,4 +175,10 @@
   font-weight: 500;
   font-size: 12px;
   margin-bottom: 2px;
+}
+
+.content-site {
+  app-view-mode-tab {
+    width: 100%;
+  }
 }

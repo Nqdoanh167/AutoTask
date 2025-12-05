@@ -23,7 +23,7 @@ export class SidebarComponent implements OnInit {
     {
       link: `/${EModule.DASHBOARD}`,
       alias: EModule.DASHBOARD,
-      name: 'Dashboard',
+      name: 'Tác vụ',
       icon: './assets/images/module/table.svg',
       iconActive: './assets/images/module/table-active.svg',
       isActive: true,
