@@ -9,7 +9,8 @@ import { environment } from 'src/environments/environment';
 })
 export class SocketService implements OnDestroy {
   private socket!: Socket;
-  private destroy = new Subject<void>();
+  private destroy$ = new Subject<void>();
+  private socketReady$ = new Subject<boolean>();
   private bizId!: string;
   private bizAlias!: string;
   private clientId!: string;
@@ -20,7 +21,7 @@ export class SocketService implements OnDestroy {
   private isManualDisconnect = false;
 
   constructor(private readonly authService: AuthService) {
-    this.authService.currentBiz.pipe(takeUntil(this.destroy)).subscribe({
+    this.authService.currentBiz.pipe(takeUntil(this.destroy$)).subscribe({
       next: (biz) => {
         this.bizAlias = biz?.alias;
       },
@@ -50,6 +51,8 @@ export class SocketService implements OnDestroy {
     });
 
     this.setupSocketListeners();
+    // Emit that socket is ready
+    this.socketReady$.next(true);
   }
 
   private setupSocketListeners(): void {
@@ -125,6 +128,7 @@ export class SocketService implements OnDestroy {
     this.retryCount = 0;
     if (this.socket) {
       this.socket.disconnect();
+      this.socketReady$.next(false);
     }
   }
 
@@ -157,16 +161,56 @@ export class SocketService implements OnDestroy {
     }
   }
 
+  /**
+   * Returns an observable that emits when socket is ready to use
+   */
+  onSocketReady(): Observable<boolean> {
+    return this.socketReady$.asObservable();
+  }
+
+  /**
+   * Check if socket is currently ready
+   */
+  isSocketReady(): boolean {
+    return !!this.socket;
+  }
+
+  /**
+   * Wait for socket to be ready, returns a promise
+   */
+  waitForSocket(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (this.isSocketReady()) {
+        resolve(true);
+        return;
+      }
+
+      const subscription = this.onSocketReady().subscribe((ready) => {
+        if (ready) {
+          subscription.unsubscribe();
+          resolve(true);
+        }
+      });
+    });
+  }
+
   ngOnDestroy(): void {
     this.isManualDisconnect = true;
     this.stopHeartbeat();
-    this.destroy.next();
-    this.destroy.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.socketReady$.next(false);
+    this.socketReady$.complete();
     this.disconnect();
   }
 
   listen(eventName: string): Observable<any> {
     return new Observable((observer) => {
+      if (!this.socket) {
+        observer.error(new Error(`Socket not initialized. Use waitForSocket() or onSocketReady() to ensure socket is ready before calling listen(). Event: ${eventName}`));
+        return;
+      }
+
       this.socket.on(eventName, (data) => {
         observer.next(data);
       });
@@ -178,6 +222,10 @@ export class SocketService implements OnDestroy {
   }
 
   emit(eventName: string, data: any): void {
+    if (!this.socket) {
+      console.warn(`Socket not initialized, cannot emit event: ${eventName}. Use waitForSocket() or onSocketReady() to ensure socket is ready before calling emit().`);
+      return;
+    }
     this.socket.emit(eventName, {
       data,
       bizId: this.bizId,

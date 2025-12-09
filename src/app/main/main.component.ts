@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy, ChangeDetectorRef} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 import {filter, map, takeUntil} from 'rxjs';
@@ -43,6 +43,7 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
     private title: Title,
     private readonly mainService: MainService,
     private readonly autoTaskService: AutoTaskService,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     super();
     this.title.setTitle(`App.vn | ${this.currentBiz?.name} | Auto Task`);
@@ -94,6 +95,8 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
             this.leadCheckbox.listBranches = component.checkbox.listBranches || [];
             this.leadCheckbox.listRoles = component.checkbox.listRoles || [];
             this.leadCheckbox.listUsers = component.checkbox.listUsers || [];
+            // Trigger change detection to prevent ExpressionChangedAfterItHasBeenCheckedError
+            this.cdr.detectChanges();
           }
         }
       });
@@ -270,6 +273,8 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
       this.leadCheckbox.userIds = component.checkbox.userIds || [];
       this.leadCheckbox.branchDisplayInputText = component.checkbox.branchDisplayInputText || '';
       this.leadCheckbox.listUsers = component.checkbox.listUsers || this.leadCheckbox.listUsers;
+      // Trigger change detection to prevent ExpressionChangedAfterItHasBeenCheckedError
+      this.cdr.detectChanges();
     }
   }
 

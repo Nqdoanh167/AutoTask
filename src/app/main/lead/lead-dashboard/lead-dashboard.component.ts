@@ -10,7 +10,7 @@ import {LeadDashboardData} from './lead-dashboard-data';
 import {ILead} from '@app/types/lead';
 import {ILeadStatus} from '@app/types/lead-status';
 import {ILeadTag} from '@app/types/lead-tag';
-import {IColumns, User, BizRole, ERole} from '@app/types/viewmodels';
+import {IColumns, User, BizRole, ERole, IDateRange} from '@app/types/viewmodels';
 import {ISetting} from '@app/types/setting';
 import {
   LEAD_COLUMNS_DEFAULT,
@@ -31,6 +31,7 @@ import {ETypeFilter, EBotherAdvanceBasicFilter} from '@app/types/common';
 import {AuthService} from '@app/services/api/auth.service';
 import {environment} from 'src/environments/environment';
 import {MainService} from '@app/services/api/main.service';
+import moment from 'moment';
 
 @Component({
   selector: 'app-lead-dashboard',
@@ -130,6 +131,7 @@ export class LeadDashboardComponent
     // which will trigger onFolderSelected() and then getDataSource() with proper filter
 
     this.socketService.connect();
+    this.setupSocketListeners();
 
     // Load users for advanced filter
     this.loadUsersForFilter();
@@ -157,19 +159,28 @@ export class LeadDashboardComponent
         this.openLeadDetail(q['id']);
       }
     });
+  }
 
-    // Listen to socket events
+  override ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private async setupSocketListeners(): Promise<void> {
+    try {
+      // Chờ socket sẵn sàng trước khi listen
+      await this.socketService.waitForSocket();
+
+      // Listen to socket events khi socket đã sẵn sàng
     this.socketService
       .listen('lead/FOLDER_WITH_FUNNEL_SYNCHRONIZED')
       .pipe(takeUntil(this.destroy$))
       .subscribe((data: any) => {
         this.handleFolderWithFunnelSynchronized(data);
       });
+    } catch (error) {
+      console.error('Failed to setup socket listeners:', error);
   }
-
-  override ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   override handleAction(name: string) {

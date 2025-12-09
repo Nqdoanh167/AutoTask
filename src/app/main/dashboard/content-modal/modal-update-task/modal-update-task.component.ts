@@ -150,21 +150,6 @@ export class ModalUpdateTaskComponent
         this.activeTab = fragment as ETabTaskDetail;
       }
     });
-
-    this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
-      if (data.task?.id === this.sourceData?.id) {
-        Object.assign(this.sourceData || {}, data.task || {});
-        this.patchForm(this.sourceData);
-      }
-    });
-
-    this.socketService
-      .listen('app/ERROR')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((data) => {
-        console.warn('app/ERROR', data);
-        this.toastr.warning(data?.message);
-      });
   }
 
   override async ngOnInit() {
@@ -173,7 +158,7 @@ export class ModalUpdateTaskComponent
     // Tại các click / action handler chỉ cần gọi .next() để emit value cho subject -> trigger pipe và handle business logic
     this.resetTaskSubject$
       .pipe(
-        debounceTime(300), 
+        debounceTime(300),
         takeUntil(this.destroy$)
       )
       .subscribe({
@@ -183,6 +168,7 @@ export class ModalUpdateTaskComponent
         error: (err) => console.error('err', err),
       })
     this.loading.modal = true;
+    this.setupSocketListeners();
     // const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
     // if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {
     //   this.autoTaskSetting = autoTaskSettingRes.data;
@@ -204,6 +190,32 @@ export class ModalUpdateTaskComponent
       this.getDetailTask();
     }
     this.getBlock();
+  }
+
+  private async setupSocketListeners(): Promise<void> {
+    try {
+      // Chờ socket sẵn sàng trước khi listen
+      await this.socketService.waitForSocket();
+
+      // Listen to task synchronized events
+      this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
+        if (data.task?.id === this.sourceData?.id) {
+          Object.assign(this.sourceData || {}, data.task || {});
+          this.patchForm(this.sourceData);
+        }
+      });
+
+      // Listen to app error events
+      this.socketService
+        .listen('app/ERROR')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((data) => {
+          console.warn('app/ERROR', data);
+          this.toastr.warning(data?.message);
+        });
+    } catch (error) {
+      console.error('Failed to setup socket listeners:', error);
+    }
   }
 
   public generateResetTaskKey(): string {

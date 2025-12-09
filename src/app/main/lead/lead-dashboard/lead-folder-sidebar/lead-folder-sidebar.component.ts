@@ -654,7 +654,10 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
   /**
    * Setup socket listeners for real-time updates
    */
-  private setupSocketListeners(): void {
+  private async setupSocketListeners(): Promise<void> {
+    try {
+      // Chờ socket sẵn sàng trước khi listen
+      await this.socketService.waitForSocket();
     // Listen for funnel stats updates (when leads are added/removed/moved)
     this.socketService.listen('lead/FUNNEL_STAT_UPDATED')
       .pipe(takeUntil(this.destroy$))
@@ -683,6 +686,9 @@ export class LeadFolderSidebarComponent implements OnInit, OnDestroy {
         // Reload entire folder structure when major changes happen from other users/tabs
         this.loadFoldersWithFunnels(true);
       });
+    } catch (error) {
+      console.error('Failed to setup socket listeners:', error);
+    }
   }
 
   /**

@@ -287,6 +287,7 @@ export class DashboardComponent
   }
 
   override ngOnInit() {
+    this.setupSocketListeners();
     this.setupCheckbox();
 
     this.clickLoadData('tags');
@@ -1690,6 +1691,74 @@ export class DashboardComponent
           }
         },
       });
+  }
+
+  private async setupSocketListeners(): Promise<void> {
+    try {
+      // Chờ socket sẵn sàng trước khi listen
+      await this.socketService.waitForSocket();
+
+      //socket
+      this.socketService.listen('task/SYNCHRONIZED').subscribe((data) => {
+        const taskData = cloneDeep(data.task) as ITask;
+
+        if (this.checkTaskFilter(taskData)) {
+          // Những filter sẽ không thêm hoặc cập nhật task
+          if (this.item.paramsQuery.q) {
+            return;
+          }
+          const sort = this.item.paramsQuery.sort || '-createdAt';
+          if (
+            !['createdAt', '-createdAt', '-updatedAt', 'updatedAt'].includes(sort)
+          ) {
+            return;
+          }
+
+          switch (data.actionType) {
+            case 'CREATE':
+              if (sort === 'createdAt' || sort === 'updatedAt') {
+                break;
+              }
+              this.item.rows.unshift(taskData);
+              this.item.total! += 1;
+              break;
+            case 'UPDATE':
+              const taskIndex = this.item.rows.findIndex(
+                (row) => row.id === taskData.id,
+              );
+              if (taskIndex !== -1) {
+                this.item.rows[taskIndex] = taskData;
+              }
+              break;
+          }
+        }
+      });
+
+      this.socketService.listen('app/ACTIVITY_CHECK').subscribe((data) => {
+        console.log('app/ACTIVITY_CHECK', data);
+      });
+
+      this.socketService.listen('task/DELETED').subscribe((data) => {
+        const taskIndex = this.item.rows.findIndex(
+          (row) => row.id === data.taskId,
+        );
+        if (taskIndex !== -1) {
+          this.item.rows = this.item.rows.filter((row) => row.id !== data.taskId);
+          this.item.total! -= 1;
+        }
+      });
+
+      this.socketService.listen('task/BULK_DELETED').subscribe((data) => {
+        setTimeout(() => {
+          this.toastrService.success(
+            `Xóa thành công ${data.deletedTasksLength} tác vụ.`,
+          );
+          this.getDataSource(true);
+        }, 1000);
+      });
+    } catch (error) {
+      console.error('Failed to setup socket listeners:', error);
+    }
   }
 
   override ngOnDestroy(): void {
