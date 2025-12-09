@@ -145,7 +145,6 @@ export class DetailTaskData extends DashboardData {
 
   constructor() {
     super();
-    console.log('infoUnit', this.infoUnit$.getValue());
   }
 
   get f(): {[key: string]: AbstractControl} {

@@ -141,8 +141,6 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    console.log(`[customer-info.component.ts] label:formGroup`, this.formGroup.value);
-    console.log(`[customer-info.component.ts] label:leadId`, this.leadId);
     if (!this.hasUpdateTaskPer) {
       this.formGroup.disable();
     }
@@ -580,21 +578,17 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
   loadLeadStatusesAndTags() {
     this.loadingLeadData = true;
 
-    // Fetch lead statuses and tags in parallel
     const leadStatuses$ = this.autoTaskService.leadStatus.get();
     const leadTags$ = this.autoTaskService.leadTag.get();
 
-    // Wait for both requests to complete
     Promise.all([
       leadStatuses$.toPromise(),
       leadTags$.toPromise()
     ]).then(([statusesRes, tagsRes]) => {
-      // Set lead statuses
       if (statusesRes?.status === 200) {
         this.leadStatuses = statusesRes.data || [];
       }
 
-      // Set lead tags
       if (tagsRes?.status === 200) {
         this.leadTags = tagsRes.data || [];
       }
@@ -609,15 +603,8 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
   onLeadStatusChange(status: ILeadStatus) {
     if (!status) return;
 
-    // Store current value for revert on cancel
-    const currentStatusId = this.formGroup.get('leadStatusId')?.value;
-
-    // Get current and new status names for display
-    const currentStatus = this.leadStatuses.find(s => s.id === currentStatusId);
-    const newStatus = status;
-
-    const message = `Bạn đang thay đổi trạng thái lead từ "${currentStatus?.name || 'Không có'}" thành "${newStatus.name}". Việc cập nhật sẽ ảnh hưởng tới tất cả các tác vụ khác có lead này.`;
-
+    const currentStatus = this.leadStatuses.find(s => s.id === this.originalLeadStatusId);
+    const message = `Bạn đang thay đổi trạng thái lead từ "${currentStatus?.name || 'Không có'}" thành "${status.name}". Việc cập nhật sẽ ảnh hưởng tới tất cả các tác vụ khác có lead này.`;
     this.showConfirmModal(
       'Cập nhật trạng thái Lead',
       message,
@@ -626,27 +613,19 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
         this.updateLeadStatus(status.id);
       },
       () => {
-        // Revert to original value when cancelled
         this.formGroup.patchValue({ leadStatusId: this.originalLeadStatusId });
       }
     );
   }
 
   onLeadTagsChange(tags: ILeadTag[]) {
-    console.log(`[customer-info.component.ts] tags:`, tags);
     if (!tags) return;
 
-    // Store current value for revert on cancel
-    const currentTags = this.formGroup.get('leadTags')?.value || [];
-
-    // Get tag names for display
-    const currentTagNames = currentTags.map((tagId: string) => {
+    const currentTagNames = this.originalLeadTags.map((tagId: string) => {
       const tag = this.leadTags.find(t => t.id === tagId);
       return tag?.name || tagId;
     }).join(', ') || 'Không có';
-
-    const newTagNames = tags.map(tag => tag.name).join(', ');
-
+    const newTagNames = tags.map(tag => tag.name).join(', ') || 'Không có';
     const message = `Bạn đang thay đổi tag lead từ "${currentTagNames}" thành "${newTagNames}". Việc cập nhật sẽ ảnh hưởng tới tất cả các tác vụ khác có lead này.`;
 
     this.showConfirmModal(
@@ -656,7 +635,6 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
         this.updateLeadTags(tags.map((tag) => tag.id));
       },
       () => {
-        // Revert to original value when cancelled
         this.formGroup.patchValue({ leadTags: this.originalLeadTags });
       }
     );
@@ -695,6 +673,7 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
         next: (res) => {
           if (res.status === 200) {
             this.toarst.success('Cập nhật trạng thái lead thành công');
+            this.originalLeadStatusId = statusId;
           } else {
             this.toarst.error('Có lỗi xảy ra khi cập nhật trạng thái lead');
           }
@@ -720,6 +699,7 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
         next: (res) => {
           if (res.status === 200) {
             this.toarst.success('Cập nhật tag lead thành công');
+            this.originalLeadTags = tagIds;
           } else {
             this.toarst.error('Có lỗi xảy ra khi cập nhật tag lead');
           }

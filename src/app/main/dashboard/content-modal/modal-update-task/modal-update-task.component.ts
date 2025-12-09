@@ -18,7 +18,7 @@ import {
   ITaskDto,
   ModifiedUserUnit,
 } from '@app/types/flow';
-import {finalize, lastValueFrom, take, takeUntil} from 'rxjs';
+import {debounceTime, finalize, lastValueFrom, Subject, take, takeUntil, tap, throttleTime} from 'rxjs';
 import {FormArray, FormGroup, ValidationErrors} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
@@ -98,6 +98,7 @@ export class ModalUpdateTaskComponent
     } catch (error) {
       console.error('smaxCallSdkClearCall error', error);
     }
+    this.resetTaskSubject$.complete();
   }
 
   public selectTag: boolean = false;
@@ -115,6 +116,8 @@ export class ModalUpdateTaskComponent
   protected hasPermitSmsOttCall =
     this.authService.checkPermittedModule('sms-ott-call');
   protected readonly ERole = ERole;
+
+  private resetTaskSubject$ = new Subject<string>();
 
   constructor(
     private readonly modalRef: BsModalRef,
@@ -165,6 +168,20 @@ export class ModalUpdateTaskComponent
   }
 
   override async ngOnInit() {
+    // TODO: Document code convention
+    // NOTE: Nên setup subject observable trong ngOnInit và subscribe ngay trong đây để đảm bảo subject có đủ pipe lẫn subscribe thành công
+    // Tại các click / action handler chỉ cần gọi .next() để emit value cho subject -> trigger pipe và handle business logic
+    this.resetTaskSubject$
+      .pipe(
+        debounceTime(300), 
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (v) => {
+          this.getDetailTask(true)
+        },
+        error: (err) => console.error('err', err),
+      })
     this.loading.modal = true;
     // const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
     // if (autoTaskSettingRes && autoTaskSettingRes.status === 200) {
@@ -196,12 +213,8 @@ export class ModalUpdateTaskComponent
     return `reset-task:${bizId}:${userId}:${sourceId}`;
   }
 
-  @ThrottleEvent({
-    durationMs: 300,
-    keyGenerator: (taskKey) => taskKey,
-  })
   handleResetTask(taskKey: any) {
-    this.getDetailTask(true);
+    this.resetTaskSubject$.next(taskKey);
   }
 
   getDetailTask(isRefresh = false) {

@@ -448,7 +448,18 @@ export class LeadDashboardComponent
   onPickerDateEvent(event: {value: any; name: string}): void {
     const filterObj = JSON.parse(this.item.paramsQuery.filter || '{}');
 
-    // Handle date range picker
+    if (event.name === 'createdAt') {
+      const hValue = event.value as IDateRange;
+      if (hValue?.fromDate && hValue?.toDate) {
+        filterObj.createdAt = {
+          fromDate: moment(hValue.fromDate).startOf('day'),
+          toDate: moment(hValue.toDate).endOf('day'),
+        };
+      } else {
+        delete filterObj.createdAt;
+      }
+    } else {
+      // Handle other date filters if any
     if (
       event.value === undefined ||
       event.value === null ||
@@ -457,10 +468,10 @@ export class LeadDashboardComponent
       delete filterObj[event.name];
     } else {
       filterObj[event.name] = event.value;
+      }
     }
 
     this.item.paramsQuery.filter = JSON.stringify(filterObj);
-    // Không gọi API ngay, chỉ lưu giá trị để áp dụng khi click "Áp dụng"
   }
 
   onPopoverEvent(event: {value: string; name: string}): void {

@@ -159,21 +159,10 @@ export const LEAD_COLUMNS: IColumns[] = [
     tooltip: 'Tác vụ liên quan',
   },
   {
-    name: 'Đơn hàng',
-    value: 'orderIds',
-    tooltip: 'Đơn hàng liên quan',
-  },
-  {
     name: 'Ngày tạo',
     value: 'createdAt',
     fieldSort: 'createdAt',
     tooltip: 'Ngày tạo',
-  },
-  {
-    name: 'Ngày cập nhật',
-    value: 'updatedAt',
-    fieldSort: 'updatedAt',
-    tooltip: 'Ngày cập nhật',
   },
   {
     name: 'Người tạo',
@@ -184,7 +173,7 @@ export const LEAD_COLUMNS: IColumns[] = [
 
 // Default visible columns
 export const LEAD_COLUMNS_DEFAULT: IColumns[] = LEAD_COLUMNS.filter((col) =>
-  ['name', 'phone', 'email', 'status', 'taskIds', 'orderIds', 'createdAt'].includes(col.value)
+  ['name', 'phone', 'email', 'status', 'taskIds', 'createdAt', 'createdBy'].includes(col.value)
 );
 
 // Multiple actions for leads
