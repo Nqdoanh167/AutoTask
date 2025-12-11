@@ -955,6 +955,15 @@
                 style="width: 16px"
               />
             </button>
+
+            <button
+              [tooltip]="'Kiểm tra trùng số'"
+              class="btn button-outline"
+              (click)="showModalCheckDuplicatedPhone()"
+              *ngIf="permission.viewDuplicatedPhoneConfig"
+            >
+              <img src="./assets/images/icon/duplicate.svg" alt="" style="width: 16px" />
+            </button>
           </div>
 
           <!-- Pagination -->

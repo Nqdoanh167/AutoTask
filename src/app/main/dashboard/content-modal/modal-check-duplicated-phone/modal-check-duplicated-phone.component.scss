@@ -1,0 +1,58 @@
+.modal-check-duplicated-phone {
+  .modal-body-placeholder {
+    min-height: 200px;
+  }
+
+  .action-bar-container {
+    transition: all 0.3s ease;
+    
+    .table-responsive {
+      overflow-x: visible;
+    }
+    
+    .ng-select {
+      min-width: 0;
+      
+      &.is-invalid {
+        border-color: #dc3545;
+      }
+    }
+    
+    .btn {
+      white-space: nowrap;
+    }
+  }
+
+  .table {
+    .table-active {
+      background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+
+    .table-warning {
+      background-color: rgba(255, 193, 7, 0.2) !important;
+    }
+
+    .column-checkbox {
+      text-align: center;
+      vertical-align: middle;
+    }
+  }
+
+  // Responsive improvements
+  @media (max-width: 768px) {
+    .action-bar-container {
+      .flex-md-row {
+        flex-direction: column !important;
+      }
+
+      ng-select {
+        width: 100% !important;
+        min-width: 100% !important;
+      }
+      
+      .btn {
+        flex: 1;
+      }
+    }
+  }
+}

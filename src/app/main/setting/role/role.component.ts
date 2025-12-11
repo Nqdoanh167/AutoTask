@@ -87,6 +87,9 @@ export class RoleComponent implements OnDestroy, OnInit {
       workHourEnable: [false],
       viewDrawConfig: [false],
       viewDropConfig: [false],
+      checkDuplicatedPhoneConfig: this.fb.group({
+        tags: [[]],
+      }),
       drawAndDropConfig: this.fb.group({
         roleIds: [null],
         drawConfig: this.fb.group({
@@ -189,7 +192,10 @@ export class RoleComponent implements OnDestroy, OnInit {
     return null;
   }
 
-  createNewTagAndChoose(tag: any) {
+  createNewTagAndChoose(
+    tag: any,
+    controlPath: string = 'drawAndDropConfig.dropConfig.assignedTagIds',
+  ) {
     if (tag?.id || !tag?.name) return;
     const body: ITag = {
       name: tag?.name,
@@ -205,13 +211,12 @@ export class RoleComponent implements OnDestroy, OnInit {
             this.tag.rows.push(res.data);
             Object.assign(tag, res.data);
 
-            let formTag: string[] = this.dropConfig.value.assignedTagIds || [];
-            formTag.push(res.data.id as string);
-            //Lọc tag bị undifned
-            formTag = formTag.filter((tag) => tag !== undefined);
-            this.dropConfig.patchValue({
-              assignedTagIds: formTag,
-            });
+            const control = this.settingForm.get(controlPath);
+            let formTag: string[] = (control?.value || []) as string[];
+            formTag = Array.from(
+              new Set([...formTag.filter((item) => item !== undefined), res.data.id as string]),
+            );
+            control?.patchValue(formTag);
           } else {
             this.commonService.handleResErr(res);
           }
