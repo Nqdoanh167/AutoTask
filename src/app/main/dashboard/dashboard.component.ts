@@ -8,6 +8,7 @@ import {
   ETypeFilter,
 } from '@app/types/common';
 import {
+  AccountPublic,
   BizRole,
   ERole,
   IChangePage,
@@ -21,6 +22,7 @@ import {
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateTaskComponent} from '@main/dashboard/content-modal/modal-update-task/modal-update-task.component';
 import {
+  EChainNextActionType,
   ETaskChainType,
   ITask,
   ITaskChain,
@@ -61,6 +63,7 @@ import {ModalDeleteMultiComponent} from './content-modal/multiple-action/modal-d
 import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/modal-stop-receive.component';
 import {calculateTime} from '@app/utils/common';
 import {ModalCloseMultiTasksComponent} from './content-modal/modal-close-multi-tasks/modal-close-multi-tasks.component';
+import {ModalCheckDuplicatedPhoneComponent} from './content-modal/modal-check-duplicated-phone/modal-check-duplicated-phone.component';
 
 @Component({
   selector: 'app-task',
@@ -147,6 +150,14 @@ export class DashboardComponent
           );
           if (configFilterStaff) {
             configFilterStaff.options = [
+              {name: 'Hệ thống', id: 'system'},
+            ].concat(this.authService.getColleague());
+          }
+          const configFilterLastExecutedBy = this.configFilters.find(
+            (filter) => filter.name === 'lastExecutedBy',
+          );
+          if (configFilterLastExecutedBy) {
+            configFilterLastExecutedBy.options = [
               {name: 'Hệ thống', id: 'system'},
             ].concat(this.authService.getColleague());
           }
@@ -300,6 +311,10 @@ export class DashboardComponent
     this.permission.delete = this.hasPermission(
       permissions,
       EPerActTask.DELETE_TASK,
+    );
+    this.permission.viewDuplicatedPhoneConfig = this.hasPermission(
+      permissions,
+      EPerActTask.VIEW_DUPLICATED_PHONE_CONFIG,
     );
     if (!this.permission.add) {
       this.configButtons[2].hidden = true;
@@ -947,7 +962,6 @@ export class DashboardComponent
           code,
         },
         class: 'modal-xl',
-        // ignoreBackdropClick: true,
         keyboard: true,
         backdrop: false,
       });
@@ -956,37 +970,6 @@ export class DashboardComponent
         .subscribe(() => {
           this.getDataSource();
         });
-
-      // modalUpdate?.content?.updatedTask
-      //   .pipe(takeUntil(this.destroy$))
-      //   .subscribe((data) => {
-      //     if (data) {
-      //       const item = this.item.rows.find((row) => row.id === data.id);
-      //       if (item) {
-      //         Object.assign(item, data);
-      //       }
-      //     }
-      //   });
-
-      // modalUpdate?.content?.createdTask
-      //   .pipe(takeUntil(this.destroy$))
-      //   .subscribe((data) => {
-      //     if (data) {
-      //       this.item.rows = [data, ...this.item.rows];
-      //       this.item.total! += 1;
-      //       if (this.item.rows.length > this.item.paramsQuery.limit!)
-      //         this.item.rows.pop();
-      //     }
-      //   });
-
-      // modalUpdate?.content?.deleteTask
-      //   .pipe(takeUntil(this.destroy$))
-      //   .subscribe((id) => {
-      //     if (id) {
-      //       this.item.total -= 1;
-      //       this.item.rows = this.item.rows.filter((i) => i.id !== id);
-      //     }
-      //   });
 
       modalUpdate?.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.isOpenBackDrop = false;
@@ -1325,6 +1308,14 @@ export class DashboardComponent
     });
   }
 
+  showModalCheckDuplicatedPhone() {
+    this.modalService.show(ModalCheckDuplicatedPhoneComponent, {
+      class: 'modal-lg modal-dialog-centered',
+      backdrop: 'static',
+      keyboard: false,
+    });
+  }
+
   showModalDrawTask() {
     if (!this.autoTaskSetting?.viewDrawConfig) {
       this.toastrService.warning(
@@ -1367,6 +1358,9 @@ export class DashboardComponent
   11. resultIds
   12. unassignedRoleId
   13. isHideExecute
+  14. executedDateAt
+  15. lastExecutedBy
+  * Mục đích: Filter task theo socket realtime
   */
   checkTaskFilter(task: ITask): boolean {
     try {
@@ -1579,6 +1573,49 @@ export class DashboardComponent
           (t: ITaskChain) => t.status !== ETaskChainType.CLOSED,
         );
         task.taskChains = cloneDeep(taskChains);
+      }
+
+      // executedDateAt
+      // Điều kiện thỏa mãn: có ít nhất 1 tcr có executedDate thỏa mãn trong range filter
+      if (filterQuery.executedDateAt && filterQuery.executedDateAt.length === 2) {
+        const executedDateList = task.taskChains.flatMap(chain => {
+          return chain.taskChainResults
+          // Chỉ lấy tcr có executedDate và type là MANUAL
+            .filter(tcr => tcr.executedDate && tcr.type === EChainNextActionType.MANUAL)
+            .map(tcr => tcr.executedDate)
+        });
+
+        if (!executedDateList.length) return false;
+
+        const someMatch = executedDateList.some(d => {
+          const execDate = new Date(d);
+          const startDate = new Date(filterQuery.executedDateAt[0]);
+          const endDate = new Date(filterQuery.executedDateAt[1]);
+
+          return execDate >= startDate && execDate <= endDate;
+        });
+
+        if (!someMatch) return false;
+      }
+
+      // lastExecutedBy
+      // Điều kiện thỏa mãn: có ít nhất 1 tcr có executedBy?.id match với filter
+      if (filterQuery.lastExecutedBy) {
+        const lastExecutedByIdList = task.taskChains.flatMap(chain => {
+          return chain.taskChainResults
+            .filter(tcr => 
+              tcr.executedBy?.id && 
+              tcr.executedBy?.id === filterQuery.lastExecutedBy && 
+              tcr.type === EChainNextActionType.MANUAL
+            )
+            .map(tcr => tcr.executedBy?.id)
+            .filter(Boolean) as string[]
+        });
+
+        if (!lastExecutedByIdList.length) return false;
+
+        const someMatch = lastExecutedByIdList.some(id => id === filterQuery.lastExecutedBy);
+        if (!someMatch) return false;
       }
 
       return true;

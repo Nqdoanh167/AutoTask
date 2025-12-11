@@ -94,8 +94,53 @@
     </div>
 
     <div class="d-flex align-items-start mb-3 gap-3">
-      <div class="card" style="flex: 1">
-        <div class="card-body" style="height: max-content">
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 16px;">
+        <div class="card card-body" style="flex: 1;">
+          <div class="d-flex flex-column gap-2 mb-3">
+            <div class="title fw-bold fs-5">Cấu hình tính năng bổ trợ</div>
+            <div class="title fw-medium fs-6">Cấu hình kiểm tra trùng số</div>
+          </div>
+          
+          <div class="mb-3" formGroupName="checkDuplicatedPhoneConfig">
+            <label class="form-label">Tag áp dụng kiểm tra trùng số</label>
+            <ng-select
+              formControlName="tags"
+              placeholder="Chọn tag..."
+              [items]="tag.rows"
+              [multiple]="true"
+              [closeOnSelect]="false"
+              bindValue="id"
+              bindLabel="name"
+              [loading]="tag.loading"
+              [addTag]="true"
+              [addTagText]="'Thêm tag mới...'"
+              (add)="createNewTagAndChoose($event, 'checkDuplicatedPhoneConfig.tags')"
+              #ngSelectTagTask
+            >
+              <ng-template ng-option-tmp let-item="item">
+                <div
+                  class="tag-item"
+                  [ngClass]="{nonBack: !item.bgColor}"
+                  [ngStyle]="{background: item.bgColor}"
+                >
+                  {{ item.name }}
+                </div>
+              </ng-template>
+              <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                <span class="ng-value-icon" (click)="clear(item)">×</span>
+                <div
+                  class="tag-item"
+                  [ngClass]="{nonBack: !item.bgColor}"
+                  [ngStyle]="{background: item.bgColor}"
+                >
+                  {{ item.name }}
+                </div>
+              </ng-template>
+            </ng-select>
+          </div>
+        </div>
+
+        <div class="card card-body" style="flex: 1;">
           <div class="d-flex align-items-center justify-content-between">
             <div class="title fw-bold fs-5">Giờ làm việc</div>
             <div class="form-check form-switch mb-0">

@@ -446,6 +446,31 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.task, 'delete-requests']),
         { taskIds },
       ),
+
+    getListDuplicatedPhone: (params: { after?: string } = {}) => {
+      return this.httpClient.get<EntityResult<{ phone: string; count: number }[]>>(
+        this.createUrl([this.api.task, 'duplicated']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      )
+    },
+
+    getListDuplicatedPhoneTask: (params: { phone: string }) => {
+      return this.httpClient.get<EntityResult<ITask[]>>(
+        this.createUrl([this.api.task, 'duplicated', 'detail']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      )
+    },
+
+    mergeDuplicatedPhone: (body: { taskIds: string[] }) => {
+      return this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.task, 'duplicated', 'merge']),
+        body,
+      )
+    }
   };
 
   taskChain = {
