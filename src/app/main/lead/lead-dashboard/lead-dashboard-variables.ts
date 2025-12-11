@@ -5,7 +5,7 @@ import {
   IFilterTopTable,
   EBotherAdvanceBasicFilter,
 } from '@app/types/common';
-import { IColumns } from '@app/types/viewmodels';
+import {IColumns} from '@app/types/viewmodels';
 
 // Lead config filters
 export const LEAD_CONFIG_FILTERS: IFilterTopTable[] = [
@@ -173,7 +173,15 @@ export const LEAD_COLUMNS: IColumns[] = [
 
 // Default visible columns
 export const LEAD_COLUMNS_DEFAULT: IColumns[] = LEAD_COLUMNS.filter((col) =>
-  ['name', 'phone', 'email', 'status', 'taskIds', 'createdAt', 'createdBy'].includes(col.value)
+  [
+    'name',
+    'phone',
+    'email',
+    'status',
+    'taskIds',
+    'createdAt',
+    'createdBy',
+  ].includes(col.value),
 );
 
 // Multiple actions for leads
@@ -207,3 +215,11 @@ export const LEAD_MULTIPLE_ACTIONS = [
     value: ELeadBulkAction.REMOVE_TAGS,
   },
 ];
+
+export enum ETabDetail {
+  DISCUSS = 'discuss',
+  TASK = 'task',
+  ATTRIBUTE = 'attribute',
+  PRODUCT = 'product',
+  PACKAGE = 'package',
+}

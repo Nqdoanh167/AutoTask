@@ -1,22 +1,52 @@
-import { Component, OnInit, OnDestroy, HostListener, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { Subject, finalize, takeUntil } from 'rxjs';
-import { ILead, ILeadCreateDto, ILeadUpdateDto, EGenderType } from '@app/types/lead';
-import { StorageService } from '@app/services/api/storage.service';
-import { ToastrService } from 'ngx-toastr';
-import { IProvince, IDistrict, IWard } from '@app/types/location';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { Customer } from '@app/types/customer';
-import { UserAcl } from '@app/types/setting';
-import { User } from '@app/types/viewmodels';
-import { AuthService } from '@app/services/api/auth.service';
-import { EChainNextActionType, ETaskChainType, ITeam, ModifiedUserUnit } from '@app/types/flow';
-import { TreeNodeSelectEvent, TreeNodeUnSelectEvent } from 'primeng/tree';
-import { ApiLocationService } from '@app/services/api/location';
-import { ITask, ITaskChain, ITaskChainResult, IPlatform } from './lead-form-modal.interface';
-import { environment } from 'src/environments/environment';
-import { LeadConnectionsModalComponent } from '../lead-connections-modal/lead-connections-modal.component';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  HostListener,
+  ElementRef,
+  ViewChild,
+  ChangeDetectorRef,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormArray,
+  FormControl,
+} from '@angular/forms';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
+import {Subject, finalize, takeUntil} from 'rxjs';
+import {
+  ILead,
+  ILeadCreateDto,
+  ILeadUpdateDto,
+  EGenderType,
+} from '@app/types/lead';
+import {StorageService} from '@app/services/api/storage.service';
+import {ToastrService} from 'ngx-toastr';
+import {IProvince, IDistrict, IWard} from '@app/types/location';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {Customer} from '@app/types/customer';
+import {UserAcl} from '@app/types/setting';
+import {User} from '@app/types/viewmodels';
+import {AuthService} from '@app/services/api/auth.service';
+import {
+  EChainNextActionType,
+  ETaskChainType,
+  ITeam,
+  ModifiedUserUnit,
+} from '@app/types/flow';
+import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
+import {ApiLocationService} from '@app/services/api/location';
+import {
+  ITask,
+  ITaskChain,
+  ITaskChainResult,
+  IPlatform,
+} from './lead-form-modal.interface';
+import {environment} from 'src/environments/environment';
+import {LeadConnectionsModalComponent} from '../lead-connections-modal/lead-connections-modal.component';
+import {ETabDetail} from '../lead-dashboard-variables';
 
 @Component({
   selector: 'app-lead-form-modal',
@@ -44,7 +74,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   platforms: IPlatform[] = [];
 
   @ViewChild('statusSelect') statusSelect: any;
-  
+
   // Location properties
   provinces: IProvince[] = [];
   districts: IDistrict[] = [];
@@ -52,24 +82,26 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   loadingProvinces = false;
   loadingDistricts = false;
   loadingWards = false;
-  
+
   // Teams-related properties
   autoTaskSetting?: any;
   currentBiz?: any;
   listBizUsers: User[] = [];
-  
+
   // Branch-related properties
   public units = this.autoTaskService.getUserUnits(false);
 
   // Gender options for dropdown
   genderOptions = [
-    { value: EGenderType.MALE, label: 'Nam' },
-    { value: EGenderType.FEMALE, label: 'Nữ' },
-    { value: EGenderType.OTHER, label: 'Khác' },
+    {value: EGenderType.MALE, label: 'Nam'},
+    {value: EGenderType.FEMALE, label: 'Nữ'},
+    {value: EGenderType.OTHER, label: 'Khác'},
   ];
 
   getTaskDetailUrl(taskId: string) {
-    return `${environment.urlDomain}/${this.currentBiz?.alias || ''}/${environment.module}/dashboard?id=${taskId}`;
+    return `${environment.urlDomain}/${this.currentBiz?.alias || ''}/${
+      environment.module
+    }/dashboard?id=${taskId}`;
   }
 
   get provinceCodeControl(): FormControl {
@@ -159,6 +191,20 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   // Expose enum for template
   public EGenderType = EGenderType;
 
+  // Tab management
+  public menus = [
+    {
+      key: ETabDetail.DISCUSS,
+      name: 'Thảo luận',
+      icon: 'attribute',
+    },
+    {key: ETabDetail.TASK, name: 'Tác vụ', icon: 'order'},
+    {key: ETabDetail.ATTRIBUTE, name: 'Attribute', icon: 'attribute'},
+    {key: ETabDetail.PRODUCT, name: 'Sản phẩm', icon: 'user'},
+    {key: ETabDetail.PACKAGE, name: 'Gói dịch vụ', icon: 'connections'},
+  ];
+  public activeTab: string = 'task';
+
   private destroy$ = new Subject<void>();
   public saveEvent = new Subject<ILeadCreateDto | ILeadUpdateDto>();
 
@@ -209,7 +255,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       this.funnelFolders = this.transformFunnelsForNgSelect(this.cachedFunnels);
       this.funnels = this.flattenFunnels(this.cachedFunnels);
       this.loadingFunnels = false;
-      
+
       // Set default funnel for new leads after funnels are loaded
       this.setDefaultFunnelForNewLead();
     } else {
@@ -234,7 +280,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
             this.funnelFolders = this.transformFunnelsForNgSelect(res.data);
             // Flatten all funnels for backward compatibility
             this.funnels = this.flattenFunnels(res.data);
-            
+
             // Set default funnel for new leads after funnels are loaded
             this.setDefaultFunnelForNewLead();
           } else {
@@ -249,7 +295,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   private transformFunnelsForNgSelect(folders: any[]): any[] {
     const transformed: any[] = [];
-    folders.forEach(folder => {
+    folders.forEach((folder) => {
       // Only add funnels with group property - ng-select will auto-create group headers
       if (folder.funnels && folder.funnels.length > 0) {
         folder.funnels.forEach((funnel: any) => {
@@ -268,7 +314,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   private flattenFunnels(folders: any[]): any[] {
     const funnels: any[] = [];
-    folders.forEach(folder => {
+    folders.forEach((folder) => {
       if (folder.funnels && folder.funnels.length > 0) {
         folder.funnels.forEach((funnel: any) => {
           funnels.push({
@@ -284,14 +330,20 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   initForm(): void {
     // Support both tagIds (from backend) and tags (populated objects)
-    const initialTagIds = this.lead?.tagIds || this.lead?.tags?.map(t => t.id) || [];
-    
+    const initialTagIds =
+      this.lead?.tagIds || this.lead?.tags?.map((t) => t.id) || [];
+
     this.leadForm = this.fb.group({
       name: [this.lead?.name || '', [Validators.required]],
       phone: [this.lead?.phone || '', [Validators.required]],
       email: [this.lead?.email || '', [Validators.email]],
       gender: [this.lead?.gender || EGenderType.OTHER],
-      statusId: [this.lead?.statusId || this.statuses.find(s => s.isDefault)?.id || null, [Validators.required]], // Required field
+      statusId: [
+        this.lead?.statusId ||
+          this.statuses.find((s) => s.isDefault)?.id ||
+          null,
+        [Validators.required],
+      ], // Required field
       tagIds: [initialTagIds], // Support both tagIds and tags.map(t => t.id)
       picture: [this.lead?.picture || ''],
       sourceId: [this.lead?.['sourceId'] || null],
@@ -307,7 +359,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       teams: this.fb.array([]), // Teams form array
       branch: [null, [Validators.required]], // Branch field - required
     });
-
   }
 
   get formTeams(): FormArray {
@@ -328,13 +379,13 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   getStatusBgColor(statusId: string | null | undefined): string {
     if (!statusId) return '#ccc';
-    const status = this.statuses.find(s => s.id === statusId);
+    const status = this.statuses.find((s) => s.id === statusId);
     return status?.bgColor || '#ccc';
   }
 
   getStatusName(statusId: string | null | undefined): string {
     if (!statusId) return '';
-    const status = this.statuses.find(s => s.id === statusId);
+    const status = this.statuses.find((s) => s.id === statusId);
     return status?.name || '';
   }
 
@@ -348,14 +399,14 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.leadForm.invalid) {
-      Object.keys(this.leadForm.controls).forEach(key => {
+      Object.keys(this.leadForm.controls).forEach((key) => {
         this.leadForm.get(key)?.markAsTouched();
       });
       return;
     }
 
     this.isSubmitting = true;
-    const formData = { ...this.leadForm.value };
+    const formData = {...this.leadForm.value};
 
     // List of fields that should always be included (even if null/empty)
     const allowedFieldNames = ['sourceId'];
@@ -364,7 +415,8 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     const teams: ITeam[] = [];
     if (formData.teams && Array.isArray(formData.teams)) {
       formData.teams.forEach((team: any) => {
-        if (team.userId) { // Only include teams with assigned users
+        if (team.userId) {
+          // Only include teams with assigned users
           teams.push({
             roleId: team.roleId,
             roleIcon: team.roleIcon,
@@ -477,12 +529,12 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
     this.isUploadingAvatar = true;
     const accept = 'image/x-png,image/gif,image/jpeg,image/x-icon';
-    
+
     this.storageService.attach(accept, 2).subscribe({
       next: (res) => {
         if (res?.data?.length) {
           const avatarUrl = res.data[0];
-          this.leadForm.patchValue({ picture: avatarUrl });
+          this.leadForm.patchValue({picture: avatarUrl});
           // this.toastr.success('Upload ảnh đại diện thành công');
         }
         this.isUploadingAvatar = false;
@@ -510,10 +562,11 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   loadProvinces(): void {
     this.loadingProvinces = true;
-    this.locationService.getProvince({ location: 'VN' }, { cache: true })
+    this.locationService
+      .getProvince({location: 'VN'}, {cache: true})
       .pipe(
-        finalize(() => this.loadingProvinces = false),
-        takeUntil(this.destroy$)
+        finalize(() => (this.loadingProvinces = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
@@ -537,17 +590,22 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     }
 
     this.loadingDistricts = true;
-    this.locationService.getDistrict({ provinceCode, location: 'VN' })
+    this.locationService
+      .getDistrict({provinceCode, location: 'VN'})
       .pipe(
-        finalize(() => this.loadingDistricts = false),
-        takeUntil(this.destroy$)
+        finalize(() => (this.loadingDistricts = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
           if (res?.status === 200 && res.data) {
             this.districts = res.data;
             // If editing and has districtCode, load wards
-            if (isInitial && this.lead?.districtCode && this.lead?.provinceCode) {
+            if (
+              isInitial &&
+              this.lead?.districtCode &&
+              this.lead?.provinceCode
+            ) {
               this.loadWards(this.lead.provinceCode, this.lead.districtCode);
             }
           }
@@ -563,10 +621,11 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     }
 
     this.loadingWards = true;
-    this.locationService.getWard({ provinceCode, districtCode, location: 'VN' })
+    this.locationService
+      .getWard({provinceCode, districtCode, location: 'VN'})
       .pipe(
-        finalize(() => this.loadingWards = false),
-        takeUntil(this.destroy$)
+        finalize(() => (this.loadingWards = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
@@ -578,15 +637,18 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleChangeLocation(value: { 
-    id: string, 
-    province?: string, 
-    provinceCode?: string, 
-    district?: string, 
-    districtCode?: string, 
-    ward?: string, 
-    wardCode?: string,
-  }, type: 'province' | 'district' | 'ward') {
+  handleChangeLocation(
+    value: {
+      id: string;
+      province?: string;
+      provinceCode?: string;
+      district?: string;
+      districtCode?: string;
+      ward?: string;
+      wardCode?: string;
+    },
+    type: 'province' | 'district' | 'ward',
+  ) {
     switch (type) {
       case 'province':
         // Reset districts and wards arrays immediately
@@ -634,7 +696,8 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         this.loadWards(value.provinceCode, value.districtCode);
         break;
       case 'ward':
-        if (!value?.wardCode || !value?.provinceCode || !value?.districtCode) return;
+        if (!value?.wardCode || !value?.provinceCode || !value?.districtCode)
+          return;
         this.leadForm.patchValue({
           ward: value.ward,
           wardCode: value.wardCode,
@@ -643,7 +706,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     }
     this.handleCombineAddress();
   }
-
 
   groupByFolder = (item: any) => {
     return item.name; // Group by folder name
@@ -657,7 +719,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     // Subscribe to funnel data changes to reload when funnels are created/updated/deleted
     this.autoTaskService.funnelDataChanged$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(changed => {
+      .subscribe((changed) => {
         if (changed) {
           // Reload funnels from API when data changes (bypass cache)
           this.loadFunnelsFromAPI();
@@ -684,18 +746,21 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
     // Priority 1: Use currently selected funnel from dashboard
     if (this.selectedFolder && this.selectedFolder.type === 'funnel') {
-      const selectedFunnelId = this.selectedFolder.funnels?.[0]?.id || this.selectedFolder.id;
-      const selectedFunnel = this.funnels.find(f => f.id === selectedFunnelId);
+      const selectedFunnelId =
+        this.selectedFolder.funnels?.[0]?.id || this.selectedFolder.id;
+      const selectedFunnel = this.funnels.find(
+        (f) => f.id === selectedFunnelId,
+      );
       if (selectedFunnel) {
-        this.leadForm.patchValue({ funnelId: selectedFunnel.id });
+        this.leadForm.patchValue({funnelId: selectedFunnel.id});
         return;
       }
     }
 
     // Priority 2: Fall back to system funnel if no selected funnel
-    const systemFunnel = this.funnelFolders.find(f => f.isSystem === true);
+    const systemFunnel = this.funnelFolders.find((f) => f.isSystem === true);
     if (systemFunnel) {
-      this.leadForm.patchValue({ funnelId: systemFunnel.id });
+      this.leadForm.patchValue({funnelId: systemFunnel.id});
     }
   }
 
@@ -777,10 +842,14 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   mappingTeams(): void {
     this.formTeams.clear();
     this.autoTaskSetting?.roles?.forEach((roleId: string) => {
-      const findRole = this.currentBiz?.roles?.find((r: any) => r.id === roleId);
-      
+      const findRole = this.currentBiz?.roles?.find(
+        (r: any) => r.id === roleId,
+      );
+
       // Find existing team for this role from lead data
-      const findTeam = this.lead?.teams?.find((team: ITeam) => team.roleId === roleId);
+      const findTeam = this.lead?.teams?.find(
+        (team: ITeam) => team.roleId === roleId,
+      );
 
       this.formTeams.push(
         this.fb.group({
@@ -791,7 +860,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
           userName: findTeam?.userName || null,
           userPicture: findTeam?.userPicture || null,
           userEmail: findTeam?.userEmail || null,
-        })
+        }),
       );
     });
   }
@@ -832,13 +901,12 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     return this.listBizUsers.filter((user: User) => {
       // Check if user is active
       if (!user.isActive) return false;
-      
+
       // Check if user has this role
       const userRoleIds = user.roleIds || [];
       return userRoleIds.includes(roleId);
     });
   }
-
 
   /**
    * Get chain name for display
@@ -862,7 +930,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     if (!Array.isArray(tagIds) || tagIds.length === 0) {
       return [];
     }
-    return this.tags.filter(tag => tagIds.includes(tag.id));
+    return this.tags.filter((tag) => tagIds.includes(tag.id));
   }
 
   /**
@@ -873,7 +941,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     if (!statusId) {
       return null;
     }
-    return this.statuses.find(status => status.id === statusId) || null;
+    return this.statuses.find((status) => status.id === statusId) || null;
   }
 
   /**
@@ -892,7 +960,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     this.isEditingStatus = true;
     // Trigger change detection to render ng-select
     this.cdr.detectChanges();
-    
+
     // Open dropdown after ng-select is rendered
     setTimeout(() => {
       if (this.statusSelect) {
@@ -901,7 +969,10 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
           this.statusSelect.open();
         } else {
           // Fallback: click on container
-          const container = this.statusSelect.element?.nativeElement?.querySelector('.ng-select-container');
+          const container =
+            this.statusSelect.element?.nativeElement?.querySelector(
+              '.ng-select-container',
+            );
           if (container) {
             container.click();
           }
@@ -916,24 +987,34 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (this.isEditingTags) {
-      const tagsContainer = this.elementRef.nativeElement.querySelector('.tags-edit-container');
+      const tagsContainer = this.elementRef.nativeElement.querySelector(
+        '.tags-edit-container',
+      );
       const ngSelectPanel = document.querySelector('.ng-dropdown-panel');
-      
+
       const clickedInsideTags = tagsContainer?.contains(event.target as Node);
-      const clickedInsideNgSelect = ngSelectPanel?.contains(event.target as Node);
-      
+      const clickedInsideNgSelect = ngSelectPanel?.contains(
+        event.target as Node,
+      );
+
       if (!clickedInsideTags && !clickedInsideNgSelect) {
         this.isEditingTags = false;
       }
     }
 
     if (this.isEditingStatus) {
-      const statusContainer = this.elementRef.nativeElement.querySelector('.status-edit-container');
+      const statusContainer = this.elementRef.nativeElement.querySelector(
+        '.status-edit-container',
+      );
       const ngSelectPanel = document.querySelector('.ng-dropdown-panel');
-      
-      const clickedInsideStatus = statusContainer?.contains(event.target as Node);
-      const clickedInsideNgSelect = ngSelectPanel?.contains(event.target as Node);
-      
+
+      const clickedInsideStatus = statusContainer?.contains(
+        event.target as Node,
+      );
+      const clickedInsideNgSelect = ngSelectPanel?.contains(
+        event.target as Node,
+      );
+
       if (!clickedInsideStatus && !clickedInsideNgSelect) {
         this.isEditingStatus = false;
       }
@@ -984,12 +1065,14 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     });
 
     if (modalRef.content) {
-      (modalRef.content as any).saveEvent?.subscribe((platforms: IPlatform[]) => {
-        this.platforms = platforms;
-        // Trigger change detection to update display values
-        this.cdr.detectChanges();
-        modalRef.hide();
-      });
+      (modalRef.content as any).saveEvent?.subscribe(
+        (platforms: IPlatform[]) => {
+          this.platforms = platforms;
+          // Trigger change detection to update display values
+          this.cdr.detectChanges();
+          modalRef.hide();
+        },
+      );
 
       (modalRef.content as any).cancelEvent?.subscribe(() => {
         // modalRef.hide();
@@ -1013,7 +1096,9 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
    * Get Facebook display value from platforms
    */
   getFacebookDisplayValue(): string {
-    const facebookPlatform = this.platforms.find(p => p.platform === 'FACEBOOK');
+    const facebookPlatform = this.platforms.find(
+      (p) => p.platform === 'FACEBOOK',
+    );
     if (facebookPlatform && facebookPlatform.connections.length > 0) {
       const firstConnection = facebookPlatform.connections[0];
       return firstConnection.platformId;
@@ -1025,8 +1110,10 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
    * Get Zalo display value from platforms
    */
   getZaloDisplayValue(): string {
-    const zaloPersonalPlatform = this.platforms.find(p => p.platform === 'ZALO_PERSONAL');
-    const zaloOAPlatform = this.platforms.find(p => p.platform === 'ZALO_OA');
+    const zaloPersonalPlatform = this.platforms.find(
+      (p) => p.platform === 'ZALO_PERSONAL',
+    );
+    const zaloOAPlatform = this.platforms.find((p) => p.platform === 'ZALO_OA');
     const zaloPlatform = zaloPersonalPlatform || zaloOAPlatform;
     if (zaloPlatform && zaloPlatform.connections.length > 0) {
       const firstConnection = zaloPlatform.connections[0];
@@ -1039,7 +1126,9 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
    * Get total connections count for Facebook
    */
   getFacebookConnectionsCount(): number {
-    const facebookPlatform = this.platforms.find(p => p.platform === 'FACEBOOK');
+    const facebookPlatform = this.platforms.find(
+      (p) => p.platform === 'FACEBOOK',
+    );
     return facebookPlatform?.connections.length || 0;
   }
 
@@ -1047,11 +1136,15 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
    * Get total connections count for Zalo
    */
   getZaloConnectionsCount(): number {
-    const zaloPersonalPlatform = this.platforms.find(p => p.platform === 'ZALO_PERSONAL');
-    const zaloOAPlatform = this.platforms.find(p => p.platform === 'ZALO_OA');
-    return (zaloPersonalPlatform?.connections.length || 0) + (zaloOAPlatform?.connections.length || 0);
+    const zaloPersonalPlatform = this.platforms.find(
+      (p) => p.platform === 'ZALO_PERSONAL',
+    );
+    const zaloOAPlatform = this.platforms.find((p) => p.platform === 'ZALO_OA');
+    return (
+      (zaloPersonalPlatform?.connections.length || 0) +
+      (zaloOAPlatform?.connections.length || 0)
+    );
   }
-
 
   // ============ ADDRESS MODAL METHODS ============
 
@@ -1074,7 +1167,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
    * Get full address string from form fields
    */
   getFullAddress(): string {
-    const { street, ward, district, province } = this.leadForm.value;
+    const {street, ward, district, province} = this.leadForm.value;
     const parts = [street, ward, district, province].filter(Boolean);
     return parts.join(', ');
   }
@@ -1097,7 +1190,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       // For new leads, set default branch
       let branch = this.autoTaskService.getFirstUnit();
       if (branch) {
-        this.leadForm.patchValue({ branch } as any);
+        this.leadForm.patchValue({branch} as any);
       }
     }
   }
@@ -1139,5 +1232,9 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
    */
   closeCommentsSidebar(): void {
     this.isCommentsSidebarOpen = false;
+  }
+
+  selectTab(tab: string): void {
+    this.activeTab = tab;
   }
 }

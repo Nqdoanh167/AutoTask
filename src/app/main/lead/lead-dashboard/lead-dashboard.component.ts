@@ -1,7 +1,17 @@
 import {isEqual} from 'lodash';
-import {Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ChangeDetectorRef,
+} from '@angular/core';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
+import {
+  CdkDragDrop,
+  moveItemInArray,
+  transferArrayItem,
+} from '@angular/cdk/drag-drop';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -10,7 +20,13 @@ import {LeadDashboardData} from './lead-dashboard-data';
 import {ILead} from '@app/types/lead';
 import {ILeadStatus} from '@app/types/lead-status';
 import {ILeadTag} from '@app/types/lead-tag';
-import {IColumns, User, BizRole, ERole, IDateRange} from '@app/types/viewmodels';
+import {
+  IColumns,
+  User,
+  BizRole,
+  ERole,
+  IDateRange,
+} from '@app/types/viewmodels';
 import {ISetting} from '@app/types/setting';
 import {
   LEAD_COLUMNS_DEFAULT,
@@ -172,15 +188,15 @@ export class LeadDashboardComponent
       await this.socketService.waitForSocket();
 
       // Listen to socket events khi socket đã sẵn sàng
-    this.socketService
-      .listen('lead/FOLDER_WITH_FUNNEL_SYNCHRONIZED')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((data: any) => {
-        this.handleFolderWithFunnelSynchronized(data);
-      });
+      this.socketService
+        .listen('lead/FOLDER_WITH_FUNNEL_SYNCHRONIZED')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((data: any) => {
+          this.handleFolderWithFunnelSynchronized(data);
+        });
     } catch (error) {
       console.error('Failed to setup socket listeners:', error);
-  }
+    }
   }
 
   override handleAction(name: string) {
@@ -201,18 +217,20 @@ export class LeadDashboardComponent
   openLeadModal(leadId?: string) {
     // If editing, fetch lead detail first
     if (leadId) {
-      this.autoTaskService.lead.getById(leadId, { populate: ['taskIds'] }).subscribe({
-        next: (res: any) => {
-          if (res.status === 200 && res.data) {
-            this.showLeadModal(res.data);
-          } else {
+      this.autoTaskService.lead
+        .getById(leadId, {populate: ['taskIds']})
+        .subscribe({
+          next: (res: any) => {
+            if (res.status === 200 && res.data) {
+              this.showLeadModal(res.data);
+            } else {
+              this.toastrService.error('Không thể lấy thông tin lead');
+            }
+          },
+          error: (err: any) => {
             this.toastrService.error('Không thể lấy thông tin lead');
-          }
-        },
-        error: (err: any) => {
-          this.toastrService.error('Không thể lấy thông tin lead');
-        },
-      });
+          },
+        });
     } else {
       // Creating new lead
       this.showLeadModal();
@@ -224,7 +242,7 @@ export class LeadDashboardComponent
     const cachedSources = this.getCachedPublicSources();
 
     const modalRef = this.modalService.show(LeadFormModalComponent, {
-      class: 'modal-xl modal-dialog-centered',
+      class: 'modal-dialog-centered modal-medium',
       initialState: {
         lead: lead,
         statuses: this.statuses.rows,
@@ -308,16 +326,18 @@ export class LeadDashboardComponent
     });
 
     if (modalRef.content) {
-      modalRef.content.onStatusUpdated.subscribe((updatedStatuses: ILeadStatus[]) => {
-        // Update trực tiếp danh sách statuses mà không cần gọi API
-        this.statuses.rows = updatedStatuses;
-        // Rebuild status map và tag map để đảm bảo consistency
-        this.buildStatusMap();
-        // Cập nhật lại kanban view nếu đang ở chế độ kanban
-        if (this.viewMode === 'kanban') {
-          this.groupLeadsByStatus();
-        }
-      });
+      modalRef.content.onStatusUpdated.subscribe(
+        (updatedStatuses: ILeadStatus[]) => {
+          // Update trực tiếp danh sách statuses mà không cần gọi API
+          this.statuses.rows = updatedStatuses;
+          // Rebuild status map và tag map để đảm bảo consistency
+          this.buildStatusMap();
+          // Cập nhật lại kanban view nếu đang ở chế độ kanban
+          if (this.viewMode === 'kanban') {
+            this.groupLeadsByStatus();
+          }
+        },
+      );
     }
   }
 
@@ -471,14 +491,14 @@ export class LeadDashboardComponent
       }
     } else {
       // Handle other date filters if any
-    if (
-      event.value === undefined ||
-      event.value === null ||
-      (event.value.fromDate === undefined && event.value.toDate === undefined)
-    ) {
-      delete filterObj[event.name];
-    } else {
-      filterObj[event.name] = event.value;
+      if (
+        event.value === undefined ||
+        event.value === null ||
+        (event.value.fromDate === undefined && event.value.toDate === undefined)
+      ) {
+        delete filterObj[event.name];
+      } else {
+        filterObj[event.name] = event.value;
       }
     }
 
@@ -762,38 +782,38 @@ export class LeadDashboardComponent
     });
 
     this.item.rows = [];
-    
+
     // Lấy các selected Branch và Role Ids từ checkbox filter và gán vào params
     // Parse filter object từ params
     const filterObj = JSON.parse(params.filter || '{}');
-    
+
     // Áp dụng accessibleIds từ checkbox filter
-    if (this.checkbox.accessibleIds?.length) {  
+    if (this.checkbox.accessibleIds?.length) {
       filterObj['accessibleIds'] = this.checkbox.accessibleIds;
     } else {
       // Nếu không có accessibleIds trong checkbox, xóa khỏi filter
       delete filterObj['accessibleIds'];
     }
-    
+
     // Xóa branchIds khỏi filter (không sử dụng nữa)
     delete filterObj['branchIds'];
-    
+
     // Áp dụng roleIds từ checkbox filter -> teams.roleId_in
     // Đảm bảo roleIds là mảng hợp lệ
-    const validRoleIds = Array.isArray(this.checkbox.roleIds) 
+    const validRoleIds = Array.isArray(this.checkbox.roleIds)
       ? this.checkbox.roleIds.filter((id: any) => id != null && id !== '')
       : [];
-    
+
     if (validRoleIds.length > 0) {
       filterObj['teams.roleId_in'] = validRoleIds;
     } else {
       // Nếu không có roleIds trong checkbox, xóa khỏi filter
       delete filterObj['teams.roleId_in'];
     }
-    
+
     // Cập nhật params.filter với filter object đã được cập nhật
     params.filter = JSON.stringify(filterObj);
-    
+
     this.autoTaskService.lead
       .get(params)
       .pipe(
@@ -861,13 +881,17 @@ export class LeadDashboardComponent
   }
 
   getConnectedDropLists(): string[] {
-    return this.activeStatuses.map(status => status.id);
+    return this.activeStatuses.map((status) => status.id);
   }
 
   onDrop(event: CdkDragDrop<ILead[]>, targetStatusId: string) {
     if (event.previousContainer === event.container) {
       // Same column - reorder within the same status
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      moveItemInArray(
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex,
+      );
     } else {
       // Different column - transfer to new status
       const lead = event.previousContainer.data[event.previousIndex];
@@ -889,7 +913,7 @@ export class LeadDashboardComponent
   }
 
   private updateLeadStatus(leadId: string, statusId: string) {
-    this.autoTaskService.lead.update(leadId, { statusId } as any).subscribe({
+    this.autoTaskService.lead.update(leadId, {statusId} as any).subscribe({
       next: (res: any) => {
         if (res.status === 200) {
           // API thành công - không cần làm gì thêm, UI đã được cập nhật optimistically
@@ -932,14 +956,12 @@ export class LeadDashboardComponent
     }
 
     // Build URL and open in new tab
-    this.authService.currentBiz
-      .pipe(first())
-      .subscribe((biz) => {
-        if (biz?.alias) {
-          const url = `${environment.urlDomain}/${biz.alias}/${environment.module}/dashboard?id=${taskId}`;
-          window.open(url, '_blank');
-        }
-      });
+    this.authService.currentBiz.pipe(first()).subscribe((biz) => {
+      if (biz?.alias) {
+        const url = `${environment.urlDomain}/${biz.alias}/${environment.module}/dashboard?id=${taskId}`;
+        window.open(url, '_blank');
+      }
+    });
   }
 
   onApplyEvent(event: any) {
@@ -1023,7 +1045,9 @@ export class LeadDashboardComponent
     if (this.currentBiz) {
       // Fallback: nếu chưa có setting.roles thì cho phép tất cả role đang active của user
       const allowedRoleIds =
-        (this.setting?.roles?.length ? this.setting.roles : this.currentBiz.user.roles?.map((r: BizRole) => r.id)) || [];
+        (this.setting?.roles?.length
+          ? this.setting.roles
+          : this.currentBiz.user.roles?.map((r: BizRole) => r.id)) || [];
 
       this.checkbox.listRoles =
         this.currentBiz.user.roles?.filter(
@@ -1032,30 +1056,32 @@ export class LeadDashboardComponent
       this.checkbox.listUsers =
         this.currentBiz.users?.filter((u: User) => u.isActive) || [];
       this.checkbox.listBranches = this.authService.getBranchPer();
-      
+
       // Setup branch structure with children
-      this.checkbox.listBranches = this.checkbox.listBranches.map((branch: any) => {
-        if (branch.departments?.length) {
-          branch.children = branch.departments.map((department: any) => {
-            if (department.teams?.length) {
-              department.children = department.teams;
-            }
-            return department;
-          });
-        }
-        return branch;
-      });
+      this.checkbox.listBranches = this.checkbox.listBranches.map(
+        (branch: any) => {
+          if (branch.departments?.length) {
+            branch.children = branch.departments.map((department: any) => {
+              if (department.teams?.length) {
+                department.children = department.teams;
+              }
+              return department;
+            });
+          }
+          return branch;
+        },
+      );
 
       // Initialize accessibleIds from filter if exists (migrate from branchIds if needed)
       const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
-      
+
       // Nếu có accessibleIds trong filter, sử dụng trực tiếp
       if (objFilterQuery.accessibleIds && objFilterQuery.accessibleIds.length) {
         this.checkbox.accessibleIds = objFilterQuery.accessibleIds;
         // Cần tính lại branchIds từ accessibleIds để hiển thị UI
         // Tạm thời để trống, sẽ được tính khi user thay đổi filter
         this.checkbox.branchIds = [];
-      } 
+      }
       // Migration: Nếu vẫn còn branchIds trong filter (backward compatibility)
       else if (objFilterQuery.branchIds && objFilterQuery.branchIds.length) {
         const detectBranchFilter = this.authService.detectFilterBranchIds(
@@ -1068,9 +1094,9 @@ export class LeadDashboardComponent
         this.checkbox.accessibleIds = [
           ...(detectBranchFilter.branchIds || []),
           ...(detectBranchFilter.departmentIds || []),
-          ...(detectBranchFilter.teamIds || [])
+          ...(detectBranchFilter.teamIds || []),
         ];
-      } 
+      }
       // Default: không có filter
       else {
         // Default: select all branches user has access to
@@ -1098,15 +1124,21 @@ export class LeadDashboardComponent
           this.checkbox.accessibleIds = [
             ...(detectFilter.branchIds || []),
             ...(detectFilter.departmentIds || []),
-            ...(detectFilter.teamIds || [])
+            ...(detectFilter.teamIds || []),
           ];
         }
       }
 
       // Initialize roleIds from filter if exists
-      if (objFilterQuery['teams.roleId_in'] && Array.isArray(objFilterQuery['teams.roleId_in']) && objFilterQuery['teams.roleId_in'].length) {
+      if (
+        objFilterQuery['teams.roleId_in'] &&
+        Array.isArray(objFilterQuery['teams.roleId_in']) &&
+        objFilterQuery['teams.roleId_in'].length
+      ) {
         // Fallback: check for teams.roleId_in format
-        this.checkbox.roleIds = objFilterQuery['teams.roleId_in'].filter(id => id != null && id !== '');
+        this.checkbox.roleIds = objFilterQuery['teams.roleId_in'].filter(
+          (id) => id != null && id !== '',
+        );
       } else {
         // Default: no pre-selected roles
         this.checkbox.roleIds = Array.isArray(this.checkbox.roleIds)
@@ -1164,14 +1196,14 @@ export class LeadDashboardComponent
    */
   changeBranch({branchIds = []}: {branchIds: string[]}) {
     this.checkbox.branchIds = branchIds;
-    
+
     if (branchIds.length) {
       const detectFilter = this.authService.detectFilterBranchIds(branchIds);
       this.updateBranchDisplayText(detectFilter);
       this.checkbox.accessibleIds = [
         ...(detectFilter.branchIds || []),
         ...(detectFilter.departmentIds || []),
-        ...(detectFilter.teamIds || [])
+        ...(detectFilter.teamIds || []),
       ];
     } else {
       this.checkbox.branchDisplayInputText = '';
@@ -1188,11 +1220,11 @@ export class LeadDashboardComponent
     // Ensure roleIds is a valid array
     let validRoleIds: string[] = [];
     if (Array.isArray(roleIds)) {
-      validRoleIds = roleIds.filter(id => id != null && id !== '');
+      validRoleIds = roleIds.filter((id) => id != null && id !== '');
     } else if (roleIds != null && roleIds !== '') {
       validRoleIds = [roleIds];
     }
-    
+
     this.checkbox.roleIds = validRoleIds;
     this.handleChangeCheckbox();
   }
@@ -1202,14 +1234,14 @@ export class LeadDashboardComponent
    */
   handleChangeCheckbox(isReload: boolean = false) {
     const objFilterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
-    
+
     // Update accessibleIds (thay thế branchIds)
     if (this.checkbox.accessibleIds?.length) {
       objFilterQuery['accessibleIds'] = this.checkbox.accessibleIds;
     } else {
       delete objFilterQuery['accessibleIds'];
     }
-    
+
     // Xóa branchIds khỏi filter (không sử dụng nữa)
     delete objFilterQuery['branchIds'];
 
@@ -1227,7 +1259,7 @@ export class LeadDashboardComponent
     }
 
     this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
-    
+
     if (isReload) {
       this.getDataSource(true);
     } else {

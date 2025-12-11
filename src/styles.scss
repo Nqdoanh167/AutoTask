@@ -887,10 +887,14 @@ a {
   z-index: 99999 !important;
 }
 
-
 .invalid-feedback-select {
   width: 100%;
   margin-top: 0.25rem;
   font-size: 0.875em;
   color: #dc3545;
+}
+
+.modal-medium {
+  width: 1400px !important;
+  max-width: unset !important;
 }
