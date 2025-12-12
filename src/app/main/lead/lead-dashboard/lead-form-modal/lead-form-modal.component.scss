@@ -979,11 +979,17 @@
   }
 }
 
-.info-area {
+.section-area {
   width: calc(100% + -0px);
-  height: calc(100vh - 300px);
-  float: right;
-  overflow-y: auto;
+  height: calc(100vh - 400px);
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.activity-area {
+  width: calc(100% + -0px);
+  height: calc(100vh - 260px);
+  overflow-y: scroll;
   overflow-x: hidden;
 }
 
@@ -1212,7 +1218,7 @@
 .lead-name {
   color: #0f172a;
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 24px;
 }
@@ -1230,6 +1236,16 @@
     line-height: 16px;
     display: inline-block;
   }
+}
+
+.lead-info-contact-item {
+  display: inline-flex;
+  padding: 4px 8px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  background: #f8fafc;
+  width: 100%;
 }
 
 .wrap-avatar {

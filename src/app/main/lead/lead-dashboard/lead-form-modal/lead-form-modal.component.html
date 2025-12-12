@@ -88,127 +88,121 @@
 
     <div class="row g-3 h-100">
       <!-- Form Lead -->
-      <div class="col-12 col-lg-9">
-        <div class="info-area custom-scrollbar">
-          <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
-            <div class="form-content-wrapper">
-              <!-- Row 1: Avatar, Tên Lead, Số điện thoại, Email, Giới tính -->
-              <div class="row">
-                <div class="d-flex align-items-center gap-4 col-6">
-                  <div class="wrap-avatar">
-                    <img
-                      alt=""
-                      (click)="onAvatarClick()"
-                      class="avatar cursor-pointer"
-                      onerror="this.src='https://smax.app/assets/images/noavatar.png'"
-                      src="{{ avatarUrl }}"
-                    />
+      <div class="col-9">
+        <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
+          <div class="form-content-wrapper">
+            <!-- Row 1: Avatar, Tên Lead, Số điện thoại, Email, Giới tính -->
+            <div class="row">
+              <div class="d-flex align-items-start gap-4 col-6">
+                <div class="wrap-avatar">
+                  <img
+                    alt=""
+                    (click)="onAvatarClick()"
+                    class="avatar cursor-pointer"
+                    onerror="this.src='https://smax.app/assets/images/noavatar.png'"
+                    src="{{ avatarUrl }}"
+                  />
 
-                    <div class="layer-loading" *ngIf="isUploadingAvatar">
-                      <i class="fas fa-spinner fa-spin px-2"></i>
-                    </div>
-                  </div>
-
-                  <div class="d-flex flex-column gap-2 align-items-start">
-                    <div class="lead-name">Nguyen Van A</div>
-
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="d-flex align-items-center gap-2">
-                        <img
-                          src="./assets/icons/phone.svg"
-                          width="24"
-                          height="24"
-                        />
-                        <span style="color: #3c8fff">
-                          {{ '0912746230' }}
-                        </span>
-                      </div>
-
-                      <div class="d-flex align-items-center gap-2">
-                        <img
-                          src="./assets/icons/mail.svg"
-                          width="24"
-                          height="24"
-                        />
-                        <span style="color: #3c8fff">
-                          {{ 'nqdcntt2002@gmail.com' }}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div
-                      class="tags-edit-container"
-                      (click)="onTagsClick($event)"
-                    >
-                      <!-- View mode: Display tags as tag-items -->
-                      <div *ngIf="!isEditingTags" class="tags-view-mode">
-                        <span
-                          *ngFor="let tag of getSelectedTags()"
-                          class="text-capitalize me-2 tag-item"
-                          [ngClass]="{nonBack: !tag.bgColor}"
-                          [ngStyle]="{background: tag.bgColor}"
-                        >
-                          <span>{{ tag.name }}</span>
-                        </span>
-                        <span
-                          *ngIf="getSelectedTags().length === 0"
-                          class="tags-placeholder"
-                        >
-                          Chọn tags
-                        </span>
-                      </div>
-                      <!-- Edit mode: Display ng-select -->
-                      <div *ngIf="isEditingTags" class="tags-edit-mode">
-                        <ng-select
-                          [formControl]="tagIdsControl"
-                          [items]="tags"
-                          bindLabel="name"
-                          bindValue="id"
-                          placeholder="Chọn Tag"
-                          [multiple]="true"
-                          [clearable]="true"
-                          (change)="onTagsChange()"
-                          [closeOnSelect]="false"
-                          appendTo=".modal"
-                        >
-                          <ng-template ng-option-tmp let-item="item">
-                            <span
-                              class="text-capitalize tag-item"
-                              [ngClass]="{nonBack: !item.bgColor}"
-                              [ngStyle]="{background: item.bgColor}"
-                            >
-                              <span>{{ item.name }}</span>
-                            </span>
-                          </ng-template>
-                          <ng-template ng-label-tmp let-item="item">
-                            <span
-                              class="text-capitalize tag-item"
-                              [ngClass]="{nonBack: !item.bgColor}"
-                              [ngStyle]="{background: item.bgColor}"
-                            >
-                              <span>{{ item.name }}</span>
-                            </span>
-                          </ng-template>
-                        </ng-select>
-                      </div>
-                    </div>
+                  <div class="layer-loading" *ngIf="isUploadingAvatar">
+                    <i class="fas fa-spinner fa-spin px-2"></i>
                   </div>
                 </div>
 
-                <div class="lead-info-detail col-6">
-                  <div>
-                    <label class="lead-info-detail-label">Nền tảng:</label>
-                    <div class="d-flex flex-column gap-2">
-                      <ng-container>
-                        <div class="d-flex align-items-center gap-2">
-                          <div class="position-relative">
-                            <img
-                              src="./assets/icons/fb.svg"
-                              width="24"
-                              height="24"
-                            />
+                <div class="d-flex flex-column gap-2 align-items-start">
+                  <div class="lead-name">Nguyen Van A</div>
 
-                            <!-- <img
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="lead-info-contact-item">
+                      <img
+                        src="./assets/icons/phone.svg"
+                        width="24"
+                        height="24"
+                      />
+                      <span style="color: #3c8fff">
+                        {{ '0912746230' }}
+                      </span>
+                    </div>
+
+                    <div class="lead-info-contact-item">
+                      <img
+                        src="./assets/icons/mail.svg"
+                        width="24"
+                        height="24"
+                      />
+                      <span style="color: #3c8fff">
+                        {{ 'nqdcntt2002@gmail.com' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    class="tags-edit-container"
+                    (click)="onTagsClick($event)"
+                  >
+                    <!-- View mode: Display tags as tag-items -->
+                    <div *ngIf="!isEditingTags" class="tags-view-mode">
+                      <span
+                        *ngFor="let tag of getSelectedTags()"
+                        class="text-capitalize me-2 tag-item"
+                        [ngClass]="{nonBack: !tag.bgColor}"
+                        [ngStyle]="{background: tag.bgColor}"
+                      >
+                        <span>{{ tag.name }}</span>
+                      </span>
+                      <span
+                        *ngIf="getSelectedTags().length === 0"
+                        class="tags-placeholder"
+                      >
+                        Chọn tags
+                      </span>
+                    </div>
+                    <!-- Edit mode: Display ng-select -->
+                    <div *ngIf="isEditingTags" class="tags-edit-mode">
+                      <ng-select
+                        [formControl]="tagIdsControl"
+                        [items]="tags"
+                        bindLabel="name"
+                        bindValue="id"
+                        placeholder="Chọn Tag"
+                        [multiple]="true"
+                        [clearable]="true"
+                        (change)="onTagsChange()"
+                        [closeOnSelect]="false"
+                        appendTo=".modal"
+                      >
+                        <ng-template ng-option-tmp let-item="item">
+                          <span
+                            class="text-capitalize tag-item"
+                            [ngClass]="{nonBack: !item.bgColor}"
+                            [ngStyle]="{background: item.bgColor}"
+                          >
+                            <span>{{ item.name }}</span>
+                          </span>
+                        </ng-template>
+                        <ng-template ng-label-tmp let-item="item">
+                          <span
+                            class="text-capitalize tag-item"
+                            [ngClass]="{nonBack: !item.bgColor}"
+                            [ngStyle]="{background: item.bgColor}"
+                          >
+                            <span>{{ item.name }}</span>
+                          </span>
+                        </ng-template>
+                      </ng-select>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-4">
+                    <ng-container>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="position-relative">
+                          <img
+                            src="./assets/icons/fb.svg"
+                            width="24"
+                            height="24"
+                          />
+
+                          <!-- <img
                             [src]="lead?.facebook?.picture"
                             width="16"
                             height="16"
@@ -219,25 +213,25 @@
                               border-radius: 100%;
                             "
                           /> -->
-                          </div>
-                          <div
-                            class="text-primary text-hover-underline cursor-pointer"
-                          >
-                            Nguyen Van A
-                          </div>
                         </div>
-                      </ng-container>
+                        <div
+                          class="text-primary text-hover-underline cursor-pointer"
+                        >
+                          Nguyen Van A
+                        </div>
+                      </div>
+                    </ng-container>
 
-                      <ng-container>
-                        <div class="d-flex align-items-center gap-2">
-                          <div class="position-relative">
-                            <img
-                              src="./assets/icons/zalo.svg"
-                              width="24"
-                              height="24"
-                            />
+                    <ng-container>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="position-relative">
+                          <img
+                            src="./assets/icons/zalo.svg"
+                            width="24"
+                            height="24"
+                          />
 
-                            <!-- <img
+                          <!-- <img
                             [src]="dataDetail?.zalo?.picture"
                             width="16"
                             height="16"
@@ -248,45 +242,150 @@
                               border-radius: 100%;
                             "
                           /> -->
-                          </div>
-                          <div
-                            class="text-primary text-hover-underline cursor-pointer"
-                          >
-                            Nguyen Van A
-                          </div>
                         </div>
-                      </ng-container>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div>
-                      <label class="lead-info-detail-label">Chi nhánh:</label>
-                      <div>Chi nhánh Hà Nội</div>
-                    </div>
-
-                    <div>
-                      <label class="lead-info-detail-label">Nguồn lead:</label>
-                      <div>Ads Minh Senpal</div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div>
-                      <label class="lead-info-detail-label">Phễu:</label>
-                      <div>Facebook</div>
-                    </div>
-
-                    <div>
-                      <label class="lead-info-detail-label">
-                        Nhân sự phụ trách:
-                      </label>
-                      <div>Nguyễn Mạnh Cường</div>
-                    </div>
+                        <div
+                          class="text-primary text-hover-underline cursor-pointer"
+                        >
+                          Nguyen Van A
+                        </div>
+                      </div>
+                    </ng-container>
                   </div>
                 </div>
+              </div>
 
-                <!-- <div class="col-2">
+              <div class="lead-info-detail col-6 row">
+                <div class="col-4">
+                  <label class="lead-info-detail-label">Chi nhánh:</label>
+                  <div>Chi nhánh Hà Nội</div>
+                </div>
+
+                <div class="col-4">
+                  <label class="lead-info-detail-label">Nguồn lead:</label>
+                  <div>Ads Minh Senpal</div>
+                </div>
+
+                <div class="col-4">
+                  <label class="lead-info-detail-label">Phễu:</label>
+                  <div>Facebook</div>
+                </div>
+
+                <div class="col-4">
+                  <label class="lead-info-detail-label">Quản lý bởi:</label>
+                  <div>Nguyễn Mạnh Cường</div>
+                </div>
+
+                <div
+                  class="col-8"
+                  formArrayName="teams"
+                  *ngIf="autoTaskSetting?.roles?.length"
+                >
+                  <label class="lead-info-detail-label">
+                    Nhân sự phụ trách:
+                  </label>
+                  <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <ng-container
+                      *ngFor="
+                        let teamControl of formTeams.controls;
+                        let i = index
+                      "
+                    >
+                      <div class="btn-group role-item-wrapper" dropdown>
+                        <button
+                          dropdownToggle
+                          type="button"
+                          class="btn btn-sm role-item-btn"
+                          [attr.title]="
+                            teamControl.value?.userName
+                              ? teamControl.value?.roleName +
+                                ': ' +
+                                teamControl.value?.userName
+                              : teamControl.value?.roleName
+                          "
+                        >
+                          <ng-container *ngIf="teamControl.value.userId">
+                            <img
+                              width="24"
+                              height="24"
+                              class="rounded-circle"
+                              [src]="
+                                teamControl.value?.userPicture ||
+                                'assets/images/avatar.svg'
+                              "
+                              alt=""
+                              style="object-fit: cover"
+                            />
+                          </ng-container>
+                          <ng-container *ngIf="!teamControl.value.userId">
+                            <i
+                              class="fa-solid"
+                              [ngClass]="
+                                teamControl.value?.roleIcon || 'fa-user'
+                              "
+                            ></i>
+                          </ng-container>
+                        </button>
+                        <ul
+                          *dropdownMenu
+                          class="dropdown-menu"
+                          role="menu"
+                          style="max-height: 300px; overflow-y: auto"
+                        >
+                          <li
+                            *ngFor="
+                              let user of getAvailableUsers(
+                                teamControl.value?.roleId
+                              )
+                            "
+                            role="menuitem"
+                            class="dropdown-item"
+                            [class.active]="
+                              user.id === teamControl.value.userId
+                            "
+                            (click)="onChooseTeam(i, user)"
+                            style="cursor: pointer"
+                          >
+                            <div class="d-flex align-items-center p-2">
+                              <img
+                                class="rounded-circle me-2"
+                                [src]="
+                                  user.picture || 'assets/images/avatar.svg'
+                                "
+                                alt=""
+                                style="
+                                  width: 32px;
+                                  height: 32px;
+                                  object-fit: cover;
+                                "
+                              />
+                              <div class="text-truncate">
+                                <div>{{ user.name }}</div>
+                                <small class="text-muted" *ngIf="user.email">
+                                  {{ user.email }}
+                                </small>
+                              </div>
+                            </div>
+                          </li>
+                          <li
+                            *ngIf="teamControl.value.userId"
+                            role="menuitem"
+                            class="dropdown-item text-danger"
+                            (click)="onRemoveTeam(i)"
+                            style="cursor: pointer; border-top: 1px solid #ddd"
+                          >
+                            <div class="p-2">
+                              <i class="fa fa-times me-2"></i>
+                              Xóa người phụ trách
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+
+              <!-- <div class="col-2">
                   <label class="form-label">
                     Số điện thoại
                     <span class="text-danger">*</span>
@@ -347,10 +446,10 @@
                     {{ getErrorMessage('gender') }}
                   </div>
                 </div> -->
-              </div>
+            </div>
 
-              <!-- Row 2: Facebook Link, Zalo Link, Address -->
-              <!-- <div class="row">
+            <!-- Row 2: Facebook Link, Zalo Link, Address -->
+            <!-- <div class="row">
                 <div class="col-3 mb-2">
                   <label class="form-label">Facebook</label>
                   <div class="inline-edit-field">
@@ -427,8 +526,8 @@
                 </div>
               </div> -->
 
-              <!-- Address Modal -->
-              <!-- <div
+            <!-- Address Modal -->
+            <!-- <div
                 class="address-modal-overlay"
                 *ngIf="isAddressModalOpen"
                 (click)="closeAddressModal()"
@@ -515,7 +614,7 @@
                 </div>
               </div> -->
 
-              <!-- Row 2 OLD: Tỉnh/thành phố, Quận/huyện, Phường/xã, Địa chỉ chi tiết (COMMENTED)
+            <!-- Row 2 OLD: Tỉnh/thành phố, Quận/huyện, Phường/xã, Địa chỉ chi tiết (COMMENTED)
                   <div class="row">
                     <div class="col-2 mb-2">
                       <label class="form-label">Tỉnh/Thành phố</label>
@@ -588,8 +687,8 @@
                   </div>
                   -->
 
-              <!-- Row 3: Chi nhánh, Nguồn dữ liệu, Phễu, Vai trò / Nhân sự phụ trách -->
-              <!-- <div class="row">
+            <!-- Row 3: Chi nhánh, Nguồn dữ liệu, Phễu, Vai trò / Nhân sự phụ trách -->
+            <!-- <div class="row">
                 <div class="col-3 mb-2">
                   <label class="form-label">
                     Chi nhánh
@@ -780,37 +879,50 @@
                 </div>
               </div> -->
 
-              <div class="mt-3">
-                <!-- Navigation Tabs -->
-                <nav class="lead-form-tab-menu">
-                  <ul>
-                    <li
-                      [ngClass]="{active: activeTab === menu.key}"
-                      *ngFor="let menu of menus; let index = index"
-                    >
-                      <div (click)="selectTab(menu.key)" class="tab-link">
-                        <div class="icon">
-                          <img
-                            [src]="
-                              activeTab === menu.key
-                                ? 'assets/icons/' + menu.icon + '-active.svg'
-                                : 'assets/icons/' + menu.icon + '.svg'
-                            "
-                            alt=""
-                            width="24"
-                            height="24"
-                          />
-                        </div>
-                        <span class="nav-text fw-500">
-                          {{ menu.name }}
-                        </span>
+            <div class="mt-3">
+              <!-- Navigation Tabs -->
+              <nav class="lead-form-tab-menu">
+                <ul>
+                  <li
+                    [ngClass]="{active: activeTab === menu.key}"
+                    *ngFor="let menu of menus; let index = index"
+                  >
+                    <div (click)="selectTab(menu.key)" class="tab-link">
+                      <div class="icon">
+                        <img
+                          [src]="
+                            activeTab === menu.key
+                              ? 'assets/icons/' + menu.icon + '-active.svg'
+                              : 'assets/icons/' + menu.icon + '.svg'
+                          "
+                          alt=""
+                          width="24"
+                          height="24"
+                        />
                       </div>
-                    </li>
-                  </ul>
-                </nav>
+                      <span class="nav-text fw-500">
+                        {{ menu.name }}
+                      </span>
+                    </div>
+                  </li>
+                </ul>
+              </nav>
+
+              <div class="section-area custom-scrollbar">
+                <!-- Discuss Section -->
+                <ng-container *ngIf="activeTab === 'discuss'">
+                  <app-lead-comments-sidebar
+                    [isOpen]="true"
+                    [lead]="lead"
+                    (close)="closeCommentsSidebar()"
+                  ></app-lead-comments-sidebar>
+                </ng-container>
 
                 <!-- Tasks Section -->
-                <div class="tasks-section" *ngIf="lead?.tasks?.length">
+                <div
+                  class="tasks-section"
+                  *ngIf="lead?.tasks?.length && activeTab === 'task'"
+                >
                   <ng-container *ngFor="let task of lead?.tasks">
                     <div class="task-card mb-3">
                       <!-- Task Header -->
@@ -918,14 +1030,14 @@
                 </div>
               </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
 
-      <div class="col-12 col-lg-3">
+      <div class="col-3">
         <div class="card h-100">
           <div class="card-body p-0">
-            <div class="activity-log chat-area scrollbar-custom">
+            <div class="activity-log activity-area custom-scrollbar">
               <div class="activity-log-header">
                 <div class="d-flex align-items-center gap-2">
                   <img
@@ -1050,6 +1162,160 @@
                 </div>
 
                 <!-- Tuần Này -->
+                <div class="activity-log-section">
+                  <div class="d-flex align-items-center gap-2 mb-3">
+                    <img
+                      src="./assets/icons/calendar-check.svg"
+                      width="24"
+                      height="24"
+                    />
+                    <span class="activity-log-section-title">Tuần Này</span>
+                  </div>
+
+                  <div class="activity-log-item">
+                    <div class="activity-log-item-icon-wrapper">
+                      <img
+                        src="./assets/icons/user.svg"
+                        width="16"
+                        height="16"
+                      />
+                      <div class="activity-log-connector-line"></div>
+                    </div>
+                    <div class="activity-log-item-content">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
+                        <div class="activity-log-item-name">Sale Vi</div>
+                        <div class="activity-log-item-time">
+                          11/04/2024 - 20:25
+                        </div>
+                      </div>
+                      <div class="activity-log-item-description">
+                        Đã hỗ trợ tư vấn liên hệ Chăm Sóc Khách Hàng từ Trần Như
+                        Ý
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="activity-log-item">
+                    <div class="activity-log-item-icon-wrapper">
+                      <img
+                        src="./assets/icons/user.svg"
+                        width="16"
+                        height="16"
+                      />
+                      <div class="activity-log-connector-line"></div>
+                    </div>
+                    <div class="activity-log-item-content">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
+                        <div class="activity-log-item-name">Trần Như Ý</div>
+                        <div class="activity-log-item-time">
+                          11/04/2024 - 10:24
+                        </div>
+                      </div>
+                      <div class="activity-log-item-description">
+                        Đã liên hệ Chăm Sóc Khách Hàng Sale Vi
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="activity-log-item">
+                    <img src="./assets/icons/logo.svg" width="16" height="16" />
+                    <div class="activity-log-item-content">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
+                        <div class="activity-log-item-name">Hệ Thống</div>
+                        <div class="activity-log-item-time">
+                          11/04/2024 - 10:24
+                        </div>
+                      </div>
+                      <div class="activity-log-item-description">
+                        Đã gửi 1 tin ZNS trong chiến dịch Black Friday
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="activity-log-section">
+                  <div class="d-flex align-items-center gap-2 mb-3">
+                    <img
+                      src="./assets/icons/calendar-check.svg"
+                      width="24"
+                      height="24"
+                    />
+                    <span class="activity-log-section-title">Tuần Này</span>
+                  </div>
+
+                  <div class="activity-log-item">
+                    <div class="activity-log-item-icon-wrapper">
+                      <img
+                        src="./assets/icons/user.svg"
+                        width="16"
+                        height="16"
+                      />
+                      <div class="activity-log-connector-line"></div>
+                    </div>
+                    <div class="activity-log-item-content">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
+                        <div class="activity-log-item-name">Sale Vi</div>
+                        <div class="activity-log-item-time">
+                          11/04/2024 - 20:25
+                        </div>
+                      </div>
+                      <div class="activity-log-item-description">
+                        Đã hỗ trợ tư vấn liên hệ Chăm Sóc Khách Hàng từ Trần Như
+                        Ý
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="activity-log-item">
+                    <div class="activity-log-item-icon-wrapper">
+                      <img
+                        src="./assets/icons/user.svg"
+                        width="16"
+                        height="16"
+                      />
+                      <div class="activity-log-connector-line"></div>
+                    </div>
+                    <div class="activity-log-item-content">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
+                        <div class="activity-log-item-name">Trần Như Ý</div>
+                        <div class="activity-log-item-time">
+                          11/04/2024 - 10:24
+                        </div>
+                      </div>
+                      <div class="activity-log-item-description">
+                        Đã liên hệ Chăm Sóc Khách Hàng Sale Vi
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="activity-log-item">
+                    <img src="./assets/icons/logo.svg" width="16" height="16" />
+                    <div class="activity-log-item-content">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
+                        <div class="activity-log-item-name">Hệ Thống</div>
+                        <div class="activity-log-item-time">
+                          11/04/2024 - 10:24
+                        </div>
+                      </div>
+                      <div class="activity-log-item-description">
+                        Đã gửi 1 tin ZNS trong chiến dịch Black Friday
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="activity-log-section">
                   <div class="d-flex align-items-center gap-2 mb-3">
                     <img

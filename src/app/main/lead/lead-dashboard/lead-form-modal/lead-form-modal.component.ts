@@ -203,7 +203,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     {key: ETabDetail.PRODUCT, name: 'Sản phẩm', icon: 'user'},
     {key: ETabDetail.PACKAGE, name: 'Gói dịch vụ', icon: 'connections'},
   ];
-  public activeTab: string = 'task';
+  public activeTab: string = ETabDetail.DISCUSS;
 
   private destroy$ = new Subject<void>();
   public saveEvent = new Subject<ILeadCreateDto | ILeadUpdateDto>();

@@ -1,189 +1,228 @@
 <!-- Comments Sidebar Overlay -->
-<div class="comments-sidebar-overlay" *ngIf="isOpen" [class.closing]="isClosing" (click)="onClose()">
-  <!-- Sidebar Panel -->
-  <div class="comments-sidebar-panel" [class.closing]="isClosing" (click)="$event.stopPropagation()">
-    <!-- Header -->
-    <div class="sidebar-header">
-      <div class="header-info">
-        <h5 class="header-title">Thảo luận</h5>
-        <p class="header-subtitle" *ngIf="lead">{{ lead.name }}</p>
-      </div>
-      <button type="button" class="btn-close-sidebar" (click)="onClose()" title="Đóng">
-        <i class="fa fa-times"></i>
-      </button>
-    </div>
 
-    <!-- Comments List -->
-    <div class="comments-list">
-      <!-- Loading state -->
-      <div class="loading-comments" *ngIf="isLoadingComments">
-        <div class="spinner-border spinner-border-sm text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
+<!-- Sidebar Panel -->
+<div class="h-100">
+  <!-- Comments List -->
+  <div class="comments-list">
+    <div class="discuss-section h-100">
+      <div class="discuss-timeline h-100" #discussTimeline>
+        <!-- Loading state -->
+        <div class="loading-comments" *ngIf="isLoadingComments">
+          <div
+            class="spinner-border spinner-border-sm text-primary"
+            role="status"
+          >
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <span>Đang tải bình luận...</span>
         </div>
-        <span>Đang tải bình luận...</span>
-      </div>
 
-      <div class="comment-item" *ngFor="let comment of comments">
-        <div class="comment-avatar">
-          <img [src]="comment.createdBy.picture" [alt]="comment.createdBy.name" />
-        </div>
-        <div class="comment-content-wrapper">
-          <div class="comment-header">
-            <span class="comment-author">{{ comment.createdBy.name }}</span>
-            <span class="comment-time">{{ formatDate(comment.createdAt) }}</span>
+        <!-- Comment Entries -->
+        <div class="discuss-entry" *ngFor="let comment of comments">
+          <!-- User Avatar -->
+          <div class="discuss-avatar discuss-avatar-user">
+            <img
+              [src]="comment.createdBy.picture || './assets/icons/user.svg'"
+              [alt]="comment.createdBy.name"
+              width="20"
+              height="20"
+            />
           </div>
-
-          <!-- Text Comment -->
-          <div class="comment-content" *ngIf="comment.contentType === 'TEXT'">
-            <p>{{ comment.content }}</p>
-          </div>
-
-          <!-- Image Comment -->
-          <div class="comment-content" *ngIf="comment.contentType === 'IMAGE'">
-            <p class="mb-2">{{ comment.content }}</p>
-            <div class="comment-image" (click)="onViewImage(comment)">
-              <img [src]="comment.imageUrl" alt="Image attachment" />
+          <div class="discuss-content">
+            <div class="discuss-header">
+              <span class="discuss-sender">{{ comment.createdBy.name }}</span>
+              <span class="discuss-time">
+                {{ formatDate(comment.createdAt) }}
+              </span>
             </div>
-          </div>
 
-          <!-- Video Comment -->
-          <div class="comment-content" *ngIf="comment.contentType === 'VIDEO'">
-            <p class="mb-2">{{ comment.content }}</p>
-            <div class="comment-video">
-              <video [src]="comment.videoUrl" alt="Video attachment"></video>
+            <!-- Text Comment -->
+            <div class="discuss-message" *ngIf="comment.contentType === 'TEXT'">
+              <p class="discuss-message-text">{{ comment.content }}</p>
             </div>
-          </div>
 
-          <!-- Audio Comment -->
-          <div class="comment-content" *ngIf="comment.contentType === 'AUDIO'">
-            <p class="mb-2">{{ comment.content }}</p>
-            <div class="comment-audio">
-              <audio [src]="comment.audioUrl"></audio>
-            </div>
-          </div>
-
-          <!-- File Comment -->
-          <div class="comment-content" *ngIf="comment.contentType === 'FILE'">
-            <p class="mb-2">{{ comment.content }}</p>
-            <div class="comment-file" (click)="onDownloadFile(comment)">
-              <div class="file-icon">
-                <i class="fa-solid" [ngClass]="getFileIcon(comment.fileType)"></i>
-              </div>
-              <div class="file-info">
-                <p class="file-name">{{ comment.fileName }}</p>
-                <p class="file-action">Nhấn để tải xuống</p>
+            <!-- Image Comment -->
+            <div
+              class="discuss-message"
+              *ngIf="comment.contentType === 'IMAGE'"
+            >
+              <p *ngIf="comment.content" class="mb-2">
+                {{ comment.content }}
+              </p>
+              <div class="comment-image" (click)="onViewImage(comment)">
+                <img [src]="comment.imageUrl" alt="Image attachment" />
               </div>
             </div>
+
+            <!-- Video Comment -->
+            <div
+              class="discuss-message"
+              *ngIf="comment.contentType === 'VIDEO'"
+            >
+              <div class="comment-video">
+                <video
+                  [src]="comment.videoUrl || comment.fileUrl"
+                  controls
+                ></video>
+              </div>
+            </div>
+
+            <!-- Audio Comment -->
+            <div
+              class="discuss-message"
+              *ngIf="comment.contentType === 'AUDIO'"
+            >
+              <div class="comment-audio">
+                <audio [src]="comment.audioUrl" controls></audio>
+              </div>
+            </div>
+
+            <!-- File Comment -->
+            <div class="comment-content" *ngIf="comment.contentType === 'FILE'">
+              <div class="comment-file" (click)="onDownloadFile(comment)">
+                <div class="file-icon">
+                  <i
+                    class="fa-solid"
+                    [ngClass]="getFileIcon(comment.fileType)"
+                  ></i>
+                </div>
+                <div class="file-info">
+                  <p class="file-name">{{ comment.fileName }}</p>
+                  <p class="file-action">Nhấn để tải xuống</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Empty state -->
-      <div class="empty-comments" *ngIf="!isLoadingComments && comments.length === 0">
-        <i class="fa-regular fa-comments"></i>
-        <p>Chưa có thảo luận nào</p>
-        <span>Hãy bắt đầu cuộc trò chuyện về lead này</span>
+        <!-- Empty state -->
+        <div
+          class="empty-comments"
+          *ngIf="!isLoadingComments && comments.length === 0"
+        >
+          <i class="fa-regular fa-comments"></i>
+          <p>Chưa có thảo luận nào</p>
+          <span>Hãy bắt đầu cuộc trò chuyện về lead này</span>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- Input Area -->
-    <div class="comment-input-area">
-      <div class="input-container">
-        <div class="input-actions">
-          <button
-            type="button"
-            class="btn-action"
-            [disabled]="isUploading"
-            (click)="onAttachImage()"
-            title="Đính kèm ảnh"
-          >
-            <i class="fa-regular fa-image"></i>
-          </button>
-          <button
-            type="button"
-            class="btn-action"
-            [disabled]="isUploading"
-            (click)="onAttachFile()"
-            title="Đính kèm file"
-          >
-            <i class="fa-solid fa-paperclip"></i>
-          </button>
+  <!-- Input Area -->
+  <div class="comment-input-area">
+    <!-- Attachment Preview -->
+    <div
+      class="attachment-preview mb-1"
+      *ngIf="selectedFiles?.length || selectedImages?.length"
+    >
+      <div
+        class="attachment-item"
+        *ngFor="let file of selectedFiles; let i = index"
+      >
+        <div class="attachment-icon">
+          <i
+            class="fa-solid"
+            [ngClass]="getFileIcon(getFileType(file.name))"
+          ></i>
         </div>
-        <textarea
-          class="form-control"
-          placeholder="Nhập nội dung thảo luận..."
-          [(ngModel)]="newCommentText"
-          (keydown.enter)="$event.preventDefault(); onSendComment()"
-          (input)="adjustTextareaHeight()"
-          rows="1"
-          [disabled]="isUploading"
-          [style.height]="textareaHeight"
-        ></textarea>
+        <div class="attachment-info">
+          <p class="attachment-name">{{ file.name }}</p>
+          <p class="attachment-size">{{ formatFileSize(file.size) }}</p>
+        </div>
         <button
           type="button"
-          class="btn-send"
-          [disabled]="!newCommentText.trim() && !selectedFiles?.length && !selectedImages?.length || isSubmitting || isUploading"
-          (click)="onSendComment()"
+          class="btn-remove-attachment"
+          (click)="removeFile(i)"
+          title="Xóa file"
         >
-          <i class="fa-solid fa-paper-plane"></i>
+          <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-
-      <!-- Attachment Preview -->
-      <div class="attachment-preview" *ngIf="selectedFiles?.length || selectedImages?.length">
-        <div class="attachment-item" *ngFor="let file of selectedFiles; let i = index">
-          <div class="attachment-icon">
-            <i class="fa-solid" [ngClass]="getFileIcon(getFileType(file.name))"></i>
-          </div>
-          <div class="attachment-info">
-            <p class="attachment-name">{{ file.name }}</p>
-            <p class="attachment-size">{{ formatFileSize(file.size) }}</p>
-          </div>
-          <button
-            type="button"
-            class="btn-remove-attachment"
-            (click)="removeFile(i)"
-            title="Xóa file"
-          >
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+      <div
+        class="attachment-item"
+        *ngFor="let image of selectedImages; let i = index"
+      >
+        <div class="attachment-icon">
+          <i class="fa-solid fa-image"></i>
         </div>
-        <div class="attachment-item" *ngFor="let image of selectedImages; let i = index">
-          <div class="attachment-icon">
-            <i class="fa-solid fa-image"></i>
-          </div>
-          <div class="attachment-info">
-            <p class="attachment-name">{{ image.name }}</p>
-            <p class="attachment-size">{{ formatFileSize(image.size) }}</p>
-          </div>
-          <button
-            type="button"
-            class="btn-remove-attachment"
-            (click)="removeImage(i)"
-            title="Xóa ảnh"
-          >
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+        <div class="attachment-info">
+          <p class="attachment-name">{{ image.name }}</p>
+          <p class="attachment-size">{{ formatFileSize(image.size) }}</p>
         </div>
+        <button
+          type="button"
+          class="btn-remove-attachment"
+          (click)="removeImage(i)"
+          title="Xóa ảnh"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Hidden file inputs -->
-    <input
-      #fileInput
-      type="file"
-      multiple
-      style="display: none"
-      (change)="onFileSelected($event)"
-      accept=".doc,.docx,.xls,.xlsx,.pdf,.md,.mp3,.wav,.m4a,.aac,.mp4,.mov,.avi,.mkv,.webm"
-    />
-    <input
-      #imageInput
-      type="file"
-      multiple
-      style="display: none"
-      (change)="onImageSelected($event)"
-      accept=".jpg,.jpeg,.png,.gif,.webp"
-    />
+    <div class="input-container">
+      <div class="input-actions">
+        <button
+          type="button"
+          class="btn-action"
+          [disabled]="isUploading"
+          (click)="onAttachImage()"
+          title="Đính kèm ảnh"
+        >
+          <i class="fa-regular fa-image"></i>
+        </button>
+        <button
+          type="button"
+          class="btn-action"
+          [disabled]="isUploading"
+          (click)="onAttachFile()"
+          title="Đính kèm file"
+        >
+          <i class="fa-solid fa-paperclip"></i>
+        </button>
+      </div>
+      <textarea
+        class="form-control"
+        placeholder="Nhập nội dung thảo luận..."
+        [(ngModel)]="newCommentText"
+        (keydown.enter)="$event.preventDefault(); onSendComment()"
+        (input)="adjustTextareaHeight()"
+        rows="1"
+        [disabled]="isUploading"
+        [style.height]="textareaHeight"
+      ></textarea>
+      <button
+        type="button"
+        class="btn-send"
+        [disabled]="
+          (!newCommentText.trim() &&
+            !selectedFiles?.length &&
+            !selectedImages?.length) ||
+          isSubmitting ||
+          isUploading
+        "
+        (click)="onSendComment()"
+      >
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
   </div>
+
+  <!-- Hidden file inputs -->
+  <input
+    #fileInput
+    type="file"
+    multiple
+    style="display: none"
+    (change)="onFileSelected($event)"
+    accept=".doc,.docx,.xls,.xlsx,.pdf,.md,.mp3,.wav,.m4a,.aac,.mp4,.mov,.avi,.mkv,.webm"
+  />
+  <input
+    #imageInput
+    type="file"
+    multiple
+    style="display: none"
+    (change)="onImageSelected($event)"
+    accept=".jpg,.jpeg,.png,.gif,.webp"
+  />
 </div>

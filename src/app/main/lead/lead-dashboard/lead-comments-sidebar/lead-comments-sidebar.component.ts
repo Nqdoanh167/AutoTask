@@ -1,10 +1,21 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from '@angular/core';
-import { ILead, ILeadComment, ELeadCommentContentType } from '@app/types/lead';
-import { StorageService } from '@app/services/api/storage.service';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { ToastrService } from 'ngx-toastr';
-import { finalize, takeUntil } from 'rxjs';
-import { Subject } from 'rxjs';
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  OnDestroy,
+  AfterViewChecked,
+  ChangeDetectorRef,
+} from '@angular/core';
+import {ILead, ILeadComment, ELeadCommentContentType} from '@app/types/lead';
+import {StorageService} from '@app/services/api/storage.service';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {ToastrService} from 'ngx-toastr';
+import {finalize, takeUntil} from 'rxjs';
+import {Subject} from 'rxjs';
 
 export interface IComment {
   id: string;
@@ -31,13 +42,17 @@ export interface IComment {
   templateUrl: './lead-comments-sidebar.component.html',
   styleUrls: ['./lead-comments-sidebar.component.scss'],
 })
-export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
+export class LeadCommentsSidebarComponent
+  implements OnInit, OnDestroy, AfterViewChecked
+{
   @Input() isOpen = false;
   @Input() lead?: ILead;
   @Output() close = new EventEmitter<void>();
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('discussTimeline', {static: false})
+  discussTimeline!: ElementRef<HTMLDivElement>;
 
   comments: IComment[] = [];
   newCommentText = '';
@@ -49,6 +64,7 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
   selectedImages: File[] = [];
   textareaHeight = 'auto';
   destroy$ = new Subject<void>();
+  private shouldScrollToBottom = false;
 
   private readonly IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
   private readonly DOC_EXT = ['doc', 'docx', 'xls', 'xlsx', 'pdf', 'md'];
@@ -64,7 +80,19 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
     private storageService: StorageService,
     private autoTaskService: AutoTaskService,
     private toastr: ToastrService,
+    private cdr: ChangeDetectorRef,
   ) {}
+
+  // get content type file from extension
+  getContentTypeType(
+    extension: string,
+  ): 'AUDIO' | 'FILE' | 'VIDEO' | 'IMAGE' | 'TEXT' {
+    if (this.AUDIO_EXT.includes(extension)) return 'AUDIO';
+    if (this.DOC_EXT.includes(extension)) return 'FILE';
+    if (this.VIDEO_EXT.includes(extension)) return 'VIDEO';
+    if (this.IMAGE_EXT.includes(extension)) return 'IMAGE';
+    return 'TEXT';
+  }
 
   ngOnInit(): void {
     this.loadComments();
@@ -75,6 +103,13 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  ngAfterViewChecked(): void {
+    if (this.shouldScrollToBottom) {
+      this.scrollToBottom();
+      this.shouldScrollToBottom = false;
+    }
+  }
+
   /**
    * Load comments from API
    */
@@ -83,27 +118,32 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
 
     this.isLoadingComments = true;
     const filterObj = {
-      leadId: this.lead.id
+      leadId: this.lead.id,
     };
-    this.autoTaskService.leadComment.get({
-      filter: JSON.stringify(filterObj),
-      sort: 'createdAt' // Sort by createdAt ascending
-    })
-    .pipe(
-      finalize(() => this.isLoadingComments = false),
-      takeUntil(this.destroy$)
-    )
-    .subscribe({
-      next: (response) => {
-        if (response?.data) {
-          this.comments = response.data.map(comment => this.mapCommentToComment(comment));
-        }
-      },
-      error: (error) => {
-        console.error('Error loading comments:', error);
-        this.toastr.error('Có lỗi xảy ra khi tải bình luận');
-      }
-    });
+    this.autoTaskService.leadComment
+      .get({
+        filter: JSON.stringify(filterObj),
+        sort: '-createdAt', // Sort by createdAt ascending
+      })
+      .pipe(
+        finalize(() => (this.isLoadingComments = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (response) => {
+          if (response?.data) {
+            this.comments = response.data
+              .map((comment) => this.mapCommentToComment(comment))
+              .reverse();
+            // Scroll to bottom after loading comments
+            this.shouldScrollToBottom = true;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading comments:', error);
+          this.toastr.error('Có lỗi xảy ra khi tải bình luận');
+        },
+      });
   }
 
   /**
@@ -114,7 +154,7 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
       id: comment.id,
       createdBy: comment.createdBy,
       content: comment.content || '',
-      contentType: this.mapContentType(comment.contentType),
+      contentType: this.getContentTypeType(comment.fileType || ''),
       imageUrl: comment.imageUrl,
       videoUrl: comment.videoUrl,
       audioUrl: comment.audioUrl,
@@ -129,7 +169,9 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
   /**
    * Map ELeadCommentContentType to IComment contentType
    */
-  private mapContentType(contentType: ELeadCommentContentType): 'TEXT' | 'IMAGE' | 'FILE' | 'VIDEO' | 'AUDIO' {
+  private mapContentType(
+    contentType: ELeadCommentContentType,
+  ): 'TEXT' | 'IMAGE' | 'FILE' | 'VIDEO' | 'AUDIO' {
     switch (contentType) {
       case ELeadCommentContentType.IMAGE:
         return 'IMAGE';
@@ -159,7 +201,8 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
         },
         content: 'Đã gửi 1 ảnh',
         contentType: 'IMAGE',
-        imageUrl: 'https://via.placeholder.com/600x400/4CAF50/FFFFFF?text=Sample+Image',
+        imageUrl:
+          'https://via.placeholder.com/600x400/4CAF50/FFFFFF?text=Sample+Image',
         createdAt: new Date('2024-09-09T15:06:00'),
         updatedAt: new Date('2024-09-09T15:06:00'),
       },
@@ -214,7 +257,7 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
   onClose(): void {
     // Trigger closing animation
     this.isClosing = true;
-    
+
     // Wait for animation to complete before emitting close event
     setTimeout(() => {
       this.isClosing = false;
@@ -226,14 +269,23 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
    * Handle send new comment
    */
   onSendComment(): void {
-    if ((!this.newCommentText.trim() && !this.selectedFiles.length && !this.selectedImages.length) || !this.lead?.id) {
+    if (
+      (!this.newCommentText.trim() &&
+        !this.selectedFiles.length &&
+        !this.selectedImages.length) ||
+      !this.lead?.id
+    ) {
       return;
     }
 
     this.isSubmitting = true;
 
     // If only text comment
-    if (this.newCommentText.trim() && !this.selectedFiles.length && !this.selectedImages.length) {
+    if (
+      this.newCommentText.trim() &&
+      !this.selectedFiles.length &&
+      !this.selectedImages.length
+    ) {
       this.sendTextComment();
       return;
     }
@@ -257,10 +309,11 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
       contentType: ELeadCommentContentType.TEXT,
     };
 
-    this.autoTaskService.leadComment.create(commentData)
+    this.autoTaskService.leadComment
+      .create(commentData)
       .pipe(
-        finalize(() => this.isSubmitting = false),
-        takeUntil(this.destroy$)
+        finalize(() => (this.isSubmitting = false)),
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (response) => {
@@ -272,15 +325,13 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
             this.clearInput();
 
             // Scroll to bottom after adding comment
-            setTimeout(() => {
-              this.scrollToBottom();
-            }, 100);
+            this.shouldScrollToBottom = true;
           }
         },
         error: (error) => {
           console.error('Error creating comment:', error);
           this.toastr.error('Có lỗi xảy ra khi gửi bình luận');
-        }
+        },
       });
   }
 
@@ -288,8 +339,9 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
    * Upload files and create comments
    */
   private uploadAndSendComments(files: File[]): void {
-    this.storageService.uploadFiles(files)
-      .pipe(finalize(() => this.isSubmitting = false))
+    this.storageService
+      .uploadFiles(files)
+      .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: (response) => {
           if (response?.data && response.data.length > 0) {
@@ -303,8 +355,14 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
 
               const commentData: any = {
                 leadId: this.lead!.id,
-                content: hasText ? this.newCommentText.trim() : (isImage ? `Đã gửi 1 ảnh: ${file.name}` : `Đã gửi file đính kèm: ${file.name}`),
-                contentType: isImage ? ELeadCommentContentType.IMAGE : ELeadCommentContentType.FILE,
+                content: hasText
+                  ? this.newCommentText.trim()
+                  : isImage
+                    ? `Đã gửi 1 ảnh: ${file.name}`
+                    : `Đã gửi file đính kèm: ${file.name}`,
+                contentType: isImage
+                  ? ELeadCommentContentType.IMAGE
+                  : ELeadCommentContentType.FILE,
               };
 
               // Set appropriate URL based on content type
@@ -316,32 +374,31 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
                 commentData.fileType = this.getFileType(file.name);
               }
 
-              this.autoTaskService.leadComment.create(commentData)
-                .subscribe({
-                  next: (commentResponse) => {
-                    if (commentResponse?.data) {
-                      const newComment = this.mapCommentToComment(commentResponse.data);
-                      this.comments.push(newComment);
-                      uploadedCount++;
-
-                      // Clear input after all comments are created
-                      if (uploadedCount === totalFiles) {
-                        this.clearInput();
-                        setTimeout(() => {
-                          this.scrollToBottom();
-                        }, 100);
-                      }
-                    }
-                  },
-                  error: (error) => {
-                    console.error('Error creating file comment:', error);
+              this.autoTaskService.leadComment.create(commentData).subscribe({
+                next: (commentResponse) => {
+                  if (commentResponse?.data) {
+                    const newComment = this.mapCommentToComment(
+                      commentResponse.data,
+                    );
+                    this.comments.push(newComment);
                     uploadedCount++;
+
+                    // Clear input after all comments are created
                     if (uploadedCount === totalFiles) {
                       this.clearInput();
-                      this.toastr.warning('Một số file không thể tạo bình luận');
+                      this.shouldScrollToBottom = true;
                     }
                   }
-                });
+                },
+                error: (error) => {
+                  console.error('Error creating file comment:', error);
+                  uploadedCount++;
+                  if (uploadedCount === totalFiles) {
+                    this.clearInput();
+                    this.toastr.warning('Một số file không thể tạo bình luận');
+                  }
+                },
+              });
             });
 
             this.toastr.success(`Đã tải lên ${files.length} file thành công`);
@@ -350,7 +407,7 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Upload error:', error);
           this.toastr.error('Có lỗi xảy ra khi tải lên file');
-        }
+        },
       });
   }
 
@@ -368,9 +425,9 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
    * Scroll comments container to bottom
    */
   scrollToBottom(): void {
-    const commentsContainer = document.querySelector('.comments-list');
-    if (commentsContainer) {
-      commentsContainer.scrollTop = commentsContainer.scrollHeight;
+    if (this.discussTimeline?.nativeElement) {
+      const container = this.discussTimeline.nativeElement;
+      container.scrollTop = container.scrollHeight;
     }
   }
 
@@ -390,14 +447,14 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
     if (diffHours < 24) return `${diffHours} giờ trước`;
     if (diffDays < 7) return `${diffDays} ngày trước`;
 
-    // Format: HH:mm DD/MM/YYYY
-    const hours = commentDate.getHours().toString().padStart(2, '0');
-    const minutes = commentDate.getMinutes().toString().padStart(2, '0');
+    // Format: DD/MM/YYYY - HH:mm
     const day = commentDate.getDate().toString().padStart(2, '0');
     const month = (commentDate.getMonth() + 1).toString().padStart(2, '0');
     const year = commentDate.getFullYear();
+    const hours = commentDate.getHours().toString().padStart(2, '0');
+    const minutes = commentDate.getMinutes().toString().padStart(2, '0');
 
-    return `${hours}:${minutes} ${day}/${month}/${year}`;
+    return `${day}/${month}/${year} - ${hours}:${minutes}`;
   }
 
   /**
@@ -513,7 +570,9 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
     );
 
     if (imageFiles.length === 0) {
-      this.toastr.warning('Vui lòng chọn file hình ảnh (jpg, jpeg, png, gif, webp)');
+      this.toastr.warning(
+        'Vui lòng chọn file hình ảnh (jpg, jpeg, png, gif, webp)',
+      );
       return;
     }
 
@@ -526,7 +585,9 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
       (file) => file.size > this.MAX_IMAGE_MB * 1024 * 1024,
     );
     if (oversizedFiles.length > 0) {
-      this.toastr.warning(`Mỗi hình ảnh không được vượt quá ${this.MAX_IMAGE_MB}MB`);
+      this.toastr.warning(
+        `Mỗi hình ảnh không được vượt quá ${this.MAX_IMAGE_MB}MB`,
+      );
       return;
     }
 
@@ -536,7 +597,6 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
     // Clear input
     input.value = '';
   }
-
 
   /**
    * Format file size to human readable format
@@ -569,7 +629,9 @@ export class LeadCommentsSidebarComponent implements OnInit, OnDestroy {
    * Adjust textarea height based on content
    */
   adjustTextareaHeight(): void {
-    const textarea = document.querySelector('.comment-input-area textarea') as HTMLTextAreaElement;
+    const textarea = document.querySelector(
+      '.comment-input-area textarea',
+    ) as HTMLTextAreaElement;
     if (textarea) {
       textarea.style.height = 'auto';
       textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
