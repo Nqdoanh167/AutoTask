@@ -32,6 +32,10 @@ export const TASK_MULTIPLE_ACTIONS = [
     label: 'Xóa hàng loạt tác vụ',
     value: ETypeBulkUpdate.DELETE_MULTI_TASK,
   },
+  {
+    label: 'Tạo bản sao hàng loạt',
+    value: ETypeBulkUpdate.CLONE_MULTI_TASK,
+  },
 ];
 
 export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [

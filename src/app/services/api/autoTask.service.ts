@@ -349,6 +349,11 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.task, id, 'clone']),
         body,
       ),
+    cloneMultiTask: (taskIds: string[], options: string[]) =>
+      this.httpClient.post<EntityResult<any>>(
+        this.createUrl([this.api.task, 'bulk-clone']),
+        { taskIds, options },
+      ),
     createOrder: (id: string) =>
       this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.task, id, 'create-order']),
