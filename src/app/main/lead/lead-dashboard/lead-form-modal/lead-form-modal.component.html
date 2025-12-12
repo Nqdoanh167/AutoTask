@@ -7,6 +7,12 @@
 >
   <ng-container modalTitle>
     <div class="d-flex align-items-center gap-2 flex-wrap">
+      <img
+        src="./assets/icons/icon-sidebar/lead-active.svg"
+        alt=""
+        width="40"
+        height="40"
+      />
       <input
         required
         class="input__title basic-input-title input-medium"
@@ -92,103 +98,80 @@
         <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
           <div class="form-content-wrapper">
             <!-- Row 1: Avatar, Tên Lead, Số điện thoại, Email, Giới tính -->
-            <div class="row">
-              <div class="d-flex align-items-start gap-4 col-6">
-                <div class="wrap-avatar">
-                  <img
-                    alt=""
-                    (click)="onAvatarClick()"
-                    class="avatar cursor-pointer"
-                    onerror="this.src='https://smax.app/assets/images/noavatar.png'"
-                    src="{{ avatarUrl }}"
-                  />
-
-                  <div class="layer-loading" *ngIf="isUploadingAvatar">
-                    <i class="fas fa-spinner fa-spin px-2"></i>
-                  </div>
-                </div>
-
+            <div class="row align-items-center">
+              <div
+                class="d-flex align-items-start gap-4 col-6"
+                style="padding-right: 24px"
+              >
                 <div class="d-flex flex-column gap-2 align-items-start">
-                  <div class="lead-name">Nguyen Van A</div>
-
                   <div class="d-flex align-items-center gap-2">
-                    <div class="lead-info-contact-item">
+                    <div class="wrap-avatar">
                       <img
-                        src="./assets/icons/phone.svg"
-                        width="24"
-                        height="24"
+                        alt=""
+                        (click)="onAvatarClick()"
+                        class="avatar cursor-pointer"
+                        onerror="this.src='https://smax.app/assets/images/noavatar.png'"
+                        src="{{ avatarUrl }}"
                       />
-                      <span style="color: #3c8fff">
-                        {{ '0912746230' }}
-                      </span>
-                    </div>
 
-                    <div class="lead-info-contact-item">
-                      <img
-                        src="./assets/icons/mail.svg"
-                        width="24"
-                        height="24"
-                      />
-                      <span style="color: #3c8fff">
-                        {{ 'nqdcntt2002@gmail.com' }}
-                      </span>
+                      <div class="layer-loading" *ngIf="isUploadingAvatar">
+                        <i class="fas fa-spinner fa-spin px-2"></i>
+                      </div>
                     </div>
+                    <div class="lead-name">Nguyen Van A</div>
                   </div>
 
-                  <div
-                    class="tags-edit-container"
-                    (click)="onTagsClick($event)"
-                  >
-                    <!-- View mode: Display tags as tag-items -->
-                    <div *ngIf="!isEditingTags" class="tags-view-mode">
-                      <span
-                        *ngFor="let tag of getSelectedTags()"
-                        class="text-capitalize me-2 tag-item"
-                        [ngClass]="{nonBack: !tag.bgColor}"
-                        [ngStyle]="{background: tag.bgColor}"
-                      >
-                        <span>{{ tag.name }}</span>
-                      </span>
-                      <span
-                        *ngIf="getSelectedTags().length === 0"
-                        class="tags-placeholder"
-                      >
-                        Chọn tags
-                      </span>
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <div class="lead-info-contact-item">
+                        <img
+                          src="./assets/icons/phone.svg"
+                          width="24"
+                          height="24"
+                        />
+                        <span style="color: #3c8fff">
+                          {{ '0912746230' }}
+                        </span>
+                      </div>
                     </div>
-                    <!-- Edit mode: Display ng-select -->
-                    <div *ngIf="isEditingTags" class="tags-edit-mode">
-                      <ng-select
-                        [formControl]="tagIdsControl"
-                        [items]="tags"
-                        bindLabel="name"
-                        bindValue="id"
-                        placeholder="Chọn Tag"
-                        [multiple]="true"
-                        [clearable]="true"
-                        (change)="onTagsChange()"
-                        [closeOnSelect]="false"
-                        appendTo=".modal"
-                      >
-                        <ng-template ng-option-tmp let-item="item">
-                          <span
-                            class="text-capitalize tag-item"
-                            [ngClass]="{nonBack: !item.bgColor}"
-                            [ngStyle]="{background: item.bgColor}"
-                          >
-                            <span>{{ item.name }}</span>
-                          </span>
-                        </ng-template>
-                        <ng-template ng-label-tmp let-item="item">
-                          <span
-                            class="text-capitalize tag-item"
-                            [ngClass]="{nonBack: !item.bgColor}"
-                            [ngStyle]="{background: item.bgColor}"
-                          >
-                            <span>{{ item.name }}</span>
-                          </span>
-                        </ng-template>
-                      </ng-select>
+
+                    <div class="col-6">
+                      <div class="lead-info-contact-item overflow-hidden">
+                        <img
+                          src="./assets/icons/mail.svg"
+                          width="24"
+                          height="24"
+                        />
+                        <span style="color: #3c8fff">
+                          {{ 'nqdcntt2002@gmail.com' }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="col-6">
+                      <div class="lead-info-contact-item overflow-hidden">
+                        <img
+                          src="./assets/icons/branch.svg"
+                          width="24"
+                          height="24"
+                        />
+                        <span style="color: #3c8fff">
+                          {{ 'Chi nhánh Hà Nội' }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="col-6">
+                      <div class="lead-info-contact-item overflow-hidden">
+                        <img
+                          src="./assets/icons/human.svg"
+                          width="24"
+                          height="24"
+                        />
+                        <span style="color: #3c8fff">
+                          {{ 'Nguyễn Mạnh Cường' }}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -256,23 +239,82 @@
 
               <div class="lead-info-detail col-6 row">
                 <div class="col-4">
-                  <label class="lead-info-detail-label">Chi nhánh:</label>
-                  <div>Chi nhánh Hà Nội</div>
-                </div>
-
-                <div class="col-4">
                   <label class="lead-info-detail-label">Nguồn lead:</label>
                   <div>Ads Minh Senpal</div>
+                </div>
+
+                <div class="col-8">
+                  <label class="lead-info-detail-label">Thẻ tag:</label>
+                  <div
+                    class="tags-edit-container"
+                    (mouseenter)="onTagsClick($event)"
+                  >
+                    <!-- View mode: Display tags as tag-items -->
+                    <div *ngIf="!isEditingTags" class="tags-view-mode">
+                      <span
+                        *ngFor="let tag of getSelectedTags()"
+                        class="text-capitalize me-2 tag-item"
+                        [ngClass]="{nonBack: !tag.bgColor}"
+                        [ngStyle]="{background: tag.bgColor}"
+                      >
+                        <span>
+                          <i class="fa-solid fa-filter"></i>
+                          {{ tag.name }}
+                        </span>
+                      </span>
+                      <span
+                        *ngIf="getSelectedTags().length === 0"
+                        class="tags-placeholder"
+                      >
+                        Chọn tags
+                      </span>
+                    </div>
+                    <!-- Edit mode: Display ng-select -->
+                    <div *ngIf="isEditingTags" class="tags-edit-mode">
+                      <ng-select
+                        [formControl]="tagIdsControl"
+                        [items]="tags"
+                        bindLabel="name"
+                        bindValue="id"
+                        placeholder="Chọn Tag"
+                        [multiple]="true"
+                        [clearable]="true"
+                        (change)="onTagsChange()"
+                        [closeOnSelect]="false"
+                        appendTo=".modal"
+                      >
+                        <ng-template ng-option-tmp let-item="item">
+                          <span
+                            class="text-capitalize tag-item"
+                            [ngClass]="{nonBack: !item.bgColor}"
+                            [ngStyle]="{background: item.bgColor}"
+                          >
+                            <span>
+                              <i class="fa-solid fa-filter"></i>
+                              {{ item.name }}
+                            </span>
+                          </span>
+                        </ng-template>
+                        <ng-template ng-label-tmp let-item="item">
+                          <span
+                            class="text-capitalize tag-item"
+                            [ngClass]="{nonBack: !item.bgColor}"
+                            [ngStyle]="{background: item.bgColor}"
+                          >
+                            <span>
+                              <i class="fa-solid fa-filter"></i>
+                              {{ item.name }}
+                            </span>
+                          </span>
+                        </ng-template>
+                      </ng-select>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="col-4">
                   <label class="lead-info-detail-label">Phễu:</label>
                   <div>Facebook</div>
-                </div>
-
-                <div class="col-4">
-                  <label class="lead-info-detail-label">Quản lý bởi:</label>
-                  <div>Nguyễn Mạnh Cường</div>
                 </div>
 
                 <div

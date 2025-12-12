@@ -171,7 +171,7 @@
   }
 
   .tags-edit-mode {
-    max-width: 200px;
+    // max-width: 200px;
     overflow: hidden;
 
     ::ng-deep .ng-select {
@@ -988,7 +988,7 @@
 
 .activity-area {
   width: calc(100% + -0px);
-  height: calc(100vh - 260px);
+  height: calc(100vh - 230px);
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -1250,9 +1250,12 @@
 
 .wrap-avatar {
   position: relative;
+  &:hover {
+    opacity: 0.7;
+  }
   .avatar {
-    width: 92px;
-    height: 92px;
+    width: 40px;
+    height: 40px;
     border-radius: 100%;
     border: 2px solid #c9e0ff;
     overflow: hidden;
@@ -1267,17 +1270,16 @@
   }
 
   .layer-loading {
-    @include mixins.imageCircle(50px);
-    text-align: center;
+    @include mixins.imageCircle(40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
-    top: 21px;
-    right: 21px;
     z-index: 4;
     background: #dedede96;
-
+    top: 0;
     i {
       font-size: 18px;
-      margin-top: 15px;
     }
   }
 }

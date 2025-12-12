@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { AuthService } from 'src/app/services/api/auth.service';
-import { Biz, EModule, ISidebar, User } from 'src/app/types/viewmodels';
-import { filter } from 'rxjs/operators';
+import {Component, OnInit} from '@angular/core';
+import {NavigationEnd, Router} from '@angular/router';
+import {AuthService} from 'src/app/services/api/auth.service';
+import {Biz, EModule, ISidebar, User} from 'src/app/types/viewmodels';
+import {filter} from 'rxjs/operators';
 import {
   listConfigNavItems,
   listDashboardNavItems,
@@ -10,7 +10,7 @@ import {
   listLeadNavItems,
   listLeadSettingNavItems,
 } from '@app/variable';
-import { MainService } from '@app/services/api/main.service';
+import {MainService} from '@app/services/api/main.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -28,32 +28,32 @@ export class SidebarComponent implements OnInit {
       link: `/${EModule.DASHBOARD}`,
       alias: EModule.DASHBOARD,
       name: 'Tác vụ',
-      icon: './assets/images/module/table.svg',
-      iconActive: './assets/images/module/table-active.svg',
+      icon: './assets/icons/icon-sidebar/task.svg',
+      iconActive: './assets/icons/icon-sidebar/task-active.svg',
       isActive: true,
     },
     {
       link: `/${EModule.LEAD}`,
       alias: EModule.LEAD,
       name: 'Quản lý Lead',
-      icon: './assets/images/module/lead-dashboard-active.svg',
-      iconActive: './assets/images/module/lead-dashboard.svg',
+      icon: './assets/icons/icon-sidebar/lead.svg',
+      iconActive: './assets/icons/icon-sidebar/lead-active.svg',
       isActive: false,
     },
     {
       link: `/${EModule.CONFIG}`,
       alias: EModule.CONFIG,
       name: 'Cấu hình Quy tắc và Dữ liệu',
-      icon: './assets/images/module/flow.svg',
-      iconActive: './assets/images/module/flow-active.svg',
+      icon: './assets/icons/icon-sidebar/diagram.svg',
+      iconActive: './assets/icons/icon-sidebar/diagram-active.svg',
       isActive: false,
     },
     {
       link: `/${EModule.SETTING}`,
       alias: EModule.SETTING,
       name: 'Cài đặt',
-      icon: './assets/images/module/setting.svg',
-      iconActive: './assets/images/module/setting-active.svg',
+      icon: './assets/icons/icon-sidebar/setting.svg',
+      iconActive: './assets/icons/icon-sidebar/setting-active.svg',
       isActive: false,
     },
   ];
@@ -123,8 +123,13 @@ export class SidebarComponent implements OnInit {
     // const urlTwo = url.substring(0, this.getPositionString(url, '/', 3));
     this.sidebars = this.sidebars.map((side: any) => {
       side.isActive = side.link === urlOne;
+      side.isHovered = side.isHovered || false;
       return side;
     });
+  }
+
+  onItemHover(item: ISidebar, isHovered: boolean) {
+    item.isHovered = isHovered;
   }
 
   getPositionString(text: string, subString: string, index: number) {

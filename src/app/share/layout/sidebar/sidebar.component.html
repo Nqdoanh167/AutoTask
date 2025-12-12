@@ -13,11 +13,13 @@
       <div
         class="item none"
         [ngClass]="{active: item.isActive, disabled: item.disabled}"
+        (mouseenter)="onItemHover(item, true)"
+        (mouseleave)="onItemHover(item, false)"
       >
         @if (item.children?.length) {
           <div class="item-link" [tooltip]="item.name">
             <img
-              [src]="!item.isActive ? item.icon : item.iconActive"
+              [src]="!item.isActive && !item.isHovered ? item.icon : item.iconActive"
               alt=""
               class="icon"
             />
@@ -34,7 +36,7 @@
         } @else {
           <a [routerLink]="item.link" class="item-link">
             <img
-              [src]="!item.isActive ? item.icon : item.iconActive"
+              [src]="!item.isActive && !item.isHovered ? item.icon : item.iconActive"
               alt=""
               class="icon"
             />

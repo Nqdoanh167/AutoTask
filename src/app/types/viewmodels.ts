@@ -1537,6 +1537,7 @@ export interface ISidebar {
   icon?: string;
   iconActive?: string;
   isActive: boolean;
+  isHovered?: boolean;
   children?: ISidebar[];
   disabled?: boolean;
   permissions?: any[];
