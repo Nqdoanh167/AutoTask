@@ -64,6 +64,7 @@ import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/mo
 import {calculateTime} from '@app/utils/common';
 import {ModalCloseMultiTasksComponent} from './content-modal/modal-close-multi-tasks/modal-close-multi-tasks.component';
 import {ModalCheckDuplicatedPhoneComponent} from './content-modal/modal-check-duplicated-phone/modal-check-duplicated-phone.component';
+import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone/modal-clone.component';
 
 @Component({
   selector: 'app-task',
@@ -698,6 +699,10 @@ export class DashboardComponent
         this.showModalAssignTeam(action);
         break;
 
+      case ETypeBulkUpdate.CLONE_MULTI_TASK:
+        this.showModalCloneMultiTask(action);
+        break;
+
       default:
         break;
     }
@@ -753,6 +758,34 @@ export class DashboardComponent
     }
   }
 
+  showModalCloneMultiTask(action: {value: ETypeBulkUpdate}) {
+    if (!action) return;
+
+    try {
+      const selectedTaskIds = this.getRowIds();
+      if (selectedTaskIds.length > 100) {
+        this.toastrService.warning('Bạn chỉ có thể sao chép tối đa 100 tác vụ cùng lúc.')
+        this.selectBatchActions?.handleClearClick();
+        return;
+      }
+      
+      const modalRef = this.modalService.show(ModalCloneComponent, {
+        class: 'modal-dialog-centered',
+        initialState: {
+          taskIds: selectedTaskIds,
+        },
+      })
+
+      modalRef.content?.submitEvent.subscribe((options: string[]) => {
+        if (options?.length && selectedTaskIds.length) {
+          this.cloneMultiTask(selectedTaskIds, options);
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   showModalDeleteMultiTask(action: {value: ETypeBulkUpdate}) {
     if (!action) return;
     if (this.getRowIds().length > 1000) {
@@ -778,6 +811,31 @@ export class DashboardComponent
     } catch (e) {
       console.log(e);
     }
+  }
+
+  cloneMultiTask(taskIds: string[], options: string[]) {
+    if (!taskIds?.length || !options?.length) return;
+
+    this.autoTaskService.task.cloneMultiTask(taskIds, options)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            const successCount = res.data?.clonedTaskIds?.length
+            if (successCount > 0) {
+              this.toastrService.success(`Đã sao chép thành công ${successCount} tác vụ`);
+            } else {
+              this.toastrService.warning('Không có tác vụ nào được sao chép');
+            }
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+          this.toastrService.warning('Đã có lỗi xảy ra!')
+        },
+      });
   }
 
   // isInit: Khi load

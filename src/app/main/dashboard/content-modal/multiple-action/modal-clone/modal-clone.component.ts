@@ -19,7 +19,8 @@ import {EOptionCloneTask, ITask} from '@app/types/flow';
   styleUrls: ['./modal-clone.component.scss'],
 })
 export class ModalCloneComponent implements OnInit, OnDestroy {
-  @Input() task!: ITask;
+  @Input() task?: ITask;
+  @Input() taskIds?: string[];
   @Output() submitEvent = new EventEmitter();
   public optionToCloneTask = [
     {
