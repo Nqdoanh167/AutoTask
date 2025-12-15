@@ -38,6 +38,7 @@ import { InputUploadModule } from '@app/share/input/input-upload/input-upload.mo
 import { InputSuggestCustomerComponent } from '@share/common/input-select-customer/input-suggest-customer.component';
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { InputCheckboxModule } from '@share/input/input-checkbox/input-checkbox.module';
+import { PopoverModule } from 'ngx-bootstrap/popover';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { InputCheckboxModule } from '@share/input/input-checkbox/input-checkbox.
     CustomInputSearchComponent,
     InputSuggestCustomerComponent,
     CollapseModule,
-    InputCheckboxModule
+    InputCheckboxModule,
+    PopoverModule
 ],
   providers: [DatePipe],
 })

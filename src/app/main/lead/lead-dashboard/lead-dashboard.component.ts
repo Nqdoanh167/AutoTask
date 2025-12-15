@@ -84,6 +84,9 @@ export class LeadDashboardComponent
     listRoles: [],
     listUsers: [],
     branchDisplayInputText: '',
+    branchIcon: './assets/icons/location.svg',
+    roleIcon: './assets/icons/role.svg',
+    userIcon: './assets/icons/member.svg',
   };
   public setting!: ISetting;
 

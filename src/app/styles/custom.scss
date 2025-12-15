@@ -1243,7 +1243,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       border: none;
       color: #5e6068 !important;
       border-radius: unset !important;
-      padding: 14px !important;
+      padding: 10px !important;
       .button-edit-tab {
         display: none;
       }
@@ -1352,7 +1352,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       }
 
       &.active {
-        padding: 14px !important;
+        padding: 10px !important;
         border: none;
         color: $neutral !important;
         font-weight: 500 !important;

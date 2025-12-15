@@ -166,7 +166,9 @@ export class AuthService {
           break;
         case EModule.LEAD:
           // Lead module doesn't check permissions yet, allow all nav items
-          accessibleSites[module] = listLeadNavItems.map(item => item.alias!);
+          // accessibleSites[module] = listLeadNavItems.map(item => item.alias!);
+          key = EPerActType.LEAD;
+          listNavItems = listLeadNavItems;
           return;
       }
       const sites = listNavItems

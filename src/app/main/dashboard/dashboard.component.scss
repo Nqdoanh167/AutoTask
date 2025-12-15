@@ -2,12 +2,12 @@
 @use 'src/app/styles/mixins' as mixins;
 
 .dashboard-site {
-  padding: 32px 16px;
+  padding: 16px;
 }
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '230px');
-  @include mixins.calculateSize('height', '100vh', '230px');
+  @include mixins.calculateSize('max-height', '100vh', '200px');
+  @include mixins.calculateSize('height', '100vh', '200px');
 }
 
 .avatar {
@@ -182,7 +182,7 @@
   }
 
   img {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
   }
 }

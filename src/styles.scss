@@ -116,6 +116,15 @@
     border-radius: $table-border-radius;
     border-bottom: $table-border;
     padding: 8px;
+    &.last-column {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      .button-icon-wrapper {
+        padding: 0;
+      }
+    }
   }
 
   td {
@@ -264,7 +273,7 @@ app-main {
   }
 
   .form-control-icon {
-    padding: 6px;
+    padding: 4px;
     background-color: #eef8ff;
     border-radius: 4px;
     display: flex;
@@ -788,6 +797,7 @@ bs-daterangepicker-container {
     text-align: left;
     min-height: 35px;
     padding: 8px 15px;
+    color: $neutral;
     cursor: pointer;
 
     &:active,
@@ -1028,6 +1038,8 @@ a {
   padding: 6px;
   background-color: #f1f5f9;
   border-radius: 4px;
+  width: max-content;
+  height: max-content;
   .button-icon {
     padding: 4px;
     border-radius: 4px;

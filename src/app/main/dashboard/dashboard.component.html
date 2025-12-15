@@ -115,48 +115,6 @@
             </ng-template>
           </li>
 
-          <!-- <li style="height: 35px; width: 200px">
-            <div class="ng-select-custom-prefix">
-              <img
-                src="./assets/icons/tag.svg"
-                alt=""
-                width="24px"
-                height="24px"
-              />
-              <ng-select
-                class="ng-select-custom"
-                placeholder="Chọn tag"
-                (click)="clickLoadData('tags')"
-                (change)="handleQueryParam($event, 'tags')"
-                [loading]="tags.loading"
-                [(ngModel)]="filter.tag"
-              >
-                <ng-option *ngFor="let tag of tags.rows" [value]="tag.id">
-                  <span
-                    class="text-capitalize"
-                    [ngStyle]="{color: tag.bgColor}"
-                  >
-                    {{ tag.name }}
-                  </span>
-                </ng-option>
-              </ng-select>
-            </div>
-          </li>
-
-          <li style="height: 35px">
-            <custom-date-picker
-              [className]="'input-medium'"
-              [typePicker]="'range'"
-              (changeDateEmmit)="handleQueryParam($event, 'createdAt')"
-              [placeholder]="'Từ ngày -  Đến ngày'"
-              [showClearButton]="true"
-              [rangeChoose]="ranges"
-              [defaultRangeValue]="
-                currentActiveViewMode?.options?.createdAt || null
-              "
-            ></custom-date-picker>
-          </li> -->
-
           <li>
             <button
               class="btn btn-light text-secondary stop-receive"
@@ -296,6 +254,9 @@
                           virtualScroll!.getOffsetToRenderedContentStart() || 0
                         ) + 'px'
                       "
+                      [ngClass]="{
+                        'last-column': i === dataColumnsShow.length - 1
+                      }"
                     >
                       <i
                         *ngIf="columns.showTooltip"
@@ -321,16 +282,23 @@
                           }"
                         ></i>
                       </span>
+                      <ng-container *ngIf="i === dataColumnsShow.length - 1">
+                        <div
+                          class="button-icon-wrapper"
+                          (click)="showModalOrderableTable()"
+                          [tooltip]="'Tùy chỉnh bảng'"
+                          [placement]="'left'"
+                        >
+                          <button class="button-icon bg-neutral">
+                            <img
+                              src="./assets/icons/setting-table.svg"
+                              alt=""
+                            />
+                          </button>
+                        </div>
+                      </ng-container>
                     </th>
                   </ng-container>
-                  <!-- <th scope="col">
-                    <div
-                      class="btn button-cog-table text-center"
-                      (click)="showModalOrderableTable()"
-                    >
-                      <img src="./assets/images/icon/table.svg" alt="" />
-                    </div>
-                  </th> -->
                   <!-- <th class="columns-action">Hành động</th> -->
                 </tr>
               } @else {

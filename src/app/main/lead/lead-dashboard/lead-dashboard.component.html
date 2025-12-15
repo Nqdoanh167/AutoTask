@@ -1,3 +1,106 @@
+<app-header class="header">
+  <div class="left d-flex flex-wrap">
+    <app-input-checkbox
+      [value]="checkbox.branchIds"
+      [listItemSelect]="checkbox.listBranches"
+      [enableRemove]="false"
+      [isSelectAll]="true"
+      [isValidPermissionCheckbox]="true"
+      tooltipText="Chi nhánh"
+      tooltipPlacement="right"
+      customClass="h-sm"
+      class="me-2 input-checkbox"
+      placeholder="Chi nhánh"
+      [enableSearch]="false"
+      (onChange)="changeBranch({branchIds: $event})"
+      [templateValue]="tempBranchValue"
+      [icon]="checkbox.branchIcon"
+    ></app-input-checkbox>
+    <ng-template #tempBranchValue let-model="item">
+      {{ checkbox.branchDisplayInputText }}
+    </ng-template>
+    <app-input-checkbox
+      [value]="checkbox.roleIds"
+      [listItemSelect]="checkbox.listRoles"
+      [enableRemove]="false"
+      tooltipText="Vai trò"
+      tooltipPlacement="right"
+      customClass="h-sm"
+      class="me-2 input-checkbox"
+      placeholder="Vai trò"
+      [enableSearch]="false"
+      (onChange)="changeRole($event)"
+      [icon]="checkbox.roleIcon"
+    ></app-input-checkbox>
+    <app-input-checkbox
+      [value]="checkbox.userIds"
+      [listItemSelect]="checkbox.listUsers"
+      [enableRemove]="false"
+      [enableSearch]="checkbox.listUsers?.length > 10"
+      tooltipText="Thành viên"
+      tooltipPlacement="right"
+      customClass="h-sm"
+      class="me-2 input-checkbox"
+      placeholder="Thành viên"
+      (onChange)="changeMembers($event)"
+      [icon]="checkbox.userIcon"
+    ></app-input-checkbox>
+  </div>
+
+  <div class="right">
+    <ul class="nav flex-nowrap align-items-center">
+      <div class="d-flex align-items-center">
+        <ul
+          class="d-flex align-items-center flex-wrap gap-2"
+          style="list-style: none"
+        >
+          <li>
+            <custom-input-search
+              [className]="'input-medium'"
+              (searchEvent)="onSearch({term: $event, name: 'search'})"
+              [placeholder]="'Tìm kiếm...'"
+              [isCollapsible]="false"
+            ></custom-input-search>
+          </li>
+
+          <!-- <li>
+            <button
+              class="form-control input-medium"
+              [popover]="popSort"
+              containerClass="custom-popover-dropdown"
+              [outsideClick]="true"
+            >
+              <div class="form-control-icon">
+                <img src="./assets/icons/sortAsc.svg" alt="" />
+              </div>
+              <span>{{ getSortLabel() }}</span>
+            </button>
+
+            <ng-template #popSort>
+              <div class="popover-tab">
+                @for (option of sortOptions; track $index) {
+                  <div
+                    class="row align-items-center"
+                    (click)="
+                      onPopoverFilter({value: option['value'], name: 'sort'})
+                    "
+                  >
+                    <div
+                      class="col-12 tab-item"
+                      [class.active]="item.paramsQuery.sort === option['value']"
+                    >
+                      {{ option['label'] }}
+                    </div>
+                  </div>
+                }
+              </div>
+            </ng-template>
+          </li> -->
+        </ul>
+      </div>
+    </ul>
+  </div>
+</app-header>
 <div class="dashboard-site with-sidebar">
   <app-lead-folder-sidebar
     *ngIf="!sidebarCollapsed"

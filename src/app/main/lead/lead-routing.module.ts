@@ -10,11 +10,11 @@ import {EModule, ELeadTab} from '@app/types/viewmodels';
 const routes: Routes = [
   {
     path: '',
-    component: LeadComponent,
+    component: LeadDashboardComponent,
     children: [
       {
         path: '',
-        redirectTo: ELeadTab.DASHBOARD,
+        redirectTo: EModule.LEAD,
         pathMatch: 'full',
       },
       {

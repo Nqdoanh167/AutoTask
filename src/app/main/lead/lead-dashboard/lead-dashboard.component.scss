@@ -11,12 +11,12 @@
   width: 100%;
   height: 100%;
   overflow: hidden; // Prevent page-level scrolling
+  padding: 16px;
 
   &.with-sidebar {
     .main-content {
       flex: 1;
       overflow: hidden; // Changed from overflow-y: auto
-      background: #f8f9fa;
       display: flex;
       flex-direction: column;
       min-width: 0; // Prevent flex item from overflowing
@@ -24,37 +24,33 @@
     }
   }
 
-
   // Toolbar styling
   .lead-dashboard__toolbar {
-    background: white;
-    padding: 12px;
-    border-bottom: 1px solid #dee2e6;
     position: relative;
     z-index: 15;
     overflow: visible; // Important: allow tooltip to show
     flex-shrink: 0; // Don't shrink toolbar
 
-      .toolbar-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-        overflow: visible; // Important: allow tooltip to show
+    .toolbar-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      overflow: visible; // Important: allow tooltip to show
 
-        .sidebar-expand-toggle {
-          flex-shrink: 0;
-          order: 1;
-          position: relative;
-          z-index: 10;
-        }
+      .sidebar-expand-toggle {
+        flex-shrink: 0;
+        order: 1;
+        position: relative;
+        z-index: 10;
+      }
 
-        .view-mode-toggle {
-          flex-shrink: 0;
-          order: 2;
-          position: relative;
-          z-index: 10; // Ensure buttons are above other elements
-        }
+      .view-mode-toggle {
+        flex-shrink: 0;
+        order: 2;
+        position: relative;
+        z-index: 10; // Ensure buttons are above other elements
+      }
 
       .filter-wrapper {
         flex: 1;
@@ -110,7 +106,7 @@
         height: 8px;
       }
 
-      &::-webkit-scrollbar-track { 
+      &::-webkit-scrollbar-track {
         background: #f1f3f4;
       }
 
@@ -154,7 +150,7 @@
           text-align: right;
         }
 
-        input[type="checkbox"] {
+        input[type='checkbox'] {
           cursor: pointer;
         }
       }
@@ -387,12 +383,18 @@
         transform: translateY(-50%);
         width: 4px;
         height: 24px;
-        background: linear-gradient(to bottom, 
-          #d0d0d0 0%, #d0d0d0 20%, 
-          transparent 20%, transparent 40%,
-          #d0d0d0 40%, #d0d0d0 60%,
-          transparent 60%, transparent 80%,
-          #d0d0d0 80%, #d0d0d0 100%
+        background: linear-gradient(
+          to bottom,
+          #d0d0d0 0%,
+          #d0d0d0 20%,
+          transparent 20%,
+          transparent 40%,
+          #d0d0d0 40%,
+          #d0d0d0 60%,
+          transparent 60%,
+          transparent 80%,
+          #d0d0d0 80%,
+          #d0d0d0 100%
         );
         border-radius: 2px;
         opacity: 0;
@@ -534,7 +536,11 @@
 
     // Drag placeholder (where the card will be dropped)
     .kanban-card-placeholder {
-      background: linear-gradient(135deg, rgba(66, 133, 244, 0.1) 0%, rgba(66, 133, 244, 0.05) 100%);
+      background: linear-gradient(
+        135deg,
+        rgba(66, 133, 244, 0.1) 0%,
+        rgba(66, 133, 244, 0.05) 100%
+      );
       border: 2px dashed #4285f4;
       border-radius: 8px;
       min-height: 80px;
@@ -543,7 +549,8 @@
     }
 
     @keyframes pulse-placeholder {
-      0%, 100% {
+      0%,
+      100% {
         opacity: 0.6;
         transform: scale(1);
       }
@@ -552,7 +559,6 @@
         transform: scale(1.01);
       }
     }
-
 
     .kanban-loading {
       display: flex;
@@ -641,7 +647,9 @@
     border-radius: 8px;
     padding: 12px;
     width: 296px;
-    box-shadow: 0 12px 28px rgba(66, 133, 244, 0.3), 0 4px 10px rgba(0, 0, 0, 0.15);
+    box-shadow:
+      0 12px 28px rgba(66, 133, 244, 0.3),
+      0 4px 10px rgba(0, 0, 0, 0.15);
     cursor: grabbing;
     transform: rotate(2deg);
     opacity: 0.95;
