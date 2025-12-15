@@ -1,18 +1,13 @@
 @use 'src/app/styles/variable' as vars;
 @use 'src/app/styles/mixins' as mixins;
 
-.header {
-  .input-checkbox {
-    width: 140px;
-  }
-}
 .dashboard-site {
-  padding: 14px;
+  padding: 32px 16px;
 }
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '270px');
-  @include mixins.calculateSize('height', '100vh', '270px');
+  @include mixins.calculateSize('max-height', '100vh', '230px');
+  @include mixins.calculateSize('height', '100vh', '230px');
 }
 
 .avatar {
@@ -137,7 +132,7 @@
   overflow: hidden;
 }
 
-.stop-receive{
+.stop-receive {
   position: relative;
   .dot {
     right: 10px;
@@ -156,7 +151,7 @@
 }
 
 .close-text-success {
-  color: #FFFFFF;
+  color: #ffffff;
   background-color: #008234;
   border-radius: 24px;
   padding: 4px 8px;
@@ -167,8 +162,8 @@
 }
 
 .close-text-failure {
-  color: #FFFFFF;
-  background-color: #FA6E5B;
+  color: #ffffff;
+  background-color: #fa6e5b;
   border-radius: 24px;
   padding: 4px 8px;
   max-width: fit-content;
@@ -177,8 +172,17 @@
   margin-bottom: 2px;
 }
 
-.content-site {
-  app-view-mode-tab {
-    width: 100%;
+.btn-group {
+  .btn {
+    padding: 8px 16px 8px 8px !important;
+  }
+
+  .btn-dropdown {
+    padding-left: 16px !important;
+  }
+
+  img {
+    width: 32px;
+    height: 32px;
   }
 }

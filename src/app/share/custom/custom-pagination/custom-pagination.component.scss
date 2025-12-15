@@ -13,8 +13,8 @@
 
 .custom-change-page {
   button {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background: #e7e9ef;
     border-radius: 50%;
 
@@ -30,11 +30,11 @@
     }
   }
 
-  .page-link{
+  .page-link {
     line-height: 18px;
-    border-radius: 20px;
-    height: 40px;
-    min-width: 40px;
+    border-radius: 4px;
+    height: 32px;
+    min-width: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -42,7 +42,7 @@
     color: #17234e;
     padding: 6px 12px;
     cursor: pointer;
-    background-color: #eef0f3;
+    background-color: #ffffff80;
     &.active {
       background-color: #17234e;
       color: #fff;

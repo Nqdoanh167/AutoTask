@@ -40,7 +40,7 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import {SortByPipe} from '@app/share/pipe/sort-by.pipe';
-import { calculateNextPos } from '@app/utils/common';
+import {calculateNextPos} from '@app/utils/common';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -114,7 +114,7 @@ export class ViewModeTabComponent
     '#3AC34C',
     '#4277FF',
   ];
-  
+
   constructor(
     private readonly toastr: ToastrService,
     private readonly modalConfirmService: ModalConfirmService,
@@ -463,9 +463,15 @@ export class ViewModeTabComponent
             if (res.status === 200) {
               this.checkHideButtonNext();
               // Cập nhật lại list view mode
-              const currentListViewModeSubject = this.autoTaskService.getListViewModeSubject();
-              const currentListViewModeIdx = currentListViewModeSubject.data.findIndex((item) => item.id === tabActive?.id);
-              if (currentListViewModeIdx !== -1) currentListViewModeSubject.data[currentListViewModeIdx] = res.data;
+              const currentListViewModeSubject =
+                this.autoTaskService.getListViewModeSubject();
+              const currentListViewModeIdx =
+                currentListViewModeSubject.data.findIndex(
+                  (item) => item.id === tabActive?.id,
+                );
+              if (currentListViewModeIdx !== -1)
+                currentListViewModeSubject.data[currentListViewModeIdx] =
+                  res.data;
               // End cập nhật list view mode
               resolve(true);
             } else {
@@ -802,7 +808,8 @@ export class ViewModeTabComponent
     //   newPos = (prevTab.pos! + nextTab.pos!) / 2;
     // }
 
-    const newPos = calculateNextPos(afterMovedPosList, currentIndex) || movedTab.pos!;
+    const newPos =
+      calculateNextPos(afterMovedPosList, currentIndex) || movedTab.pos!;
     movedTab.pos = newPos;
 
     this.autoTaskService.settingView
@@ -834,7 +841,7 @@ export class ViewModeTabComponent
 
     this.selectedTabForColor = {...tab};
     this.currentColorForTab = color;
-    
+
     this.saveTabViewColor();
   }
 
@@ -907,9 +914,9 @@ export class ViewModeTabComponent
         const navLinkTabElement = document.getElementById(
           `view-mode-id-${tab.id}-link`,
         );
-        if (navLinkTabElement) {
-          navLinkTabElement.style.borderTop = `3px solid ${tab.tabViewModeBorderColor}`;
-        }
+        // if (navLinkTabElement) {
+        //   navLinkTabElement.style.borderTop = `3px solid ${tab.tabViewModeBorderColor}`;
+        // }
       }
     });
   }

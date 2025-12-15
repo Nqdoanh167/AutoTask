@@ -1,6 +1,16 @@
+@use 'src/app/styles/variable' as vars;
 .custom-date-picker {
   height: 100%;
-  position: relative;
+  // position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: vars.$input-bg;
+  border-radius: vars.$input-border-radius;
+  padding: vars.$input-padding;
+  border: none;
+  min-height: 36px;
+  min-width: 230px;
 
   &.input-full-width {
     input {
@@ -11,18 +21,19 @@
 
   input {
     height: 100% !important;
-    min-height: 36px;
-    border: 1px solid #e7e9ef;
-    border-radius: 6px;
-    padding: 0 10px;
-    min-width: 200px;
+    padding: 0 !important;
   }
 
   img {
     cursor: pointer;
-    font-size: 18px;
-    position: absolute;
-    right: 10px;
-    top: 30%;
+    // position: absolute;
+    // right: 10px;
+    // top: 30%;
+    width: 24px;
+    height: 24px;
+  }
+
+  &:focus-within {
+    outline: 1px solid vars.$neutral;
   }
 }

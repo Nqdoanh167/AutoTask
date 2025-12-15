@@ -1,6 +1,6 @@
 @use 'src/app/styles/mixins' as mixins;
 
-$body-bg: #eef0f3;
+$body-bg: #f1f5f9;
 $font-family-sans-serif:
   'Roboto',
   -apple-system,
@@ -39,7 +39,7 @@ $green: #7ec964;
 $teal: #20c997;
 $cyan: #0dcaf0;
 
-$neutral: #17234e;
+$neutral: #1b3da1;
 $primary: $blue;
 $secondary: $gray-600;
 $success: $green;
@@ -105,12 +105,19 @@ $enable-shadows: false;
 $border-input: $gray-400;
 $input-focus-border-color: #ccc;
 $input-focus-bg: #fff;
-$input-bg: $gray-400;
-$input-placeholder-color: $gray-500;
-$input-border-radius: 6px;
+$input-bg: #f7fcff;
+$input-placeholder-color: $neutral;
+$input-border-radius: 4px;
+$input-padding: 8px 16px;
 // card
 $card-border-width: 0px;
 $card-border-radius: 8px;
+
+// Table
+$table-bg: $white;
+$table-border-radius: 0 0 4px 4px;
+$table-border: '1.5px solid #60A5FA';
+$table-padding: 24px 16px;
 
 //
 //
@@ -204,7 +211,7 @@ $padding-xxxl: 40px;
 
 // Radius
 $radius-xs: 2px;
-$radius-s: 6px;
+$radius-s: 4px;
 $radius-m: 12px;
 $radius-l: 16px;
 $radius-xl: 24px;
@@ -347,7 +354,10 @@ $pagination-height: 56;
 }
 
 .secondary-text {
-  color: $secondary-500;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 14px;
 }
 
 .success-text {
@@ -419,6 +429,7 @@ $pagination-height: 56;
 .button-medium {
   height: 36px;
   font-size: 14px;
+  padding-left: 16px !important;
 }
 
 .button-large {
@@ -429,8 +440,12 @@ $pagination-height: 56;
 .button-fill {
   border: none;
   outline: none;
-  border-radius: $radius-s;
+  border-radius: 4px;
   color: $white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
   &.secondary-color {
     background-color: $secondary-500;
     color: $white;
@@ -461,6 +476,7 @@ $pagination-height: 56;
   border: none;
   outline: none;
   border-radius: $radius-s;
+  padding-left: 16px !important;
   &.secondary-color {
     color: $secondary-500;
     background-color: $secondary-100;
@@ -794,9 +810,9 @@ $pagination-height: 56;
     left: 0;
     height: 20px;
     width: 20px;
-    background-color: $neutral-100;
+    background-color: #c9e0ff;
+    border: 1px solid #c9e0ff;
     border-radius: $radius-s;
-    border: 1px solid transparent;
     &:after {
       content: '';
       position: absolute;

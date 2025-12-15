@@ -39,41 +39,41 @@ export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [
   //   type: ETypeFilter.SEARCH,
   //   placeholder: 'Tìm kiếm...',
   // },
-  {
-    type: ETypeFilter.POPOVER,
-    name: 'sort',
-    placeholder: 'Sắp xếp',
-    options: [
-      {
-        label: 'Ngày tạo: Mới -> Cũ',
-        value: '-createdAt',
-      },
-      {
-        label: 'Ngày tạo: Cũ -> Mới',
-        value: 'createdAt',
-      },
-      {
-        label: 'Ngày cập nhật: Mới -> Cũ',
-        value: '-updatedAt',
-      },
-      {
-        label: 'Ngày cập nhật: Cũ -> Mới',
-        value: 'updatedAt',
-      },
-      {
-        label: 'Hành động: Trễ -> Cần thực hiện -> Đã thực hiện',
-        value: 'deadlineDate',
-      },
-      {
-        label: 'Hành động: Đã thực hiện -> Cần thực hiện -> Trễ',
-        value: '-deadlineDate',
-      },
-    ],
-    bindLabel: 'label',
-    bindValue: 'value',
-    clearable: true,
-    value: 'createdAt',
-  },
+  // {
+  //   type: ETypeFilter.POPOVER,
+  //   name: 'sort',
+  //   placeholder: 'Sắp xếp',
+  //   options: [
+  //     {
+  //       label: 'Ngày tạo: Mới -> Cũ',
+  //       value: '-createdAt',
+  //     },
+  //     {
+  //       label: 'Ngày tạo: Cũ -> Mới',
+  //       value: 'createdAt',
+  //     },
+  //     {
+  //       label: 'Ngày cập nhật: Mới -> Cũ',
+  //       value: '-updatedAt',
+  //     },
+  //     {
+  //       label: 'Ngày cập nhật: Cũ -> Mới',
+  //       value: 'updatedAt',
+  //     },
+  //     {
+  //       label: 'Hành động: Trễ -> Cần thực hiện -> Đã thực hiện',
+  //       value: 'deadlineDate',
+  //     },
+  //     {
+  //       label: 'Hành động: Đã thực hiện -> Cần thực hiện -> Trễ',
+  //       value: '-deadlineDate',
+  //     },
+  //   ],
+  //   bindLabel: 'label',
+  //   bindValue: 'value',
+  //   clearable: true,
+  //   value: 'createdAt',
+  // },
   {
     type: ETypeFilter.SELECT,
     name: 'actionStates',
@@ -185,14 +185,26 @@ export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [
     searchable: false,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
-  // {
-  //   type: ETypeFilter.DATE,
-  //   name: 'createdAt',
-  //   placeholder: 'Ngày tạo',
-  //   subType: 'range',
-  //   clearable: true,
-  //   botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  // },
+  {
+    type: ETypeFilter.SELECT,
+    name: 'tags',
+    placeholder: 'Tag',
+    options: [],
+    bindLabel: 'name',
+    bindValue: 'id',
+    clearable: true,
+    searchable: true,
+    multiple: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.DATE,
+    name: 'createdAt',
+    placeholder: 'Ngày tạo',
+    subType: 'range',
+    clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
   {
     type: ETypeFilter.DATE,
     name: 'executedDateAt',
@@ -339,31 +351,39 @@ export const TASK_TAG_SETTING_CONFIG_FILTERS = [
   },
 ];
 
+export const TASK_SORT_OPTIONS = [
+  {
+    label: 'Ngày tạo: Mới -> Cũ',
+    value: '-createdAt',
+  },
+  {
+    label: 'Ngày tạo: Cũ -> Mới',
+    value: 'createdAt',
+  },
+  {
+    label: 'Ngày cập nhật: Mới -> Cũ',
+    value: '-updatedAt',
+  },
+  {
+    label: 'Ngày cập nhật: Cũ -> Mới',
+    value: 'updatedAt',
+  },
+  {
+    label: 'Hành động: Trễ -> Cần thực hiện -> Đã thực hiện',
+    value: 'deadlineDate',
+  },
+  {
+    label: 'Hành động: Đã thực hiện -> Cần thực hiện -> Trễ',
+    value: '-deadlineDate',
+  },
+];
+
 export const TASK_CONFIG_BUTTON: IFilterTopButton[] = [
-  {
-    name: 'hideClosedTask',
-    type: ETypeButton.DEFAULT,
-    icon: './assets/images/icon/keychain.svg',
-    tooltip: 'Ẩn tác vụ đã đóng',
-    isActive: false,
-  },
-  {
-    name: 'orderableTable',
-    type: ETypeButton.DEFAULT,
-    icon: './assets/images/icon/table.svg',
-    tooltip: 'Tùy chỉnh bảng',
-  },
-  {
-    name: 'reload',
-    type: ETypeButton.DEFAULT,
-    icon: './assets/images/icon/reload.svg',
-    tooltip: 'Tải lại trang',
-  },
   {
     name: 'add_new',
     type: ETypeButton.PRIMARY,
     label: 'Thêm',
-    icon: './assets/images/icon/plus.svg',
+    icon: './assets/icons/add.svg',
     tooltip: 'Thêm mới tác vụ',
     children: [
       {
@@ -380,6 +400,25 @@ export const TASK_CONFIG_BUTTON: IFilterTopButton[] = [
         isActive: false,
       },
     ],
+  },
+  {
+    name: 'reload',
+    type: ETypeButton.DEFAULT,
+    icon: './assets/images/icon/reload.svg',
+    tooltip: 'Tải lại trang',
+  },
+  {
+    name: 'hideClosedTask',
+    type: ETypeButton.DEFAULT,
+    icon: './assets/images/icon/keychain.svg',
+    tooltip: 'Ẩn tác vụ đã đóng',
+    isActive: false,
+  },
+  {
+    name: 'orderableTable',
+    type: ETypeButton.DEFAULT,
+    icon: './assets/images/icon/table.svg',
+    tooltip: 'Tùy chỉnh bảng',
   },
 ];
 

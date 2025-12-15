@@ -1,18 +1,18 @@
-import { ICommonDataLazy, IQueryBase, ITag } from '@app/types/viewmodels';
-import { IAction, IActResult, IChainAct, ITask } from '@app/types/flow';
-import { ISetting, ISource, IViewModeDto } from '@app/types/setting';
-import { finalize, shareReplay, takeUntil, filter } from 'rxjs';
-import { isEqual, uniqBy } from 'lodash';
-import { CommonService } from '@app/services/common/common.service';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { IFilterTopButton, IFilterTopTable } from '@app/types/common';
+import {ICommonDataLazy, IQueryBase, ITag} from '@app/types/viewmodels';
+import {IAction, IActResult, IChainAct, ITask} from '@app/types/flow';
+import {ISetting, ISource, IViewModeDto} from '@app/types/setting';
+import {finalize, shareReplay, takeUntil, filter} from 'rxjs';
+import {isEqual, uniqBy} from 'lodash';
+import {CommonService} from '@app/services/common/common.service';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {IFilterTopButton, IFilterTopTable} from '@app/types/common';
 import {
   TASK_CONFIG_BUTTON,
   TASK_CONFIG_FILTERS,
 } from '@main/dashboard/dashboard-variables';
-import { inject } from '@angular/core';
-import { CheckboxSortTableComponent } from '@share/common/checkbox-table/checkbox-sort-table.component';
-import { AutomationService } from '@app/services/api/automation.service';
+import {inject} from '@angular/core';
+import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
+import {AutomationService} from '@app/services/api/automation.service';
 
 export class DashboardData extends CheckboxSortTableComponent<
   ITask,
@@ -25,7 +25,7 @@ export class DashboardData extends CheckboxSortTableComponent<
   public currentActiveViewMode?: IViewModeDto;
 
   public override configFilters: IFilterTopTable[] = TASK_CONFIG_FILTERS;
-  public override configButtons: IFilterTopButton[] = TASK_CONFIG_BUTTON;
+  public override configButtons: IFilterTopButton[] = [];
   public sort: any = {
     updatedAt: 0,
     createdAt: 0,
@@ -39,7 +39,7 @@ export class DashboardData extends CheckboxSortTableComponent<
       page: 1,
       limit: 1000,
       sort: '-createdAt',
-      filter: JSON.stringify({ isActive: true }),
+      filter: JSON.stringify({isActive: true}),
     },
     isAllowLoadMore: false,
   };
@@ -98,7 +98,7 @@ export class DashboardData extends CheckboxSortTableComponent<
     if (isReset) {
       this.item.paramsQuery.page = 1;
     }
-    let params = { ...this.item.paramsQuery };
+    let params = {...this.item.paramsQuery};
 
     Object.keys(this.sort).forEach((key) => {
       if (this.sort[key] !== 0) {
@@ -112,7 +112,7 @@ export class DashboardData extends CheckboxSortTableComponent<
       .get(params)
       .pipe(
         finalize(() => {
-          this.item = { ...this.item, loading: false };
+          this.item = {...this.item, loading: false};
         }),
         shareReplay(1),
         takeUntil(this.destroy$),
@@ -122,7 +122,7 @@ export class DashboardData extends CheckboxSortTableComponent<
           if (res.status === 200) {
             this.item.rows = res.data;
             this.item.total = res.meta?.total || 0;
-            if(res.meta?.after) this.item.after = res.meta.after;
+            if (res.meta?.after) this.item.after = res.meta.after;
           } else {
             this.commonService.handleResErr(res);
           }
@@ -153,7 +153,7 @@ export class DashboardData extends CheckboxSortTableComponent<
             );
             if (configFilterChain) {
               configFilterChain.options = [
-                { id: 'NONE', name: 'Chưa gán chuỗi' },
+                {id: 'NONE', name: 'Chưa gán chuỗi'},
               ].concat(this.actionChains.rows);
             }
             this.actionChains.isAllowLoadMore = res.meta
@@ -320,7 +320,8 @@ export class DashboardData extends CheckboxSortTableComponent<
 
   getRole() {
     const configFilterResult = this.configFilters.find(
-      (filter) => filter.name === 'teamRoles' || filter.name === 'unassignedRoleId',
+      (filter) =>
+        filter.name === 'teamRoles' || filter.name === 'unassignedRoleId',
     );
     if (configFilterResult) {
       configFilterResult.options = this.currentBiz?.roles || [];
@@ -454,7 +455,7 @@ export class DashboardData extends CheckboxSortTableComponent<
   getTagCache() {
     this.autoTaskService.listTagObservable
       .pipe(
-        finalize(() => { }),
+        finalize(() => {}),
         takeUntil(this.destroy$),
       )
       .subscribe({

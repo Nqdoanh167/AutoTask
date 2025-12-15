@@ -1,5 +1,5 @@
 <div
-  class="filter-top-table d-flex flex-wrap align-items-center justify-content-end gap-2"
+  class="filter-top-table d-flex flex-wrap align-items-center justify-content-end"
 >
   <div class="left d-flex flex-wrap align-items-center gap-2">
     @for (filter of configFilterBasic; track $index) {
@@ -66,29 +66,35 @@
       }
     }
     <!-- @if (configFilterAdvance.length) { -->
-    <button
-      class="btn btn-light border text-secondary"
-      type="button"
-      (click)="handleOpenPopover()"
-      [popover]="popTemplate"
-      [outsideClick]="false"
-      [placement]="'auto'"
-      #popFilter="bs-popover"
-      containerClass="filter-advance-popover-tab custom-popover-tab"
-      [tooltip]="'Bộ lọc'"
-    >
-      <i class="fa-solid fa-sliders"></i>
-      <!-- Bộ lọc -->
-      @if (onSearchingAdvance.length) {
-        <span class="ms-1 bg-danger px-1 rounded-circle text-white fw-500 fs-7">
-          {{ onSearchingAdvance.length }}
-        </span>
-      }
-    </button>
+    <div class="button-icon-wrapper">
+      <button
+        class="button-icon text-secondary position-relative bg-neutral"
+        type="button"
+        (click)="handleOpenPopover()"
+        [popover]="popTemplate"
+        [outsideClick]="false"
+        [placement]="'auto'"
+        #popFilter="bs-popover"
+        containerClass="filter-advance-popover-tab custom-popover-tab"
+        [tooltip]="'Bộ lọc'"
+      >
+        <img src="./assets/icons/filter-advanced.svg" alt="" />
+        <!-- Bộ lọc -->
+        @if (onSearchingAdvance.length) {
+          <span
+            class="ms-1 bg-danger px-1 rounded-circle text-white fw-500 fs-7 position-absolute"
+            style="top: -10px; right: -10px"
+          >
+            {{ onSearchingAdvance.length }}
+          </span>
+        }
+      </button>
+    </div>
+
     <ng-template #popTemplate>
       <div class="popover-tab">
         <div class="row align-items-center my-2">
-          <div class="fw-500 col-10">
+          <div class="fw-500 col-10 text-neutral">
             <i class="fa-solid fa-question-circle me-2"></i>
             Lọc những bản ghi đáp ứng
             <span class="fw-bold">TẤT CẢ</span>
@@ -101,7 +107,10 @@
           </div>
         </div>
 
-        <div class="row align-items-center my-2" *ngFor="let cdt of conditionList">
+        <div
+          class="row align-items-center my-2"
+          *ngFor="let cdt of conditionList"
+        >
           <div class="fw-500 col-4">
             <ng-select
               [items]="
@@ -252,7 +261,10 @@
             <button class="btn filter-btn border" (click)="popFilter.hide()">
               Huỷ
             </button>
-            <button class="btn btn-primary filter-btn" (click)="handleApply()">
+            <button
+              class="btn bg-neutral text-white filter-btn"
+              (click)="handleApply()"
+            >
               Áp dụng
             </button>
           </div>
@@ -295,7 +307,7 @@
               }"
               (click)="onClick(filter.name || 'button')"
               [disabled]="filter.disabled"
-            [tooltip]="filter.tooltip"
+              [tooltip]="filter.tooltip"
               [ngStyle]="{
                 'background-color': filter.isActive ? '#f18658' : null
               }"
@@ -342,11 +354,15 @@
                 dropdownToggle
                 aria-haspopup="true"
                 aria-expanded="false"
-                style="border-left: 1px solid #ffffff15;"
+                style="border-left: 1px solid #ffffff15"
               >
                 <span class="visually-hidden">Toggle Dropdown</span>
               </button>
-              <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+              <ul
+                *dropdownMenu
+                class="dropdown-menu dropdown-menu-right"
+                role="menu"
+              >
                 @for (
                   child of filter.children;
                   track childIndex;

@@ -110,6 +110,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     IViewModeDto | undefined
   >(undefined);
   public currentActiveViewMode = this.currentActiveViewMode$.asObservable();
+  public currentActiveViewModeValue = this.currentActiveViewMode$.getValue();
 
   private listTagSubject = new BehaviorSubject<ITag[]>(
     null as unknown as ITag[],

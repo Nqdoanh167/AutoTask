@@ -6,6 +6,7 @@ import {
   ETypeBulkUpdate,
   ETypeButton,
   ETypeFilter,
+  IFilterTopButton,
 } from '@app/types/common';
 import {
   BizRole,
@@ -46,6 +47,7 @@ import {
   ranges,
   TASK_FIELD_GROUP_EXPORT_EXCEL,
   TASK_MULTIPLE_ACTIONS,
+  TASK_SORT_OPTIONS,
 } from '@main/dashboard/dashboard-variables';
 import {DashboardCheckPermission} from '@main/dashboard/dashboard-check-permission';
 import {NgSelectComponent} from '@ng-select/ng-select';
@@ -87,9 +89,33 @@ export class DashboardComponent
   protected readonly EScreens = EScreens;
   protected readonly ETaskChainType = ETaskChainType;
   protected readonly ranges = ranges;
+  public readonly sortOptions = TASK_SORT_OPTIONS;
+  public readonly taskConfigButton: IFilterTopButton = {
+    name: 'add_new',
+    type: ETypeButton.PRIMARY,
+    label: 'Thêm',
+    icon: './assets/icons/add.svg',
+    tooltip: 'Thêm mới tác vụ',
+    children: [
+      {
+        name: 'importExcel',
+        type: ETypeButton.DEFAULT,
+        icon: './assets/images/icon/importExcel.svg',
+        tooltip: 'Thêm từ file Excel',
+      },
+      {
+        name: 'drawTask',
+        type: ETypeButton.DEFAULT,
+        icon: './assets/images/icon/draw.svg',
+        tooltip: 'Rút số',
+        isActive: false,
+      },
+    ],
+  };
 
   filter = {
     tag: null,
+    sort: null,
   };
 
   checkbox: any = {
@@ -102,6 +128,9 @@ export class DashboardComponent
     listBranches: [],
     listRoles: [],
     listUsers: [],
+    branchIcon: './assets/icons/location.svg',
+    roleIcon: './assets/icons/role.svg',
+    userIcon: './assets/icons/member.svg',
   };
   setting!: ISetting;
 
@@ -801,6 +830,8 @@ export class DashboardComponent
           this.filter.tag =
             this.currentActiveViewMode?.options?.tags?.[0] || null;
 
+          this.filter.sort = this.currentActiveViewMode?.options?.sort || null;
+
           this.checkbox.roleIds =
             this.currentActiveViewMode?.options?.teamRoles || [];
           this.checkbox.userIds =
@@ -874,6 +905,14 @@ export class DashboardComponent
     if (data.value !== this.currentActiveViewMode?.options?.sort) {
       this.handleViewModeChange(true);
     }
+  }
+
+  getSortLabel(): string {
+    const currentSort = this.filter.sort || '-createdAt';
+    const selectedOption = this.sortOptions.find(
+      (option) => option.value === currentSort,
+    );
+    return selectedOption?.label || '';
   }
 
   changeSort(type: string) {
@@ -1466,10 +1505,11 @@ export class DashboardComponent
             rowIds.includes(teamId),
           );
         } else if (branchIds.length || departmentIds.length || teamIds.length) {
-          hasPermission = rowIds.some((rowId: string) =>
-            branchIds.includes(rowId) ||
-            departmentIds.includes(rowId) ||
-            teamIds.includes(rowId),
+          hasPermission = rowIds.some(
+            (rowId: string) =>
+              branchIds.includes(rowId) ||
+              departmentIds.includes(rowId) ||
+              teamIds.includes(rowId),
           );
         }
         if (!hasPermission) {
@@ -1709,7 +1749,9 @@ export class DashboardComponent
           }
           const sort = this.item.paramsQuery.sort || '-createdAt';
           if (
-            !['createdAt', '-createdAt', '-updatedAt', 'updatedAt'].includes(sort)
+            !['createdAt', '-createdAt', '-updatedAt', 'updatedAt'].includes(
+              sort,
+            )
           ) {
             return;
           }
@@ -1743,7 +1785,9 @@ export class DashboardComponent
           (row) => row.id === data.taskId,
         );
         if (taskIndex !== -1) {
-          this.item.rows = this.item.rows.filter((row) => row.id !== data.taskId);
+          this.item.rows = this.item.rows.filter(
+            (row) => row.id !== data.taskId,
+          );
           this.item.total! -= 1;
         }
       });

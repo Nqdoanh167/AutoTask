@@ -41,6 +41,7 @@ export class InputCheckboxComponent implements OnInit, OnChanges {
   @Input() templateValue: any;
   @Input() itemKey = 'id';
   @Input() itemValue = 'name';
+  @Input() icon = '';
   // tslint:disable-next-line:no-output-on-prefix
   @Output() onChange = new EventEmitter<any>();
   // tslint:disable-next-line:no-output-on-prefix

@@ -1,4 +1,4 @@
-<div *ngIf="tabs.length" class="header-filter d-flex align-items-center mb-2">
+<div *ngIf="tabs.length" class="header-filter d-flex align-items-center">
   <div class="list-button-header left button-previous">
     <div class="list-button-header d-flex align-items-center">
       <button
@@ -29,7 +29,7 @@
           <div
             container="body"
             containerClass="custom-tooltip-tab-filter"
-            class="tab-name fw-500 d-flex align-items-start gap-2"
+            class="tab-name fw-500 d-flex align-items-center gap-2"
             *ngIf="!tabz.isRename"
             (dblclick)="handleEditTab(tabz, $event, index)"
             [tooltip]="getUserById(tabz?.ownerId)?.name || 'Không xác định'"
@@ -45,7 +45,14 @@
                 <i class="fas fa-spinner fa-spin"></i>
               </span>
               <ng-template #showQuantity>
-                {{ '(' + (quantity || 0) + ')' }}
+                <div
+                  class="badge"
+                  [style.background-color]="
+                    tabz.tabViewModeBorderColor || '#1b3da1'
+                  "
+                >
+                  {{ quantity || 0 | number }}
+                </div>
               </ng-template>
             </ng-container>
           </div>
@@ -109,7 +116,11 @@
                   Đổi tên chế độ xem
                 </div>
               </li>
-              <li role="menuitem" *ngIf="tabz.isEditView" class="color-picker-container">
+              <li
+                role="menuitem"
+                *ngIf="tabz.isEditView"
+                class="color-picker-container"
+              >
                 <div class="dropdown-item d-flex align-items-center gap-2">
                   <img src="./assets/images/icon/fill-color-blue.svg" alt="" />
                   <span>Đổi màu chế độ xem</span>
@@ -123,10 +134,11 @@
                       [style.background-color]="color"
                       (click)="handleQuickColorChange(tabz, color, $event)"
                     ></div>
-                    <div 
-                      class="color-option" 
-                      style="border-radius: 50%" 
-                      (click)="handleOpenColorPicker(tabz, $event)">
+                    <div
+                      class="color-option"
+                      style="border-radius: 50%"
+                      (click)="handleOpenColorPicker(tabz, $event)"
+                    >
                       <img src="./assets/images/icon/color-wheel.png" alt="" />
                     </div>
                   </div>
@@ -198,7 +210,9 @@
     <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
     <i *ngIf="!loading" class="fa-solid fa-plus"></i>
   </div> -->
-  <div class="list-button-header d-flex align-items-center btn-all-and-create-view">
+  <div
+    class="list-button-header d-flex align-items-center btn-all-and-create-view"
+  >
     <div class="d-flex">
       <button
         type="button"
@@ -266,7 +280,10 @@
                           (click)="handleSettingsViewMode(tabz)"
                           class="dropdown-item d-flex align-items-center gap-2"
                         >
-                          <img src="./assets/images/icon/setting-blue.svg" alt="" />
+                          <img
+                            src="./assets/images/icon/setting-blue.svg"
+                            alt=""
+                          />
                           Cài đặt chế độ xem
                         </div>
                       </li>
@@ -275,14 +292,26 @@
                           (click)="handleEditTab(tabz, $event, index)"
                           class="dropdown-item d-flex align-items-center gap-2"
                         >
-                          <img src="./assets/images/icon/edit-blue.svg" alt="" />
+                          <img
+                            src="./assets/images/icon/edit-blue.svg"
+                            alt=""
+                          />
                           Đổi tên chế độ xem
                         </div>
                       </li>
-                      <li role="menuitem" *ngIf="tabz.isEditView" class="color-picker-container">
-                        <div class="dropdown-item d-flex align-items-center gap-2">
-                          <img src="./assets/images/icon/fill-color-blue.svg" alt="" />
-                          <span>Đổi màu chế độ xem</span> 
+                      <li
+                        role="menuitem"
+                        *ngIf="tabz.isEditView"
+                        class="color-picker-container"
+                      >
+                        <div
+                          class="dropdown-item d-flex align-items-center gap-2"
+                        >
+                          <img
+                            src="./assets/images/icon/fill-color-blue.svg"
+                            alt=""
+                          />
+                          <span>Đổi màu chế độ xem</span>
                           <i class="fa-solid fa-chevron-right"></i>
                         </div>
                         <div class="color-picker-menu left">
@@ -291,13 +320,19 @@
                               *ngFor="let color of colorList"
                               class="color-option"
                               [style.background-color]="color"
-                              (click)="handleQuickColorChange(tabz, color, $event)"
+                              (click)="
+                                handleQuickColorChange(tabz, color, $event)
+                              "
                             ></div>
-                            <div 
-                              class="color-option" 
-                              style="border-radius: 50%" 
-                              (click)="handleOpenColorPicker(tabz, $event)">
-                              <img src="./assets/images/icon/color-wheel.png" alt="" />
+                            <div
+                              class="color-option"
+                              style="border-radius: 50%"
+                              (click)="handleOpenColorPicker(tabz, $event)"
+                            >
+                              <img
+                                src="./assets/images/icon/color-wheel.png"
+                                alt=""
+                              />
                             </div>
                           </div>
                         </div>
@@ -307,7 +342,10 @@
                           (click)="addNewAndCloneTab(tabz)"
                           class="dropdown-item d-flex align-items-center gap-2"
                         >
-                          <img src="./assets/images/icon/copy-blue.svg" alt="" />
+                          <img
+                            src="./assets/images/icon/copy-blue.svg"
+                            alt=""
+                          />
                           Sao chép chế độ xem
                         </div>
                       </li>

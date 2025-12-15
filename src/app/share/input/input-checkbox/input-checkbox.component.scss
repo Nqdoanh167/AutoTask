@@ -1,12 +1,15 @@
+@import '../../../styles/_variable.scss';
+
 .input-search {
   position: relative;
+  min-width: 150px;
   // z-index: 10;
   .input-display {
     height: 40px;
   }
   .display-value {
     &.h-sm {
-      height: 35px;
+      height: 36px;
     }
     &:focus,
     &:active {
@@ -21,7 +24,7 @@
       cursor: not-allowed;
     }
     .ip-placeholder {
-      color: var(--bs-gray-500);
+      color: $input-placeholder-color;
     }
   }
   .icon-remove,
@@ -41,7 +44,7 @@
     // min-width: 150px;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     padding: 6px 0;
-    min-width: 200px;
+    min-width: 250px;
     .input-search,
     .frame-btn {
       padding: 0 6px 6px 6px;

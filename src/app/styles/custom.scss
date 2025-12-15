@@ -9,13 +9,36 @@ input[type]:not(
   ),
 textarea {
   width: 100%;
-  color: #333;
+  color: $neutral;
   border: none;
   outline: none;
+  display: flex;
   align-items: center;
-  padding: 10px;
-  background: #e7e9ef;
-  border-radius: 6px;
+  gap: 16px;
+  padding: $input-padding;
+  background: $input-bg;
+  border-radius: $input-border-radius;
+  color: $neutral;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:focus {
+    box-shadow: none;
+    background-color: $input-bg;
+    border-color: $input-border-color;
+  }
+
+  &:disabled {
+    background-color: $input-bg;
+    border-color: $input-border-color;
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: $input-placeholder-color;
+    font-weight: 400;
+  }
 }
 
 .input-group {
@@ -36,10 +59,10 @@ input.custom-input-color {
 
 .custom-input-search {
   border: none;
-  padding: 0 10px;
+  padding: $input-padding;
   height: 100%;
-  border-radius: 6px;
-  background: #e7e9ef;
+  border-radius: $input-border-radius;
+  background: $input-bg;
 }
 
 .text-ellipsis {
@@ -260,7 +283,7 @@ button[disabled] {
 .ng-select.ng-select-single .ng-select-container {
   height: 100%;
   border: none;
-  background: #e7e9ef;
+  background: $input-bg;
   border-radius: 6px;
 }
 
@@ -268,7 +291,7 @@ button[disabled] {
 .ng-select.ng-select-single .ng-select-container {
   height: 100%;
   border: none;
-  background: #e7e9ef;
+  background: $input-bg;
   border-radius: 6px;
   min-height: 36px;
 }
@@ -304,8 +327,8 @@ button[disabled] {
 
   .ng-select-container {
     min-height: 35px;
-    color: var(--bs-body-color);
-    background: $gray-400;
+    color: $neutral;
+    background: $input-bg;
     border-radius: 6px;
   }
 
@@ -372,6 +395,11 @@ button[disabled] {
   .ng-dropdown-panel-items
   .ng-option {
   white-space: unset;
+
+  .ng-dropdown-panel {
+    background: $input-bg;
+    color: $neutral;
+  }
 }
 
 .ng-select-custom.ng-select-multiple .ng-select-container .ng-value-container {
@@ -748,18 +776,20 @@ ng-select.select-search-icon {
     .popover-body {
       width: fit-content;
       padding: 0px 10px;
+      overflow: hidden;
     }
 
     .tab-item {
       padding: 10px;
       white-space: pre-wrap;
       font-weight: 500;
+      color: $neutral;
       cursor: pointer;
       &.active {
-        background-color: $neutral-100;
+        background-color: $input-bg;
       }
       &:hover {
-        background-color: $neutral-100;
+        background-color: $input-bg;
       }
     }
   }
@@ -1110,10 +1140,9 @@ span.required {
   position: relative;
   .button-previous {
     z-index: 1;
-    position: absolute;
     left: 0;
     top: 0;
-    background: linear-gradient(90deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
+    // background: linear-gradient(90deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
     &.hide {
       position: unset;
       display: none !important;
@@ -1125,7 +1154,7 @@ span.required {
     // right: 180px;
     // top: 0;
     width: 50px;
-    background: linear-gradient(270deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
+    // background: linear-gradient(270deg, #fff 58%, rgba(rgb(245, 246, 247), 0));
     &.hide {
       display: none !important;
     }
@@ -1136,7 +1165,6 @@ span.required {
     width: 180px;
     display: flex;
     padding-bottom: 3px;
-    border-bottom: 1px solid $neutral-100;
     .button-edit-tab {
       border: none;
       background: none;
@@ -1152,7 +1180,7 @@ span.required {
     }
 
     .button-scroll-tab {
-      background-color: unset;
+      background-color: #fff;
       border: none;
       padding: 5px;
       width: 30px;
@@ -1213,10 +1241,9 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       display: flex;
       align-items: center;
       border: none;
-      color: #afb2bd !important;
+      color: #5e6068 !important;
       border-radius: unset !important;
-      padding: 5px 20px;
-      height: 36px;
+      padding: 14px !important;
       .button-edit-tab {
         display: none;
       }
@@ -1325,11 +1352,12 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       }
 
       &.active {
-        padding: 5px 10px 5px 20px;
-        background-color: unset !important;
+        padding: 14px !important;
         border: none;
-        color: $secondary-500 !important;
-        border-bottom: 3px solid $secondary-500;
+        color: $neutral !important;
+        font-weight: 500 !important;
+        border-radius: $radius-s !important;
+        background-color: #fff !important;
         .button-edit-tab {
           display: flex;
         }
@@ -1345,7 +1373,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
     background-color: $white;
     border: none;
     i {
-      font-size: 10px;
+      font-size: 14px;
     }
   }
   .input-edit-tab {
@@ -1758,7 +1786,7 @@ i {
   }
 }
 .button-submit-modal {
-  background: $secondary-500 !important;
+  background: $neutral !important;
   color: $white !important;
   padding: 0 16px 0 16px !important;
   border-radius: 6px !important;
@@ -1772,8 +1800,8 @@ i {
   font-weight: 600 !important;
 }
 .button-default-modal {
-  border: 1px solid $neutral-100 !important;
-  color: $neutral-400 !important;
+  border: 1px solid $neutral !important;
+  color: $neutral !important;
   background-color: $white !important;
   border-radius: 6px !important;
   font-weight: 600 !important;

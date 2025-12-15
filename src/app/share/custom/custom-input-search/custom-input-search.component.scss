@@ -2,11 +2,11 @@
 
 .custom-input-search {
   border: none;
-  padding: 0 10px;
-  border-radius: 6px;
-  background: #e7e9ef;
+  padding: vars.$input-padding;
+  border-radius: vars.$input-border-radius;
+  background: vars.$input-bg;
   i {
-    color: vars.$neutral-400;
+    color: vars.$neutral;
   }
   &.collapsed {
     border-radius: vars.$radius-s;
@@ -37,6 +37,9 @@
   //&:hover {
   //  outline: 2px solid #E0E9FF;
   //}
+  &:focus-within {
+    outline: 1px solid vars.$neutral;
+  }
 }
 
 input {
