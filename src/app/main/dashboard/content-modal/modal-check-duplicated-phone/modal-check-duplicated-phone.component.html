@@ -1,0 +1,240 @@
+<div class="modal-check-duplicated-phone">
+  <app-custom-modal (hideModal)="hideModal()">
+    <ng-container modalTitle>
+      <h4 class="modal-title mb-0">Cấu hình kiểm tra trùng số</h4>
+    </ng-container>
+
+    <ng-container modalBody>
+      <div class="modal-body-placeholder">
+        <!-- Loading state -->
+        <div *ngIf="dupPhoneList.loading && dupPhoneList.rows.length === 0" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+          </div>
+          <p class="text-muted mt-3">Đang tải danh sách số điện thoại trùng lặp...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="!dupPhoneList.loading && dupPhoneList.rows.length === 0" class="text-center py-5">
+          <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+          <p class="text-muted mt-3 mb-0">Không có số điện thoại trùng lặp</p>
+        </div>
+
+        <!-- Accordion list -->
+        <accordion *ngIf="dupPhoneList.rows.length > 0">
+          <accordion-group
+            *ngFor="let item of dupPhoneList.rows; let accordionIndex = index"
+            [heading]="item.phone + ' (' + item.count + ' tác vụ)'"
+            [isOpen]="isAccordionOpen(item.phone)"
+            (isOpenChange)="onToggleAccordion(item.phone, $event)"
+          >
+            <!-- Action bar - chỉ hiển thị ở accordion đang active -->
+            <div *ngIf="shouldShowActionBar(item.phone)" class="action-bar-container mb-3">
+              <div class="table-responsive">
+                <div class="bg-light rounded border p-2 p-md-3">
+                  <div class="d-flex flex-column gap-2">
+                    <!-- Header row -->
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                      <span class="fw-semibold text-primary small">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Đã chọn {{ getSelectedCount() }} tác vụ
+                      </span>
+                    </div>
+                    
+                    <!-- Controls row -->
+                    <div class="d-flex flex-column flex-md-row gap-2 align-items-stretch">
+                      <ng-select
+                        placeholder="Chọn tác vụ gốc"
+                        appearance="outline"
+                        [clearable]="false"
+                        [items]="validOriginalTasks"
+                        bindLabel="code"
+                        bindValue="id"
+                        [(ngModel)]="selectedOriginalTask"
+                        [class.is-invalid]="!selectedOriginalTask && selectedAction"
+                        class="flex-fill"
+                        [attr.aria-label]="'Chọn tác vụ gốc'"
+                        [attr.aria-required]="true"
+                      >
+                        <ng-template ng-option-tmp let-item="item">
+                          <div>
+                            <strong>{{ item.code }}</strong>
+                            <small class="text-muted d-block" *ngIf="item.leadDeal?.name">{{ item.leadDeal.name }}</small>
+                          </div>
+                        </ng-template>
+                      </ng-select>
+                      <ng-select
+                        appearance="outline"
+                        [clearable]="false"
+                        placeholder="Chọn hành động"
+                        [(ngModel)]="selectedAction"
+                        [class.is-invalid]="!selectedAction && selectedOriginalTask"
+                        class="flex-fill"
+                        [attr.aria-label]="'Chọn hành động'"
+                        [attr.aria-required]="true"
+                      >
+                        <ng-option value="keepOriginal">Giữ nguyên tác vụ gốc và xoá các tác vụ còn lại</ng-option>
+                      </ng-select>
+                      <div class="d-flex gap-2 flex-shrink-0">
+                        <button
+                          type="button"
+                          class="btn btn-primary btn-sm"
+                          (click)="handleUpdateAction()"
+                          [disabled]="!selectedOriginalTask || !selectedAction || isProcessing"
+                        >
+                          <i class="fas fa-check me-1" *ngIf="!isProcessing"></i>
+                          <span class="spinner-border spinner-border-sm me-1" *ngIf="isProcessing" role="status"></span>
+                          Cập nhật
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary btn-sm"
+                          (click)="clearSelection()"
+                          [disabled]="isProcessing"
+                        >
+                          <i class="fas fa-times me-1"></i>
+                          Bỏ chọn
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <!-- Error messages -->
+                    <div class="text-danger small" *ngIf="!selectedOriginalTask && selectedAction">
+                      <i class="fas fa-exclamation-circle me-1"></i>
+                      Vui lòng chọn tác vụ gốc
+                    </div>
+                    <div class="text-danger small" *ngIf="selectedOriginalTask && !selectedAction">
+                      <i class="fas fa-exclamation-circle me-1"></i>
+                      Vui lòng chọn hành động
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive tableFixHead custom-scrollbar">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width: 40px" class="column-checkbox">
+                      <label class="basic-checkbox standalone">
+                        <input
+                          type="checkbox"
+                          (change)="handleSelectAll(item.phone, $event)"
+                          [checked]="isAllSelected(item.phone)"
+                          [disabled]="isCheckboxDisabled(item.phone)"
+                          [attr.aria-label]="'Chọn tất cả tác vụ cho ' + item.phone"
+                          [title]="isCheckboxDisabled(item.phone) ? 'Vui lòng hoàn tất lựa chọn ở accordion khác trước' : (isAllSelected(item.phone) ? 'Bỏ chọn tất cả' : 'Chọn tất cả')"
+                        />
+                        <span class="checkmark"></span>
+                      </label>
+                    </th>
+                    <th>Tác vụ</th>
+                    <th>Khách hàng</th>
+                    <th>Tác vụ đã đóng</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="tasksByPhone[item.phone] as taskState">
+                  <tr *ngIf="taskState.loading">
+                    <td colspan="4" class="text-center py-4">
+                      <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                      </div>
+                      <span class="ms-2 text-muted">Đang tải danh sách tác vụ...</span>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!taskState.loading && taskState.rows.length === 0">
+                    <td colspan="4" class="text-center py-4 text-muted">
+                      <i class="fas fa-inbox me-2"></i>
+                      Không có dữ liệu
+                    </td>
+                  </tr>
+                  <tr
+                    *ngFor="let task of taskState.rows; trackBy: trackByFn; let i = index"
+                    [class.table-active]="isTaskSelected(task.id)"
+                    [class.table-warning]="task.id === selectedOriginalTask"
+                  >
+                    <td class="column-checkbox">
+                      <label class="basic-checkbox">
+                        <input
+                          type="checkbox"
+                          [checked]="isTaskSelected(task.id)"
+                          (change)="handleSelectTask(item.phone, task.id, $event)"
+                          [disabled]="isCheckboxDisabled(item.phone)"
+                          [attr.aria-label]="'Chọn tác vụ ' + task.code"
+                          [title]="isCheckboxDisabled(item.phone) ? 'Vui lòng hoàn tất lựa chọn ở accordion khác trước' : (isTaskSelected(task.id) ? 'Bỏ chọn' : 'Chọn')"
+                        />
+                        <span class="checkmark"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <span class="fw-semibold">{{ task.code }}</span>
+                      <span *ngIf="task.id === selectedOriginalTask" class="badge bg-primary ms-2">Gốc</span>
+                    </td>
+                    <td>{{ task.leadDeal?.name || '-' }}</td>
+                    <td>
+                      <span *ngIf="task.isTaskClosed" class="badge bg-success">
+                        <i class="fas fa-check me-1"></i>Đã đóng
+                      </span>
+                      <span *ngIf="!task.isTaskClosed" class="badge bg-danger">
+                        <i class="fas fa-times me-1"></i>Chưa đóng
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="!tasksByPhone[item.phone]">
+                  <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">
+                      <i class="fas fa-chevron-down me-2"></i>
+                      Nhấn để tải danh sách tác vụ
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </accordion-group>
+        </accordion>
+      </div>
+    </ng-container>
+
+    <ng-container modalFooter>
+      <div class="d-flex justify-content-between align-items-center w-100">
+        <!-- Pagination controls -->
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted small" *ngIf="!dupPhoneList.loading && dupPhoneList.rows.length > 0">
+            Trang {{ currentPageIndex + 1 }}
+            <span *ngIf="dupPhoneList.rows.length > 0" class="ms-1">
+              ({{ dupPhoneList.rows.length }} số điện thoại)
+            </span>
+          </span>
+          <div class="spinner-border spinner-border-sm text-primary" role="status" *ngIf="dupPhoneList.loading">
+            <span class="visually-hidden">Đang tải...</span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            (click)="goToPreviousPage()"
+            [disabled]="!canGoToPreviousPage() || dupPhoneList.loading"
+            [title]="!canGoToPreviousPage() ? 'Đã ở trang đầu' : 'Trang trước'"
+          >
+            <i class="fas fa-chevron-left"></i> Trước
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            (click)="goToNextPage()"
+            [disabled]="!hasNextPage || dupPhoneList.loading"
+            [title]="!hasNextPage ? 'Đã ở trang cuối' : 'Trang tiếp'"
+          >
+            Tiếp <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- Close button -->
+        <button type="button" class="btn button-medium button-outline" (click)="hideModal()">
+          Đóng
+        </button>
+      </div>
+    </ng-container>
+  </app-custom-modal>
+</div>

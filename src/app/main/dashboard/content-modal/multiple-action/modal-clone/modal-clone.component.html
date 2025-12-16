@@ -1,6 +1,6 @@
 <div class="modal-clone" [formGroup]="form">
   <app-custom-modal (hideModal)="hideModal()">
-    <ng-container modalTitle>Tạo bản sao Tác vụ</ng-container>
+    <ng-container modalTitle>{{ task ? 'Tạo bản sao Tác vụ ' + task?.code : 'Tạo bản sao hàng loạt ' + taskIds?.length + ' tác vụ' }}</ng-container>
     <ng-container modalBody>
       <label for="optionToClone" class="form-control-label">
         Những thông tin cần giữ khi tạo bản sao

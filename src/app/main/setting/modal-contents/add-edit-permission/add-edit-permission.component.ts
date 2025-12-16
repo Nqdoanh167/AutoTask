@@ -144,14 +144,23 @@ export class AddEditPermissionComponent
             {
               key: EPerActTask.SPLIT_TEAM_TASK,
               name: 'Chia tác vụ cho nhân viên',
-              tooltip:
-                'Chia tác vụ cho nhân viên.' 
+              tooltip: 'Chia tác vụ cho nhân viên.',
             },
             {
               key: EPerActTask.REMOVE_TEAM_TASK,
               name: 'Bỏ gán tác vụ khỏi nhân viên',
-              tooltip:
-                'Bỏ gán tác vụ khỏi nhân viên'
+              tooltip: 'Bỏ gán tác vụ khỏi nhân viên',
+            },
+            {
+              key: EPerActTask.VIEW_DUPLICATED_PHONE_CONFIG,
+              name: 'Kiểm tra tác vụ trùng',
+              tooltip: 'Kiểm tra tác vụ trùng',
+            },
+            {
+              key: EPerActTask.REMOVE_DUPLICATED_PHONE_CONFIG,
+              name: 'Cập nhật gộp tác vụ trùng',
+              tooltip: 'Cập nhật gộp tác vụ trùng',
+              dependsOnPer: EPerActTask.VIEW_DUPLICATED_PHONE_CONFIG,
             },
           ],
         },
@@ -296,15 +305,18 @@ export class AddEditPermissionComponent
       [EPerActType.SETTING]: [],
       [EPerActType.LEAD]: [],
     };
-    const permissionAction: PermissionAction = data?.permissionAction || defaultPermissionAction;
+    const permissionAction: PermissionAction =
+      data?.permissionAction || defaultPermissionAction;
     if (permissionAction) {
-      (Object.keys(permissionAction) as Array<keyof PermissionAction>).forEach((key) => {
-        const values = permissionAction[key] || [];
-        if (!values.length) return;
+      (Object.keys(permissionAction) as Array<keyof PermissionAction>).forEach(
+        (key) => {
+          const values = permissionAction[key] || [];
+          if (!values.length) return;
 
-        const group = this.permissionGroups.find((item) => item.key === key);
-        if (group) group.isOpen = true;
-      });
+          const group = this.permissionGroups.find((item) => item.key === key);
+          if (group) group.isOpen = true;
+        },
+      );
     }
   }
 
@@ -317,8 +329,10 @@ export class AddEditPermissionComponent
     const data = this.updateForm.value as any;
 
     Object.keys(data.permissionAction).forEach((key: string) => {
-      if(key){
-        data.permissionAction[key] = Array.from(new Set(data.permissionAction[key]));
+      if (key) {
+        data.permissionAction[key] = Array.from(
+          new Set(data.permissionAction[key]),
+        );
       }
     });
 
@@ -377,10 +391,11 @@ export class AddEditPermissionComponent
   ) {
     try {
       const {checked} = event.target as HTMLInputElement;
-      let value: string[] =
-        this.updateForm.get(`permissionAction.${group.key}`)?.value || [];
+      let value: string[] = [
+        ...(this.updateForm.get(`permissionAction.${group.key}`)?.value || []),
+      ];
       if (checked) {
-        value.push(permission.key);
+        value = Array.from(new Set([...value, permission.key]));
       } else {
         const index = value.indexOf(permission.key);
         if (index > -1) {
@@ -389,28 +404,46 @@ export class AddEditPermissionComponent
         if (permission.isRootPer) {
           value = [];
         }
+        const dependentKeys = this.getDependentPermissions(
+          permission.key! as EPerActTask | EPerActFlow | EPerActSetting,
+          group,
+        );
+        if (permission.key === EPerActTask.UPDATE_TASK) {
+          dependentKeys.push(
+            EPerActTask.MANAGE_CHAIN,
+            EPerActTask.EDIT_TIME_ACTION,
+            EPerActTask.CREATE_ORDER,
+          );
+        }
+        if (dependentKeys.length) {
+          value = value.filter((key) => !dependentKeys.includes(key as any));
+        }
       }
       this.updateForm
         .get(`permissionAction.${group.key}`)
         ?.setValue(value as any);
-      if (permission.key === EPerActTask.UPDATE_TASK && !checked) {
-        const currentTaskPerms =
-          this.updateForm.get('permissionAction.task')?.value ||
-          ([] as string[]);
-        const filterTaskPerms = currentTaskPerms.filter((el) => {
-          return ![
-            EPerActTask.MANAGE_CHAIN,
-            EPerActTask.EDIT_TIME_ACTION,
-            EPerActTask.CREATE_ORDER,
-          ].includes(el as any);
-        });
-        this.updateForm
-          .get(`permissionAction.task`)
-          ?.setValue(filterTaskPerms as any);
-      }
     } catch (e) {
       console.log(e);
     }
+  }
+
+  private getDependentPermissions(
+    permissionKey: EPerActTask | EPerActFlow | EPerActSetting,
+    group: IPermissionGroups,
+  ): (EPerActTask | EPerActFlow | EPerActSetting)[] {
+    const dependentKeys: (EPerActTask | EPerActFlow | EPerActSetting)[] = [];
+    const collect = (items?: IPermissionItem[]) => {
+      items?.forEach((item) => {
+        if (item.dependsOnPer === permissionKey) {
+          dependentKeys.push(
+            item.key! as EPerActTask | EPerActFlow | EPerActSetting,
+          );
+        }
+      });
+    };
+    collect(group.permissions);
+    group.groups?.forEach((g) => collect(g.permissions));
+    return dependentKeys;
   }
 
   checkDisable(permission: IPermissionItem, group: IPermissionGroups) {

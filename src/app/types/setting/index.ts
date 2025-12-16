@@ -174,6 +174,9 @@ export interface ISetting {
   };
   viewDropConfig?: boolean;
   viewDrawConfig?: boolean;
+  checkDuplicatedPhoneConfig?: {
+    tags: string[];
+  };
 }
 
 export interface IViewDto
@@ -220,6 +223,8 @@ export enum EPerActTask {
   SPLIT_TEAM_TASK = 'SPLIT_TEAM_TASK',
   REMOVE_TEAM_TASK = 'REMOVE_TEAM_TASK',
   DELETE_MULTI_TASK = 'DELETE_MULTI_TASK',
+  VIEW_DUPLICATED_PHONE_CONFIG = 'VIEW_DUPLICATED_PHONE_CONFIG',
+  REMOVE_DUPLICATED_PHONE_CONFIG = 'REMOVE_DUPLICATED_PHONE_CONFIG',
 }
 
 export enum EPerActFlow {

@@ -114,7 +114,6 @@ export class ViewModeTabComponent
     '#3AC34C',
     '#4277FF',
   ];
-
   constructor(
     private readonly toastr: ToastrService,
     private readonly modalConfirmService: ModalConfirmService,

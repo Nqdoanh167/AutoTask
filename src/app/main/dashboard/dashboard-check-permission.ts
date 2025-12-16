@@ -9,6 +9,7 @@ export class DashboardCheckPermission extends DashboardData {
     add: false,
     edit: false,
     delete: false,
+    viewDuplicatedPhoneConfig: false,
   };
 
   constructor() {

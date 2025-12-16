@@ -265,8 +265,8 @@ app-main {
   background-color: $input-bg;
   border: none;
   color: $neutral;
-  // font-size: 14px;
-  // font-weight: 500;
+  font-size: 14px;
+  font-weight: 500;
 
   &::placeholder {
     color: $input-placeholder-color;

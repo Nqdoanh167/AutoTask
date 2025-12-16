@@ -312,6 +312,13 @@ export interface ITaskChainResult {
   reason: IActReason;
   reasonIndex: number;
   executeAction: any;
+  executedBy?: {
+    email: string;
+    id: string;
+    name: string;
+    picture: string;
+  };
+  executedAt?: Date;
   nextActionIds: string[];
   nextActions: ITaskChainResult[];
   note: string;

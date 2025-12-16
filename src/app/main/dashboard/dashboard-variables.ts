@@ -32,6 +32,10 @@ export const TASK_MULTIPLE_ACTIONS = [
     label: 'Xóa hàng loạt tác vụ',
     value: ETypeBulkUpdate.DELETE_MULTI_TASK,
   },
+  {
+    label: 'Tạo bản sao hàng loạt',
+    value: ETypeBulkUpdate.CLONE_MULTI_TASK,
+  },
 ];
 
 export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [
@@ -215,10 +219,21 @@ export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [
   },
   {
     type: ETypeFilter.DATE,
-    name: 'updatedAt',
-    placeholder: 'Ngày cập nhật cuối',
+    name: 'executedDateAt',
+    placeholder: 'Ngày tác nghiệp cuối',
     subType: 'range',
     clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SELECT,
+    name: 'lastExecutedBy',
+    placeholder: 'Người tác nghiệp cuối',
+    options: [],
+    bindLabel: 'name',
+    bindValue: 'id',
+    clearable: false,
+    searchable: true,
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
   {

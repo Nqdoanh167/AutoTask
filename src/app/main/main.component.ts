@@ -77,6 +77,7 @@ export class MainComponent extends BaseComponentsComponent implements OnInit, On
     this.mainService.headerTab$.pipe().subscribe((res) => {
       if (res) {
         this.listNavItems = res;
+        console.log('listNavItems', this.listNavItems);
       }
     });
 
