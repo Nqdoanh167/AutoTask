@@ -1,6 +1,6 @@
 <ng-container>
   <div class="custom-modal modal-default {{ className }}">
-    @if (type === 'standard') {
+    @if (type === 'standard' && !hideHeader) {
       <div class="modal-header">
         <span class="modal-title pull-left">
           <ng-content select="[modalTitle]"></ng-content>

@@ -471,14 +471,6 @@ export class MainService extends BaseApiService implements OnDestroy {
     this.headerTabsSubject.next([]);
   }
 
-  setLeadDashboardComponent(component: any) {
-    this.leadDashboardComponentSubject.next(component);
-  }
-
-  getLeadDashboardComponent() {
-    return this.leadDashboardComponentSubject.value;
-  }
-
   ngOnDestroy(): void {
     this.destroy.next(true);
     this.destroy.complete();

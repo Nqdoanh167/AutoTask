@@ -6,9 +6,7 @@ import {LeadDashboardComponent} from './lead-dashboard/lead-dashboard.component'
 import {LeadSettingComponent} from './lead-setting/lead-setting.component';
 import {LeadStatusComponent} from './lead-setting/lead-status/lead-status.component';
 import {LeadTagComponent} from './lead-setting/lead-tag/lead-tag.component';
-import {LeadFolderSidebarComponent} from './lead-dashboard/lead-folder-sidebar/lead-folder-sidebar.component';
 import {LeadFormModalComponent} from './lead-dashboard/lead-form-modal/lead-form-modal.component';
-import {LeadFunnelFormModalComponent} from './lead-dashboard/lead-funnel-form-modal/lead-funnel-form-modal.component';
 import {LeadBulkMoveModalComponent} from './lead-dashboard/lead-bulk-move-modal/lead-bulk-move-modal.component';
 import {LeadConnectionsModalComponent} from './lead-dashboard/lead-connections-modal/lead-connections-modal.component';
 import {LeadCommentsSidebarComponent} from './lead-dashboard/lead-comments-sidebar/lead-comments-sidebar.component';
@@ -34,11 +32,12 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
 import {FilterAdvanceComponent} from '@share/common/filter-advance/filter-advance.component';
 import {RouterModule} from '@angular/router';
-import { InputUploadModule } from '@app/share/input/input-upload/input-upload.module';
-import { InputSuggestCustomerComponent } from '@share/common/input-select-customer/input-suggest-customer.component';
-import { CollapseModule } from "ngx-bootstrap/collapse";
-import { InputCheckboxModule } from '@share/input/input-checkbox/input-checkbox.module';
-import { PopoverModule } from 'ngx-bootstrap/popover';
+import {InputUploadModule} from '@app/share/input/input-upload/input-upload.module';
+import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
+import {CollapseModule} from 'ngx-bootstrap/collapse';
+import {InputCheckboxModule} from '@share/input/input-checkbox/input-checkbox.module';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
 
 @NgModule({
   declarations: [
@@ -47,9 +46,7 @@ import { PopoverModule } from 'ngx-bootstrap/popover';
     LeadSettingComponent,
     LeadStatusComponent,
     LeadTagComponent,
-    LeadFolderSidebarComponent,
     LeadFormModalComponent,
-    LeadFunnelFormModalComponent,
     LeadBulkMoveModalComponent,
     LeadConnectionsModalComponent,
     LeadCommentsSidebarComponent,
@@ -84,8 +81,9 @@ import { PopoverModule } from 'ngx-bootstrap/popover';
     InputSuggestCustomerComponent,
     CollapseModule,
     InputCheckboxModule,
-    PopoverModule
-],
+    PopoverModule,
+    TimeViewPipe,
+  ],
   providers: [DatePipe],
 })
 export class LeadModule {}

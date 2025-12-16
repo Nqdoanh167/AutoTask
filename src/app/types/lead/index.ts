@@ -1,9 +1,12 @@
-import { Customer } from '../customer';
-import { ITag, AccountPublic } from '../viewmodels';
-import { ILeadStatus } from '../lead-status';
-import { ILeadTag, ILeadTag as ILeadTagType } from '../lead-tag';
-import { ITeam, IBranchTaskDto } from '../flow';
-import { ITask, IPlatform } from '@app/main/lead/lead-dashboard/lead-form-modal/lead-form-modal.interface';
+import {Customer} from '../customer';
+import {ITag, AccountPublic} from '../viewmodels';
+import {ILeadStatus} from '../lead-status';
+import {ILeadTag, ILeadTag as ILeadTagType} from '../lead-tag';
+import {ITeam, IBranchTaskDto} from '../flow';
+import {
+  ITask,
+  IPlatform,
+} from '@app/main/lead/lead-dashboard/lead-form-modal/lead-form-modal.interface';
 
 export enum EGenderType {
   MALE = 'male',
@@ -42,7 +45,8 @@ export interface ILead {
   tagIds?: string[]; // Tag IDs (matches backend response)
   taskIds: string[];
   taskCodes: string[];
-  orderId?: string;
+  orderId?: string[];
+  orderCodes: string[];
   customer?: Customer;
   createdBy?: AccountPublic;
   updatedBy?: AccountPublic;
@@ -58,8 +62,8 @@ export interface ILead {
 }
 
 // Re-export from dedicated type files for external consumers
-export type { ILeadStatus };
-export type { ILeadTagType as ILeadTag };
+export type {ILeadStatus};
+export type {ILeadTagType as ILeadTag};
 
 export interface ILeadQuery {
   page?: number;
@@ -81,7 +85,7 @@ export interface ILeadCreateDto {
   ward?: string;
   wardCode?: string;
   district?: string;
-  districtCode?: string;                
+  districtCode?: string;
   province?: string;
   provinceCode?: string;
   platforms?: IPlatform[]; // Danh sách nền tảng và kết nối

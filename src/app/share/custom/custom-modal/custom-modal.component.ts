@@ -26,6 +26,7 @@ export class CustomModalComponent implements OnInit, OnDestroy {
   @Input() isLoading: boolean = false;
   @Input() isSubmitting: boolean = false;
   @Input() hideFooter: boolean = false;
+  @Input() hideHeader: boolean = false;
   @Input() textOk: string = 'Lưu';
   @Input() className: string = '';
   @Input() confirmClose: boolean = false;

@@ -1,3 +1,4 @@
+@use 'src/app/styles/variable' as vars;
 @use 'src/app/styles/mixins' as mixins;
 
 ::ng-deep {
@@ -24,6 +25,15 @@
     border: 0.5px solid #dc3545 !important;
     box-shadow: none !important;
   }
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10;
+  margin-bottom: 16px;
+  height: 40px;
 }
 
 .body-container {
@@ -1287,5 +1297,75 @@
 .text-hover-underline {
   &:hover {
     text-decoration: underline;
+  }
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: vars.$input-bg;
+  border-radius: vars.$radius-s;
+  padding: 6px 16px;
+
+  .funnel-name-input {
+    border: none;
+    background: transparent;
+    color: #1a3791;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 0;
+    outline: none;
+
+    &::placeholder {
+      color: #1a3791;
+      opacity: 0.7;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+  &.is-invalid {
+    border: 1px solid #dc3545;
+  }
+}
+
+.lead-badge {
+  height: 32px;
+  border-radius: 8px 0 0 8px;
+  padding: 0 30px;
+  min-width: 150px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  background-color: #64748b;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 18px) 0,
+    100% 50%,
+    calc(100% - 18px) 100%,
+    0 100%,
+    18px 50%
+  );
+
+  &:last-child {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 100%, 18px 50%);
+    border-radius: 0 8px 8px 0;
+  }
+
+  &:first-child {
+    background-color: #3b82f6;
+    clip-path: polygon(
+      0 0,
+      calc(100% - 18px) 0,
+      100% 50%,
+      calc(100% - 18px) 100%,
+      0 100%
+    );
   }
 }

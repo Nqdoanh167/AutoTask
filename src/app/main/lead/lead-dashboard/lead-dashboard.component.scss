@@ -1,661 +1,360 @@
-:host {
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+.dashboard-site {
+  padding: 16px;
   display: flex;
-  flex: 1;
-  width: 100%;
-  height: 100%;
+  gap: 16px;
+  height: calc(100vh - 50px);
 }
 
-.dashboard-site {
-  padding: 0;
-  display: flex;
-  width: 100%;
+.lead-sidebar {
+  width: 280px;
   height: 100%;
-  overflow: hidden; // Prevent page-level scrolling
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 
-  &.with-sidebar {
-    .main-content {
-      flex: 1;
-      overflow: hidden; // Changed from overflow-y: auto
-      display: flex;
-      flex-direction: column;
-      min-width: 0; // Prevent flex item from overflowing
-      height: 100%; // Ensure full height
+  .search-box {
+    display: flex;
+    padding: 8px 16px;
+    align-items: center;
+    gap: 16px;
+    border-radius: vars.$radius-s;
+    background-color: vars.$white;
+  }
+
+  .dropdown-menu {
+    img {
+      width: 24px !important;
+      height: 24px !important;
     }
   }
 
-  // Toolbar styling
-  .lead-dashboard__toolbar {
-    position: relative;
-    z-index: 15;
-    overflow: visible; // Important: allow tooltip to show
-    flex-shrink: 0; // Don't shrink toolbar
-
-    .toolbar-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      overflow: visible; // Important: allow tooltip to show
-
-      .sidebar-expand-toggle {
-        flex-shrink: 0;
-        order: 1;
-        position: relative;
-        z-index: 10;
-      }
-
-      .view-mode-toggle {
-        flex-shrink: 0;
-        order: 2;
-        position: relative;
-        z-index: 10; // Ensure buttons are above other elements
-      }
-
-      .filter-wrapper {
-        flex: 1;
-        min-width: 0;
-        order: 2;
-        overflow: visible; // Important: allow dropdowns/tooltips to show
-      }
-    }
-  }
-
-  // Override filter-top-table styles in this context
-  ::ng-deep .lead-dashboard__toolbar {
-    .filter-top-table {
-      background: transparent;
-      padding: 0;
-      border: none;
-      justify-content: flex-start;
-
-      .left {
-        flex: 1;
-        justify-content: flex-start;
-        gap: 8px;
-      }
-
-      .right {
-        flex-shrink: 0;
-        gap: 8px;
-      }
-    }
-  }
-
-  // Table styles
-  .content-table {
-    flex: 1;
+  .list-folder {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    background: white;
-    margin: 16px;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    min-height: 0; // Important for flex scrolling
-
-    .lead-table-container {
-      flex: 1 1 auto;
-      overflow-y: auto; // Enable vertical scrolling
-      overflow-x: auto; // Enable horizontal scrolling for wide tables
-      min-height: 0; // Important for flex child scrolling
-      max-height: calc(100vh - 246px); // Ensure scrolling is possible
-
-      &::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: #f1f3f4;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background: #dadce0;
-        border-radius: 4px;
-
-        &:hover {
-          background: #bdc1c6;
-        }
-      }
-    }
-
-    // Bootstrap table customizations
-    .table {
-      min-width: 800px; // Ensure table doesn't collapse on mobile
-
-      thead th {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: white;
-        font-weight: 600;
-        font-size: 14px;
-        border-bottom: 2px solid #dee2e6;
-        white-space: nowrap;
-        vertical-align: middle;
-
-        &.sortable {
-          cursor: pointer;
-          user-select: none;
-
-          &:hover {
-            background: #f8f9fa;
-          }
-        }
-
-        &.col-actions {
-          width: 160px;
-          min-width: 160px;
-          text-align: right;
-        }
-
-        input[type='checkbox'] {
-          cursor: pointer;
-        }
-      }
-
-      tbody {
-        tr {
-          &.table-active {
-            background-color: #e8f0fe;
-          }
-        }
-
-        td {
-          vertical-align: middle;
-
-          &.col-actions {
-            width: 160px;
-            min-width: 160px;
-            white-space: nowrap;
-
-            .action-buttons {
-              display: flex;
-              align-items: center;
-              justify-content: flex-end;
-              gap: 4px;
-
-              .btn {
-                padding: 4px 8px;
-                min-width: auto;
-
-                i {
-                  font-size: 14px;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Lead avatar styling
-    .lead-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-
-    // Table footer (pagination)
-    .table-footer {
-      background: #f8f9fa;
-      border-radius: 0 0 8px 8px;
-      flex-shrink: 0; // Don't shrink pagination
-    }
-  }
-
-  .content-kanban {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    gap: 16px;
     padding: 16px;
-    min-height: 0;
+    border-radius: vars.$radius-s;
+    background-color: vars.$white;
+    height: 100%;
 
-    .kanban-board {
+    .folder,
+    .group-folder {
+      padding: 8px;
+      border-radius: vars.$radius-s;
       display: flex;
-      gap: 16px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      height: 100%;
-      padding-bottom: 16px;
-
-      &::-webkit-scrollbar {
-        height: 8px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: #f1f3f4;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background: #dadce0;
-        border-radius: 4px;
-
-        &:hover {
-          background: #bdc1c6;
-        }
-      }
-    }
-
-    .kanban-column {
-      flex: 0 0 320px;
-      min-width: 320px;
-      max-width: 320px;
-      display: flex;
-      flex-direction: column;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-      .kanban-column-header {
-        padding: 16px;
-        border-bottom: 2px solid rgba(0, 0, 0, 0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-shrink: 0;
-        background: white;
-
-        .column-title {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          flex: 1;
-          min-width: 0;
-
-          .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            flex-shrink: 0;
-          }
-
-          h3 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: #202124;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-        }
-
-        .lead-count {
-          background: rgba(0, 0, 0, 0.05);
-          padding: 4px 10px;
-          border-radius: 12px;
-          font-size: 13px;
-          font-weight: 600;
-          color: #5f6368;
-          flex-shrink: 0;
-        }
-      }
-
-      .kanban-column-content {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        min-height: 0;
-
-        &::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        &::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: #dadce0;
-          border-radius: 3px;
-
-          &:hover {
-            background: #bdc1c6;
-          }
-        }
-      }
-
-      .kanban-column-empty {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 32px 16px;
-        color: #9aa0a6;
-        text-align: center;
-
-        i {
-          font-size: 36px;
-          margin-bottom: 8px;
-          opacity: 0.5;
-        }
-
-        p {
-          margin: 0;
-          font-size: 14px;
-        }
-      }
-    }
-
-    // CDK Drag & Drop styles
-    .kanban-column-content {
-      &.cdk-drop-list-dragging {
-        background: rgba(66, 133, 244, 0.08);
-        border: 2px dashed #4285f4;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-      }
-    }
-
-    .kanban-card {
-      background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 12px;
-      cursor: grab;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
-      position: relative;
 
-      // Drag handle indicator
-      &::before {
-        content: '';
-        position: absolute;
-        left: 4px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 24px;
-        background: linear-gradient(
-          to bottom,
-          #d0d0d0 0%,
-          #d0d0d0 20%,
-          transparent 20%,
-          transparent 40%,
-          #d0d0d0 40%,
-          #d0d0d0 60%,
-          transparent 60%,
-          transparent 80%,
-          #d0d0d0 80%,
-          #d0d0d0 100%
-        );
-        border-radius: 2px;
-        opacity: 0;
-        transition: opacity 0.2s;
+      .folder-name {
+        color: vars.$neutral;
+        font-size: 14px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .folder {
+    background-color: #edf4ff;
+  }
+
+  .group-folder {
+    background-color: #f8fafc;
+  }
+
+  .item-folder {
+    padding: 8px 8px 8px 20px;
+    background-color: #fff;
+    border-radius: vars.$radius-s;
+  }
+
+  .folder,
+  .group-folder,
+  .item-folder {
+    cursor: pointer;
+  }
+
+  .dropdown-icon {
+    transition: transform 0.3s ease;
+    &.rotated {
+      transform: rotate(90deg);
+    }
+  }
+
+  .btn-dropdown {
+    .button-icon-wrapper {
+      margin: 0;
+    }
+  }
+}
+
+.main-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: calc(100% - 296px);
+
+  .list-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 16px;
+    border-radius: vars.$radius-s;
+    background-color: vars.$white;
+
+    .view-mode-btn {
+      .button-icon {
+        background-color: #f8fafc !important;
+      }
+      &.active {
+        .button-icon {
+          background-color: vars.$neutral !important;
+        }
       }
 
       &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: translateY(-2px);
-        border-color: #4285f4;
-
-        &::before {
-          opacity: 1;
+        .button-icon {
+          background-color: vars.$neutral !important;
         }
-      }
-
-      // While being dragged (the actual element)
-      &.cdk-drag-animating {
-        transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .card-header {
-        .lead-info {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-
-          .lead-avatar-small {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            flex-shrink: 0;
-
-            img {
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-            }
-          }
-
-          .lead-name-code {
-            flex: 1;
-            min-width: 0;
-
-            .lead-name {
-              font-size: 14px;
-              font-weight: 600;
-              color: #202124;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-            }
-
-            .lead-code {
-              font-size: 12px;
-              color: #5f6368;
-            }
-          }
-        }
-      }
-
-      .card-body {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding-top: 4px;
-        border-top: 1px solid #f0f0f0;
-
-        .card-info-row {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 13px;
-
-          i {
-            width: 14px;
-            font-size: 12px;
-            flex-shrink: 0;
-          }
-
-          a {
-            text-decoration: none;
-            flex: 1;
-            min-width: 0;
-
-            &:hover {
-              text-decoration: underline;
-            }
-          }
-        }
-      }
-
-      .card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 8px;
-        border-top: 1px solid #f0f0f0;
-        margin-top: 4px;
-
-        small {
-          font-size: 11px;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-
-          i {
-            font-size: 10px;
-          }
-        }
-
-        .card-actions {
-          display: flex;
-          gap: 4px;
-          opacity: 0;
-          transition: opacity 0.2s;
-
-          .btn {
-            padding: 2px 6px;
-            font-size: 12px;
-
-            i {
-              font-size: 12px;
-            }
-          }
-        }
-      }
-
-      &:hover .card-actions {
-        opacity: 1;
-      }
-    }
-
-    // Drag placeholder (where the card will be dropped)
-    .kanban-card-placeholder {
-      background: linear-gradient(
-        135deg,
-        rgba(66, 133, 244, 0.1) 0%,
-        rgba(66, 133, 244, 0.05) 100%
-      );
-      border: 2px dashed #4285f4;
-      border-radius: 8px;
-      min-height: 80px;
-      transition: all 0.2s ease;
-      animation: pulse-placeholder 1.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse-placeholder {
-      0%,
-      100% {
-        opacity: 0.6;
-        transform: scale(1);
-      }
-      50% {
-        opacity: 1;
-        transform: scale(1.01);
-      }
-    }
-
-    .kanban-loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: #5f6368;
-      gap: 16px;
-
-      p {
-        font-size: 16px;
-        margin: 0;
       }
     }
   }
 
-  // Button styles
-  .btn {
-    &.btn-primary {
-      background: #4285f4;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
+  .table {
+    .lead-name {
+      color: #0f172a;
       font-size: 14px;
       font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
 
       &:hover {
-        background: #3367d6;
+        text-decoration: underline;
+        color: vars.$primary;
       }
     }
 
-    &.btn-icon {
-      width: 36px;
-      height: 36px;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
+    .lead-status-badge {
+      display: flex;
+      padding: 8px 16px;
       justify-content: center;
-      background: transparent;
-      border: 1px solid #e0e0e0;
-      color: #666;
-
-      &:hover {
-        background: #f5f5f5;
-        color: #333;
-      }
-
-      &.active {
-        background: #e8f0fe;
-        color: #4285f4;
-        border-color: #4285f4;
-      }
-    }
-  }
-
-  .btn-group {
-    display: flex;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    overflow: hidden;
-
-    .btn {
-      border-radius: 0;
-      border: none;
-      border-right: 1px solid #e0e0e0;
-
-      &:last-child {
-        border-right: none;
-      }
+      align-items: center;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 400;
+      width: max-content;
+      max-width: 200px;
+      overflow: hidden;
     }
   }
 }
 
-// CDK Drag Preview - rendered outside component, needs ::ng-deep
-::ng-deep .cdk-drag-preview {
-  &.kanban-card--dragging {
+.content-kanban {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 16px;
+  min-height: 0;
+
+  .kanban-board {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 100%;
+    padding-bottom: 16px;
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f3f4;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #dadce0;
+      border-radius: 4px;
+
+      &:hover {
+        background: #bdc1c6;
+      }
+    }
+  }
+
+  .kanban-column {
+    flex: 0 0 320px;
+    min-width: 320px;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
     background: white;
-    border: 2px solid #4285f4;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    .kanban-column-header {
+      padding: 16px;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      background: white;
+
+      .column-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 0;
+
+        .status-indicator {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #202124;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .lead-count {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #5f6368;
+        flex-shrink: 0;
+      }
+    }
+
+    .kanban-column-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #dadce0;
+        border-radius: 3px;
+
+        &:hover {
+          background: #bdc1c6;
+        }
+      }
+    }
+
+    .kanban-column-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      color: #9aa0a6;
+      text-align: center;
+
+      i {
+        font-size: 36px;
+        margin-bottom: 8px;
+        opacity: 0.5;
+      }
+
+      p {
+        margin: 0;
+        font-size: 14px;
+      }
+    }
+  }
+
+  // CDK Drag & Drop styles
+  .kanban-column-content {
+    &.cdk-drop-list-dragging {
+      background: rgba(66, 133, 244, 0.08);
+      border: 2px dashed #4285f4;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+  }
+
+  .kanban-card {
+    background: white;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 12px;
-    width: 296px;
-    box-shadow:
-      0 12px 28px rgba(66, 133, 244, 0.3),
-      0 4px 10px rgba(0, 0, 0, 0.15);
-    cursor: grabbing;
-    transform: rotate(2deg);
-    opacity: 0.95;
+    cursor: grab;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     gap: 8px;
+    position: relative;
+
+    // Drag handle indicator
+    &::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(
+        to bottom,
+        #d0d0d0 0%,
+        #d0d0d0 20%,
+        transparent 20%,
+        transparent 40%,
+        #d0d0d0 40%,
+        #d0d0d0 60%,
+        transparent 60%,
+        transparent 80%,
+        #d0d0d0 80%,
+        #d0d0d0 100%
+      );
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+      border-color: #4285f4;
+
+      &::before {
+        opacity: 1;
+      }
+    }
+
+    // While being dragged (the actual element)
+    &.cdk-drag-animating {
+      transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
     .card-header {
       .lead-info {
@@ -679,7 +378,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 50%;
           }
         }
 
@@ -722,6 +420,16 @@
           font-size: 12px;
           flex-shrink: 0;
         }
+
+        a {
+          text-decoration: none;
+          flex: 1;
+          min-width: 0;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
       }
     }
 
@@ -745,59 +453,65 @@
       }
 
       .card-actions {
-        display: none;
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transition: opacity 0.2s;
+
+        .btn {
+          padding: 2px 6px;
+          font-size: 12px;
+
+          i {
+            font-size: 12px;
+          }
+        }
       }
     }
-  }
-}
 
-// Tag styles
-.tag-item {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
-  max-width: 120px;
-
-  &.nonBack {
-    background-color: #6c757d !important;
+    &:hover .card-actions {
+      opacity: 1;
+    }
   }
 
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  // Drag placeholder (where the card will be dropped)
+  .kanban-card-placeholder {
+    background: linear-gradient(
+      135deg,
+      rgba(66, 133, 244, 0.1) 0%,
+      rgba(66, 133, 244, 0.05) 100%
+    );
+    border: 2px dashed #4285f4;
+    border-radius: 8px;
+    min-height: 80px;
+    transition: all 0.2s ease;
+    animation: pulse-placeholder 1.5s ease-in-out infinite;
   }
-}
 
-.tag-item-small {
-  @extend .tag-item;
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 8px;
-  max-width: 100px;
-}
+  @keyframes pulse-placeholder {
+    0%,
+    100% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.01);
+    }
+  }
 
-::ng-deep {
-  .modal-dialog-centered {
-    max-height: calc(100% - 100px) !important;
-  }
-  .custom-popover-tab {
-    left: 225px !important;
-  }
-  .popover-arrow {
-    left: 260px !important;
-  }
-}
+  .kanban-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #5f6368;
+    gap: 16px;
 
-.task-code {
-  &:hover {
-    text-decoration: underline;
-    cursor: pointer;
+    p {
+      font-size: 16px;
+      margin: 0;
+    }
   }
 }
