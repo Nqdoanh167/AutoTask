@@ -13,6 +13,7 @@ import {LeadCommentsSidebarComponent} from './lead-dashboard/lead-comments-sideb
 import {SortLeadStatusModalComponent} from './lead-dashboard/sort-lead-status-modal/sort-lead-status-modal.component';
 import {LeadTagFormModalComponent} from './lead-setting/lead-tag/lead-tag-form-modal/lead-tag-form-modal.component';
 import {LeadStatusFormModalComponent} from './lead-setting/lead-status/lead-status-form-modal/lead-status-form-modal.component';
+import {FolderFormModalComponent} from './lead-dashboard/folder-form-modal/folder-form-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HeaderModule} from '@share/layout/header/header.module';
 import {CustomPaginationComponent} from '@share/custom/custom-pagination/custom-pagination.component';
@@ -38,6 +39,7 @@ import {CollapseModule} from 'ngx-bootstrap/collapse';
 import {InputCheckboxModule} from '@share/input/input-checkbox/input-checkbox.module';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
+import { MycurrencyPipe } from '@app/share/pipe/mycurrency.pipe';
 
 @NgModule({
   declarations: [
@@ -53,6 +55,7 @@ import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
     SortLeadStatusModalComponent,
     LeadTagFormModalComponent,
     LeadStatusFormModalComponent,
+    FolderFormModalComponent,
   ],
   imports: [
     CommonModule,
@@ -83,6 +86,7 @@ import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
     InputCheckboxModule,
     PopoverModule,
     TimeViewPipe,
+    MycurrencyPipe,
   ],
   providers: [DatePipe],
 })

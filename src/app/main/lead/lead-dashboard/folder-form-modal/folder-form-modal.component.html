@@ -1,0 +1,176 @@
+<app-custom-modal
+  [isSubmitting]="loading.submit"
+  [textOk]="'Tạo'"
+  (hideModal)="onCancel()"
+  (submitModal)="onSubmit()"
+>
+  <div modalTitle>
+    <div class="d-flex align-items-center gap-2">
+      <img
+        src="./assets/icons/icon-lead/folder.svg"
+        alt="Folder"
+        width="24"
+        height="24"
+      />
+      <h5 class="modal-title text-neutral">Thêm {{ nameTitle }}</h5>
+    </div>
+  </div>
+
+  <div modalBody>
+    <form [formGroup]="folderForm">
+      <div class="mb-3">
+        <label for="folderName" class="text-neutral fw-500">
+          Tên {{ nameTitle }}
+          <span class="text-danger">*</span>
+        </label>
+        <input
+          type="text"
+          id="folderName"
+          class="form-control"
+          formControlName="name"
+          placeholder="Nhập tên {{ nameTitle }}"
+          [class.is-invalid]="
+            folderForm.get('name')?.invalid && folderForm.get('name')?.touched
+          "
+        />
+        <div
+          class="invalid-feedback"
+          *ngIf="
+            folderForm.get('name')?.invalid && folderForm.get('name')?.touched
+          "
+        >
+          Vui lòng nhập tên {{ nameTitle }}
+        </div>
+      </div>
+
+      <ng-container *ngIf="type === 'group' || type === 'funnel'">
+        <div class="mb-3">
+          <label for="folderId" class="text-neutral fw-500">
+            Thư mục
+            <span class="text-danger">*</span>
+          </label>
+          <ng-select
+            formControlName="folderId"
+            [items]="folder.rows"
+            bindLabel="name"
+            bindValue="id"
+            [clearable]="false"
+            [searchable]="false"
+            placeholder="Chọn thư mục"
+            [class.is-invalid]="
+              folderForm.get('folderId')?.invalid &&
+              folderForm.get('folderId')?.touched
+            "
+            (change)="
+              type === 'funnel'
+                ? folderForm.get('funnelGroupId')?.setValue(null)
+                : null
+            "
+            appendTo=".modal"
+          ></ng-select>
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              folderForm.get('folderId')?.invalid &&
+              folderForm.get('folderId')?.touched
+            "
+          >
+            Vui lòng chọn thư mục
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="type === 'funnel'">
+        <div class="mb-3">
+          <label for="funnelGroupId" class="text-neutral fw-500">
+            Nhóm phễu
+            <span class="text-danger">*</span>
+          </label>
+          <ng-select
+            formControlName="funnelGroupId"
+            [items]="funnelGroups"
+            bindLabel="name"
+            bindValue="id"
+            [clearable]="false"
+            [searchable]="false"
+            placeholder="Chọn nhóm phễu"
+            [class.is-invalid]="
+              folderForm.get('funnelGroupId')?.invalid &&
+              folderForm.get('funnelGroupId')?.touched
+            "
+          ></ng-select>
+
+          <div
+            class="invalid-feedback d-block"
+            *ngIf="
+              folderForm.get('funnelGroupId')?.invalid &&
+              folderForm.get('funnelGroupId')?.touched
+            "
+          >
+            Vui lòng chọn nhóm phễu
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="mb-3">
+        <label for="funnelGroup" class="text-neutral fw-500">
+          Nhóm trạng thái lead
+          <span class="text-danger">*</span>
+        </label>
+
+        <ng-select
+          formControlName="statusGroupId"
+          [items]="statusGroup.rows"
+          bindLabel="name"
+          bindValue="id"
+          [clearable]="false"
+          [searchable]="false"
+          placeholder="Chọn nhóm trạng thái lead"
+          [class.is-invalid]="
+            folderForm.get('statusGroupId')?.invalid &&
+            folderForm.get('statusGroupId')?.touched
+          "
+          (change)="getStatusByGroupId($event?.id)"
+          appendTo=".modal"
+        >
+          <ng-template ng-option-tmp let-item="item">
+            <span>{{ item.name }}</span>
+          </ng-template>
+          <ng-template ng-label-tmp let-item="item">
+            <span>{{ item.name }}</span>
+          </ng-template>
+        </ng-select>
+
+        <div
+          class="form-status mt-4"
+          *ngIf="folderForm.get('statusGroupId')?.value"
+        >
+          <span class="text-neutral fw-500">Trạng thái</span>
+          <div class="form-status-list">
+            <ng-container *ngIf="status.loading">
+              <div
+                class="form-status-item d-flex align-items-center justify-content-center"
+              >
+                <div class="spinner-border spinner-border-sm" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="!status.loading">
+              <div
+                *ngFor="let status of status.rows"
+                class="form-status-item"
+                [ngStyle]="{'background-color': status.bgColor, color: '#fff'}"
+              >
+                {{ status.name }}
+              </div>
+            </ng-container>
+            <ng-container *ngIf="status.total === 0">
+              <div class="text-neutral">Không có trạng thái</div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</app-custom-modal>

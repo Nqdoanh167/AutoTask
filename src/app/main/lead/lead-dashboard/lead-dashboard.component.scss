@@ -40,7 +40,8 @@
     height: 100%;
 
     .folder,
-    .group-folder {
+    .group-folder,
+    .item-folder {
       padding: 8px;
       border-radius: vars.$radius-s;
       display: flex;

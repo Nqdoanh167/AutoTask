@@ -104,12 +104,12 @@
                   width="24"
                   height="24"
                 />
-                <div class="folder-name">Thêm Folder</div>
+                <div class="folder-name">Thêm Thư mục</div>
               </div>
             </div>
           </li>
 
-          <li role="menuitem" (click)="handleAddFolder()">
+          <li role="menuitem" (click)="handleAddFolder('group')">
             <div href="#" class="dropdown-item cursor-pointer">
               <div class="d-flex align-items-center gap-2">
                 <img
@@ -123,7 +123,7 @@
             </div>
           </li>
 
-          <li role="menuitem" (click)="handleAddFolder()">
+          <li role="menuitem" (click)="handleAddFolder('funnel')">
             <div href="#" class="dropdown-item cursor-pointer">
               <div class="d-flex align-items-center gap-2">
                 <img
@@ -141,7 +141,7 @@
     </div>
 
     <div class="list-folder custom-scrollbar">
-      <ng-container>
+      <ng-container *ngFor="let folder of folderLeads">
         <div class="folder">
           <div class="d-flex align-items-center gap-2">
             <img
@@ -149,7 +149,7 @@
               width="24"
               height="24"
             />
-            <div class="folder-name">Lead Lạnh</div>
+            <div class="folder-name">{{ folder.name }}</div>
           </div>
 
           <div class="d-flex align-items-center gap-2">
@@ -173,58 +173,58 @@
               width="16"
               height="16"
               class="cursor-pointer"
+              (click)="
+                handleDeleteFolder(folder.id || ''); $event.stopPropagation()
+              "
             />
           </div>
         </div>
 
-        <div class="group-folder" (click)="toggleGroupFolder()">
-          <div class="d-flex align-items-center gap-2">
-            <img
-              src="./assets/icons/icon-lead/arrow-right.svg"
-              width="24"
-              height="24"
-              [class.rotated]="isGroupFolderExpanded"
-              class="dropdown-icon"
-            />
-            <div class="folder-name">Nhóm Folder</div>
-          </div>
-
-          <div class="text-neutral">12</div>
-        </div>
-
-        <ng-container *ngIf="isGroupFolderExpanded">
-          <div class="item-folder">
+        <ng-container *ngFor="let group of folder.funnelGroups">
+          <div
+            class="group-folder"
+            (click)="toggleFunnelGroup(folder.id || '', group.id || '')"
+          >
             <div class="d-flex align-items-center gap-2">
               <img
-                src="./assets/icons/icon-lead/funnel-disable.svg"
+                src="./assets/icons/icon-lead/arrow-right.svg"
                 width="24"
                 height="24"
+                [class.rotated]="
+                  isFunnelGroupExpanded(folder.id || '', group.id || '')
+                "
+                class="dropdown-icon"
               />
-              <div class="folder-name fw-400">Phễu 1</div>
+              <div class="folder-name">{{ group.name }}</div>
+            </div>
+
+            <div class="text-neutral bg-input-bg p-1">
+              {{ group.funnels?.length || 0 }}
             </div>
           </div>
 
-          <div class="item-folder">
-            <div class="d-flex align-items-center gap-2">
-              <img
-                src="./assets/icons/icon-lead/funnel-disable.svg"
-                width="24"
-                height="24"
-              />
-              <div class="folder-name fw-400">Phễu 2</div>
-            </div>
-          </div>
+          <ng-container
+            *ngIf="isFunnelGroupExpanded(folder.id || '', group.id || '')"
+          >
+            <div
+              class="item-folder"
+              *ngFor="let funnel of group.funnels"
+              (click)="selectFunnel(funnel.id!)"
+            >
+              <div class="d-flex align-items-center gap-2">
+                <img
+                  src="./assets/icons/icon-lead/funnel-disable.svg"
+                  width="24"
+                  height="24"
+                />
+                <div class="folder-name fw-400">{{ funnel.name }}</div>
+              </div>
 
-          <div class="item-folder">
-            <div class="d-flex align-items-center gap-2">
-              <img
-                src="./assets/icons/icon-lead/funnel-disable.svg"
-                width="24"
-                height="24"
-              />
-              <div class="folder-name fw-400">Phễu 3</div>
+              <div class="text-neutral bg-input-bg p-1 rounded-pill">
+                {{ funnel.statLeadCount || 0 }}
+              </div>
             </div>
-          </div>
+          </ng-container>
         </ng-container>
       </ng-container>
     </div>
@@ -450,7 +450,7 @@
           [id]="status.id"
           (cdkDropListDropped)="onDrop($event, status.id)"
           *ngFor="let status of activeStatuses; trackBy: trackByStatusId"
-          [style.background-color]="getStatusBgColorWithOpacity(status.bgColor)"
+          [style.background-color]="status.bgColor"
         >
           <div class="kanban-column-header">
             <div class="column-title">
@@ -530,7 +530,7 @@
                   <div class="card-info-row" *ngIf="lead.totalPrice">
                     <i class="fa fa-money text-muted"></i>
                     <span class="fw-semibold text-success">
-                      {{ formatCurrency(lead.totalPrice) }}
+                      {{ lead.totalPrice | mycurrency }}
                     </span>
                   </div>
                 </div>
@@ -538,7 +538,7 @@
                 <div class="card-footer">
                   <small class="text-muted">
                     <i class="fa fa-clock-o"></i>
-                    {{ formatDate(lead.createdAt) }}
+                    {{ lead.createdAt | timeView }}
                   </small>
                 </div>
               </div>
@@ -602,7 +602,7 @@
                 <div class="card-info-row" *ngIf="lead.totalPrice">
                   <i class="fa fa-money text-muted"></i>
                   <span class="fw-semibold text-success">
-                    {{ formatCurrency(lead.totalPrice) }}
+                    {{ lead.totalPrice | mycurrency }}
                   </span>
                 </div>
               </div>
@@ -610,7 +610,7 @@
               <div class="card-footer">
                 <small class="text-muted">
                   <i class="fa fa-clock-o"></i>
-                  {{ formatDate(lead.createdAt) }}
+                  {{ lead.createdAt | timeView }}
                 </small>
                 <div class="card-actions" (click)="$event.stopPropagation()">
                   <button

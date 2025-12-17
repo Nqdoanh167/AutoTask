@@ -10,7 +10,20 @@ import {
   TaskDistributionConfig,
   IQueryBase,
 } from 'src/app/types/viewmodels';
-import { ILead, ILeadQuery, ILeadCreateDto, ILeadUpdateDto, ILeadStatus, ILeadTag, ILeadCommentQuery, ILeadComment, ILeadCommentCreateDto } from '@app/types/lead';
+import {
+  ILead,
+  ILeadQuery,
+  ILeadCreateDto,
+  ILeadUpdateDto,
+  ILeadStatus,
+  ILeadTag,
+  ILeadCommentQuery,
+  ILeadComment,
+  ILeadCommentCreateDto,
+  IFolderLead,
+  IFunnelGroup,
+  IFunnel,
+} from '@app/types/lead';
 import {
   BehaviorSubject,
   distinctUntilChanged,
@@ -65,6 +78,7 @@ import {
 import {omitBy} from 'lodash';
 import {ISubmitPayload} from '@app/main/dashboard/content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
 import {IFeedback} from '@app/types/feedback';
+import {ILeadStatusGroup} from '@app/types/lead-status';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -156,9 +170,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
 
-  private leadFoldersWithFunnelsSubject = new BehaviorSubject<EntityResult<any[]>>(
-    null as unknown as EntityResult<any[]>,
-  );
+  private leadFoldersWithFunnelsSubject = new BehaviorSubject<
+    EntityResult<any[]>
+  >(null as unknown as EntityResult<any[]>);
 
   // Subject to notify when funnel data changes (for cross-component updates)
   private funnelDataChangedSubject = new BehaviorSubject<boolean>(false);
@@ -348,12 +362,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     create: (body: ITaskDto) => {
       const headers: any = {};
       if (this.authService.getCurrentClientSocketId()) {
-        headers['x-socket-client-id'] = this.authService.getCurrentClientSocketId();
+        headers['x-socket-client-id'] =
+          this.authService.getCurrentClientSocketId();
       }
       return this.httpClient.post<EntityResult<ITask>>(
         this.createUrl([this.api.task]),
         body,
-        { headers }
+        {headers},
       );
     },
     clone: (id: string, body: CloneTaskDto) =>
@@ -364,7 +379,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     cloneMultiTask: (taskIds: string[], options: string[]) =>
       this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.task, 'bulk-clone']),
-        { taskIds, options },
+        {taskIds, options},
       ),
     createOrder: (id: string) =>
       this.httpClient.post<EntityResult<any>>(
@@ -374,12 +389,13 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     update: (id: string, body: ITaskDto) => {
       const headers: any = {};
       if (this.authService.getCurrentClientSocketId()) {
-        headers['x-socket-client-id'] = this.authService.getCurrentClientSocketId();
+        headers['x-socket-client-id'] =
+          this.authService.getCurrentClientSocketId();
       }
       return this.httpClient.patch<EntityResult<ITask>>(
         this.createUrl([this.api.task, id]),
         body,
-        { headers }
+        {headers},
       );
     },
     updateTaskChain: (id: string, body: IAddTaskChainDto) =>
@@ -430,24 +446,31 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
 
     drawTask: (id: string) =>
       this.httpClient.post<EntityResult<ITask>>(
-        this.createUrl([this.api.task, id, 'draw']), {},
+        this.createUrl([this.api.task, id, 'draw']),
+        {},
       ),
 
     dropTask: (id: string) =>
       this.httpClient.post<EntityResult<ITask>>(
-        this.createUrl([this.api.task, id, 'drop']), {},
-      ),
-    
-    closeTask: (id: string, body: any) =>
-      this.httpClient.patch<EntityResult<any>>(
-        this.createUrl([this.api.task, id, 'close']), body,
+        this.createUrl([this.api.task, id, 'drop']),
+        {},
       ),
 
-    bulkCloseTask: (ids: string[], closeTaskResult: boolean, closeTaskReason?: string | null) => {
+    closeTask: (id: string, body: any) =>
+      this.httpClient.patch<EntityResult<any>>(
+        this.createUrl([this.api.task, id, 'close']),
+        body,
+      ),
+
+    bulkCloseTask: (
+      ids: string[],
+      closeTaskResult: boolean,
+      closeTaskReason?: string | null,
+    ) => {
       const body: any = {
         ids,
         closeTaskResult,
-      }
+      };
       if (closeTaskReason) {
         body.closeTaskReason = closeTaskReason;
       }
@@ -455,39 +478,38 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       return this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.task, 'bulk-close']),
         body,
-      )
+      );
     },
 
     deleteMulti: (taskIds: string[]) =>
       this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.task, 'delete-requests']),
-        { taskIds },
+        {taskIds},
       ),
 
-    getListDuplicatedPhone: (params: { after?: string } = {}) => {
-      return this.httpClient.get<EntityResult<{ phone: string; count: number }[]>>(
-        this.createUrl([this.api.task, 'duplicated']),
-        {
-          params: this.createParams(Object.assign(params, this.defaultParams)),
-        },
-      )
+    getListDuplicatedPhone: (params: {after?: string} = {}) => {
+      return this.httpClient.get<
+        EntityResult<{phone: string; count: number}[]>
+      >(this.createUrl([this.api.task, 'duplicated']), {
+        params: this.createParams(Object.assign(params, this.defaultParams)),
+      });
     },
 
-    getListDuplicatedPhoneTask: (params: { phone: string }) => {
+    getListDuplicatedPhoneTask: (params: {phone: string}) => {
       return this.httpClient.get<EntityResult<ITask[]>>(
         this.createUrl([this.api.task, 'duplicated', 'detail']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
-      )
+      );
     },
 
-    mergeDuplicatedPhone: (body: { taskIds: string[] }) => {
+    mergeDuplicatedPhone: (body: {taskIds: string[]}) => {
       return this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.task, 'duplicated', 'merge']),
         body,
-      )
-    }
+      );
+    },
   };
 
   taskChain = {
@@ -632,9 +654,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       .get<EntityResult<IView[]>>(
         this.createUrl([this.api.settingView, 'retrieve']),
         {
-          params: this.createParams(
-            Object.assign(params, this.defaultParams),
-          ),
+          params: this.createParams(Object.assign(params, this.defaultParams)),
         },
       )
       .pipe(tap((res) => res?.status === 200 && this.setListViewMode(res)));
@@ -782,7 +802,12 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(params),
         },
       ),
-    getById: (id: string, params: { populate?: ('taskIds' | 'tagIds' | 'statusId' | 'funnelId')[] } = {}) =>
+    getById: (
+      id: string,
+      params: {
+        populate?: ('taskIds' | 'tagIds' | 'statusId' | 'funnelId')[];
+      } = {},
+    ) =>
       this.httpClient.get<EntityResult<ILead>>(
         this.createUrl([this.api.lead, id]),
         {
@@ -806,9 +831,9 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     bulkDelete: (ids: string[]) =>
       this.httpClient.delete<EntityResult<any>>(
         this.createUrl([this.api.lead, 'bulk']),
-        { body: { ids } },
+        {body: {ids}},
       ),
-    bulkUpdate: (body: { ids: string[]; payload: any }) =>
+    bulkUpdate: (body: {ids: string[]; payload: any}) =>
       this.httpClient.patch<EntityResult<any>>(
         this.createUrl([this.api.lead, 'bulk']),
         body,
@@ -839,6 +864,16 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       ),
   };
 
+  leadStatusGroup = {
+    get: (params: IQueryBase = {}) =>
+      this.httpClient.get<EntityResult<ILeadStatusGroup[]>>(
+        this.createUrl([this.api.lead, 'status-group']),
+        {
+          params: this.createParams(params),
+        },
+      ),
+  };
+
   leadTag = {
     get: (params: IQueryBase = {}) =>
       this.httpClient.get<EntityResult<ILeadTag[]>>(
@@ -862,72 +897,68 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.lead, 'tag', id]),
       ),
   };
-  
+
   leadFolder = {
     get: (params: IQueryBase = {}) =>
-      this.httpClient.get<EntityResult<any[]>>(
+      this.httpClient.get<EntityResult<IFolderLead[]>>(
         this.createUrl([this.api.lead, 'folder']),
         {
           params: this.createParams(params),
         },
       ),
     getWithFunnels: (params: IQueryBase = {}) =>
-      this.httpClient.get<EntityResult<any[]>>(
+      this.httpClient.get<EntityResult<IFolderLead[]>>(
         this.createUrl([this.api.lead, 'folder', 'with-funnels']),
         {
           params: this.createParams(params),
         },
       ),
-    getById: (id: string) =>
-      this.httpClient.get<EntityResult<any>>(
-        this.createUrl([this.api.lead, 'folder', id]),
-      ),
-    create: (body: any) =>
-      this.httpClient.post<EntityResult<any>>(
+    create: (body: {name: string; statusGroupId: string}) =>
+      this.httpClient.post<EntityResult<IFolderLead>>(
         this.createUrl([this.api.lead, 'folder']),
         body,
       ),
-    update: (id: string, body: any) =>
-      this.httpClient.patch<EntityResult<any>>(
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<IFolderLead>>(
         this.createUrl([this.api.lead, 'folder', id]),
+      ),
+  };
+
+  leadGroupFunnel = {
+    get: (params: IQueryBase = {}) =>
+      this.httpClient.get<EntityResult<IFunnelGroup[]>>(
+        this.createUrl([this.api.lead, 'funnel-group']),
+        {
+          params: this.createParams(params),
+        },
+      ),
+    create: (body: {name: string; folderId: string; statusGroupId: string}) =>
+      this.httpClient.post<EntityResult<IFunnelGroup>>(
+        this.createUrl([this.api.lead, 'funnel-group']),
         body,
       ),
     delete: (id: string) =>
-      this.httpClient.delete<EntityResult<any>>(
-        this.createUrl([this.api.lead, 'folder', id]),
+      this.httpClient.delete<EntityResult<IFunnelGroup>>(
+        this.createUrl([this.api.lead, 'funnel-group', id]),
       ),
   };
 
   leadFunnel = {
     get: (params: IQueryBase = {}) =>
-      this.httpClient.get<EntityResult<any[]>>(
+      this.httpClient.get<EntityResult<IFunnel[]>>(
         this.createUrl([this.api.lead, 'funnel']),
         {
           params: this.createParams(params),
         },
       ),
-    getById: (id: string) =>
-      this.httpClient.get<EntityResult<any>>(
-        this.createUrl([this.api.lead, 'funnel', id]),
-      ),
-    create: (body: any) =>
-      this.httpClient.post<EntityResult<any>>(
+    create: (body: {name: string; folderId: string; statusGroupId: string}) =>
+      this.httpClient.post<EntityResult<IFunnel>>(
         this.createUrl([this.api.lead, 'funnel']),
         body,
       ),
-    update: (id: string, body: any) =>
-      this.httpClient.patch<EntityResult<any>>(
-        this.createUrl([this.api.lead, 'funnel', id]),
-        body,
-      ),
     delete: (id: string) =>
-      this.httpClient.delete<EntityResult<any>>(
+      this.httpClient.delete<EntityResult<IFunnel>>(
         this.createUrl([this.api.lead, 'funnel', id]),
-      ),
-    unhideAll: () =>
-      this.httpClient.patch<EntityResult<any>>(
-        this.createUrl([this.api.lead, 'funnel', 'unhide-all']),
-        {},
       ),
   };
 
@@ -936,7 +967,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
       this.httpClient.get<EntityResult<ILeadComment[]>>(
         this.createUrl([this.api.lead, 'comments']),
         {
-          params: this.createParams({ ...params }),
+          params: this.createParams({...params}),
         },
       ),
     create: (body: ILeadCommentCreateDto) =>

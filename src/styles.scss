@@ -358,6 +358,13 @@ app-main {
   }
 }
 
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected,
+.ng-dropdown-panel
+  .ng-dropdown-panel-items
+  .ng-option.ng-option-selected.ng-option-marked {
+  color: $neutral !important;
+}
+
 .ng-select.ng-select-single .ng-select-container .ng-value-container,
 .ng-select.ng-select-single .ng-select-container .ng-value-container .ng-value {
   color: $neutral !important;

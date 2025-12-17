@@ -140,3 +140,29 @@ export interface ILeadCommentQuery {
   sort?: string;
   filter?: string;
 }
+
+export interface IFolderLead {
+  id?: string;
+  bizId: string;
+  name: string;
+  level: number;
+  funnelGroups: IFunnelGroup[];
+}
+
+export interface IFunnelGroup {
+  id?: string;
+  name: string;
+  funnels: IFunnel[];
+}
+
+export interface IFunnel {
+  id?: string;
+  name: string;
+  pos: number;
+  leadCount: number;
+  statusId: string;
+  status: ILeadStatus;
+  statLeadCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}

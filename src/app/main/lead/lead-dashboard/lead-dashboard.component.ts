@@ -8,15 +8,23 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ActivatedRoute} from '@angular/router';
 import {LeadDashboardData} from './lead-dashboard-data';
-import {ILead} from '@app/types/lead';
+import {ILead, IFolderLead} from '@app/types/lead';
 import {ILeadStatus} from '@app/types/lead-status';
 import {ILeadTag} from '@app/types/lead-tag';
 import {User, BizRole} from '@app/types/viewmodels';
 import {ISetting} from '@app/types/setting';
-import {takeUntil, finalize, shareReplay} from 'rxjs';
+import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
+import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {
+  takeUntil,
+  finalize,
+  shareReplay,
+  BehaviorSubject,
+  distinctUntilChanged,
+} from 'rxjs';
 import {LeadFormModalComponent} from './lead-form-modal/lead-form-modal.component';
+import {FolderFormModalComponent} from './folder-form-modal/folder-form-modal.component';
 import {AuthService} from '@app/services/api/auth.service';
-import {MainService} from '@app/services/api/main.service';
 import {EBotherAdvanceBasicFilter} from '@app/types/common';
 
 @Component({
@@ -33,6 +41,9 @@ export class LeadDashboardComponent
   public statusMap: Map<string, ILeadStatus> = new Map();
   public tagMap: Map<string, ILeadTag> = new Map();
   public isGroupFolderExpanded: boolean = false;
+  public folderLeads: IFolderLead[] = [];
+  public expandedFunnelGroups: Map<string, Set<string>> = new Map();
+  public currentFunnelId$ = new BehaviorSubject<string | null>(null);
 
   public checkbox: any = {
     branchIds: [],
@@ -63,7 +74,7 @@ export class LeadDashboardComponent
     private readonly route: ActivatedRoute,
     override readonly cdr: ChangeDetectorRef,
     override readonly authService: AuthService,
-    private readonly mainService: MainService,
+    private readonly modalConfirmService: ModalConfirmService,
   ) {
     super();
   }
@@ -72,9 +83,18 @@ export class LeadDashboardComponent
     this.buildStatusMap();
     this.buildTagMap();
     this.setupCheckbox();
-    this.socketService.connect();
-    this.setupSocketListeners();
-    this.getDataSource(true);
+    this.getFolderLead();
+
+    // Subscribe vào currentFolderId$ để tự động getDataSource khi thay đổi
+    this.currentFunnelId$
+      .pipe(takeUntil(this.destroy$), distinctUntilChanged())
+      .subscribe((funnelId) => {
+        if (funnelId) {
+          this.getDataSource(true);
+          this.openFunnelGroup(funnelId);
+        }
+      });
+
     this.autoTaskService.currentSetting
       .pipe(takeUntil(this.destroy$))
       .subscribe((setting) => {
@@ -100,32 +120,26 @@ export class LeadDashboardComponent
     this.destroy$.complete();
   }
 
-  private async setupSocketListeners(): Promise<void> {
-    try {
-      await this.socketService.waitForSocket();
-      this.socketService
-        .listen('lead/FOLDER_WITH_FUNNEL_SYNCHRONIZED')
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((data: any) => {
-          this.handleFolderWithFunnelSynchronized(data);
-        });
-    } catch (error) {
-      console.error('Failed to setup socket listeners:', error);
-    }
-  }
-
   override handleAction(name: string) {
     if (name === 'reload' && !this.item.loading) {
-      this.getDataSource(true);
+      this.getFolderLead();
     }
     if (name === 'add_new') {
       this.openLeadModal();
     }
   }
 
-  handleAddFolder() {
-    // TODO: Implement add folder functionality
-    this.toastrService.info('Chức năng thêm folder đang được phát triển');
+  handleAddFolder(type: 'folder' | 'group' | 'funnel' = 'folder') {
+    const modalRef = this.modalService.show(FolderFormModalComponent, {
+      class: 'modal-dialog-centered modal-md',
+      initialState: {
+        type: type,
+      },
+    });
+
+    modalRef.content?.saveEvent?.subscribe(() => {
+      this.getFolderLead();
+    });
   }
 
   openLeadModal(leadId?: string) {
@@ -168,7 +182,7 @@ export class LeadDashboardComponent
             next: (res: any) => {
               if (res.status === 200) {
                 this.toastrService.success('Cập nhật lead thành công');
-                this.getDataSource(true);
+                this.handleAction('reload');
               } else {
                 this.commonService.handleResErr(res);
               }
@@ -184,7 +198,7 @@ export class LeadDashboardComponent
             next: (res: any) => {
               if (res.status === 200 || res.status === 201) {
                 this.toastrService.success('Tạo lead thành công');
-                this.getDataSource(true);
+                this.handleAction('reload');
               } else {
                 this.commonService.handleResErr(res);
               }
@@ -210,7 +224,7 @@ export class LeadDashboardComponent
       next: (res: any) => {
         if (res.status === 200) {
           this.toastrService.success('Xóa lead thành công');
-          this.getDataSource(true);
+          this.handleAction('reload');
         } else {
           this.commonService.handleResErr(res);
         }
@@ -246,26 +260,12 @@ export class LeadDashboardComponent
     });
   }
 
-  protected override onStatusesSuccess(statuses: ILeadStatus[]): void {
+  protected override onStatusesSuccess(): void {
     this.buildStatusMap();
   }
 
-  protected override onTagsSuccess(tags: ILeadTag[]): void {
+  protected override onTagsSuccess(): void {
     this.buildTagMap();
-  }
-
-  formatCurrency(value?: number): string {
-    if (!value) return '0 VND';
-    return value.toLocaleString('vi-VN') + ' VND';
-  }
-
-  formatDate(date?: Date): string {
-    if (!date) return '-';
-    return new Date(date).toLocaleDateString('vi-VN');
-  }
-
-  onHardRefreshCompleted() {
-    this.getDataSource(true);
   }
 
   override getDataSource(isReset?: boolean) {
@@ -284,6 +284,14 @@ export class LeadDashboardComponent
 
     this.item.rows = [];
     const filterObj = JSON.parse(params.filter || '{}');
+
+    const currentFunnelId = this.currentFunnelId$.value;
+    // if (currentFunnelId) {
+    //   filterObj['funnelId_in'] = currentFunnelId;
+    // } else {
+    //   delete filterObj['funnelId_in'];
+    // }
+
     if (this.checkbox.accessibleIds?.length) {
       filterObj['accessibleIds'] = this.checkbox.accessibleIds;
     } else {
@@ -342,16 +350,6 @@ export class LeadDashboardComponent
     });
   }
 
-  getStatusBgColorWithOpacity(bgColor?: string): string {
-    if (!bgColor) return 'rgba(200, 200, 200, 0.2)';
-    const hex = bgColor.replace('#', '');
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-
-    return `rgba(${r}, ${g}, ${b}, 0.2)`;
-  }
-
   trackByStatusId(index: number, status: ILeadStatus): string {
     return status.id;
   }
@@ -390,18 +388,14 @@ export class LeadDashboardComponent
         if (res.status === 200) {
         } else {
           this.commonService.handleResErr(res);
-          this.getDataSource(false);
+          this.handleAction('reload');
         }
       },
       error: (err: any) => {
         this.toastrService.error('Cập nhật trạng thái lead thất bại');
-        this.getDataSource(false);
+        this.handleAction('reload');
       },
     });
-  }
-
-  private handleFolderWithFunnelSynchronized(data: any) {
-    this.autoTaskService.notifyFunnelDataChanged();
   }
 
   // Bộ lọc
@@ -583,9 +577,9 @@ export class LeadDashboardComponent
     }
     this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
     if (isReload) {
-      this.getDataSource(true);
+      this.handleAction('reload');
     } else {
-      this.getDataSource(true);
+      this.handleAction('reload');
     }
   }
 
@@ -604,7 +598,7 @@ export class LeadDashboardComponent
     }
 
     this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
-    this.getDataSource(true);
+    this.handleAction('reload');
   }
 
   handleFilterAdvance(filter: any) {
@@ -624,11 +618,122 @@ export class LeadDashboardComponent
     });
 
     this.item.paramsQuery.filter = JSON.stringify(objFilterQuery);
-    this.getDataSource(true);
+    this.handleAction('reload');
   }
 
   // Sidebar
   toggleGroupFolder() {
     this.isGroupFolderExpanded = !this.isGroupFolderExpanded;
+  }
+
+  getFolderLead(): void {
+    this.autoTaskService.leadFolder
+      .getWithFunnels()
+      .pipe(
+        finalize(() => {}),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === 200 && res.data) {
+            this.folderLeads = res.data;
+
+            // Nếu chưa có currentFolderId, lấy funnel đầu tiên
+            if (!this.currentFunnelId$.value && this.folderLeads.length > 0) {
+              for (const folder of this.folderLeads) {
+                for (const group of folder.funnelGroups || []) {
+                  for (const funnel of group.funnels || []) {
+                    if (funnel.id) {
+                      this.currentFunnelId$.next(funnel.id);
+                      return;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        error: (err: any) => {
+          console.error('Error loading folder leads:', err);
+        },
+      });
+  }
+
+  toggleFunnelGroup(folderId: string, groupId: string): void {
+    if (!this.expandedFunnelGroups.has(folderId)) {
+      this.expandedFunnelGroups.set(folderId, new Set());
+    }
+    const groups = this.expandedFunnelGroups.get(folderId)!;
+    if (groups.has(groupId)) {
+      groups.delete(groupId);
+    } else {
+      groups.add(groupId);
+    }
+  }
+
+  isFunnelGroupExpanded(folderId: string, groupId: string): boolean {
+    return this.expandedFunnelGroups.get(folderId)?.has(groupId) || false;
+  }
+
+  private openFunnelGroup(funnelId: string): void {
+    for (const folder of this.folderLeads) {
+      if (!folder.id) continue;
+
+      for (const group of folder.funnelGroups || []) {
+        if (!group.id) continue;
+
+        const hasFunnel = group.funnels?.some((f: any) => f.id === funnelId);
+        if (hasFunnel) {
+          if (!this.expandedFunnelGroups.has(folder.id)) {
+            this.expandedFunnelGroups.set(folder.id, new Set());
+          }
+          this.expandedFunnelGroups.get(folder.id)!.add(group.id);
+          return;
+        }
+      }
+    }
+  }
+
+  selectFunnel(funnelId: string): void {
+    this.currentFunnelId$.next(funnelId);
+  }
+
+  handleDeleteFolder(folderId: string): void {
+    const title = 'Xóa Folder';
+    const description = `Bạn có chắc chắn muốn xóa Folder này không? Hành động này không thể hoàn tác. 
+Tất cả các Phễu và dữ liệu liên quan trong Folder này sẽ bị xóa vĩnh viễn.`;
+    const okText = 'Xóa';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'danger',
+      modalType: 'advance',
+    };
+
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.deleteFolder(folderId);
+    });
+  }
+
+  private deleteFolder(folderId: string): void {
+    this.autoTaskService.leadFolder.delete(folderId).subscribe({
+      next: (res: any) => {
+        if (res.status === 200) {
+          this.toastrService.success('Xóa Folder thành công');
+          this.getFolderLead();
+
+          if (this.currentFunnelId$.value) {
+            this.currentFunnelId$.next(null);
+          }
+        } else {
+          this.commonService.handleResErr(res);
+        }
+      },
+      error: (err: any) => {
+        this.toastrService.error('Xóa Folder thất bại');
+      },
+    });
   }
 }

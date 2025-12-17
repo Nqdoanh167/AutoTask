@@ -1,8 +1,9 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { ToastrService } from 'ngx-toastr';
-import { finalize } from 'rxjs';
+import {Component, OnInit, EventEmitter, Output} from '@angular/core';
+import {BsModalRef} from 'ngx-bootstrap/modal';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {ToastrService} from 'ngx-toastr';
+import {finalize} from 'rxjs';
+import {IFunnel} from '@app/types/lead';
 
 @Component({
   selector: 'app-lead-bulk-move-modal',
@@ -14,7 +15,7 @@ export class LeadBulkMoveModalComponent implements OnInit {
 
   public leadIds: string[] = [];
   public currentFunnelId?: string;
-  public funnels: any[] = [];
+  public funnels: IFunnel[] = [];
   public selectedFunnelId?: string;
   public isLoading = false;
   public isSubmitting = false;
@@ -32,10 +33,10 @@ export class LeadBulkMoveModalComponent implements OnInit {
   loadFunnels(): void {
     this.isLoading = true;
     this.autoTaskService.leadFunnel
-      .get({ limit: 1000, sort: 'pos' })
+      .get({limit: 1000, sort: 'pos'})
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (res: any) => {
+        next: (res) => {
           if (res.status === 200) {
             this.funnels = res.data || [];
           } else {

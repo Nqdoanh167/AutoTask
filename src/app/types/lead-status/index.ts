@@ -19,6 +19,13 @@ export interface ILeadStatus {
   pos: number;
 }
 
+export interface ILeadStatusGroup {
+  id: string;
+  name: string;
+  isActive: boolean;
+  isDefault: boolean;
+}
+
 export interface ILeadStatusCreateDto {
   name: string;
   isActive?: boolean;

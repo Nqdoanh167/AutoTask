@@ -21,13 +21,13 @@ import {
   ILeadCreateDto,
   ILeadUpdateDto,
   EGenderType,
+  IFolderLead,
 } from '@app/types/lead';
 import {StorageService} from '@app/services/api/storage.service';
 import {ToastrService} from 'ngx-toastr';
 import {IProvince, IDistrict, IWard} from '@app/types/location';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {Customer} from '@app/types/customer';
-import {UserAcl} from '@app/types/setting';
 import {User} from '@app/types/viewmodels';
 import {AuthService} from '@app/services/api/auth.service';
 import {
@@ -38,12 +38,7 @@ import {
 } from '@app/types/flow';
 import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {ApiLocationService} from '@app/services/api/location';
-import {
-  ITask,
-  ITaskChain,
-  ITaskChainResult,
-  IPlatform,
-} from './lead-form-modal.interface';
+import {ITaskChain, IPlatform} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
 import {LeadConnectionsModalComponent} from '../lead-connections-modal/lead-connections-modal.component';
 import {ETabDetail} from '../lead-dashboard-variables';
@@ -59,18 +54,12 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   statuses: any[] = [];
   tags: any[] = [];
   sources: any[] = []; // Danh sách nguồn dữ liệu
-  funnels: any[] = []; // Danh sách phễu
-  funnelFolders: any[] = []; // Danh sách thư mục phễu với funnel con
-  cachedFunnels: any[] = []; // Cached funnels data passed from parent
   cachedSources: any[] = []; // Cached sources data passed from parent
-  selectedFolder?: any; // Currently selected funnel/folder from dashboard
   isSubmitting = false;
   isUploadingAvatar = false;
-  loadingFunnels = false;
   isEditingTags = false;
   isEditingStatus = false;
   isAddressModalOpen = false;
-  isCommentsSidebarOpen = false;
   platforms: IPlatform[] = [];
 
   @ViewChild('statusSelect') statusSelect: any;
@@ -90,13 +79,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   // Branch-related properties
   public units = this.autoTaskService.getUserUnits(false);
-
-  // Gender options for dropdown
-  genderOptions = [
-    {value: EGenderType.MALE, label: 'Nam'},
-    {value: EGenderType.FEMALE, label: 'Nữ'},
-    {value: EGenderType.OTHER, label: 'Khác'},
-  ];
 
   getTaskDetailUrl(taskId: string) {
     return `${environment.urlDomain}/${this.currentBiz?.alias || ''}/${
@@ -120,76 +102,16 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     return this.leadForm?.get('street') as FormControl;
   }
 
-  // Mock tasks data
-  // mockTasks: ITask[] = [
-  //   {
-  //     id: '1',
-  //     code: 'TV30293',
-  //     name: 'Cường chăm lần 1',
-  //     tags: ['Tag 01'],
-  //     leadId: 'lead-1',
-  //     taskChains: [
-  //       {
-  //         id: 'chain-1',
-  //         name: 'CHỐT ĐƠN LẦN 1',
-  //         status: ETaskChainType.CLOSED,
-  //         taskChainResults: [
-  //           {
-  //             id: 'result-1',
-  //             name: 'Gọi lần 1',
-  //             executedDate: new Date('2024-01-25T10:00:00'),
-  //             result: { id: 'r1', name: 'Thất bại' },
-  //             reason: { id: 'reason-1', name: 'Khách đang dần do' },
-  //             note: 'khách bận',
-  //           },
-  //           {
-  //             id: 'result-2',
-  //             name: 'Gọi lần 2',
-  //             executedDate: new Date('2024-01-26T10:00:00'),
-  //             result: { id: 'r2', name: 'Khách mua hàng' },
-  //             reason: null,
-  //             note: '',
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: '2',
-  //     code: 'TV30293',
-  //     name: 'Cường chăm lần 2',
-  //     tags: ['Tag 02'],
-  //     leadId: 'lead-1',
-  //     taskChains: [
-  //       {
-  //         id: 'chain-2',
-  //         name: 'LÀM HOÁ ĐƠN CHO KHÁCH',
-  //         status: ETaskChainType.ACTIVE,
-  //         taskChainResults: [
-  //           {
-  //             id: 'result-3',
-  //             name: 'Gọi lần 1',
-  //             executedDate: new Date('2024-01-25T10:00:00'),
-  //             result: { id: 'r1', name: 'Thất bại' },
-  //             reason: { id: 'reason-1', name: 'Khách đang dần do' },
-  //             note: 'khách bận',
-  //           },
-  //           {
-  //             id: 'result-4',
-  //             name: 'Gửi tin chăm sóc',
-  //             executedDate: undefined,
-  //             result: { id: '', name: '-' },
-  //             reason: null,
-  //             note: '',
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  // ];
-
   // Expose enum for template
   public EGenderType = EGenderType;
+
+  //loading
+  public loading = {
+    getFolderLead: false,
+  };
+
+  // Folder lead data
+  public folderLeads: IFolderLead[] = [];
 
   // Tab management
   public menus = [
@@ -204,6 +126,22 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     {key: ETabDetail.PACKAGE, name: 'Gói dịch vụ', icon: 'connections'},
   ];
   public activeTab: string = ETabDetail.DISCUSS;
+
+  // type lead
+  public typeLeads = [
+    {key: 'lead', name: 'Lead', icon: 'funnel'},
+    {key: 'qualified', name: 'Qualified Lead', icon: 'qualified-lead'},
+    {key: 'opportunity', name: 'Opportunity', icon: 'opportunity-lead'},
+    {key: 'closed-won', name: 'Closed Won', icon: 'closed-won-lead'},
+    {key: 'closed-lost', name: 'Closed Lost', icon: 'closed-lost-lead'},
+  ];
+
+  // Gender options for dropdown
+  public genderOptions = [
+    {value: EGenderType.MALE, label: 'Nam'},
+    {value: EGenderType.FEMALE, label: 'Nữ'},
+    {value: EGenderType.OTHER, label: 'Khác'},
+  ];
 
   private destroy$ = new Subject<void>();
   public saveEvent = new Subject<ILeadCreateDto | ILeadUpdateDto>();
@@ -224,13 +162,12 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initForm();
     this.initializeSources();
-    this.initializeFunnels();
-    this.subscribeToFunnelChanges();
     this.loadBizUsers();
     this.loadAutoTaskSetting();
     this.loadProvinces();
     this.loadPlatforms();
     this.initializeBranch();
+    this.getFolderLead();
   }
 
   ngOnDestroy(): void {
@@ -247,85 +184,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     }
     // Note: No fallback to API for sources as they should always be cached
     // If not available, user can still use the form without source
-  }
-
-  initializeFunnels(): void {
-    // Use cached funnels if available to avoid re-fetching
-    if (this.cachedFunnels && this.cachedFunnels.length > 0) {
-      this.funnelFolders = this.transformFunnelsForNgSelect(this.cachedFunnels);
-      this.funnels = this.flattenFunnels(this.cachedFunnels);
-      this.loadingFunnels = false;
-
-      // Set default funnel for new leads after funnels are loaded
-      this.setDefaultFunnelForNewLead();
-    } else {
-      // Fallback to loading from API if no cached data
-      this.loadFunnelsFromAPI();
-    }
-  }
-
-  loadFunnelsFromAPI(): void {
-    this.loadingFunnels = true;
-    this.autoTaskService.leadFolder
-      .getWithFunnels({})
-      .pipe(
-        finalize(() => {
-          this.loadingFunnels = false;
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res: any) => {
-          if (res?.status === 200 && res.data) {
-            this.funnelFolders = this.transformFunnelsForNgSelect(res.data);
-            // Flatten all funnels for backward compatibility
-            this.funnels = this.flattenFunnels(res.data);
-
-            // Set default funnel for new leads after funnels are loaded
-            this.setDefaultFunnelForNewLead();
-          } else {
-            console.error('Error loading funnels:', res);
-          }
-        },
-        error: (err) => {
-          console.error('Error loading funnels:', err);
-        },
-      });
-  }
-
-  private transformFunnelsForNgSelect(folders: any[]): any[] {
-    const transformed: any[] = [];
-    folders.forEach((folder) => {
-      // Only add funnels with group property - ng-select will auto-create group headers
-      if (folder.funnels && folder.funnels.length > 0) {
-        folder.funnels.forEach((funnel: any) => {
-          transformed.push({
-            ...funnel,
-            folderId: folder.id,
-            folderName: folder.name,
-            type: 'funnel',
-            group: folder.name, // This tells ng-select to group by this folder name
-          });
-        });
-      }
-    });
-    return transformed;
-  }
-
-  private flattenFunnels(folders: any[]): any[] {
-    const funnels: any[] = [];
-    folders.forEach((folder) => {
-      if (folder.funnels && folder.funnels.length > 0) {
-        folder.funnels.forEach((funnel: any) => {
-          funnels.push({
-            ...funnel,
-            folderId: folder.id,
-            folderName: folder.name,
-          });
-        });
-      }
-    });
-    return funnels;
   }
 
   initForm(): void {
@@ -358,6 +216,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       wardCode: [this.lead?.wardCode || null],
       teams: this.fb.array([]), // Teams form array
       branch: [null, [Validators.required]], // Branch field - required
+      typeLead: ['lead'], // Type lead field
     });
   }
 
@@ -395,6 +254,26 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   get isEditMode(): boolean {
     return !!this.lead;
+  }
+
+  getFolderLead(): void {
+    this.loading.getFolderLead = true;
+    this.autoTaskService.leadFolder
+      .getWithFunnels()
+      .pipe(
+        finalize(() => (this.loading.getFolderLead = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200 && res.data) {
+            this.folderLeads = res.data;
+          }
+        },
+        error: (err: any) => {
+          console.error('Error loading folder leads:', err);
+        },
+      });
   }
 
   onSubmit(): void {
@@ -714,55 +593,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   groupValueFn = (key: string, children: any[]) => {
     return children; // Return the children (funnels) for each group
   };
-
-  private subscribeToFunnelChanges(): void {
-    // Subscribe to funnel data changes to reload when funnels are created/updated/deleted
-    this.autoTaskService.funnelDataChanged$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((changed) => {
-        if (changed) {
-          // Reload funnels from API when data changes (bypass cache)
-          this.loadFunnelsFromAPI();
-        }
-      });
-  }
-
-  /**
-   * Set default funnel for new leads
-   * Priority: selected funnel from dashboard > system funnel
-   * Only set if creating new lead and funnelId is not already set
-   */
-  private setDefaultFunnelForNewLead(): void {
-    // Only set default for new leads (not edit mode)
-    if (this.isEditMode) {
-      return;
-    }
-
-    // Only set if funnelId is not already set
-    const currentFunnelId = this.leadForm.get('funnelId')?.value;
-    if (currentFunnelId) {
-      return;
-    }
-
-    // Priority 1: Use currently selected funnel from dashboard
-    if (this.selectedFolder && this.selectedFolder.type === 'funnel') {
-      const selectedFunnelId =
-        this.selectedFolder.funnels?.[0]?.id || this.selectedFolder.id;
-      const selectedFunnel = this.funnels.find(
-        (f) => f.id === selectedFunnelId,
-      );
-      if (selectedFunnel) {
-        this.leadForm.patchValue({funnelId: selectedFunnel.id});
-        return;
-      }
-    }
-
-    // Priority 2: Fall back to system funnel if no selected funnel
-    const systemFunnel = this.funnelFolders.find((f) => f.isSystem === true);
-    if (systemFunnel) {
-      this.leadForm.patchValue({funnelId: systemFunnel.id});
-    }
-  }
 
   onCustomerSelect(customer?: Customer): void {
     if (!customer) return;
@@ -1216,22 +1046,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         });
       }, 0);
     }
-  }
-
-  // ============ COMMENTS SIDEBAR METHODS ============
-
-  /**
-   * Open comments sidebar
-   */
-  openCommentsSidebar(): void {
-    this.isCommentsSidebarOpen = true;
-  }
-
-  /**
-   * Close comments sidebar
-   */
-  closeCommentsSidebar(): void {
-    this.isCommentsSidebarOpen = false;
   }
 
   selectTab(tab: string): void {

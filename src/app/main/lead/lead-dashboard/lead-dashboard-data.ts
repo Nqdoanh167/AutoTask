@@ -1,16 +1,15 @@
-import { inject } from '@angular/core';
-import { finalize, shareReplay, takeUntil, Observable } from 'rxjs';
-import { CheckboxSortTableComponent } from '@share/common/checkbox-table/checkbox-sort-table.component';
-import { ILead, ILeadQuery, ILeadStatus, ILeadTag } from '@app/types/lead';
-import { CommonService } from '@app/services/common/common.service';
-import { ICommonDataLazy, ITag, IQueryBase } from '@app/types/viewmodels';
+import {inject} from '@angular/core';
+import {finalize, shareReplay, takeUntil, Observable} from 'rxjs';
+import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
+import {ILead, ILeadQuery, ILeadStatus, ILeadTag} from '@app/types/lead';
+import {CommonService} from '@app/services/common/common.service';
+import {ICommonDataLazy, ITag, IQueryBase} from '@app/types/viewmodels';
 import {
   LEAD_CONFIG_FILTERS,
   LEAD_CONFIG_BUTTON,
 } from './lead-dashboard-variables';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { SocketService } from '@app/services/api/socket.service';
-import { ISource } from '@app/types/setting';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {ISource} from '@app/types/setting';
 
 export class LeadDashboardData extends CheckboxSortTableComponent<
   ILead,
@@ -18,7 +17,6 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
 > {
   protected readonly commonService = inject(CommonService);
   protected readonly autoTaskService = inject(AutoTaskService);
-  protected readonly socketService = inject(SocketService);
 
   public override configFilters = LEAD_CONFIG_FILTERS;
   public override configButtons = LEAD_CONFIG_BUTTON;
@@ -74,7 +72,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     if (isReset) {
       this.item.paramsQuery.page = 1;
     }
-    let params = { ...this.item.paramsQuery };
+    let params = {...this.item.paramsQuery};
 
     // Apply sort
     Object.keys(this.sort).forEach((key) => {
@@ -86,10 +84,11 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     });
 
     this.item.rows = [];
-    this.autoTaskService.lead.get(params)
+    this.autoTaskService.lead
+      .get(params)
       .pipe(
         finalize(() => {
-          this.item = { ...this.item, loading: false };
+          this.item = {...this.item, loading: false};
         }),
         shareReplay(1),
         takeUntil(this.destroy$),
@@ -119,7 +118,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     filterName: string,
     dataContainer: ICommonDataLazy<T, IQueryBase>,
     onSuccess?: (data: T[]) => void,
-    forceRefresh = false
+    forceRefresh = false,
   ): void {
     // Fetch from API
     dataContainer.loading = true;
@@ -136,7 +135,9 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
             dataContainer.rows = res.data;
 
             // Update filter options
-            const filter = this.configFilters.find((f) => f.name === filterName);
+            const filter = this.configFilters.find(
+              (f) => f.name === filterName,
+            );
             if (filter) {
               filter.options = res.data;
             }
@@ -175,7 +176,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
       'statusId_in',
       this.statuses,
       (statuses) => this.onStatusesSuccess(statuses),
-      forceRefresh
+      forceRefresh,
     );
   }
 
@@ -188,7 +189,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
       'tagIds_in',
       this.tags,
       (tags) => this.onTagsSuccess(tags),
-      forceRefresh
+      forceRefresh,
     );
   }
 
@@ -215,7 +216,6 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     this.getDataSource(true);
   }
 
-
   /**
    * Get public sources from cache (BehaviorSubject)
    * This listens to the shared source list to avoid redundant API calls
@@ -229,7 +229,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
       .subscribe({
         next: (res) => {
           this.sources.rows = res || [];
-          
+
           // If no sources in BehaviorSubject, load from API
           if (!res || res.length === 0) {
             this.getPublicSources();

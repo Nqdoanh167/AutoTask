@@ -184,7 +184,6 @@ export interface Branch extends Team {
   children?: any;
 }
 
-
 export type BizModuleAlias =
   | 'main'
   | 'automation'
@@ -632,7 +631,7 @@ export interface CourseEvent {
   totalLesson: number;
   totalAmount: number;
   totalSold: number;
-  sold: { id: string; name: string; amount: number; quantity: number }[];
+  sold: {id: string; name: string; amount: number; quantity: number}[];
   prices: CourseEventPrice[];
   lessons: CourseEventLesson[];
   gifts: CourseEventGift[];
@@ -1586,7 +1585,7 @@ export interface IMetaData {
   countRows: number;
   currentPage: number;
   limit: number;
-  after?: string
+  after?: string;
 }
 
 export interface AccountPublic {
@@ -1690,14 +1689,3 @@ export interface RatioByEmployee {
   userId: string;
   ratio: number;
 }
-
-export interface ILeadFolder {
-  id: string;
-  name: string;
-  icon?: string;
-  parentId?: string;
-  children?: ILeadFolder[];
-  isExpanded?: boolean;
-  isPinned?: boolean;
-  isSystem?: boolean;
-} 

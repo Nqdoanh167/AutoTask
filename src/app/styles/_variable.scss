@@ -50,6 +50,7 @@ $light: $gray-100;
 $dark: $gray-900;
 $white: #fff;
 $black: #000;
+$input-bg: #f7fcff;
 
 $theme-colors: (
   'neutral': $neutral,
@@ -62,6 +63,7 @@ $theme-colors: (
   'light': $light,
   'dark': $dark,
   'orange': $orange,
+  'input-bg': $input-bg,
 );
 $colors: (
   'blue': $blue,
@@ -101,11 +103,12 @@ $btn-font-size-lg: 16px;
 $btn-border-radius-lg: 8px;
 
 $enable-shadows: false;
+//text
+$text-color: #0f172a;
 
 $border-input: $gray-400;
 $input-focus-border-color: #ccc;
 $input-focus-bg: #fff;
-$input-bg: #f7fcff;
 $input-placeholder-color: $neutral;
 $input-border-radius: 4px;
 $input-padding: 8px 16px;
@@ -360,7 +363,7 @@ $pagination-height: 56;
 }
 
 .secondary-text {
-  color: #0f172a;
+  color: $text-color;
   font-size: 12px;
   font-weight: 300;
   line-height: 14px;
