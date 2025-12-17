@@ -2,7 +2,6 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   TemplateRef,
@@ -18,7 +17,7 @@ import {
   ITaskDto,
   ModifiedUserUnit,
 } from '@app/types/flow';
-import {debounceTime, finalize, lastValueFrom, Subject, take, takeUntil, tap, throttleTime} from 'rxjs';
+import {debounceTime, finalize, Subject, take, takeUntil} from 'rxjs';
 import {FormArray, FormGroup, ValidationErrors} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
@@ -28,19 +27,14 @@ import {
   OrderPlatformSource,
   User,
 } from '@app/types/viewmodels';
-import {intersection, uniqueId} from 'lodash';
+import {intersection} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {environment} from '../../../../../environments/environment';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
-import {
-  EPerActTask,
-  ISource,
-  IUpdateSourceDto,
-  IViewModeDto,
-} from '@app/types/setting';
+import {EPerActTask, ISource, IUpdateSourceDto} from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 import {ETabTaskDetail} from '@app/types/task';
 import {MainService} from '@app/services/api/main.service';
@@ -50,7 +44,6 @@ import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
 import {ActivatedRoute} from '@angular/router';
 import {SocketService} from '@app/services/api/socket.service';
-import {ThrottleEvent} from '@app/share/decorator/throttle-event.decorator';
 import {ModalCloseTaskComponent} from '../modal-close-task/modal-close-task.component';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
@@ -61,8 +54,8 @@ declare function smaxCallSdkClearCall(): void;
 
 @Component({
   selector: 'app-modal-update-task',
-  templateUrl: './modal-update-task.component.html',
-  styleUrls: ['./modal-update-task.component.scss'],
+  templateUrl: './modal-update-task-v2.component.html',
+  styleUrls: ['./modal-update-task-v2.component.scss'],
 })
 export class ModalUpdateTaskComponent
   extends DetailTaskPerms
@@ -119,6 +112,14 @@ export class ModalUpdateTaskComponent
 
   private resetTaskSubject$ = new Subject<string>();
 
+  public menus = [
+    {key: 'task', name: 'Tác vụ', icon: 'order'},
+    {key: 'customer', name: 'Khách hàng', icon: 'user'},
+    {key: 'order', name: 'Đơn hàng', icon: 'connections'},
+    {key: 'history', name: 'Lịch sử', icon: 'attribute'},
+  ];
+  public activeTabMenu: string = 'task';
+
   constructor(
     private readonly modalRef: BsModalRef,
     private readonly modalService: BsModalService,
@@ -157,16 +158,13 @@ export class ModalUpdateTaskComponent
     // NOTE: Nên setup subject observable trong ngOnInit và subscribe ngay trong đây để đảm bảo subject có đủ pipe lẫn subscribe thành công
     // Tại các click / action handler chỉ cần gọi .next() để emit value cho subject -> trigger pipe và handle business logic
     this.resetTaskSubject$
-      .pipe(
-        debounceTime(300),
-        takeUntil(this.destroy$)
-      )
+      .pipe(debounceTime(300), takeUntil(this.destroy$))
       .subscribe({
         next: (v) => {
-          this.getDetailTask(true)
+          this.getDetailTask(true);
         },
         error: (err) => console.error('err', err),
-      })
+      });
     this.loading.modal = true;
     this.setupSocketListeners();
     // const autoTaskSettingRes = await lastValueFrom(this.getAutoTaskSetting());
@@ -304,8 +302,10 @@ export class ModalUpdateTaskComponent
             if (this.customerInfoComponent) {
               this.customerInfoComponent.leadId = leadId;
               // Update original values for revert functionality
-              this.customerInfoComponent.originalLeadStatusId = leadData.statusId || null;
-              this.customerInfoComponent.originalLeadTags = leadData.tagIds || [];
+              this.customerInfoComponent.originalLeadStatusId =
+                leadData.statusId || null;
+              this.customerInfoComponent.originalLeadTags =
+                leadData.tagIds || [];
               this.customerInfoComponent.loadLeadStatusesAndTags();
             }
           }
@@ -361,12 +361,10 @@ export class ModalUpdateTaskComponent
       }
     }
     if (branch) {
-      this.updateForm.patchValue({ branch } as any);
+      this.updateForm.patchValue({branch} as any);
       this.getInfoUnit(branch?.team || branch?.department || branch?.id);
     }
   }
-
-
 
   getTaskByCode() {
     this.loading.getDetail = true;
@@ -1396,5 +1394,9 @@ export class ModalUpdateTaskComponent
 
   get isTaskClosed(): boolean {
     return this.sourceData?.isTaskClosed ?? false;
+  }
+
+  selectTabMenu(tab: string) {
+    this.activeTabMenu = tab;
   }
 }

@@ -20,7 +20,11 @@
         </div>
       </div>
     }
-    <div class="modal-body" [class.pb-0]="!hideFooter && type === 'standard'">
+    <div
+      class="modal-body"
+      [class.pb-0]="!hideFooter && type === 'standard'"
+      [class.p-0]="hideHeader"
+    >
       <ng-content select="[modalBody]"></ng-content>
       @if (type === 'lack-center') {
         <div

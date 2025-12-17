@@ -133,7 +133,13 @@
                                   *ngIf="getSelectedTags().length === 0"
                                   class="tags-placeholder"
                                 >
-                                  Chọn tags
+                                  <!-- Chọn tags -->
+                                  <img
+                                    src="./assets/icons/tag.svg"
+                                    alt=""
+                                    width="24"
+                                    height="24"
+                                  />
                                 </span>
                               </div>
                               <div *ngIf="isEditingTags" class="tags-edit-mode">

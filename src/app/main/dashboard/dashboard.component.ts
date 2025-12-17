@@ -1070,7 +1070,7 @@ export class DashboardComponent
       initialState: {
         leadData: lead, // Pass lead data separately
       },
-      class: 'modal-xl',
+      class: 'modal-dialog-centered modal-medium',
       keyboard: true,
       backdrop: false,
     });
@@ -1105,7 +1105,7 @@ export class DashboardComponent
           taskId,
           code,
         },
-        class: 'modal-xl',
+        class: 'modal-dialog-centered modal-medium',
         keyboard: true,
         backdrop: false,
       });

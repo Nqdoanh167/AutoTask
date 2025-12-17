@@ -1660,7 +1660,8 @@ i {
   display: flex;
   align-items: center;
   border: none;
-  background-color: #e7e9ef;
+  background-color: $input-bg;
+  border: 1px solid $neutral-100;
   .p-overlay {
     z-index: 1052 !important;
   }
