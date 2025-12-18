@@ -1,9 +1,11 @@
-import {Component, OnInit, OnDestroy, ChangeDetectorRef} from '@angular/core';
 import {
-  CdkDragDrop,
-  moveItemInArray,
-  transferArrayItem,
-} from '@angular/cdk/drag-drop';
+  Component,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ActivatedRoute} from '@angular/router';
@@ -24,6 +26,12 @@ import {LeadFormModalComponent} from './lead-form-modal/lead-form-modal.componen
 import {FolderFormModalComponent} from './folder-form-modal/folder-form-modal.component';
 import {AuthService} from '@app/services/api/auth.service';
 import {EBotherAdvanceBasicFilter} from '@app/types/common';
+import {
+  CdkDragDrop,
+  CdkDragMove,
+  moveItemInArray,
+  transferArrayItem,
+} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-lead-dashboard',
@@ -34,6 +42,9 @@ export class LeadDashboardComponent
   extends LeadDashboardData
   implements OnInit, OnDestroy
 {
+  @ViewChild('kanbanBoard', {read: ElementRef})
+  kanbanBoard?: ElementRef<HTMLElement>;
+
   public viewMode: 'kanban' | 'list' = 'list';
   public leadsByStatus: Map<string, ILead[]> = new Map();
   public statusMap: Map<string, ILeadStatus> = new Map();
@@ -42,6 +53,10 @@ export class LeadDashboardComponent
   public folderLeads: IFolderLead[] = [];
   public expandedFunnelGroups: Map<string, Set<string>> = new Map();
   public currentFunnelId$ = new BehaviorSubject<string | null>(null);
+
+  private autoScrollInterval: any;
+  private readonly SCROLL_SPEED = 15;
+  private readonly EDGE_THRESHOLD = 100;
 
   public checkbox: any = {
     branchIds: [],
@@ -114,6 +129,7 @@ export class LeadDashboardComponent
   }
 
   override ngOnDestroy(): void {
+    this.stopAutoScroll();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -179,7 +195,6 @@ export class LeadDashboardComponent
           this.autoTaskService.lead.update(lead.id, data).subscribe({
             next: (res: any) => {
               if (res.status === 200) {
-                this.toastrService.success('Cập nhật lead thành công');
                 this.handleAction('reload');
               } else {
                 this.commonService.handleResErr(res);
@@ -187,7 +202,6 @@ export class LeadDashboardComponent
               (modalRef.content as any).isSubmitting = false;
             },
             error: (err: any) => {
-              this.toastrService.error('Cập nhật lead thất bại');
               (modalRef.content as any).isSubmitting = false;
             },
           });
@@ -195,7 +209,6 @@ export class LeadDashboardComponent
           this.autoTaskService.lead.create(data).subscribe({
             next: (res: any) => {
               if (res.status === 200 || res.status === 201) {
-                this.toastrService.success('Tạo lead thành công');
                 this.handleAction('reload');
               } else {
                 this.commonService.handleResErr(res);
@@ -203,7 +216,6 @@ export class LeadDashboardComponent
               (modalRef.content as any).isSubmitting = false;
             },
             error: (err: any) => {
-              this.toastrService.error('Tạo lead thất bại');
               (modalRef.content as any).isSubmitting = false;
             },
           });
@@ -345,54 +357,6 @@ export class LeadDashboardComponent
       if (statusId && this.leadsByStatus.has(statusId)) {
         this.leadsByStatus.get(statusId)!.push(lead);
       }
-    });
-  }
-
-  trackByStatusId(index: number, status: ILeadStatus): string {
-    return status.id;
-  }
-
-  trackByLeadId(index: number, lead: ILead): string {
-    return lead.id;
-  }
-
-  getConnectedDropLists(): string[] {
-    return this.activeStatuses.map((status) => status.id);
-  }
-
-  onDrop(event: CdkDragDrop<ILead[]>, targetStatusId: string) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
-    } else {
-      const lead = event.previousContainer.data[event.previousIndex];
-      lead.statusId = targetStatusId;
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
-      this.updateLeadStatus(lead.id, targetStatusId);
-    }
-  }
-
-  private updateLeadStatus(leadId: string, statusId: string) {
-    this.autoTaskService.lead.update(leadId, {statusId} as any).subscribe({
-      next: (res: any) => {
-        if (res.status === 200) {
-        } else {
-          this.commonService.handleResErr(res);
-          this.handleAction('reload');
-        }
-      },
-      error: (err: any) => {
-        this.toastrService.error('Cập nhật trạng thái lead thất bại');
-        this.handleAction('reload');
-      },
     });
   }
 
@@ -733,5 +697,111 @@ Tất cả các Phễu và dữ liệu liên quan trong Folder này sẽ bị x�
         this.toastrService.error('Xóa Folder thất bại');
       },
     });
+  }
+
+  onLeadDragMoved(event: CdkDragMove) {
+    if (!this.kanbanBoard) return;
+
+    const container = this.kanbanBoard.nativeElement;
+    const containerRect = container.getBoundingClientRect();
+    const pointerX = event.pointerPosition.x;
+
+    // Dừng scroll trước khi kiểm tra
+    this.stopAutoScroll();
+
+    // Scroll sang trái khi kéo gần biên trái
+    if (pointerX - containerRect.left < this.EDGE_THRESHOLD) {
+      this.startAutoScroll('left');
+    }
+    // Scroll sang phải khi kéo gần biên phải
+    else if (containerRect.right - pointerX < this.EDGE_THRESHOLD) {
+      this.startAutoScroll('right');
+    }
+  }
+
+  private startAutoScroll(direction: 'left' | 'right') {
+    if (!this.kanbanBoard || this.autoScrollInterval) return;
+
+    this.autoScrollInterval = setInterval(() => {
+      const container = this.kanbanBoard!.nativeElement;
+      const scrollAmount =
+        direction === 'left' ? -this.SCROLL_SPEED : this.SCROLL_SPEED;
+      container.scrollLeft += scrollAmount;
+
+      // Dừng khi đã đến cuối
+      if (
+        (direction === 'left' && container.scrollLeft <= 0) ||
+        (direction === 'right' &&
+          container.scrollLeft >= container.scrollWidth - container.clientWidth)
+      ) {
+        this.stopAutoScroll();
+      }
+    }, 16); // ~60fps
+  }
+
+  private stopAutoScroll() {
+    if (this.autoScrollInterval) {
+      clearInterval(this.autoScrollInterval);
+      this.autoScrollInterval = null;
+    }
+  }
+
+  onLeadDrop(event: CdkDragDrop<ILead[]>) {
+    this.stopAutoScroll();
+
+    const previousStatusId = event.previousContainer.id;
+    const currentStatusId = event.container.id;
+    const lead = event.item.data;
+
+    // Nếu drop vào cùng một cột, chỉ sắp xếp lại thứ tự
+    if (event.previousContainer === event.container) {
+      const leads = this.leadsByStatus.get(currentStatusId) || [];
+      moveItemInArray(leads, event.previousIndex, event.currentIndex);
+      return;
+    }
+
+    // Nếu drop vào cột khác, chuyển lead sang status mới
+    const previousLeads = this.leadsByStatus.get(previousStatusId) || [];
+    const currentLeads = this.leadsByStatus.get(currentStatusId) || [];
+
+    transferArrayItem(
+      previousLeads,
+      currentLeads,
+      event.previousIndex,
+      event.currentIndex,
+    );
+
+    // Cập nhật statusId của lead và gọi API
+    const newStatusId = currentStatusId;
+    this.autoTaskService.lead
+      .update(lead.id, {id: lead.id, statusId: newStatusId})
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === 200) {
+            // Cập nhật statusId trong lead object
+            lead.statusId = newStatusId;
+          } else {
+            // Rollback nếu API thất bại
+            transferArrayItem(
+              currentLeads,
+              previousLeads,
+              event.currentIndex,
+              event.previousIndex,
+            );
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err: any) => {
+          // Rollback nếu API thất bại
+          transferArrayItem(
+            currentLeads,
+            previousLeads,
+            event.currentIndex,
+            event.previousIndex,
+          );
+          console.error('Update lead status error:', err);
+        },
+      });
   }
 }

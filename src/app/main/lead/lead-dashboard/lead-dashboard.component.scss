@@ -118,19 +118,44 @@
     border-radius: vars.$radius-s;
     background-color: vars.$white;
 
-    .view-mode-btn {
-      .button-icon {
-        background-color: #f8fafc !important;
-      }
-      &.active {
-        .button-icon {
-          background-color: vars.$neutral !important;
-        }
-      }
+    .view-mode-switch {
+      display: flex;
+      align-items: center;
+      background-color: #f8fafc;
+      border-radius: 8px;
+      padding: 4px;
+      gap: 4px;
 
-      &:hover {
-        .button-icon {
-          background-color: vars.$neutral !important;
+      .switch-toggle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border: none;
+        background-color: transparent;
+        border-radius: 6px;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+
+        i {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
+
+        &:hover {
+          color: vars.$neutral;
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        &.switch-active {
+          background-color: vars.$white;
+          color: vars.$neutral;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
       }
     }
@@ -303,227 +328,127 @@
       }
     }
   }
+}
 
-  // CDK Drag & Drop styles
-  .kanban-column-content {
-    &.cdk-drop-list-dragging {
-      background: rgba(66, 133, 244, 0.08);
-      border: 2px dashed #4285f4;
-      border-radius: 8px;
-      transition: all 0.2s ease;
-    }
+.kanban-card,
+.cdk-drag-preview {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  // transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    border-color: #4285f4;
   }
 
-  .kanban-card {
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 12px;
-    cursor: grab;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    position: relative;
-
-    // Drag handle indicator
-    &::before {
-      content: '';
-      position: absolute;
-      left: 4px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 4px;
-      height: 24px;
-      background: linear-gradient(
-        to bottom,
-        #d0d0d0 0%,
-        #d0d0d0 20%,
-        transparent 20%,
-        transparent 40%,
-        #d0d0d0 40%,
-        #d0d0d0 60%,
-        transparent 60%,
-        transparent 80%,
-        #d0d0d0 80%,
-        #d0d0d0 100%
-      );
-      border-radius: 2px;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      transform: translateY(-2px);
-      border-color: #4285f4;
-
-      &::before {
-        opacity: 1;
-      }
-    }
-
-    // While being dragged (the actual element)
-    &.cdk-drag-animating {
-      transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .card-header {
-      .lead-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-
-        .lead-avatar-small {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 12px;
-          flex-shrink: 0;
-
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-        }
-
-        .lead-name-code {
-          flex: 1;
-          min-width: 0;
-
-          .lead-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #202124;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-
-          .lead-code {
-            font-size: 12px;
-            color: #5f6368;
-          }
-        }
-      }
-    }
-
-    .card-body {
+  .card-header {
+    .lead-info {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-top: 4px;
-      border-top: 1px solid #f0f0f0;
-
-      .card-info-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-
-        i {
-          width: 14px;
-          font-size: 12px;
-          flex-shrink: 0;
-        }
-
-        a {
-          text-decoration: none;
-          flex: 1;
-          min-width: 0;
-
-          &:hover {
-            text-decoration: underline;
-          }
-        }
-      }
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding-top: 8px;
-      border-top: 1px solid #f0f0f0;
-      margin-top: 4px;
+      gap: 10px;
 
-      small {
-        font-size: 11px;
+      .lead-avatar-small {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         display: flex;
         align-items: center;
-        gap: 4px;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        flex-shrink: 0;
 
-        i {
-          font-size: 10px;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
       }
 
-      .card-actions {
-        display: flex;
-        gap: 4px;
-        opacity: 0;
-        transition: opacity 0.2s;
+      .lead-name-code {
+        flex: 1;
+        min-width: 0;
 
-        .btn {
-          padding: 2px 6px;
+        .lead-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: #202124;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .lead-code {
           font-size: 12px;
-
-          i {
-            font-size: 12px;
-          }
+          color: #5f6368;
         }
       }
     }
-
-    &:hover .card-actions {
-      opacity: 1;
-    }
   }
 
-  // Drag placeholder (where the card will be dropped)
-  .kanban-card-placeholder {
-    background: linear-gradient(
-      135deg,
-      rgba(66, 133, 244, 0.1) 0%,
-      rgba(66, 133, 244, 0.05) 100%
-    );
-    border: 2px dashed #4285f4;
-    border-radius: 8px;
-    min-height: 80px;
-    transition: all 0.2s ease;
-    animation: pulse-placeholder 1.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse-placeholder {
-    0%,
-    100% {
-      opacity: 0.6;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.01);
-    }
-  }
-
-  .kanban-loading {
+  .card-body {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: #5f6368;
-    gap: 16px;
+    gap: 6px;
+    padding-top: 4px;
+    border-top: 1px solid #f0f0f0;
 
-    p {
-      font-size: 16px;
-      margin: 0;
+    .card-info-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+
+      i {
+        width: 14px;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+
+      a {
+        text-decoration: none;
+        flex: 1;
+        min-width: 0;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
     }
   }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 4px;
+
+    small {
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      i {
+        font-size: 10px;
+      }
+    }
+  }
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+.cdk-drag-animating {
+  transition: none !important;
 }

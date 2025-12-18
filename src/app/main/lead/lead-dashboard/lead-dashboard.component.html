@@ -259,31 +259,26 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-2">
-        <div
-          class="button-icon-wrapper view-mode-btn"
-          [tooltip]="'Chế độ danh sách'"
-          (click)="viewMode = 'list'"
-          [ngClass]="{active: viewMode === 'list'}"
-        >
-          <button class="button-icon bg-neutral">
-            <i
-              class="fa fa-th-list"
-              style="width: 16px; height: 16px; color: #fff"
-            ></i>
+        <div class="view-mode-switch">
+          <button
+            type="button"
+            class="switch-toggle"
+            [ngClass]="{'switch-active': viewMode === 'list'}"
+            (click)="viewMode = 'list'"
+            [tooltip]="'Chế độ danh sách'"
+          >
+            <i class="fa fa-th-list"></i>
+            <span>Danh sách</span>
           </button>
-        </div>
-
-        <div
-          class="button-icon-wrapper view-mode-btn"
-          [tooltip]="'Chế độ Kanban'"
-          (click)="viewMode = 'kanban'"
-          [ngClass]="{active: viewMode === 'kanban'}"
-        >
-          <button class="button-icon bg-neutral">
-            <i
-              class="fa fa-columns"
-              style="width: 16px; height: 16px; color: #fff"
-            ></i>
+          <button
+            type="button"
+            class="switch-toggle"
+            [ngClass]="{'switch-active': viewMode === 'kanban'}"
+            (click)="viewMode = 'kanban'"
+            [tooltip]="'Chế độ Kanban'"
+          >
+            <i class="fa fa-columns"></i>
+            <span>Kanban</span>
           </button>
         </div>
       </div>
@@ -442,22 +437,27 @@
 
     <!-- Kanban View -->
     <div class="content-kanban" *ngIf="viewMode === 'kanban'">
-      <div class="kanban-board" *ngIf="!item.loading">
+      <div
+        class="kanban-board"
+        *ngIf="!item.loading"
+        cdkDropListGroup
+        cdkScrollable
+        #kanbanBoard
+      >
         <div
           class="kanban-column"
+          *ngFor="let status of activeStatuses"
+          [ngStyle]="{'background-color': status.bgColor | hex2rgb}"
           cdkDropList
-          [cdkDropListData]="leadsByStatus.get(status.id) || []"
-          [cdkDropListConnectedTo]="getConnectedDropLists()"
           [id]="status.id"
-          (cdkDropListDropped)="onDrop($event, status.id)"
-          *ngFor="let status of activeStatuses; trackBy: trackByStatusId"
-          [style.background-color]="status.bgColor | hex2rgb"
+          [cdkDropListData]="leadsByStatus.get(status.id) || []"
+          (cdkDropListDropped)="onLeadDrop($event)"
         >
           <div class="kanban-column-header">
             <div class="column-title">
               <span
                 class="status-indicator"
-                [style.background-color]="status.bgColor | hex2rgb"
+                [ngStyle]="{'background-color': status.bgColor | hex2rgb}"
               ></span>
               <h3>{{ status.name }}</h3>
             </div>
@@ -469,88 +469,21 @@
           <div class="kanban-column-content">
             <div
               class="kanban-card"
+              *ngFor="let lead of leadsByStatus.get(status.id) || []"
               cdkDrag
               [cdkDragData]="lead"
-              *ngFor="
-                let lead of leadsByStatus.get(status.id) || [];
-                trackBy: trackByLeadId
-              "
+              (cdkDragMoved)="onLeadDragMoved($event)"
               (click)="openLeadModal(lead.id)"
             >
-              <div class="kanban-card-placeholder" *cdkDragPlaceholder></div>
-
-              <div class="kanban-card kanban-card--dragging" *cdkDragPreview>
-                <div class="card-header">
-                  <div class="lead-info">
-                    <div class="lead-avatar-small">
-                      <i *ngIf="!lead.picture" class="fa fa-user"></i>
-                      <img
-                        *ngIf="lead.picture"
-                        [src]="lead.picture"
-                        alt="Avatar"
-                        class="img-fluid rounded-circle"
-                      />
-                    </div>
-                    <div class="lead-name-code">
-                      <div class="lead-name" [title]="lead.name">
-                        {{ lead.name }}
-                      </div>
-                      <div class="lead-code" *ngIf="lead.code">
-                        {{ lead.code }}
-                      </div>
-                    </div>
-                  </div>
-                  <div class="d-flex flex-row flex-wrap gap-1 mt-2">
-                    <div *ngFor="let tagId of lead.tagIds">
-                      <span
-                        *ngIf="getTagById(tagId) as tag"
-                        class="badge text-capitalize"
-                        [style.background-color]="tag.bgColor || '#6c757d'"
-                      >
-                        {{ tag.name }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="card-body">
-                  <div class="card-info-row" *ngIf="lead.phone">
-                    <i class="fa fa-phone text-muted"></i>
-                    <span class="text-primary">{{ lead.phone }}</span>
-                  </div>
-
-                  <div class="card-info-row" *ngIf="lead.email">
-                    <i class="fa fa-envelope text-muted"></i>
-                    <span class="text-primary text-truncate">
-                      {{ lead.email }}
-                    </span>
-                  </div>
-
-                  <div class="card-info-row" *ngIf="lead.totalPrice">
-                    <i class="fa fa-money text-muted"></i>
-                    <span class="fw-semibold text-success">
-                      {{ lead.totalPrice | mycurrency }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="card-footer">
-                  <small class="text-muted">
-                    <i class="fa fa-clock-o"></i>
-                    {{ lead.createdAt | timeView }}
-                  </small>
-                </div>
-              </div>
-
               <div class="card-header">
                 <div class="lead-info">
                   <div class="lead-avatar-small">
-                    <i *ngIf="!lead.picture" class="fa fa-user"></i>
                     <img
-                      *ngIf="lead.picture"
-                      [src]="lead.picture"
+                      [src]="lead.picture || './assets/images/noavatar.png'"
                       alt="Avatar"
                       class="img-fluid rounded-circle"
+                      width="32"
+                      height="32"
                     />
                   </div>
                   <div class="lead-name-code">
@@ -566,9 +499,10 @@
                   <div *ngFor="let tagId of lead.tagIds">
                     <span
                       *ngIf="getTagById(tagId) as tag"
-                      class="badge text-capitalize"
+                      class="badge text-capitalize tag-item"
                       [style.background-color]="tag.bgColor || '#6c757d'"
                     >
+                      <i class="fa-solid fa-filter"></i>
                       {{ tag.name }}
                     </span>
                   </div>
@@ -611,26 +545,6 @@
                   <i class="fa fa-clock-o"></i>
                   {{ lead.createdAt | timeView }}
                 </small>
-                <div class="card-actions" (click)="$event.stopPropagation()">
-                  <button
-                    class="btn btn-sm btn-link"
-                    tooltip="Chỉnh sửa"
-                    placement="top"
-                    container="body"
-                    (click)="openLeadModal(lead.id)"
-                  >
-                    <i class="fa fa-pencil"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-link text-danger"
-                    tooltip="Xóa"
-                    placement="top"
-                    container="body"
-                    (click)="handleDeleteMultiple([lead])"
-                  >
-                    <i class="fa fa-trash"></i>
-                  </button>
-                </div>
               </div>
             </div>
 
@@ -646,8 +560,9 @@
       </div>
 
       <div class="kanban-loading" *ngIf="item.loading">
-        <i class="fa fa-spinner fa-spin fa-3x"></i>
-        <p>Đang tải...</p>
+        <div class="center-item">
+          <div class="spinner-custom"></div>
+        </div>
       </div>
     </div>
   </div>
