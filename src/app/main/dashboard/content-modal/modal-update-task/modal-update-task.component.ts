@@ -40,7 +40,6 @@ import {ETabTaskDetail} from '@app/types/task';
 import {MainService} from '@app/services/api/main.service';
 import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
 import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
-import {PhoneCallService} from '@app/services/common/phone-call.service';
 import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
 import {ActivatedRoute} from '@angular/router';
 import {SocketService} from '@app/services/api/socket.service';
@@ -116,9 +115,10 @@ export class ModalUpdateTaskComponent
     {key: 'task', name: 'Tác vụ', icon: 'order'},
     {key: 'customer', name: 'Khách hàng', icon: 'user'},
     {key: 'order', name: 'Đơn hàng', icon: 'connections'},
-    {key: 'history', name: 'Lịch sử', icon: 'attribute'},
   ];
+  public menusActivity = [{key: 'history', name: 'Lịch sử', icon: 'attribute'}];
   public activeTabMenu: string = 'task';
+  public activeActivityTab: string = 'history';
 
   constructor(
     private readonly modalRef: BsModalRef,
@@ -126,7 +126,6 @@ export class ModalUpdateTaskComponent
     private readonly modalConfirmService: ModalConfirmService,
     private readonly toastr: ToastrService,
     private readonly mainService: MainService,
-    private readonly phoneCallService: PhoneCallService,
     private readonly toastrService: ToastrService,
     private readonly route: ActivatedRoute,
     private socketService: SocketService,

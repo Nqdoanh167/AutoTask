@@ -210,6 +210,7 @@
               class="item-folder"
               *ngFor="let funnel of group.funnels"
               (click)="selectFunnel(funnel.id!)"
+              [ngClass]="{active: currentFunnelId$.value === funnel.id}"
             >
               <div class="d-flex align-items-center gap-2">
                 <img
@@ -249,7 +250,7 @@
 
         <div
           class="button-icon-wrapper"
-          (click)="handleAction('reload')"
+          (click)="handleAction('reload'); getDataSource(true)"
           [tooltip]="'Tải lại'"
         >
           <button class="button-icon bg-neutral">
@@ -450,13 +451,13 @@
           [id]="status.id"
           (cdkDropListDropped)="onDrop($event, status.id)"
           *ngFor="let status of activeStatuses; trackBy: trackByStatusId"
-          [style.background-color]="status.bgColor"
+          [style.background-color]="status.bgColor | hex2rgb"
         >
           <div class="kanban-column-header">
             <div class="column-title">
               <span
                 class="status-indicator"
-                [style.background-color]="status.bgColor"
+                [style.background-color]="status.bgColor | hex2rgb"
               ></span>
               <h3>{{ status.name }}</h3>
             </div>

@@ -40,6 +40,7 @@ import {InputCheckboxModule} from '@share/input/input-checkbox/input-checkbox.mo
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
 import { MycurrencyPipe } from '@app/share/pipe/mycurrency.pipe';
+import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
 
 @NgModule({
   declarations: [
@@ -87,6 +88,7 @@ import { MycurrencyPipe } from '@app/share/pipe/mycurrency.pipe';
     PopoverModule,
     TimeViewPipe,
     MycurrencyPipe,
+    Hex2RgbPipe,
   ],
   providers: [DatePipe],
 })

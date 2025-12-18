@@ -286,11 +286,11 @@ export class LeadDashboardComponent
     const filterObj = JSON.parse(params.filter || '{}');
 
     const currentFunnelId = this.currentFunnelId$.value;
-    // if (currentFunnelId) {
-    //   filterObj['funnelId_in'] = currentFunnelId;
-    // } else {
-    //   delete filterObj['funnelId_in'];
-    // }
+    if (currentFunnelId) {
+      filterObj['funnelId_in'] = currentFunnelId;
+    } else {
+      delete filterObj['funnelId_in'];
+    }
 
     if (this.checkbox.accessibleIds?.length) {
       filterObj['accessibleIds'] = this.checkbox.accessibleIds;
