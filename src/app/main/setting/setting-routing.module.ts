@@ -8,7 +8,8 @@ import {TagComponent} from './tag/tag.component';
 import {RoleComponent} from './role/role.component';
 import {HasPermissionAccessModuleGuard} from '@app/services/guard/hasPermissionAccessSubModule.guard';
 import {EModule, ESettingTab} from '@app/types/viewmodels';
-import { DivideComponent } from './divide/divide.component';
+import {DivideComponent} from './divide/divide.component';
+import {StatusLeadComponent} from './status-lead/status-lead.component';
 
 const routes: Routes = [
   {
@@ -59,6 +60,14 @@ const routes: Routes = [
         },
         canActivate: [HasPermissionAccessModuleGuard],
         component: DivideComponent,
+      },
+      {
+        path: ESettingTab.STATUS_LEAD,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
+        component: StatusLeadComponent,
       },
     ],
   },

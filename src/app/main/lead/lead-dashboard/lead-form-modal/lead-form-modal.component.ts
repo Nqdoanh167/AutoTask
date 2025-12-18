@@ -41,7 +41,7 @@ import {ApiLocationService} from '@app/services/api/location';
 import {ITaskChain, IPlatform} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
 import {LeadConnectionsModalComponent} from '../lead-connections-modal/lead-connections-modal.component';
-import {ETabDetail} from '../lead-dashboard-variables';
+import {ETabDetail} from '@app/types/lead';
 
 @Component({
   selector: 'app-lead-form-modal',

@@ -66,7 +66,7 @@ export class EmployeeComponent
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm nhân viên (module Cài đặt)',
-      icon: './assets/images/icon/plus.svg',
+      icon: './assets/icons/add.svg',
     },
   ];
 

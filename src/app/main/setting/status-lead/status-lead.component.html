@@ -1,0 +1,384 @@
+<div class="setting-status-lead">
+  <div class="card">
+    <div class="card-body">
+      <div class="list-data">
+        <app-filter-top-table
+          [configFilters]="configFilters"
+          [configButtons]="configButtons"
+          (clickButtonEvent)="handleAction($event)"
+          (searchEvent)="onSearch($event)"
+        ></app-filter-top-table>
+        <div class="table-responsive tableFixHead custom-scrollbar mt-3">
+          <table class="table">
+            <thead>
+              <tr>
+                <th class="column-index">#</th>
+                <th class="column-name">Nhóm trạng thái</th>
+                <th class="column-statuses">Trạng thái</th>
+                @if (this.permission.edit || this.permission.delete) {
+                  <th class="column-action text-center">Thao tác</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="text-center"
+                *ngIf="!statusGroups.length && !loading.data"
+              >
+                <td colspan="4">
+                  <div>Không có dữ liệu</div>
+                </td>
+              </tr>
+              <tr class="text-center" *ngIf="loading.data">
+                <td colspan="4">
+                  <div class="spinner-grow text-primary" role="status">
+                    <span class="visually-hidden">Loading</span>
+                  </div>
+                  <div>Loading</div>
+                </td>
+              </tr>
+
+              <ng-container
+                *ngFor="let group of statusGroups; index as groupIndex"
+              >
+                <tr>
+                  <td class="column-index">{{ groupIndex + 1 }}</td>
+                  <td class="column-name">
+                    <strong>{{ group.name }}</strong>
+                    @if (group.isDefault) {
+                      <span class="badge bg-primary ms-2">Mặc định</span>
+                    }
+                  </td>
+                  <td>
+                    <div class="d-inline-flex flex-column gap-3">
+                      @if (group.statuses && group.statuses.length > 0) {
+                        @for (
+                          status of group.statuses;
+                          track status.id;
+                          let statusIndex = $index
+                        ) {
+                          <div class="badge-status-wrapper">
+                            <span
+                              class="badge-status"
+                              [ngStyle]="{
+                                'background-color': status.bgColor | hex2rgb,
+                                color: status.bgColor
+                              }"
+                            >
+                              {{ status.name }}
+                            </span>
+                            @if (
+                              this.permission.edit || this.permission.delete
+                            ) {
+                              <div class="badge-status-actions">
+                                @if (this.permission.edit) {
+                                  <button
+                                    class="btn btn-sm badge-action-btn badge-edit-btn"
+                                    type="button"
+                                    (click)="addEditStatus(status, group)"
+                                    title="Sửa trạng thái"
+                                  >
+                                    <img
+                                      src="./assets/images/icon/edit.svg"
+                                      alt="Edit"
+                                    />
+                                  </button>
+                                }
+                                @if (this.permission.delete) {
+                                  <button
+                                    class="btn btn-sm badge-action-btn badge-delete-btn"
+                                    type="button"
+                                    (click)="onDeleteStatusItem(status)"
+                                    title="Xóa trạng thái"
+                                  >
+                                    <img
+                                      src="./assets/images/icon/remove.svg"
+                                      alt="Delete"
+                                    />
+                                  </button>
+                                }
+                              </div>
+                            }
+                          </div>
+                        }
+                      } @else {
+                        <span class="text-muted">Chưa có trạng thái</span>
+                      }
+                    </div>
+                  </td>
+                  @if (this.permission.edit || this.permission.delete) {
+                    <td class="columns-action">
+                      <div
+                        class="d-flex justify-content-center align-items-center gap-2"
+                      >
+                        @if (this.permission.edit) {
+                          <button
+                            class="btn p-1 me-1 btn-sm"
+                            type="button"
+                            (click)="addEditStatus(undefined, group)"
+                            title="Thêm trạng thái"
+                          >
+                            <i class="fa-solid fa-plus"></i>
+                          </button>
+                          <button
+                            class="btn p-1 me-1"
+                            type="button"
+                            (click)="addEditGroup(group)"
+                            title="Sửa nhóm"
+                          >
+                            <img src="./assets/images/icon/edit.svg" alt="" />
+                          </button>
+                        }
+                        @if (this.permission.delete && !group.isDefault) {
+                          <button
+                            (click)="onDeleteGroupItem(group)"
+                            class="btn button-delete p-1"
+                            type="button"
+                            title="Xóa nhóm"
+                          >
+                            <img src="./assets/images/icon/remove.svg" alt="" />
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  }
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add/Edit Group -->
+<ng-template #templateAddEditGroup>
+  <div class="modal-default modal-add-edit-status-group">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left text-neutral">
+        {{ isAdd.group ? 'Thêm nhóm trạng thái' : 'Sửa nhóm trạng thái' }}
+      </h4>
+      <button
+        type="button"
+        class="btn-close close pull-right"
+        aria-label="Close"
+        (click)="addEditGroupModalRef?.hide()"
+      >
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="addEditForm.group">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-control-label" for="name-group">
+              Tên nhóm trạng thái
+              <span class="required">*</span>
+            </label>
+            <input
+              id="name-group"
+              formControlName="name"
+              class="form-control"
+              [ngClass]="{
+                'is-invalid':
+                  loading.submittedModal &&
+                  addEditForm.group.get('name')?.errors
+              }"
+              type="text"
+              placeholder="Nhập tên nhóm trạng thái"
+            />
+            @if (
+              loading.submittedModal && addEditForm.group.get('name')?.errors
+            ) {
+              <div class="invalid-feedback">
+                @if (addEditForm.group.get('name')?.errors?.['required']) {
+                  <div>Tên nhóm trạng thái không được bỏ trống</div>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="form-is-default"
+                formControlName="isDefault"
+              />
+              <label class="form-check-label">
+                Trạng thái mặc định
+                <i
+                  class="fa-solid fa-question-circle"
+                  [tooltip]="
+                    'Trạng thái sẽ được chọn làm trạng thái mặc định khi tạo lead mới'
+                  "
+                ></i>
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer d-flex justify-content-end">
+      <div class="d-flex">
+        <button
+          (click)="addEditGroupModalRef?.hide()"
+          class="btn button-default-modal mx-2"
+          type="button"
+        >
+          Hủy
+        </button>
+        <custom-button-loading
+          [isLoading]="loading.addEditGroup"
+          (action)="onSubmitGroup()"
+          [type]="'button'"
+          [textButton]="'Lưu'"
+          [className]="'button-fill button-submit-modal button-medium'"
+        ></custom-button-loading>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Modal Add/Edit Status -->
+<ng-template #templateAddEditStatus>
+  <div class="modal-default modal-add-edit-status">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left text-neutral">
+        {{ isAdd.status ? 'Thêm trạng thái' : 'Sửa trạng thái' }}
+      </h4>
+      <button
+        type="button"
+        class="btn-close close pull-right"
+        aria-label="Close"
+        (click)="addEditStatusModalRef?.hide()"
+      >
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="addEditForm.status">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-control-label" for="group-name-status">
+              Nhóm trạng thái
+            </label>
+            <input
+              id="group-name-status"
+              class="form-control"
+              type="text"
+              [value]="dataSelected.group?.name || ''"
+              disabled
+            />
+          </div>
+          <div class="col-6">
+            <label class="form-control-label" for="name-status">
+              Tên trạng thái
+              <span class="required">*</span>
+            </label>
+            <input
+              id="name-status"
+              formControlName="name"
+              class="form-control"
+              [ngClass]="{
+                'is-invalid':
+                  loading.submittedModal &&
+                  addEditForm.status.get('name')?.errors
+              }"
+              type="text"
+              placeholder="Nhập tên trạng thái"
+            />
+            @if (
+              loading.submittedModal && addEditForm.status.get('name')?.errors
+            ) {
+              <div class="invalid-feedback">
+                @if (addEditForm.status.get('name')?.errors?.['required']) {
+                  <div>Tên trạng thái không được bỏ trống</div>
+                }
+              </div>
+            }
+          </div>
+          <div class="col-6">
+            <label class="form-control-label" for="type-status">
+              Loại trạng thái
+              <span class="required">*</span>
+            </label>
+
+            <ng-select
+              id="type-status"
+              formControlName="type"
+              [ngClass]="{
+                'is-invalid':
+                  loading.submittedModal &&
+                  addEditForm.status.get('type')?.errors
+              }"
+              [items]="statusTypeOptions"
+              [bindValue]="'value'"
+              [bindLabel]="'label'"
+              placeholder="Chọn loại trạng thái"
+              [clearable]="false"
+              appendTo=".modal"
+            ></ng-select>
+            @if (
+              loading.submittedModal && addEditForm.status.get('type')?.errors
+            ) {
+              <div class="invalid-feedback">
+                @if (addEditForm.status.get('type')?.errors?.['required']) {
+                  <div>Loại trạng thái không được bỏ trống</div>
+                }
+              </div>
+            }
+          </div>
+          <div class="col-6">
+            <label class="form-control-label" for="bgColor-status">
+              Màu nền
+            </label>
+            <input
+              class="form-control p-0"
+              id="bgColor-status"
+              type="color"
+              formControlName="bgColor"
+              placeholder="Chọn màu nền"
+            />
+          </div>
+          <div class="col-6">
+            <label class="form-control-label d-block" for="preview-status">
+              Hiển thị
+            </label>
+            <div
+              class="badge-status"
+              [ngStyle]="{
+                'background-color':
+                  addEditForm.status.get('bgColor')?.value || '#000000'
+                  | hex2rgb,
+                color: addEditForm.status.get('bgColor')?.value || '#fff'
+              }"
+            >
+              {{ addEditForm.status.get('name')?.value || '' }}
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer d-flex justify-content-end">
+      <div class="d-flex">
+        <button
+          (click)="addEditStatusModalRef?.hide()"
+          class="btn button-default-modal mx-2"
+          type="button"
+        >
+          Hủy
+        </button>
+        <custom-button-loading
+          [isLoading]="loading.addEditStatus"
+          (action)="onSubmitStatus()"
+          [type]="'button'"
+          [textButton]="'Lưu'"
+          [className]="'button-fill button-submit-modal button-medium'"
+        ></custom-button-loading>
+      </div>
+    </div>
+  </div>
+</ng-template>

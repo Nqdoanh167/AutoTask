@@ -115,6 +115,7 @@ export interface ITag {
   bgColor?: string;
   createdBy?: Partial<AccountPublic>;
   updatedBy?: Partial<AccountPublic>;
+  applyFor: 'LEAD' | 'TASK';
 }
 export interface IPosLastBranches {
   id: string;
@@ -1564,6 +1565,7 @@ export enum ESettingTab {
   DECENTRALIZATION = 'decentralization',
   ROLE = 'role',
   DIVIDE = 'divide',
+  STATUS_LEAD = 'status-lead',
 }
 
 export enum ELeadTab {

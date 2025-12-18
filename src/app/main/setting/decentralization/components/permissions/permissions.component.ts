@@ -38,7 +38,7 @@ export class PermissionsComponent
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm mới',
-      icon: './assets/images/icon/plus.svg',
+      icon: './assets/icons/add.svg',
     },
   ];
   public loading = {
@@ -81,7 +81,7 @@ export class PermissionsComponent
         name: 'default-perms',
         type: ETypeButton.PRIMARY,
         label: 'Tạo quyền mặc định',
-        icon: './assets/images/icon/plus.svg',
+        icon: './assets/icons/add.svg',
       });
     }
   }

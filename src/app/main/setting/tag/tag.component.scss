@@ -2,7 +2,7 @@
 @use 'src/app/styles/mixins' as mixins;
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '150px');
+  @include mixins.calculateSize('max-height', '100vh', '162px');
   .columns-action {
     width: 10%;
   }

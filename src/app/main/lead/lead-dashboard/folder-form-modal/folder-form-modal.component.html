@@ -159,8 +159,11 @@
             <ng-container *ngIf="!status.loading">
               <div
                 *ngFor="let status of status.rows"
-                class="form-status-item"
-                [ngStyle]="{'background-color': status.bgColor, color: '#fff'}"
+                class="lead-badge"
+                [ngStyle]="{
+                  'background-color': status.bgColor | hex2rgb,
+                  color: status.bgColor
+                }"
               >
                 {{ status.name }}
               </div>

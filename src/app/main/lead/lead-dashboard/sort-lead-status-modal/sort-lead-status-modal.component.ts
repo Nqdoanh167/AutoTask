@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { ToastrService } from 'ngx-toastr';
-import { ILeadStatus } from '@app/types/lead-status';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { calculateNextPos } from '@app/utils/common';
+import {Component, EventEmitter, Output} from '@angular/core';
+import {BsModalRef} from 'ngx-bootstrap/modal';
+import {ToastrService} from 'ngx-toastr';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {calculateNextPos} from '@app/utils/common';
+import {ILeadStatus} from '@app/types/lead';
 
 @Component({
   selector: 'app-sort-lead-status-modal',
@@ -20,7 +20,7 @@ export class SortLeadStatusModalComponent {
   constructor(
     public bsModalRef: BsModalRef,
     private toastrService: ToastrService,
-    private autoTaskService: AutoTaskService
+    private autoTaskService: AutoTaskService,
   ) {}
 
   onDrop(event: CdkDragDrop<ILeadStatus[]>) {
@@ -54,26 +54,36 @@ export class SortLeadStatusModalComponent {
 
     // Gọi API để update pos
     this.loading = true;
-    this.autoTaskService.leadStatus.update(movedStatus.id, { pos: newPos }).subscribe({
-      next: (res) => {
-        this.loading = false;
-        if (res.status === 200) {
-          this.toastrService.success('Cập nhật vị trí thành công');
-          this.onStatusUpdated.emit([...this.statuses]);
-        } else {
+    this.autoTaskService.leadStatus
+      .update(movedStatus.id, {pos: newPos})
+      .subscribe({
+        next: (res) => {
+          this.loading = false;
+          if (res.status === 200) {
+            this.toastrService.success('Cập nhật vị trí thành công');
+            this.onStatusUpdated.emit([...this.statuses]);
+          } else {
+            // Rollback nếu có lỗi
+            moveItemInArray(
+              this.statuses,
+              event.currentIndex,
+              event.previousIndex,
+            );
+            this.toastrService.error('Không thể cập nhật vị trí');
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Error updating position:', err);
           // Rollback nếu có lỗi
-          moveItemInArray(this.statuses, event.currentIndex, event.previousIndex);
+          moveItemInArray(
+            this.statuses,
+            event.currentIndex,
+            event.previousIndex,
+          );
           this.toastrService.error('Không thể cập nhật vị trí');
-        }
-      },
-      error: (err) => {
-        this.loading = false;
-        console.error('Error updating position:', err);
-        // Rollback nếu có lỗi
-        moveItemInArray(this.statuses, event.currentIndex, event.previousIndex);
-        this.toastrService.error('Không thể cập nhật vị trí');
-      }
-    });
+        },
+      });
   }
 
   onCancel() {

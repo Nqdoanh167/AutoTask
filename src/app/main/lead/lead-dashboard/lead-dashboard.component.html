@@ -477,10 +477,8 @@
               "
               (click)="openLeadModal(lead.id)"
             >
-              <!-- Custom Drag Placeholder -->
               <div class="kanban-card-placeholder" *cdkDragPlaceholder></div>
 
-              <!-- Custom Drag Preview (giống hệt card bình thường) -->
               <div class="kanban-card kanban-card--dragging" *cdkDragPreview>
                 <div class="card-header">
                   <div class="lead-info">
@@ -636,7 +634,6 @@
               </div>
             </div>
 
-            <!-- Empty state for column -->
             <div
               class="kanban-column-empty"
               *ngIf="!(leadsByStatus.get(status.id) || []).length"
@@ -648,7 +645,6 @@
         </div>
       </div>
 
-      <!-- Loading state -->
       <div class="kanban-loading" *ngIf="item.loading">
         <i class="fa fa-spinner fa-spin fa-3x"></i>
         <p>Đang tải...</p>

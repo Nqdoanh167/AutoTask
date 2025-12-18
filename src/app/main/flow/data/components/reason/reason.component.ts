@@ -42,7 +42,7 @@ export class ReasonComponent implements OnInit, OnDestroy {
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm mới',
-      icon: './assets/images/icon/plus.svg',
+      icon: './assets/icons/add.svg',
     },
   ];
   public dataSource: ICommonDataSource<IActReason, any> = {

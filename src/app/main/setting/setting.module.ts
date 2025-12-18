@@ -36,10 +36,12 @@ import {LetDirective} from '@share/directive/ng-let.directive';
 import {DivideComponent} from './divide/divide.component';
 import {ModalUpdateDivideComponent} from './divide/modal-update-divide/modal-update-divide.component';
 import {ModalModule} from 'ngx-bootstrap/modal';
+import {StatusLeadComponent} from './status-lead/status-lead.component';
 import {InputMaskModule} from '../../share/input/input-mask/input-mask.module';
 import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
 import { CustomInputRangeTime } from "../../share/custom/custom-time-picker.component.ts/custom-input-range-time.component";
 import { DropdownSearchModule } from "../../share/common/dropdown-search/dropdown-search.module";
+import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
 
 @NgModule({
   declarations: [
@@ -55,6 +57,7 @@ import { DropdownSearchModule } from "../../share/common/dropdown-search/dropdow
     AddEditPermissionComponent,
     DivideComponent,
     ModalUpdateDivideComponent,
+    StatusLeadComponent,
   ],
   imports: [
     CommonModule,
@@ -86,7 +89,8 @@ import { DropdownSearchModule } from "../../share/common/dropdown-search/dropdow
     InputMaskModule,
     FilterDataModule,
     CustomInputRangeTime,
-    DropdownSearchModule
+    DropdownSearchModule,
+    Hex2RgbPipe
 ],
 })
 export class SettingModule {}

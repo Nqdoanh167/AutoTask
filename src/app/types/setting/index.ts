@@ -202,7 +202,6 @@ export enum ETabPermissions {
 
 export enum ETabLeadSettings {
   STATUS = 'STATUS',
-  TAG = 'TAG',
 }
 
 export enum ETabUpdatePermissionsModal {
@@ -342,8 +341,8 @@ export interface UserAcl extends Omit<BaseInterface, 'id'> {
   userId: string;
   isActive: boolean;
   branches: UserAclBranch[];
-  stopReceiveTaskDuration?: string | number
-  nextReceiveTaskDate?: Date
+  stopReceiveTaskDuration?: string | number;
+  nextReceiveTaskDate?: Date;
 }
 
 export interface UpdateUserAclDto extends UserAcl {}

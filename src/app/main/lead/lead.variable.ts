@@ -1,3 +1,4 @@
+import {ELeadBulkAction, ELeadStatusType} from '@app/types/lead';
 import {
   ETypeButton,
   ETypeFilter,
@@ -124,7 +125,7 @@ export const LEAD_CONFIG_BUTTON: IFilterTopButton[] = [
     name: 'add_new',
     type: ETypeButton.PRIMARY,
     label: 'Thêm Leads',
-    icon: './assets/images/icon/plus.svg',
+    icon: './assets/icons/add.svg',
     tooltip: 'Thêm mới lead',
     tooltipPlacement: 'bottom',
   },
@@ -184,15 +185,6 @@ export const LEAD_COLUMNS_DEFAULT: IColumns[] = LEAD_COLUMNS.filter((col) =>
   ].includes(col.value),
 );
 
-// Multiple actions for leads
-export enum ELeadBulkAction {
-  MOVE_TO_FUNNEL = 'MOVE_TO_FUNNEL',
-  DELETE_MULTI = 'DELETE_MULTI',
-  UPDATE_STATUS = 'UPDATE_STATUS',
-  ADD_TAGS = 'ADD_TAGS',
-  REMOVE_TAGS = 'REMOVE_TAGS',
-}
-
 export const LEAD_MULTIPLE_ACTIONS = [
   {
     label: 'Di chuyển hàng loạt Lead',
@@ -216,10 +208,34 @@ export const LEAD_MULTIPLE_ACTIONS = [
   },
 ];
 
-export enum ETabDetail {
-  DISCUSS = 'discuss',
-  TASK = 'task',
-  ATTRIBUTE = 'attribute',
-  PRODUCT = 'product',
-  PACKAGE = 'package',
-}
+export const LEAD_STATUS_TYPE_LABELS: Record<ELeadStatusType, string> = {
+  [ELeadStatusType.NOT_CONTACTED]: 'Chưa liên hệ',
+  [ELeadStatusType.CONTACTED]: 'Đã liên hệ',
+  [ELeadStatusType.PENDING]: 'Chờ',
+  [ELeadStatusType.NEGOTIATING]: 'Thương lượng',
+  [ELeadStatusType.WON]: 'Thành công',
+  [ELeadStatusType.LOST]: 'Thất bại',
+};
+
+export const LEAD_STATUS_TYPE_OPTIONS = [
+  {
+    value: ELeadStatusType.NOT_CONTACTED,
+    label: 'Chưa liên hệ',
+  },
+  {
+    value: ELeadStatusType.CONTACTED,
+    label: 'Đã liên hệ',
+  },
+  {
+    value: ELeadStatusType.PENDING,
+    label: 'Chờ',
+  },
+  {
+    value: ELeadStatusType.NEGOTIATING,
+    label: 'Thương lượng',
+  },
+  {
+    value: ELeadStatusType.WON,
+    label: 'Thành công',
+  },
+];

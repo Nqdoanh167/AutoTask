@@ -9,8 +9,13 @@ import {
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {finalize, Subject, takeUntil} from 'rxjs';
-import {IFolderLead, IFunnelGroup, IFunnel} from '@app/types/lead';
-import {ILeadStatus, ILeadStatusGroup} from '@app/types/lead-status';
+import {
+  IFolderLead,
+  IFunnelGroup,
+  IFunnel,
+  ILeadStatusGroup,
+  ILeadStatus,
+} from '@app/types/lead';
 import {EntityPagination, EntityResult} from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {ToastrService} from 'ngx-toastr';

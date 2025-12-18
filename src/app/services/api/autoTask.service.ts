@@ -12,17 +12,16 @@ import {
 } from 'src/app/types/viewmodels';
 import {
   ILead,
-  ILeadQuery,
   ILeadCreateDto,
   ILeadUpdateDto,
-  ILeadStatus,
-  ILeadTag,
-  ILeadCommentQuery,
   ILeadComment,
   ILeadCommentCreateDto,
   IFolderLead,
   IFunnelGroup,
   IFunnel,
+  ILeadStatus,
+  ILeadTag,
+  ILeadStatusGroup,
 } from '@app/types/lead';
 import {
   BehaviorSubject,
@@ -78,7 +77,6 @@ import {
 import {omitBy} from 'lodash';
 import {ISubmitPayload} from '@app/main/dashboard/content-modal/multiple-action/modal-assign-team-v2/modal-assign-team-v2.component';
 import {IFeedback} from '@app/types/feedback';
-import {ILeadStatusGroup} from '@app/types/lead-status';
 
 interface IFilterCanSplitTask {
   roleId: string;
@@ -795,7 +793,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   lead = {
-    get: (params: ILeadQuery = {}) =>
+    get: (params: IQueryBase = {}) =>
       this.httpClient.get<EntityResult<ILead[]>>(
         this.createUrl([this.api.lead]),
         {
@@ -865,12 +863,33 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   leadStatusGroup = {
+    getWithDetail: (params: IQueryBase = {}) =>
+      this.httpClient.get<EntityResult<ILeadStatusGroup[]>>(
+        this.createUrl([this.api.lead, 'status-group', 'with-detail']),
+        {
+          params: this.createParams(params),
+        },
+      ),
     get: (params: IQueryBase = {}) =>
       this.httpClient.get<EntityResult<ILeadStatusGroup[]>>(
         this.createUrl([this.api.lead, 'status-group']),
         {
           params: this.createParams(params),
         },
+      ),
+    create: (body: {name: string; isDefault: boolean}) =>
+      this.httpClient.post<EntityResult<ILeadStatusGroup>>(
+        this.createUrl([this.api.lead, 'status-group']),
+        body,
+      ),
+    update: (id: string, body: {name: string; isDefault: boolean}) =>
+      this.httpClient.patch<EntityResult<ILeadStatusGroup>>(
+        this.createUrl([this.api.lead, 'status-group', id]),
+        body,
+      ),
+    delete: (id: string) =>
+      this.httpClient.delete<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'status-group', id]),
       ),
   };
 
@@ -963,7 +982,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   leadComment = {
-    get: (params: ILeadCommentQuery = {}) =>
+    get: (params: IQueryBase = {}) =>
       this.httpClient.get<EntityResult<ILeadComment[]>>(
         this.createUrl([this.api.lead, 'comments']),
         {

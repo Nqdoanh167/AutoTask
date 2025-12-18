@@ -3,16 +3,11 @@ import {CommonModule, DatePipe} from '@angular/common';
 import {LeadComponent} from './lead.component';
 import {LeadRoutingModule} from './lead-routing.module';
 import {LeadDashboardComponent} from './lead-dashboard/lead-dashboard.component';
-import {LeadSettingComponent} from './lead-setting/lead-setting.component';
-import {LeadStatusComponent} from './lead-setting/lead-status/lead-status.component';
-import {LeadTagComponent} from './lead-setting/lead-tag/lead-tag.component';
 import {LeadFormModalComponent} from './lead-dashboard/lead-form-modal/lead-form-modal.component';
 import {LeadBulkMoveModalComponent} from './lead-dashboard/lead-bulk-move-modal/lead-bulk-move-modal.component';
 import {LeadConnectionsModalComponent} from './lead-dashboard/lead-connections-modal/lead-connections-modal.component';
 import {LeadCommentsSidebarComponent} from './lead-dashboard/lead-comments-sidebar/lead-comments-sidebar.component';
 import {SortLeadStatusModalComponent} from './lead-dashboard/sort-lead-status-modal/sort-lead-status-modal.component';
-import {LeadTagFormModalComponent} from './lead-setting/lead-tag/lead-tag-form-modal/lead-tag-form-modal.component';
-import {LeadStatusFormModalComponent} from './lead-setting/lead-status/lead-status-form-modal/lead-status-form-modal.component';
 import {FolderFormModalComponent} from './lead-dashboard/folder-form-modal/folder-form-modal.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HeaderModule} from '@share/layout/header/header.module';
@@ -46,16 +41,11 @@ import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
   declarations: [
     LeadComponent,
     LeadDashboardComponent,
-    LeadSettingComponent,
-    LeadStatusComponent,
-    LeadTagComponent,
     LeadFormModalComponent,
     LeadBulkMoveModalComponent,
     LeadConnectionsModalComponent,
     LeadCommentsSidebarComponent,
     SortLeadStatusModalComponent,
-    LeadTagFormModalComponent,
-    LeadStatusFormModalComponent,
     FolderFormModalComponent,
   ],
   imports: [

@@ -1,0 +1,44 @@
+@use 'src/app/styles/variable' as vars;
+@use 'src/app/styles/mixins' as mixins;
+
+.table-responsive {
+  @include mixins.calculateSize('max-height', '100vh', '162px');
+}
+.badge-status-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.badge-status {
+  position: relative;
+}
+
+.badge-status-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.badge-action-btn {
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  width: 22px;
+  height: 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+  img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
+}

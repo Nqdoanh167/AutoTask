@@ -1,19 +1,19 @@
 import {inject} from '@angular/core';
 import {finalize, shareReplay, takeUntil, Observable} from 'rxjs';
 import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
-import {ILead, ILeadQuery, ILeadStatus, ILeadTag} from '@app/types/lead';
+import {ILead, ILeadTag, ILeadStatus} from '@app/types/lead';
 import {CommonService} from '@app/services/common/common.service';
 import {ICommonDataLazy, ITag, IQueryBase} from '@app/types/viewmodels';
 import {
   LEAD_CONFIG_FILTERS,
   LEAD_CONFIG_BUTTON,
-} from './lead-dashboard-variables';
+} from '../lead.variable';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {ISource} from '@app/types/setting';
 
 export class LeadDashboardData extends CheckboxSortTableComponent<
   ILead,
-  ILeadQuery
+  IQueryBase
 > {
   protected readonly commonService = inject(CommonService);
   protected readonly autoTaskService = inject(AutoTaskService);

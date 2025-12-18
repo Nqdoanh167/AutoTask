@@ -9,7 +9,12 @@ import {
   IDataColumns,
   ISidebar,
 } from '../types/viewmodels';
-import {EPerActFlow, EPerActSetting, EPerActTask, EPerActLead} from '@app/types/setting';
+import {
+  EPerActFlow,
+  EPerActSetting,
+  EPerActTask,
+  EPerActLead,
+} from '@app/types/setting';
 import {EOptionCloneTask} from '@app/types/flow';
 import {EStringeeErrorCode} from '@app/types/sms-ott-call';
 
@@ -214,7 +219,16 @@ export const listColumnsDashboardDefault: IColumns[] =
   );
 
 export const listColumnsLeadDefault: IColumns[] = listColumnsLead.filter((el) =>
-  ['name', 'phone', 'email', 'totalPrice', 'status', 'taskId', 'orderId', 'createdAt'].includes(el.value)
+  [
+    'name',
+    'phone',
+    'email',
+    'totalPrice',
+    'status',
+    'taskId',
+    'orderId',
+    'createdAt',
+  ].includes(el.value),
 );
 
 export const listSettingNavItems: ISidebar[] = [
@@ -228,7 +242,7 @@ export const listSettingNavItems: ISidebar[] = [
   {
     link: `/${EModule.SETTING}/${ESettingTab.TAG}`,
     alias: ESettingTab.TAG,
-    name: 'Tag',
+    name: 'Thẻ tag',
     isActive: true,
     permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
@@ -242,7 +256,7 @@ export const listSettingNavItems: ISidebar[] = [
   {
     link: `/${EModule.SETTING}/${ESettingTab.ROLE}`,
     alias: ESettingTab.ROLE,
-    name: 'Cấu hình',
+    name: 'Cấu hình tác vụ',
     isActive: true,
     permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
@@ -250,6 +264,13 @@ export const listSettingNavItems: ISidebar[] = [
     link: `/${EModule.SETTING}/${ESettingTab.DIVIDE}`,
     alias: ESettingTab.DIVIDE,
     name: 'Chia số',
+    isActive: true,
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
+  },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.STATUS_LEAD}`,
+    alias: ESettingTab.STATUS_LEAD,
+    name: 'Cấu hình trạng thái lead',
     isActive: true,
     permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
@@ -286,14 +307,20 @@ export const listLeadSettingNavItems: ISidebar[] = [
     alias: 'STATUS',
     name: 'Trạng thái',
     isActive: true,
-    permissions: [EPerActLead.VIEW_LEAD_STATUS_SETTING, EPerActLead.UPDATE_LEAD_STATUS_SETTING],
+    permissions: [
+      EPerActLead.VIEW_LEAD_STATUS_SETTING,
+      EPerActLead.UPDATE_LEAD_STATUS_SETTING,
+    ],
   },
   {
     link: `/${EModule.LEAD}/${ELeadTab.SETTING}?tab=TAG`,
     alias: 'TAG',
     name: 'Tags',
     isActive: true,
-    permissions: [EPerActLead.VIEW_LEAD_TAG_SETTING, EPerActLead.UPDATE_LEAD_TAG_SETTING],
+    permissions: [
+      EPerActLead.VIEW_LEAD_TAG_SETTING,
+      EPerActLead.UPDATE_LEAD_TAG_SETTING,
+    ],
   },
 ];
 

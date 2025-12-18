@@ -1,4 +1,10 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import {
   ETypeButton,
   ETypeFilter,
@@ -9,8 +15,8 @@ import {EntityPagination, ITag} from '@app/types/viewmodels';
 import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {removeCharacter} from '@app/utils/common';
-import {BsModalService} from 'ngx-bootstrap/modal';
-import {FormBuilder} from '@angular/forms';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
+import {FormBuilder, Validators} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
@@ -23,6 +29,9 @@ import {EPerActSetting, EPerActType} from '@app/types/setting';
   styleUrls: ['./tag.component.scss'],
 })
 export class TagComponent implements OnDestroy, OnInit {
+  @ViewChild('templateAddEditTag') templateAddEditTag!: TemplateRef<any>;
+  public addEditTagModalRef?: BsModalRef;
+
   public configFilters: IFilterTopTable[] = [
     {
       type: ETypeFilter.SEARCH,
@@ -39,7 +48,7 @@ export class TagComponent implements OnDestroy, OnInit {
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm',
-      icon: './assets/images/icon/plus.svg',
+      icon: './assets/icons/add.svg',
     },
   ];
   isAdd = {
@@ -53,8 +62,9 @@ export class TagComponent implements OnDestroy, OnInit {
   };
   public addEditForm = {
     tag: this.fb.group({
-      name: [null],
+      name: [null, Validators.required],
       bgColor: ['#000000'],
+      applyFor: ['TASK'],
     }) as ITag | any,
   };
   public tags: EntityPagination<ITag> = {
@@ -67,15 +77,18 @@ export class TagComponent implements OnDestroy, OnInit {
   };
   public loading = {
     data: false,
+    addEditTag: false,
   };
   public submitted = false;
+  public submittedModal = {
+    addEditTag: false,
+  };
   public permission = {
     add: false,
     edit: false,
     delete: false,
   };
 
-  private currentBiz = '';
   private destroy$ = new Subject();
   constructor(
     private readonly authService: AuthService,
@@ -85,11 +98,6 @@ export class TagComponent implements OnDestroy, OnInit {
     private readonly modalConfirmService: ModalConfirmService,
     private readonly modalService: BsModalService,
   ) {
-    this.authService.currentBiz
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((biz) => {
-        this.currentBiz = biz.alias || '';
-      });
     const permissions = this.authService.getUserPerByType(EPerActType.SETTING);
     if (permissions?.some((per) => per === EPerActSetting.UPDATE_TAG_SETTING)) {
       this.permission = {
@@ -175,32 +183,50 @@ export class TagComponent implements OnDestroy, OnInit {
   }
 
   onSubmit() {
-    this.submitted = true;
+    this.submittedModal.addEditTag = true;
     if (!this.addEditForm.tag.valid) {
       return;
     }
     this.handleAddEditTag();
   }
   handleAddEditTag(): void {
-    const {name, bgColor} = this.addEditForm.tag.value;
+    const {name, bgColor, applyFor} = this.addEditForm.tag.value;
     const body: ITag = {
       name: name!,
       bgColor: bgColor || '#000000',
+      applyFor: applyFor || 'TASK',
     };
+    this.loading.addEditTag = true;
     const serviceRef = this.isAdd.tag
       ? this.autoTaskService.tag.create(body)
       : this.autoTaskService.tag.update(this.dataSelected.tag.id, body);
-    serviceRef.pipe(take(1)).subscribe({
-      next: (res) => {
-        if (res.status === 200) {
-          this.commonService.handleResSuccess();
-          this.getListTag();
-        } else {
-          this.commonService.handleResErr(res);
-        }
-        this.cancelAddEdit();
-      },
+    serviceRef
+      .pipe(
+        take(1),
+        finalize(() => (this.loading.addEditTag = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess();
+            this.getListTag();
+            this.addEditTagModalRef?.hide();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+      });
+  }
+  handleAddEditTagModal() {
+    this.addEditTagModalRef = this.modalService.show(this.templateAddEditTag, {
+      class: 'modal-dialog-centered modal-add-edit-tag',
     });
+    this.addEditTagModalRef?.onHide
+      ?.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.submittedModal.addEditTag = false;
+        this.cancelAddEdit();
+      });
   }
   addEdit(item?: ITag, index?: number): void {
     this.cancelAddEdit();
@@ -211,12 +237,17 @@ export class TagComponent implements OnDestroy, OnInit {
       this.dataSelected.tag = item;
       this.addEditForm.tag.patchValue(item);
     }
+    this.handleAddEditTagModal();
   }
   cancelAddEdit() {
     this.isAdd.tag = false;
     this.indexEdit.tag = undefined;
     this.dataSelected.tag = undefined;
-    this.addEditForm.tag.reset();
+    this.addEditForm.tag.reset({
+      name: null,
+      bgColor: '#000000',
+      applyFor: 'TASK',
+    });
   }
 
   onSearch(value: {term: string; name: string}) {

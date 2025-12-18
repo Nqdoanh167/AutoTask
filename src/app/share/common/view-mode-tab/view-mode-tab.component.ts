@@ -913,9 +913,9 @@ export class ViewModeTabComponent
         const navLinkTabElement = document.getElementById(
           `view-mode-id-${tab.id}-link`,
         );
-        // if (navLinkTabElement) {
-        //   navLinkTabElement.style.borderTop = `3px solid ${tab.tabViewModeBorderColor}`;
-        // }
+        if (navLinkTabElement) {
+          navLinkTabElement.style.borderTop = `3px solid ${tab.tabViewModeBorderColor}`;
+        }
       }
     });
   }

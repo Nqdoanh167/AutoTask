@@ -422,6 +422,7 @@ export class ModalUpdateTaskComponent
     const body: ITag = {
       name: tag?.name,
       bgColor: '#000000',
+      applyFor: 'TASK',
     };
     this.autoTaskService.tag
       .create(body)

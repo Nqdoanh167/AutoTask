@@ -13,27 +13,16 @@
             <thead>
               <tr>
                 <th class="column-index">#</th>
-                <th class="column-source">Tag</th>
+                <th class="column-source">Thẻ tag</th>
                 @if (this.permission.edit || this.permission.delete) {
                   <th class="column-action text-center">Thao tác</th>
                 }
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td
-                  colspan="3"
-                  *ngIf="isAdd.tag"
-                  class="form-add-tag pb-2 pt-2"
-                >
-                  <ng-container
-                    *ngTemplateOutlet="formAddEditTag"
-                  ></ng-container>
-                </td>
-              </tr>
               <tr
                 class="text-center"
-                *ngIf="!tags.rows.length && !loading.data && !isAdd.tag"
+                *ngIf="!tags.rows.length && !loading.data"
               >
                 <td colspan="3">
                   <div>Không có dữ liệu</div>
@@ -49,51 +38,51 @@
               </tr>
 
               <tr *ngFor="let tag of tags.rows; index as i">
-                <ng-container *ngIf="indexEdit.tag !== i; else otherEdit">
-                  <td class="column-index">{{ i + 1 }}</td>
-                  <td>
-                    <div>
-                      <span
-                        class="text-capitalize me-2 tag-item"
-                        [ngClass]="{nonBack: !tag.bgColor}"
-                        [ngStyle]="{background: tag.bgColor}"
-                      >
-                        <span>{{ tag.name }}</span>
+                <td class="column-index">{{ i + 1 }}</td>
+                <td>
+                  <div>
+                    <span
+                      class="text-capitalize me-2 tag-item"
+                      [ngClass]="{nonBack: !tag.bgColor}"
+                      [ngStyle]="{background: tag.bgColor}"
+                    >
+                      <span>
+                        <ng-container *ngIf="tag.applyFor === 'TASK'">
+                          <i class="fa-solid fa-check me-1"></i>
+                        </ng-container>
+                        <ng-container *ngIf="tag.applyFor === 'LEAD'">
+                          <i class="fa-solid fa-filter me-1"></i>
+                          {{ addEditForm.tag.get('name')?.value || '' }}
+                        </ng-container>
+                        {{ tag.name }}
                       </span>
+                    </span>
+                  </div>
+                </td>
+                @if (this.permission.edit || this.permission.delete) {
+                  <td class="columns-action">
+                    <div class="d-flex justify-content-center">
+                      @if (this.permission.edit) {
+                        <button
+                          class="btn p-1 me-1"
+                          type="button"
+                          (click)="addEdit(tag, i)"
+                        >
+                          <img src="./assets/images/icon/edit.svg" alt="" />
+                        </button>
+                      }
+                      @if (this.permission.delete) {
+                        <button
+                          (click)="onDeleteItem(tag)"
+                          class="btn button-delete p-1"
+                          type="button"
+                        >
+                          <img src="./assets/images/icon/remove.svg" alt="" />
+                        </button>
+                      }
                     </div>
                   </td>
-                  @if (this.permission.edit || this.permission.delete) {
-                    <td class="columns-action">
-                      <div class="d-flex justify-content-center">
-                        @if (this.permission.edit) {
-                          <button
-                            class="btn p-1 me-1"
-                            type="button"
-                            (click)="addEdit(tag, i)"
-                          >
-                            <img src="./assets/images/icon/edit.svg" alt="" />
-                          </button>
-                        }
-                        @if (this.permission.delete) {
-                          <button
-                            (click)="onDeleteItem(tag)"
-                            class="btn button-delete p-1"
-                            type="button"
-                          >
-                            <img src="./assets/images/icon/remove.svg" alt="" />
-                          </button>
-                        }
-                      </div>
-                    </td>
-                  }
-                </ng-container>
-                <ng-template #otherEdit>
-                  <td colspan="3" class="form-add-tag pb-2 pt-2">
-                    <ng-container
-                      *ngTemplateOutlet="formAddEditTag"
-                    ></ng-container>
-                  </td>
-                </ng-template>
+                }
               </tr>
             </tbody>
           </table>
@@ -102,39 +91,142 @@
     </div>
   </div>
 </div>
-<ng-template #formAddEditTag>
-  <form [formGroup]="addEditForm.tag">
-    <div class="d-flex justify-content-between align-items-center gap-2">
-      <input
-        id="name"
-        formControlName="name"
-        class="input-name form-control"
-        type="text"
-        placeholder="Nhập tên"
-      />
-      <input
-        class="input-color"
-        id="bgColor"
-        type="color"
-        formControlName="bgColor"
-      />
-      <div>
+<ng-template #templateAddEditTag>
+  <div class="modal-default modal-add-edit-tag-action">
+    <div class="modal-header">
+      <h4 class="modal-title pull-left text-neutral">
+        {{ isAdd.tag ? 'Thêm tag' : 'Sửa tag' }}
+      </h4>
+      <button
+        type="button"
+        class="btn-close close pull-right"
+        aria-label="Close"
+        (click)="addEditTagModalRef?.hide()"
+      >
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="addEditForm.tag">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-control-label" for="name-tag">
+              Tên tag
+              <span class="required">*</span>
+            </label>
+            <input
+              id="name-tag"
+              formControlName="name"
+              class="form-control"
+              [ngClass]="{
+                'is-invalid':
+                  submittedModal.addEditTag &&
+                  addEditForm.tag.get('name')?.errors
+              }"
+              type="text"
+              placeholder="Nhập tên tag"
+            />
+            @if (
+              submittedModal.addEditTag && addEditForm.tag.get('name')?.errors
+            ) {
+              <div class="invalid-feedback">
+                @if (addEditForm.tag.get('name')?.errors?.['required']) {
+                  <div>Tên tag không được bỏ trống</div>
+                }
+              </div>
+            }
+          </div>
+          <div class="col-6">
+            <label class="form-control-label" for="bgColor-tag">Màu nền</label>
+            <input
+              class="form-control p-0"
+              id="bgColor-tag"
+              type="color"
+              formControlName="bgColor"
+              placeholder="Chọn màu nền"
+            />
+          </div>
+          <div class="col-12">
+            <div class="d-flex align-items-center gap-2">
+              <label class="form-control-label mb-0" for="apply-tag">
+                Áp dụng cho:
+              </label>
+              <div class="d-flex gap-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="applyFor"
+                    id="applyFor-task"
+                    formControlName="applyFor"
+                    value="TASK"
+                  />
+                  <label class="form-check-label" for="applyFor-task">
+                    Task
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="applyFor"
+                    id="applyFor-lead"
+                    formControlName="applyFor"
+                    value="LEAD"
+                  />
+                  <label class="form-check-label" for="applyFor-lead">
+                    Lead
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="d-flex align-items-center gap-2">
+              <label class="form-control-label m-0" for="name-tag">
+                Hiển thị
+              </label>
+              <span
+                class="tag-item"
+                [ngStyle]="{
+                  background: addEditForm.tag.get('bgColor')?.value || '#000000'
+                }"
+              >
+                <ng-container
+                  *ngIf="addEditForm.tag.get('applyFor')?.value === 'TASK'"
+                >
+                  <i class="fa-solid fa-check me-1"></i>
+                </ng-container>
+                <ng-container
+                  *ngIf="addEditForm.tag.get('applyFor')?.value === 'LEAD'"
+                >
+                  <i class="fa-solid fa-filter me-1"></i>
+                </ng-container>
+                {{ addEditForm.tag.get('name')?.value || '' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer d-flex justify-content-end">
+      <div class="d-flex">
         <button
-          class="btn btn-default ms-1 button-cancel"
-          type="button"
-          (click)="cancelAddEdit()"
-        >
-          Huỷ
-        </button>
-        <button
-          (click)="onSubmit()"
-          [disabled]="addEditForm.tag.invalid"
-          class="btn btn-primary ms-1 button-save"
+          (click)="addEditTagModalRef?.hide()"
+          class="btn button-default-modal mx-2"
           type="button"
         >
-          Lưu
+          Hủy
         </button>
+        <custom-button-loading
+          [isLoading]="loading.addEditTag"
+          (action)="onSubmit()"
+          [type]="'button'"
+          [textButton]="'Lưu'"
+          [className]="'button-fill button-submit-modal button-medium'"
+        ></custom-button-loading>
       </div>
     </div>
-  </form>
+  </div>
 </ng-template>

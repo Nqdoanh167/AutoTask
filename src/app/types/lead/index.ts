@@ -1,7 +1,5 @@
 import {Customer} from '../customer';
-import {ITag, AccountPublic} from '../viewmodels';
-import {ILeadStatus} from '../lead-status';
-import {ILeadTag, ILeadTag as ILeadTagType} from '../lead-tag';
+import {AccountPublic} from '../viewmodels';
 import {ITeam, IBranchTaskDto} from '../flow';
 import {
   ITask,
@@ -59,19 +57,6 @@ export interface ILead {
   teams?: ITeam[]; // Danh sách nhân sự phụ trách theo vai trò
   tasks?: ITask[]; // Danh sách các task
   branch?: IBranchTaskDto; // Chi nhánh / phòng ban / đội nhóm
-}
-
-// Re-export from dedicated type files for external consumers
-export type {ILeadStatus};
-export type {ILeadTagType as ILeadTag};
-
-export interface ILeadQuery {
-  page?: number;
-  limit?: number;
-  sort?: string;
-  q?: string;
-  filter?: string;
-  after?: string;
 }
 
 export interface ILeadCreateDto {
@@ -134,13 +119,6 @@ export interface ILeadCommentCreateDto {
   fileType?: string;
 }
 
-export interface ILeadCommentQuery {
-  page?: number;
-  limit?: number;
-  sort?: string;
-  filter?: string;
-}
-
 export interface IFolderLead {
   id?: string;
   bizId: string;
@@ -165,4 +143,72 @@ export interface IFunnel {
   statLeadCount: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ILeadStatus {
+  id: string;
+  name: string;
+  isActive: boolean;
+  type: ELeadStatusType;
+  description?: string;
+  bgColor?: string; // For UI display
+  createdAt: Date;
+  updatedAt: Date;
+  pos: number;
+  isDefault?: boolean;
+  groupId: string;
+}
+
+export interface ILeadStatusGroup {
+  id: string;
+  name: string;
+  isActive: boolean;
+  isDefault: boolean;
+  statuses: ILeadStatus[];
+}
+
+export interface ILeadTag {
+  id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  bgColor?: string;
+  color?: string;
+  icon?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export enum ELeadType {
+  LEAD = 'LEAD', // Lead mới
+  QUALIFIED = 'QUALIFIED', // Lead đã được qualify
+  OPPORTUNITY = 'OPPORTUNITY', // Cơ hội bán hàng
+  WON = 'WON', // Thắng deal
+  LOST = 'LOST', // Thua deal
+}
+
+export enum ELeadStatusType {
+  NOT_CONTACTED = 'NOT_CONTACTED', // - Chưa liên hệ
+  CONTACTED = 'CONTACTED', // Đã liên hệ
+  PENDING = 'PENDING', // Chờ
+  NEGOTIATING = 'NEGOTIATING', // Thương lượng
+  WON = 'WON', // Thành công
+  LOST = 'LOST', // Thất bại
+}
+
+// Multiple actions for leads
+export enum ELeadBulkAction {
+  MOVE_TO_FUNNEL = 'MOVE_TO_FUNNEL',
+  DELETE_MULTI = 'DELETE_MULTI',
+  UPDATE_STATUS = 'UPDATE_STATUS',
+  ADD_TAGS = 'ADD_TAGS',
+  REMOVE_TAGS = 'REMOVE_TAGS',
+}
+
+export enum ETabDetail {
+  DISCUSS = 'discuss',
+  TASK = 'task',
+  ATTRIBUTE = 'attribute',
+  PRODUCT = 'product',
+  PACKAGE = 'package',
 }
