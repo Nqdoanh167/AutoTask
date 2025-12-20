@@ -1,11 +1,5 @@
 <div class="custom-date-picker" [ngClass]="className">
   <ng-container *ngIf="typePicker === 'range'">
-    <img
-      (click)="dpr?.show()"
-      [attr.aria-expanded]="dpr.isOpen"
-      src="./assets/icons/calendar.svg"
-      class="icon"
-    />
     <input
       type="text"
       bsDaterangepicker
@@ -16,14 +10,15 @@
       [placeholder]="placeholder"
       [style]="style"
     />
-  </ng-container>
-  <ng-container *ngIf="typePicker === 'single'">
     <img
       (click)="dpr.show()"
       [attr.aria-expanded]="dpr.isOpen"
-      src="./assets/icons/calendar.svg"
+      src="./assets/images/icon/date.svg"
+      alt="icon"
       class="icon"
     />
+  </ng-container>
+  <ng-container *ngIf="typePicker === 'single'">
     <input
       type="text"
       bsDatepicker
@@ -33,6 +28,13 @@
       (bsValueChange)="handleChangeDate($event)"
       [placeholder]="placeholder"
       [style]="style"
+    />
+    <img
+      (click)="dpr.show()"
+      [attr.aria-expanded]="dpr.isOpen"
+      src="./assets/images/icon/date.svg"
+      alt="icon"
+      class="icon"
     />
   </ng-container>
 </div>

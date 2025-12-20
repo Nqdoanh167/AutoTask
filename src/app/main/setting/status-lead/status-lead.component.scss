@@ -16,6 +16,13 @@
   position: relative;
 }
 
+.status-arrow {
+  color: #6c757d;
+  font-size: 16px;
+  font-weight: 500;
+  user-select: none;
+}
+
 .badge-status-actions {
   display: flex;
   gap: 4px;
@@ -41,4 +48,12 @@
     height: 14px;
     object-fit: contain;
   }
+}
+
+::ng-deep
+  ng-select.ng-select-multiple
+  .ng-select-container
+  .ng-value-container
+  .ng-value {
+  background-color: unset !important;
 }

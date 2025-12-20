@@ -1,152 +1,261 @@
 <div class="setting-status-lead">
   <div class="card">
     <div class="card-body">
-      <div class="list-data">
-        <app-filter-top-table
-          [configFilters]="configFilters"
-          [configButtons]="configButtons"
-          (clickButtonEvent)="handleAction($event)"
-          (searchEvent)="onSearch($event)"
-        ></app-filter-top-table>
-        <div class="table-responsive tableFixHead custom-scrollbar mt-3">
-          <table class="table">
-            <thead>
-              <tr>
-                <th class="column-index">#</th>
-                <th class="column-name">Nhóm trạng thái</th>
-                <th class="column-statuses">Trạng thái</th>
-                @if (this.permission.edit || this.permission.delete) {
-                  <th class="column-action text-center">Thao tác</th>
-                }
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                class="text-center"
-                *ngIf="!statusGroups.length && !loading.data"
-              >
-                <td colspan="4">
-                  <div>Không có dữ liệu</div>
-                </td>
-              </tr>
-              <tr class="text-center" *ngIf="loading.data">
-                <td colspan="4">
-                  <div class="spinner-grow text-primary" role="status">
-                    <span class="visually-hidden">Loading</span>
-                  </div>
-                  <div>Loading</div>
-                </td>
-              </tr>
+      <tabset class="custom-tab-basic">
+        <tab
+          *ngFor="let tab of tabs"
+          [active]="tab.key === activeTab"
+          (selectTab)="selectTab(tab.key)"
+        >
+          <ng-template tabHeading>
+            <div class="title-tab">
+              <span>{{ tab.name }}</span>
+            </div>
+          </ng-template>
+        </tab>
+      </tabset>
+      <div class="content-site mt-3">
+        <ng-container [ngSwitch]="activeTab">
+          <!-- Tab Trạng thái -->
+          <ng-container *ngSwitchCase="EStatusLeadTab.STATUS">
+            <div class="list-data">
+              <app-filter-top-table
+                [configButtons]="configButtons"
+                (clickButtonEvent)="handleAction($event)"
+              ></app-filter-top-table>
+              <div class="table-responsive tableFixHead custom-scrollbar mt-3">
+                <table class="table ui-v2">
+                  <thead>
+                    <tr>
+                      <th class="column-index">#</th>
+                      <th class="column-name">Trạng thái</th>
+                      <th class="column-name">Loại trạng thái</th>
+                      @if (this.permission.edit || this.permission.delete) {
+                        <th class="column-action text-center">
+                          <div class="d-flex justify-content-end">Thao tác</div>
+                        </th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      class="text-center"
+                      *ngIf="!statuses.length && !loading.data"
+                    >
+                      <td
+                        [attr.colspan]="
+                          permission.edit || permission.delete ? 6 : 5
+                        "
+                      >
+                        <div>Không có dữ liệu</div>
+                      </td>
+                    </tr>
+                    <tr class="text-center" *ngIf="loading.data">
+                      <td
+                        [attr.colspan]="
+                          permission.edit || permission.delete ? 6 : 5
+                        "
+                      >
+                        <div class="spinner-grow text-primary" role="status">
+                          <span class="visually-hidden">Loading</span>
+                        </div>
+                        <div>Loading</div>
+                      </td>
+                    </tr>
 
-              <ng-container
-                *ngFor="let group of statusGroups; index as groupIndex"
-              >
-                <tr>
-                  <td class="column-index">{{ groupIndex + 1 }}</td>
-                  <td class="column-name">
-                    <strong>{{ group.name }}</strong>
-                    @if (group.isDefault) {
-                      <span class="badge bg-primary ms-2">Mặc định</span>
-                    }
-                  </td>
-                  <td>
-                    <div class="d-inline-flex flex-column gap-3">
-                      @if (group.statuses && group.statuses.length > 0) {
-                        @for (
-                          status of group.statuses;
-                          track status.id;
-                          let statusIndex = $index
-                        ) {
-                          <div class="badge-status-wrapper">
-                            <span
-                              class="badge-status"
-                              [ngStyle]="{
-                                'background-color': status.bgColor | hex2rgb,
-                                color: status.bgColor
-                              }"
+                    <ng-container
+                      *ngFor="let status of statuses; index as statusIndex"
+                    >
+                      <tr>
+                        <td class="column-index">{{ statusIndex + 1 }}</td>
+                        <td>
+                          <span
+                            class="badge-status"
+                            [ngStyle]="{
+                              'background-color': status.bgColor | hex2rgb,
+                              color: status.bgColor
+                            }"
+                          >
+                            {{ status.name }}
+                          </span>
+                        </td>
+                        <td class="column-name">
+                          {{ getStatusTypeLabel(status.type) }}
+                        </td>
+                        @if (this.permission.edit || this.permission.delete) {
+                          <td class="columns-action">
+                            <div
+                              class="d-flex justify-content-center align-items-center gap-2"
                             >
-                              {{ status.name }}
-                            </span>
-                            @if (
-                              this.permission.edit || this.permission.delete
-                            ) {
-                              <div class="badge-status-actions">
-                                @if (this.permission.edit) {
-                                  <button
-                                    class="btn btn-sm badge-action-btn badge-edit-btn"
-                                    type="button"
-                                    (click)="addEditStatus(status, group)"
-                                    title="Sửa trạng thái"
+                              @if (this.permission.edit) {
+                                <button
+                                  class="btn p-1 me-1"
+                                  type="button"
+                                  (click)="addEditStatus(status)"
+                                  title="Sửa trạng thái"
+                                >
+                                  <img
+                                    src="./assets/images/icon/edit.svg"
+                                    alt=""
+                                  />
+                                </button>
+                              }
+                              @if (this.permission.delete) {
+                                <button
+                                  (click)="onDeleteStatusItem(status)"
+                                  class="btn button-delete p-1"
+                                  type="button"
+                                  title="Xóa trạng thái"
+                                >
+                                  <img
+                                    src="./assets/images/icon/remove.svg"
+                                    alt=""
+                                  />
+                                </button>
+                              }
+                            </div>
+                          </td>
+                        }
+                      </tr>
+                    </ng-container>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Tab Nhóm trạng thái -->
+          <ng-container *ngSwitchCase="EStatusLeadTab.STATUS_GROUP">
+            <div class="list-data">
+              <app-filter-top-table
+                [configButtons]="configButtons"
+                (clickButtonEvent)="handleAction($event)"
+              ></app-filter-top-table>
+              <div class="table-responsive tableFixHead custom-scrollbar mt-3">
+                <table class="table ui-v2">
+                  <thead>
+                    <tr>
+                      <th class="column-index">#</th>
+                      <th class="column-name">Nhóm trạng thái</th>
+                      <th class="column-statuses">Trạng thái</th>
+                      @if (this.permission.edit || this.permission.delete) {
+                        <th class="column-action text-center">Thao tác</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      class="text-center"
+                      *ngIf="!statusGroups.length && !loading.data"
+                    >
+                      <td
+                        [attr.colspan]="
+                          permission.edit || permission.delete ? 4 : 3
+                        "
+                      >
+                        <div>Không có dữ liệu</div>
+                      </td>
+                    </tr>
+                    <tr class="text-center" *ngIf="loading.data">
+                      <td
+                        [attr.colspan]="
+                          permission.edit || permission.delete ? 4 : 3
+                        "
+                      >
+                        <div class="spinner-grow text-primary" role="status">
+                          <span class="visually-hidden">Loading</span>
+                        </div>
+                        <div>Loading</div>
+                      </td>
+                    </tr>
+
+                    <ng-container
+                      *ngFor="let group of statusGroups; index as groupIndex"
+                    >
+                      <tr>
+                        <td class="column-index">{{ groupIndex + 1 }}</td>
+                        <td class="column-name">
+                          <strong>{{ group.name }}</strong>
+                          @if (group.isDefault) {
+                            <span class="badge bg-primary ms-2">Mặc định</span>
+                          }
+                        </td>
+                        <td>
+                          <div
+                            class="d-flex align-items-center flex-wrap gap-2"
+                          >
+                            @if (group.statuses && group.statuses.length > 0) {
+                              @for (
+                                status of group.statuses;
+                                track status.id;
+                                let statusIndex = $index;
+                                let isLast = $last
+                              ) {
+                                <div class="d-flex align-items-center">
+                                  <span
+                                    class="badge-status"
+                                    [ngStyle]="{
+                                      'background-color':
+                                        status.bgColor | hex2rgb,
+                                      color: status.bgColor
+                                    }"
                                   >
-                                    <img
-                                      src="./assets/images/icon/edit.svg"
-                                      alt="Edit"
-                                    />
-                                  </button>
-                                }
-                                @if (this.permission.delete) {
-                                  <button
-                                    class="btn btn-sm badge-action-btn badge-delete-btn"
-                                    type="button"
-                                    (click)="onDeleteStatusItem(status)"
-                                    title="Xóa trạng thái"
-                                  >
-                                    <img
-                                      src="./assets/images/icon/remove.svg"
-                                      alt="Delete"
-                                    />
-                                  </button>
-                                }
-                              </div>
+                                    {{ status.name }}
+                                  </span>
+                                  @if (!isLast) {
+                                    <span class="status-arrow ms-2 me-2">
+                                      >
+                                    </span>
+                                  }
+                                </div>
+                              }
+                            } @else {
+                              <span class="text-muted">Chưa có trạng thái</span>
                             }
                           </div>
+                        </td>
+                        @if (this.permission.edit || this.permission.delete) {
+                          <td class="columns-action">
+                            <div
+                              class="d-flex justify-content-center align-items-center gap-2"
+                            >
+                              @if (this.permission.edit) {
+                                <button
+                                  class="btn p-1 me-1"
+                                  type="button"
+                                  (click)="addEditGroup(group)"
+                                  title="Sửa nhóm"
+                                >
+                                  <img
+                                    src="./assets/images/icon/edit.svg"
+                                    alt=""
+                                  />
+                                </button>
+                              }
+                              @if (this.permission.delete && !group.isDefault) {
+                                <button
+                                  (click)="onDeleteGroupItem(group)"
+                                  class="btn button-delete p-1"
+                                  type="button"
+                                  title="Xóa nhóm"
+                                >
+                                  <img
+                                    src="./assets/images/icon/remove.svg"
+                                    alt=""
+                                  />
+                                </button>
+                              }
+                            </div>
+                          </td>
                         }
-                      } @else {
-                        <span class="text-muted">Chưa có trạng thái</span>
-                      }
-                    </div>
-                  </td>
-                  @if (this.permission.edit || this.permission.delete) {
-                    <td class="columns-action">
-                      <div
-                        class="d-flex justify-content-center align-items-center gap-2"
-                      >
-                        @if (this.permission.edit) {
-                          <button
-                            class="btn p-1 me-1 btn-sm"
-                            type="button"
-                            (click)="addEditStatus(undefined, group)"
-                            title="Thêm trạng thái"
-                          >
-                            <i class="fa-solid fa-plus"></i>
-                          </button>
-                          <button
-                            class="btn p-1 me-1"
-                            type="button"
-                            (click)="addEditGroup(group)"
-                            title="Sửa nhóm"
-                          >
-                            <img src="./assets/images/icon/edit.svg" alt="" />
-                          </button>
-                        }
-                        @if (this.permission.delete && !group.isDefault) {
-                          <button
-                            (click)="onDeleteGroupItem(group)"
-                            class="btn button-delete p-1"
-                            type="button"
-                            title="Xóa nhóm"
-                          >
-                            <img src="./assets/images/icon/remove.svg" alt="" />
-                          </button>
-                        }
-                      </div>
-                    </td>
-                  }
-                </tr>
-              </ng-container>
-            </tbody>
-          </table>
-        </div>
+                      </tr>
+                    </ng-container>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
       </div>
     </div>
   </div>
@@ -199,6 +308,47 @@
             }
           </div>
 
+          <div class="col-12">
+            <label class="form-control-label" for="statusIds-group">
+              Chọn trạng thái
+            </label>
+            <ng-select
+              id="statusIds-group"
+              formControlName="leadStatusIds"
+              [items]="statusOptions"
+              bindValue="value"
+              bindLabel="label"
+              placeholder="Chọn trạng thái"
+              [multiple]="true"
+              [closeOnSelect]="false"
+              [clearable]="true"
+              appendTo=".modal"
+            >
+              <ng-template ng-option-tmp let-item="item">
+                <span
+                  class="badge-status"
+                  [ngStyle]="{
+                    'background-color': item.bgColor | hex2rgb,
+                    color: item.bgColor
+                  }"
+                >
+                  {{ item.label }}
+                </span>
+              </ng-template>
+              <ng-template ng-label-tmp let-item="item">
+                <span
+                  class="badge-status"
+                  [ngStyle]="{
+                    'background-color': item?.bgColor | hex2rgb,
+                    color: item?.bgColor || '#000000'
+                  }"
+                >
+                  {{ item?.label || item?.name }}
+                </span>
+              </ng-template>
+            </ng-select>
+          </div>
+
           <!-- <div class="col-12">
             <div class="form-check form-switch">
               <input
@@ -234,7 +384,7 @@
           [isLoading]="loading.addEditGroup"
           (action)="onSubmitGroup()"
           [type]="'button'"
-          [textButton]="'Lưu'"
+          [textButton]="'Xác nhận'"
           [className]="'button-fill button-submit-modal button-medium'"
         ></custom-button-loading>
       </div>
@@ -261,18 +411,6 @@
     <div class="modal-body">
       <form [formGroup]="addEditForm.status">
         <div class="row g-3">
-          <div class="col-12">
-            <label class="form-control-label" for="group-name-status">
-              Nhóm trạng thái
-            </label>
-            <input
-              id="group-name-status"
-              class="form-control"
-              type="text"
-              [value]="dataSelected.group?.name || ''"
-              disabled
-            />
-          </div>
           <div class="col-6">
             <label class="form-control-label" for="name-status">
               Tên trạng thái
@@ -375,7 +513,7 @@
           [isLoading]="loading.addEditStatus"
           (action)="onSubmitStatus()"
           [type]="'button'"
-          [textButton]="'Lưu'"
+          [textButton]="'Xác nhận'"
           [className]="'button-fill button-submit-modal button-medium'"
         ></custom-button-loading>
       </div>

@@ -13,14 +13,14 @@
 
 .custom-change-page {
   button {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     background: #e7e9ef;
     border-radius: 50%;
 
     &:hover {
       color: vars.$white;
-      background-color: vars.$neutral-500;
+      background-color: vars.$neutral;
     }
   }
   .disabled {
@@ -32,19 +32,19 @@
 
   .page-link {
     line-height: 18px;
-    border-radius: 4px;
-    height: 32px;
-    min-width: 32px;
+    border-radius: 20px;
+    height: 40px;
+    min-width: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
-    color: #17234e;
+    color: vars.$neutral;
     padding: 6px 12px;
     cursor: pointer;
-    background-color: #ffffff80;
+    background-color: #eef0f3;
     &.active {
-      background-color: #17234e;
+      background-color: vars.$neutral;
       color: #fff;
     }
   }

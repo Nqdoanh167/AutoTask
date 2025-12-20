@@ -1,4 +1,12 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import {debounceTime, Subject} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
 import {CommonModule} from '@angular/common';
@@ -7,15 +15,16 @@ import {FormsModule} from '@angular/forms';
 @Component({
   selector: 'custom-input-search',
   template: `
-   <div 
-      class="custom-input-search d-flex align-items-center {{ className }}" 
-      [ngClass]="{'collapsed': isCollapsible && isCollapsed}"
-      (click)="onContainerClick()">
+    <div
+      class="custom-input-search d-flex align-items-center {{ className }}"
+      [ngClass]="{collapsed: isCollapsible && isCollapsed}"
+      (click)="onContainerClick()"
+    >
       <i class="fa-solid fa-magnifying-glass"></i>
       <input
         #searchInput
         type="text"
-        class="form-control"
+        class="form-control {{ className }}"
         id="search-text"
         [(ngModel)]="searchText"
         [placeholder]="placeholder"
@@ -67,7 +76,7 @@ export class CustomInputSearchComponent implements OnInit {
       }, 200);
     }
   }
-  
+
   onContainerClick() {
     if (this.isCollapsible && this.isCollapsed) {
       this.isCollapsed = false;

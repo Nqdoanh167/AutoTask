@@ -156,7 +156,6 @@ export interface ILeadStatus {
   updatedAt: Date;
   pos: number;
   isDefault?: boolean;
-  groupId: string;
 }
 
 export interface ILeadStatusGroup {
@@ -164,7 +163,7 @@ export interface ILeadStatusGroup {
   name: string;
   isActive: boolean;
   isDefault: boolean;
-  statuses: ILeadStatus[];
+  leadStatusIds: string[];
 }
 
 export interface ILeadTag {

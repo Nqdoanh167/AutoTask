@@ -74,7 +74,7 @@
     border-spacing: 0;
 
     th {
-      border-bottom: 1px solid $secondary-300;
+      border-bottom: 1px solid var(--bs-gray-200);
     }
   }
 }
@@ -107,24 +107,14 @@
   }
 
   th {
-    color: $neutral;
-    font-weight: 500;
-    font-size: 14px;
+    color: var(--bs-gray-500);
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 15px;
     vertical-align: middle;
-    background-color: $table-bg;
-    border-color: $table-border;
-    border-radius: $table-border-radius;
-    border-bottom: $table-border;
-    padding: 8px;
-    &.last-column {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-      .button-icon-wrapper {
-        padding: 0;
-      }
-    }
+    background-color: $neutral-50 !important;
   }
 
   td {
@@ -163,8 +153,6 @@
     }
   }
 }
-
-// end table
 
 // end table
 dl,
@@ -256,21 +244,10 @@ app-main {
 .form-control,
 .form-select {
   @extend .input-medium;
-  // background-color: $gray-400;
-  padding: $input-padding;
+  background-color: $gray-400;
   display: flex;
   align-items: center;
   gap: 16px;
-  border-radius: $input-border-radius;
-  background-color: $input-bg;
-  border: none;
-  color: $neutral;
-  font-size: 14px;
-  font-weight: 500;
-
-  &::placeholder {
-    color: $input-placeholder-color;
-  }
 
   .form-control-icon {
     padding: 4px;
@@ -279,6 +256,7 @@ app-main {
     display: flex;
     align-items: center;
     justify-content: center;
+
     img {
       width: 16px;
       height: 16px;
@@ -287,12 +265,12 @@ app-main {
 
   &:focus {
     box-shadow: unset;
-    background-color: $input-bg;
-    border-color: $input-border-color;
+    background-color: #e7e9ef;
+    border-color: #e7e9ef;
   }
 
   &-label {
-    color: $neutral;
+    color: $neutral-400;
     font-weight: 600;
     font-size: 12px;
     line-height: 14px;
@@ -301,15 +279,11 @@ app-main {
 
   &.has-error {
     border-color: #dc3545 !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e") !important;
+    background-image: url('data:image/svg+xml,...') !important;
     padding-right: calc(1.5em + 0.75rem) !important;
     background-repeat: no-repeat !important;
     background-position: right calc(0.375em + 0.1875rem) center !important;
     background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
-    // &::placeholder {
-    //   /* Edge */
-    //   color: #dc3545;
-    // }
   }
 }
 
@@ -324,70 +298,26 @@ app-main {
   .ng-option-label,
 .ng-dropdown-panel
   .ng-dropdown-panel-items
-  .ng-option.ng-option-selected.ng-option-marked {
-  color: $neutral;
-  background: $input-bg;
+  .ng-option.ng-option-selected.ng-option-marked
   .ng-option-label {
-    font-weight: 500;
-  }
-}
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
-  color: $neutral;
-}
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
-  color: $neutral;
-  background: $input-bg;
+  font-weight: 500;
 }
 
 .ng-select .ng-select-container .ng-value-container .ng-placeholder {
   color: $input-placeholder-color;
-  font-weight: 400;
-}
-
-.ng-select.ng-select-multiple
-  .ng-select-container
-  .ng-value-container
-  .ng-value {
-  color: $neutral;
-  .ng-value-icon.left {
-    background-color: $neutral;
-    &:hover {
-      background-color: $neutral;
-      opacity: 0.8;
-    }
-  }
-}
-
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected,
-.ng-dropdown-panel
-  .ng-dropdown-panel-items
-  .ng-option.ng-option-selected.ng-option-marked {
-  color: $neutral !important;
-}
-
-.ng-select.ng-select-single .ng-select-container .ng-value-container,
-.ng-select.ng-select-single .ng-select-container .ng-value-container .ng-value {
-  color: $neutral !important;
-  font-weight: 500 !important;
 }
 
 .ng-select-custom,
 .ng-select-custom.ng-select-single {
-  border-radius: $input-border-radius;
+  border-radius: 6px;
 
   .ng-select-container {
-    display: flex;
-    align-items: center;
-    // gap: 16px;
-    padding: $input-padding;
-    height: 35px;
-    border: none;
-    background-color: $input-bg;
-    color: $neutral;
-    border-radius: $input-border-radius;
-    box-shadow: none;
-    font-size: 14px;
-    font-weight: 500;
+    min-height: 35px;
+    // height: 34px;
+    border: 1px solid $border-input;
+    background-color: $gray-400;
+    color: var(--bs-body-color);
+    border-radius: 6px;
   }
 
   &.h-lg {
@@ -492,9 +422,9 @@ app-main {
 
     .page-link {
       line-height: 18px;
-      border-radius: 4px;
-      height: 32px;
-      min-width: 32px;
+      border-radius: 20px;
+      height: 40px;
+      min-width: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -804,7 +734,7 @@ bs-daterangepicker-container {
     text-align: left;
     min-height: 35px;
     padding: 8px 15px;
-    color: $neutral;
+    // color: $neutral;
     cursor: pointer;
 
     &:active,
@@ -1060,5 +990,155 @@ a {
       width: 16px;
       height: 16px;
     }
+  }
+}
+
+//ui v2
+.form-control.ui-v2,
+.form-select.ui-v2 {
+  padding: $input-padding;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: $input-border-radius;
+  background-color: $input-bg-v2;
+  border: none;
+  color: $neutral;
+  font-size: 14px;
+
+  &::placeholder {
+    color: $input-placeholder-color-v2;
+  }
+
+  .form-control-icon {
+    padding: 4px;
+    background-color: #eef8ff;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &:focus {
+    box-shadow: unset;
+    background-color: $input-bg-v2;
+    border-color: $input-border-color;
+  }
+
+  &-label {
+    color: $neutral;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 14px;
+    margin-bottom: 8px;
+  }
+
+  &.has-error {
+    border-color: #dc3545 !important;
+    background-image: url('data:image/svg+xml,...') !important;
+    padding-right: calc(1.5em + 0.75rem) !important;
+    background-repeat: no-repeat !important;
+    background-position: right calc(0.375em + 0.1875rem) center !important;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+  }
+}
+
+.ng-select.ui-v2 .ng-select-container .ng-value-container .ng-placeholder {
+  color: $input-placeholder-color-v2;
+  font-weight: 400;
+}
+
+.ng-select-custom.ui-v2,
+.ng-select-custom.ng-select-single.ui-v2 {
+  border-radius: $input-border-radius;
+
+  .ng-select-container {
+    display: flex;
+    align-items: center;
+    padding: $input-padding;
+    height: 35px;
+    border: none;
+    background-color: $input-bg-v2;
+    color: $neutral;
+    border-radius: $input-border-radius;
+    box-shadow: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+input.ui-v2[type]:not(
+    [type='checkbox'],
+    [type='color'],
+    [type='radio'],
+    [type='file']
+  ),
+textarea.ui-v2 {
+  width: 100%;
+  color: $neutral;
+  border: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: $input-padding;
+  background: $input-bg-v2;
+  border-radius: $input-border-radius;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:focus {
+    box-shadow: none;
+    background-color: $input-bg-v2;
+    border-color: $input-border-color;
+  }
+
+  &:disabled {
+    background-color: $input-bg-v2;
+    border-color: $input-border-color;
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: $input-placeholder-color-v2;
+    font-weight: 400;
+  }
+}
+
+.table.ui-v2 {
+  th,
+  td {
+    border-bottom: 1px solid $secondary-300;
+  }
+
+  th {
+    color: $neutral;
+    font-weight: 500;
+    font-size: 14px;
+    vertical-align: middle;
+    background-color: $table-bg-v2 !important;
+    border-color: $table-border;
+    border-bottom: $table-border;
+    padding: 8px;
+    border-radius: $table-border-radius;
+    line-height: 20px;
+
+    &.last-column {
+      .button-icon-wrapper {
+        padding: 0;
+      }
+    }
+  }
+
+  td {
+    line-height: 18px;
+    vertical-align: middle;
+    padding: 0.5rem;
   }
 }

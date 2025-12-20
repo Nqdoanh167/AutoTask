@@ -45,7 +45,7 @@ export class LeadDashboardComponent
   @ViewChild('kanbanBoard', {read: ElementRef})
   kanbanBoard?: ElementRef<HTMLElement>;
 
-  public viewMode: 'kanban' | 'list' = 'list';
+  public viewMode: 'kanban' | 'list' = 'kanban';
   public leadsByStatus: Map<string, ILead[]> = new Map();
   public statusMap: Map<string, ILeadStatus> = new Map();
   public tagMap: Map<string, ILeadTag> = new Map();

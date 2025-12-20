@@ -50,7 +50,6 @@ $light: $gray-100;
 $dark: $gray-900;
 $white: #fff;
 $black: #000;
-$input-bg: #f7fcff;
 
 $theme-colors: (
   'neutral': $neutral,
@@ -63,7 +62,6 @@ $theme-colors: (
   'light': $light,
   'dark': $dark,
   'orange': $orange,
-  'input-bg': $input-bg,
 );
 $colors: (
   'blue': $blue,
@@ -109,15 +107,18 @@ $text-color: #0f172a;
 $border-input: $gray-400;
 $input-focus-border-color: #ccc;
 $input-focus-bg: #fff;
-$input-placeholder-color: $neutral;
-$input-border-radius: 4px;
+$input-bg: $gray-400;
 $input-padding: 8px 16px;
+$input-bg-v2: #f7fcff;
+$input-placeholder-color-v2: $neutral;
+$input-border-radius: 4px;
 // card
 $card-border-width: 0px;
 $card-border-radius: 8px;
 
 // Table
 $table-bg: $white;
+$table-bg-v2: $input-bg-v2;
 $table-border-radius: 0 0 4px 4px;
 $table-border: '1.5px solid #60A5FA';
 $table-padding: 24px 16px;

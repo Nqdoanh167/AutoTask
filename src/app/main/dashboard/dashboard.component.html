@@ -47,104 +47,82 @@
     ></app-input-checkbox>
   </div>
 
-  <div class="right">
-    <ul class="nav flex-nowrap align-items-center">
-      <div class="d-flex align-items-center">
-        <ul
-          class="d-flex align-items-center flex-wrap gap-2"
-          style="list-style: none"
-        >
-          <li>
-            <custom-input-search
-              [className]="'input-medium'"
-              (searchEvent)="onSearch({term: $event, name: 'search'})"
-              [placeholder]="'Tìm kiếm...'"
-              [isCollapsible]="false"
-            ></custom-input-search>
-          </li>
+  <div class="right d-flex flex-wrap gap-2">
+    <app-filter-advance
+      (filterAdvanceEvent)="handleFilterAdvance($event)"
+    ></app-filter-advance>
+    <div
+      class="button-icon-wrapper"
+      (click)="handleAction('reload')"
+      [tooltip]="'Tải lại'"
+    >
+      <button class="button-icon bg-neutral">
+        <img src="./assets/icons/reset.svg" alt="" />
+      </button>
+    </div>
+    <custom-input-search
+      [className]="'input-medium ui-v2'"
+      (searchEvent)="onSearch({term: $event, name: 'search'})"
+      [placeholder]="'Tìm kiếm...'"
+      [isCollapsible]="false"
+    ></custom-input-search>
 
-          <li>
+    <div>
+      <button
+        class="form-control input-medium ui-v2"
+        [popover]="popSort"
+        containerClass="custom-popover-dropdown"
+        [outsideClick]="true"
+      >
+        <div class="form-control-icon">
+          <img src="./assets/icons/sortAsc.svg" alt="" />
+        </div>
+        <span>{{ getSortLabel() }}</span>
+      </button>
+
+      <ng-template #popSort>
+        <div class="popover-tab">
+          @for (option of sortOptions; track $index) {
             <div
-              class="button-icon-wrapper"
-              (click)="handleAction('reload')"
-              [tooltip]="'Tải lại'"
+              class="row align-items-center"
+              (click)="onPopoverFilter({value: option['value'], name: 'sort'})"
             >
-              <button class="button-icon bg-neutral">
-                <img src="./assets/icons/reset.svg" alt="" />
-              </button>
+              <div
+                class="col-12 tab-item"
+                [class.active]="item.paramsQuery.sort === option['value']"
+              >
+                {{ option['label'] }}
+              </div>
             </div>
-          </li>
-
-          <li>
-            <app-filter-advance
-              (filterAdvanceEvent)="handleFilterAdvance($event)"
-            ></app-filter-advance>
-          </li>
-
-          <li>
-            <button
-              class="form-control input-medium"
-              [popover]="popSort"
-              containerClass="custom-popover-dropdown"
-              [outsideClick]="true"
-            >
-              <div class="form-control-icon">
-                <img src="./assets/icons/sortAsc.svg" alt="" />
-              </div>
-              <span>{{ getSortLabel() }}</span>
-            </button>
-
-            <ng-template #popSort>
-              <div class="popover-tab">
-                @for (option of sortOptions; track $index) {
-                  <div
-                    class="row align-items-center"
-                    (click)="
-                      onPopoverFilter({value: option['value'], name: 'sort'})
-                    "
-                  >
-                    <div
-                      class="col-12 tab-item"
-                      [class.active]="item.paramsQuery.sort === option['value']"
-                    >
-                      {{ option['label'] }}
-                    </div>
-                  </div>
-                }
-              </div>
-            </ng-template>
-          </li>
-
-          <li>
-            <button
-              class="btn btn-light text-secondary stop-receive"
-              style="height: 36px"
-              (click)="handleContinueOrStopReceive()"
-              [popover]="popTemplate"
-              placement="bottom"
-              [triggers]="'hover'"
-            >
-              <span
-                class="dot"
-                [ngClass]="{active: !isStopReceive, inactive: isStopReceive}"
-              ></span>
-              <img src="./assets/images/icon/notify.svg" alt="" />
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      <ng-template #popTemplate>
-        <ng-container *ngIf="!isStopReceive">Ngừng nhận số</ng-container>
-        <ng-container *ngIf="isStopReceive">
-          <div>
-            Bạn đang ngừng nhận số. Còn lại
-            {{ calculateTimeStopReceive }}
-          </div>
-          <div>Bấm vào đây để tiếp tục nhận số</div>
-        </ng-container>
+          }
+        </div>
       </ng-template>
-    </ul>
+    </div>
+
+    <button
+      class="btn btn-light text-secondary stop-receive"
+      style="height: 36px"
+      (click)="handleContinueOrStopReceive()"
+      [popover]="popTemplate"
+      placement="bottom"
+      [triggers]="'hover'"
+    >
+      <span
+        class="dot"
+        [ngClass]="{active: !isStopReceive, inactive: isStopReceive}"
+      ></span>
+      <img src="./assets/images/icon/notify.svg" alt="" />
+    </button>
+    <ng-template #popTemplate>
+      <ng-container *ngIf="!isStopReceive">Ngừng nhận số</ng-container>
+      <ng-container *ngIf="isStopReceive">
+        <div>
+          Bạn đang ngừng nhận số. Còn lại
+          {{ calculateTimeStopReceive }}
+        </div>
+        <div>Bấm vào đây để tiếp tục nhận số</div>
+      </ng-container>
+    </ng-template>
   </div>
 </app-header>
 <div class="dashboard-site">
@@ -217,7 +195,7 @@
           [maxBufferPx]="82 * 18"
           class="table-responsive tableFixHead custom-scrollbar"
         >
-          <table class="table col-resizable">
+          <table class="table col-resizable ui-v2">
             <thead>
               @if (!getLengthCheckRow()) {
                 <tr>
@@ -258,45 +236,47 @@
                         'last-column': i === dataColumnsShow.length - 1
                       }"
                     >
-                      <i
-                        *ngIf="columns.showTooltip"
-                        class="fa fa-question-circle"
-                        [tooltipHtml]="columns.tooltip || ''"
-                      ></i>
-                      {{ columns.name }}
-                      <span
-                        *ngIf="columns.fieldSort"
-                        class="caret-wrapper justify-content-center"
-                        (click)="changeSort(columns.fieldSort)"
-                      >
+                      <div class="d-flex align-items-center gap-2">
                         <i
-                          class="fa fa-caret-up asc"
-                          [ngClass]="{
-                            'text-primary': sort[columns.fieldSort] === 1
-                          }"
+                          *ngIf="columns.showTooltip"
+                          class="fa fa-question-circle"
+                          [tooltipHtml]="columns.tooltip || ''"
                         ></i>
-                        <i
-                          class="fa fa-caret-down desc"
-                          [ngClass]="{
-                            'text-primary': sort[columns.fieldSort] === -1
-                          }"
-                        ></i>
-                      </span>
-                      <ng-container *ngIf="i === dataColumnsShow.length - 1">
-                        <div
-                          class="button-icon-wrapper"
-                          (click)="showModalOrderableTable()"
-                          [tooltip]="'Tùy chỉnh bảng'"
-                          [placement]="'left'"
+                        {{ columns.name }}
+                        <span
+                          *ngIf="columns.fieldSort"
+                          class="caret-wrapper justify-content-center"
+                          (click)="changeSort(columns.fieldSort)"
                         >
-                          <button class="button-icon bg-neutral">
-                            <img
-                              src="./assets/icons/setting-table.svg"
-                              alt=""
-                            />
-                          </button>
-                        </div>
-                      </ng-container>
+                          <i
+                            class="fa fa-caret-up asc"
+                            [ngClass]="{
+                              'text-primary': sort[columns.fieldSort] === 1
+                            }"
+                          ></i>
+                          <i
+                            class="fa fa-caret-down desc"
+                            [ngClass]="{
+                              'text-primary': sort[columns.fieldSort] === -1
+                            }"
+                          ></i>
+                        </span>
+                        <ng-container *ngIf="i === dataColumnsShow.length - 1">
+                          <div
+                            class="button-icon-wrapper"
+                            (click)="showModalOrderableTable()"
+                            [tooltip]="'Tùy chỉnh bảng'"
+                            [placement]="'left'"
+                          >
+                            <button class="button-icon bg-neutral">
+                              <img
+                                src="./assets/icons/setting-table.svg"
+                                alt=""
+                              />
+                            </button>
+                          </div>
+                        </ng-container>
+                      </div>
                     </th>
                   </ng-container>
                   <!-- <th class="columns-action">Hành động</th> -->
@@ -1039,7 +1019,11 @@
               (click)="showModalCheckDuplicatedPhone()"
               *ngIf="permission.viewDuplicatedPhoneConfig"
             >
-              <img src="./assets/images/icon/duplicate.svg" alt="" style="width: 16px" />
+              <img
+                src="./assets/images/icon/duplicate.svg"
+                alt=""
+                style="width: 16px"
+              />
             </button>
           </div>
 

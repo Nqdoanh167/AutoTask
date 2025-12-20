@@ -1,5 +1,5 @@
 <div
-  class="custom-pagination d-flex align-items-center flex-wrap mt-3 gap-2"
+  class="custom-pagination ui-v2 d-flex align-items-center flex-wrap mt-3 gap-2"
   [ngClass]="showConfig ? 'justify-content-between' : 'justify-content-center'"
 >
   <div *ngIf="showConfig" class="d-flex align-items-center">
@@ -13,6 +13,7 @@
         (change)="pageChanged({}, $event)"
         [ngModel]="selectedSize"
         [dropdownPosition]="'top'"
+        class="ng-select-custom ui-v2"
       ></ng-select>
     </div>
     <ng-container>
@@ -76,5 +77,6 @@
     nextText="&rsaquo;"
     firstText="&lsaquo;&lsaquo;"
     lastText="&rsaquo;&rsaquo;"
+    class="pagination ui-v2"
   ></pagination>
 </ng-template>

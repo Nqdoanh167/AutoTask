@@ -6,28 +6,29 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CustomInputSearchComponent } from '@share/custom/custom-input-search/custom-input-search.component';
+import {CommonModule} from '@angular/common';
+import {CustomInputSearchComponent} from '@share/custom/custom-input-search/custom-input-search.component';
 import {
   EBotherAdvanceBasicFilter,
   ETypeButton,
   ETypeFilter,
   IFilterTopTable,
 } from '@app/types/common';
-import { CustomSelectSearchComponent } from '@share/custom/custom-select-search/custom-select-search.component';
-import { PopoverModule } from 'ngx-bootstrap/popover';
-import { IDateRange } from '@app/types/viewmodels';
-import { takeUntil } from 'rxjs';
-import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
-import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { DashboardCheckPermission } from '@app/main/dashboard/dashboard-check-permission';
-import { cloneDeep, isEqual } from 'lodash';
+import {CustomSelectSearchComponent} from '@share/custom/custom-select-search/custom-select-search.component';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {IDateRange} from '@app/types/viewmodels';
+import {takeUntil} from 'rxjs';
+import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {DashboardCheckPermission} from '@app/main/dashboard/dashboard-check-permission';
+import {cloneDeep, isEqual} from 'lodash';
 import moment from 'moment';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { FormsModule } from '@angular/forms';
-import { TreeSelectModule } from 'primeng/treeselect';
-import { FilterDataModule } from '@app/share/pipe/filter-data/filter-data.module';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import {NgSelectModule} from '@ng-select/ng-select';
+import {FormsModule} from '@angular/forms';
+import {TreeSelectModule} from 'primeng/treeselect';
+import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {TooltipDirective} from '@app/share/directive/tooltip/tooltip-directive.directive';
 
 @Component({
   selector: 'app-filter-advance',
@@ -41,17 +42,18 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     TooltipModule,
     NgSelectModule,
     FormsModule,
-    TooltipModule,
     TreeSelectModule,
     FilterDataModule,
-    BsDropdownModule
+    BsDropdownModule,
+    TooltipDirective,
   ],
   templateUrl: './filter-advance.component.html',
   styleUrls: ['./filter-advance.component.scss'],
 })
 export class FilterAdvanceComponent
   extends DashboardCheckPermission
-  implements OnInit, OnDestroy {
+  implements OnInit, OnDestroy
+{
   @ViewChild('popFilter') popFilter?: any;
   @Output() clickButtonEvent = new EventEmitter<string>();
   @Output() toggleButtonEvent = new EventEmitter<{
@@ -59,9 +61,9 @@ export class FilterAdvanceComponent
     name?: string;
   }>();
   @Output() popoverEvent = new EventEmitter<{value: string; name: string}>();
-  @Output() filterAdvanceEvent = new EventEmitter<any>()
+  @Output() filterAdvanceEvent = new EventEmitter<any>();
   @Output() scrollToEndEvent = new EventEmitter<any>();
-  @Output() searchEvent = new EventEmitter<{ term: string; name: string }>();
+  @Output() searchEvent = new EventEmitter<{term: string; name: string}>();
 
   public paramsQuery: any = {
     sort: '-createdAt',
@@ -73,7 +75,7 @@ export class FilterAdvanceComponent
   configFilterBasic: IFilterTopTable[] = [];
   onSearchingAdvance: string[] = []; // Hiển thị các filter của bộ lọc nâng cao đang được áp dụng
 
-  public conditionList: { key: string; label: string; value: any }[] = [];
+  public conditionList: {key: string; label: string; value: any}[] = [];
 
   protected readonly ETypeFilter = ETypeFilter;
   protected readonly ETypeButton = ETypeButton;
@@ -110,9 +112,9 @@ export class FilterAdvanceComponent
 
   getUsedConditionKeys = (): string[] => {
     return this.conditionList
-      .filter(item => item.key && item.key.trim() !== '')
-      .map(item => item.key);
-  }
+      .filter((item) => item.key && item.key.trim() !== '')
+      .map((item) => item.key);
+  };
 
   getDefaultValuePopover(name?: string) {
     const filter = this.configFilters.find((item) => item.name === name);
@@ -123,7 +125,7 @@ export class FilterAdvanceComponent
 
   getActionResultValue(cdt: any, field: 'type' | 'actionId' | 'resultId') {
     if (!cdt.value || typeof cdt.value !== 'object') {
-      if( field === 'type') {
+      if (field === 'type') {
         return 'IN';
       }
       return null;
@@ -134,28 +136,37 @@ export class FilterAdvanceComponent
   handleOpenPopover() {
     this.handleActiveViewMode();
     this.conditionList = this.configFilterAdvance
-      .filter((item) => item.value || item.allowedExtraValues?.includes(item.value))
+      .filter(
+        (item) => item.value || item.allowedExtraValues?.includes(item.value),
+      )
       .map((item) => ({
         key: item.name!,
         label: item.placeholder!,
-        value: item.value || item.allowedExtraValues?.includes(item.value) ? item.value : '',
+        value:
+          item.value || item.allowedExtraValues?.includes(item.value)
+            ? item.value
+            : '',
       }));
   }
 
-  onChangeValueActionResult(cdt: any, field: 'actionId' | 'resultId' | 'type', value: any) {
+  onChangeValueActionResult(
+    cdt: any,
+    field: 'actionId' | 'resultId' | 'type',
+    value: any,
+  ) {
     if (!cdt.value || typeof cdt.value !== 'object') {
       cdt.value = {
         actionId: null,
         resultId: null,
-        type: 'IN', 
+        type: 'IN',
       };
     }
-    
+
     cdt.value[field] = value;
   }
 
   onSearchValue(term: string, name: string = 'search') {
-    this.searchEvent.emit({ term, name });
+    this.searchEvent.emit({term, name});
   }
 
   onPickerDate(value: any, name: string = 'date') {
@@ -246,31 +257,35 @@ export class FilterAdvanceComponent
 
   handleToggleAction(event: any, name?: string) {
     const checked = !!event.target?.checked;
-    this.toggleButtonEvent.emit({ value: checked, name });
+    this.toggleButtonEvent.emit({value: checked, name});
   }
 
   handleApply() {
     const objFilterQuery = JSON.parse(this.paramsQuery.filter || '{}');
 
     this.configFilterAdvance.forEach((configFilter) => {
-      const cdt = this.conditionList.find((item) => item.key === configFilter.name);
+      const cdt = this.conditionList.find(
+        (item) => item.key === configFilter.name,
+      );
       const allowedExtraValues = configFilter.allowedExtraValues || [];
       if (cdt && (cdt.value || allowedExtraValues.includes(cdt.value))) {
         objFilterQuery[configFilter.name!] = cdt.value;
-      } 
-      else delete objFilterQuery[configFilter.name!];
+      } else delete objFilterQuery[configFilter.name!];
     });
 
-
-    if(objFilterQuery['actionResult'] ) {
-      if(!objFilterQuery['actionResult']?.actionId){
+    if (objFilterQuery['actionResult']) {
+      if (!objFilterQuery['actionResult']?.actionId) {
         delete objFilterQuery['actionResult'].actionId;
       }
-      if(!objFilterQuery['actionResult']?.resultId){
+      if (!objFilterQuery['actionResult']?.resultId) {
         delete objFilterQuery['actionResult'].resultId;
       }
-      if((!objFilterQuery['actionResult']?.actionId && !objFilterQuery['actionResult']?.resultId) || !objFilterQuery['actionResult']?.type) {
-        return
+      if (
+        (!objFilterQuery['actionResult']?.actionId &&
+          !objFilterQuery['actionResult']?.resultId) ||
+        !objFilterQuery['actionResult']?.type
+      ) {
+        return;
       }
     }
 
@@ -322,9 +337,10 @@ export class FilterAdvanceComponent
 
       const allowedExtraValues = filter.allowedExtraValues || [];
       const defaultValue = '';
-      const computedValue = filter.value || allowedExtraValues.includes(filter.value) 
-        ? filter.value 
-        : defaultValue;
+      const computedValue =
+        filter.value || allowedExtraValues.includes(filter.value)
+          ? filter.value
+          : defaultValue;
 
       if (filter.type === ETypeFilter.ACTION_RESULT) {
         this.conditionList.push({
@@ -350,14 +366,17 @@ export class FilterAdvanceComponent
   }
 
   removeFilterCondition(cdtKey: string) {
-    this.conditionList = this.conditionList.filter((item) => item.key !== cdtKey);
+    this.conditionList = this.conditionList.filter(
+      (item) => item.key !== cdtKey,
+    );
   }
 
   getCdtLabel(key: string) {
-    const filter = this._configFilterAdvanceCopy.find((item) => item.name === key);
+    const filter = this._configFilterAdvanceCopy.find(
+      (item) => item.name === key,
+    );
     return filter ? filter.placeholder : key;
   }
-
 
   handleActiveViewMode() {
     try {
@@ -374,7 +393,7 @@ export class FilterAdvanceComponent
         if (
           configFilter.type === ETypeFilter.SELECT ||
           configFilter.type === ETypeFilter.POPOVER ||
-          configFilter.type === ETypeFilter.DATE || 
+          configFilter.type === ETypeFilter.DATE ||
           configFilter.type === ETypeFilter.SEARCH
         ) {
           if (!!this.currentActiveViewMode?.options[configFilter.name!]) {
@@ -401,11 +420,15 @@ export class FilterAdvanceComponent
         }
 
         if (configFilter.type === ETypeFilter.ACTION_RESULT) {
-          if(this.currentActiveViewMode?.options[configFilter.name!]?.actionId){
-            this.clickLoadData('actions')
+          if (
+            this.currentActiveViewMode?.options[configFilter.name!]?.actionId
+          ) {
+            this.clickLoadData('actions');
           }
-          if(this.currentActiveViewMode?.options[configFilter.name!]?.resultId){
-            this.clickLoadData('results')
+          if (
+            this.currentActiveViewMode?.options[configFilter.name!]?.resultId
+          ) {
+            this.clickLoadData('results');
           }
           configFilter.value =
             this.currentActiveViewMode?.options[configFilter.name!];
@@ -442,9 +465,12 @@ export class FilterAdvanceComponent
         this.clickLoadData('actions');
       } else if (filter.name === 'resultIds') {
         this.clickLoadData('results');
-      } else if (filter.name === 'teamRoles' || filter.name === 'unassignedRoleId') {
+      } else if (
+        filter.name === 'teamRoles' ||
+        filter.name === 'unassignedRoleId'
+      ) {
         this.getRole();
-      }else if(filter.name === 'sourceIds'){
+      } else if (filter.name === 'sourceIds') {
         this.clickLoadData('sources');
       }
     }
@@ -462,8 +488,8 @@ export class FilterAdvanceComponent
   onChangeCondition(key: string) {
     this.conditionList = this.conditionList.filter((item) => item.key !== key);
     const cdt = this._configFilterAdvanceCopy.find((item) => item.name === key);
-    if(key === ETypeFilter.ACTION_RESULT){
-      if(cdt && !cdt.value) {
+    if (key === ETypeFilter.ACTION_RESULT) {
+      if (cdt && !cdt.value) {
         cdt.value = {
           actionId: null,
           resultId: null,
@@ -479,7 +505,5 @@ export class FilterAdvanceComponent
         value: cdt.value || '',
       });
     }
-
   }
-
 }

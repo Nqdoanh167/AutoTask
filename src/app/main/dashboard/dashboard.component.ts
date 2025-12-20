@@ -66,7 +66,7 @@ import {ModalStopReceiveComponent} from '@app/share/common/modal-stop-receive/mo
 import {calculateTime} from '@app/utils/common';
 import {ModalCloseMultiTasksComponent} from './content-modal/modal-close-multi-tasks/modal-close-multi-tasks.component';
 import {ModalCheckDuplicatedPhoneComponent} from './content-modal/modal-check-duplicated-phone/modal-check-duplicated-phone.component';
-import { ModalCloneComponent } from './content-modal/multiple-action/modal-clone/modal-clone.component';
+import {ModalCloneComponent} from './content-modal/multiple-action/modal-clone/modal-clone.component';
 
 @Component({
   selector: 'app-task',
@@ -797,17 +797,19 @@ export class DashboardComponent
     try {
       const selectedTaskIds = this.getRowIds();
       if (selectedTaskIds.length > 100) {
-        this.toastrService.warning('Bạn chỉ có thể sao chép tối đa 100 tác vụ cùng lúc.')
+        this.toastrService.warning(
+          'Bạn chỉ có thể sao chép tối đa 100 tác vụ cùng lúc.',
+        );
         this.selectBatchActions?.handleClearClick();
         return;
       }
-      
+
       const modalRef = this.modalService.show(ModalCloneComponent, {
         class: 'modal-dialog-centered',
         initialState: {
           taskIds: selectedTaskIds,
         },
-      })
+      });
 
       modalRef.content?.submitEvent.subscribe((options: string[]) => {
         if (options?.length && selectedTaskIds.length) {
@@ -849,14 +851,17 @@ export class DashboardComponent
   cloneMultiTask(taskIds: string[], options: string[]) {
     if (!taskIds?.length || !options?.length) return;
 
-    this.autoTaskService.task.cloneMultiTask(taskIds, options)
+    this.autoTaskService.task
+      .cloneMultiTask(taskIds, options)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            const successCount = res.data?.clonedTaskIds?.length
+            const successCount = res.data?.clonedTaskIds?.length;
             if (successCount > 0) {
-              this.toastrService.success(`Đã sao chép thành công ${successCount} tác vụ`);
+              this.toastrService.success(
+                `Đã sao chép thành công ${successCount} tác vụ`,
+              );
             } else {
               this.toastrService.warning('Không có tác vụ nào được sao chép');
             }
@@ -866,7 +871,7 @@ export class DashboardComponent
         },
         error: (err) => {
           this.commonService.handleErr(err);
-          this.toastrService.warning('Đã có lỗi xảy ra!')
+          this.toastrService.warning('Đã có lỗi xảy ra!');
         },
       });
   }
@@ -1722,17 +1727,25 @@ export class DashboardComponent
 
       // executedDateAt
       // Điều kiện thỏa mãn: có ít nhất 1 tcr có executedDate thỏa mãn trong range filter
-      if (filterQuery.executedDateAt && filterQuery.executedDateAt.length === 2) {
-        const executedDateList = task.taskChains.flatMap(chain => {
-          return chain.taskChainResults
-          // Chỉ lấy tcr có executedDate và type là MANUAL
-            .filter(tcr => tcr.executedDate && tcr.type === EChainNextActionType.MANUAL)
-            .map(tcr => tcr.executedDate)
+      if (
+        filterQuery.executedDateAt &&
+        filterQuery.executedDateAt.length === 2
+      ) {
+        const executedDateList = task.taskChains.flatMap((chain) => {
+          return (
+            chain.taskChainResults
+              // Chỉ lấy tcr có executedDate và type là MANUAL
+              .filter(
+                (tcr) =>
+                  tcr.executedDate && tcr.type === EChainNextActionType.MANUAL,
+              )
+              .map((tcr) => tcr.executedDate)
+          );
         });
 
         if (!executedDateList.length) return false;
 
-        const someMatch = executedDateList.some(d => {
+        const someMatch = executedDateList.some((d) => {
           const execDate = new Date(d);
           const startDate = new Date(filterQuery.executedDateAt[0]);
           const endDate = new Date(filterQuery.executedDateAt[1]);
@@ -1746,20 +1759,23 @@ export class DashboardComponent
       // lastExecutedBy
       // Điều kiện thỏa mãn: có ít nhất 1 tcr có executedBy?.id match với filter
       if (filterQuery.lastExecutedBy) {
-        const lastExecutedByIdList = task.taskChains.flatMap(chain => {
+        const lastExecutedByIdList = task.taskChains.flatMap((chain) => {
           return chain.taskChainResults
-            .filter(tcr => 
-              tcr.executedBy?.id && 
-              tcr.executedBy?.id === filterQuery.lastExecutedBy && 
-              tcr.type === EChainNextActionType.MANUAL
+            .filter(
+              (tcr) =>
+                tcr.executedBy?.id &&
+                tcr.executedBy?.id === filterQuery.lastExecutedBy &&
+                tcr.type === EChainNextActionType.MANUAL,
             )
-            .map(tcr => tcr.executedBy?.id)
-            .filter(Boolean) as string[]
+            .map((tcr) => tcr.executedBy?.id)
+            .filter(Boolean) as string[];
         });
 
         if (!lastExecutedByIdList.length) return false;
 
-        const someMatch = lastExecutedByIdList.some(id => id === filterQuery.lastExecutedBy);
+        const someMatch = lastExecutedByIdList.some(
+          (id) => id === filterQuery.lastExecutedBy,
+        );
         if (!someMatch) return false;
       }
 

@@ -33,13 +33,15 @@
 }
 
 .icon-close {
-  color: vars.$neutral;
+  color: #979aa6;
   padding: 5px;
   border-radius: 4px;
   background: transparent;
-  &:hover {
-    background: vars.$neutral;
-    color: vars.$white;
+  :hover {
+    color: #fff;
+    background: #979aa6;
+    padding: 5px;
+    border-radius: 4px;
   }
 }
 

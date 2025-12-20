@@ -8,12 +8,13 @@ import {
 
 @Directive({
   selector: '[tooltipCustom]',
+  standalone: true,
 })
 export class TooltipDirective {
   @Input('tooltipCustom') tooltipTitle?: string;
   @Input() isPending: any = false;
-  @Input() placement!: string;
-  @Input() delay!: string;
+  @Input() placement: string = 'top';
+  @Input() delay: string = '200';
   private tooltip: any;
   public offset = 10;
 

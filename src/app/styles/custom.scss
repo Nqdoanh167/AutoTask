@@ -9,36 +9,13 @@ input[type]:not(
   ),
 textarea {
   width: 100%;
-  color: $neutral;
+  color: #333;
   border: none;
   outline: none;
-  display: flex;
   align-items: center;
-  gap: 16px;
-  padding: $input-padding;
-  background: $input-bg;
-  border-radius: $input-border-radius;
-  color: $neutral;
-  font-size: 14px;
-  font-weight: 500;
-
-  &:focus {
-    box-shadow: none;
-    background-color: $input-bg;
-    border-color: $input-border-color;
-  }
-
-  &:disabled {
-    background-color: $input-bg;
-    border-color: $input-border-color;
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-
-  &::placeholder {
-    color: $input-placeholder-color;
-    font-weight: 400;
-  }
+  padding: 10px;
+  background: #e7e9ef;
+  border-radius: 6px;
 }
 
 .input-group {
@@ -322,7 +299,7 @@ button[disabled] {
   width: auto;
   max-width: 500px;
   min-width: 150px;
-  height: 41px;
+  height: 36px;
   border-radius: 6px;
 
   .ng-select-container {
@@ -783,13 +760,12 @@ ng-select.select-search-icon {
       padding: 10px;
       white-space: pre-wrap;
       font-weight: 500;
-      color: $neutral;
       cursor: pointer;
       &.active {
-        background-color: $input-bg;
+        background-color: $neutral-100;
       }
       &:hover {
-        background-color: $input-bg;
+        background-color: $neutral-100;
       }
     }
   }
@@ -1243,7 +1219,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       border: none;
       color: #5e6068 !important;
       border-radius: unset !important;
-      padding: 10px !important;
+      padding: 8px !important;
       .button-edit-tab {
         display: none;
       }
@@ -1352,7 +1328,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       }
 
       &.active {
-        padding: 10px !important;
+        padding: 8px !important;
         border: none;
         color: $neutral !important;
         font-weight: 500 !important;
@@ -1660,7 +1636,7 @@ i {
   display: flex;
   align-items: center;
   border: none;
-  background-color: $input-bg;
+  background-color: $input-bg-v2;
   border: 1px solid $neutral-100;
   .p-overlay {
     z-index: 1052 !important;

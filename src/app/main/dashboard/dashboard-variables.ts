@@ -218,14 +218,6 @@ export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
   {
-    type: ETypeFilter.DATE,
-    name: 'executedDateAt',
-    placeholder: 'Ngày tác nghiệp cuối',
-    subType: 'range',
-    clearable: true,
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  },
-  {
     type: ETypeFilter.SELECT,
     name: 'lastExecutedBy',
     placeholder: 'Người tác nghiệp cuối',

@@ -35,7 +35,7 @@ export class CustomDatePickerComponent implements OnInit, OnChanges {
   @Input() defaultRangeValue?: Date[];
   @Input() maxDate?: string | Date | undefined;
   @Input() showClearButton?: boolean = false;
-  @Input() style?: any
+  @Input() style?: any;
   public bsRangeValue?: Date[] | undefined[] = [];
   public bsValue?: Date;
   private counter = 0;

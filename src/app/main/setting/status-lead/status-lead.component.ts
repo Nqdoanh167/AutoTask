@@ -5,16 +5,10 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import {
-  ETypeButton,
-  ETypeFilter,
-  IFilterTopButton,
-  IFilterTopTable,
-} from '@app/types/common';
+import {ETypeButton, IFilterTopButton} from '@app/types/common';
 import {ILeadStatus, ILeadStatusGroup, ELeadStatusType} from '@app/types/lead';
 import {finalize, Subject, take, takeUntil} from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
-import {removeCharacter} from '@app/utils/common';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
@@ -27,6 +21,11 @@ import {
   LEAD_STATUS_TYPE_OPTIONS,
 } from '@app/main/lead/lead.variable';
 
+enum EStatusLeadTab {
+  STATUS = 'STATUS',
+  STATUS_GROUP = 'STATUS_GROUP',
+}
+
 @Component({
   selector: 'app-status-lead',
   templateUrl: './status-lead.component.html',
@@ -38,12 +37,13 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
   public addEditGroupModalRef?: BsModalRef;
   public addEditStatusModalRef?: BsModalRef;
 
-  public configFilters: IFilterTopTable[] = [
-    {
-      type: ETypeFilter.SEARCH,
-      placeholder: 'Tìm theo tên nhóm trạng thái...',
-    },
+  public tabs = [
+    {key: EStatusLeadTab.STATUS, name: 'Trạng thái'},
+    {key: EStatusLeadTab.STATUS_GROUP, name: 'Nhóm trạng thái'},
   ];
+  public activeTab: EStatusLeadTab = EStatusLeadTab.STATUS;
+  protected readonly EStatusLeadTab = EStatusLeadTab;
+
   public configButtons: IFilterTopButton[] = [
     {
       name: 'reload',
@@ -73,6 +73,7 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
     group: this.fb.group({
       name: [null, Validators.required],
       isDefault: [false],
+      leadStatusIds: [[]],
     }) as FormGroup,
     status: this.fb.group({
       name: [null, Validators.required],
@@ -81,7 +82,10 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
     }) as FormGroup,
   };
 
-  public statusGroups: ILeadStatusGroup[] = [];
+  public statusGroups: Array<ILeadStatusGroup & {statuses: ILeadStatus[]}> = [];
+  public statuses: ILeadStatus[] = [];
+  public statusOptions: Array<{value: string; label: string; bgColor: string}> =
+    [];
   public loading = {
     data: false,
     addEditGroup: false,
@@ -130,13 +134,22 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
-    this.getListStatusGroups();
+    this.getListStatuses();
+  }
+
+  selectTab(tab: EStatusLeadTab) {
+    this.activeTab = tab;
+    if (tab === EStatusLeadTab.STATUS) {
+      this.getListStatuses();
+    } else {
+      this.getListStatusGroups();
+    }
   }
 
   getListStatusGroups() {
     this.loading.data = true;
     this.autoTaskService.leadStatusGroup
-      .getWithDetail({
+      .get({
         limit: 1000,
         page: 1,
       })
@@ -147,11 +160,48 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.statusGroups = res.data || [];
+            const groups = (res.data || []).reverse();
+            // Map leadStatusIds to statuses for UI display
+            this.statusGroups = groups.map((group) => ({
+              ...group,
+              statuses:
+                group.leadStatusIds
+                  ?.map((id) => this.statuses.find((s) => s.id === id))
+                  .filter((s): s is ILeadStatus => !!s) || [],
+            }));
           }
         },
         error: (err) => {
           console.error('Error loading status groups:', err);
+          this.commonService.handleResErr(err);
+        },
+      });
+  }
+
+  getListStatuses() {
+    this.loading.data = true;
+    this.autoTaskService.leadStatus
+      .get({
+        limit: 1000,
+        page: 1,
+      })
+      .pipe(
+        finalize(() => (this.loading.data = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.statuses = (res.data || []).reverse();
+            this.statusOptions = this.getStatusOptions();
+            // Reload groups to update statuses mapping
+            if (this.statusGroups.length > 0) {
+              this.getListStatusGroups();
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Error loading statuses:', err);
           this.commonService.handleResErr(err);
         },
       });
@@ -207,10 +257,16 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
             this.commonService.handleResSuccess('delete');
             this.statusGroups = this.statusGroups.map((group) => ({
               ...group,
-              statuses: group.statuses?.filter(
-                (status) => status.id !== value.id,
-              ),
+              leadStatusIds:
+                group.leadStatusIds?.filter((id) => id !== value.id) || [],
+              statuses:
+                group.statuses?.filter(
+                  (status: ILeadStatus) => status.id !== value.id,
+                ) || [],
             }));
+            this.statuses = this.statuses.filter(
+              (status) => status.id !== value.id,
+            );
           } else {
             this.commonService.handleResErr(res);
           }
@@ -242,10 +298,18 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
 
   handleAction(name: string) {
     if (name === 'reload') {
-      this.getListStatusGroups();
+      if (this.activeTab === EStatusLeadTab.STATUS) {
+        this.getListStatuses();
+      } else {
+        this.getListStatusGroups();
+      }
     }
     if (name === 'add_new') {
-      this.addEditGroup();
+      if (this.activeTab === EStatusLeadTab.STATUS) {
+        this.addEditStatus();
+      } else {
+        this.addEditGroup();
+      }
     }
   }
 
@@ -258,9 +322,11 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
   }
 
   handleAddEditGroup(): void {
-    const body: {name: string; isDefault: boolean} = {
+    const body: {name: string; isDefault: boolean; leadStatusIds: string[]} = {
       name: this.addEditForm.group.value.name!,
-      isDefault: this.addEditForm.group.value.isDefault!,
+      // isDefault: this.addEditForm.group.value.isDefault!,
+      isDefault: true,
+      leadStatusIds: this.addEditForm.group.value.leadStatusIds || [],
     };
 
     this.loading.addEditGroup = true;
@@ -273,15 +339,16 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
 
     serviceRef
       .pipe(
-        finalize(() => (this.loading.addEditGroup = false)),
+        finalize(() => {
+          this.loading.addEditGroup = false;
+          this.addEditGroupModalRef?.hide();
+        }),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.commonService.handleResSuccess();
             this.getListStatusGroups();
-            this.addEditGroupModalRef?.hide();
           } else {
             this.commonService.handleResErr(res);
           }
@@ -304,13 +371,20 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
       });
   }
 
-  addEditGroup(item?: ILeadStatusGroup): void {
+  addEditGroup(item?: ILeadStatusGroup & {statuses?: ILeadStatus[]}): void {
     this.cancelAddEditGroup();
     if (typeof item === 'undefined') {
       this.isAdd.group = true;
     } else {
       this.dataSelected.group = item;
-      this.addEditForm.group.patchValue(item);
+      this.addEditForm.group.patchValue({
+        name: item.name,
+        isDefault: item.isDefault,
+        leadStatusIds:
+          item.statuses?.map((s: ILeadStatus) => s.id) ||
+          item.leadStatusIds ||
+          [],
+      });
     }
     this.handleAddEditGroupModal();
   }
@@ -320,6 +394,8 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
     this.dataSelected.group = undefined;
     this.addEditForm.group.reset({
       name: null,
+      isDefault: false,
+      leadStatusIds: [],
     });
   }
 
@@ -333,26 +409,12 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
 
   handleAddEditStatus(): void {
     const {name, type, bgColor} = this.addEditForm.status.value;
-    const groupId = this.dataSelected.groupId || this.dataSelected.group?.id;
-
-    if (!groupId) {
-      this.commonService.handleResErr({
-        status: 400,
-        statusText: 'Bad Request',
-        message: 'Vui lòng chọn nhóm trạng thái',
-        data: null,
-        subStatus: null,
-        subStatusText: null,
-      } as any);
-      return;
-    }
 
     const body: Partial<ILeadStatus> = {
       name: name!,
       type: type!,
       bgColor: bgColor || '#000000',
       isActive: true,
-      groupId: groupId,
       pos: 0,
     };
 
@@ -374,6 +436,7 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
           if (res.status === 200) {
             this.commonService.handleResSuccess();
             this.getListStatusGroups();
+            this.getListStatuses();
             this.addEditStatusModalRef?.hide();
           } else {
             this.commonService.handleResErr(res);
@@ -402,11 +465,9 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
     if (typeof status === 'undefined') {
       this.isAdd.status = true;
       this.dataSelected.group = group;
-      this.dataSelected.groupId = group?.id;
     } else {
       this.dataSelected.status = status;
       this.dataSelected.group = group;
-      this.dataSelected.groupId = status.groupId;
       this.addEditForm.status.patchValue({
         name: status.name,
         type: status.type,
@@ -419,7 +480,6 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
   cancelAddEditStatus() {
     this.isAdd.status = false;
     this.dataSelected.status = undefined;
-    this.dataSelected.groupId = undefined;
     this.addEditForm.status.reset({
       name: null,
       type: null,
@@ -427,17 +487,19 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
     });
   }
 
-  onSearch(value: {term: string; name: string}) {
-    const {term, name} = value;
-    const keyword = removeCharacter(term)
-      .toLocaleLowerCase()
-      .replace(/[ ]+/, ' ');
-    if (name === ETypeFilter.SEARCH) {
-      // Filter status groups by name
-      // In a real implementation, you might want to pass this to the API
-      // For now, we'll just filter client-side
-      this.getListStatusGroups();
-    }
+  getStatusGroupOptions() {
+    return this.statusGroups.map((group) => ({
+      value: group.id,
+      label: group.name,
+    }));
+  }
+
+  getStatusOptions() {
+    return this.statuses.map((status) => ({
+      value: status.id,
+      label: status.name,
+      bgColor: status.bgColor || '#000000',
+    }));
   }
 
   ngOnDestroy(): void {

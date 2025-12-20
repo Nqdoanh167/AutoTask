@@ -51,7 +51,7 @@
     align-items: flex-start;
     gap: 16px;
     border-radius: 0 0 4px 4px;
-    background: vars.$input-bg;
+    background: vars.$input-bg-v2;
   }
 
   .card-content {
@@ -660,7 +660,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: vars.$input-bg;
+  background-color: vars.$input-bg-v2;
   border-radius: vars.$radius-s;
   padding: 6px 16px;
 
@@ -676,6 +676,7 @@
     &::placeholder {
       color: #1a3791;
       opacity: 0.7;
+      font-weight: 400;
     }
 
     &:focus {

@@ -863,13 +863,6 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
   };
 
   leadStatusGroup = {
-    getWithDetail: (params: IQueryBase = {}) =>
-      this.httpClient.get<EntityResult<ILeadStatusGroup[]>>(
-        this.createUrl([this.api.lead, 'status-group', 'with-detail']),
-        {
-          params: this.createParams(params),
-        },
-      ),
     get: (params: IQueryBase = {}) =>
       this.httpClient.get<EntityResult<ILeadStatusGroup[]>>(
         this.createUrl([this.api.lead, 'status-group']),
@@ -877,12 +870,19 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
           params: this.createParams(params),
         },
       ),
-    create: (body: {name: string; isDefault: boolean}) =>
+    create: (body: {
+      name: string;
+      isDefault: boolean;
+      leadStatusIds: string[];
+    }) =>
       this.httpClient.post<EntityResult<ILeadStatusGroup>>(
         this.createUrl([this.api.lead, 'status-group']),
         body,
       ),
-    update: (id: string, body: {name: string; isDefault: boolean}) =>
+    update: (
+      id: string,
+      body: {name: string; isDefault: boolean; leadStatusIds: string[]},
+    ) =>
       this.httpClient.patch<EntityResult<ILeadStatusGroup>>(
         this.createUrl([this.api.lead, 'status-group', id]),
         body,

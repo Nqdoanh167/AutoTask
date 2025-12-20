@@ -2,11 +2,11 @@
 
 .custom-input-search {
   border: none;
-  padding: vars.$input-padding;
-  border-radius: vars.$input-border-radius;
-  background: vars.$input-bg;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: #e7e9ef;
   i {
-    color: vars.$neutral;
+    color: vars.$neutral-400;
   }
   &.collapsed {
     border-radius: vars.$radius-s;
@@ -37,9 +37,6 @@
   //&:hover {
   //  outline: 2px solid #E0E9FF;
   //}
-  &:focus-within {
-    outline: 1px solid vars.$neutral;
-  }
 }
 
 input {
@@ -48,4 +45,18 @@ input {
   width: 100%;
   background: unset;
   box-shadow: none !important;
+}
+
+.custom-input-search.ui-v2 {
+  padding: vars.$input-padding;
+  border-radius: vars.$input-border-radius;
+  background: vars.$input-bg-v2;
+
+  i {
+    color: vars.$neutral;
+  }
+
+  &:focus-within {
+    outline: 1px solid vars.$neutral;
+  }
 }
