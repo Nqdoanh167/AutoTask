@@ -48,8 +48,9 @@
                 <div
                   class="badge"
                   [style.background-color]="
-                    tabz.tabViewModeBorderColor || '#1b3da1'
+                    tabz.tabViewModeBorderColor || '#1b3da1' | hex2rgb
                   "
+                  [style.color]="tabz.tabViewModeBorderColor || '#1b3da1'"
                 >
                   {{ quantity || 0 | number }}
                 </div>
@@ -213,10 +214,10 @@
   <div
     class="list-button-header d-flex align-items-center btn-all-and-create-view"
   >
-    <div class="d-flex">
+    <div class="d-flex align-items-center">
       <button
         type="button"
-        class="button-all-view fw-500"
+        class="button-all-view"
         (click)="handleOpenPopover($event)"
         [popover]="!loading ? popTemplate : ''"
         [outsideClick]="true"
@@ -230,7 +231,7 @@
       <div class="separate"></div>
       <button
         type="button"
-        class="button-scroll-tab button-add-tab"
+        class="button-scroll-tab button-add-tab p-2 bg-neutral text-white d-flex align-items-center justify-content-center gap-2"
         (click)="!loading && addNewAndCloneTab()"
       >
         <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>

@@ -1216,10 +1216,12 @@ bs-tooltip-container.custom-tooltip-tab-filter {
     .nav-link {
       display: flex;
       align-items: center;
+      padding: 8px 16px !important;
       border: none;
-      color: #5e6068 !important;
-      border-radius: unset !important;
-      padding: 8px !important;
+      color: $neutral !important;
+      font-weight: 500 !important;
+      border-radius: $radius-s !important;
+      background-color: #f1f5f9;
       .button-edit-tab {
         display: none;
       }
@@ -1328,11 +1330,6 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       }
 
       &.active {
-        padding: 8px !important;
-        border: none;
-        color: $neutral !important;
-        font-weight: 500 !important;
-        border-radius: $radius-s !important;
         background-color: #fff !important;
         .button-edit-tab {
           display: flex;

@@ -670,6 +670,7 @@
   background-color: vars.$input-bg-v2;
   border-radius: vars.$radius-s;
   padding: 6px 16px;
+  border: 1px solid vars.$input-border-color;
 
   .funnel-name-input {
     border: none;

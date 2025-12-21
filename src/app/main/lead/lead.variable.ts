@@ -239,3 +239,12 @@ export const LEAD_STATUS_TYPE_OPTIONS = [
     label: 'Thành công',
   },
 ];
+
+// type lead
+export const TYPE_LEAD_OPTIONS = [
+  {key: 'lead', name: 'Lead', icon: 'lead'},
+  {key: 'qualified', name: 'Qualified Lead', icon: 'qualified-lead'},
+  {key: 'opportunity', name: 'Opportunity', icon: 'opportunity-lead'},
+  {key: 'closed-won', name: 'Closed Won', icon: 'closed-won-lead'},
+  {key: 'closed-lost', name: 'Closed Lost', icon: 'closed-lost-lead'},
+];

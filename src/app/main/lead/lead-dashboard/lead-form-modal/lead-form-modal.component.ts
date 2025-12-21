@@ -42,6 +42,7 @@ import {ITaskChain, IPlatform} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
 import {LeadConnectionsModalComponent} from '../lead-connections-modal/lead-connections-modal.component';
 import {ETabDetail} from '@app/types/lead';
+import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
 
 @Component({
   selector: 'app-lead-form-modal',
@@ -128,13 +129,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   public activeTab: string = ETabDetail.DISCUSS;
 
   // type lead
-  public typeLeads = [
-    {key: 'lead', name: 'Lead', icon: 'funnel'},
-    {key: 'qualified', name: 'Qualified Lead', icon: 'qualified-lead'},
-    {key: 'opportunity', name: 'Opportunity', icon: 'opportunity-lead'},
-    {key: 'closed-won', name: 'Closed Won', icon: 'closed-won-lead'},
-    {key: 'closed-lost', name: 'Closed Lost', icon: 'closed-lost-lead'},
-  ];
+  public typeLeads = TYPE_LEAD_OPTIONS;
 
   // Gender options for dropdown
   public genderOptions = [

@@ -51,6 +51,7 @@ input {
   padding: vars.$input-padding;
   border-radius: vars.$input-border-radius;
   background: vars.$input-bg-v2;
+  border: 1px solid vars.$input-border-color;
 
   i {
     color: vars.$neutral;

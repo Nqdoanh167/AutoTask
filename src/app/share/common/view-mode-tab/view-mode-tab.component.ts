@@ -41,6 +41,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import {SortByPipe} from '@app/share/pipe/sort-by.pipe';
 import {calculateNextPos} from '@app/utils/common';
+import {Hex2RgbPipe} from '@app/share/pipe/hex2rgb.pipe';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -60,6 +61,7 @@ import {calculateNextPos} from '@app/utils/common';
     CustomModalComponent,
     CustomInputSearchComponent,
     DragDropModule,
+    Hex2RgbPipe,
   ],
   templateUrl: './view-mode-tab.component.html',
   styleUrls: ['./view-mode-tab.component.scss'],

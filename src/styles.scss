@@ -1002,7 +1002,7 @@ a {
   gap: 16px;
   border-radius: $input-border-radius;
   background-color: $input-bg-v2;
-  border: none;
+  border: 1px solid $input-border-color;
   color: $neutral;
   font-size: 14px;
 
@@ -1081,7 +1081,8 @@ input.ui-v2[type]:not(
 textarea.ui-v2 {
   width: 100%;
   color: $neutral;
-  border: none;
+  border-top: 1px solid $input-border-color;
+  border-bottom: 1px solid $input-border-color;
   outline: none;
   display: flex;
   align-items: center;
@@ -1114,7 +1115,7 @@ textarea.ui-v2 {
 .table.ui-v2 {
   th,
   td {
-    border-bottom: 1px solid $secondary-300;
+    border-bottom: 1px solid #f1f5f9;
   }
 
   th {
@@ -1122,10 +1123,10 @@ textarea.ui-v2 {
     font-weight: 500;
     font-size: 14px;
     vertical-align: middle;
-    background-color: $table-bg-v2 !important;
+    background-color: #fff !important;
     border-color: $table-border;
     border-bottom: $table-border;
-    padding: 8px;
+    padding: 24px 8px;
     border-radius: $table-border-radius;
     line-height: 20px;
 
