@@ -251,7 +251,7 @@ app-main {
 
   .form-control-icon {
     padding: 4px;
-    background-color: #eef8ff;
+    // background-color: #eef8ff;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -973,7 +973,7 @@ a {
 
 .button-icon-wrapper {
   padding: 6px;
-  background-color: #f1f5f9;
+  background-color: $body-bg;
   border-radius: 4px;
   width: max-content;
   height: max-content;
@@ -1006,13 +1006,21 @@ a {
   color: $neutral;
   font-size: 14px;
 
+  &:focus-within {
+    border-color: $primary;
+  }
+
+  &:focus {
+    border-color: $primary;
+  }
+
   &::placeholder {
     color: $input-placeholder-color-v2;
   }
 
   .form-control-icon {
     padding: 4px;
-    background-color: #eef8ff;
+    // background-color: #eef8ff;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -1115,7 +1123,7 @@ textarea.ui-v2 {
 .table.ui-v2 {
   th,
   td {
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid $body-bg;
   }
 
   th {
@@ -1126,7 +1134,7 @@ textarea.ui-v2 {
     background-color: #fff !important;
     border-color: $table-border;
     border-bottom: $table-border;
-    padding: 24px 8px;
+    padding: 0px 8px 16px 8px;
     border-radius: $table-border-radius;
     line-height: 20px;
 

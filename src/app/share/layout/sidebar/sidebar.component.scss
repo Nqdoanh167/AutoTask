@@ -1,3 +1,4 @@
+@use 'src/app/styles/variable' as vars;
 .sidebar {
   position: fixed;
   z-index: 1049;
@@ -196,5 +197,20 @@
   to {
     transform: rotateY(0deg);
     opacity: 1;
+  }
+}
+
+:host ::ng-deep smaxapp-logo {
+  .smaxapp__logo {
+    padding: 6px !important;
+    height: 54px !important;
+    &:after {
+      background: vars.$body-bg;
+    }
+  }
+  .logo {
+    border-radius: 5px !important;
+    width: 38px !important;
+    height: 38px !important;
   }
 }

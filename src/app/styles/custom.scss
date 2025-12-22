@@ -1220,8 +1220,9 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       border: none;
       color: $neutral !important;
       font-weight: 500 !important;
-      border-radius: $radius-s !important;
-      background-color: #f1f5f9;
+      // border-radius: $radius-s !important;
+      // background-color: $body-bg;
+      background-color: #e4ebf3;
       .button-edit-tab {
         display: none;
       }
@@ -1331,6 +1332,7 @@ bs-tooltip-container.custom-tooltip-tab-filter {
 
       &.active {
         background-color: #fff !important;
+        border-radius: $input-border-radius !important;
         .button-edit-tab {
           display: flex;
         }

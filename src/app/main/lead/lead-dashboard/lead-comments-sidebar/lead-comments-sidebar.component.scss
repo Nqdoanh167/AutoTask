@@ -1,4 +1,5 @@
 // ============ COMMENTS SIDEBAR STYLES ============
+@use 'src/app/styles/variable' as vars;
 
 // Sidebar Header
 .sidebar-header {
@@ -227,7 +228,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background-color: #f1f5f9;
+  background-color: vars.$body-bg;
   border: 1px solid #e2e8f0;
   border-radius: 4px;
   font-size: 13px;
@@ -420,7 +421,7 @@
     }
 
     &:hover {
-      background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+      background: linear-gradient(135deg, #ffffff 0%, vars.$body-bg 100%);
       border-color: #3b82f6;
       box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
       transform: translateY(-1px);
@@ -464,7 +465,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      background: linear-gradient(135deg, vars.$body-bg 0%, #e2e8f0 100%);
       border-radius: 10px;
       border: 1.5px solid #e2e8f0;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

@@ -109,7 +109,7 @@ $input-focus-border-color: #ccc;
 $input-focus-bg: #fff;
 $input-bg: $gray-400;
 $input-padding: 8px 16px;
-$input-bg-v2: #f7fcff;
+$input-bg-v2: $body-bg;
 $input-placeholder-color-v2: $neutral;
 $input-border-radius: 4px;
 $input-border-color: #e6e9f3;
@@ -458,10 +458,10 @@ $pagination-height: 56;
   gap: 8px;
   padding: 8px;
   &.secondary-color {
-    background-color: $secondary-500;
+    background-color: $primary;
     color: $white;
     &:hover {
-      background-color: $secondary-600;
+      background-color: $primary;
       color: $white;
     }
   }
