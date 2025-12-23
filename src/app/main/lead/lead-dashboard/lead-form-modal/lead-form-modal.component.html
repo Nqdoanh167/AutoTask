@@ -32,7 +32,14 @@
             />
           </div>
 
-          <img src="./assets/icons/edit.svg" alt="" width="24" height="24" />
+          <img
+            src="./assets/icons/edit.svg"
+            alt=""
+            width="24"
+            height="24"
+            class="cursor-pointer"
+            (click)="onEditIconClick()"
+          />
         </div>
 
         <div class="">
@@ -275,9 +282,7 @@
                                       (click)="onChooseTeam(i, user)"
                                       style="cursor: pointer"
                                     >
-                                      <div
-                                        class="d-flex align-items-center p-2"
-                                      >
+                                      <div class="d-flex align-items-center">
                                         <img
                                           class="rounded-circle me-2"
                                           [src]="
@@ -997,3 +1002,6 @@
     </div>
   </div>
 </app-custom-modal>
+@if (isOpenBackDrop) {
+  <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
+}

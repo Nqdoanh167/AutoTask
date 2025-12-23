@@ -911,13 +911,13 @@ export class ViewModeTabComponent
 
   applyTabViewColor() {
     this.tabs.forEach((tab) => {
-      if (tab?.tabViewModeBorderColor) {
-        const navLinkTabElement = document.getElementById(
-          `view-mode-id-${tab.id}-link`,
-        );
-        if (navLinkTabElement) {
-          navLinkTabElement.style.borderTop = `3px solid ${tab.tabViewModeBorderColor}`;
-        }
+      const navLinkTabElement = document.getElementById(
+        `view-mode-id-${tab.id}-link`,
+      );
+      if (navLinkTabElement) {
+        navLinkTabElement.style.borderTop = `3px solid ${
+          tab.tabViewModeBorderColor || 'transparent'
+        }`;
       }
     });
   }

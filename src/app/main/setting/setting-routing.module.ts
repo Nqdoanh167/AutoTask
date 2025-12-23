@@ -10,6 +10,7 @@ import {HasPermissionAccessModuleGuard} from '@app/services/guard/hasPermissionA
 import {EModule, ESettingTab} from '@app/types/viewmodels';
 import {DivideComponent} from './divide/divide.component';
 import {StatusLeadComponent} from './status-lead/status-lead.component';
+import {TabDisplayComponent} from './tab-display/tab-display.component';
 
 const routes: Routes = [
   {
@@ -68,6 +69,14 @@ const routes: Routes = [
         },
         canActivate: [HasPermissionAccessModuleGuard],
         component: StatusLeadComponent,
+      },
+      {
+        path: ESettingTab.TAB_DISPLAY,
+        data: {
+          mainModule: EModule.SETTING,
+        },
+        canActivate: [HasPermissionAccessModuleGuard],
+        component: TabDisplayComponent,
       },
     ],
   },

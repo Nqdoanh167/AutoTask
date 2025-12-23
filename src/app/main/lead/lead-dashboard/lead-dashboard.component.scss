@@ -134,7 +134,7 @@
         border: none;
         background-color: transparent;
         border-radius: 6px;
-        color: #64748b;
+        color: #64748b80;
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
@@ -194,7 +194,6 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 16px;
   min-height: 0;
 
   .kanban-board {
@@ -230,7 +229,7 @@
     display: flex;
     flex-direction: column;
     background: white;
-    border-radius: 8px;
+    border-radius: vars.$input-border-radius;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -249,7 +248,8 @@
         gap: 8px;
         flex: 1;
         min-width: 0;
-
+        color: #0c2f31;
+        font-weight: 500;
         .status-indicator {
           width: 16px;
           height: 16px;
@@ -313,7 +313,7 @@
       align-items: center;
       justify-content: center;
       padding: 32px 16px;
-      color: #9aa0a6;
+      color: #0f172a80;
       text-align: center;
 
       i {

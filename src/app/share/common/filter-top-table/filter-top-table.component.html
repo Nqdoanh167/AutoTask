@@ -241,6 +241,12 @@
                   [ngClass]="{'me-1': !!filter.label}"
                 />
               }
+              @if (filter.iconAwesome) {
+                <i
+                  class="{{ filter.iconAwesome }}"
+                  [ngClass]="{'me-1': !!filter.label}"
+                ></i>
+              }
             } @else {
               <i
                 class="fas fa-spinner fa-spin me-1-2"

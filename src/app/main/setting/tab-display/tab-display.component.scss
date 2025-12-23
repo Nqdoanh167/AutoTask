@@ -1,0 +1,4 @@
+@use 'src/app/styles/mixins' as mixins;
+.card-body {
+  @include mixins.calculateSize('height', '100vh', '130px');
+}

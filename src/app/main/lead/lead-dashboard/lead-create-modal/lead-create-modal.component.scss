@@ -1,0 +1,58 @@
+.wrap-avatar {
+  position: relative;
+  display: inline-block;
+
+  .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+    border: 2px solid #c9e0ff;
+    overflow: hidden;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  .layer-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(222, 222, 222, 0.6);
+    z-index: 4;
+  }
+}
+
+.role-item-wrapper {
+  position: relative;
+}
+
+.role-item-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #dee2e6;
+}
+
+.tag-item {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: white;
+
+  &.nonBack {
+    background-color: #6c757d !important;
+  }
+}

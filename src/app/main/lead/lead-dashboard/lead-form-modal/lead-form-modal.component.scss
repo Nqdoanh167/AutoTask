@@ -557,6 +557,7 @@
         font-size: 16px;
         font-weight: 500;
         line-height: 24px;
+        border-radius: 4px 4px 0 0;
       }
     }
 
@@ -565,12 +566,12 @@
       align-items: center;
       gap: 8px;
       padding: 8px 16px;
-      border-radius: 4px 4px 0 0;
+
       cursor: pointer;
       transition: all 0.2s ease;
       width: 100%;
       background-color: transparent;
-      background-color: #edf4ff;
+      background-color: vars.$tab-bg;
       color: rgba(27, 57, 145, 0.8);
       font-size: 16px;
       font-weight: 500;

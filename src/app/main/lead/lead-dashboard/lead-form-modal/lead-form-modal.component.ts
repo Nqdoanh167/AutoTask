@@ -41,6 +41,7 @@ import {ApiLocationService} from '@app/services/api/location';
 import {ITaskChain, IPlatform} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
 import {LeadConnectionsModalComponent} from '../lead-connections-modal/lead-connections-modal.component';
+import {LeadCreateModalComponent} from '../lead-create-modal/lead-create-modal.component';
 import {ETabDetail} from '@app/types/lead';
 import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
 
@@ -50,12 +51,13 @@ import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
   styleUrls: ['./lead-form-modal.component.scss'],
 })
 export class LeadFormModalComponent implements OnInit, OnDestroy {
+  public isOpenBackDrop: boolean = false;
   leadForm!: FormGroup;
   lead?: ILead;
   statuses: any[] = [];
   tags: any[] = [];
-  sources: any[] = []; // Danh sách nguồn dữ liệu
-  cachedSources: any[] = []; // Cached sources data passed from parent
+  sources: any[] = [];
+  cachedSources: any[] = [];
   isSubmitting = false;
   isUploadingAvatar = false;
   isEditingTags = false;
@@ -65,7 +67,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   @ViewChild('statusSelect') statusSelect: any;
 
-  // Location properties
   provinces: IProvince[] = [];
   districts: IDistrict[] = [];
   wards: IWard[] = [];
@@ -73,12 +74,10 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   loadingDistricts = false;
   loadingWards = false;
 
-  // Teams-related properties
   autoTaskSetting?: any;
   currentBiz?: any;
   listBizUsers: User[] = [];
 
-  // Branch-related properties
   public units = this.autoTaskService.getUserUnits(false);
 
   getTaskDetailUrl(taskId: string) {
@@ -103,18 +102,14 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     return this.leadForm?.get('street') as FormControl;
   }
 
-  // Expose enum for template
   public EGenderType = EGenderType;
 
-  //loading
   public loading = {
     getFolderLead: false,
   };
 
-  // Folder lead data
   public folderLeads: IFolderLead[] = [];
 
-  // Tab management
   public menus = [
     {
       key: ETabDetail.DISCUSS,
@@ -128,10 +123,8 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   ];
   public activeTab: string = ETabDetail.DISCUSS;
 
-  // type lead
   public typeLeads = TYPE_LEAD_OPTIONS;
 
-  // Gender options for dropdown
   public genderOptions = [
     {value: EGenderType.MALE, label: 'Nam'},
     {value: EGenderType.FEMALE, label: 'Nữ'},
@@ -173,16 +166,12 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   public EChainNextActionType = EChainNextActionType;
 
   initializeSources(): void {
-    // Use cached sources if available to avoid re-fetching
     if (this.cachedSources && this.cachedSources.length > 0) {
       this.sources = this.cachedSources;
     }
-    // Note: No fallback to API for sources as they should always be cached
-    // If not available, user can still use the form without source
   }
 
   initForm(): void {
-    // Support both tagIds (from backend) and tags (populated objects)
     const initialTagIds =
       this.lead?.tagIds || this.lead?.tags?.map((t) => t.id) || [];
 
@@ -196,11 +185,11 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
           this.statuses.find((s) => s.isDefault)?.id ||
           null,
         [Validators.required],
-      ], // Required field
-      tagIds: [initialTagIds], // Support both tagIds and tags.map(t => t.id)
+      ],
+      tagIds: [initialTagIds],
       picture: [this.lead?.picture || ''],
       sourceId: [this.lead?.['sourceId'] || null],
-      funnelId: [this.lead?.['funnelId'] || '', [Validators.required]], // Required field
+      funnelId: [this.lead?.['funnelId'] || '', [Validators.required]],
       address: [this.lead?.address || ''],
       street: [this.lead?.street || ''],
       province: [this.lead?.province || null],
@@ -209,9 +198,9 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       districtCode: [this.lead?.districtCode || null],
       ward: [this.lead?.ward || null],
       wardCode: [this.lead?.wardCode || null],
-      teams: this.fb.array([]), // Teams form array
-      branch: [null, [Validators.required]], // Branch field - required
-      typeLead: ['lead'], // Type lead field
+      teams: this.fb.array([]),
+      branch: [null, [Validators.required]],
+      typeLead: ['lead'],
     });
   }
 
@@ -282,15 +271,12 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     const formData = {...this.leadForm.value};
 
-    // List of fields that should always be included (even if null/empty)
     const allowedFieldNames = ['sourceId'];
 
-    // Process teams separately
     const teams: ITeam[] = [];
     if (formData.teams && Array.isArray(formData.teams)) {
       formData.teams.forEach((team: any) => {
         if (team.userId) {
-          // Only include teams with assigned users
           teams.push({
             roleId: team.roleId,
             roleIcon: team.roleIcon,
@@ -304,7 +290,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Process branch separately (required field)
     const branchForm = formData.branch;
     let branch = null;
     if (branchForm) {
@@ -319,34 +304,25 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       };
     }
 
-    // Remove empty/null values but preserve required fields
     const cleanedData: Partial<ILeadCreateDto> = {};
     Object.entries(formData).forEach(([key, value]) => {
-      // Always include allowed fields (even if null/empty)
       if (allowedFieldNames.includes(key)) {
         (cleanedData as any)[key] = value;
-      }
-      // Skip teams and branch as we handle them separately
-      else if (key === 'teams' || key === 'branch') {
+      } else if (key === 'teams' || key === 'branch') {
         return;
-      }
-      // For other fields, only include non-empty values
-      else if (value !== null && value !== '' && value !== undefined) {
+      } else if (value !== null && value !== '' && value !== undefined) {
         (cleanedData as any)[key] = value;
       }
     });
 
-    // Add teams if any
     if (teams.length > 0) {
       (cleanedData as any).teams = teams;
     }
 
-    // Add branch (required field, should always be present when form is valid)
     if (branch) {
       (cleanedData as any).branch = branch;
     }
 
-    // Add platforms if any
     if (this.platforms.length > 0) {
       (cleanedData as any).platforms = this.platforms;
     }
@@ -358,7 +334,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       };
       this.saveEvent.next(updateData);
     } else {
-      // Form validation ensures name, phone, and statusId are present
       const createData: ILeadCreateDto = {
         name: formData.name,
         phone: formData.phone,
@@ -385,9 +360,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     if (control?.hasError('email')) {
       return 'Email không hợp lệ';
     }
-    // if (control?.hasError('pattern')) {
-    //   return 'Số điện thoại không hợp lệ (10-11 chữ số)';
-    // }
     return '';
   }
 
@@ -409,7 +381,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         if (res?.data?.length) {
           const avatarUrl = res.data[0];
           this.leadForm.patchValue({picture: avatarUrl});
-          // this.toastr.success('Upload ảnh đại diện thành công');
         }
         this.isUploadingAvatar = false;
       },
@@ -432,8 +403,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ============ LOCATION METHODS ============
-
   loadProvinces(): void {
     this.loadingProvinces = true;
     this.locationService
@@ -446,7 +415,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res?.status === 200 && res.data) {
             this.provinces = res.data;
-            // If editing and has provinceCode, load districts
             if (this.lead?.provinceCode) {
               this.loadDistricts(this.lead.provinceCode, true);
             }
@@ -474,7 +442,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res?.status === 200 && res.data) {
             this.districts = res.data;
-            // If editing and has districtCode, load wards
             if (
               isInitial &&
               this.lead?.districtCode &&
@@ -525,7 +492,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   ) {
     switch (type) {
       case 'province':
-        // Reset districts and wards arrays immediately
         this.districts = [];
         this.wards = [];
         this.leadForm.patchValue({
@@ -548,7 +514,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         this.loadDistricts(value.provinceCode);
         break;
       case 'district':
-        // Reset wards array immediately
         this.wards = [];
         this.leadForm.patchValue({
           ward: null,
@@ -582,23 +547,21 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   }
 
   groupByFolder = (item: any) => {
-    return item.name; // Group by folder name
+    return item.name;
   };
 
   groupValueFn = (key: string, children: any[]) => {
-    return children; // Return the children (funnels) for each group
+    return children;
   };
 
   onCustomerSelect(customer?: Customer): void {
     if (!customer) return;
-    // Map customer data to lead form
     this.mapCustomerToLead(customer);
   }
 
   private mapCustomerToLead(customer: Customer): void {
     const mappedData: any = {};
 
-    // Map basic fields
     if (customer.name) mappedData.name = customer.name;
     if (customer.phone) mappedData.phone = customer.phone;
     if (customer.email) mappedData.email = customer.email;
@@ -613,10 +576,8 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     if (customer.wardCode) mappedData.wardCode = customer.wardCode;
     if (customer.picture) mappedData.picture = customer.picture;
 
-    // Update form with mapped data
     this.leadForm.patchValue(mappedData);
 
-    // Load districts and wards if customer has location data
     if (customer.provinceCode) {
       this.loadDistricts(customer.provinceCode, false);
       if (customer.districtCode) {
@@ -624,46 +585,34 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Combine address if street is set
     if (mappedData.street) {
       this.handleCombineAddress();
     }
   }
 
-  /**
-   * Load autoTaskSetting để lấy thông tin roles
-   */
   private loadAutoTaskSetting(): void {
     this.autoTaskService.currentSetting
       .pipe(takeUntil(this.destroy$))
       .subscribe((setting) => {
         this.autoTaskSetting = setting;
-        // Map teams sau khi có setting và biz users
         if (this.autoTaskSetting?.roles?.length && this.currentBiz) {
           this.mappingTeams();
         }
       });
   }
 
-  /**
-   * Load bizUsers để lấy danh sách user cho teams
-   */
   private loadBizUsers(): void {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
       .subscribe((biz) => {
         this.currentBiz = biz;
         this.listBizUsers = biz?.users || [];
-        // Map teams sau khi có biz users và setting
         if (this.autoTaskSetting?.roles?.length && this.currentBiz) {
           this.mappingTeams();
         }
       });
   }
 
-  /**
-   * Map teams dựa trên roles trong autoTaskSetting
-   */
   mappingTeams(): void {
     this.formTeams.clear();
     this.autoTaskSetting?.roles?.forEach((roleId: string) => {
@@ -671,7 +620,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         (r: any) => r.id === roleId,
       );
 
-      // Find existing team for this role from lead data
       const findTeam = this.lead?.teams?.find(
         (team: ITeam) => team.roleId === roleId,
       );
@@ -690,9 +638,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Chọn user cho team tại index
-   */
   onChooseTeam(index: number, user: User): void {
     this.formTeams.at(index).patchValue({
       userId: user.id,
@@ -702,9 +647,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Xóa user khỏi team tại index
-   */
   onRemoveTeam(index: number): void {
     this.formTeams.at(index).patchValue({
       userId: null,
@@ -714,42 +656,29 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Lấy danh sách users có thể chọn cho role
-   */
   getAvailableUsers(roleId?: string): User[] {
     if (!roleId || !this.listBizUsers?.length) {
       return [];
     }
 
-    // Filter users có role này và isActive
     return this.listBizUsers.filter((user: User) => {
-      // Check if user is active
       if (!user.isActive) return false;
 
-      // Check if user has this role
       const userRoleIds = user.roleIds || [];
       return userRoleIds.includes(roleId);
     });
   }
 
-  /**
-   * Get chain name for display
-   */
   getChainName(chain: ITaskChain): string {
     if (chain.name) {
       return chain.name;
     }
-    // Fallback: generate name based on status
     if (chain.status === ETaskChainType.CLOSED) {
       return 'CHỐT ĐƠN';
     }
     return 'TÁC VỤ ĐANG MỞ';
   }
 
-  /**
-   * Get selected tags objects from tagIds
-   */
   getSelectedTags(): any[] {
     const tagIds = this.tagIdsControl?.value || [];
     if (!Array.isArray(tagIds) || tagIds.length === 0) {
@@ -758,9 +687,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     return this.tags.filter((tag) => tagIds.includes(tag.id));
   }
 
-  /**
-   * Get selected status object from statusId
-   */
   getSelectedStatus(): any | null {
     const statusId = this.statusIdControl?.value;
     if (!statusId) {
@@ -769,31 +695,21 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     return this.statuses.find((status) => status.id === statusId) || null;
   }
 
-  /**
-   * Handle click on tags area to enter edit mode
-   */
   onTagsClick(event: Event): void {
     event.stopPropagation();
     this.isEditingTags = true;
   }
 
-  /**
-   * Handle click on status area to enter edit mode
-   */
   onStatusClick(event: Event): void {
     event.stopPropagation();
     this.isEditingStatus = true;
-    // Trigger change detection to render ng-select
     this.cdr.detectChanges();
 
-    // Open dropdown after ng-select is rendered
     setTimeout(() => {
       if (this.statusSelect) {
-        // Try to open dropdown using ng-select API
         if (this.statusSelect.dropdownPanel) {
           this.statusSelect.open();
         } else {
-          // Fallback: click on container
           const container =
             this.statusSelect.element?.nativeElement?.querySelector(
               '.ng-select-container',
@@ -806,9 +722,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     }, 0);
   }
 
-  /**
-   * Handle click outside tags/status area to exit edit mode
-   */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (this.isEditingTags) {
@@ -846,39 +759,18 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Handle tags change
-   */
-  onTagsChange(): void {
-    // Tags changed, stay in edit mode until user clicks outside
-  }
+  onTagsChange(): void {}
 
-  /**
-   * Handle status change
-   */
-  onStatusChange(): void {
-    // Status changed, stay in edit mode until user clicks outside
-  }
+  onStatusChange(): void {}
 
-  // ============ INLINE EDIT METHODS ============
-
-  /**
-   * Toggle Facebook edit mode - Open connections modal
-   */
   toggleEditFacebook(): void {
     this.openConnectionsModal();
   }
 
-  /**
-   * Toggle Zalo edit mode - Open connections modal
-   */
   toggleEditZalo(): void {
     this.openConnectionsModal();
   }
 
-  /**
-   * Open connections management modal
-   */
   openConnectionsModal(): void {
     const modalRef = this.modalService.show(LeadConnectionsModalComponent, {
       class: 'modal-lg modal-dialog-centered',
@@ -893,33 +785,23 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       (modalRef.content as any).saveEvent?.subscribe(
         (platforms: IPlatform[]) => {
           this.platforms = platforms;
-          // Trigger change detection to update display values
           this.cdr.detectChanges();
           modalRef.hide();
         },
       );
 
-      (modalRef.content as any).cancelEvent?.subscribe(() => {
-        // modalRef.hide();
-      });
+      (modalRef.content as any).cancelEvent?.subscribe(() => {});
     }
   }
 
-  /**
-   * Load platforms from lead data
-   */
   loadPlatforms(): void {
     if (this.lead?.platforms) {
       this.platforms = JSON.parse(JSON.stringify(this.lead.platforms));
     } else {
-      // Initialize empty platforms array
       this.platforms = [];
     }
   }
 
-  /**
-   * Get Facebook display value from platforms
-   */
   getFacebookDisplayValue(): string {
     const facebookPlatform = this.platforms.find(
       (p) => p.platform === 'FACEBOOK',
@@ -931,9 +813,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  /**
-   * Get Zalo display value from platforms
-   */
   getZaloDisplayValue(): string {
     const zaloPersonalPlatform = this.platforms.find(
       (p) => p.platform === 'ZALO_PERSONAL',
@@ -947,9 +826,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  /**
-   * Get total connections count for Facebook
-   */
   getFacebookConnectionsCount(): number {
     const facebookPlatform = this.platforms.find(
       (p) => p.platform === 'FACEBOOK',
@@ -957,9 +833,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     return facebookPlatform?.connections.length || 0;
   }
 
-  /**
-   * Get total connections count for Zalo
-   */
   getZaloConnectionsCount(): number {
     const zaloPersonalPlatform = this.platforms.find(
       (p) => p.platform === 'ZALO_PERSONAL',
@@ -971,40 +844,23 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     );
   }
 
-  // ============ ADDRESS MODAL METHODS ============
-
-  /**
-   * Open address edit modal
-   */
   openAddressModal(): void {
     this.isAddressModalOpen = true;
   }
 
-  /**
-   * Close address edit modal
-   */
   closeAddressModal(): void {
     this.isAddressModalOpen = false;
     this.handleCombineAddress();
   }
 
-  /**
-   * Get full address string from form fields
-   */
   getFullAddress(): string {
     const {street, ward, district, province} = this.leadForm.value;
     const parts = [street, ward, district, province].filter(Boolean);
     return parts.join(', ');
   }
 
-  // ============ BRANCH METHODS ============
-
-  /**
-   * Initialize branch field when form loads
-   */
   initializeBranch(): void {
     if (this.lead?.branch) {
-      // If editing and lead has branch, find and set it
       const foundUnit = this.autoTaskService.findUnitFromData(this.lead.branch);
       if (foundUnit) {
         this.leadForm.patchValue({
@@ -1012,7 +868,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         });
       }
     } else {
-      // For new leads, set default branch
       let branch = this.autoTaskService.getFirstUnit();
       if (branch) {
         this.leadForm.patchValue({branch} as any);
@@ -1020,18 +875,10 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Handle change when user selects a unit
-   */
   handleChangeUnit(value: TreeNodeSelectEvent | TreeNodeUnSelectEvent): void {
     const node = value.node as ModifiedUserUnit;
-    // Optionally load info unit if needed
-    // this.getInfoUnit(node?.team || node?.department || node?.id);
   }
 
-  /**
-   * Prevent unselecting branch (keep current value)
-   */
   preventUnselect(value: TreeNodeUnSelectEvent): void {
     const currentBranchValue = this.leadForm.get('branch')?.value;
     if (currentBranchValue) {
@@ -1045,5 +892,26 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   selectTab(tab: string): void {
     this.activeTab = tab;
+  }
+
+  onEditIconClick(): void {
+    this.isOpenBackDrop = true;
+    const modalRef = this.modalService.show(LeadCreateModalComponent, {
+      class: 'modal-dialog-centered',
+      initialState: {
+        statuses: this.statuses,
+        tags: this.tags,
+      } as any,
+    });
+
+    if (modalRef.content) {
+      (modalRef.content as any).saveEvent?.subscribe((data: any) => {
+        this.saveEvent.next(data);
+      });
+
+      modalRef.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.isOpenBackDrop = false;
+      });
+    }
   }
 }

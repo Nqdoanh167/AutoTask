@@ -4,6 +4,7 @@ import {LeadComponent} from './lead.component';
 import {LeadRoutingModule} from './lead-routing.module';
 import {LeadDashboardComponent} from './lead-dashboard/lead-dashboard.component';
 import {LeadFormModalComponent} from './lead-dashboard/lead-form-modal/lead-form-modal.component';
+import {LeadCreateModalComponent} from './lead-dashboard/lead-create-modal/lead-create-modal.component';
 import {LeadBulkMoveModalComponent} from './lead-dashboard/lead-bulk-move-modal/lead-bulk-move-modal.component';
 import {LeadConnectionsModalComponent} from './lead-dashboard/lead-connections-modal/lead-connections-modal.component';
 import {LeadCommentsSidebarComponent} from './lead-dashboard/lead-comments-sidebar/lead-comments-sidebar.component';
@@ -36,12 +37,14 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
 import { MycurrencyPipe } from '@app/share/pipe/mycurrency.pipe';
 import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
+import { ModalModule } from "ngx-bootstrap/modal";
 
 @NgModule({
   declarations: [
     LeadComponent,
     LeadDashboardComponent,
     LeadFormModalComponent,
+    LeadCreateModalComponent,
     LeadBulkMoveModalComponent,
     LeadConnectionsModalComponent,
     LeadCommentsSidebarComponent,
@@ -79,7 +82,8 @@ import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
     TimeViewPipe,
     MycurrencyPipe,
     Hex2RgbPipe,
-  ],
+    ModalModule
+],
   providers: [DatePipe],
 })
 export class LeadModule {}

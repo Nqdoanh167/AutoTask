@@ -124,6 +124,9 @@ $table-border-radius: 0 0 4px 4px;
 $table-border: 1.5px solid #60a5fa;
 $table-padding: 24px 16px;
 
+//tab
+$tab-bg: #e4ebf3;
+
 //
 //
 // DESIGN: https://www.figma.com/file/K3Kk3LGmrWaE9aEnBDJuVU/%F0%9F%96%A5-Smax.App-%7C-Website?type=design&node-id=7307-143970&mode=design&t=1rnOtLcFcXIBlDNr-0
@@ -457,6 +460,7 @@ $pagination-height: 56;
   align-items: center;
   gap: 8px;
   padding: 8px;
+  height: 36px;
   &.secondary-color {
     background-color: $primary;
     color: $white;
@@ -821,8 +825,8 @@ $pagination-height: 56;
     left: 0;
     height: 20px;
     width: 20px;
-    background-color: #c9e0ff;
-    border: 1px solid #c9e0ff;
+    background-color: $body-bg;
+    border: 1px solid $input-border-color;
     border-radius: $radius-s;
     &:after {
       content: '';

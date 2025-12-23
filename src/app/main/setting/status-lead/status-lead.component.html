@@ -1,28 +1,32 @@
 <div class="setting-status-lead">
   <div class="card">
     <div class="card-body">
-      <tabset class="custom-tab-basic">
-        <tab
-          *ngFor="let tab of tabs"
-          [active]="tab.key === activeTab"
-          (selectTab)="selectTab(tab.key)"
-        >
-          <ng-template tabHeading>
-            <div class="title-tab">
-              <span>{{ tab.name }}</span>
-            </div>
-          </ng-template>
-        </tab>
-      </tabset>
+      <div class="d-flex align-items-center justify-content-between">
+        <tabset class="custom-tab-basic">
+          <tab
+            *ngFor="let tab of tabs"
+            [active]="tab.key === activeTab"
+            (selectTab)="selectTab(tab.key)"
+          >
+            <ng-template tabHeading>
+              <div class="title-tab">
+                <span>{{ tab.name }}</span>
+              </div>
+            </ng-template>
+          </tab>
+        </tabset>
+
+        <app-filter-top-table
+          [configButtons]="configButtons"
+          (clickButtonEvent)="handleAction($event)"
+        ></app-filter-top-table>
+      </div>
+
       <div class="content-site mt-3">
         <ng-container [ngSwitch]="activeTab">
           <!-- Tab Trạng thái -->
           <ng-container *ngSwitchCase="EStatusLeadTab.STATUS">
             <div class="list-data">
-              <app-filter-top-table
-                [configButtons]="configButtons"
-                (clickButtonEvent)="handleAction($event)"
-              ></app-filter-top-table>
               <div class="table-responsive tableFixHead custom-scrollbar mt-3">
                 <table class="table ui-v2">
                   <thead>
@@ -85,7 +89,7 @@
                         @if (this.permission.edit || this.permission.delete) {
                           <td class="columns-action">
                             <div
-                              class="d-flex justify-content-center align-items-center gap-2"
+                              class="d-flex justify-content-end align-items-center gap-2"
                             >
                               @if (this.permission.edit) {
                                 <button
@@ -127,10 +131,6 @@
           <!-- Tab Nhóm trạng thái -->
           <ng-container *ngSwitchCase="EStatusLeadTab.STATUS_GROUP">
             <div class="list-data">
-              <app-filter-top-table
-                [configButtons]="configButtons"
-                (clickButtonEvent)="handleAction($event)"
-              ></app-filter-top-table>
               <div class="table-responsive tableFixHead custom-scrollbar mt-3">
                 <table class="table ui-v2">
                   <thead>
@@ -139,7 +139,9 @@
                       <th class="column-name">Nhóm trạng thái</th>
                       <th class="column-statuses">Trạng thái</th>
                       @if (this.permission.edit || this.permission.delete) {
-                        <th class="column-action text-center">Thao tác</th>
+                        <th class="column-action text-center">
+                          <div class="d-flex justify-content-end">Thao tác</div>
+                        </th>
                       }
                     </tr>
                   </thead>
@@ -217,7 +219,7 @@
                         @if (this.permission.edit || this.permission.delete) {
                           <td class="columns-action">
                             <div
-                              class="d-flex justify-content-center align-items-center gap-2"
+                              class="d-flex justify-content-end align-items-center gap-2"
                             >
                               @if (this.permission.edit) {
                                 <button

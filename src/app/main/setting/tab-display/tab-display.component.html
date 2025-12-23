@@ -1,0 +1,178 @@
+<div class="setting-tab-display">
+  <div class="d-flex align-items-center justify-content-end mb-3">
+    <app-filter-top-table
+      [configButtons]="configButtons"
+      (clickButtonEvent)="handleAction($event)"
+    ></app-filter-top-table>
+  </div>
+
+  <div class="row g-3">
+    <!-- Card LEAD -->
+    <div class="col-12 col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="mb-3 text-neutral fw-500">{{ tabs[0].name }}</h5>
+          <div class="list-data">
+            <div class="table-responsive tableFixHead custom-scrollbar">
+              <table class="table ui-v2">
+                <thead>
+                  <tr>
+                    <th class="column-name" style="width: 200px">Tab</th>
+                    <th style="width: 200px">Vị trí hiển thị</th>
+                    <th class="column-action text-center" style="width: 200px">
+                      Cho phép hiển thị
+                    </th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody cdkDropList (cdkDropListDropped)="dropLeadTab($event)">
+                  <tr class="text-center" *ngIf="!leadTabs.length">
+                    <td colspan="4">
+                      <div>Không có dữ liệu</div>
+                    </td>
+                  </tr>
+                  <ng-container *ngFor="let tab of leadTabs; index as tabIndex">
+                    <tr cdkDrag [class.opacity-50]="!tab.active">
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <i
+                            class="fa fa-grip-vertical me-2 cursor-move"
+                            cdkDragHandle
+                          ></i>
+                          <img
+                            [src]="'./assets/icons/' + tab.icon + '.svg'"
+                            [alt]="tab.name"
+                            width="24"
+                            height="24"
+                          />
+                          <span>{{ tab.name }}</span>
+                        </div>
+                      </td>
+
+                      <td>
+                        <ng-select
+                          [items]="[
+                            {value: 'top', label: 'TOP'},
+                            {value: 'bottom', label: 'BOTTOM'},
+                            {value: 'center', label: 'CENTER'}
+                          ]"
+                          [(ngModel)]="tab.position"
+                          [placeholder]="'Chọn vị trí hiển thị'"
+                          [clearable]="false"
+                          bindValue="value"
+                          bindLabel="label"
+                        ></ng-select>
+                      </td>
+                      <td class="text-center">
+                        <div class="form-check form-switch d-inline-block">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [checked]="tab.active"
+                            (change)="toggleTabVisibility(tab)"
+                            id="lead-tab-{{ tabIndex }}"
+                          />
+                          <label
+                            class="form-check-label"
+                            for="lead-tab-{{ tabIndex }}"
+                          ></label>
+                        </div>
+                      </td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card TASK -->
+    <div class="col-12 col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="mb-3 text-neutral fw-500">{{ tabs[1].name }}</h5>
+          <div class="list-data">
+            <div class="table-responsive tableFixHead custom-scrollbar">
+              <table class="table ui-v2">
+                <thead>
+                  <tr>
+                    <th class="column-name" style="width: 200px">Tab</th>
+                    <th style="width: 200px">Vị trí hiển thị</th>
+                    <th class="column-action text-center" style="width: 200px">
+                      Cho phép hiển thị
+                    </th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody cdkDropList (cdkDropListDropped)="dropTaskTab($event)">
+                  <tr class="text-center" *ngIf="!taskTabs.length">
+                    <td colspan="4">
+                      <div>Không có dữ liệu</div>
+                    </td>
+                  </tr>
+                  <ng-container *ngFor="let tab of taskTabs; index as tabIndex">
+                    <tr cdkDrag [class.opacity-50]="!tab.active">
+                      <td style="width: 200px">
+                        <div class="d-flex align-items-center gap-2">
+                          <i
+                            class="fa fa-grip-vertical me-2 cursor-move"
+                            cdkDragHandle
+                          ></i>
+                          <img
+                            [src]="'./assets/icons/' + tab.icon + '.svg'"
+                            [alt]="tab.name"
+                            width="24"
+                            height="24"
+                          />
+                          <span>{{ tab.name }}</span>
+                        </div>
+                      </td>
+
+                      <td>
+                        <ng-select
+                          [items]="[
+                            {value: 'top', label: 'TOP'},
+                            {value: 'bottom', label: 'BOTTOM'},
+                            {value: 'center', label: 'CENTER'}
+                          ]"
+                          [(ngModel)]="tab.position"
+                          [placeholder]="'Chọn vị trí hiển thị'"
+                          [clearable]="false"
+                          bindValue="value"
+                          bindLabel="label"
+                        ></ng-select>
+                      </td>
+                      <td class="text-center" style="width: 200px">
+                        <div class="form-check form-switch d-inline-block">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [checked]="tab.active"
+                            (change)="toggleTabVisibility(tab)"
+                            id="task-tab-{{ tabIndex }}"
+                          />
+                          <label
+                            class="form-check-label"
+                            for="task-tab-{{ tabIndex }}"
+                          ></label>
+                        </div>
+                      </td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

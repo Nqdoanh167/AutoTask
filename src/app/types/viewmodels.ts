@@ -1566,6 +1566,7 @@ export enum ESettingTab {
   ROLE = 'role',
   DIVIDE = 'divide',
   STATUS_LEAD = 'status-lead',
+  TAB_DISPLAY = 'tab-display',
 }
 
 export enum ELeadTab {

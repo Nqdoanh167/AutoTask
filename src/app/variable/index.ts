@@ -274,6 +274,13 @@ export const listSettingNavItems: ISidebar[] = [
     isActive: true,
     permissions: [EPerActSetting.VIEW_MASTER_DATA],
   },
+  {
+    link: `/${EModule.SETTING}/${ESettingTab.TAB_DISPLAY}`,
+    alias: ESettingTab.TAB_DISPLAY,
+    name: 'Cấu hình hiển thị',
+    isActive: true,
+    permissions: [EPerActSetting.VIEW_MASTER_DATA],
+  },
 ];
 
 export const listDashboardNavItems: ISidebar[] = [

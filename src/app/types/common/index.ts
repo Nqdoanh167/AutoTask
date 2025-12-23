@@ -65,6 +65,7 @@ export interface IFilterTopButton {
   tooltipPlacement?: TooltipPlacement;
   isActive?: boolean;
   children?: IFilterTopButton[];
+  iconAwesome?: string;
 }
 
 export interface ITabFilter {

@@ -149,6 +149,14 @@ export interface IView {
   tabViewModeBorderColor?: string;
 }
 
+export interface ISettingTabItem {
+  key: string;
+  name?: string;
+  icon?: string;
+  active: boolean;
+  position: string | 'top' | 'bottom' | 'center';
+}
+
 export interface ISetting {
   roles: string[];
   assignRole: string;
@@ -177,6 +185,8 @@ export interface ISetting {
   checkDuplicatedPhoneConfig?: {
     tags: string[];
   };
+  leadTabs: ISettingTabItem[];
+  taskTabs: ISettingTabItem[];
 }
 
 export interface IViewDto

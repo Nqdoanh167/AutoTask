@@ -22,7 +22,7 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
 import {PermissionsComponent} from '@main/setting/decentralization/components/permissions/permissions.component';
 import {StandardTableComponent} from '@share/common/standard-table/standard-table.component';
 import {StandardDataSizeComponent} from '@share/common/standard-data-size/standard-data-size.component';
-import {CdkDropList} from '@angular/cdk/drag-drop';
+import {CdkDropList, CdkDrag, CdkDragHandle, CdkDragPlaceholder} from '@angular/cdk/drag-drop';
 import {ModalEmployeeInfoComponent} from '@main/setting/modal-contents/modal-employee-info/modal-employee-info.component';
 import {AddEditPermissionComponent} from '@main/setting/modal-contents/add-edit-permission/add-edit-permission.component';
 import {AccordionModule} from 'ngx-bootstrap/accordion';
@@ -42,6 +42,7 @@ import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
 import { CustomInputRangeTime } from "../../share/custom/custom-time-picker.component.ts/custom-input-range-time.component";
 import { DropdownSearchModule } from "../../share/common/dropdown-search/dropdown-search.module";
 import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
+import {TabDisplayComponent} from './tab-display/tab-display.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
     DivideComponent,
     ModalUpdateDivideComponent,
     StatusLeadComponent,
+    TabDisplayComponent,
   ],
   imports: [
     CommonModule,
@@ -77,6 +79,9 @@ import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
     StandardTableComponent,
     StandardDataSizeComponent,
     CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    CdkDragPlaceholder,
     AccordionModule,
     InputUploadModule,
     BsDropdownModule,
