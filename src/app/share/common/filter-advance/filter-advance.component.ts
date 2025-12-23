@@ -28,7 +28,6 @@ import {FormsModule} from '@angular/forms';
 import {TreeSelectModule} from 'primeng/treeselect';
 import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
-import {TooltipDirective} from '@app/share/directive/tooltip/tooltip-directive.directive';
 
 @Component({
   selector: 'app-filter-advance',
@@ -45,7 +44,6 @@ import {TooltipDirective} from '@app/share/directive/tooltip/tooltip-directive.d
     TreeSelectModule,
     FilterDataModule,
     BsDropdownModule,
-    TooltipDirective,
   ],
   templateUrl: './filter-advance.component.html',
   styleUrls: ['./filter-advance.component.scss'],

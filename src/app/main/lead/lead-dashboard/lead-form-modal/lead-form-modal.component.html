@@ -1,8 +1,7 @@
 <app-custom-modal
-  [isSubmitting]="isSubmitting"
+  [isSubmitting]="loading.isSubmitting"
   [textOk]="'Lưu'"
   (hideModal)="onCancel()"
-  (submitModal)="onSubmit()"
   [hideFooter]="true"
   [hideHeader]="true"
 >
@@ -38,7 +37,7 @@
             width="24"
             height="24"
             class="cursor-pointer"
-            (click)="onEditIconClick()"
+            (click)="showModal()"
           />
         </div>
 
@@ -54,7 +53,7 @@
       <div class="body-container">
         <div class="row g-3">
           <div class="col-9">
-            <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
+            <form [formGroup]="leadForm">
               <div class="row g-3">
                 <div class="col-12">
                   <div class="row g-3">
@@ -159,7 +158,6 @@
                                   placeholder="Chọn Tag"
                                   [multiple]="true"
                                   [clearable]="true"
-                                  (change)="onTagsChange()"
                                   [closeOnSelect]="false"
                                   appendTo=".modal"
                                 >
@@ -205,7 +203,7 @@
                           <div
                             class="col-6"
                             formArrayName="teams"
-                            *ngIf="autoTaskSetting?.roles?.length"
+                            *ngIf="currentSetting?.roles?.length"
                           >
                             <label class="text-neutral fs-7">
                               Nhân sự phụ trách:
@@ -345,7 +343,7 @@
 
                             <div
                               class="layer-loading"
-                              *ngIf="isUploadingAvatar"
+                              *ngIf="loading.isUploadingAvatar"
                             >
                               <i class="fas fa-spinner fa-spin px-2"></i>
                             </div>
@@ -446,7 +444,7 @@
                         [ngClass]="{active: activeTab === menu.key}"
                         *ngFor="let menu of menus; let index = index"
                       >
-                        <div (click)="selectTab(menu.key)" class="tab-link">
+                        <div (click)="activeTab = menu.key" class="tab-link">
                           <div class="icon">
                             <img
                               [src]="

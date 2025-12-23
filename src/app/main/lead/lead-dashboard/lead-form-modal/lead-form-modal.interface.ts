@@ -53,7 +53,6 @@ export interface ILeadFormModalSubmitData {
   id?: string;
   name: string;
   phone: string;
-  statusId: string;
   email: string;
   gender: string;
   tagIds: string[];

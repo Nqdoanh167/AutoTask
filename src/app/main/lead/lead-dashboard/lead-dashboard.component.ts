@@ -221,7 +221,6 @@ export class LeadDashboardComponent
           });
         }
       });
-
     }
   }
 
@@ -754,14 +753,12 @@ Tất cả các Phễu và dữ liệu liên quan trong Folder này sẽ bị x�
     const currentStatusId = event.container.id;
     const lead = event.item.data;
 
-    // Nếu drop vào cùng một cột, chỉ sắp xếp lại thứ tự
     if (event.previousContainer === event.container) {
       const leads = this.leadsByStatus.get(currentStatusId) || [];
       moveItemInArray(leads, event.previousIndex, event.currentIndex);
       return;
     }
 
-    // Nếu drop vào cột khác, chuyển lead sang status mới
     const previousLeads = this.leadsByStatus.get(previousStatusId) || [];
     const currentLeads = this.leadsByStatus.get(currentStatusId) || [];
 
@@ -772,7 +769,6 @@ Tất cả các Phễu và dữ liệu liên quan trong Folder này sẽ bị x�
       event.currentIndex,
     );
 
-    // Cập nhật statusId của lead và gọi API
     const newStatusId = currentStatusId;
     this.autoTaskService.lead
       .update(lead.id, {id: lead.id, statusId: newStatusId})
@@ -780,10 +776,8 @@ Tất cả các Phễu và dữ liệu liên quan trong Folder này sẽ bị x�
       .subscribe({
         next: (res: any) => {
           if (res.status === 200) {
-            // Cập nhật statusId trong lead object
             lead.statusId = newStatusId;
           } else {
-            // Rollback nếu API thất bại
             transferArrayItem(
               currentLeads,
               previousLeads,
@@ -794,7 +788,6 @@ Tất cả các Phễu và dữ liệu liên quan trong Folder này sẽ bị x�
           }
         },
         error: (err: any) => {
-          // Rollback nếu API thất bại
           transferArrayItem(
             currentLeads,
             previousLeads,

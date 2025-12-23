@@ -8,13 +8,14 @@ import {
 } from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {Subject, finalize, takeUntil} from 'rxjs';
-import {ILeadCreateDto, EGenderType} from '@app/types/lead';
+import {ILeadCreateDto, EGenderType, ILeadStatus} from '@app/types/lead';
 import {StorageService} from '@app/services/api/storage.service';
 import {ToastrService} from 'ngx-toastr';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {User} from '@app/types/viewmodels';
+import {Biz, ITag, User} from '@app/types/viewmodels';
 import {AuthService} from '@app/services/api/auth.service';
 import {ITeam} from '@app/types/flow';
+import { ISetting } from '@app/types/setting';
 
 @Component({
   selector: 'app-lead-create-modal',
@@ -23,19 +24,18 @@ import {ITeam} from '@app/types/flow';
 })
 export class LeadCreateModalComponent implements OnInit, OnDestroy {
   leadForm!: FormGroup;
-  statuses: any[] = [];
-  tags: any[] = [];
-  isSubmitting = false;
-  isUploadingAvatar = false;
-
-  autoTaskSetting?: any;
-  currentBiz?: any;
+  tags: ITag[] = [];
+  statuses: ILeadStatus[] = [];
+  currentSetting!: ISetting;
+  currentBiz!: Biz;
   listBizUsers: User[] = [];
-
   public EGenderType = EGenderType;
-
   private destroy$ = new Subject<void>();
   public saveEvent = new Subject<ILeadCreateDto>();
+  public loading = {
+    isSubmitting: false,
+    isUploadingAvatar: false,
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -70,9 +70,6 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
       teams: this.fb.array([]),
     });
 
-    if ((this.modalRef.content as any)?.statuses) {
-      this.statuses = (this.modalRef.content as any).statuses;
-    }
     if ((this.modalRef.content as any)?.tags) {
       this.tags = (this.modalRef.content as any).tags;
     }
@@ -107,11 +104,11 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
   }
 
   onAvatarClick(): void {
-    if (this.isUploadingAvatar) {
+    if (this.loading.isUploadingAvatar) {
       return;
     }
 
-    this.isUploadingAvatar = true;
+    this.loading.isUploadingAvatar = true;
     const accept = 'image/x-png,image/gif,image/jpeg,image/x-icon';
 
     this.storageService.attach(accept, 2).subscribe({
@@ -120,11 +117,11 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
           const avatarUrl = res.data[0];
           this.leadForm.patchValue({picture: avatarUrl});
         }
-        this.isUploadingAvatar = false;
+        this.loading.isUploadingAvatar = false;
       },
       error: (err) => {
         this.toastr.warning(err || 'Upload ảnh đại diện thất bại');
-        this.isUploadingAvatar = false;
+        this.loading.isUploadingAvatar = false;
       },
     });
   }
@@ -137,8 +134,8 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
     this.autoTaskService.currentSetting
       .pipe(takeUntil(this.destroy$))
       .subscribe((setting) => {
-        this.autoTaskSetting = setting;
-        if (this.autoTaskSetting?.roles?.length && this.currentBiz) {
+        this.currentSetting = setting;
+        if (this.currentSetting?.roles?.length && this.currentBiz) {
           this.mappingTeams();
         }
       });
@@ -150,7 +147,7 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
       .subscribe((biz) => {
         this.currentBiz = biz;
         this.listBizUsers = biz?.users || [];
-        if (this.autoTaskSetting?.roles?.length && this.currentBiz) {
+        if (this.currentSetting?.roles?.length && this.currentBiz) {
           this.mappingTeams();
         }
       });
@@ -158,7 +155,7 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
 
   mappingTeams(): void {
     this.formTeams.clear();
-    this.autoTaskSetting?.roles?.forEach((roleId: string) => {
+    this.currentSetting?.roles?.forEach((roleId: string) => {
       const findRole = this.currentBiz?.roles?.find(
         (r: any) => r.id === roleId,
       );
@@ -223,7 +220,7 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isSubmitting = true;
+    this.loading.isSubmitting = true;
     const formData = {...this.leadForm.value};
 
     const teams: ITeam[] = [];

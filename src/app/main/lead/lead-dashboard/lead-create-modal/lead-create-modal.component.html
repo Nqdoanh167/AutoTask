@@ -1,6 +1,6 @@
 <div class="modal-create-lead">
   <app-custom-modal
-    [isSubmitting]="isSubmitting"
+    [isSubmitting]="loading.isSubmitting"
     [textOk]="'Lưu'"
     (hideModal)="onCancel()"
     (submitModal)="onSubmit()"
@@ -21,7 +21,7 @@
                   onerror="this.src='https://smax.app/assets/images/noavatar.png'"
                   [src]="avatarUrl"
                 />
-                <div class="layer-loading" *ngIf="isUploadingAvatar">
+                <div class="layer-loading" *ngIf="loading.isUploadingAvatar">
                   <i class="fas fa-spinner fa-spin px-2"></i>
                 </div>
               </div>
@@ -135,7 +135,7 @@
             <div
               class="col-12"
               formArrayName="teams"
-              *ngIf="autoTaskSetting?.roles?.length"
+              *ngIf="currentSetting?.roles?.length"
             >
               <label class="form-label">Nhân sự phụ trách:</label>
               <div class="d-flex align-items-center gap-2 flex-wrap">
