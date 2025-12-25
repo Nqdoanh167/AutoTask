@@ -176,6 +176,7 @@ export interface ISetting {
   viewDrawConfig?: boolean;
   checkDuplicatedPhoneConfig?: {
     tags: string[];
+    createdAt: string[];
   };
 }
 

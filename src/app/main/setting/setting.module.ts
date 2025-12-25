@@ -40,6 +40,7 @@ import {InputMaskModule} from '../../share/input/input-mask/input-mask.module';
 import {FilterDataModule} from '@app/share/pipe/filter-data/filter-data.module';
 import { CustomInputRangeTime } from "../../share/custom/custom-time-picker.component.ts/custom-input-range-time.component";
 import { DropdownSearchModule } from "../../share/common/dropdown-search/dropdown-search.module";
+import { CustomDatePickerComponent } from "@app/share/custom/custom-date-picker/custom-date-picker.component";
 
 @NgModule({
   declarations: [
@@ -86,7 +87,8 @@ import { DropdownSearchModule } from "../../share/common/dropdown-search/dropdow
     InputMaskModule,
     FilterDataModule,
     CustomInputRangeTime,
-    DropdownSearchModule
+    DropdownSearchModule,
+    CustomDatePickerComponent
 ],
 })
 export class SettingModule {}
