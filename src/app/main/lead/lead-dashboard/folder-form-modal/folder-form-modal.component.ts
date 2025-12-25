@@ -16,9 +16,11 @@ import {
   ILeadStatusGroup,
   ILeadStatus,
 } from '@app/types/lead';
-import {EntityPagination, EntityResult} from '@app/types/viewmodels';
+import {EntityPagination, EntityResult, ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {ToastrService} from 'ngx-toastr';
+import { IChainAct } from '@app/types/flow';
+import { uniqBy } from 'lodash';
 
 @Component({
   selector: 'app-folder-form-modal',
@@ -41,6 +43,18 @@ export class FolderFormModalComponent implements OnInit, OnDestroy {
     page: 1,
     total: 0,
     loading: false,
+  };
+
+  public actionChains: ICommonDataLazy<IChainAct, IQueryBase> = {
+    rows: [],
+    loading: false,
+    paramsQuery: {
+      page: 1,
+      limit: 1000,
+      sort: '-createdAt',
+      filter: JSON.stringify({isActive: true}),
+    },
+    isAllowLoadMore: false,
   };
 
   public status: EntityPagination<ILeadStatus> = {
@@ -69,6 +83,7 @@ export class FolderFormModalComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.getStatusGroup();
     this.initForm();
+    this.getActionChain();
 
     if (this.type === 'group' || this.type === 'funnel') {
       this.getFolder();
@@ -95,6 +110,8 @@ export class FolderFormModalComponent implements OnInit, OnDestroy {
       folderId: [null, folderIdValidators],
       funnelGroupId: [null, funnelGroupIdValidators],
       statusGroupId: [null, [Validators.required]],
+      isAutoCreateTask: [false],
+      addChainActIds: [[]],
     });
   }
 
@@ -176,13 +193,46 @@ export class FolderFormModalComponent implements OnInit, OnDestroy {
   // Lấy theo folder
   get funnelGroups(): IFunnelGroup[] {
     const selectedFolderId = this.folderForm?.get('folderId')?.value;
-    if (selectedFolderId) {
-      const selectedFolder = this.folder.rows.find(
-        (folder) => folder.id === selectedFolderId,
-      );
-      return selectedFolder?.funnelGroups || [];
-    }
-    return this.folder.rows.map((folder) => folder.funnelGroups).flat();
+    if (!selectedFolderId) return [];
+
+    const selectedFolder = this.folder.rows.find(
+      (folder) => folder.id === selectedFolderId,
+    );
+    return selectedFolder?.funnelGroups || [];
+    // return this.folder.rows.map((folder) => folder.funnelGroups).flat(); // Cần chọn folder trước
+  }
+
+  getActionChain() {
+    this.actionChains.loading = true;
+    this.autoTaskService.chainAction
+      .get(this.actionChains.paramsQuery)
+      .pipe(
+        finalize(() => {
+          this.actionChains.loading = false;
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.actionChains.rows = uniqBy(
+              this.actionChains.rows.concat(res.data),
+              'id',
+            );
+            this.autoTaskService.setListChainAct(this.actionChains.rows);
+            this.actionChains.isAllowLoadMore = res.meta
+              ? res.meta.currentPage < res.meta.totalPage
+              : false;
+          } else {
+            this.toastrService.error(res.message);
+            this.actionChains.isAllowLoadMore = false;
+          }
+        },
+        error: (err) => {
+          this.actionChains.isAllowLoadMore = false;
+          this.toastrService.error(err.message);
+        },
+      });
   }
 
   onCancel(): void {
@@ -231,6 +281,8 @@ export class FolderFormModalComponent implements OnInit, OnDestroy {
           folderId: this.folderForm.value.folderId,
           funnelGroupId: this.folderForm.value.funnelGroupId,
           statusGroupId: this.folderForm.value.statusGroupId,
+          isAutoCreateTask: this.folderForm.value.isAutoCreateTask,
+          addChainActIds: this.folderForm.value.addChainActIds,
         };
         createObservable = this.autoTaskService.leadFunnel.create(body);
         successMessage = 'Tạo phễu thành công';
