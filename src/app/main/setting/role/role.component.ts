@@ -4,6 +4,7 @@ import {
   BizRole,
   Branch,
   EntityPagination,
+  IDateRange,
   ITag,
 } from '@app/types/viewmodels';
 import {finalize, Subject, take, takeUntil} from 'rxjs';
@@ -16,6 +17,8 @@ import {EPerActSetting, EPerActType} from '@app/types/setting';
 import {ModifiedUserUnit} from '@app/types/flow';
 import {TreeNodeSelectEvent} from 'primeng/tree';
 import {NgSelectComponent} from '@ng-select/ng-select';
+import {BsCustomDates} from 'ngx-bootstrap/datepicker/themes/bs/bs-custom-dates-view.component';
+import moment from 'moment';
 
 @Component({
   selector: 'app-role',
@@ -53,6 +56,35 @@ export class RoleComponent implements OnDestroy, OnInit {
   public currentBiz!: Biz;
   private destroy$ = new Subject();
 
+  public ranges: BsCustomDates[] = [
+    {
+      label: '30 ngày trước',
+      value: [
+        new Date(new Date().setDate(new Date().getDate() - 30)),
+        new Date(),
+      ],
+    },
+    {
+      label: '15 ngày trước',
+      value: [
+        new Date(new Date().setDate(new Date().getDate() - 15)),
+        new Date(),
+      ],
+    },
+    {
+      label: '7 ngày trước',
+      value: [
+        new Date(new Date().setDate(new Date().getDate() - 7)),
+        new Date(),
+      ],
+    },
+    {
+      label: 'Hôm nay',
+      value: [new Date(), new Date()],
+    },
+  ];
+  public dateRangeCheckDuplicatedPhoneConfig: Date[] = [];
+
   constructor(
     private readonly authService: AuthService,
     private readonly autoTaskService: AutoTaskService,
@@ -89,6 +121,7 @@ export class RoleComponent implements OnDestroy, OnInit {
       viewDropConfig: [false],
       checkDuplicatedPhoneConfig: this.fb.group({
         tags: [[]],
+        createdAt: [[]],
       }),
       drawAndDropConfig: this.fb.group({
         roleIds: [null],
@@ -141,11 +174,21 @@ export class RoleComponent implements OnDestroy, OnInit {
     return this.dropConfig?.get('transferToBranch')?.value as any;
   }
 
+  get checkDuplicatedPhoneConfig(): FormGroup {
+    return this.settingForm.get('checkDuplicatedPhoneConfig') as FormGroup;
+  }
+
   getSetting() {
     this.autoTaskService.currentSetting.subscribe({
       next: (res) => {
         if (res) {
           this.settingForm.patchValue(res);
+          if (res.checkDuplicatedPhoneConfig?.createdAt) {
+            this.dateRangeCheckDuplicatedPhoneConfig = [
+              new Date(res.checkDuplicatedPhoneConfig.createdAt[0]),
+              new Date(res.checkDuplicatedPhoneConfig.createdAt[1]),
+            ];
+          }
           if (res.workHours && res.workHours.length > 0) {
             this.workHours.clear();
             res.workHours.forEach((workHour: any) => {
@@ -214,7 +257,10 @@ export class RoleComponent implements OnDestroy, OnInit {
             const control = this.settingForm.get(controlPath);
             let formTag: string[] = (control?.value || []) as string[];
             formTag = Array.from(
-              new Set([...formTag.filter((item) => item !== undefined), res.data.id as string]),
+              new Set([
+                ...formTag.filter((item) => item !== undefined),
+                res.data.id as string,
+              ]),
             );
             control?.patchValue(formTag);
           } else {
@@ -329,7 +375,7 @@ export class RoleComponent implements OnDestroy, OnInit {
   }
 
   onChangeBranch(items: any) {
-    if(!items){
+    if (!items) {
       this.dropConfig.patchValue({
         transferToBranch: {
           id: null,
@@ -371,6 +417,23 @@ export class RoleComponent implements OnDestroy, OnInit {
           teamName: items[2].name,
         },
       });
+    }
+  }
+
+  onTimeChange(event: Date | IDateRange): void {
+    const hValue = event as IDateRange;
+
+    if (hValue?.fromDate && hValue?.toDate) {
+      this.settingForm
+        .get('checkDuplicatedPhoneConfig.createdAt')
+        ?.patchValue([
+          moment(hValue.fromDate).startOf('day').toISOString(),
+          moment(hValue.toDate).endOf('day').toISOString(),
+        ]);
+    } else {
+      this.settingForm
+        .get('checkDuplicatedPhoneConfig.createdAt')
+        ?.patchValue(null);
     }
   }
 
