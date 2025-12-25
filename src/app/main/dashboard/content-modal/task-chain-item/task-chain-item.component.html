@@ -7,7 +7,7 @@
         <thead>
           <tr>
             <th class="column-timer">Thực hiện</th>
-            <th class="columns-action-main">Hành động</th>
+            <!-- <th class="columns-action-main">Hành động</th> -->
             <th class="column-take-action">Thực hiện hành động</th>
             <th class="column-result">Kết quả & Nguyên nhân</th>
             <th class="column-next-step">Bước tiếp theo</th>
@@ -31,7 +31,11 @@
               track taskChainResultIndex;
               let taskChainResultIndex = $index
             ) {
-              <ng-container *ngIf="taskChainResult.value.type === EChainNextActionType.MANUAL">
+              <ng-container
+                *ngIf="
+                  taskChainResult.value.type === EChainNextActionType.MANUAL
+                "
+              >
                 <tr [formGroupName]="taskChainResultIndex">
                   <td class="column-timer">
                     <div class="d-flex gap-2 align-items-center">
@@ -42,14 +46,13 @@
                               | date: 'dd/MM/yyyy HH:mm'
                           }}
                         </div>
-                      }
-                      @else if (
-                        f['status'].value === ETaskChainType.CLOSED
-                        && taskChainResult.value?.status !== ETaskChainResultType.COMPLETED
+                      } @else if (
+                        f['status'].value === ETaskChainType.CLOSED &&
+                        taskChainResult.value?.status !==
+                          ETaskChainResultType.COMPLETED
                       ) {
                         <span>-</span>
-                      }
-                      @else if (
+                      } @else if (
                         !taskChainResult.value?.executedDate &&
                         taskChainResult.value?.deadlineDate
                       ) {
@@ -168,8 +171,7 @@
                             </div>
                           </div>
                         </ng-template>
-                      }
-                      @else {
+                      } @else {
                         <span>-</span>
                       }
                       @if (taskChainResult.value?.reasonEditedDates?.length) {
@@ -283,12 +285,14 @@
                         </ng-template>
                       }
                     </div>
+
+                    {{ taskChainResult.value.action?.name || '-' }}
                   </td>
 
                   <!--Tên hành động -->
-                  <td class="columns-action-main">
+                  <!-- <td class="columns-action-main">
                     {{ taskChainResult.value.action?.name || '-' }}
-                  </td>
+                  </td> -->
 
                   <!-- Thực hiện hành động -->
                   <td class="column-take-action">
@@ -583,7 +587,7 @@
                                 $event
                               )
                             "
-                            class="ng-select-custom dropdown-auto-width input-medium"
+                            class="ng-select-custom ui-v2 dropdown-auto-width input-medium"
                             bindLabel="result.name"
                             bindValue="result.id"
                             appendTo=".modal-update-task"
@@ -603,7 +607,7 @@
                               )
                             "
                             formControlName="id"
-                            class="ng-select-custom dropdown-auto-width input-medium"
+                            class="ng-select-custom ui-v2 dropdown-auto-width input-medium"
                             bindLabel="name"
                             bindValue="id"
                             appendTo=".modal-update-task"
@@ -712,7 +716,7 @@
                           [readonly]="
                             f['status'].value === ETaskChainType.CLOSED
                           "
-                          inputClass="border-0"
+                          inputClass="border-0 ui-v2"
                           placeholder="Nhập ghi chú..."
                           [value]="taskChainResult.value.note || ''"
                           (valueChange)="
