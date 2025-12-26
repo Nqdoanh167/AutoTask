@@ -76,10 +76,12 @@ export class ModalCloneComponent implements OnInit, OnDestroy {
       ],
     });
   }
+  public isCloneTaskLoading = false;
   hideModal(): void {
     this.modalRef.hide();
   }
   onSubmit() {
+    this.isCloneTaskLoading = true;
     this.submitEvent.emit(this.form.value.optionToClone);
   }
   ngOnDestroy(): void {

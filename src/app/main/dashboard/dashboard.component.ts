@@ -816,7 +816,9 @@ export class DashboardComponent
   }
 
   cloneMultiTask(taskIds: string[], options: string[]) {
-    if (!taskIds?.length || !options?.length) return;
+    if (!taskIds?.length || !options?.length || this.isMultiCloneTaskLoading) return;
+
+    this.isMultiCloneTaskLoading = true;
 
     this.autoTaskService.task
       .cloneMultiTask(taskIds, options)
@@ -844,6 +846,9 @@ export class DashboardComponent
         error: (err) => {
           this.commonService.handleErr(err);
           this.toastrService.warning('Đã có lỗi xảy ra!');
+        },
+        complete: () => {
+          this.isMultiCloneTaskLoading = false;
         },
       });
   }
@@ -1047,6 +1052,8 @@ export class DashboardComponent
       console.log(e);
     }
   }
+
+  public isMultiCloneTaskLoading = false
 
   override handleAction(name: string) {
     if (name === 'reload' && !this.item.loading) {
