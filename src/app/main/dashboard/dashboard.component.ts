@@ -146,22 +146,16 @@ export class DashboardComponent
       .subscribe((biz) => {
         if (biz) {
           this.currentBiz = biz;
-          const configFilterStaff = this.configFilters.find(
-            (filter) => filter.name === 'createdBy',
-          );
-          if (configFilterStaff) {
-            configFilterStaff.options = [
-              {name: 'Hệ thống', id: 'system'},
-            ].concat(this.authService.getColleague());
-          }
-          const configFilterLastExecutedBy = this.configFilters.find(
-            (filter) => filter.name === 'lastExecutedBy',
-          );
-          if (configFilterLastExecutedBy) {
-            configFilterLastExecutedBy.options = [
-              {name: 'Hệ thống', id: 'system'},
-            ].concat(this.authService.getColleague());
-          }
+          ['createdBy', 'updatedBy', 'lastExecutedBy'].forEach((name) => {
+            const configFilter = this.configFilters.find(
+              (filter) => filter.name === name,
+            );
+            if (configFilter) {
+              configFilter.options = [{name: 'Hệ thống', id: 'system'}].concat(
+                this.authService.getColleague(),
+              );
+            }
+          });
         }
       });
 
@@ -816,7 +810,8 @@ export class DashboardComponent
   }
 
   cloneMultiTask(taskIds: string[], options: string[]) {
-    if (!taskIds?.length || !options?.length || this.isMultiCloneTaskLoading) return;
+    if (!taskIds?.length || !options?.length || this.isMultiCloneTaskLoading)
+      return;
 
     this.isMultiCloneTaskLoading = true;
 
@@ -1053,7 +1048,7 @@ export class DashboardComponent
     }
   }
 
-  public isMultiCloneTaskLoading = false
+  public isMultiCloneTaskLoading = false;
 
   override handleAction(name: string) {
     if (name === 'reload' && !this.item.loading) {
@@ -1440,11 +1435,15 @@ export class DashboardComponent
   checkTaskFilter(task: ITask): boolean {
     try {
       const filterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
-      console.debug('filterQuery socket', filterQuery)
-      console.debug('task socket', task)
+      console.debug('filterQuery socket', filterQuery);
+      console.debug('task socket', task);
 
       // task closed or not
-      if (filterQuery.hideClosedTask === true && (task.isTaskClosed === true || typeof task.closeTaskResult === 'boolean')) {
+      if (
+        filterQuery.hideClosedTask === true &&
+        (task.isTaskClosed === true ||
+          typeof task.closeTaskResult === 'boolean')
+      ) {
         return false;
       }
 

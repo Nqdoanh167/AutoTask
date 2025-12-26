@@ -171,7 +171,7 @@ export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [
   {
     type: ETypeFilter.SELECT,
     name: 'isHideExecute',
-    placeholder: 'Chuỗi hành động đã đóng',
+    placeholder: 'Trạng thái chuỗi hành động',
     options: [
       {
         label: 'Ẩn chuỗi đã đóng',
@@ -217,9 +217,36 @@ export const TASK_CONFIG_FILTERS: IFilterTopTable[] = [
     botherType: EBotherAdvanceBasicFilter.ADVANCE,
   },
   {
+    type: ETypeFilter.DATE,
+    name: 'createdAt',
+    placeholder: 'Ngày tạo',
+    subType: 'range',
+    clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
     type: ETypeFilter.SELECT,
     name: 'createdBy',
     placeholder: 'Người tạo',
+    options: [],
+    bindLabel: 'name',
+    bindValue: 'id',
+    clearable: false,
+    searchable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.DATE,
+    name: 'updatedAt',
+    placeholder: 'Ngày cập nhật',
+    subType: 'range',
+    clearable: true,
+    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+  },
+  {
+    type: ETypeFilter.SELECT,
+    name: 'updatedBy',
+    placeholder: 'Người cập nhật',
     options: [],
     bindLabel: 'name',
     bindValue: 'id',
