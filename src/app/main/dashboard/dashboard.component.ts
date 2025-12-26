@@ -1433,6 +1433,13 @@ export class DashboardComponent
   checkTaskFilter(task: ITask): boolean {
     try {
       const filterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+      console.debug('filterQuery socket', filterQuery)
+      console.debug('task socket', task)
+
+      // task closed or not
+      if (filterQuery.hideClosedTask === true && (task.isTaskClosed === true || typeof task.closeTaskResult === 'boolean')) {
+        return false;
+      }
 
       // branch
       if (filterQuery.branchIds && filterQuery.branchIds.length > 0) {
