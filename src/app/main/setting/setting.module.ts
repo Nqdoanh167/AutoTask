@@ -43,6 +43,7 @@ import { CustomInputRangeTime } from "../../share/custom/custom-time-picker.comp
 import { DropdownSearchModule } from "../../share/common/dropdown-search/dropdown-search.module";
 import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
 import {TabDisplayComponent} from './tab-display/tab-display.component';
+import { CustomDatePickerComponent } from "@app/share/custom/custom-date-picker/custom-date-picker.component";
 
 @NgModule({
   declarations: [
@@ -95,7 +96,8 @@ import {TabDisplayComponent} from './tab-display/tab-display.component';
     FilterDataModule,
     CustomInputRangeTime,
     DropdownSearchModule,
-    Hex2RgbPipe
-],
+    Hex2RgbPipe,
+    CustomDatePickerComponent
+  ],
 })
 export class SettingModule {}

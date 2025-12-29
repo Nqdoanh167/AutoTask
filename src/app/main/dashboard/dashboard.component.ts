@@ -1,6 +1,6 @@
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {distinctUntilChanged, filter, takeUntil} from 'rxjs';
+import {distinctUntilChanged, filter, finalize, takeUntil} from 'rxjs';
 import {
   EBotherAdvanceBasicFilter,
   ETypeBulkUpdate,
@@ -175,22 +175,16 @@ export class DashboardComponent
       .subscribe((biz) => {
         if (biz) {
           this.currentBiz = biz;
-          const configFilterStaff = this.configFilters.find(
-            (filter) => filter.name === 'createdBy',
-          );
-          if (configFilterStaff) {
-            configFilterStaff.options = [
-              {name: 'Hệ thống', id: 'system'},
-            ].concat(this.authService.getColleague());
-          }
-          const configFilterLastExecutedBy = this.configFilters.find(
-            (filter) => filter.name === 'lastExecutedBy',
-          );
-          if (configFilterLastExecutedBy) {
-            configFilterLastExecutedBy.options = [
-              {name: 'Hệ thống', id: 'system'},
-            ].concat(this.authService.getColleague());
-          }
+          ['createdBy', 'updatedBy', 'lastExecutedBy'].forEach((name) => {
+            const configFilter = this.configFilters.find(
+              (filter) => filter.name === name,
+            );
+            if (configFilter) {
+              configFilter.options = [{name: 'Hệ thống', id: 'system'}].concat(
+                this.authService.getColleague(),
+              );
+            }
+          });
         }
       });
 
@@ -849,11 +843,19 @@ export class DashboardComponent
   }
 
   cloneMultiTask(taskIds: string[], options: string[]) {
-    if (!taskIds?.length || !options?.length) return;
+    if (!taskIds?.length || !options?.length || this.isMultiCloneTaskLoading)
+      return;
+
+    this.isMultiCloneTaskLoading = true;
 
     this.autoTaskService.task
       .cloneMultiTask(taskIds, options)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.modalService.hide();
+        }),
+      )
       .subscribe({
         next: (res) => {
           if (res.status === 200) {
@@ -872,6 +874,9 @@ export class DashboardComponent
         error: (err) => {
           this.commonService.handleErr(err);
           this.toastrService.warning('Đã có lỗi xảy ra!');
+        },
+        complete: () => {
+          this.isMultiCloneTaskLoading = false;
         },
       });
   }
@@ -1110,7 +1115,7 @@ export class DashboardComponent
           taskId,
           code,
         },
-        class: 'modal-dialog-centered modal-medium',
+        class: 'modal-xl',
         keyboard: true,
         backdrop: false,
       });
@@ -1128,6 +1133,8 @@ export class DashboardComponent
       console.log(e);
     }
   }
+
+  public isMultiCloneTaskLoading = false;
 
   override handleAction(name: string) {
     if (name === 'reload' && !this.item.loading) {
@@ -1514,6 +1521,17 @@ export class DashboardComponent
   checkTaskFilter(task: ITask): boolean {
     try {
       const filterQuery = JSON.parse(this.item.paramsQuery.filter || '{}');
+      console.debug('filterQuery socket', filterQuery);
+      console.debug('task socket', task);
+
+      // task closed or not
+      if (
+        filterQuery.hideClosedTask === true &&
+        (task.isTaskClosed === true ||
+          typeof task.closeTaskResult === 'boolean')
+      ) {
+        return false;
+      }
 
       // branch
       if (filterQuery.branchIds && filterQuery.branchIds.length > 0) {

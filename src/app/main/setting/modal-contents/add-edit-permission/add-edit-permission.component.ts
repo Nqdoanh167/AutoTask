@@ -16,6 +16,7 @@ import {CommonService} from '@app/services/common/common.service';
 import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {
   EPerActFlow,
+  EPerActLead,
   EPerActSetting,
   EPerActTask,
   EPerActType,
@@ -162,6 +163,17 @@ export class AddEditPermissionComponent
               tooltip: 'Cập nhật gộp tác vụ trùng',
               dependsOnPer: EPerActTask.VIEW_DUPLICATED_PHONE_CONFIG,
             },
+            {
+              key: EPerActTask.VIEW_DUPLICATED_PHONE_CONFIG,
+              name: 'Kiểm tra tác vụ trùng',
+              tooltip: 'Kiểm tra tác vụ trùng',
+            }, 
+            {
+              key: EPerActTask.REMOVE_DUPLICATED_PHONE_CONFIG,
+              name: 'Cập nhật gộp tác vụ trùng',
+              tooltip: 'Cập nhật gộp tác vụ trùng',
+              dependsOnPer: EPerActTask.VIEW_DUPLICATED_PHONE_CONFIG,
+            }
           ],
         },
       ],
@@ -405,7 +417,7 @@ export class AddEditPermissionComponent
           value = [];
         }
         const dependentKeys = this.getDependentPermissions(
-          permission.key! as EPerActTask | EPerActFlow | EPerActSetting,
+          permission.key,
           group,
         );
         if (permission.key === EPerActTask.UPDATE_TASK) {
@@ -428,16 +440,14 @@ export class AddEditPermissionComponent
   }
 
   private getDependentPermissions(
-    permissionKey: EPerActTask | EPerActFlow | EPerActSetting,
+    permissionKey: EPerActTask | EPerActFlow | EPerActSetting | EPerActLead,
     group: IPermissionGroups,
-  ): (EPerActTask | EPerActFlow | EPerActSetting)[] {
-    const dependentKeys: (EPerActTask | EPerActFlow | EPerActSetting)[] = [];
+  ): (EPerActTask | EPerActFlow | EPerActSetting | EPerActLead)[] {
+    const dependentKeys: (EPerActTask | EPerActFlow | EPerActSetting | EPerActLead)[] = [];
     const collect = (items?: IPermissionItem[]) => {
       items?.forEach((item) => {
         if (item.dependsOnPer === permissionKey) {
-          dependentKeys.push(
-            item.key! as EPerActTask | EPerActFlow | EPerActSetting,
-          );
+          dependentKeys.push(item.key);
         }
       });
     };

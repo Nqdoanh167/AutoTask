@@ -8,10 +8,11 @@ export const environment = {
   apiAddress: 'https://dev.smax.app/api',
 
   // apiModule: 'http://192.168.1.11:5020/api',
-  // apiSocket: 'http://localhost:5022',
+  apiModule: 'http://localhost:5020/api',
+  apiSocket: 'http://localhost:5022',
 
-  apiModule: 'https://dev.smax.app/api',
-  apiSocket: 'https://dev.smax.app',
+  // apiModule: 'https://dev.smax.app/api',
+  // apiSocket: 'https://dev.smax.app',
 
   apiSocketPath: '/socket/auto-task/socket.io',
   urlDomain: 'https://dev.smax.app',

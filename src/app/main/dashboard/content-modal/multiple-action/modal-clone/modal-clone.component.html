@@ -34,11 +34,15 @@
       </button>
       <button
         (click)="onSubmit()"
-        [disabled]="!form.valid"
+        [disabled]="!form.valid || isCloneTaskLoading"
         class="btn btn-primary text-white"
         type="button"
       >
-        Lưu
+        <span *ngIf="!isCloneTaskLoading">Lưu</span>
+        <span *ngIf="isCloneTaskLoading">
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Đang xử lý...
+        </span>
       </button>
     </div>
   </app-custom-modal>

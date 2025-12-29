@@ -377,7 +377,7 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
     cloneMultiTask: (taskIds: string[], options: string[]) =>
       this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.task, 'bulk-clone']),
-        {taskIds, options},
+        { taskIds, options },
       ),
     createOrder: (id: string) =>
       this.httpClient.post<EntityResult<any>>(
@@ -485,29 +485,30 @@ export class AutoTaskService extends BaseApiService implements OnDestroy {
         {taskIds},
       ),
 
-    getListDuplicatedPhone: (params: {after?: string} = {}) => {
-      return this.httpClient.get<
-        EntityResult<{phone: string; count: number}[]>
-      >(this.createUrl([this.api.task, 'duplicated']), {
-        params: this.createParams(Object.assign(params, this.defaultParams)),
-      });
+    getListDuplicatedPhone: (params: { after?: string } = {}) => {
+      return this.httpClient.get<EntityResult<{ phone: string; count: number }[]>>(
+        this.createUrl([this.api.task, 'duplicated']),
+        {
+          params: this.createParams(Object.assign(params, this.defaultParams)),
+        },
+      )
     },
 
-    getListDuplicatedPhoneTask: (params: {phone: string}) => {
+    getListDuplicatedPhoneTask: (params: { phone: string }) => {
       return this.httpClient.get<EntityResult<ITask[]>>(
         this.createUrl([this.api.task, 'duplicated', 'detail']),
         {
           params: this.createParams(Object.assign(params, this.defaultParams)),
         },
-      );
+      )
     },
 
-    mergeDuplicatedPhone: (body: {taskIds: string[]}) => {
+    mergeDuplicatedPhone: (body: { taskIds: string[] }) => {
       return this.httpClient.post<EntityResult<any>>(
         this.createUrl([this.api.task, 'duplicated', 'merge']),
         body,
-      );
-    },
+      )
+    }
   };
 
   taskChain = {

@@ -169,6 +169,8 @@ export interface ISetting {
     start: string;
     end: string;
   }[];
+  leadTabs: ISettingTabItem[];
+  taskTabs: ISettingTabItem[];
   drawAndDropConfig?: {
     roles: string[]; // Vai trò được phép rút & thả số, ví dụ: ["Telesale", "Chăm sóc khách hàng"]
     drawConfig: {
@@ -184,9 +186,8 @@ export interface ISetting {
   viewDrawConfig?: boolean;
   checkDuplicatedPhoneConfig?: {
     tags: string[];
+    createdAt: string[];
   };
-  leadTabs: ISettingTabItem[];
-  taskTabs: ISettingTabItem[];
 }
 
 export interface IViewDto
