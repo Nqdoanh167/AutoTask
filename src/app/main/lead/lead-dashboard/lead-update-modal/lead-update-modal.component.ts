@@ -417,4 +417,10 @@ export class LeadUpdateModalComponent
   ) => {
     return `${item.folderName} - ${item.funnelGroupName}`;
   };
+
+  handleChangeBirthday(value: any): void {
+    this.leadForm.patchValue({
+      birthday: value,
+    });
+  }
 }

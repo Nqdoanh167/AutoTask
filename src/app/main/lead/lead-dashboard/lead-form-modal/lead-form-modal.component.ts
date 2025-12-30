@@ -88,15 +88,15 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
   public EChainNextActionType = EChainNextActionType;
 
   constructor(
-    private fb: FormBuilder,
-    private modalRef: BsModalRef,
-    private modalService: BsModalService,
-    private storageService: StorageService,
-    private toastr: ToastrService,
-    private autoTaskService: AutoTaskService,
-    private leadService: LeadService,
-    private authService: AuthService,
-    private elementRef: ElementRef,
+    private readonly fb: FormBuilder,
+    private readonly modalRef: BsModalRef,
+    private readonly modalService: BsModalService,
+    private readonly storageService: StorageService,
+    private readonly toastr: ToastrService,
+    private readonly autoTaskService: AutoTaskService,
+    private readonly leadService: LeadService,
+    private readonly authService: AuthService,
+    private readonly elementRef: ElementRef,
   ) {}
 
   ngOnInit(): void {
@@ -402,8 +402,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       initialState: {
         lead: this.lead,
       },
-      keyboard: true,
-      backdrop: true,
     });
 
     modal.content?.saveEvent?.subscribe((updatedLead: ILead) => {
@@ -413,7 +411,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       }
     });
 
-    modal.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    modal.onHidden?.pipe(take(1)).subscribe(() => {
       this.isOpenBackDrop = false;
     });
   }

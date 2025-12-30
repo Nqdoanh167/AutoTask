@@ -77,71 +77,28 @@
                             <div class="event-badge">ĐƠN HÀNG MỚI</div>
                           </div>
                           <div class="card-content">
-                            @if (sourceData?.orders?.length) {
-                              @for (
-                                order of sourceData?.orders || [];
-                                track $any(order).id || order.id
-                              ) {
-                                <div class="row g-2">
-                                  <div class="col-6">
-                                    <label class="text-neutral fs-7">
-                                      Đơn hàng:
-                                    </label>
-                                    <div>#{{ order.code }}</div>
-                                  </div>
-
-                                  <div class="col-6">
-                                    <label class="text-neutral fs-7">
-                                      Tổng tiền:
-                                    </label>
-                                    <div>
-                                      {{ $any(order).amount | mycurrency }}
-                                    </div>
-                                  </div>
-
-                                  <div class="col-12">
-                                    <label class="text-neutral fs-7">
-                                      Sản phẩm:
-                                    </label>
-                                    @if (
-                                      $any(order).cart &&
-                                      $any(order).cart.length > 0
-                                    ) {
-                                      <div>
-                                        {{ $any(order).cart.length }} sản phẩm
-                                      </div>
-                                    } @else {
-                                      <div class="fs-7 mt-2">
-                                        Không có sản phẩm
-                                      </div>
-                                    }
-                                  </div>
-                                </div>
-                              }
-                            } @else {
-                              <div class="row g-2">
-                                <div class="col-6">
-                                  <label class="text-neutral fs-7">
-                                    Đơn hàng:
-                                  </label>
-                                  <div>-</div>
-                                </div>
-
-                                <div class="col-6">
-                                  <label class="text-neutral fs-7">
-                                    Tổng tiền:
-                                  </label>
-                                  <div>-</div>
-                                </div>
-
-                                <div class="col-12">
-                                  <label class="text-neutral fs-7">
-                                    Sản phẩm:
-                                  </label>
-                                  <div class="fs-7 mt-2">Không có sản phẩm</div>
-                                </div>
+                            <div class="row g-2">
+                              <div class="col-6">
+                                <label class="text-neutral fs-7">
+                                  Đơn hàng:
+                                </label>
+                                <div>-</div>
                               </div>
-                            }
+
+                              <div class="col-6">
+                                <label class="text-neutral fs-7">
+                                  Tổng tiền:
+                                </label>
+                                <div>-</div>
+                              </div>
+
+                              <div class="col-12">
+                                <label class="text-neutral fs-7">
+                                  Sản phẩm:
+                                </label>
+                                <div class="fs-7 mt-2">Không có sản phẩm</div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                         <div class="col-5 d-flex flex-column">
@@ -156,7 +113,7 @@
                                   src="{{ formLeadDeal?.value?.picture }}"
                                 />
                               </div>
-                              <div class="lead-name">
+                              <div class="lead-name text-truncate-1">
                                 {{ formLeadDeal?.value?.name || '-' }}
                               </div>
                             </div>
@@ -175,7 +132,7 @@
                                   />
                                 </div>
                                 <div
-                                  class="text-hover-underline cursor-pointer"
+                                  class="text-hover-underline cursor-pointer text-truncate-1"
                                 >
                                   {{ formLeadDeal?.value?.name || '-' }}
                                 </div>
@@ -192,7 +149,7 @@
                                   />
                                 </div>
                                 <div
-                                  class="text-hover-underline cursor-pointer"
+                                  class="text-hover-underline cursor-pointer text-truncate-1"
                                 >
                                   {{ formLeadDeal?.value?.name || '-' }}
                                 </div>
@@ -205,7 +162,7 @@
                                     width="24"
                                     height="24"
                                   />
-                                  <span>
+                                  <span class="text-truncate-1">
                                     {{ formLeadDeal?.value?.email || '-' }}
                                   </span>
                                 </div>
@@ -218,7 +175,7 @@
                                     width="24"
                                     height="24"
                                   />
-                                  <span>
+                                  <span class="text-truncate-1">
                                     {{ formLeadDeal?.value?.phone || '-' }}
                                   </span>
                                 </div>
@@ -231,7 +188,7 @@
                                     width="24"
                                     height="24"
                                   />
-                                  <span>
+                                  <span class="text-truncate-1">
                                     {{ sourceData?.branch?.name || '-' }}
                                   </span>
                                 </div>
@@ -244,7 +201,7 @@
                                     width="24"
                                     height="24"
                                   />
-                                  <span>
+                                  <span class="text-truncate-1">
                                     {{ formLeadDeal?.value?.name || '-' }}
                                   </span>
                                 </div>
@@ -292,9 +249,9 @@
                         <div class="custom-scrollbar section-area">
                           <div class="mt-2">
                             <div class="list-chain">
-                              <span class="headline mb-2">
+                              <!-- <span class="headline mb-2">
                                 Chuỗi hành động hiện tại
-                              </span>
+                              </span> -->
                               <accordion
                                 formArrayName="taskChains"
                                 class="accordion-white mt-2"
@@ -325,11 +282,13 @@
                                       accordion-heading
                                       class="header-item d-flex justify-content-between align-items-center"
                                     >
-                                      <span class="fw-500 text-neutral">
+                                      <div
+                                        class="fw-500 d-flex align-items-center gap-2"
+                                      >
                                         @if (!!sourceData?.id) {
                                           <i
                                             *ngIf="!!sourceData?.id"
-                                            class="me-2 fas"
+                                            class="fas"
                                             [ngClass]="{
                                               'fa-chevron-down':
                                                 myGroup?.isOpen,
@@ -337,8 +296,21 @@
                                             }"
                                           ></i>
                                         }
-                                        {{ taskChain.value.name || '-' }}
-                                      </span>
+                                        <div
+                                          class="d-flex align-items-center gap-2"
+                                        >
+                                          <span>
+                                            {{
+                                              (chainIndex + 1)
+                                                .toString()
+                                                .padStart(2, '0')
+                                            }}
+                                          </span>
+                                          <span>
+                                            {{ taskChain.value.name || '-' }}
+                                          </span>
+                                        </div>
+                                      </div>
                                       <div
                                         class="d-flex gap-2 align-items-center"
                                       >
@@ -617,12 +589,31 @@
                         </div>
                       </ng-container>
                     </div>
+
+                    <div>
+                      <button
+                        class="btn button-medium center-item button-filter-top button-fill secondary-color w-100"
+                        (click)="
+                          taskHasNoChainOpen
+                            ? handleCloseTask()
+                            : handleConfirmToCloseTask($event)
+                        "
+                      >
+                        <img
+                          src="./assets/icons/lock.svg"
+                          alt=""
+                          width="24"
+                          height="24"
+                        />
+                        Đóng tác vụ
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div class="col-3">
-                <div class="card h-100" style="border-radius: 4px">
+              <div class="col-3 h-100">
+                <div class="card" style="border-radius: 4px">
                   <div class="card-body p-0">
                     <div class="activity-log">
                       <nav class="lead-form-tab-menu">
@@ -1058,6 +1049,27 @@
                       </div>
                     </div>
                   </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 mt-3">
+                  <button
+                    type="button"
+                    class="btn button-medium button-outline"
+                    style="padding: 6px 44px !important"
+                    (click)="hideModal()"
+                  >
+                    Hủy
+                  </button>
+                  <custom-button-loading
+                    [isLoading]="loading.submit"
+                    [isDisabled]="loading.submit"
+                    (action)="onSubmit()"
+                    [type]="'button'"
+                    [textButton]="'Xác nhận'"
+                    [className]="
+                      'btn button-medium button-fill secondary-color'
+                    "
+                    [styleBtn]="'padding: 6px 44px !important'"
+                  ></custom-button-loading>
                 </div>
               </div>
             </div>

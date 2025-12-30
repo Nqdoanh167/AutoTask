@@ -282,10 +282,10 @@
                 <label class="form-label">Ngày sinh:</label>
                 <div style="height: 36px">
                   <custom-date-picker
-                    formControlName="birthday"
                     placeholder="Nhập Ngày sinh..."
                     typePicker="single"
                     [defaultValue]="leadForm.value.birthday"
+                    (changeDateEmmit)="handleChangeBirthday($event)"
                   ></custom-date-picker>
                 </div>
               </div>

@@ -1396,7 +1396,7 @@ accordion.custom-accordion {
 
 accordion.accordion-white {
   accordion-group.panel {
-    border: 1px solid $neutral-100;
+    border: 1.5px dashed #c9e0ff;
     border-radius: $radius-s;
     overflow: hidden;
     & + accordion-group.panel {

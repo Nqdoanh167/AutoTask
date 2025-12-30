@@ -3,18 +3,18 @@
     <div
       class="table-responsive thin-table tableFixHead custom-scrollbar table-borderless"
     >
-      <table class="table">
+      <table class="table ui-v2">
         <thead>
           <tr>
-            <th class="column-timer">Thực hiện</th>
+            <th class="column-timer">Hành Động</th>
             <!-- <th class="columns-action-main">Hành động</th> -->
             <th class="column-take-action">Thực hiện hành động</th>
             <th class="column-result">Kết quả & Nguyên nhân</th>
             <th class="column-next-step">Bước tiếp theo</th>
-            <th class="columns-desc">Ghi chú</th>
-            @if (f['status'].value !== ETaskChainType.CLOSED) {
+            <!-- <th class="columns-desc">Ghi chú</th> -->
+            <!-- @if (f['status'].value !== ETaskChainType.CLOSED) {
               <th class="columns-action"></th>
-            }
+            } -->
           </tr>
         </thead>
         <tbody>
@@ -38,7 +38,7 @@
               >
                 <tr [formGroupName]="taskChainResultIndex">
                   <td class="column-timer">
-                    <div class="d-flex gap-2 align-items-center">
+                    <div class="d-flex gap-2 align-items-center mb-1">
                       @if (taskChainResult.value?.executedDate) {
                         <div class="done-time">
                           {{
@@ -703,93 +703,102 @@
                       }
                     </div>
                   </td>
+                </tr>
 
-                  <!-- Ghi chú -->
-                  <td class="columns-desc">
-                    @if (
-                      staticDataChainItem?.taskChainResults?.[
-                        taskChainResultIndex
-                      ]?.['isEdit']
-                    ) {
-                      <div>
-                        <app-textarea
-                          [readonly]="
-                            f['status'].value === ETaskChainType.CLOSED
-                          "
-                          inputClass="border-0 ui-v2"
-                          placeholder="Nhập ghi chú..."
-                          [value]="taskChainResult.value.note || ''"
-                          (valueChange)="
-                            taskChainResult.patchValue({note: $event})
-                          "
-                        ></app-textarea>
-                      </div>
-                    } @else {
-                      <div>
-                        {{ taskChainResult.value?.note || '-' }}
-                      </div>
-                    }
-                  </td>
-
-                  @if (f['status'].value !== ETaskChainType.CLOSED) {
-                    <td class="columns-action">
-                      @if (
-                        !staticDataChainItem?.taskChainResults?.[
-                          taskChainResultIndex
-                        ]?.['isEdit'] &&
-                        (permissions.canEditAction ||
-                          permissions.canEditDeadline)
-                      ) {
-                        <div>
-                          <button
-                            style="width: 56px"
-                            type="button"
-                            (click)="
-                              staticDataChainItem!.taskChainResults[
-                                taskChainResultIndex
-                              ]['isEdit'] = true
-                            "
-                            class="btn d-flex align-items-center btn-action-table"
-                          >
-                            <img src="./assets/images/icon/edit.svg" alt="" />
-                          </button>
-                        </div>
-                      }
+                <!-- Hàng ghi chú - trải dài toàn bộ chiều rộng -->
+                <tr>
+                  <td colspan="6">
+                    <div class="d-flex align-items-center gap-2">
                       @if (
                         staticDataChainItem?.taskChainResults?.[
                           taskChainResultIndex
                         ]?.['isEdit']
                       ) {
-                        <div class="d-flex flex-column">
-                          <button
-                            type="button"
-                            class="btn button-medium button-fill secondary-color"
-                            (click)="
-                              handleSaveTaskChainResult(
-                                taskChainResultIndex,
-                                taskChainResult.value
-                              )
+                        <div class="flex-grow-1">
+                          <app-textarea
+                            [readonly]="
+                              f['status'].value === ETaskChainType.CLOSED
                             "
-                            [disabled]="loading.submit"
-                          >
-                            Lưu
-                          </button>
-                          <button
-                            type="button"
-                            class="btn button-medium button-outline mt-2"
-                            (click)="
-                              handleCancelSave(
-                                taskChainResultIndex,
-                                taskChainResult.value
-                              )
+                            inputClass="border-0 ui-v2"
+                            placeholder="Nhập ghi chú..."
+                            [value]="taskChainResult.value.note || ''"
+                            (valueChange)="
+                              taskChainResult.patchValue({note: $event})
                             "
-                          >
-                            Hủy
-                          </button>
+                          ></app-textarea>
+                        </div>
+                      } @else {
+                        <div class="flex-grow-1">
+                          {{ taskChainResult.value?.note || '-' }}
                         </div>
                       }
-                    </td>
-                  }
+
+                      @if (f['status'].value !== ETaskChainType.CLOSED) {
+                        <div>
+                          @if (
+                            !staticDataChainItem?.taskChainResults?.[
+                              taskChainResultIndex
+                            ]?.['isEdit'] &&
+                            (permissions.canEditAction ||
+                              permissions.canEditDeadline)
+                          ) {
+                            <div>
+                              <button
+                                style="width: 110px !important"
+                                type="button"
+                                (click)="
+                                  staticDataChainItem!.taskChainResults[
+                                    taskChainResultIndex
+                                  ]['isEdit'] = true
+                                "
+                                class="btn d-flex align-items-center justify-content-center button-medium button-outline"
+                              >
+                                <img
+                                  src="./assets/images/icon/edit.svg"
+                                  alt=""
+                                />
+                              </button>
+                            </div>
+                          }
+                          @if (
+                            staticDataChainItem?.taskChainResults?.[
+                              taskChainResultIndex
+                            ]?.['isEdit']
+                          ) {
+                            <div class="d-flex align-items-center gap-2">
+                              <button
+                                type="button"
+                                class="btn d-flex align-items-center justify-content-center button-medium button-outline"
+                                (click)="
+                                  handleCancelSave(
+                                    taskChainResultIndex,
+                                    taskChainResult.value
+                                  )
+                                "
+                                style="width: 110px !important"
+                              >
+                                Hủy
+                              </button>
+                              <button
+                                type="button"
+                                class="btn d-flex align-items-center justify-content-center button-medium button-fill secondary-color"
+                                (click)="
+                                  handleSaveTaskChainResult(
+                                    taskChainResultIndex,
+                                    taskChainResult.value
+                                  )
+                                "
+                                [disabled]="loading.submit"
+                                style="width: 110px !important"
+                              >
+                                Lưu
+                              </button>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </td>
                 </tr>
               </ng-container>
             }

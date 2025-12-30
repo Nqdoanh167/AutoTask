@@ -20,6 +20,7 @@
   height: 100%;
   background-color: vars.$body-bg;
   padding: 16px !important;
+  padding-bottom: 12px !important;
 
   .card-header {
     display: inline-flex;
@@ -360,7 +361,7 @@
 
 .section-area {
   width: calc(100% + -0px);
-  height: calc(100vh - 400px);
+  height: calc(100vh - 446px);
   overflow-y: scroll;
   overflow-x: hidden;
   padding: 16px;
@@ -371,7 +372,7 @@
 
 .activity-area {
   width: calc(100% + -0px);
-  height: calc(100vh - 214px);
+  height: calc(100vh - 234px);
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -686,5 +687,18 @@
   }
   &.is-invalid {
     border: 1px solid #dc3545;
+  }
+}
+
+.btn-close-task {
+  color: #0b2a78;
+  background-color: #eef3ff;
+  border: 1px solid vars.$primary;
+
+  &:hover {
+    background-color: #d2d9e7;
+  }
+  &:active {
+    background-color: #b6bcc9;
   }
 }

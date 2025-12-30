@@ -11,6 +11,7 @@ import {CommonModule} from '@angular/common';
       [ngClass]="{loading: isLoading}"
       [disabled]="isDisabled || clicked"
       [id]="id"
+      [style]="styleBtn"
     >
       <span
         *ngIf="isLoading"
@@ -32,6 +33,7 @@ export class CustomButtonLoadingComponent implements OnInit {
   @Input() textButton = 'Save';
   @Input() className?: string;
   @Input() id?: string;
+  @Input() styleBtn?: string;
   @Output() action = new EventEmitter<Event>();
 
   clicked = false;

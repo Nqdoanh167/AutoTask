@@ -993,6 +993,30 @@ a {
   }
 }
 
+.text-truncate-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-truncate-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 //ui v2
 .form-control.ui-v2,
 .form-select.ui-v2 {
@@ -1133,7 +1157,7 @@ textarea.ui-v2 {
     vertical-align: middle;
     background-color: #fff !important;
     border-color: $table-border;
-    border-bottom: $table-border;
+    border-bottom: $table-border !important;
     padding: 8px 8px 16px 8px;
     border-radius: $table-border-radius;
     line-height: 20px;
