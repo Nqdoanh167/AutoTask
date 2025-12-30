@@ -1,21 +1,35 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  EventEmitter,
+  Output,
+  Input,
+} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
   Validators,
   FormArray,
   FormControl,
+  AbstractControl,
 } from '@angular/forms';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {Subject, finalize, takeUntil} from 'rxjs';
-import {ILeadCreateDto, EGenderType, ILeadStatus} from '@app/types/lead';
+import {BsModalRef} from 'ngx-bootstrap/modal';
+import {finalize, Subject, takeUntil} from 'rxjs';
+import {
+  EGenderType,
+  ILeadStatus,
+  ILead,
+  IFolderLead,
+  IFunnel,
+} from '@app/types/lead';
 import {StorageService} from '@app/services/api/storage.service';
 import {ToastrService} from 'ngx-toastr';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {LeadService} from '@app/services/api/lead.service';
 import {Biz, ITag, User} from '@app/types/viewmodels';
 import {AuthService} from '@app/services/api/auth.service';
-import {ITeam} from '@app/types/flow';
-import { ISetting } from '@app/types/setting';
+import {ISetting} from '@app/types/setting';
 
 @Component({
   selector: 'app-lead-create-modal',
@@ -23,27 +37,33 @@ import { ISetting } from '@app/types/setting';
   styleUrls: ['./lead-create-modal.component.scss'],
 })
 export class LeadCreateModalComponent implements OnInit, OnDestroy {
+  @Output() saveEvent = new EventEmitter<ILead>();
+  @Input() currentFunnelId?: string;
+  @Input() tags: ITag[] = [];
   leadForm!: FormGroup;
-  tags: ITag[] = [];
   statuses: ILeadStatus[] = [];
   currentSetting!: ISetting;
   currentBiz!: Biz;
   listBizUsers: User[] = [];
   public EGenderType = EGenderType;
+  private folderLeads: IFolderLead[] = [];
+  public funnelOptions: Array<
+    IFunnel & {folderName: string; funnelGroupName: string}
+  > = [];
   private destroy$ = new Subject<void>();
-  public saveEvent = new Subject<ILeadCreateDto>();
   public loading = {
     isSubmitting: false,
     isUploadingAvatar: false,
   };
+  public submitted = false;
 
   constructor(
     private fb: FormBuilder,
     private modalRef: BsModalRef,
-    private modalService: BsModalService,
     private storageService: StorageService,
     private toastr: ToastrService,
     private autoTaskService: AutoTaskService,
+    private leadService: LeadService,
     private authService: AuthService,
   ) {}
 
@@ -51,6 +71,7 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
     this.initForm();
     this.loadBizUsers();
     this.loadAutoTaskSetting();
+    this.getFolderLead();
   }
 
   ngOnDestroy(): void {
@@ -68,11 +89,18 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
       tagIds: [[]],
       picture: [''],
       teams: this.fb.array([]),
+      funnelId: [null, [Validators.required]],
     });
 
-    if ((this.modalRef.content as any)?.tags) {
-      this.tags = (this.modalRef.content as any).tags;
+    if (this.currentFunnelId) {
+      this.leadForm.patchValue({
+        funnelId: this.currentFunnelId,
+      });
     }
+  }
+
+  get f(): {[key: string]: AbstractControl} {
+    return this.leadForm.controls;
   }
 
   get formTeams(): FormArray {
@@ -87,20 +115,8 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
     return this.leadForm?.get('name') as FormControl;
   }
 
-  getErrorMessage(fieldName: string): string {
-    const control = this.leadForm.get(fieldName);
-    if (control?.hasError('required')) {
-      return 'Trường này là bắt buộc';
-    }
-    if (control?.hasError('email')) {
-      return 'Email không hợp lệ';
-    }
-    return '';
-  }
-
-  isFieldInvalid(fieldName: string): boolean {
-    const control = this.leadForm.get(fieldName);
-    return !!(control && control.invalid && (control.dirty || control.touched));
+  get avatarUrl(): string {
+    return this.leadForm.get('picture')?.value || 'assets/images/avatar.svg';
   }
 
   onAvatarClick(): void {
@@ -124,10 +140,6 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
         this.loading.isUploadingAvatar = false;
       },
     });
-  }
-
-  get avatarUrl(): string {
-    return this.leadForm.get('picture')?.value || 'assets/images/avatar.svg';
   }
 
   private loadAutoTaskSetting(): void {
@@ -213,59 +225,80 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    this.submitted = true;
     if (this.leadForm.invalid) {
-      Object.keys(this.leadForm.controls).forEach((key) => {
-        this.leadForm.get(key)?.markAsTouched();
-      });
       return;
     }
 
     this.loading.isSubmitting = true;
-    const formData = {...this.leadForm.value};
 
-    const teams: ITeam[] = [];
-    if (formData.teams && Array.isArray(formData.teams)) {
-      formData.teams.forEach((team: any) => {
-        if (team.userId) {
-          teams.push({
-            roleId: team.roleId,
-            roleIcon: team.roleIcon,
-            roleName: team.roleName,
-            userId: team.userId,
-            userName: team.userName,
-            userPicture: team.userPicture,
-            userEmail: team.userEmail,
-          });
-        }
+    this.leadService.lead
+      .create(this.leadForm.value)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loading.isSubmitting = false;
+          this.submitted = false;
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200 || res.status === 201) {
+            this.toastr.success('Tạo lead thành công');
+            this.saveEvent.emit(res.data);
+            this.onCancel();
+          } else {
+            this.toastr.error(res.message);
+          }
+        },
+        error: (err) => {
+          this.toastr.error(err.message);
+        },
       });
-    }
-
-    const cleanedData: Partial<ILeadCreateDto> = {};
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key === 'teams') {
-        return;
-      }
-      if (value !== null && value !== '' && value !== undefined) {
-        (cleanedData as any)[key] = value;
-      }
-    });
-
-    if (teams.length > 0) {
-      (cleanedData as any).teams = teams;
-    }
-
-    const createData: ILeadCreateDto = {
-      name: formData.name,
-      phone: formData.phone,
-      statusId: this.statuses.find((s) => s.isDefault)?.id || '',
-      ...cleanedData,
-    };
-
-    this.saveEvent.next(createData);
-    this.onCancel();
   }
 
   onCancel(): void {
     this.modalRef.hide();
   }
+
+  getFolderLead(): void {
+    this.leadService.leadFolder
+      .getWithFunnels({
+        page: 1,
+        limit: 1000,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200 && res.data) {
+            this.folderLeads = res.data;
+            this.transformFunnelOptions();
+          }
+        },
+        error: (err: any) => {
+          console.error('Error loading folder leads:', err);
+        },
+      });
+  }
+
+  transformFunnelOptions(): void {
+    this.funnelOptions = [];
+    this.folderLeads?.forEach((folder) => {
+      folder?.funnelGroups?.forEach((funnelGroup) => {
+        funnelGroup.funnels?.forEach((funnel) => {
+          this.funnelOptions.push({
+            ...funnel,
+            folderName: folder.name,
+            funnelGroupName: funnelGroup.name,
+          });
+        });
+      });
+    });
+  }
+
+  groupByFolder = (
+    item: IFunnel & {folderName: string; funnelGroupName: string},
+  ) => {
+    return `${item.folderName} - ${item.funnelGroupName}`;
+  };
 }

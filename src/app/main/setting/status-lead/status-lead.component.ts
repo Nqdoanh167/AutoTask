@@ -12,6 +12,7 @@ import {AuthService} from '@app/services/api/auth.service';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {LeadService} from '@app/services/api/lead.service';
 import {CommonService} from '@app/services/common/common.service';
 import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
@@ -112,6 +113,7 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
   constructor(
     private readonly authService: AuthService,
     private readonly autoTaskService: AutoTaskService,
+    private readonly leadService: LeadService,
     private readonly commonService: CommonService,
     private fb: FormBuilder,
     private readonly modalConfirmService: ModalConfirmService,
@@ -148,7 +150,7 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
 
   getListStatusGroups() {
     this.loading.data = true;
-    this.autoTaskService.leadStatusGroup
+    this.leadService.leadStatusGroup
       .get({
         limit: 1000,
         page: 1,
@@ -180,7 +182,7 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
 
   getListStatuses() {
     this.loading.data = true;
-    this.autoTaskService.leadStatus
+    this.leadService.leadStatus
       .get({
         limit: 1000,
         page: 1,
@@ -208,7 +210,7 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
   }
 
   onDeleteGroup(value: ILeadStatusGroup) {
-    this.autoTaskService.leadStatusGroup
+    this.leadService.leadStatusGroup
       .delete(value.id as string)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -248,7 +250,7 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
   }
 
   onDeleteStatus(value: ILeadStatus) {
-    this.autoTaskService.leadStatus
+    this.leadService.leadStatus
       .delete(value.id as string)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -331,8 +333,8 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
 
     this.loading.addEditGroup = true;
     const serviceRef = this.isAdd.group
-      ? this.autoTaskService.leadStatusGroup.create(body)
-      : this.autoTaskService.leadStatusGroup.update(
+      ? this.leadService.leadStatusGroup.create(body)
+      : this.leadService.leadStatusGroup.update(
           this.dataSelected.group!.id,
           body,
         );
@@ -420,8 +422,8 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
 
     this.loading.addEditStatus = true;
     const serviceRef = this.isAdd.status
-      ? this.autoTaskService.leadStatus.create(body)
-      : this.autoTaskService.leadStatus.update(
+      ? this.leadService.leadStatus.create(body)
+      : this.leadService.leadStatus.update(
           this.dataSelected.status!.id,
           body,
         );

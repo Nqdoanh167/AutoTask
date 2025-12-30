@@ -38,6 +38,7 @@ import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
 import { MycurrencyPipe } from '@app/share/pipe/mycurrency.pipe';
 import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
 import { ModalModule } from "ngx-bootstrap/modal";
+import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { ModalModule } from "ngx-bootstrap/modal";
     TimeViewPipe,
     MycurrencyPipe,
     Hex2RgbPipe,
-    ModalModule
+    ModalModule,
+    CustomDatePickerComponent
 ],
   providers: [DatePipe],
 })

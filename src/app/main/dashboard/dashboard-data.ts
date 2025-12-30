@@ -5,6 +5,7 @@ import {finalize, shareReplay, takeUntil, filter} from 'rxjs';
 import {isEqual, uniqBy} from 'lodash';
 import {CommonService} from '@app/services/common/common.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {LeadService} from '@app/services/api/lead.service';
 import {IFilterTopButton, IFilterTopTable} from '@app/types/common';
 import {
   TASK_CONFIG_BUTTON,
@@ -20,6 +21,7 @@ export class DashboardData extends CheckboxSortTableComponent<
 > {
   protected readonly commonService = inject(CommonService);
   protected readonly autoTaskService = inject(AutoTaskService);
+  protected readonly leadService = inject(LeadService);
   protected readonly automationService = inject(AutomationService);
 
   public currentActiveViewMode?: IViewModeDto;

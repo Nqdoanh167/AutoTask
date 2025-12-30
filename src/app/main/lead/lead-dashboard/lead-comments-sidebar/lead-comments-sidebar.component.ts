@@ -13,6 +13,7 @@ import {
 import {ILead, ILeadComment, ELeadCommentContentType} from '@app/types/lead';
 import {StorageService} from '@app/services/api/storage.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {LeadService} from '@app/services/api/lead.service';
 import {ToastrService} from 'ngx-toastr';
 import {finalize, takeUntil} from 'rxjs';
 import {Subject} from 'rxjs';
@@ -79,6 +80,7 @@ export class LeadCommentsSidebarComponent
   constructor(
     private storageService: StorageService,
     private autoTaskService: AutoTaskService,
+    private leadService: LeadService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -120,7 +122,7 @@ export class LeadCommentsSidebarComponent
     const filterObj = {
       leadId: this.lead.id,
     };
-    this.autoTaskService.leadComment
+    this.leadService.leadComment
       .get({
         filter: JSON.stringify(filterObj),
         sort: '-createdAt', // Sort by createdAt ascending
@@ -309,7 +311,7 @@ export class LeadCommentsSidebarComponent
       contentType: ELeadCommentContentType.TEXT,
     };
 
-    this.autoTaskService.leadComment
+    this.leadService.leadComment
       .create(commentData)
       .pipe(
         finalize(() => (this.isSubmitting = false)),
@@ -374,7 +376,7 @@ export class LeadCommentsSidebarComponent
                 commentData.fileType = this.getFileType(file.name);
               }
 
-              this.autoTaskService.leadComment.create(commentData).subscribe({
+              this.leadService.leadComment.create(commentData).subscribe({
                 next: (commentResponse) => {
                   if (commentResponse?.data) {
                     const newComment = this.mapCommentToComment(

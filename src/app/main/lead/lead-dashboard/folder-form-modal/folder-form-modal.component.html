@@ -1,6 +1,6 @@
 <app-custom-modal
   [isSubmitting]="loading.submit"
-  [textOk]="'Tạo'"
+  [textOk]="dataSource ? 'Cập nhật' : 'Tạo'"
   (hideModal)="onCancel()"
   (submitModal)="onSubmit()"
 >
@@ -12,7 +12,9 @@
         width="24"
         height="24"
       />
-      <h5 class="modal-title text-neutral">Thêm {{ nameTitle }}</h5>
+      <h5 class="modal-title text-neutral">
+        {{ dataSource ? 'Cập nhật' : 'Thêm' }} {{ nameTitle }}
+      </h5>
     </div>
   </div>
 
@@ -29,21 +31,14 @@
           class="form-control"
           formControlName="name"
           placeholder="Nhập tên {{ nameTitle }}"
-          [class.is-invalid]="
-            folderForm.get('name')?.invalid && folderForm.get('name')?.touched
-          "
+          [class.is-invalid]="submitted && f['name'].errors"
         />
-        <div
-          class="invalid-feedback"
-          *ngIf="
-            folderForm.get('name')?.invalid && folderForm.get('name')?.touched
-          "
-        >
+        <div class="invalid-feedback" *ngIf="submitted && f['name'].errors">
           Vui lòng nhập tên {{ nameTitle }}
         </div>
       </div>
 
-      <ng-container *ngIf="type === 'group' || type === 'funnel'">
+      <ng-container *ngIf="type === 'group'">
         <div class="mb-3">
           <label for="folderId" class="text-neutral fw-500">
             Thư mục
@@ -57,23 +52,14 @@
             [clearable]="false"
             [searchable]="false"
             placeholder="Chọn thư mục"
-            [class.is-invalid]="
-              folderForm.get('folderId')?.invalid &&
-              folderForm.get('folderId')?.touched
-            "
-            (change)="
-              type === 'funnel'
-                ? folderForm.get('funnelGroupId')?.setValue(null)
-                : null
-            "
+            [class.is-invalid]="submitted && f['folderId'].errors"
             appendTo=".modal"
+            [loading]="folder.loading"
+            (change)="handleChangeFolder($event)"
           ></ng-select>
           <div
             class="invalid-feedback d-block"
-            *ngIf="
-              folderForm.get('folderId')?.invalid &&
-              folderForm.get('folderId')?.touched
-            "
+            *ngIf="submitted && f['folderId'].errors"
           >
             Vui lòng chọn thư mục
           </div>
@@ -83,29 +69,29 @@
       <ng-container *ngIf="type === 'funnel'">
         <div class="mb-3">
           <label for="funnelGroupId" class="text-neutral fw-500">
-            Nhóm phễu
+            Thư mục - Nhóm phễu
             <span class="text-danger">*</span>
           </label>
           <ng-select
             formControlName="funnelGroupId"
-            [items]="funnelGroups"
+            [items]="funnelGroupOptions"
+            [groupBy]="groupByFolder"
             bindLabel="name"
             bindValue="id"
             [clearable]="false"
             [searchable]="false"
             placeholder="Chọn nhóm phễu"
-            [class.is-invalid]="
-              folderForm.get('funnelGroupId')?.invalid &&
-              folderForm.get('funnelGroupId')?.touched
-            "
-          ></ng-select>
+            [class.is-invalid]="submitted && f['funnelGroupId'].errors"
+            (change)="handleChangeFunnelGroup($event)"
+          >
+            <ng-template ng-label-tmp let-item="item">
+              <span>{{ item.name }} ({{ item.folderName }})</span>
+            </ng-template>
+          </ng-select>
 
           <div
             class="invalid-feedback d-block"
-            *ngIf="
-              folderForm.get('funnelGroupId')?.invalid &&
-              folderForm.get('funnelGroupId')?.touched
-            "
+            *ngIf="submitted && f['funnelGroupId'].errors"
           >
             Vui lòng chọn nhóm phễu
           </div>
@@ -120,18 +106,15 @@
 
         <ng-select
           formControlName="statusGroupId"
-          [items]="statusGroup.rows"
+          [items]="statusGroups.rows"
           bindLabel="name"
           bindValue="id"
           [clearable]="false"
           [searchable]="false"
           placeholder="Chọn nhóm trạng thái lead"
-          [class.is-invalid]="
-            folderForm.get('statusGroupId')?.invalid &&
-            folderForm.get('statusGroupId')?.touched
-          "
-          (change)="getStatusByGroupId($event?.id)"
+          [class.is-invalid]="submitted && f['statusGroupId'].errors"
           appendTo=".modal"
+          [loading]="statusGroups.loading"
         >
           <ng-template ng-option-tmp let-item="item">
             <span>{{ item.name }}</span>
@@ -147,18 +130,9 @@
         >
           <span class="text-neutral fw-500">Trạng thái</span>
           <div class="form-status-list">
-            <ng-container *ngIf="status.loading">
+            <ng-container>
               <div
-                class="form-status-item d-flex align-items-center justify-content-center"
-              >
-                <div class="spinner-border spinner-border-sm" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </div>
-            </ng-container>
-            <ng-container *ngIf="!status.loading">
-              <div
-                *ngFor="let status of status.rows"
+                *ngFor="let status of statusesByGroupId"
                 class="lead-badge"
                 [ngStyle]="{
                   'background-color': status.bgColor | hex2rgb,
@@ -168,7 +142,7 @@
                 {{ status.name }}
               </div>
             </ng-container>
-            <ng-container *ngIf="status.total === 0">
+            <ng-container *ngIf="statusesByGroupId.length === 0">
               <div class="text-neutral">Không có trạng thái</div>
             </ng-container>
           </div>
@@ -187,7 +161,9 @@
           <label
             class="form-check-label text-neutral fw-500 mb-0"
             for="isAutoCreateTask"
-          >Tự động tạo tác vụ</label>
+          >
+            Tự động tạo tác vụ
+          </label>
         </div>
       </ng-container>
 

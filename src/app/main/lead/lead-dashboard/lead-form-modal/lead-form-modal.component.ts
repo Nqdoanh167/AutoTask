@@ -27,13 +27,13 @@ import {
 import {StorageService} from '@app/services/api/storage.service';
 import {ToastrService} from 'ngx-toastr';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {LeadService} from '@app/services/api/lead.service';
 import {Customer} from '@app/types/customer';
 import {Biz, ITag, User} from '@app/types/viewmodels';
 import {AuthService} from '@app/services/api/auth.service';
 import {EChainNextActionType, ETaskChainType, ITeam} from '@app/types/flow';
 import {IPlatform, ITaskChain} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
-import {LeadCreateModalComponent} from '../lead-create-modal/lead-create-modal.component';
 import {ETabDetail} from '@app/types/lead';
 import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
 import {ISetting} from '@app/types/setting';
@@ -92,6 +92,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     private storageService: StorageService,
     private toastr: ToastrService,
     private autoTaskService: AutoTaskService,
+    private leadService: LeadService,
     private authService: AuthService,
     private elementRef: ElementRef,
   ) {}
@@ -164,16 +165,20 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
 
   getFolderLead(): void {
     this.loading.getFolderLead = true;
-    this.autoTaskService.leadFolder
-      .getWithFunnels()
+    this.leadService.leadFolder
+      .getWithFunnels({
+        page: 1,
+        limit: 1000,
+      })
       .pipe(
         finalize(() => (this.loading.getFolderLead = false)),
         takeUntil(this.destroy$),
       )
       .subscribe({
         next: (res) => {
-          if (res.status === 200 && res.data) {
+          if (res.status === 200) {
             this.folderLeads = res.data;
+            this.leadService.setListLeadFolder(res.data);
           }
         },
         error: (err: any) => {
@@ -385,26 +390,6 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
       if (branch) {
         this.leadForm.patchValue({branch} as any);
       }
-    }
-  }
-
-  showModal(): void {
-    this.isOpenBackDrop = true;
-    const modalRef = this.modalService.show(LeadCreateModalComponent, {
-      class: 'modal-dialog-centered',
-      initialState: {
-        tags: this.tags,
-      } as any,
-    });
-
-    if (modalRef.content) {
-      (modalRef.content as any).saveEvent?.subscribe((data: any) => {
-        this.saveEvent.next(data);
-      });
-
-      modalRef.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
-        this.isOpenBackDrop = false;
-      });
     }
   }
 }

@@ -1059,7 +1059,7 @@ export class DashboardComponent
 
   handleCreateTaskFromLead(leadId: string) {
     // Fetch lead detail and open task creation modal
-    this.autoTaskService.lead.getById(leadId).subscribe({
+    this.leadService.lead.getById(leadId).subscribe({
       next: (res: any) => {
         if (res.status === 200 && res.data) {
           this.openTaskCreationModalWithLeadData(res.data);

@@ -73,7 +73,7 @@
     <div class="search-box">
       <custom-input-search
         [className]="'input-medium ui-v2'"
-        (searchEvent)="onSearch({term: $event, name: 'search'})"
+        (searchEvent)="onSearchFolder($event)"
         [placeholder]="'Tìm kiếm...'"
         [isCollapsible]="false"
       ></custom-input-search>
@@ -141,7 +141,7 @@
     </div>
 
     <div class="list-folder custom-scrollbar">
-      <ng-container *ngFor="let folder of folderLeads">
+      <ng-container *ngFor="let folder of folderLeads.rows">
         <div class="folder">
           <div class="d-flex align-items-center gap-2">
             <img
@@ -159,6 +159,7 @@
               width="16"
               height="16"
               class="cursor-pointer"
+              (click)="handleEditFolder(folder); $event.stopPropagation()"
             />
             <img
               src="./assets/icons/icon-lead/clone.svg"
@@ -198,8 +199,34 @@
               <div class="folder-name">{{ group.name }}</div>
             </div>
 
-            <div class="text-neutral bg-input-bg p-1">
-              {{ group.funnels?.length || 0 }}
+            <div class="d-flex align-items-center gap-2">
+              <img
+                src="./assets/icons/icon-lead/on-top.svg"
+                alt=""
+                width="16"
+                height="16"
+                class="cursor-pointer"
+                (click)="
+                  handleEditFolder(group, 'group'); $event.stopPropagation()
+                "
+              />
+              <img
+                src="./assets/icons/icon-lead/clone.svg"
+                alt=""
+                width="16"
+                height="16"
+                class="cursor-pointer"
+              />
+              <img
+                src="./assets/icons/icon-lead/trash.svg"
+                alt=""
+                width="16"
+                height="16"
+                class="cursor-pointer"
+                (click)="
+                  handleDeleteGroup(group.id || ''); $event.stopPropagation()
+                "
+              />
             </div>
           </div>
 
@@ -209,8 +236,8 @@
             <div
               class="item-folder"
               *ngFor="let funnel of group.funnels"
-              (click)="selectFunnel(funnel.id!)"
-              [ngClass]="{active: currentFunnelId$.value === funnel.id}"
+              (click)="selectFunnel(funnel)"
+              [ngClass]="{active: currentFunnel$.value?.id === funnel.id}"
             >
               <div class="d-flex align-items-center gap-2">
                 <img
@@ -221,12 +248,56 @@
                 <div class="folder-name fw-400">{{ funnel.name }}</div>
               </div>
 
-              <div class="text-neutral bg-input-bg p-1 rounded-pill">
+              <!-- <div class="text-neutral bg-input-bg p-1 rounded-pill">
                 {{ funnel.statLeadCount || 0 }}
+              </div> -->
+              <div class="d-flex align-items-center gap-2">
+                <img
+                  src="./assets/icons/icon-lead/on-top.svg"
+                  alt=""
+                  width="16"
+                  height="16"
+                  class="cursor-pointer"
+                  (click)="
+                    handleEditFolder(funnel, 'funnel'); $event.stopPropagation()
+                  "
+                />
+                <img
+                  src="./assets/icons/icon-lead/clone.svg"
+                  alt=""
+                  width="16"
+                  height="16"
+                  class="cursor-pointer"
+                />
+                <img
+                  src="./assets/icons/icon-lead/trash.svg"
+                  alt=""
+                  width="16"
+                  height="16"
+                  class="cursor-pointer"
+                  (click)="
+                    handleDeleteFunnel(funnel.id || '');
+                    $event.stopPropagation()
+                  "
+                />
               </div>
             </div>
           </ng-container>
         </ng-container>
+      </ng-container>
+      <ng-container *ngIf="!folderLeads.rows.length && !folderLeads.loading">
+        <div class="text-center">
+          <div class="fw-500 text-neutral">Không có dữ liệu</div>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="folderLeads.loading">
+        <div
+          class="loading-folder d-flex align-items-center justify-content-center"
+        >
+          <div class="spinner-grow text-primary" role="status">
+            <span class="visually-hidden">Loading</span>
+          </div>
+        </div>
       </ng-container>
     </div>
   </div>
@@ -389,15 +460,12 @@
                   <td>
                     <div
                       class="lead-status-badge"
+                      *ngIf="getStatusById(item.statusId) as status"
                       [ngStyle]="{
-                        background: item.statusId
-                          ? statusMap.get(item.statusId)?.bgColor
-                          : '#000'
+                        background: status?.bgColor || '#000'
                       }"
                     >
-                      {{
-                        item.statusId ? statusMap.get(item.statusId)?.name : '-'
-                      }}
+                      {{ status?.name || '-' }}
                     </div>
                   </td>
                   <td>
@@ -448,7 +516,7 @@
       >
         <div
           class="kanban-column"
-          *ngFor="let status of activeStatuses"
+          *ngFor="let status of statusesDisplay"
           [ngStyle]="{'background-color': status.bgColor | hex2rgb}"
           cdkDropList
           [id]="status.id"
@@ -590,11 +658,19 @@
         </div>
       </div>
 
-      <div class="kanban-loading" *ngIf="item.loading">
-        <div class="center-item">
-          <div class="spinner-custom"></div>
+      <ng-container *ngIf="item.loading">
+        <div class="kanban-loading">
+          <div class="center-item">
+            <div class="spinner-custom"></div>
+          </div>
         </div>
-      </div>
+      </ng-container>
+
+      <ng-container *ngIf="!item.rows.length && !item.loading">
+        <div class="text-center">
+          <div class="fw-500 text-neutral">Không có dữ liệu</div>
+        </div>
+      </ng-container>
     </div>
   </div>
 </div>

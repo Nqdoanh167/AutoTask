@@ -2,6 +2,7 @@ import {Component, EventEmitter, Output} from '@angular/core';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {LeadService} from '@app/services/api/lead.service';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {calculateNextPos} from '@app/utils/common';
 import {ILeadStatus} from '@app/types/lead';
@@ -21,6 +22,7 @@ export class SortLeadStatusModalComponent {
     public bsModalRef: BsModalRef,
     private toastrService: ToastrService,
     private autoTaskService: AutoTaskService,
+    private leadService: LeadService,
   ) {}
 
   onDrop(event: CdkDragDrop<ILeadStatus[]>) {
@@ -54,7 +56,7 @@ export class SortLeadStatusModalComponent {
 
     // Gọi API để update pos
     this.loading = true;
-    this.autoTaskService.leadStatus
+    this.leadService.leadStatus
       .update(movedStatus.id, {pos: newPos})
       .subscribe({
         next: (res) => {

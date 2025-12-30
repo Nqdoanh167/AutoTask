@@ -1,14 +1,18 @@
 import {inject} from '@angular/core';
-import {finalize, shareReplay, takeUntil, Observable} from 'rxjs';
+import {finalize, shareReplay, takeUntil} from 'rxjs';
 import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
-import {ILead, ILeadTag, ILeadStatus} from '@app/types/lead';
-import {CommonService} from '@app/services/common/common.service';
-import {ICommonDataLazy, ITag, IQueryBase} from '@app/types/viewmodels';
 import {
-  LEAD_CONFIG_FILTERS,
-  LEAD_CONFIG_BUTTON,
-} from '../lead.variable';
+  ILead,
+  ILeadTag,
+  ILeadStatus,
+  ILeadStatusGroup,
+  IFolderLead,
+} from '@app/types/lead';
+import {CommonService} from '@app/services/common/common.service';
+import {EntityPagination, IQueryBase} from '@app/types/viewmodels';
+import {LEAD_CONFIG_FILTERS, LEAD_CONFIG_BUTTON} from '../lead.variable';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {LeadService} from '@app/services/api/lead.service';
 import {ISource} from '@app/types/setting';
 
 export class LeadDashboardData extends CheckboxSortTableComponent<
@@ -17,6 +21,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
 > {
   protected readonly commonService = inject(CommonService);
   protected readonly autoTaskService = inject(AutoTaskService);
+  protected readonly leadService = inject(LeadService);
 
   public override configFilters = LEAD_CONFIG_FILTERS;
   public override configButtons = LEAD_CONFIG_BUTTON;
@@ -27,44 +32,52 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     totalPrice: 0,
   };
 
-  public statuses: ICommonDataLazy<ILeadStatus, IQueryBase> = {
+  public statuses: EntityPagination<ILeadStatus> = {
     rows: [],
     loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 1000,
-      sort: 'pos',
-    },
-    isAllowLoadMore: false,
+    limit: 1000,
+    page: 1,
+    total: 0,
   };
 
-  public tags: ICommonDataLazy<ILeadTag, IQueryBase> = {
+  public statusGroups: EntityPagination<ILeadStatusGroup> = {
     rows: [],
     loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 1000,
-      sort: 'pos',
-    },
-    isAllowLoadMore: false,
+    limit: 1000,
+    page: 1,
+    total: 0,
   };
 
-  public sources: ICommonDataLazy<ISource, IQueryBase> = {
+  public tags: EntityPagination<ILeadTag> = {
     rows: [],
     loading: false,
-    paramsQuery: {
-      page: 1,
-      limit: 1000,
-      isActive: true,
-    },
-    isAllowLoadMore: false,
+    limit: 1000,
+    page: 1,
+    total: 0,
+  };
+
+  public sources: EntityPagination<ISource> = {
+    rows: [],
+    limit: 1000,
+    page: 1,
+    total: 0,
+    loading: false,
+  };
+
+  public folder: EntityPagination<IFolderLead> = {
+    rows: [],
+    limit: 1000,
+    page: 1,
+    total: 0,
+    loading: false,
   };
 
   constructor() {
     super();
-    this.getLeadStatuses();
-    this.getLeadTags();
-    this.getPublicSourcesCache();
+    this.getStatusesCache();
+    this.getStatusGroupsCache();
+    this.getTagsCache();
+    this.getFoldersCache();
   }
 
   override getDataSource(isReset?: boolean) {
@@ -84,7 +97,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     });
 
     this.item.rows = [];
-    this.autoTaskService.lead
+    this.leadService.lead
       .get(params)
       .pipe(
         finalize(() => {
@@ -110,87 +123,121 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
       });
   }
 
-  /**
-   * Generic method for data fetching with post-processing callbacks
-   */
-  protected getData<T>(
-    serviceMethod: Observable<any>,
-    filterName: string,
-    dataContainer: ICommonDataLazy<T, IQueryBase>,
-    onSuccess?: (data: T[]) => void,
-    forceRefresh = false,
-  ): void {
-    // Fetch from API
-    dataContainer.loading = true;
-    serviceMethod
+  getStatuses() {
+    this.statuses.loading = true;
+    this.leadService.leadStatus
+      .get({
+        limit: this.statuses.limit,
+        page: this.statuses.page,
+        sort: 'pos',
+      })
       .pipe(
-        finalize(() => {
-          dataContainer.loading = false;
-        }),
+        finalize(() => (this.statuses.loading = false)),
         takeUntil(this.destroy$),
       )
-      .subscribe({
-        next: (res: any) => {
-          if (res.status === 200) {
-            dataContainer.rows = res.data;
-
-            // Update filter options
-            const filter = this.configFilters.find(
-              (f) => f.name === filterName,
-            );
-            if (filter) {
-              filter.options = res.data;
-            }
-
-            // Call post-processing callback
-            onSuccess?.(res.data);
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
+      .subscribe((res) => {
+        if (res.status === 200) {
+          this.statuses.rows = res.data || [];
+          this.statuses.total = res.meta?.total || 0;
+          this.leadService.setListLeadStatus(this.statuses.rows);
+        }
       });
   }
 
-  /**
-   * Hook method for status map building after API success
-   * Override in child classes to implement custom logic
-   */
-  protected onStatusesSuccess(statuses: ILeadStatus[]): void {
-    // Default implementation: do nothing
+  getStatusesCache() {
+    this.leadService.listLeadStatus
+      .pipe(
+        finalize(() => (this.statuses.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        this.statuses.rows = res || [];
+        this.statuses.total = res.length || 0;
+      });
   }
 
-  /**
-   * Hook method for tag map building after API success
-   * Override in child classes to implement custom logic
-   */
-  protected onTagsSuccess(tags: ILeadTag[]): void {
-    // Default implementation: do nothing
+  getStatusGroups() {
+    this.statusGroups.loading = true;
+    this.leadService.leadStatusGroup
+      .get({
+        limit: this.statusGroups.limit,
+        page: this.statusGroups.page,
+      })
+      .pipe(
+        finalize(() => (this.statusGroups.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        this.statusGroups.rows = res.data || [];
+        this.leadService.setListLeadStatusGroup(this.statusGroups.rows);
+      });
   }
 
-  /**
-   * Get lead statuses
-   */
-  getLeadStatuses(forceRefresh = false) {
-    this.getData<ILeadStatus>(
-      this.autoTaskService.leadStatus.get(this.statuses.paramsQuery),
-      'statusId_in',
-      this.statuses,
-      (statuses) => this.onStatusesSuccess(statuses),
-      forceRefresh,
-    );
+  getStatusGroupsCache() {
+    this.leadService.listLeadStatusGroup
+      .pipe(
+        finalize(() => (this.statusGroups.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        this.statusGroups.rows = res || [];
+      });
   }
 
-  /**
-   * Get lead tags
-   */
-  getLeadTags(forceRefresh = false) {
-    this.getData<ILeadTag>(
-      this.autoTaskService.leadTag.get(this.tags.paramsQuery),
-      'tagIds_in',
-      this.tags,
-      (tags) => this.onTagsSuccess(tags),
-      forceRefresh,
-    );
+  getTags() {
+    this.tags.loading = true;
+    this.leadService.leadTag
+      .get({
+        limit: this.tags.limit,
+        page: this.tags.page,
+      })
+      .pipe(
+        finalize(() => (this.tags.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        this.tags.rows = res.data || [];
+        this.leadService.setListLeadTag(this.tags.rows);
+      });
+  }
+
+  getTagsCache() {
+    this.leadService.listLeadTag
+      .pipe(
+        finalize(() => (this.tags.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        this.tags.rows = res || [];
+      });
+  }
+
+  getFolders() {
+    this.folder.loading = true;
+    this.leadService.leadFolder
+      .getWithFunnels({
+        limit: this.folder.limit,
+        page: this.folder.page,
+      })
+      .pipe(
+        finalize(() => (this.folder.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        this.folder.rows = res.data || [];
+        this.folder.total = res.meta?.total || 0;
+      });
+  }
+
+  getFoldersCache() {
+    this.leadService.listLeadFolder
+      .pipe(
+        finalize(() => (this.folder.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        this.folder.rows = res || [];
+      });
   }
 
   changeSort(field: string) {
@@ -214,66 +261,5 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     Object.assign(filterObj, filters);
     this.item.paramsQuery.filter = JSON.stringify(filterObj);
     this.getDataSource(true);
-  }
-
-  /**
-   * Get public sources from cache (BehaviorSubject)
-   * This listens to the shared source list to avoid redundant API calls
-   */
-  getPublicSourcesCache() {
-    this.autoTaskService.listSourceObservable
-      .pipe(
-        finalize(() => (this.sources.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          this.sources.rows = res || [];
-
-          // If no sources in BehaviorSubject, load from API
-          if (!res || res.length === 0) {
-            this.getPublicSources();
-          }
-        },
-        error: (err) => {
-          this.sources.isAllowLoadMore = false;
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  /**
-   * Load public sources from API and populate BehaviorSubject
-   * This ensures sources are available for all components
-   */
-  getPublicSources() {
-    this.sources.loading = true;
-    this.autoTaskService.source
-      .get(this.sources.paramsQuery)
-      .pipe(
-        finalize(() => (this.sources.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.sources.rows = res.data || [];
-            // Populate BehaviorSubject so other components can use it
-            this.autoTaskService.setListSource(this.sources.rows);
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.commonService.handleErr(err);
-        },
-      });
-  }
-
-  /**
-   * Get cached public sources for use in modals
-   */
-  getCachedPublicSources(): ISource[] {
-    return this.sources.rows;
   }
 }

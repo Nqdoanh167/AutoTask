@@ -280,7 +280,7 @@ export class ModalUpdateTaskComponent
   }
 
   private loadLeadDataForTask(leadId: string) {
-    this.autoTaskService.lead
+    this.leadService.lead
       .getById(leadId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({

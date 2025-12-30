@@ -125,12 +125,14 @@ export interface IFolderLead {
   name: string;
   level: number;
   funnelGroups: IFunnelGroup[];
+  statusGroupId: string;
 }
 
 export interface IFunnelGroup {
   id?: string;
   name: string;
   funnels: IFunnel[];
+  statusGroupId: string;
 }
 
 export interface IFunnel {
@@ -143,6 +145,7 @@ export interface IFunnel {
   statLeadCount: number;
   createdAt: Date;
   updatedAt: Date;
+  statusGroupId: string;
 }
 
 export interface ILeadStatus {

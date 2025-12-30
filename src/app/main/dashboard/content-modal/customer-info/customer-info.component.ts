@@ -35,6 +35,7 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalUpdateCustomerComponent} from '@main/dashboard/content-modal/modal-update-customer/modal-update-customer.component';
 import {RfmService} from '@app/services/api/rfm.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {LeadService} from '@app/services/api/lead.service';
 import {ILeadStatus, ILeadTag} from '@app/types/lead';
 
 type ViewOrderType = 'completed' | 'cancelled' | 'trash';
@@ -122,6 +123,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     private readonly modalService: BsModalService,
     private readonly rfmService: RfmService,
     private readonly autoTaskService: AutoTaskService,
+    private readonly leadService: LeadService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -153,7 +155,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
     this.getProvince();
     if (this.leadId) {
       this.loadLeadStatusesAndTags();
-      this.autoTaskService.lead.getById(this.leadId).subscribe((res) => {
+      this.leadService.lead.getById(this.leadId).subscribe((res) => {
         if (res.status === 200) {
           // Store original values for revert
           this.originalLeadStatusId = res.data?.statusId || null;
@@ -583,8 +585,8 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
   loadLeadStatusesAndTags() {
     this.loadingLeadData = true;
 
-    const leadStatuses$ = this.autoTaskService.leadStatus.get();
-    const leadTags$ = this.autoTaskService.leadTag.get();
+    const leadStatuses$ = this.leadService.leadStatus.get();
+    const leadTags$ = this.leadService.leadTag.get();
 
     Promise.all([leadStatuses$.toPromise(), leadTags$.toPromise()])
       .then(([statusesRes, tagsRes]) => {
@@ -681,7 +683,7 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
     if (!leadId || !statusId) return;
 
     this.loadingLeadData = true;
-    this.autoTaskService.lead
+    this.leadService.lead
       .update(leadId, {id: leadId, statusId})
       .pipe(
         finalize(() => (this.loadingLeadData = false)),
@@ -708,7 +710,7 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
     if (!leadId) return;
 
     this.loadingLeadData = true;
-    this.autoTaskService.lead
+    this.leadService.lead
       .update(leadId, {id: leadId, tagIds})
       .pipe(
         finalize(() => (this.loadingLeadData = false)),

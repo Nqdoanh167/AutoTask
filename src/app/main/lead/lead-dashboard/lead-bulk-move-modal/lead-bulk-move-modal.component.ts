@@ -1,6 +1,7 @@
 import {Component, OnInit, EventEmitter, Output} from '@angular/core';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {LeadService} from '@app/services/api/lead.service';
 import {ToastrService} from 'ngx-toastr';
 import {finalize} from 'rxjs';
 import {IFunnel} from '@app/types/lead';
@@ -23,6 +24,7 @@ export class LeadBulkMoveModalComponent implements OnInit {
   constructor(
     public bsModalRef: BsModalRef,
     private autoTaskService: AutoTaskService,
+    private leadService: LeadService,
     private toastrService: ToastrService,
   ) {}
 
@@ -32,7 +34,7 @@ export class LeadBulkMoveModalComponent implements OnInit {
 
   loadFunnels(): void {
     this.isLoading = true;
-    this.autoTaskService.leadFunnel
+    this.leadService.leadFunnel
       .get({limit: 1000, sort: 'pos'})
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
