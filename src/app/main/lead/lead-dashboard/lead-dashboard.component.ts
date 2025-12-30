@@ -173,9 +173,11 @@ export class LeadDashboardComponent
               );
 
               if (statusGroup) {
-                this.statusesDisplay = this.statuses.rows.filter((status) =>
-                  statusGroup.leadStatusIds.includes(status.id),
-                );
+                this.statusesDisplay = statusGroup.leadStatusIds
+                  .map((statusId) =>
+                    this.statuses.rows.find((status) => status.id === statusId),
+                  )
+                  .filter(Boolean) as ILeadStatus[];
               }
             }
           });
@@ -239,7 +241,6 @@ export class LeadDashboardComponent
       const modalRef = this.modalService.show(LeadCreateModalComponent, {
         class: 'modal-dialog-centered',
         initialState: {
-          tags: this.tags,
           currentFunnelId: this.currentFunnel$.value?.id,
         } as any,
       });

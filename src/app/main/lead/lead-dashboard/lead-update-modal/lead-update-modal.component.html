@@ -1,0 +1,458 @@
+<div class="modal-update-lead">
+  <app-custom-modal
+    [isSubmitting]="loading.isSubmitting"
+    [textOk]="'Cập nhật'"
+    (hideModal)="onCancel()"
+    (submitModal)="onSubmit()"
+  >
+    <div modalTitle>
+      <h4 class="modal-title pull-left text-neutral">Cập nhật Lead</h4>
+    </div>
+    <div modalBody>
+      <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
+        <accordion class="accordion-white" [isAnimated]="true">
+          <accordion-group [isOpen]="true">
+            <div accordion-heading>
+              <span class="fw-500">Thông tin cơ bản</span>
+            </div>
+            <div class="row g-3">
+              <div class="col-4">
+                <label class="form-label">
+                  Tên lead:
+                  <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="name"
+                  placeholder="Nhập tên lead"
+                  [class.is-invalid]="submitted && f['name'].errors"
+                />
+                <small
+                  class="text-danger"
+                  *ngIf="submitted && f['name'].errors"
+                >
+                  Vui lòng nhập tên lead
+                </small>
+              </div>
+
+              <div class="col-4">
+                <label class="form-label">
+                  Số điện thoại:
+                  <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="phone"
+                  placeholder="Nhập số điện thoại"
+                  [class.is-invalid]="submitted && f['phone'].errors"
+                />
+                <small
+                  class="text-danger"
+                  *ngIf="submitted && f['phone'].errors"
+                >
+                  Vui lòng nhập số điện thoại
+                </small>
+              </div>
+
+              <div class="col-4">
+                <label class="form-label">
+                  Phễu:
+                  <span class="text-danger">*</span>
+                </label>
+                <ng-select
+                  formControlName="funnelId"
+                  [items]="funnelOptions"
+                  bindLabel="name"
+                  bindValue="id"
+                  placeholder="Chọn phễu"
+                  [groupBy]="groupByFolder"
+                  [clearable]="true"
+                  [class.is-invalid]="submitted && f['funnelId'].errors"
+                  [clearable]="false"
+                >
+                  <ng-template ng-label-tmp let-item="item">
+                    <span>
+                      {{ item.name }}
+                      <span class="fw-bold">
+                        ({{ item.funnelGroupName }} - {{ item.folderName }})
+                      </span>
+                    </span>
+                  </ng-template>
+                </ng-select>
+
+                <small
+                  class="text-danger"
+                  *ngIf="submitted && f['funnelId'].errors"
+                >
+                  Vui lòng chọn phễu
+                </small>
+              </div>
+
+              <div
+                class="col-4"
+                formArrayName="teams"
+                *ngIf="currentSetting?.roles?.length"
+              >
+                <label class="form-label">Nhân sự phụ trách:</label>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <ng-container
+                    *ngFor="
+                      let teamControl of formTeams.controls;
+                      let i = index
+                    "
+                  >
+                    <div
+                      class="btn-group role-item-wrapper"
+                      dropdown
+                      container=".modal-update-lead"
+                    >
+                      <button
+                        dropdownToggle
+                        type="button"
+                        class="btn btn-sm role-item-btn"
+                        [attr.title]="
+                          teamControl.value?.userName
+                            ? teamControl.value?.roleName +
+                              ': ' +
+                              teamControl.value?.userName
+                            : teamControl.value?.roleName
+                        "
+                      >
+                        <ng-container *ngIf="teamControl.value.userId">
+                          <img
+                            width="24"
+                            height="24"
+                            class="rounded-circle"
+                            [src]="
+                              teamControl.value?.userPicture ||
+                              'assets/images/avatar.svg'
+                            "
+                            alt=""
+                            style="object-fit: cover"
+                          />
+                        </ng-container>
+                        <ng-container *ngIf="!teamControl.value.userId">
+                          <i
+                            class="fa-solid"
+                            [ngClass]="teamControl.value?.roleIcon || 'fa-user'"
+                          ></i>
+                        </ng-container>
+                      </button>
+                      <ul
+                        *dropdownMenu
+                        class="dropdown-menu"
+                        role="menu"
+                        style="max-height: 300px; overflow-y: auto"
+                      >
+                        <li
+                          *ngFor="
+                            let user of getAvailableUsers(
+                              teamControl.value?.roleId
+                            )
+                          "
+                          role="menuitem"
+                          class="dropdown-item"
+                          [class.active]="user.id === teamControl.value.userId"
+                          (click)="onChooseTeam(i, user)"
+                          style="cursor: pointer"
+                        >
+                          <div class="d-flex align-items-center">
+                            <img
+                              class="rounded-circle me-2"
+                              [src]="user.picture || 'assets/images/avatar.svg'"
+                              alt=""
+                              style="
+                                width: 32px;
+                                height: 32px;
+                                object-fit: cover;
+                              "
+                            />
+                            <div class="text-truncate">
+                              <div>{{ user.name }}</div>
+                              <small class="text-muted" *ngIf="user.email">
+                                {{ user.email }}
+                              </small>
+                            </div>
+                          </div>
+                        </li>
+                        <li
+                          *ngIf="teamControl.value.userId"
+                          role="menuitem"
+                          class="dropdown-item text-danger"
+                          (click)="onRemoveTeam(i)"
+                          style="cursor: pointer; border-top: 1px solid #ddd"
+                        >
+                          <div class="p-2">
+                            <i class="fa fa-times me-2"></i>
+                            Xóa người phụ trách
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+
+              <div class="col-4">
+                <label class="form-label">Email:</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  formControlName="email"
+                  placeholder="Nhập email"
+                  [class.is-invalid]="submitted && f['email'].errors"
+                />
+              </div>
+
+              <div class="col-4">
+                <label class="form-label">Giới tính:</label>
+                <div
+                  id="leadDeal.gender"
+                  class="d-flex align-items-center gap-4 input-medium"
+                >
+                  <div class="basic-radio">
+                    <input
+                      formControlName="gender"
+                      type="radio"
+                      name="gender"
+                      class="check"
+                      id="male"
+                      [value]="'male'"
+                    />
+                    <label for="male">
+                      <div class="container">
+                        <div class="cRadioBtn">
+                          <div class="overlay"></div>
+                          <div class="drops xsDrop"></div>
+                          <div class="drops mdDrop"></div>
+                          <div class="drops lgDrop"></div>
+                        </div>
+                      </div>
+                      <span>Nam</span>
+                    </label>
+                  </div>
+                  <div class="basic-radio">
+                    <input
+                      formControlName="gender"
+                      [value]="'female'"
+                      type="radio"
+                      name="gender"
+                      class="check"
+                      id="female"
+                    />
+                    <label for="female">
+                      <div class="container">
+                        <div class="cRadioBtn">
+                          <div class="overlay"></div>
+                          <div class="drops xsDrop"></div>
+                          <div class="drops mdDrop"></div>
+                          <div class="drops lgDrop"></div>
+                        </div>
+                      </div>
+                      <span>Nữ</span>
+                    </label>
+                  </div>
+                  <div class="basic-radio">
+                    <input
+                      formControlName="gender"
+                      [value]="'other'"
+                      type="radio"
+                      name="gender"
+                      class="check"
+                      id="lead.other"
+                    />
+                    <label for="lead.other">
+                      <div class="container">
+                        <div class="cRadioBtn">
+                          <div class="overlay"></div>
+                          <div class="drops xsDrop"></div>
+                          <div class="drops mdDrop"></div>
+                          <div class="drops lgDrop"></div>
+                        </div>
+                      </div>
+                      <span>Khác</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-4">
+                <label class="form-label">Ngày sinh:</label>
+                <div style="height: 36px">
+                  <custom-date-picker
+                    formControlName="birthday"
+                    placeholder="Nhập Ngày sinh..."
+                    typePicker="single"
+                    [defaultValue]="leadForm.value.birthday"
+                  ></custom-date-picker>
+                </div>
+              </div>
+
+              <div class="col-4">
+                <label class="form-label">Tag:</label>
+                <ng-select
+                  [formControl]="tagIdsControl"
+                  [items]="tags.rows"
+                  bindLabel="name"
+                  bindValue="id"
+                  placeholder="Chọn Tag"
+                  [multiple]="true"
+                  [clearable]="true"
+                  [closeOnSelect]="false"
+                  [appendTo]="'.modal-update-lead'"
+                >
+                  <ng-template ng-option-tmp let-item="item">
+                    <span
+                      class="text-capitalize tag-item"
+                      [ngClass]="{nonBack: !item.bgColor}"
+                      [ngStyle]="{background: item.bgColor}"
+                    >
+                      <span>
+                        <i class="fa-solid fa-filter"></i>
+                        {{ item.name }}
+                      </span>
+                    </span>
+                  </ng-template>
+                  <ng-template ng-label-tmp let-item="item">
+                    <span
+                      class="text-capitalize tag-item"
+                      [ngClass]="{nonBack: !item.bgColor}"
+                      [ngStyle]="{background: item.bgColor}"
+                    >
+                      <span>
+                        <i class="fa-solid fa-filter"></i>
+                        {{ item.name }}
+                      </span>
+                    </span>
+                  </ng-template>
+                </ng-select>
+              </div>
+            </div>
+          </accordion-group>
+
+          <accordion-group>
+            <div accordion-heading>
+              <span class="fw-500">Vị trí</span>
+            </div>
+            <div class="row g-3">
+              <div class="col-12">
+                <select-location
+                  [selected]="selectedLocation"
+                  (emitData)="handleLocationChange($event)"
+                  [type]="'wardCode'"
+                  [showLabel]="true"
+                  [appendTo]="'.modal-update-lead'"
+                  [typeDisplay]="'horizontal'"
+                ></select-location>
+              </div>
+              <div class="col-4">
+                <label class="form-control-label" for="street">
+                  Số nhà, đường/phố
+                </label>
+                <input
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid': submitted && f['street'].errors
+                  }"
+                  (change)="handleCombineAddress()"
+                  [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
+                  formControlName="street"
+                  id="street"
+                  type="text"
+                />
+              </div>
+              <div class="col-4">
+                <label class="form-control-label" for="address">
+                  Địa chỉ đầy đủ
+                </label>
+                <input
+                  class="form-control"
+                  formControlName="address"
+                  id="address"
+                  type="text"
+                  readonly
+                />
+              </div>
+            </div>
+          </accordion-group>
+
+          <accordion-group>
+            <div accordion-heading>
+              <span class="fw-500">Thông tin kết nối</span>
+            </div>
+            <div class="row g-3">
+              <div class="col-4">
+                <div
+                  *ngIf="platforms.length === 0"
+                  class="text-center py-3 text-muted"
+                >
+                  Chưa có kết nối nào
+                </div>
+                <div *ngFor="let platform of platforms" class="mb-3">
+                  <div class="d-flex align-items-center mb-2">
+                    <img
+                      *ngIf="platform.platform === 'FACEBOOK'"
+                      src="assets/images/socials/facebook-platform.svg"
+                      alt="Facebook"
+                      class="me-2"
+                      style="width: 24px; height: 24px"
+                    />
+                    <img
+                      *ngIf="
+                        platform.platform === 'ZALO_PERSONAL' ||
+                        platform.platform === 'ZALO_OA'
+                      "
+                      src="assets/images/socials/zalo-platform.svg"
+                      alt="Zalo"
+                      class="me-2"
+                      style="width: 24px; height: 24px"
+                    />
+                    <strong>{{ platform.platformName }}</strong>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                      <thead>
+                        <tr>
+                          <th>ID Nền tảng</th>
+                          <th>ID Khách hàng</th>
+                          <th *ngIf="platform.platform === 'ZALO_OA'">
+                            Quan tâm
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let connection of platform.connections">
+                          <td>{{ connection.platformId }}</td>
+                          <td>{{ connection.customerId }}</td>
+                          <td *ngIf="platform.platform === 'ZALO_OA'">
+                            <i
+                              class="fa fa-check-circle text-success"
+                              *ngIf="connection.isInterested"
+                            ></i>
+                            <span *ngIf="!connection.isInterested">-</span>
+                          </td>
+                        </tr>
+                        <tr *ngIf="platform.connections.length === 0">
+                          <td
+                            [attr.colspan]="
+                              platform.platform === 'ZALO_OA' ? 3 : 2
+                            "
+                            class="text-center text-muted"
+                          >
+                            Chưa có kết nối nào
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </accordion-group>
+        </accordion>
+      </form>
+    </div>
+  </app-custom-modal>
+</div>

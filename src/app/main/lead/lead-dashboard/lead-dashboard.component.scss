@@ -68,6 +68,23 @@
     }
   }
 
+  .folder,
+  .group-folder,
+  .item-folder {
+    .actions {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+
+      .btn-dropdown {
+        padding: 0 5px;
+      }
+    }
+
+    &:hover .actions {
+      opacity: 1;
+    }
+  }
+
   .folder {
     background-color: #edf4ff;
   }

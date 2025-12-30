@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  EventEmitter,
-  Output,
-  Input,
-} from '@angular/core';
+import {Component, OnInit, EventEmitter, Output, Input} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -15,42 +8,33 @@ import {
   AbstractControl,
 } from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
-import {finalize, Subject, takeUntil} from 'rxjs';
-import {
-  EGenderType,
-  ILeadStatus,
-  ILead,
-  IFolderLead,
-  IFunnel,
-} from '@app/types/lead';
+import {finalize, takeUntil} from 'rxjs';
+import {EGenderType, ILead, IFolderLead, IFunnel} from '@app/types/lead';
 import {StorageService} from '@app/services/api/storage.service';
 import {ToastrService} from 'ngx-toastr';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {LeadService} from '@app/services/api/lead.service';
-import {Biz, ITag, User} from '@app/types/viewmodels';
-import {AuthService} from '@app/services/api/auth.service';
+import {User} from '@app/types/viewmodels';
 import {ISetting} from '@app/types/setting';
+import {LeadDashboardData} from '../lead-dashboard-data';
 
 @Component({
   selector: 'app-lead-create-modal',
   templateUrl: './lead-create-modal.component.html',
   styleUrls: ['./lead-create-modal.component.scss'],
 })
-export class LeadCreateModalComponent implements OnInit, OnDestroy {
+export class LeadCreateModalComponent
+  extends LeadDashboardData
+  implements OnInit
+{
   @Output() saveEvent = new EventEmitter<ILead>();
   @Input() currentFunnelId?: string;
-  @Input() tags: ITag[] = [];
   leadForm!: FormGroup;
-  statuses: ILeadStatus[] = [];
   currentSetting!: ISetting;
-  currentBiz!: Biz;
   listBizUsers: User[] = [];
   public EGenderType = EGenderType;
   private folderLeads: IFolderLead[] = [];
   public funnelOptions: Array<
     IFunnel & {folderName: string; funnelGroupName: string}
   > = [];
-  private destroy$ = new Subject<void>();
   public loading = {
     isSubmitting: false,
     isUploadingAvatar: false,
@@ -62,21 +46,15 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
     private modalRef: BsModalRef,
     private storageService: StorageService,
     private toastr: ToastrService,
-    private autoTaskService: AutoTaskService,
-    private leadService: LeadService,
-    private authService: AuthService,
-  ) {}
+  ) {
+    super();
+  }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this.initForm();
     this.loadBizUsers();
     this.loadAutoTaskSetting();
     this.getFolderLead();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   initForm(): void {
@@ -221,7 +199,7 @@ export class LeadCreateModalComponent implements OnInit, OnDestroy {
     if (!Array.isArray(tagIds) || tagIds.length === 0) {
       return [];
     }
-    return this.tags.filter((tag) => tagIds.includes(tag.id));
+    return this.tags.rows.filter((tag) => tagIds.includes(tag.id));
   }
 
   onSubmit(): void {

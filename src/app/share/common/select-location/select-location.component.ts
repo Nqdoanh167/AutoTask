@@ -43,6 +43,7 @@ export class SelectLocationComponent implements OnInit, OnDestroy {
   @Input() type: 'provinceCode' | 'districtCode' | 'wardCode' = 'wardCode';
   @Input() typeDisplay: 'vertical' | 'horizontal' = 'vertical';
   @Input() showLabel = false;
+  @Input() appendTo: string = '.body';
   @Output() emitData = new EventEmitter<any>();
 
   public formLocation = this.fb.group({

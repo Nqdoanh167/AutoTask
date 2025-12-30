@@ -14,13 +14,7 @@ import {
 } from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {finalize, takeUntil} from 'rxjs';
-import {
-  IFolderLead,
-  IFunnelGroup,
-  IFunnel,
-  ILeadStatusGroup,
-  ILeadStatus,
-} from '@app/types/lead';
+import {IFolderLead, IFunnelGroup, IFunnel, ILeadStatus} from '@app/types/lead';
 import {EntityResult, ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {ToastrService} from 'ngx-toastr';
 import {IChainAct} from '@app/types/flow';
@@ -85,9 +79,11 @@ export class FolderFormModalComponent
             (group) => group.id === value.statusGroupId,
           );
           if (group) {
-            this.statusesByGroupId = this.statuses.rows.filter((status) =>
-              group.leadStatusIds.includes(status.id),
-            );
+            this.statusesByGroupId = group.leadStatusIds
+              .map((statusId) =>
+                this.statuses.rows.find((status) => status.id === statusId),
+              )
+              .filter(Boolean) as ILeadStatus[];
           }
         }
       });

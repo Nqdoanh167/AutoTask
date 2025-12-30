@@ -199,11 +199,74 @@
 
           <div class="col-12">
             <label class="form-label">Giới tính:</label>
-            <select class="form-select" formControlName="gender">
-              <option [value]="EGenderType.MALE">Nam</option>
-              <option [value]="EGenderType.FEMALE">Nữ</option>
-              <option [value]="EGenderType.OTHER">Khác</option>
-            </select>
+            <div
+              id="leadDeal.gender"
+              class="d-flex align-items-center gap-4 input-medium"
+            >
+              <div class="basic-radio">
+                <input
+                  formControlName="gender"
+                  type="radio"
+                  name="gender"
+                  class="check"
+                  id="male"
+                  [value]="'male'"
+                />
+                <label for="male">
+                  <div class="container">
+                    <div class="cRadioBtn">
+                      <div class="overlay"></div>
+                      <div class="drops xsDrop"></div>
+                      <div class="drops mdDrop"></div>
+                      <div class="drops lgDrop"></div>
+                    </div>
+                  </div>
+                  <span>Nam</span>
+                </label>
+              </div>
+              <div class="basic-radio">
+                <input
+                  formControlName="gender"
+                  [value]="'female'"
+                  type="radio"
+                  name="gender"
+                  class="check"
+                  id="female"
+                />
+                <label for="female">
+                  <div class="container">
+                    <div class="cRadioBtn">
+                      <div class="overlay"></div>
+                      <div class="drops xsDrop"></div>
+                      <div class="drops mdDrop"></div>
+                      <div class="drops lgDrop"></div>
+                    </div>
+                  </div>
+                  <span>Nữ</span>
+                </label>
+              </div>
+              <div class="basic-radio">
+                <input
+                  formControlName="gender"
+                  [value]="'other'"
+                  type="radio"
+                  name="gender"
+                  class="check"
+                  id="lead.other"
+                />
+                <label for="lead.other">
+                  <div class="container">
+                    <div class="cRadioBtn">
+                      <div class="overlay"></div>
+                      <div class="drops xsDrop"></div>
+                      <div class="drops mdDrop"></div>
+                      <div class="drops lgDrop"></div>
+                    </div>
+                  </div>
+                  <span>Khác</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div class="col-12">
@@ -222,7 +285,7 @@
             <label class="form-label">Tag:</label>
             <ng-select
               [formControl]="tagIdsControl"
-              [items]="tags"
+              [items]="tags.rows"
               bindLabel="name"
               bindValue="id"
               placeholder="Chọn Tag"

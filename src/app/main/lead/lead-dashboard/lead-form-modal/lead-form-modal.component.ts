@@ -37,6 +37,8 @@ import {environment} from 'src/environments/environment';
 import {ETabDetail} from '@app/types/lead';
 import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
 import {ISetting} from '@app/types/setting';
+import {LeadUpdateModalComponent} from '../lead-update-modal/lead-update-modal.component';
+import {take} from 'rxjs';
 
 @Component({
   selector: 'app-lead-form-modal',
@@ -391,5 +393,28 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
         this.leadForm.patchValue({branch} as any);
       }
     }
+  }
+
+  openUpdateModal(): void {
+    this.isOpenBackDrop = true;
+    const modal = this.modalService.show(LeadUpdateModalComponent, {
+      class: 'modal-dialog-centered modal-xl',
+      initialState: {
+        lead: this.lead,
+      },
+      keyboard: true,
+      backdrop: true,
+    });
+
+    modal.content?.saveEvent?.subscribe((updatedLead: ILead) => {
+      if (this.lead?.id === updatedLead.id) {
+        Object.assign(this.lead, updatedLead);
+        this.initForm();
+      }
+    });
+
+    modal.onHidden?.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isOpenBackDrop = false;
+    });
   }
 }

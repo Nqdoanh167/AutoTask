@@ -152,32 +152,55 @@
             <div class="folder-name">{{ folder.name }}</div>
           </div>
 
-          <div class="d-flex align-items-center gap-2">
-            <img
-              src="./assets/icons/icon-lead/on-top.svg"
-              alt=""
-              width="16"
-              height="16"
-              class="cursor-pointer"
-              (click)="handleEditFolder(folder); $event.stopPropagation()"
-            />
-            <img
-              src="./assets/icons/icon-lead/clone.svg"
-              alt=""
-              width="16"
-              height="16"
-              class="cursor-pointer"
-            />
-            <img
-              src="./assets/icons/icon-lead/trash.svg"
-              alt=""
-              width="16"
-              height="16"
-              class="cursor-pointer"
-              (click)="
-                handleDeleteFolder(folder.id || ''); $event.stopPropagation()
-              "
-            />
+          <div
+            class="d-flex align-items-center gap-2 actions"
+            (click)="$event.stopPropagation()"
+          >
+            <div
+              class="btn-group cursor-pointer btn-dropdown"
+              dropdown
+              #folderDropdown="bs-dropdown"
+              placement="bottom right"
+              dropdownToggle
+            >
+              <div id="button-alignment">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+              <ul
+                id="dropdown-basic"
+                *dropdownMenu
+                class="dropdown-menu dropdown-menu-right"
+                role="menu"
+              >
+                <li
+                  role="menuitem"
+                  (click)="handleEditFolder(folder, 'folder')"
+                >
+                  <div href="#" class="dropdown-item cursor-pointer">
+                    <i class="far fa-edit me-2"></i>
+                    Cập nhật
+                  </div>
+                </li>
+                <li role="menuitem">
+                  <div href="#" class="dropdown-item cursor-pointer">
+                    <i
+                      class="fa-regular fa-clipboard me-2"
+                      style="width: 14px"
+                    ></i>
+                    Copy
+                  </div>
+                </li>
+                <li
+                  role="menuitem"
+                  (click)="handleDeleteFolder(folder.id || '')"
+                >
+                  <div href="#" class="dropdown-item cursor-pointer">
+                    <i class="far fa-trash-alt me-2"></i>
+                    Delete
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -199,34 +222,54 @@
               <div class="folder-name">{{ group.name }}</div>
             </div>
 
-            <div class="d-flex align-items-center gap-2">
-              <img
-                src="./assets/icons/icon-lead/on-top.svg"
-                alt=""
-                width="16"
-                height="16"
-                class="cursor-pointer"
-                (click)="
-                  handleEditFolder(group, 'group'); $event.stopPropagation()
-                "
-              />
-              <img
-                src="./assets/icons/icon-lead/clone.svg"
-                alt=""
-                width="16"
-                height="16"
-                class="cursor-pointer"
-              />
-              <img
-                src="./assets/icons/icon-lead/trash.svg"
-                alt=""
-                width="16"
-                height="16"
-                class="cursor-pointer"
-                (click)="
-                  handleDeleteGroup(group.id || ''); $event.stopPropagation()
-                "
-              />
+            <div
+              class="d-flex align-items-center gap-2 actions"
+              (click)="$event.stopPropagation()"
+            >
+              <div
+                class="btn-group cursor-pointer btn-dropdown"
+                dropdown
+                placement="bottom right"
+                dropdownToggle
+              >
+                <div id="button-alignment">
+                  <i class="fas fa-ellipsis-v"></i>
+                </div>
+                <ul
+                  id="dropdown-basic"
+                  *dropdownMenu
+                  class="dropdown-menu dropdown-menu-right"
+                  role="menu"
+                >
+                  <li
+                    role="menuitem"
+                    (click)="handleEditFolder(group, 'group')"
+                  >
+                    <div href="#" class="dropdown-item cursor-pointer">
+                      <i class="far fa-edit me-2"></i>
+                      Cập nhật
+                    </div>
+                  </li>
+                  <li role="menuitem">
+                    <div href="#" class="dropdown-item cursor-pointer">
+                      <i
+                        class="fa-regular fa-clipboard me-2"
+                        style="width: 14px"
+                      ></i>
+                      Copy
+                    </div>
+                  </li>
+                  <li
+                    role="menuitem"
+                    (click)="handleDeleteGroup(group.id || '')"
+                  >
+                    <div href="#" class="dropdown-item cursor-pointer">
+                      <i class="far fa-trash-alt me-2"></i>
+                      Delete
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 
@@ -251,35 +294,54 @@
               <!-- <div class="text-neutral bg-input-bg p-1 rounded-pill">
                 {{ funnel.statLeadCount || 0 }}
               </div> -->
-              <div class="d-flex align-items-center gap-2">
-                <img
-                  src="./assets/icons/icon-lead/on-top.svg"
-                  alt=""
-                  width="16"
-                  height="16"
-                  class="cursor-pointer"
-                  (click)="
-                    handleEditFolder(funnel, 'funnel'); $event.stopPropagation()
-                  "
-                />
-                <img
-                  src="./assets/icons/icon-lead/clone.svg"
-                  alt=""
-                  width="16"
-                  height="16"
-                  class="cursor-pointer"
-                />
-                <img
-                  src="./assets/icons/icon-lead/trash.svg"
-                  alt=""
-                  width="16"
-                  height="16"
-                  class="cursor-pointer"
-                  (click)="
-                    handleDeleteFunnel(funnel.id || '');
-                    $event.stopPropagation()
-                  "
-                />
+              <div
+                class="d-flex align-items-center gap-2 actions"
+                (click)="$event.stopPropagation()"
+              >
+                <div
+                  class="btn-group cursor-pointer btn-dropdown"
+                  dropdown
+                  placement="bottom right"
+                  dropdownToggle
+                >
+                  <div id="button-alignment">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </div>
+                  <ul
+                    id="dropdown-basic"
+                    *dropdownMenu
+                    class="dropdown-menu dropdown-menu-right"
+                    role="menu"
+                  >
+                    <li
+                      role="menuitem"
+                      (click)="handleEditFolder(funnel, 'funnel')"
+                    >
+                      <div href="#" class="dropdown-item cursor-pointer">
+                        <i class="far fa-edit me-2"></i>
+                        Cập nhật
+                      </div>
+                    </li>
+                    <li role="menuitem">
+                      <div href="#" class="dropdown-item cursor-pointer">
+                        <i
+                          class="fa-regular fa-clipboard me-2"
+                          style="width: 14px"
+                        ></i>
+                        Copy
+                      </div>
+                    </li>
+                    <li
+                      role="menuitem"
+                      (click)="handleDeleteFunnel(funnel.id || '')"
+                    >
+                      <div href="#" class="dropdown-item cursor-pointer">
+                        <i class="far fa-trash-alt me-2"></i>
+                        Delete
+                      </div>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </ng-container>
@@ -663,12 +725,6 @@
           <div class="center-item">
             <div class="spinner-custom"></div>
           </div>
-        </div>
-      </ng-container>
-
-      <ng-container *ngIf="!item.rows.length && !item.loading">
-        <div class="text-center">
-          <div class="fw-500 text-neutral">Không có dữ liệu</div>
         </div>
       </ng-container>
     </div>

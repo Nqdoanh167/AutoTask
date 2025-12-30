@@ -5,6 +5,7 @@ import {LeadRoutingModule} from './lead-routing.module';
 import {LeadDashboardComponent} from './lead-dashboard/lead-dashboard.component';
 import {LeadFormModalComponent} from './lead-dashboard/lead-form-modal/lead-form-modal.component';
 import {LeadCreateModalComponent} from './lead-dashboard/lead-create-modal/lead-create-modal.component';
+import {LeadUpdateModalComponent} from './lead-dashboard/lead-update-modal/lead-update-modal.component';
 import {LeadBulkMoveModalComponent} from './lead-dashboard/lead-bulk-move-modal/lead-bulk-move-modal.component';
 import {LeadConnectionsModalComponent} from './lead-dashboard/lead-connections-modal/lead-connections-modal.component';
 import {LeadCommentsSidebarComponent} from './lead-dashboard/lead-comments-sidebar/lead-comments-sidebar.component';
@@ -34,11 +35,13 @@ import {InputSuggestCustomerComponent} from '@share/common/input-select-customer
 import {CollapseModule} from 'ngx-bootstrap/collapse';
 import {InputCheckboxModule} from '@share/input/input-checkbox/input-checkbox.module';
 import {PopoverModule} from 'ngx-bootstrap/popover';
+import {AccordionModule} from 'ngx-bootstrap/accordion';
 import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
 import { MycurrencyPipe } from '@app/share/pipe/mycurrency.pipe';
 import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
 import { ModalModule } from "ngx-bootstrap/modal";
 import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
+import { SelectLocationComponent } from '@app/share/common/select-location/select-location.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +49,7 @@ import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/
     LeadDashboardComponent,
     LeadFormModalComponent,
     LeadCreateModalComponent,
+    LeadUpdateModalComponent,
     LeadBulkMoveModalComponent,
     LeadConnectionsModalComponent,
     LeadCommentsSidebarComponent,
@@ -84,7 +88,9 @@ import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/
     MycurrencyPipe,
     Hex2RgbPipe,
     ModalModule,
-    CustomDatePickerComponent
+    CustomDatePickerComponent,
+    AccordionModule,
+    SelectLocationComponent
 ],
   providers: [DatePipe],
 })

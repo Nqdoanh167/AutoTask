@@ -1,6 +1,6 @@
 <form (keydown.enter)="$event.preventDefault()" [formGroup]="formLocation">
   <div class="row g-3">
-    <div class="col-12" [ngClass]="{'col-4': typeDisplay === 'horizontal'}">
+    <div [ngClass]="{'col-4': typeDisplay === 'horizontal', 'col-12': typeDisplay === 'vertical'}">
       @if (showLabel) {
         <label class="form-control-label" for="province">Tỉnh/Thành phố</label>
       }
@@ -15,6 +15,7 @@
         (open)="getProvince()"
         [clearable]="false"
         [loading]="loadingLocation.province"
+        [appendTo]="appendTo"
       >
         <ng-container>
           <ng-option
@@ -28,8 +29,7 @@
     </div>
     <div
       *ngIf="['districtCode', 'wardCode'].includes(type)"
-      class="col-12"
-      [ngClass]="{'col-4': typeDisplay === 'horizontal'}"
+      [ngClass]="{'col-4': typeDisplay === 'horizontal', 'col-12': typeDisplay === 'vertical'}"
     >
       @if (showLabel) {
         <label class="form-control-label" for="district">Quận/Huyện</label>
@@ -46,6 +46,7 @@
         (open)="getDistrict()"
         [clearable]="false"
         [loading]="loadingLocation.district"
+        [appendTo]="appendTo"
       >
         <ng-container>
           <ng-option
@@ -59,8 +60,7 @@
     </div>
     <div
       *ngIf="['wardCode'].includes(type)"
-      class="col-12"
-      [ngClass]="{'col-4': typeDisplay === 'horizontal'}"
+      [ngClass]="{'col-4': typeDisplay === 'horizontal', 'col-12': typeDisplay === 'vertical'}"
     >
       @if (showLabel) {
         <label class="form-control-label" for="ward">Phường/Xã</label>
@@ -77,6 +77,7 @@
         (open)="getWard()"
         [clearable]="false"
         [loading]="loadingLocation.ward"
+        [appendTo]="appendTo"
       >
         <ng-container>
           <ng-option
