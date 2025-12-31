@@ -107,12 +107,14 @@
                             <label class="text-neutral fs-7">
                               Số điện thoại:
                             </label>
-                            <div>0912746230</div>
+                            <div class="text-truncate-1">
+                              {{ lead?.phone || '-' }}
+                            </div>
                           </div>
 
                           <div class="col-3 overflow-hidden">
                             <label class="text-neutral fs-7">Nguồn lead:</label>
-                            <div>Ads Minh Senpal</div>
+                            <div class="text-truncate-1">Ads Minh Senpal</div>
                           </div>
 
                           <div class="col-6 overflow-hidden">
@@ -152,7 +154,7 @@
                               <div *ngIf="isEditingTags" class="tags-edit-mode">
                                 <ng-select
                                   [formControl]="tagIdsControl"
-                                  [items]="tags"
+                                  [items]="tags.rows"
                                   bindLabel="name"
                                   bindValue="id"
                                   placeholder="Chọn Tag"
@@ -192,12 +194,14 @@
 
                           <div class="col-3 overflow-hidden">
                             <label class="text-neutral fs-7">Email:</label>
-                            <div>{{ 'doanh@gmail.com' }}</div>
+                            <div class="text-truncate-1">
+                              {{ lead?.email || '-' }}
+                            </div>
                           </div>
 
                           <div class="col-3 overflow-hidden">
                             <label class="text-neutral fs-7">Phễu:</label>
-                            <div>Facebook</div>
+                            <div class="text-truncate-1">Facebook</div>
                           </div>
 
                           <div
@@ -348,7 +352,9 @@
                               <i class="fas fa-spinner fa-spin px-2"></i>
                             </div>
                           </div>
-                          <div class="lead-name">Nguyen Van A</div>
+                          <div class="lead-name text-truncate-1">
+                            Nguyen Van A
+                          </div>
                         </div>
                       </div>
 
@@ -363,7 +369,7 @@
                               />
                             </div>
                             <div class="text-hover-underline cursor-pointer">
-                              Nguyen Van A
+                              <div class="text-truncate-1">Nguyen Van A</div>
                             </div>
                           </div>
 
@@ -375,7 +381,9 @@
                                 height="24"
                               />
                             </div>
-                            <div class="text-hover-underline cursor-pointer">
+                            <div
+                              class="text-hover-underline cursor-pointer text-truncate-1"
+                            >
                               Nguyen Van A
                             </div>
                           </div>
@@ -387,8 +395,8 @@
                                 width="24"
                                 height="24"
                               />
-                              <span>
-                                {{ 'doanh@gmail.com' }}
+                              <span class="text-truncate-1">
+                                {{ lead?.email || '-' }}
                               </span>
                             </div>
                           </div>
@@ -400,8 +408,8 @@
                                 width="24"
                                 height="24"
                               />
-                              <span>
-                                {{ '0912746230' }}
+                              <span class="text-truncate-1">
+                                {{ lead?.phone || '-' }}
                               </span>
                             </div>
                           </div>
@@ -413,8 +421,8 @@
                                 width="24"
                                 height="24"
                               />
-                              <span>
-                                {{ 'Chi nhánh Hà Nội' }}
+                              <span class="text-truncate-1">
+                                {{ lead?.branch?.name || '-' }}
                               </span>
                             </div>
                           </div>
@@ -426,7 +434,7 @@
                                 width="24"
                                 height="24"
                               />
-                              <span>
+                              <span class="text-truncate-1">
                                 {{ 'Nguyễn Mạnh Cường' }}
                               </span>
                             </div>

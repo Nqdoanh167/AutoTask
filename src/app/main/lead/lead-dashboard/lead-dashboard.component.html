@@ -474,10 +474,7 @@
                     </label>
                   </td>
                   <td>
-                    <div
-                      class="d-flex align-items-center gap-2 cursor-pointer"
-                      (click)="openLeadModal(item.id)"
-                    >
+                    <div class="d-flex align-items-center gap-2 cursor-pointer">
                       <div class="lead-avatar-small">
                         <img
                           src="./assets/images/noavatar.png"
@@ -492,7 +489,13 @@
                         </div>
                       </div>
                       <div class="d-flex flex-column gap-1">
-                        <div class="lead-name">{{ item.name }}</div>
+                        <div
+                          class="lead-name"
+                          [routerLink]="['/lead']"
+                          [queryParams]="{id: item.id}"
+                        >
+                          {{ item.name }}
+                        </div>
 
                         <div class="d-flex flex-row flex-wrap gap-1">
                           <div *ngFor="let tagId of item.tagIds">
@@ -605,7 +608,8 @@
               cdkDrag
               [cdkDragData]="lead"
               (cdkDragMoved)="onLeadDragMoved($event)"
-              (click)="openLeadModal(lead.id)"
+              [routerLink]="['/lead']"
+              [queryParams]="{id: lead.id}"
             >
               <div class="card-header">
                 <div class="lead-info">
@@ -645,14 +649,14 @@
               <div class="divider-body"></div>
 
               <div class="row g-2">
-                <div class="col-12 fw-500" *ngIf="lead.email">
+                <div class="col-12 fw-500 d-flex align-items-center gap-1" *ngIf="lead.email">
                   <img
                     src="./assets/icons/icon-lead/email-disabled.svg"
                     alt=""
                     width="12"
                     height="10"
                   />
-                  {{ lead.email }}
+                  <span class="text-truncate-1">{{ lead.email }}</span>
                 </div>
 
                 <div
@@ -665,7 +669,7 @@
                     width="12"
                     height="12"
                   />
-                  {{ lead.phone }}
+                  <span class="text-truncate-1">{{ lead.phone }}</span>
                 </div>
 
                 <div
@@ -678,7 +682,7 @@
                     width="12"
                     height="12"
                   />
-                  {{ lead.taskCodes.join(', ') }}
+                  <span class="text-truncate-1">{{ lead.taskCodes.join(', ') }}</span>
                 </div>
 
                 <div
@@ -691,7 +695,7 @@
                     width="14"
                     height="14"
                   />
-                  {{ lead.orderCodes.join(', ') }}
+                  <span class="text-truncate-1">{{ lead.orderCodes.join(', ') }}</span>
                 </div>
 
                 <div
@@ -704,7 +708,7 @@
                     width="14"
                     height="14"
                   />
-                  {{ lead.createdAt | timeView }}
+                  <span class="text-truncate-1">{{ lead.createdAt | timeView }}</span>
                 </div>
               </div>
             </div>
@@ -730,3 +734,7 @@
     </div>
   </div>
 </div>
+
+@if (isOpenBackDrop) {
+  <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
+}

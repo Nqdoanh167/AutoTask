@@ -16,7 +16,7 @@ import {
   FormControl,
 } from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
-import {Subject, finalize, takeUntil} from 'rxjs';
+import {finalize, takeUntil} from 'rxjs';
 import {
   ILead,
   ILeadCreateDto,
@@ -26,39 +26,36 @@ import {
 } from '@app/types/lead';
 import {StorageService} from '@app/services/api/storage.service';
 import {ToastrService} from 'ngx-toastr';
-import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {LeadService} from '@app/services/api/lead.service';
 import {Customer} from '@app/types/customer';
-import {Biz, ITag, User} from '@app/types/viewmodels';
-import {AuthService} from '@app/services/api/auth.service';
+import {User} from '@app/types/viewmodels';
 import {EChainNextActionType, ETaskChainType, ITeam} from '@app/types/flow';
-import {IPlatform, ITaskChain} from './lead-form-modal.interface';
+import {ITaskChain} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
 import {ETabDetail} from '@app/types/lead';
 import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
 import {ISetting} from '@app/types/setting';
 import {LeadUpdateModalComponent} from '../lead-update-modal/lead-update-modal.component';
 import {take} from 'rxjs';
+import {LeadDashboardData} from '../lead-dashboard-data';
 
 @Component({
   selector: 'app-lead-form-modal',
   templateUrl: './lead-form-modal.component.html',
   styleUrls: ['./lead-form-modal.component.scss'],
 })
-export class LeadFormModalComponent implements OnInit, OnDestroy {
+export class LeadFormModalComponent
+  extends LeadDashboardData
+  implements OnInit, OnDestroy
+{
   @Input() lead?: ILead;
   @Output() saveEvent = new EventEmitter<ILeadCreateDto | ILeadUpdateDto>();
 
-  private currentBiz!: Biz;
   private listBizUsers: User[] = [];
-  private destroy$ = new Subject<void>();
 
   public currentSetting!: ISetting;
   public isOpenBackDrop: boolean = false;
   public leadForm!: FormGroup;
   public isEditingTags = false;
-  public tags: ITag[] = [];
-  public sources: IPlatform[] = [];
   public units = this.autoTaskService.getUserUnits(false);
   public EGenderType = EGenderType;
   public loading = {
@@ -93,23 +90,16 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     private readonly modalService: BsModalService,
     private readonly storageService: StorageService,
     private readonly toastr: ToastrService,
-    private readonly autoTaskService: AutoTaskService,
-    private readonly leadService: LeadService,
-    private readonly authService: AuthService,
     private readonly elementRef: ElementRef,
-  ) {}
+  ) {
+    super();
+  }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this.initForm();
     this.loadBizUsers();
     this.loadAutoTaskSetting();
     this.initializeBranch();
-    this.getFolderLead();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   getTaskDetailUrl(taskId: string) {
@@ -352,7 +342,7 @@ export class LeadFormModalComponent implements OnInit, OnDestroy {
     if (!Array.isArray(tagIds) || tagIds.length === 0) {
       return [];
     }
-    return this.tags.filter((tag) => tagIds.includes(tag.id));
+    return this.tags.rows.filter((tag) => tagIds.includes(tag.id));
   }
 
   onTagsClick(event: Event): void {

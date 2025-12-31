@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {LeadDashboardData} from './lead-dashboard-data';
 import {
   ILead,
@@ -70,6 +70,7 @@ export class LeadDashboardComponent
   private autoScrollInterval: any;
   private readonly SCROLL_SPEED = 15;
   private readonly EDGE_THRESHOLD = 100;
+  public isOpenBackDrop: boolean = false;
 
   public checkbox: any = {
     branchIds: [],
@@ -94,6 +95,7 @@ export class LeadDashboardComponent
     override readonly cdr: ChangeDetectorRef,
     override readonly authService: AuthService,
     private readonly modalConfirmService: ModalConfirmService,
+    private readonly router: Router,
   ) {
     super();
   }
@@ -214,29 +216,47 @@ export class LeadDashboardComponent
     });
   }
 
-  openLeadModal(leadId?: string) {
-    if (leadId) {
-      this.leadService.lead.getById(leadId, {populate: ['taskIds']}).subscribe({
-        next: (res: any) => {
-          if (res.status === 200) {
-            const modalRef = this.modalService.show(LeadFormModalComponent, {
-              class: 'modal-dialog-centered modal-medium',
-              initialState: {
-                lead: res.data,
-              } as any,
-            });
+  handleClearQueryParams() {
+    this.router.navigate([], {
+      queryParams: {
+        id: null,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
 
-            modalRef.content?.saveEvent?.subscribe((lead: ILead) => {
-              this.getDataSource(true);
-            });
-          } else {
+  openLeadModal(leadId?: string) {
+    this.isOpenBackDrop = true;
+    if (leadId) {
+      this.leadService.lead
+        .getById(leadId, {populate: ['taskIds']})
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res: any) => {
+            if (res.status === 200) {
+              const modalRef = this.modalService.show(LeadFormModalComponent, {
+                class: 'modal-dialog-centered modal-medium',
+                initialState: {
+                  lead: res.data,
+                } as any,
+              });
+
+              modalRef.content?.saveEvent?.subscribe((lead: ILead) => {
+                this.getDataSource(true);
+              });
+
+              modalRef?.onHidden?.subscribe(() => {
+                this.handleClearQueryParams();
+                this.isOpenBackDrop = false;
+              });
+            } else {
+              this.toastrService.error('Không thể lấy thông tin lead');
+            }
+          },
+          error: (err: any) => {
             this.toastrService.error('Không thể lấy thông tin lead');
-          }
-        },
-        error: (err: any) => {
-          this.toastrService.error('Không thể lấy thông tin lead');
-        },
-      });
+          },
+        });
     } else {
       const modalRef = this.modalService.show(LeadCreateModalComponent, {
         class: 'modal-dialog-centered',
@@ -247,6 +267,11 @@ export class LeadDashboardComponent
 
       modalRef.content?.saveEvent?.subscribe((lead: ILead) => {
         this.getDataSource(true);
+      });
+
+      modalRef?.onHidden?.subscribe(() => {
+        this.handleClearQueryParams();
+        this.isOpenBackDrop = false;
       });
     }
   }
@@ -578,7 +603,10 @@ export class LeadDashboardComponent
   getFolderLead(): void {
     this.folderLeads.loading = true;
     this.leadService.leadFolder
-      .getWithFunnels()
+      .getWithFunnels({
+        page: 1,
+        limit: 1000,
+      })
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {

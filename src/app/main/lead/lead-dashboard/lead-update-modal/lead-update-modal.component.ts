@@ -94,6 +94,9 @@ export class LeadUpdateModalComponent
       provinceCode: [null],
       districtCode: [null],
       wardCode: [null],
+      ward: [null],
+      district: [null],
+      province: [null],
       street: [''],
       address: [''],
       platforms: [[]],
@@ -137,6 +140,9 @@ export class LeadUpdateModalComponent
       provinceCode: this.lead.provinceCode || null,
       districtCode: this.lead.districtCode || null,
       wardCode: this.lead.wardCode || null,
+      province: this.lead.province || null,
+      ward: this.lead.ward || null,
+      district: this.lead.district || null,
       street: this.lead.street || '',
       address: this.lead.address || '',
     });
@@ -378,23 +384,17 @@ export class LeadUpdateModalComponent
   }
 
   getFolderLead(): void {
-    this.leadService.leadFolder
-      .getWithFunnels({
-        page: 1,
-        limit: 1000,
-      })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200 && res.data) {
-            this.folderLeads = res.data;
-            this.transformFunnelOptions();
-          }
-        },
-        error: (err: any) => {
-          console.error('Error loading folder leads:', err);
-        },
-      });
+    this.leadService.listLeadFolder.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        if (res) {
+          this.folderLeads = res || [];
+          this.transformFunnelOptions();
+        }
+      },
+      error: (err: any) => {
+        console.error('Error loading folder leads:', err);
+      },
+    });
   }
 
   transformFunnelOptions(): void {
