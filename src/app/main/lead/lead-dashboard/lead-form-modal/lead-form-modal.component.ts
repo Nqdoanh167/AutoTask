@@ -83,6 +83,8 @@ export class LeadFormModalComponent
     {value: EGenderType.OTHER, label: 'Khác'},
   ];
   public EChainNextActionType = EChainNextActionType;
+  public readonly hoveredBadgeIndex: number = 0;
+  public hoveredBadgeIndexCurrent: number = this.hoveredBadgeIndex;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -404,5 +406,55 @@ export class LeadFormModalComponent
     modal.onHidden?.pipe(take(1)).subscribe(() => {
       this.isOpenBackDrop = false;
     });
+  }
+
+  onHoverBadge(index: number): void {
+    if (this.hoveredBadgeIndex < index) {
+      this.hoveredBadgeIndexCurrent = index;
+    }
+  }
+
+  onLeaveBadge(index: number): void {
+    this.hoveredBadgeIndexCurrent = this.hoveredBadgeIndex;
+  }
+
+  onClickBadge(status: {statusId: string; statusName: string}): void {
+    if (!this.lead?.id || !status?.statusId) {
+      return;
+    }
+
+    if (this.lead.statusId === status.statusId) {
+      return;
+    }
+
+    this.loading.isSubmitting = true;
+    this.leadService.lead
+      .update(this.lead.id, {id: this.lead.id, statusId: status.statusId})
+      .pipe(
+        finalize(() => (this.loading.isSubmitting = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200 || res.status === 201) {
+            this.toastr.success('Cập nhật trạng thái lead thành công');
+            if (this.lead) {
+              this.lead.statusId = status.statusId;
+              this.lead.status = res.data?.status;
+            }
+            Object.assign(this.lead || {}, res.data);
+            this.saveEvent.emit(res.data);
+          } else {
+            this.toastr.error(
+              res.message || 'Có lỗi xảy ra khi cập nhật trạng thái',
+            );
+          }
+        },
+        error: (err) => {
+          this.toastr.error(
+            err.message || 'Có lỗi xảy ra khi cập nhật trạng thái lead',
+          );
+        },
+      });
   }
 }

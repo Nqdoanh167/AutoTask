@@ -3,13 +3,12 @@ import {finalize, shareReplay, takeUntil} from 'rxjs';
 import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
 import {
   ILead,
-  ILeadTag,
   ILeadStatus,
   ILeadStatusGroup,
   IFolderLead,
 } from '@app/types/lead';
 import {CommonService} from '@app/services/common/common.service';
-import {EntityPagination, IQueryBase} from '@app/types/viewmodels';
+import {EntityPagination, IQueryBase, ITag} from '@app/types/viewmodels';
 import {LEAD_CONFIG_FILTERS, LEAD_CONFIG_BUTTON} from '../lead.variable';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {LeadService} from '@app/services/api/lead.service';
@@ -48,7 +47,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     total: 0,
   };
 
-  public tags: EntityPagination<ILeadTag> = {
+  public tags: EntityPagination<ITag> = {
     rows: [],
     loading: false,
     limit: 1000,
@@ -78,6 +77,23 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     this.getStatusGroupsCache();
     this.getTagsCache();
     this.getFoldersCache();
+
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        if (biz) {
+          ['createdBy.id_in'].forEach((name) => {
+            const configFilter = this.configFilters.find(
+              (filter) => filter.name === name,
+            );
+            if (configFilter) {
+              configFilter.options = [{name: 'Hệ thống', id: 'system'}].concat(
+                this.authService.getColleague(),
+              );
+            }
+          });
+        }
+      });
   }
 
   override getDataSource(isReset?: boolean) {
@@ -186,10 +202,11 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
 
   getTags() {
     this.tags.loading = true;
-    this.leadService.leadTag
+    this.autoTaskService.tag
       .get({
         limit: this.tags.limit,
         page: this.tags.page,
+        applyFor_in: ['LEAD'],
       })
       .pipe(
         finalize(() => (this.tags.loading = false)),
@@ -197,7 +214,12 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
       )
       .subscribe((res) => {
         this.tags.rows = res.data || [];
-        this.leadService.setListLeadTag(this.tags.rows);
+        const configFilterTag = this.configFilters.find(
+          (item) => item.name === 'tagIds_in',
+        );
+        if (configFilterTag) {
+          configFilterTag.options = res.data || [];
+        }
       });
   }
 

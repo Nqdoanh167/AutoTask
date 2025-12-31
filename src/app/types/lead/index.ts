@@ -1,5 +1,5 @@
 import {Customer} from '../customer';
-import {AccountPublic} from '../viewmodels';
+import {AccountPublic, ITag} from '../viewmodels';
 import {ITeam, IBranchTaskDto} from '../flow';
 import {
   ITask,
@@ -39,7 +39,7 @@ export interface ILead {
   totalPrice?: number;
   status?: ILeadStatus;
   statusId?: string;
-  tags?: ILeadTag[]; // Populated tag objects (for display)
+  tags?: ITag[]; // Populated tag objects (for display)
   tagIds?: string[]; // Tag IDs (matches backend response)
   taskIds: string[];
   taskCodes: string[];
@@ -57,6 +57,11 @@ export interface ILead {
   teams?: ITeam[]; // Danh sách nhân sự phụ trách theo vai trò
   tasks?: ITask[]; // Danh sách các task
   branch?: IBranchTaskDto; // Chi nhánh / phòng ban / đội nhóm
+  statusGroupFlow?: {
+    statusId: string;
+    statusName: string;
+  }[];
+  birthday?: Date;
 }
 
 export interface ILeadCreateDto {
@@ -167,18 +172,6 @@ export interface ILeadStatusGroup {
   isActive: boolean;
   isDefault: boolean;
   leadStatusIds: string[];
-}
-
-export interface ILeadTag {
-  id: string;
-  name: string;
-  description?: string;
-  isActive: boolean;
-  bgColor?: string;
-  color?: string;
-  icon?: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export enum ELeadType {

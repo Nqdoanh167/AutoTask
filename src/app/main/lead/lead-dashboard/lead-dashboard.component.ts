@@ -13,12 +13,11 @@ import {LeadDashboardData} from './lead-dashboard-data';
 import {
   ILead,
   ILeadStatus,
-  ILeadTag,
   IFunnel,
   IFolderLead,
   IFunnelGroup,
 } from '@app/types/lead';
-import {User, BizRole, EntityPagination} from '@app/types/viewmodels';
+import {User, BizRole, EntityPagination, ITag} from '@app/types/viewmodels';
 import {ISetting} from '@app/types/setting';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
@@ -146,6 +145,9 @@ export class LeadDashboardComponent
   override handleAction(name: string) {
     if (name === 'reload' && !this.item.loading) {
       this.getFolderLead();
+      if (this.currentFunnel$.value) {
+        this.getDataSource(true);
+      }
     }
     if (name === 'add_new') {
       this.openLeadModal();
@@ -297,7 +299,7 @@ export class LeadDashboardComponent
     });
   }
 
-  getTagById(tagId?: string): ILeadTag | undefined {
+  getTagById(tagId?: string): ITag | undefined {
     return this.tags.rows.find((tag) => tag.id === tagId);
   }
 
@@ -580,14 +582,18 @@ export class LeadDashboardComponent
       ...JSON.parse(this.item.paramsQuery.filter || '{}'),
       ...filter,
     };
-    const configFilterAdvance = this.configFilters.filter(
-      (item) => item.botherType === EBotherAdvanceBasicFilter.ADVANCE,
-    );
 
-    // Xóa những field có trong configFilterAdvance mà không có trong filter
-    configFilterAdvance.forEach((item) => {
+    this.configFilters.forEach((item) => {
       if (!Object.keys(filter).includes(item.name!)) {
         delete objFilterQuery[item.name!];
+        if (item.name === 'createdAt') {
+          delete objFilterQuery.createdAt_gte;
+          delete objFilterQuery.createdAt_lte;
+        }
+      } else if (item.name === 'createdAt') {
+        objFilterQuery.createdAt_gte = filter.createdAt[0];
+        objFilterQuery.createdAt_lte = filter.createdAt[1];
+        delete objFilterQuery.createdAt;
       }
     });
 
@@ -625,15 +631,13 @@ export class LeadDashboardComponent
               !this.currentFunnel$.value &&
               this.folderLeads.rows.length > 0
             ) {
-              for (const folder of this.folderLeads.rows) {
-                for (const group of folder.funnelGroups || []) {
-                  for (const funnel of group.funnels || []) {
-                    if (funnel.id) {
-                      this.currentFunnel$.next(funnel);
-                      return;
-                    }
-                  }
-                }
+              const firstFunnel = this.folderLeads.rows
+                .flatMap((folder) => folder.funnelGroups || [])
+                .flatMap((group) => group.funnels || [])
+                .find((funnel) => funnel.id);
+
+              if (firstFunnel) {
+                this.currentFunnel$.next(firstFunnel);
               }
             }
           }

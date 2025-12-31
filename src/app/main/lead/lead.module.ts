@@ -42,6 +42,7 @@ import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
 import { ModalModule } from "ngx-bootstrap/modal";
 import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
 import { SelectLocationComponent } from '@app/share/common/select-location/select-location.component';
+import { FilterAdvancedModule } from "./lead-dashboard/filter-advanced/filter-advanced.module";
 
 @NgModule({
   declarations: [
@@ -90,7 +91,8 @@ import { SelectLocationComponent } from '@app/share/common/select-location/selec
     ModalModule,
     CustomDatePickerComponent,
     AccordionModule,
-    SelectLocationComponent
+    SelectLocationComponent,
+    FilterAdvancedModule
 ],
   providers: [DatePipe],
 })

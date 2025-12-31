@@ -711,6 +711,9 @@
   background-color: #f8fafc;
   color: #64748b;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
   clip-path: polygon(
     0 0,
     calc(100% - 18px) 0,
@@ -726,7 +729,7 @@
   }
 
   &:first-child {
-    background-color: #3b82f6;
+    background-color: vars.$primary;
     color: #fff;
     clip-path: polygon(
       0 0,
@@ -735,5 +738,10 @@
       calc(100% - 18px) 100%,
       0 100%
     );
+  }
+
+  &.active {
+    background-color: vars.$primary;
+    color: #fff;
   }
 }

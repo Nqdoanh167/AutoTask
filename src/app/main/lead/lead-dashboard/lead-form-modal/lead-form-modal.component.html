@@ -42,12 +42,16 @@
         </div>
 
         <div class="">
-          <div class="lead-badge">Lead Nóng</div>
-          <div class="lead-badge">Đang Liên Hệ</div>
-          <div class="lead-badge">Đã Điền Form</div>
-          <div class="lead-badge">Hẹn Lịch Demo</div>
-          <div class="lead-badge">Chờ Ký Hợp Đồng</div>
-          <div class="lead-badge">Đã Hoàn Thành</div>
+          <div
+            class="lead-badge"
+            [class.active]="hoveredBadgeIndexCurrent >= index"
+            *ngFor="let status of lead?.statusGroupFlow; let index = index"
+            (mouseenter)="onHoverBadge(index)"
+            (mouseleave)="onLeaveBadge(index)"
+            (click)="onClickBadge(status)"
+          >
+            {{ status.statusName }}
+          </div>
         </div>
       </div>
       <div class="body-container">
@@ -353,7 +357,7 @@
                             </div>
                           </div>
                           <div class="lead-name text-truncate-1">
-                            Nguyen Van A
+                            {{ lead?.name || '-' }}
                           </div>
                         </div>
                       </div>

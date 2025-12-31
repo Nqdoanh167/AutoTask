@@ -71,6 +71,7 @@ export class DashboardData extends CheckboxSortTableComponent<
     paramsQuery: {
       // page: 1,
       // limit: 100,
+      applyFor_in: ['TASK'],
     },
     isAllowLoadMore: false,
   };

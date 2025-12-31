@@ -36,7 +36,7 @@ import {ModalUpdateCustomerComponent} from '@main/dashboard/content-modal/modal-
 import {RfmService} from '@app/services/api/rfm.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {LeadService} from '@app/services/api/lead.service';
-import {ILeadStatus, ILeadTag} from '@app/types/lead';
+import {ILeadStatus} from '@app/types/lead';
 
 type ViewOrderType = 'completed' | 'cancelled' | 'trash';
 
@@ -586,7 +586,9 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
     this.loadingLeadData = true;
 
     const leadStatuses$ = this.leadService.leadStatus.get();
-    const leadTags$ = this.leadService.leadTag.get();
+    const leadTags$ = this.autoTaskService.tag.get({
+      applyFor_in: ['LEAD'],
+    });
 
     Promise.all([leadStatuses$.toPromise(), leadTags$.toPromise()])
       .then(([statusesRes, tagsRes]) => {
@@ -630,7 +632,7 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
     );
   }
 
-  onLeadTagsChange(tags: ILeadTag[]) {
+  onLeadTagsChange(tags: ITag[]) {
     if (!tags) return;
 
     const currentTagNames =
@@ -647,7 +649,7 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
       'Cập nhật Tag Lead',
       message,
       () => {
-        this.updateLeadTags(tags.map((tag) => tag.id));
+        this.updateLeadTags(tags.map((tag) => tag.id!));
       },
       () => {
         this.formGroup.patchValue({leadTags: this.originalLeadTags});

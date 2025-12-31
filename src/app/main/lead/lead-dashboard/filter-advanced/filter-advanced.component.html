@@ -1,0 +1,128 @@
+<div class="button-icon-wrapper">
+  <button
+    class="button-icon text-secondary position-relative bg-neutral"
+    type="button"
+    [popover]="popTemplate"
+    [outsideClick]="false"
+    [placement]="'bottom left'"
+    #popFilter="bs-popover"
+    containerClass="filter-advance-popover-tab custom-popover-tab"
+    [tooltip]="'Bộ lọc'"
+  >
+    <img src="./assets/icons/filter-advanced.svg" alt="" />
+    @if (cdtAppliedSet.size > 0) {
+      <span
+        class="ms-1 bg-danger px-1 rounded-circle text-white fw-500 fs-7 position-absolute"
+        style="top: -10px; right: -10px"
+      >
+        {{ cdtAppliedSet.size }}
+      </span>
+    }
+  </button>
+</div>
+
+<ng-template #popTemplate>
+  <div class="popover-tab">
+    <div class="row align-items-center my-2">
+      <div class="fw-500 col-10 text-neutral">
+        <i class="fa-solid fa-question-circle me-2"></i>
+        Lọc những bản ghi đáp ứng
+        <span class="fw-bold">TẤT CẢ</span>
+        các điều kiện bên dưới
+      </div>
+      <div class="col-2 d-flex justify-content-end">
+        <button class="border-0 bg-light" (click)="popFilter.hide()">
+          <i class="fa-solid fa-times fa-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    @for (cdt of conditionChoosen; track cdt.key) {
+      <div class="row align-items-center my-2">
+        <div class="fw-500 col-4">
+          <ng-select
+            [items]="cdt.options"
+            bindLabel="placeholder"
+            bindValue="name"
+            placeholder="Chọn điều kiện lọc"
+            [clearable]="false"
+            [(ngModel)]="cdt.key"
+            (change)="onChangeCondition(cdt.key)"
+          >
+            <ng-template ng-label-tmp let-item="item">
+              {{ getCdtLabel(item.name) }}
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div class="col-8 p-0 row align-items-center">
+          @for (filter of configFilters; track filter.name) {
+            @if (filter.name === cdt.key) {
+              <div class="col-11">
+                @switch (filter.type) {
+                  @case (ETypeFilter.SEARCH) {
+                    <input
+                      type="text"
+                      class="form-control input-medium"
+                      [placeholder]="filter.placeholder || 'Search...'"
+                      [(ngModel)]="cdt.value"
+                    />
+                  }
+                  @case (ETypeFilter.SELECT) {
+                    <custom-select-search
+                      [value]="filter?.value"
+                      [minWidth]="filter?.minWidth"
+                      [className]="''"
+                      [selectData]="filter"
+                      (selectEvent)="cdt.value = $event"
+                      (scrollToEndEvent)="scrollToEndEvent.emit(filter.name)"
+                    ></custom-select-search>
+                  }
+                  @case (ETypeFilter.DATE) {
+                    <custom-date-picker
+                      [className]="'input-medium'"
+                      [typePicker]="filter.subType"
+                      [defaultRangeValue]="filter.value"
+                      (changeDateEmmit)="onPickerDateAdvance($event, cdt)"
+                      [placeholder]="filter.placeholder || 'Picker Date'"
+                      [showClearButton]="true"
+                    ></custom-date-picker>
+                  }
+                }
+              </div>
+            }
+          }
+          <div
+            class="col-1 d-flex justify-content-center cursor-pointer icon-close"
+            (click)="removeFilterCondition(cdt.key)"
+          >
+            <div class="fas fa-times"></div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="d-flex justify-content-between mt-3">
+      <button class="btn filter-btn border" (click)="addFilterCondition()">
+        <i class="fa-solid fa-plus me-1"></i>
+        Thêm điều kiện
+      </button>
+
+      <div class="d-flex gap-2">
+        <button class="btn filter-btn border text-danger" (click)="reset()">
+          <i class="fa-solid fa-rotate me-1"></i>
+          Đặt lại
+        </button>
+        <button class="btn filter-btn border" (click)="popFilter.hide()">
+          Huỷ
+        </button>
+        <button
+          class="btn bg-neutral text-white filter-btn"
+          (click)="handleApply()"
+        >
+          Áp dụng
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

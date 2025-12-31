@@ -1,7 +1,7 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, IQueryBase} from 'src/app/types/viewmodels';
+import {EntityResult, IQueryBase, ITag} from 'src/app/types/viewmodels';
 import {
   ILead,
   ILeadCreateDto,
@@ -12,7 +12,6 @@ import {
   IFunnelGroup,
   IFunnel,
   ILeadStatus,
-  ILeadTag,
   ILeadStatusGroup,
 } from '@app/types/lead';
 import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
@@ -33,7 +32,7 @@ export class LeadService extends BaseApiService implements OnDestroy {
   public listLeadStatus = this.listLeadStatus$.asObservable();
   private listLeadStatusGroup$ = new BehaviorSubject<ILeadStatusGroup[]>([]);
   public listLeadStatusGroup = this.listLeadStatusGroup$.asObservable();
-  private listLeadTag$ = new BehaviorSubject<ILeadTag[]>([]);
+  private listLeadTag$ = new BehaviorSubject<ITag[]>([]);
   public listLeadTag = this.listLeadTag$.asObservable();
   private listLeadFolder$ = new BehaviorSubject<IFolderLead[]>([]);
   public listLeadFolder = this.listLeadFolder$.asObservable();
@@ -156,30 +155,6 @@ export class LeadService extends BaseApiService implements OnDestroy {
       ),
   };
 
-  leadTag = {
-    get: (params: IQueryBase = {}) =>
-      this.httpClient.get<EntityResult<ILeadTag[]>>(
-        this.createUrl([this.api.lead, 'tag']),
-        {
-          params: this.createParams(params),
-        },
-      ),
-    create: (body: any) =>
-      this.httpClient.post<EntityResult<ILeadTag>>(
-        this.createUrl([this.api.lead, 'tag']),
-        body,
-      ),
-    update: (id: string, body: any) =>
-      this.httpClient.patch<EntityResult<ILeadTag>>(
-        this.createUrl([this.api.lead, 'tag', id]),
-        body,
-      ),
-    delete: (id: string) =>
-      this.httpClient.delete<EntityResult<any>>(
-        this.createUrl([this.api.lead, 'tag', id]),
-      ),
-  };
-
   leadFolder = {
     get: (params: IQueryBase = {}) =>
       this.httpClient.get<EntityResult<IFolderLead[]>>(
@@ -299,9 +274,6 @@ export class LeadService extends BaseApiService implements OnDestroy {
   }
   setListLeadStatusGroup(items: ILeadStatusGroup[]) {
     this.listLeadStatusGroup$.next(items);
-  }
-  setListLeadTag(items: ILeadTag[]) {
-    this.listLeadTag$.next(items);
   }
   setListLeadFolder(items: IFolderLead[]) {
     this.listLeadFolder$.next(items);

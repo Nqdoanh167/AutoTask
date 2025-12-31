@@ -11,12 +11,6 @@ import {IColumns} from '@app/types/viewmodels';
 // Lead config filters
 export const LEAD_CONFIG_FILTERS: IFilterTopTable[] = [
   {
-    type: ETypeFilter.SEARCH,
-    name: 'search',
-    placeholder: 'Tìm kiếm tên, SĐT',
-    value: '',
-  },
-  {
     type: ETypeFilter.SELECT,
     name: 'tagIds_in',
     placeholder: 'Tags',
@@ -27,63 +21,27 @@ export const LEAD_CONFIG_FILTERS: IFilterTopTable[] = [
     searchable: true,
     multiple: true,
     minWidth: '200px',
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+    value: [],
   },
-  {
-    type: ETypeFilter.SELECT,
-    name: 'statusId_in',
-    placeholder: 'Trạng thái Leads',
-    options: [],
-    bindLabel: 'name',
-    bindValue: 'id',
-    clearable: true,
-    searchable: false,
-    multiple: true,
-    minWidth: '200px',
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
-  },
-  {
-    type: ETypeFilter.POPOVER,
-    name: 'sort',
-    placeholder: 'Sắp xếp',
-    options: [
-      {
-        label: 'Ngày tạo: Mới -> Cũ',
-        value: '-createdAt',
-      },
-      {
-        label: 'Ngày tạo: Cũ -> Mới',
-        value: 'createdAt',
-      },
-      // {
-      //   label: 'Ngày cập nhật: Mới -> Cũ',
-      //   value: '-updatedAt',
-      // },
-      // {
-      //   label: 'Ngày cập nhật: Cũ -> Mới',
-      //   value: 'updatedAt',
-      // },
-      // {
-      //   label: 'Tổng tiền: Cao -> Thấp',
-      //   value: '-totalPrice',
-      // },
-      // {
-      //   label: 'Tổng tiền: Thấp -> Cao',
-      //   value: 'totalPrice',
-      // },
-    ],
-    bindLabel: 'label',
-    bindValue: 'value',
-    clearable: true,
-    value: '-createdAt',
-  },
+  // {
+  //   type: ETypeFilter.SELECT,
+  //   name: 'statusId_in',
+  //   placeholder: 'Trạng thái Leads',
+  //   options: [],
+  //   bindLabel: 'name',
+  //   bindValue: 'id',
+  //   clearable: true,
+  //   searchable: false,
+  //   multiple: true,
+  //   minWidth: '200px',
+  // },
   {
     type: ETypeFilter.DATE,
     name: 'createdAt',
     placeholder: 'Ngày tạo',
     subType: 'range',
     clearable: true,
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+    value: [],
   },
   {
     type: ETypeFilter.SELECT,
@@ -94,7 +52,7 @@ export const LEAD_CONFIG_FILTERS: IFilterTopTable[] = [
     bindValue: 'id',
     clearable: true,
     searchable: true,
-    botherType: EBotherAdvanceBasicFilter.ADVANCE,
+    value: [],
   },
 ];
 

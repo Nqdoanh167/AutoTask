@@ -133,7 +133,7 @@ export class LeadUpdateModalComponent
       phone: this.lead.phone || '',
       email: this.lead.email || '',
       gender: this.lead.gender || EGenderType.OTHER,
-      birthday: null,
+      birthday: this.lead.birthday || null,
       tagIds: this.lead.tagIds || [],
       picture: this.lead.picture || '',
       funnelId: this.lead.funnelId || null,
