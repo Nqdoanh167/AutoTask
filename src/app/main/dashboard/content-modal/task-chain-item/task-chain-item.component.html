@@ -587,7 +587,7 @@
                                 $event
                               )
                             "
-                            class="ng-select-custom ui-v2 dropdown-auto-width input-medium"
+                            class="ng-select-custom dropdown-auto-width input-medium"
                             bindLabel="result.name"
                             bindValue="result.id"
                             appendTo=".modal-update-task"
@@ -607,7 +607,7 @@
                               )
                             "
                             formControlName="id"
-                            class="ng-select-custom ui-v2 dropdown-auto-width input-medium"
+                            class="ng-select-custom dropdown-auto-width input-medium"
                             bindLabel="name"
                             bindValue="id"
                             appendTo=".modal-update-task"
@@ -719,7 +719,7 @@
                             [readonly]="
                               f['status'].value === ETaskChainType.CLOSED
                             "
-                            inputClass="border-0 ui-v2"
+                            inputClass="border-0"
                             placeholder="Nhập ghi chú..."
                             [value]="taskChainResult.value.note || ''"
                             (valueChange)="

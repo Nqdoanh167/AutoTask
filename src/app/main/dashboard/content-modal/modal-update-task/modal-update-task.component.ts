@@ -1399,4 +1399,8 @@ export class ModalUpdateTaskComponent
   selectTabMenu(tab: string) {
     this.activeTabMenu = tab;
   }
+
+  selectActivityTab(tab: string) {
+    this.activeActivityTab = tab;
+  }
 }

@@ -1114,7 +1114,7 @@ export class DashboardComponent
           taskId,
           code,
         },
-        class: 'modal-xl',
+        class: 'modal-medium',
         keyboard: true,
         backdrop: false,
       });
