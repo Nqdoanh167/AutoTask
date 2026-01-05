@@ -368,14 +368,39 @@
     <!-- View Mode Toggle -->
     <div class="list-btn">
       <div class="d-flex align-items-center gap-2">
-        <button
-          type="button"
-          class="btn center-item button-filter-top button-fill secondary-color"
-          (click)="handleAction('add_new')"
-        >
-          <img src="./assets/icons/add.svg" width="16" height="16" />
-          Thêm Lead
-        </button>
+        <div class="btn-group" dropdown>
+          <button
+            type="button"
+            class="btn center-item button-filter-top button-fill secondary-color"
+            (click)="handleAction('add_new')"
+          >
+            <img src="./assets/icons/add.svg" width="16" height="16" />
+            Thêm Lead
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-dropdown dropdown-toggle p-2 dropdown-toggle-split button-fill secondary-color"
+            dropdownToggle
+            aria-haspopup="true"
+            aria-expanded="false"
+            style="border-left: 1px solid #ffffff15"
+          >
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul
+            *dropdownMenu
+            class="dropdown-menu dropdown-menu-right"
+            role="menu"
+          >
+            <li role="menuitem">
+              <div href="#" class="dropdown-item cursor-pointer">
+                <i class="far fa-edit me-2"></i>
+                Thêm hàng loạt
+              </div>
+            </li>
+          </ul>
+        </div>
 
         <app-filter-advanced
           (filterAdvanceEvent)="handleFilterAdvance($event)"
@@ -649,7 +674,10 @@
               <div class="divider-body"></div>
 
               <div class="row g-2">
-                <div class="col-12 fw-500 d-flex align-items-center gap-1" *ngIf="lead.email">
+                <div
+                  class="col-12 fw-500 d-flex align-items-center gap-1"
+                  *ngIf="lead.email"
+                >
                   <img
                     src="./assets/icons/icon-lead/email-disabled.svg"
                     alt=""
@@ -682,7 +710,9 @@
                     width="12"
                     height="12"
                   />
-                  <span class="text-truncate-1">{{ lead.taskCodes.join(', ') }}</span>
+                  <span class="text-truncate-1">
+                    {{ lead.taskCodes.join(', ') }}
+                  </span>
                 </div>
 
                 <div
@@ -695,7 +725,9 @@
                     width="14"
                     height="14"
                   />
-                  <span class="text-truncate-1">{{ lead.orderCodes.join(', ') }}</span>
+                  <span class="text-truncate-1">
+                    {{ lead.orderCodes.join(', ') }}
+                  </span>
                 </div>
 
                 <div
@@ -708,7 +740,9 @@
                     width="14"
                     height="14"
                   />
-                  <span class="text-truncate-1">{{ lead.createdAt | timeView }}</span>
+                  <span class="text-truncate-1">
+                    {{ lead.createdAt | timeView }}
+                  </span>
                 </div>
               </div>
             </div>

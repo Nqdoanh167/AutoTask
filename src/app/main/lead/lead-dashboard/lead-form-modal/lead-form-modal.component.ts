@@ -2,8 +2,6 @@ import {
   Component,
   OnInit,
   OnDestroy,
-  HostListener,
-  ElementRef,
   Input,
   Output,
   EventEmitter,
@@ -23,6 +21,7 @@ import {
   ILeadUpdateDto,
   EGenderType,
   IFolderLead,
+  IFunnel,
 } from '@app/types/lead';
 import {StorageService} from '@app/services/api/storage.service';
 import {ToastrService} from 'ngx-toastr';
@@ -55,7 +54,9 @@ export class LeadFormModalComponent
   public currentSetting!: ISetting;
   public isOpenBackDrop: boolean = false;
   public leadForm!: FormGroup;
-  public isEditingTags = false;
+  public fieldStates: {
+    [key: string]: {editing: boolean; hover: boolean; updating: boolean};
+  } = {};
   public units = this.autoTaskService.getUserUnits(false);
   public EGenderType = EGenderType;
   public loading = {
@@ -64,6 +65,9 @@ export class LeadFormModalComponent
     isUploadingAvatar: false,
   };
   public folderLeads: IFolderLead[] = [];
+  public funnelOptions: Array<
+    IFunnel & {folderName: string; funnelGroupName: string}
+  > = [];
   public menus = [
     {
       key: ETabDetail.DISCUSS,
@@ -92,7 +96,6 @@ export class LeadFormModalComponent
     private readonly modalService: BsModalService,
     private readonly storageService: StorageService,
     private readonly toastr: ToastrService,
-    private readonly elementRef: ElementRef,
   ) {
     super();
   }
@@ -102,6 +105,7 @@ export class LeadFormModalComponent
     this.loadBizUsers();
     this.loadAutoTaskSetting();
     this.initializeBranch();
+    this.getFolderLead();
   }
 
   getTaskDetailUrl(taskId: string) {
@@ -149,6 +153,18 @@ export class LeadFormModalComponent
     return this.leadForm?.get('name') as FormControl;
   }
 
+  get phoneControl(): FormControl {
+    return this.leadForm?.get('phone') as FormControl;
+  }
+
+  get emailControl(): FormControl {
+    return this.leadForm?.get('email') as FormControl;
+  }
+
+  get funnelControl(): FormControl {
+    return this.leadForm?.get('funnelId') as FormControl;
+  }
+
   get f(): {[key: string]: any} {
     return this.leadForm.controls;
   }
@@ -173,12 +189,28 @@ export class LeadFormModalComponent
           if (res.status === 200) {
             this.folderLeads = res.data;
             this.leadService.setListLeadFolder(res.data);
+            this.transformFunnelOptions();
           }
         },
         error: (err: any) => {
           console.error('Error loading folder leads:', err);
         },
       });
+  }
+
+  transformFunnelOptions(): void {
+    this.funnelOptions = [];
+    this.folderLeads?.forEach((folder) => {
+      folder?.funnelGroups?.forEach((funnelGroup) => {
+        funnelGroup.funnels?.forEach((funnel) => {
+          this.funnelOptions.push({
+            ...funnel,
+            folderName: folder.name,
+            funnelGroupName: funnelGroup.name,
+          });
+        });
+      });
+    });
   }
 
   onCancel(): void {
@@ -238,13 +270,21 @@ export class LeadFormModalComponent
     });
   }
 
-  groupByFolder = (item: any) => {
-    return item.name;
+  groupByFolder = (
+    item: IFunnel & {folderName: string; funnelGroupName: string},
+  ) => {
+    return `${item.folderName} - ${item.funnelGroupName}`;
   };
 
   groupValueFn = (key: string, children: any[]) => {
     return children;
   };
+
+  getFunnelName(): string {
+    if (!this.lead?.funnelId) return '-';
+    const funnel = this.funnelOptions.find((f) => f.id === this.lead?.funnelId);
+    return funnel?.name || '-';
+  }
 
   onCustomerSelect(customer?: Customer): void {
     if (!customer) return;
@@ -299,21 +339,59 @@ export class LeadFormModalComponent
   }
 
   onChooseTeam(index: number, user: User): void {
-    this.formTeams.at(index).patchValue({
+    const teamControl = this.formTeams.at(index);
+    teamControl.patchValue({
       userId: user.id,
       userName: user.name,
       userPicture: user.picture,
       userEmail: user.email,
     });
+    this.submitTeamsUpdate();
   }
 
   onRemoveTeam(index: number): void {
-    this.formTeams.at(index).patchValue({
+    const teamControl = this.formTeams.at(index);
+    teamControl.patchValue({
       userId: null,
       userName: null,
       userPicture: null,
       userEmail: null,
     });
+    this.submitTeamsUpdate();
+  }
+
+  submitTeamsUpdate(): void {
+    if (!this.lead?.id) return;
+
+    const teams = this.formTeams.value.filter((team: any) => team.userId);
+
+    this.getFieldState('teams').updating = true;
+    this.leadService.lead
+      .update(this.lead.id, {id: this.lead.id, teams})
+      .pipe(
+        finalize(() => {
+          this.getFieldState('teams').updating = false;
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200 || res.status === 201) {
+            if (this.lead) {
+              Object.assign(this.lead, res.data);
+            }
+            this.toastr.success('Cập nhật nhân sự phụ trách thành công');
+            this.saveEvent.emit(res.data);
+          } else {
+            this.toastr.error(
+              res.message || 'Cập nhật nhân sự phụ trách thất bại',
+            );
+          }
+        },
+        error: () => {
+          this.toastr.error('Cập nhật nhân sự phụ trách thất bại');
+        },
+      });
   }
 
   getAvailableUsers(roleId?: string): User[] {
@@ -347,28 +425,110 @@ export class LeadFormModalComponent
     return this.tags.rows.filter((tag) => tagIds.includes(tag.id));
   }
 
-  onTagsClick(event: Event): void {
-    event.stopPropagation();
-    this.isEditingTags = true;
+  getFieldState(fieldName: string) {
+    if (!this.fieldStates[fieldName]) {
+      this.fieldStates[fieldName] = {
+        editing: false,
+        hover: false,
+        updating: false,
+      };
+    }
+    return this.fieldStates[fieldName];
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (this.isEditingTags) {
-      const tagsContainer = this.elementRef.nativeElement.querySelector(
-        '.tags-edit-container',
-      );
-      const ngSelectPanel = document.querySelector('.ng-dropdown-panel');
-
-      const clickedInsideTags = tagsContainer?.contains(event.target as Node);
-      const clickedInsideNgSelect = ngSelectPanel?.contains(
-        event.target as Node,
-      );
-
-      if (!clickedInsideTags && !clickedInsideNgSelect) {
-        this.isEditingTags = false;
-      }
+  startFieldEdit(
+    fieldName: string,
+    control: FormControl,
+    event?: MouseEvent,
+  ): void {
+    event?.stopPropagation();
+    this.getFieldState(fieldName).editing = true;
+    const currentValue = (this.lead as any)?.[fieldName];
+    if (currentValue !== undefined && currentValue !== null) {
+      control.setValue(currentValue);
     }
+    setTimeout(() => {
+      const input = document.querySelector(
+        `input[formControlName="${fieldName}"]`,
+      ) as HTMLInputElement;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 50);
+  }
+
+  setFieldHover(fieldName: string, hover: boolean): void {
+    this.getFieldState(fieldName).hover = hover;
+  }
+
+  isValueChanged(newValue: any, oldValue: any): boolean {
+    if (Array.isArray(newValue) && Array.isArray(oldValue)) {
+      if (newValue.length !== oldValue.length) return true;
+      return !newValue.every((val) => oldValue.includes(val));
+    }
+    return newValue !== oldValue;
+  }
+
+  submitField(
+    fieldName: string,
+    control: FormControl,
+    displayName?: string,
+  ): void {
+    if (!this.lead?.id) {
+      this.getFieldState(fieldName).editing = false;
+      return;
+    }
+
+    control.markAsTouched();
+    const trimmedValue =
+      typeof control.value === 'string' ? control.value.trim() : control.value;
+
+    if (control.invalid) {
+      this.toastr.error(`${displayName || fieldName} không hợp lệ`);
+      control.setValue((this.lead as any)[fieldName] || '');
+      this.getFieldState(fieldName).editing = false;
+      return;
+    }
+
+    if (!this.isValueChanged(trimmedValue, (this.lead as any)[fieldName])) {
+      this.getFieldState(fieldName).editing = false;
+      return;
+    }
+
+    this.getFieldState(fieldName).updating = true;
+    this.leadService.lead
+      .update(this.lead.id, {id: this.lead.id, [fieldName]: trimmedValue})
+      .pipe(
+        finalize(() => {
+          this.getFieldState(fieldName).updating = false;
+          this.getFieldState(fieldName).editing = false;
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200 || res.status === 201) {
+            if (this.lead) {
+              (this.lead as any)[fieldName] = trimmedValue;
+              Object.assign(this.lead, res.data);
+            }
+            this.toastr.success(
+              `Cập nhật ${displayName || fieldName} thành công`,
+            );
+            this.saveEvent.emit(res.data);
+          } else {
+            this.toastr.error(
+              res.message || `Cập nhật ${displayName || fieldName} thất bại`,
+            );
+            control.setValue((this.lead as any)[fieldName] || '');
+          }
+        },
+        error: () => {
+          this.toastr.error(`Cập nhật ${displayName || fieldName} thất bại`);
+          control.setValue((this.lead as any)[fieldName] || '');
+        },
+      });
   }
 
   initializeBranch(): void {

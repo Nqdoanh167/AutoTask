@@ -207,3 +207,15 @@ export enum ETabDetail {
   PRODUCT = 'product',
   PACKAGE = 'package',
 }
+
+export interface ILeadCreateBulk {
+  leads: Array<{
+    name: string;
+    phone: string;
+    email?: string;
+    note?: string;
+    sourceId?: string | null;
+    tagIds?: string[];
+  }>;
+  funnelId: string;
+}

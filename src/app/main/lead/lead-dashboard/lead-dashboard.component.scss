@@ -422,3 +422,14 @@
     object-fit: cover;
   }
 }
+
+.btn-group {
+  .btn-dropdown {
+    padding: 0 16px !important;
+  }
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+}
