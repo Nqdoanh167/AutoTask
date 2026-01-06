@@ -224,9 +224,13 @@ export class FolderFormModalComponent
 
     this.loading.submit = true;
 
-    // Prepare body based on type
+    // Check if editing or creating
+    const isEdit = this.dataSource && (this.dataSource as any).id;
+    const itemId = isEdit ? (this.dataSource as any).id : null;
+
+    // Prepare body and observable based on type
     let body: any;
-    let createObservable: any;
+    let apiObservable: any;
     let successMessage: string;
     let errorMessage: string;
 
@@ -236,9 +240,15 @@ export class FolderFormModalComponent
           name: this.folderForm.value.name,
           statusGroupId: this.folderForm.value.statusGroupId,
         };
-        createObservable = this.leadService.leadFolder.create(body);
-        successMessage = 'Tạo thư mục thành công';
-        errorMessage = 'Tạo thư mục thất bại';
+        apiObservable = isEdit
+          ? this.leadService.leadFolder.update(itemId, body)
+          : this.leadService.leadFolder.create(body);
+        successMessage = isEdit
+          ? 'Cập nhật thư mục thành công'
+          : 'Tạo thư mục thành công';
+        errorMessage = isEdit
+          ? 'Cập nhật thư mục thất bại'
+          : 'Tạo thư mục thất bại';
         break;
 
       case 'group':
@@ -247,9 +257,15 @@ export class FolderFormModalComponent
           folderId: this.folderForm.value.folderId,
           statusGroupId: this.folderForm.value.statusGroupId,
         };
-        createObservable = this.leadService.leadGroupFunnel.create(body);
-        successMessage = 'Tạo nhóm phễu thành công';
-        errorMessage = 'Tạo nhóm phễu thất bại';
+        apiObservable = isEdit
+          ? this.leadService.leadGroupFunnel.update(itemId, body)
+          : this.leadService.leadGroupFunnel.create(body);
+        successMessage = isEdit
+          ? 'Cập nhật nhóm phễu thành công'
+          : 'Tạo nhóm phễu thành công';
+        errorMessage = isEdit
+          ? 'Cập nhật nhóm phễu thất bại'
+          : 'Tạo nhóm phễu thất bại';
         break;
 
       case 'funnel':
@@ -261,13 +277,17 @@ export class FolderFormModalComponent
           isAutoCreateTask: this.folderForm.value.isAutoCreateTask,
           addChainActIds: this.folderForm.value.addChainActIds,
         };
-        createObservable = this.leadService.leadFunnel.create(body);
-        successMessage = 'Tạo phễu thành công';
-        errorMessage = 'Tạo phễu thất bại';
+        apiObservable = isEdit
+          ? this.leadService.leadFunnel.update(itemId, body)
+          : this.leadService.leadFunnel.create(body);
+        successMessage = isEdit
+          ? 'Cập nhật phễu thành công'
+          : 'Tạo phễu thành công';
+        errorMessage = isEdit ? 'Cập nhật phễu thất bại' : 'Tạo phễu thất bại';
         break;
     }
 
-    createObservable
+    apiObservable
       .pipe(
         finalize(() => {
           this.loading.submit = false;

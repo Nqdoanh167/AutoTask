@@ -155,6 +155,7 @@ export interface ISettingTabItem {
   icon?: string;
   active: boolean;
   position: string | 'top' | 'bottom' | 'center';
+  isDefault?: boolean;
 }
 
 export interface ISetting {

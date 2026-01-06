@@ -83,7 +83,7 @@ export const LEAD_CONFIG_BUTTON: IFilterTopButton[] = [
     name: 'add_new',
     type: ETypeButton.PRIMARY,
     label: 'Thêm Leads',
-    icon: './assets/icons/add.svg',
+    icon: './assets/images/icon-plus-bold.svg',
     tooltip: 'Thêm mới lead',
     tooltipPlacement: 'bottom',
   },

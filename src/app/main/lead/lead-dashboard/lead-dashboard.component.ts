@@ -39,6 +39,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import {LeadCreateModalComponent} from './lead-create-modal/lead-create-modal.component';
 import {LeadFormModalComponent} from './lead-form-modal/lead-form-modal.component';
+import {LeadCreateBulkComponent} from './lead-create-bulk/lead-create-bulk.component';
 
 @Component({
   selector: 'app-lead-dashboard',
@@ -151,6 +152,9 @@ export class LeadDashboardComponent
     }
     if (name === 'add_new') {
       this.openLeadModal();
+    }
+    if (name === 'create-bulk') {
+      this.openLeadCreateBulk();
     }
   }
 
@@ -953,5 +957,18 @@ Tất cả dữ liệu liên quan đến Phễu này sẽ bị xóa vĩnh viễn
           console.error('Update lead status error:', err);
         },
       });
+  }
+
+  openLeadCreateBulk() {
+    const modalRef = this.modalService.show(LeadCreateBulkComponent, {
+      class: 'modal-dialog-centered modal-xl',
+      initialState: {
+        funnelId: this.currentFunnel$.value?.id,
+      },
+    });
+
+    modalRef.content?.success?.subscribe(() => {
+      this.handleAction('reload');
+    });
   }
 }

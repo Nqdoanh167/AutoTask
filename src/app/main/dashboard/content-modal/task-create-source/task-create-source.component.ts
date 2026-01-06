@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -11,6 +12,7 @@ import {
 } from '@angular/core';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {filterItems} from '@app/utils/common';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import {Subject, takeUntil} from 'rxjs';
 import {
   EntityPagination,
@@ -34,6 +36,8 @@ interface TypeSource {
   selector: 'app-order-create-source',
   templateUrl: './task-create-source.component.html',
   styleUrls: ['./task-create-source.component.scss'],
+  standalone: true,
+  imports: [CommonModule, TooltipModule],
 })
 export class TaskCreateSourceComponent implements OnInit, OnDestroy {
   @ViewChild('inputSearch') inputSearch!: any;

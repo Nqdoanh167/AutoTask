@@ -48,7 +48,7 @@ export class TagComponent implements OnDestroy, OnInit {
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm',
-      icon: './assets/icons/add.svg',
+      icon: './assets/images/icon-plus-bold.svg',
     },
   ];
   isAdd = {

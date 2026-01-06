@@ -43,6 +43,7 @@ import { ModalModule } from "ngx-bootstrap/modal";
 import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
 import { SelectLocationComponent } from '@app/share/common/select-location/select-location.component';
 import { FilterAdvancedModule } from "./lead-dashboard/filter-advanced/filter-advanced.module";
+import { LeadCreateBulkComponent } from "./lead-dashboard/lead-create-bulk/lead-create-bulk.component";
 
 @NgModule({
   declarations: [
@@ -92,7 +93,8 @@ import { FilterAdvancedModule } from "./lead-dashboard/filter-advanced/filter-ad
     CustomDatePickerComponent,
     AccordionModule,
     SelectLocationComponent,
-    FilterAdvancedModule
+    FilterAdvancedModule,
+    LeadCreateBulkComponent
 ],
   providers: [DatePipe],
 })

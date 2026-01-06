@@ -84,7 +84,6 @@ import {ActivityLogComponent} from './content-modal/activity-log/activity-log.co
     ModalAssignTeamV2Component,
     ModalFeedbackComponent,
     ModalCreateOrderComponent,
-    TaskCreateSourceComponent,
     ModalCreateBookingComponent,
     BookingsComponent,
     ModalDrawTaskComponent,
@@ -140,6 +139,7 @@ import {ActivityLogComponent} from './content-modal/activity-log/activity-log.co
     InputCheckboxModule,
     InArrayFilterPipe,
     CdkDragPlaceholder,
-  ],
+    TaskCreateSourceComponent
+],
 })
 export class DashboardModule {}

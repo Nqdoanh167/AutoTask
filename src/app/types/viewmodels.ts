@@ -1692,3 +1692,10 @@ export interface RatioByEmployee {
   userId: string;
   ratio: number;
 }
+
+export interface IProgress {
+  status: 'init' | 'progress' | 'success' | 'error';
+  type: 'info' | 'success' | 'danger';
+  value: number;
+  size: number;
+}

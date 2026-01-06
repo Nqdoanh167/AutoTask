@@ -409,7 +409,7 @@ export const TASK_CONFIG_BUTTON: IFilterTopButton[] = [
     name: 'add_new',
     type: ETypeButton.PRIMARY,
     label: 'Thêm',
-    icon: './assets/icons/add.svg',
+    icon: './assets/images/icon-plus-bold.svg',
     tooltip: 'Thêm mới tác vụ',
     children: [
       {

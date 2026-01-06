@@ -55,7 +55,7 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm',
-      icon: './assets/icons/add.svg',
+      icon: './assets/images/icon-plus-bold.svg',
     },
   ];
 
@@ -423,10 +423,7 @@ export class StatusLeadComponent implements OnDestroy, OnInit {
     this.loading.addEditStatus = true;
     const serviceRef = this.isAdd.status
       ? this.leadService.leadStatus.create(body)
-      : this.leadService.leadStatus.update(
-          this.dataSelected.status!.id,
-          body,
-        );
+      : this.leadService.leadStatus.update(this.dataSelected.status!.id, body);
 
     serviceRef
       .pipe(

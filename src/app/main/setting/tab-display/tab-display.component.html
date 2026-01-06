@@ -18,7 +18,27 @@
                 <thead>
                   <tr>
                     <th class="column-name" style="width: 200px">Tab</th>
-                    <th style="width: 200px">Vị trí hiển thị</th>
+                    <th style="width: 200px">
+                      Vị trí hiển thị
+                      <span id="popover-position">
+                        <i
+                          class="fa fa-question-circle"
+                          [popover]="popoverPosition"
+                          placement="bottom"
+                          triggers="hover"
+                          containerClass="card"
+                        ></i>
+                      </span>
+
+                      <ng-template #popoverPosition>
+                        <img
+                          src="https://cdn.smax.in/s03/opla/bizs/68d25aed327cc7001ac89b6f/branch/1767695089201.jpg?expire=1799231089436&signature=61fb629b268036625a62214c0aaa12dc6ae0cb2b0329c2ab670c2ddbb35b534a"
+                          alt=""
+                          width="400"
+                          height="400"
+                        />
+                      </ng-template>
+                    </th>
                     <th class="column-action text-center" style="width: 200px">
                       Cho phép hiển thị
                     </th>
@@ -53,15 +73,15 @@
                       <td>
                         <ng-select
                           [items]="[
-                            {value: 'top', label: 'TOP'},
-                            {value: 'bottom', label: 'BOTTOM'},
-                            {value: 'center', label: 'CENTER'}
+                            {value: 'left', label: 'Cột trái'},
+                            {value: 'right', label: 'Cột phải'}
                           ]"
                           [(ngModel)]="tab.position"
                           [placeholder]="'Chọn vị trí hiển thị'"
                           [clearable]="false"
                           bindValue="value"
                           bindLabel="label"
+                          appendTo=".card"
                         ></ng-select>
                       </td>
                       <td class="text-center">
@@ -137,15 +157,15 @@
                       <td>
                         <ng-select
                           [items]="[
-                            {value: 'top', label: 'TOP'},
-                            {value: 'bottom', label: 'BOTTOM'},
-                            {value: 'center', label: 'CENTER'}
+                            {value: 'left', label: 'Cột trái'},
+                            {value: 'right', label: 'Cột phải'}
                           ]"
                           [(ngModel)]="tab.position"
                           [placeholder]="'Chọn vị trí hiển thị'"
                           [clearable]="false"
                           bindValue="value"
                           bindLabel="label"
+                          appendTo=".card"
                         ></ng-select>
                       </td>
                       <td class="text-center" style="width: 200px">

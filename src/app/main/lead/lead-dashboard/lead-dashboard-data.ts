@@ -71,12 +71,21 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
     loading: false,
   };
 
+  public source: EntityPagination<ISource> = {
+    rows: [],
+    limit: 1000,
+    page: 1,
+    total: 0,
+    loading: false,
+  };
+
   constructor() {
     super();
     this.getStatusesCache();
     this.getStatusGroupsCache();
     this.getTagsCache();
     this.getFoldersCache();
+    this.getSourceCache();
 
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -259,6 +268,37 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
       )
       .subscribe((res) => {
         this.folder.rows = res || [];
+      });
+  }
+
+  getSource() {
+    this.source.loading = true;
+    this.autoTaskService.source
+      .get({
+        limit: this.source.limit,
+        page: this.source.page,
+      })
+      .pipe(
+        finalize(() => (this.source.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        if (res.status === 200) {
+          this.source.rows = res.data || [];
+          this.source.total = res.meta?.total || 0;
+          this.autoTaskService.setListSource(this.source.rows);
+        }
+      });
+  }
+
+  getSourceCache() {
+    this.autoTaskService.listSourceObservable
+      .pipe(
+        finalize(() => (this.source.loading = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        this.source.rows = res || [];
       });
   }
 

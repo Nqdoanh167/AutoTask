@@ -13,6 +13,7 @@ import {
   IFunnel,
   ILeadStatus,
   ILeadStatusGroup,
+  ILeadCreateBulk,
 } from '@app/types/lead';
 import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
@@ -95,6 +96,12 @@ export class LeadService extends BaseApiService implements OnDestroy {
       ),
     bulkUpdate: (body: {ids: string[]; payload: any}) =>
       this.httpClient.patch<EntityResult<any>>(
+        this.createUrl([this.api.lead, 'bulk']),
+        body,
+      ),
+
+    createBulk: (body: ILeadCreateBulk) =>
+      this.httpClient.post<EntityResult<ILead[]>>(
         this.createUrl([this.api.lead, 'bulk']),
         body,
       ),

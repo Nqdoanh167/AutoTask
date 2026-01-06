@@ -115,6 +115,7 @@
           [class.is-invalid]="submitted && f['statusGroupId'].errors"
           appendTo=".modal"
           [loading]="statusGroups.loading"
+          [readonly]="!!dataSource"
         >
           <ng-template ng-option-tmp let-item="item">
             <span>{{ item.name }}</span>

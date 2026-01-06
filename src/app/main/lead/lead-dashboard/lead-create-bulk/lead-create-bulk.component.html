@@ -1,0 +1,207 @@
+<div class="lead-create-bulk">
+  <app-custom-modal
+    [isSubmitting]="loading.isSubmitting"
+    [textOk]="'Tạo'"
+    (hideModal)="onCancel()"
+    (submitModal)="onSubmit()"
+  >
+    <div modalTitle>
+      <h4 class="modal-title pull-left text-neutral">Thêm Lead Hàng Loạt</h4>
+    </div>
+
+    <div modalBody>
+      <tabset #staticTabs class="custom-tab-basic">
+        <tab
+          heading="Nhập tay"
+          [active]="activeTab === 'manual'"
+          (selectTab)="activeTab = 'manual'"
+        ></tab>
+        <!-- <tab
+          heading="Tải file"
+          [active]="activeTab === 'upload'"
+          (selectTab)="activeTab = 'upload'"
+        ></tab> -->
+      </tabset>
+
+      <ng-container *ngIf="activeTab === 'manual'">
+        <form [formGroup]="form">
+          <div *ngIf="leadFormArray.length" class="preview-section">
+            <div formArrayName="leads" style="height: 400px; overflow-y: auto">
+              <table class="table table-bordered table-sm">
+                <thead class="table-dark">
+                  <tr>
+                    <th class="text-nowrap text-center">STT</th>
+                    <th *ngIf="submitted" class="text-nowrap"></th>
+                    <th *ngFor="let field of fieldDefaults" class="text-nowrap">
+                      {{ field.label }}
+                      <span *ngIf="field.required">(*)</span>
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="leadFormArray.length > 1"
+                    ></th>
+                  </tr>
+                </thead>
+                <tbody class="tbody">
+                  <tr
+                    *ngFor="let lead of leadFormArray.controls; let i = index"
+                    [formGroupName]="i"
+                  >
+                    <td class="text-nowrap">
+                      <div
+                        class="d-flex align-items-center justify-content-center"
+                      >
+                        <div class="action-add-row">
+                          <div class="text text-center">
+                            {{ i + 1 }}
+                          </div>
+                          <button
+                            type="button"
+                            class="btn d-none p-1"
+                            (click)="addRow(i)"
+                            style="width: 100%"
+                          >
+                            <i class="fas fa-plus"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                    <td *ngIf="submitted">
+                      <ng-container
+                        *ngIf="!loading.isSubmitting; else loadingTemplate"
+                      >
+                        <img
+                          src="./assets/images/icon/{{
+                            lead.valid ? 'check' : 'not-check'
+                          }}.svg"
+                          alt="{{ lead.valid ? 'Hợp lệ' : 'Không hợp lệ' }}"
+                          [title]="
+                            lead.valid
+                              ? 'Dữ liệu hợp lệ'
+                              : 'Dữ liệu không hợp lệ'
+                          "
+                        />
+                      </ng-container>
+                      <ng-template #loadingTemplate>
+                        <i class="fas fa-spinner fa-spin"></i>
+                      </ng-template>
+                    </td>
+                    <td *ngFor="let field of fieldDefaults">
+                      <ng-container *ngIf="field.type === 'input'">
+                        <input
+                          type="text"
+                          class="form-control custom-input"
+                          [placeholder]="field.label"
+                          [ngClass]="{
+                            'is-invalid': isFieldInvalid(field.key, i)
+                          }"
+                          [formControlName]="field.key"
+                        />
+                      </ng-container>
+                      <ng-container *ngIf="field.key === 'tags'">
+                        <ng-select
+                          class="custom-input-tag full-width"
+                          placeholder="Chọn tags..."
+                          [formControlName]="field.key"
+                          [ngClass]="{
+                            'is-invalid': f[field.key]?.errors && submitted
+                          }"
+                          [items]="tags.rows"
+                          [multiple]="true"
+                          [bindLabel]="'name'"
+                          [bindValue]="'id'"
+                          appendTo=".lead-create-bulk"
+                        >
+                          <ng-template ng-label-tmp let-item="item">
+                            <div
+                              class="tag-item"
+                              [ngClass]="{nonBack: !item.bgColor}"
+                              [ngStyle]="{background: item.bgColor}"
+                            >
+                              {{ item.name }}
+                            </div>
+                          </ng-template>
+                          <ng-template ng-option-tmp let-item="item">
+                            <div
+                              class="tag-item"
+                              [ngClass]="{nonBack: !item.bgColor}"
+                              [ngStyle]="{background: item.bgColor}"
+                            >
+                              {{ item.name }}
+                            </div>
+                          </ng-template>
+                        </ng-select>
+                      </ng-container>
+
+                      <ng-container *ngIf="field.key === 'sourceId'">
+                        <ng-select
+                          formControlName="sourceId"
+                          [items]="source.rows"
+                          [groupBy]="groupByPlatform"
+                          [loading]="source.loading"
+                          bindLabel="name"
+                          bindValue="id"
+                          [clearable]="false"
+                          [searchable]="false"
+                          placeholder="Chọn nguồn"
+                          appendTo=".lead-create-bulk"
+                        >
+                          <ng-template ng-label-tmp let-item="item">
+                            <div class="d-flex align-items-center gap-2">
+                              <img
+                                [src]="item.picture"
+                                alt=""
+                                width="20"
+                                height="20"
+                              />
+                              <span>
+                                {{ item.name }}
+                              </span>
+                            </div>
+                          </ng-template>
+                        </ng-select>
+                      </ng-container>
+                    </td>
+                    <td *ngIf="leadFormArray.length > 1">
+                      <div class="btn btn-table" (click)="removeRow(i)">
+                        <img src="./assets/images/icon/remove.svg" alt="" />
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </form>
+      </ng-container>
+
+      <ng-container *ngIf="activeTab === 'upload'"></ng-container>
+
+      <div class="text-center mb-3">
+        <div class="w-100" *ngIf="progress.status === 'progress'">
+          <div class="text-primary fs-7">
+            Quá trình thêm Lead hàng loạt, vui lòng không tắt trình duyệt và chờ
+            trong giây lát.
+          </div>
+          <progressbar
+            [value]="progress.value"
+            [max]="100"
+            [type]="progress.type"
+            [animate]="true"
+            [striped]="true"
+          ></progressbar>
+        </div>
+
+        <div
+          class="w-100 text-success fs-7"
+          *ngIf="progress.status === 'success'"
+        >
+          Thêm Lead hàng loạt thành công.
+        </div>
+        <div class="w-100 text-danger fs-7" *ngIf="progress.status === 'error'">
+          Thêm Lead hàng loạt thất bại.
+        </div>
+      </div>
+    </div>
+  </app-custom-modal>
+</div>

@@ -66,7 +66,7 @@ export class EmployeeComponent
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm nhân viên (module Cài đặt)',
-      icon: './assets/icons/add.svg',
+      icon: './assets/images/icon-plus-bold.svg',
     },
   ];
 
@@ -183,7 +183,11 @@ export class EmployeeComponent
   private async handleUpsertUserAcls() {
     // console.log(`[employee.component.ts] 'listFilteredBizUsers':`, this.listFilteredBizUsers);
     for (const user of this.listFilteredBizUsers) {
-      if (user.isActiveAcl == null && user.isActive === true && user.role === 'OWNER') {
+      if (
+        user.isActiveAcl == null &&
+        user.isActive === true &&
+        user.role === 'OWNER'
+      ) {
         user.isUpserting = true;
         try {
           const data = {
@@ -288,11 +292,12 @@ export class EmployeeComponent
     }
   }
 
-  override onSearch(value: { term: string; name: string }) {
-    const { term } = value;
+  override onSearch(value: {term: string; name: string}) {
+    const {term} = value;
     const keyword = removeCharacter(term)
       .toLocaleLowerCase()
-      .replace(/[ ]+/, ' ').trim();
+      .replace(/[ ]+/, ' ')
+      .trim();
 
     this.listFilteredBizUsers = this.listBizUsers.filter((user) => {
       if (!keyword) return true;

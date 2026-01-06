@@ -1,0 +1,157 @@
+<div class="modal-create-update-tab">
+  <form [formGroup]="iframeForm">
+    <app-custom-modal
+      [className]="'limit-body-height'"
+      [textOk]="'Lưu'"
+      (hideModal)="hideModal()"
+      (submitModal)="onSubmit()"
+    >
+      <div modalTitle>
+        <div class="d-flex align-items-center justify-content-between w-100">
+          <span>{{ tabData ? 'Chỉnh sửa' : 'Thêm' }} tab iframe</span>
+        </div>
+      </div>
+      <div modalBody>
+        <div class="wrapper">
+          <div class="row mb-3 g-2">
+            <div class="col-12">
+              <label for="iframe-name" class="form-control-label">
+                Nhập tên iframe
+              </label>
+              <input
+                [ngClass]="{'is-invalid': submitted && f['name'].errors}"
+                type="text"
+                class="form-control"
+                id="iframe-name"
+                formControlName="name"
+                placeholder="Nhập tên iframe"
+              />
+              <div
+                *ngIf="submitted && f['name'].errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f['name'].errors?.['required']">
+                  Tên iframe không được bỏ trống
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3 g-2">
+            <div class="col-12">
+              <label for="iframe-url" class="form-control-label">
+                URL iframe
+              </label>
+              <input
+                [ngClass]="{'is-invalid': submitted && f['url'].errors}"
+                type="text"
+                class="form-control"
+                id="iframe-url"
+                formControlName="url"
+                placeholder="Nhập URL iframe"
+              />
+              <div
+                *ngIf="submitted && f['url'].errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f['url'].errors?.['required']">
+                  URL iframe không được bỏ trống
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-2">
+            <label for="parameters" class="form-control-label">Tham số</label>
+            <div id="parameters" formArrayName="parameters">
+              <div
+                class="text-center p-2"
+                *ngIf="!formParameters().controls.length"
+              >
+                Không cấu hình tham số
+              </div>
+              <ng-container
+                *ngFor="
+                  let parameter of formParameters().controls;
+                  let paramIndex = index;
+                  let last = last;
+                  let first = first
+                "
+              >
+                <div
+                  [formGroupName]="paramIndex"
+                  class="row {{ !first && 'mt-2' }} g-2 mx-0"
+                >
+                  <div class="col-6">
+                    <div class="d-flex align-items-center">
+                      <ng-select
+                        class="w-90"
+                        id="parameter-in"
+                        [clearable]="false"
+                        [ngClass]="{
+                          'is-invalid': submitted && !parameter.value['argKey']
+                        }"
+                        formControlName="argKey"
+                        appendTo=".modal-create-update-tab"
+                        placeholder="Tham số"
+                      >
+                        <ng-option
+                          *ngFor="let option of listSourceArgKey"
+                          [value]="option.value"
+                          [disabled]="checkExistArgKey(option.value)"
+                        >
+                          {{ option.label }}
+                        </ng-option>
+                      </ng-select>
+                      <div class="ps-3">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="d-flex align-items-center">
+                      <input
+                        [ngClass]="{
+                          'is-invalid': submitted && !parameter.value['argRef']
+                        }"
+                        type="text"
+                        class="form-control"
+                        formControlName="argRef"
+                        placeholder="Tên trường API"
+                      />
+                      <div
+                        (click)="handleRemoveParameter(paramIndex)"
+                        class="ps-3 cursor-pointer"
+                      >
+                        <img class="" src="./assets/images/icon/x.svg" alt="" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+            <div
+              *ngIf="formParameters().controls.length < listSourceArgKey.length"
+              [style.width]="'150px'"
+              class="d-flex align-items-center gap-2 button-add-step-action text-link mt-3"
+              (click)="handleAddParameter()"
+            >
+              <i class="fa-solid fa-plus me-1"></i>
+              <span>Thêm tham số</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3" *ngIf="previewUrl">
+          <label class="form-control-label">Preview</label>
+          <input
+            type="text"
+            class="form-control"
+            [value]="previewUrl"
+            readonly
+          />
+        </div>
+      </div>
+    </app-custom-modal>
+  </form>
+</div>

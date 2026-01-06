@@ -374,7 +374,11 @@
             class="btn center-item button-filter-top button-fill secondary-color"
             (click)="handleAction('add_new')"
           >
-            <img src="./assets/icons/add.svg" width="16" height="16" />
+            <img
+              src="./assets/images/icon-plus-bold.svg"
+              width="16"
+              height="16"
+            />
             Thêm Lead
           </button>
 
@@ -393,7 +397,7 @@
             class="dropdown-menu dropdown-menu-right"
             role="menu"
           >
-            <li role="menuitem">
+            <li role="menuitem" (click)="handleAction('create-bulk')">
               <div href="#" class="dropdown-item cursor-pointer">
                 <i class="far fa-edit me-2"></i>
                 Thêm hàng loạt

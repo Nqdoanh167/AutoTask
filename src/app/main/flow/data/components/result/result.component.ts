@@ -42,7 +42,7 @@ export class ResultComponent implements OnInit, OnDestroy {
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm mới',
-      icon: './assets/icons/add.svg',
+      icon: './assets/images/icon-plus-bold.svg',
     },
   ];
   public dataSource: ICommonDataSource<IActResult, IQueryBase> = {

@@ -16,7 +16,7 @@ import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.ser
 import {EActionType, IAction} from '@app/types/flow';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {sortBy, sortIcon} from '@app/utils/common';
-import { FeedbackService } from '@app/services/api/feeback.service';
+import {FeedbackService} from '@app/services/api/feeback.service';
 
 @Component({
   selector: 'app-action',
@@ -53,7 +53,7 @@ export class ActionComponent implements OnInit, OnDestroy {
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm mới',
-      icon: './assets/icons/add.svg',
+      icon: './assets/images/icon-plus-bold.svg',
     },
   ];
   public dataSource: ICommonDataSource<IAction, any> = {
@@ -113,9 +113,7 @@ export class ActionComponent implements OnInit, OnDestroy {
   getConfigFeedback() {
     this.feedbackService.config
       .get()
-      .pipe(
-        takeUntil(this.destroy$),
-      )
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.status === 200) {

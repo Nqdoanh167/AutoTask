@@ -87,7 +87,7 @@ export class SourceComponent
       name: 'add_new',
       type: ETypeButton.PRIMARY,
       label: 'Thêm nguồn dữ liệu',
-      icon: './assets/icons/add.svg',
+      icon: './assets/images/icon-plus-bold.svg',
     },
   ];
 
