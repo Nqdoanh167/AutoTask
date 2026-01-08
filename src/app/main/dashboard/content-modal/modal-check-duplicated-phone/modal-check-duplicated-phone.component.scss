@@ -1,6 +1,7 @@
 .modal-check-duplicated-phone {
   .modal-body-placeholder {
-    min-height: 200px;
+    height: 70vh;
+    overflow: auto;
   }
 
   .action-bar-container {

@@ -2,11 +2,17 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AutoTaskService } from '@app/services/api/autoTask.service';
 import { SocketService } from '@app/services/api/socket.service';
 import { CommonService } from '@app/services/common/common.service';
-import { ITask } from '@app/types/flow';
+import { ILeadDealDto, ITask } from '@app/types/flow';
 import { EntityPagination } from '@app/types/viewmodels';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, takeUntil } from 'rxjs';
+
+interface ITaskInfo extends Pick<ITask, 'id' | 'code' | 'isTaskClosed'> {
+  leadDeal: {
+    name: ILeadDealDto['name'];
+  };
+}
 
 @Component({
   selector: 'app-modal-check-duplicated-phone',
@@ -25,7 +31,6 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
   ) {
     this.socketService.listen('task/BULK_DELETED').pipe(takeUntil(this.destroy$)).subscribe(() => {
       setTimeout(() => {
-        this.resetPagination();
         this.getDupPhoneList();
       }, 1000);
     });
@@ -38,7 +43,7 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
     loading: false,
   };
 
-  public tasksByPhone: Record<string, { rows: ITask[]; loading: boolean; loaded: boolean }> = {};
+  public tasksByPhone: Record<string, { rows: ITaskInfo[]; loading: boolean; loaded: boolean }> = {};
   public accordionStates: Record<string, boolean> = {};
 
   // Selection state - chỉ 1 accordion được phép có selections
@@ -46,19 +51,13 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
   public selectedTasks: string[] = [];
   public selectedOriginalTask: string | null = null;
   public selectedAction: string | null = null;
-  public validOriginalTasks: ITask[] = [];
-
-  // Pagination state
-  public paginationHistory: string[] = [];
-  public currentPageIndex: number = 0;
-  public hasNextPage: boolean = false;
+  public validOriginalTasks: ITaskInfo[] = [];
 
   // Processing state
   public isProcessing: boolean = false;
 
   // === Lifecycle ===
   ngOnInit(): void {
-    this.resetPagination();
     this.getDupPhoneList();
   }
 
@@ -83,7 +82,6 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
         if (res.status === 200) {
           this.dupPhoneList.rows = res.data;
           this.dupPhoneList.after = res.meta?.after || null;
-          this.hasNextPage = !!this.dupPhoneList.after;
         } else {
           this.commonService.handleResErr(res);
         }
@@ -106,7 +104,7 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
       next: (res) => {
         if (res.status === 200) {
           this.tasksByPhone[phone] = {
-            rows: (res.data || []) as ITask[],
+            rows: (res.data || []) as ITaskInfo[],
             loading: false,
             loaded: true,
           };
@@ -166,7 +164,11 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
     return this.selectedTasks.length;
   }
 
-  getValidOriginalTasks(): ITask[] {
+  getValidTaskCountToMerge(): number {
+    return this.validOriginalTasks.filter(i => i.isTaskClosed === false).length;
+  }
+
+  getValidOriginalTasks(): ITaskInfo[] {
     if (!this.activeAccordionPhone) return [];
     const tasks = this.tasksByPhone[this.activeAccordionPhone]?.rows || [];
     return tasks.filter(task => this.selectedTasks.includes(task.id));
@@ -287,32 +289,6 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
     }
   }
 
-  // === Pagination ===
-  goToNextPage(): void {
-    if (!this.hasNextPage || this.dupPhoneList.loading) return;
-
-    if (this.dupPhoneList.after && this.currentPageIndex >= this.paginationHistory.length) {
-      this.paginationHistory.push(this.dupPhoneList.after);
-    }
-
-    this.currentPageIndex++;
-    this.getDupPhoneList(this.dupPhoneList.after || undefined);
-    this.resetSelectionState();
-  }
-
-  goToPreviousPage(): void {
-    if (this.currentPageIndex <= 0 || this.dupPhoneList.loading) return;
-
-    this.currentPageIndex--;
-    const previousAfter = this.currentPageIndex > 0 ? this.paginationHistory[this.currentPageIndex - 1] : undefined;
-    this.getDupPhoneList(previousAfter);
-    this.resetSelectionState();
-  }
-
-  canGoToPreviousPage(): boolean {
-    return this.currentPageIndex > 0;
-  }
-
   // === Reset Methods ===
   private resetSelectionState(): void {
     this.selectedTasks = [];
@@ -324,18 +300,12 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
     this.validOriginalTasks = [];
   }
 
-  private resetPagination(): void {
-    this.paginationHistory = [];
-    this.currentPageIndex = 0;
-    this.hasNextPage = false;
-  }
-
   private refreshData(): void {
     this.resetSelectionState();
   }
 
   // === Utils ===
-  trackByFn(_index: number, task: ITask): string {
+  trackByFn(_index: number, task: ITaskInfo): string {
     return task?.id;
   }
 }
