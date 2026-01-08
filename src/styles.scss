@@ -422,14 +422,16 @@ app-main {
 
     .page-link {
       line-height: 18px;
-      border-radius: 20px;
-      height: 40px;
-      min-width: 40px;
+      border-radius: 4px;
+      height: 32px;
+      min-width: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
       border: none;
       color: var(--bs-body-color);
+      border: 1px solid #edf2ff;
+      background-color: #fff;
     }
 
     &.active {
@@ -1031,11 +1033,11 @@ a {
   font-size: 14px;
 
   &:focus-within {
-    border-color: $primary;
+    border-color: #ccc;
   }
 
   &:focus {
-    border-color: $primary;
+    border-color: #ccc;
   }
 
   &::placeholder {
@@ -1139,7 +1141,7 @@ textarea.ui-v2 {
   }
 
   &::placeholder {
-    color: $text-color;
+    color: $gray-500;
     font-weight: 400;
   }
 }

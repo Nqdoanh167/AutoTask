@@ -986,62 +986,64 @@
             </tbody>
           </table>
         </cdk-virtual-scroll-viewport>
-        <div class="d-flex align-items-end">
-          <!-- Icon List -->
-          <div
-            class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2"
-            style="width: 40%"
-          >
-            <button
-              class="btn button-outline"
-              [tooltip]="'Chia tác vụ'"
-              (click)="showModalAssignTeamV2()"
-              *ngIf="hasPerSplitTasks()"
-            >
-              <img src="./assets/images/icon/split.svg" alt="split-tasks" />
-            </button>
-
-            <button
-              [tooltip]="'Tải xuống tác vụ'"
-              class="btn button-outline"
-              (click)="showModalExportExcel()"
-            >
-              <img
-                src="./assets/images/icon/download.svg"
-                alt=""
-                style="width: 16px"
-              />
-            </button>
-
-            <button
-              [tooltip]="'Kiểm tra trùng số'"
-              class="btn button-outline"
-              (click)="showModalCheckDuplicatedPhone()"
-              *ngIf="permission.viewDuplicatedPhoneConfig"
-            >
-              <img src="./assets/images/icon/duplicate.svg" alt="" style="width: 16px" />
-            </button>
-          </div>
-
-          <!-- Pagination -->
-          <div
-            class="d-flex align-items-center flex-grow-0 flex-shrink-0 justify-content-end"
-            style="width: 57%"
-          >
-            <custom-pagination
-              [showConfig]="true"
-              [selectedSize]="item.paramsQuery.limit"
-              [currentPage]="item.paramsQuery.page"
-              (changePageEvent)="pageChanged($event)"
-              [total]="item.total"
-              [optionSize]="[10, 20, 50, 100, 500, 1000]"
-              [type]="item.rows.length > 10000 ? 'lazy' : 'number'"
-              (changePageLazyEvent)="handleChangePageLazy($event)"
-              [maxRecords]="10000"
-            />
-          </div>
-        </div>
       </div>
+    </div>
+  </div>
+  <div class="d-flex p-3" style="background-color: #f7fcff">
+    <!-- Icon List -->
+    <div
+      class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2"
+      style="width: 40%"
+    >
+      <div
+        class="button-icon-wrapper"
+        (click)="showModalAssignTeamV2()"
+        [tooltip]="'Chia tác vụ'"
+        *ngIf="hasPerSplitTasks()"
+      >
+        <button class="button-icon">
+          <img src="./assets/images/icon/split.svg" alt="split-tasks" />
+        </button>
+      </div>
+
+      <div
+        class="button-icon-wrapper"
+        (click)="showModalExportExcel()"
+        [tooltip]="'Tải xuống tác vụ'"
+      >
+        <button class="button-icon">
+          <img src="./assets/images/icon/download.svg" alt="" />
+        </button>
+      </div>
+
+      <div
+        class="button-icon-wrapper"
+        [tooltip]="'Kiểm tra trùng số'"
+        (click)="showModalCheckDuplicatedPhone()"
+        *ngIf="permission.viewDuplicatedPhoneConfig"
+      >
+        <button class="button-icon">
+          <img src="./assets/images/icon/order-duplicate.svg" alt="" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div
+      class="d-flex align-items-center flex-grow-0 flex-shrink-0 justify-content-end"
+      style="width: 57%"
+    >
+      <custom-pagination
+        [showConfig]="true"
+        [selectedSize]="item.paramsQuery.limit"
+        [currentPage]="item.paramsQuery.page"
+        (changePageEvent)="pageChanged($event)"
+        [total]="item.total"
+        [optionSize]="[10, 20, 50, 100, 500, 1000]"
+        [type]="item.rows.length > 10000 ? 'lazy' : 'number'"
+        (changePageLazyEvent)="handleChangePageLazy($event)"
+        [maxRecords]="10000"
+      />
     </div>
   </div>
 </div>

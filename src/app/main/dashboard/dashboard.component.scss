@@ -4,10 +4,14 @@
 .dashboard-site {
   padding: 16px;
 }
+.card-body {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '200px');
-  @include mixins.calculateSize('height', '100vh', '200px');
+  @include mixins.calculateSize('max-height', '100vh', '205px');
+  @include mixins.calculateSize('height', '100vh', '205px');
 }
 
 .avatar {
