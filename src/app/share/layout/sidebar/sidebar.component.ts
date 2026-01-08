@@ -109,7 +109,6 @@ export class SidebarComponent implements OnInit {
       this.mainService.setHeaderTabs([]);
     }
     const getAccessibleSite = this.authService.getAccessibleSite();
-    console.log('getAccessibleSite', getAccessibleSite);
     const availableTabs = getAccessibleSite[mainModule as EModule];
     if (mainModule !== EModule.DASHBOARD) {
       this.mainService.setHeaderTabs(

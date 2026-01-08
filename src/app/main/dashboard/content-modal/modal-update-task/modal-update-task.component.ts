@@ -27,14 +27,19 @@ import {
   OrderPlatformSource,
   User,
 } from '@app/types/viewmodels';
-import {intersection} from 'lodash';
+import {intersection, isEmpty} from 'lodash';
 import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
 import {UpdateActionInTaskChainComponent} from '@main/dashboard/content-modal/update-action-in-task-chain/update-action-in-task-chain.component';
 import {environment} from '../../../../../environments/environment';
 import {ToastrService} from 'ngx-toastr';
 import {CustomerInfoComponent} from '@main/dashboard/content-modal/customer-info/customer-info.component';
-import {EPerActTask, ISource, IUpdateSourceDto} from '@app/types/setting';
+import {
+  EPerActTask,
+  ISettingTabItem,
+  ISource,
+  IUpdateSourceDto,
+} from '@app/types/setting';
 import {NgSelectComponent} from '@ng-select/ng-select';
 import {ETabTaskDetail} from '@app/types/task';
 import {MainService} from '@app/services/api/main.service';
@@ -44,6 +49,7 @@ import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.co
 import {ActivatedRoute} from '@angular/router';
 import {SocketService} from '@app/services/api/socket.service';
 import {ModalCloseTaskComponent} from '../modal-close-task/modal-close-task.component';
+import {DEFAULT_TASK_TABS} from '@app/main/setting/tab-display/tab-display.variable';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 declare function smaxCallSdkClearCall(): void;
@@ -111,14 +117,10 @@ export class ModalUpdateTaskComponent
 
   private resetTaskSubject$ = new Subject<string>();
 
-  public menus = [
-    {key: 'task', name: 'Tác vụ', icon: 'order'},
-    {key: 'customer', name: 'Khách hàng', icon: 'user'},
-    {key: 'order', name: 'Đơn hàng', icon: 'connections'},
-  ];
-  public menusActivity = [{key: 'history', name: 'Lịch sử', icon: 'attribute'}];
-  public activeTabMenu: string = 'task';
-  public activeActivityTab: string = 'history';
+  public leftTabsMenu: ISettingTabItem[] = [];
+  public rightTabsMenu: ISettingTabItem[] = [];
+  public activeLeftTabMenu: string = 'task';
+  public activeRightTabMenu: string = 'history';
 
   constructor(
     private readonly modalRef: BsModalRef,
@@ -153,9 +155,32 @@ export class ModalUpdateTaskComponent
   }
 
   override async ngOnInit() {
-    // TODO: Document code convention
-    // NOTE: Nên setup subject observable trong ngOnInit và subscribe ngay trong đây để đảm bảo subject có đủ pipe lẫn subscribe thành công
-    // Tại các click / action handler chỉ cần gọi .next() để emit value cho subject -> trigger pipe và handle business logic
+    this.autoTaskService.currentSetting
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res) => {
+        if (res) {
+          this.leftTabsMenu = res.taskTabs.filter(
+            (tab) => tab.positions.includes('left') && tab.active,
+          );
+          this.rightTabsMenu = res.taskTabs.filter(
+            (tab) => tab.positions.includes('right') && tab.active,
+          );
+          if (isEmpty(this.leftTabsMenu)) {
+            this.leftTabsMenu = DEFAULT_TASK_TABS.filter(
+              (tab) => tab.positions.includes('left') && tab.active,
+            );
+          }
+          if (isEmpty(this.rightTabsMenu)) {
+            this.rightTabsMenu = DEFAULT_TASK_TABS.filter(
+              (tab) => tab.positions.includes('right') && tab.active,
+            );
+          }
+
+          this.activeLeftTabMenu = this.leftTabsMenu[0]?.key || 'task';
+          this.activeRightTabMenu = this.rightTabsMenu[0]?.key || 'history';
+        }
+      });
+
     this.resetTaskSubject$
       .pipe(debounceTime(300), takeUntil(this.destroy$))
       .subscribe({
@@ -1394,13 +1419,5 @@ export class ModalUpdateTaskComponent
 
   get isTaskClosed(): boolean {
     return this.sourceData?.isTaskClosed ?? false;
-  }
-
-  selectTabMenu(tab: string) {
-    this.activeTabMenu = tab;
-  }
-
-  selectActivityTab(tab: string) {
-    this.activeActivityTab = tab;
   }
 }

@@ -30,12 +30,13 @@ import {User} from '@app/types/viewmodels';
 import {EChainNextActionType, ETaskChainType, ITeam} from '@app/types/flow';
 import {ITaskChain} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
-import {ETabDetail} from '@app/types/lead';
 import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
-import {ISetting} from '@app/types/setting';
+import {ISetting, ISettingTabItem} from '@app/types/setting';
 import {LeadUpdateModalComponent} from '../lead-update-modal/lead-update-modal.component';
 import {take} from 'rxjs';
 import {LeadDashboardData} from '../lead-dashboard-data';
+import {DEFAULT_LEAD_TABS} from '@app/main/setting/tab-display/tab-display.variable';
+import {isEmpty} from 'lodash';
 
 @Component({
   selector: 'app-lead-form-modal',
@@ -68,18 +69,10 @@ export class LeadFormModalComponent
   public funnelOptions: Array<
     IFunnel & {folderName: string; funnelGroupName: string}
   > = [];
-  public menus = [
-    {
-      key: ETabDetail.DISCUSS,
-      name: 'Thảo luận',
-      icon: 'attribute',
-    },
-    {key: ETabDetail.TASK, name: 'Tác vụ', icon: 'order'},
-    {key: ETabDetail.ATTRIBUTE, name: 'Attribute', icon: 'attribute'},
-    {key: ETabDetail.PRODUCT, name: 'Sản phẩm', icon: 'user'},
-    {key: ETabDetail.PACKAGE, name: 'Gói dịch vụ', icon: 'connections'},
-  ];
-  public activeTab: string = ETabDetail.DISCUSS;
+  public leftTabsMenu: ISettingTabItem[] = [];
+  public rightTabsMenu: ISettingTabItem[] = [];
+  public activeLeftTabMenu: string = 'discuss';
+  public activeRightTabMenu: string = 'history';
   public typeLeads = TYPE_LEAD_OPTIONS;
   public genderOptions = [
     {value: EGenderType.MALE, label: 'Nam'},
@@ -101,6 +94,31 @@ export class LeadFormModalComponent
   }
 
   override ngOnInit(): void {
+    this.autoTaskService.currentSetting
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res) => {
+        if (res) {
+          this.leftTabsMenu = res.leadTabs.filter(
+            (tab) => tab.positions.includes('left') && tab.active,
+          );
+          this.rightTabsMenu = res.leadTabs.filter(
+            (tab) => tab.positions.includes('right') && tab.active,
+          );
+          if (isEmpty(this.leftTabsMenu)) {
+            this.leftTabsMenu = DEFAULT_LEAD_TABS.filter(
+              (tab) => tab.positions.includes('left') && tab.active,
+            );
+          }
+          if (isEmpty(this.rightTabsMenu)) {
+            this.rightTabsMenu = DEFAULT_LEAD_TABS.filter(
+              (tab) => tab.positions.includes('right') && tab.active,
+            );
+          }
+
+          this.activeLeftTabMenu = this.leftTabsMenu[0]?.key || 'discuss';
+          this.activeRightTabMenu = this.rightTabsMenu[0]?.key || 'history';
+        }
+      });
     this.initForm();
     this.loadBizUsers();
     this.loadAutoTaskSetting();

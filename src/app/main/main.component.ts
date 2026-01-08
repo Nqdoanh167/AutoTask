@@ -73,7 +73,6 @@ export class MainComponent
     this.mainService.headerTab$.pipe().subscribe((res) => {
       if (res) {
         this.listNavItems = res;
-        console.log('listNavItems', this.listNavItems);
       }
     });
   }

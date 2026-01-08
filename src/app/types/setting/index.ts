@@ -151,11 +151,14 @@ export interface IView {
 
 export interface ISettingTabItem {
   key: string;
-  name?: string;
+  name: string;
   icon?: string;
   active: boolean;
-  position: string | 'top' | 'bottom' | 'center';
+  positions: string[];
   isDefault?: boolean;
+  params?: {key: string; value: string}[];
+  url?: string;
+  positionOptions?: {value: string; label: string}[];
 }
 
 export interface ISetting {

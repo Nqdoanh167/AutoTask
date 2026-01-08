@@ -54,6 +54,7 @@ export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   @Input() selectedCustomerId: string = '';
   @Input() leadId?: string;
   @Input() isOpenBackdrop: boolean = false;
+  @Input() isMobile: boolean = false;
   @Output() isOpenBackdropChange = new EventEmitter<boolean>();
 
   // Lead-related properties when creating task from lead

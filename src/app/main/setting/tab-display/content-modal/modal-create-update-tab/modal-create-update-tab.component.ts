@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ESourceArgKey, ISettingTabItem} from '@app/types/setting';
+import {v4 as uuidv4} from 'uuid';
 
 @Component({
   selector: 'app-modal-create-update-tab',
@@ -65,19 +66,22 @@ export class ModalCreateUpdateTabComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.tabData) {
+    const tabData = this.tabData || (this.bsModalRef.content as any)?.tabData;
+
+    if (tabData) {
+      this.tabData = tabData;
       this.iframeForm.patchValue({
-        name: this.tabData.name || null,
-        url: (this.tabData as any).url || null,
-        isActive: this.tabData.active,
+        name: tabData.name || null,
+        url: (tabData as any).url || null,
+        isActive: tabData.active,
       });
 
-      const parameters = (this.tabData as any).parameters || [];
-      parameters.forEach((param: {argKey: string; argRef: string}) => {
+      const parameters = (tabData as any).params || [];
+      parameters.forEach((param: {key: string; value: string}) => {
         this.formParameters().push(
           this.fb.group({
-            argKey: [param.argKey, Validators.required],
-            argRef: [param.argRef, Validators.required],
+            argKey: [param.value, Validators.required],
+            argRef: [param.key, Validators.required],
           }),
         );
       });
@@ -165,7 +169,7 @@ export class ModalCreateUpdateTabComponent implements OnInit {
         url: formValue.url,
         isActive: formValue.isActive,
         parameters: formValue.parameters,
-        key: this.tabData?.key || `iframe_${Date.now()}`,
+        key: this.tabData?.key || `iframe_${uuidv4()}`,
       });
       this.bsModalRef.hide();
     }

@@ -658,14 +658,17 @@
                   <nav class="lead-form-tab-menu">
                     <ul>
                       <li
-                        [ngClass]="{active: activeTab === menu.key}"
-                        *ngFor="let menu of menus; let index = index"
+                        [ngClass]="{active: activeLeftTabMenu === menu.key}"
+                        *ngFor="let menu of leftTabsMenu; let index = index"
                       >
-                        <div (click)="activeTab = menu.key" class="tab-link">
+                        <div
+                          (click)="activeLeftTabMenu = menu.key"
+                          class="tab-link"
+                        >
                           <div class="icon">
                             <img
                               [src]="
-                                activeTab === menu.key
+                                activeLeftTabMenu === menu.key
                                   ? 'assets/icons/' + menu.icon + '-active.svg'
                                   : 'assets/icons/' + menu.icon + '.svg'
                               "
@@ -683,7 +686,7 @@
                   </nav>
 
                   <div class="section-area custom-scrollbar">
-                    <ng-container *ngIf="activeTab === 'discuss'">
+                    <ng-container *ngIf="activeLeftTabMenu === 'discuss'">
                       <app-lead-comments-sidebar
                         [isOpen]="true"
                         [lead]="lead"
@@ -692,7 +695,9 @@
 
                     <div
                       class="tasks-section"
-                      *ngIf="lead?.tasks?.length && activeTab === 'task'"
+                      *ngIf="
+                        lead?.tasks?.length && activeLeftTabMenu === 'task'
+                      "
                     >
                       <ng-container *ngFor="let task of lead?.tasks">
                         <div class="task-card mb-3">
@@ -818,9 +823,9 @@
                   <nav class="lead-form-tab-menu">
                     <ul class="overflow-hidden">
                       <li
-                        [ngClass]="{active: activeTab === menu.key}"
+                        [ngClass]="{active: activeRightTabMenu === menu.key}"
                         *ngFor="
-                          let menu of menus.slice(0, 3);
+                          let menu of rightTabsMenu.slice(0, 3);
                           let index = index
                         "
                       >
@@ -828,7 +833,7 @@
                           <div class="icon">
                             <img
                               [src]="
-                                activeTab === menu.key
+                                activeRightTabMenu === menu.key
                                   ? 'assets/icons/' + menu.icon + '-active.svg'
                                   : 'assets/icons/' + menu.icon + '.svg'
                               "

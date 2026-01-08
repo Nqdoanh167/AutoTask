@@ -447,17 +447,17 @@
                       <nav class="lead-form-tab-menu">
                         <ul>
                           <li
-                            [ngClass]="{active: activeTabMenu === menu.key}"
-                            *ngFor="let menu of menus; let index = index"
+                            [ngClass]="{active: activeLeftTabMenu === menu.key}"
+                            *ngFor="let menu of leftTabsMenu; let index = index"
                           >
                             <div
-                              (click)="selectTabMenu(menu.key)"
+                              (click)="activeLeftTabMenu = menu.key"
                               class="tab-link"
                             >
                               <div class="icon">
                                 <img
                                   [src]="
-                                    activeTabMenu === menu.key
+                                    activeLeftTabMenu === menu.key
                                       ? 'assets/icons/' +
                                         menu.icon +
                                         '-active.svg'
@@ -476,7 +476,7 @@
                         </ul>
                       </nav>
 
-                      <ng-container *ngIf="activeTabMenu === 'task'">
+                      <ng-container *ngIf="activeLeftTabMenu === 'task'">
                         <div class="custom-scrollbar section-area">
                           <div class="mt-2">
                             <div class="list-chain">
@@ -676,20 +676,10 @@
                               </div>
                             </div>
                           </div>
-                          <!-- <div class="mt-4">
-                          <div class="headline">Ghi chú</div>
-                          <div class="mt-2">
-                            <app-textarea
-                              formControlName="note"
-                              [minHeight]="120"
-                              [placeholder]="'Nhập ghi chú'"
-                            ></app-textarea>
-                          </div>
-                        </div> -->
                         </div>
                       </ng-container>
 
-                      <ng-container *ngIf="activeTabMenu === 'customer'">
+                      <ng-container *ngIf="activeLeftTabMenu === 'customer'">
                         <div class="custom-scrollbar section-area">
                           <div class="headline">
                             Thông tin khách hàng
@@ -724,7 +714,7 @@
                         </div>
                       </ng-container>
 
-                      <ng-container *ngIf="activeTabMenu === 'order'">
+                      <ng-container *ngIf="activeLeftTabMenu === 'order'">
                         <div class="custom-scrollbar section-area">
                           @if (!orders.rows.length) {
                             <div>
@@ -820,7 +810,7 @@
                         </div>
                       </ng-container>
 
-                      <ng-container *ngIf="activeTabMenu === 'history'">
+                      <ng-container *ngIf="activeLeftTabMenu === 'history'">
                         <div class="custom-scrollbar section-area">
                           <div class="">
                             <app-history
@@ -859,17 +849,17 @@
                     <nav class="lead-form-tab-menu">
                       <ul>
                         <li
-                          [ngClass]="{active: activeActivityTab === menu.key}"
-                          *ngFor="let menu of menusActivity; let index = index"
+                          [ngClass]="{active: activeRightTabMenu === menu.key}"
+                          *ngFor="let menu of rightTabsMenu; let index = index"
                         >
                           <div
-                            (click)="selectActivityTab(menu.key)"
+                            (click)="activeRightTabMenu = menu.key"
                             class="tab-link"
                           >
                             <div class="icon">
                               <img
                                 [src]="
-                                  activeActivityTab === menu.key
+                                  activeRightTabMenu === menu.key
                                     ? 'assets/icons/' +
                                       menu.icon +
                                       '-active.svg'
@@ -888,10 +878,46 @@
                       </ul>
                     </nav>
 
-                    <ng-container *ngIf="activeActivityTab === 'history'">
+                    <ng-container *ngIf="activeRightTabMenu === 'history'">
                       <app-activity-log
                         [taskId]="sourceData?.id || ''"
                       ></app-activity-log>
+                    </ng-container>
+
+                    <ng-container *ngIf="activeRightTabMenu === 'customer'">
+                      <div class="custom-scrollbar section-area">
+                        <div class="headline">
+                          Thông tin khách hàng
+                          <i
+                            class="fa-regular fa-circle-question ms-1"
+                            [tooltip]="
+                              'Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới'
+                            "
+                            placement="right"
+                          ></i>
+                        </div>
+                        <app-customer-info
+                          [hasUpdateTaskPer]="
+                            permissions.canEditTask && !isTaskClosed
+                          "
+                          [submitted]="submitted"
+                          [formGroup]="formLeadDeal"
+                          [selectedCustomerId]="formLeadDeal.value.id"
+                          [leadId]="leadData?.id || f['leadId']?.value"
+                          [(isOpenBackdrop)]="isOpenBackDrop"
+                          [isMobile]="true"
+                        ></app-customer-info>
+                        <div class="group-content mt-4">
+                          <div class="headline">Ghi chú</div>
+                          <div class="mt-2">
+                            <app-textarea
+                              formControlName="note"
+                              [minHeight]="120"
+                              [placeholder]="'Nhập ghi chú'"
+                            ></app-textarea>
+                          </div>
+                        </div>
+                      </div>
                     </ng-container>
                   </div>
                 </div>

@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {
   ActivatedRouteSnapshot,
   CanActivate,
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { filter, switchMap } from 'rxjs/operators';
-import { AuthService } from '@app/services/api/auth.service';
-import { BizService } from '@app/services/api/biz.service';
-import { EModule } from '@app/types/viewmodels';
+import {Observable, of} from 'rxjs';
+import {filter, switchMap} from 'rxjs/operators';
+import {AuthService} from '@app/services/api/auth.service';
+import {BizService} from '@app/services/api/biz.service';
+import {EModule} from '@app/types/viewmodels';
 
 @Injectable({
   providedIn: 'root',
@@ -32,8 +32,6 @@ export class HasPermissionAccessModuleGuard implements CanActivate {
       filter((res) => !!res),
       switchMap((res) => {
         const listModuleCanAccess = this.authService.getAccessibleModules();
-        console.log('listModuleCanAccess', listModuleCanAccess);
-        console.log('accessModule', accessModule);
         const result = listModuleCanAccess.includes(accessModule);
         if (!result) {
           if (listModuleCanAccess?.[0]) {

@@ -1,81 +1,152 @@
-import {ETabDetail} from '@app/types/lead';
 import {ISettingTabItem} from '@app/types/setting';
-import {ETabTaskDetail} from '@app/types/task';
 
-export const LEAD_TABS: ISettingTabItem[] = [
+export const DEFAULT_LEAD_TABS: ISettingTabItem[] = [
   {
-    key: ETabDetail.DISCUSS,
+    key: 'discuss',
     name: 'Thảo luận',
     icon: 'attribute',
     active: true,
-    position: 'left',
+    positions: ['left'],
     isDefault: true,
+    positionOptions: [
+      {
+        value: 'left',
+        label: 'Cột trái',
+      },
+    ],
   },
   {
-    key: ETabDetail.TASK,
+    key: 'task',
     name: 'Tác vụ',
     icon: 'order',
     active: true,
-    position: 'left',
+    positions: ['left'],
     isDefault: true,
+    positionOptions: [
+      {
+        value: 'left',
+        label: 'Cột trái',
+      },
+    ],
   },
   {
-    key: ETabDetail.ATTRIBUTE,
+    key: 'attribute',
     name: 'Attribute',
     icon: 'attribute',
     active: true,
-    position: 'left',
+    positions: ['left'],
     isDefault: true,
+    positionOptions: [
+      {
+        value: 'left',
+        label: 'Cột trái',
+      },
+    ],
   },
   {
-    key: ETabDetail.PRODUCT,
+    key: 'product',
     name: 'Sản phẩm',
     icon: 'user',
     active: true,
-    position: 'left',
+    positions: ['left'],
     isDefault: true,
+    positionOptions: [
+      {
+        value: 'left',
+        label: 'Cột trái',
+      },
+    ],
   },
   {
-    key: ETabDetail.PACKAGE,
+    key: 'package',
     name: 'Gói dịch vụ',
     icon: 'connections',
     active: true,
-    position: 'left',
+    positions: ['left'],
     isDefault: true,
-  },
-];
-
-export const TASK_TABS: ISettingTabItem[] = [
-  {
-    key: ETabTaskDetail.INFO,
-    name: 'Thông tin',
-    icon: 'attribute',
-    active: true,
-    position: 'left',
-    isDefault: true,
+    positionOptions: [
+      {
+        value: 'left',
+        label: 'Cột trái',
+      },
+    ],
   },
   {
-    key: ETabTaskDetail.ORDER,
-    name: 'Đơn hàng',
-    icon: 'order',
-    active: true,
-    position: 'left',
-    isDefault: true,
-  },
-  {
-    key: ETabTaskDetail.BOOKING,
-    name: 'Booking',
-    icon: 'connections',
-    active: true,
-    position: 'left',
-    isDefault: true,
-  },
-  {
-    key: ETabTaskDetail.HISTORY,
+    key: 'history',
     name: 'Lịch sử',
     icon: 'user',
     active: true,
-    position: 'left',
+    positions: ['left'],
     isDefault: true,
+    positionOptions: [
+      {
+        value: 'right',
+        label: 'Cột phải',
+      },
+    ],
+  },
+];
+
+export const DEFAULT_TASK_TABS: ISettingTabItem[] = [
+  {
+    key: 'task',
+    name: 'Tác vụ',
+    icon: 'order',
+    active: true,
+    positions: ['left'],
+    isDefault: true,
+    positionOptions: [
+      {
+        value: 'left',
+        label: 'Cột trái',
+      },
+    ],
+  },
+  {
+    key: 'customer',
+    name: 'Khách hàng',
+    icon: 'user',
+    active: true,
+    positions: ['left'],
+    isDefault: true,
+    positionOptions: [
+      {
+        value: 'left',
+        label: 'Cột trái',
+      },
+      {
+        value: 'right',
+        label: 'Cột phải',
+      },
+    ],
+  },
+  {
+    key: 'order',
+    name: 'Đơn hàng',
+    icon: 'order',
+    active: true,
+    positions: ['left'],
+    isDefault: true,
+    positionOptions: [
+      {
+        value: 'left',
+        label: 'Cột trái',
+      },
+    ],
+  },
+
+  {
+    key: 'history',
+    name: 'Lịch sử',
+    icon: 'user',
+    active: true,
+    positions: ['left'],
+    isDefault: true,
+    positionOptions: [
+      {
+        value: 'right',
+        label: 'Cột phải',
+      },
+    ],
   },
 ];

@@ -97,8 +97,6 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
       (item) => item.botherType !== EBotherAdvanceBasicFilter.ADVANCE,
     );
 
-    console.log('configFilterAdvance', this.configFilterAdvance);
-    
     // Update active filters count on init
     this.updateActiveFiltersCount();
   }
@@ -167,25 +165,25 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
     //   }
     // }
     this.handleSearchingView(value, name);
-    
+
     // Update the config filter value immediately for UI feedback
-    const filter = this.configFilterAdvance.find(f => f.name === name);
+    const filter = this.configFilterAdvance.find((f) => f.name === name);
     if (filter) {
       filter.value = value;
     }
-    
+
     this.pickerDateEvent.emit({value, name});
   }
 
   onSelectValueAdvance(value?: string, name: string = 'select') {
     this.handleSearchingView(value, name);
-    
+
     // Update the config filter value immediately for UI feedback
-    const filter = this.configFilterAdvance.find(f => f.name === name);
+    const filter = this.configFilterAdvance.find((f) => f.name === name);
     if (filter) {
       filter.value = value;
     }
-    
+
     this.selectEvent.emit({value, name});
   }
 
@@ -218,11 +216,11 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
    */
   updateActiveFiltersCount() {
     this.onSearchingAdvance = [];
-    
-    this.configFilterAdvance.forEach(filter => {
+
+    this.configFilterAdvance.forEach((filter) => {
       // Check if filter has a value
       const hasValue = this.hasFilterValue(filter);
-      
+
       if (hasValue && filter.name) {
         this.onSearchingAdvance.push(filter.name);
       }
@@ -234,22 +232,22 @@ export class FilterTopTableComponent implements OnInit, OnDestroy {
    */
   private hasFilterValue(filter: IFilterTopTable): boolean {
     const value = filter.value;
-    
+
     // No value
     if (value === undefined || value === null || value === '') {
       return false;
     }
-    
+
     // Array type (e.g., multi-select)
     if (Array.isArray(value)) {
       return value.length > 0;
     }
-    
+
     // Date range type
     if (typeof value === 'object' && 'fromDate' in value && 'toDate' in value) {
       return !!(value.fromDate || value.toDate);
     }
-    
+
     // Other types with value
     return true;
   }

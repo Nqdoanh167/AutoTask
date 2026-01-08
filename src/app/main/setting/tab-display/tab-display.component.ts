@@ -1,36 +1,33 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ETypeButton, IFilterTopButton} from '@app/types/common';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
-import {LEAD_TABS, TASK_TABS} from './tab-display.variable';
+import {DEFAULT_LEAD_TABS, DEFAULT_TASK_TABS} from './tab-display.variable';
 import {ISetting, ISettingTabItem} from '@app/types/setting';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ModalCreateUpdateTabComponent} from './content-modal/modal-create-update-tab/modal-create-update-tab.component';
+import {v4 as uuidv4} from 'uuid';
+import {ToastrService} from 'ngx-toastr';
+import {finalize, Subject, takeUntil} from 'rxjs';
+import {isEmpty} from 'lodash';
 
 @Component({
   selector: 'app-tab-display',
   templateUrl: './tab-display.component.html',
   styleUrls: ['./tab-display.component.scss'],
 })
-export class TabDisplayComponent implements OnInit {
-  private currentSetting!: ISetting;
+export class TabDisplayComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
   public tabs = [
     {name: 'Màn hình chi tiết lead'},
     {name: 'Màn hình chi tiết tác vụ'},
   ];
 
-  public leadTabs: ISettingTabItem[] = LEAD_TABS;
-  public taskTabs: ISettingTabItem[] = TASK_TABS;
+  public leadTabs: ISettingTabItem[] = [];
+  public taskTabs: ISettingTabItem[] = [];
 
   public configButtons: IFilterTopButton[] = [
-    {
-      name: 'add_tab',
-      type: ETypeButton.PRIMARY,
-      label: 'Thêm',
-      icon: './assets/images/icon-plus-bold.svg',
-      tooltip: 'Thêm mới tab',
-    },
     {
       name: 'save',
       type: ETypeButton.PRIMARY,
@@ -38,37 +35,78 @@ export class TabDisplayComponent implements OnInit {
       iconAwesome: 'fas fa-save',
     },
   ];
+  public configButtonsLead: IFilterTopButton[] = [
+    {
+      name: 'add_tab_lead',
+      type: ETypeButton.PRIMARY,
+      label: 'Thêm tab',
+      icon: './assets/images/icon-plus-bold.svg',
+      tooltip: 'Thêm tab',
+    },
+  ];
+  public configButtonsTask: IFilterTopButton[] = [
+    {
+      name: 'add_tab_task',
+      type: ETypeButton.PRIMARY,
+      label: 'Thêm tab',
+      icon: './assets/images/icon-plus-bold.svg',
+      tooltip: 'Thêm tab',
+    },
+  ];
 
   constructor(
     private readonly autoTaskService: AutoTaskService,
     private readonly modalService: BsModalService,
+    private readonly toastr: ToastrService,
   ) {}
 
   ngOnInit(): void {
     this.autoTaskService.currentSetting.subscribe({
       next: (res) => {
         if (res) {
-          this.currentSetting = res;
-          // this.leadTabs = res.leadTabs.map((tab) => {
-          //   const tabItem = LEAD_TABS.find((t) => t.key === tab.key);
-          //   return {
-          //     key: tab.key,
-          //     name: tabItem?.name || '',
-          //     icon: tabItem?.icon || '',
-          //     active: tab.active,
-          //     position: tab.position,
-          //   };
-          // });
-          // this.taskTabs = res.taskTabs.map((tab) => {
-          //   const tabItem = TASK_TABS.find((t) => t.key === tab.key);
-          //   return {
-          //     key: tab.key,
-          //     name: tabItem?.name || '',
-          //     icon: tabItem?.icon || '',
-          //     active: tab.active,
-          //     position: tab.position,
-          //   };
-          // });
+          this.leadTabs = res.leadTabs.map((tab) => {
+            if (tab.isDefault) {
+              const defaultTab = DEFAULT_LEAD_TABS.find(
+                (t) => t.key === tab.key,
+              );
+              return {
+                ...tab,
+                positionOptions: defaultTab?.positionOptions,
+              };
+            }
+            return tab;
+          });
+
+          this.taskTabs = res.taskTabs.map((tab) => {
+            if (tab.isDefault) {
+              const defaultTab = DEFAULT_TASK_TABS.find(
+                (t) => t.key === tab.key,
+              );
+              return {
+                ...tab,
+                positionOptions: defaultTab?.positionOptions,
+              };
+            }
+            return tab;
+          });
+
+          const leadTabsSet = new Set(this.leadTabs.map((tab) => tab.key));
+          const taskTabsSet = new Set(this.taskTabs.map((tab) => tab.key));
+          const defaultTaskTabs = DEFAULT_TASK_TABS.filter(
+            (tab) => !taskTabsSet.has(tab.key),
+          );
+          const defaultLeadTabs = DEFAULT_LEAD_TABS.filter(
+            (tab) => !leadTabsSet.has(tab.key),
+          );
+          this.leadTabs = [...defaultLeadTabs, ...this.leadTabs];
+          this.taskTabs = [...defaultTaskTabs, ...this.taskTabs];
+        }
+
+        if (isEmpty(this.leadTabs)) {
+          this.leadTabs = DEFAULT_LEAD_TABS;
+        }
+        if (isEmpty(this.taskTabs)) {
+          this.taskTabs = DEFAULT_TASK_TABS;
         }
       },
     });
@@ -77,28 +115,53 @@ export class TabDisplayComponent implements OnInit {
   handleAction(name: string) {
     if (name === 'save') {
       this.configButtons.find((btn) => btn.name === name)!.disabled = true;
-      this.autoTaskService.setting.update({
-        ...this.currentSetting,
-        leadTabs: this.leadTabs,
-        taskTabs: this.taskTabs,
-      });
-    } else if (name === 'add_tab') {
+      this.autoTaskService.setting
+        .update({
+          leadTabs: this.leadTabs,
+          taskTabs: this.taskTabs,
+        } as ISetting)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => {
+            this.configButtons.find((btn) => btn.name === name)!.disabled =
+              false;
+          }),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200) {
+              this.toastr.success('Lưu thành công');
+              this.autoTaskService.setCurrentSetting(res.data);
+            }
+          },
+          error: (err) => {
+            this.toastr.error('Lưu thất bại');
+          },
+        });
+    } else if (name === 'add_tab_lead' || name === 'add_tab_task') {
       const modalRef = this.modalService.show(ModalCreateUpdateTabComponent, {
         class: 'modal-dialog-centered modal-md',
       });
 
       modalRef.content?.saveEvent?.subscribe((data: any) => {
         const newTab: ISettingTabItem = {
-          key: `iframe_${Date.now()}`,
+          key: data.key || `iframe_${uuidv4()}`,
           name: data.name,
-          icon: 'iframe',
           active: data.isActive,
-          position: 'center',
+          position: 'left',
           url: data.url,
-          parameters: data.parameters,
+          params:
+            data.parameters?.map((param: {argKey: string; argRef: string}) => ({
+              key: param.argRef,
+              value: param.argKey,
+            })) || [],
         } as any;
 
-        this.leadTabs.push(newTab);
+        if (name === 'add_tab_lead') {
+          this.leadTabs.push(newTab);
+        } else if (name === 'add_tab_task') {
+          this.taskTabs.push(newTab);
+        }
       });
     }
   }
@@ -113,5 +176,58 @@ export class TabDisplayComponent implements OnInit {
 
   public toggleTabVisibility(tab: ISettingTabItem): void {
     tab.active = !tab.active;
+  }
+
+  public editTab(tab: ISettingTabItem, type: 'lead' | 'task'): void {
+    const modalRef = this.modalService.show(ModalCreateUpdateTabComponent, {
+      class: 'modal-dialog-centered modal-md',
+      initialState: {
+        tabData: tab,
+      },
+    });
+
+    if (modalRef.content) {
+      (modalRef.content as any).tabData = {...tab};
+    }
+
+    modalRef.content?.saveEvent?.subscribe((data: any) => {
+      const updatedTab: ISettingTabItem = {
+        ...tab,
+        key: data.key || tab.key,
+        name: data.name,
+        active: data.isActive,
+        url: data.url,
+        params:
+          data.parameters?.map((param: {argKey: string; argRef: string}) => ({
+            key: param.argRef,
+            value: param.argKey,
+          })) || [],
+      } as any;
+
+      const targetTabs = type === 'lead' ? this.leadTabs : this.taskTabs;
+      const index = targetTabs.findIndex((t) => t.key === tab.key);
+      if (index !== -1) {
+        targetTabs[index] = updatedTab;
+      }
+    });
+  }
+
+  public deleteTab(tab: ISettingTabItem, type: 'lead' | 'task'): void {
+    if (tab.isDefault) {
+      this.toastr.warning('Không thể xóa tab mặc định');
+      return;
+    }
+
+    const targetTabs = type === 'lead' ? this.leadTabs : this.taskTabs;
+    const index = targetTabs.findIndex((t) => t.key === tab.key);
+    if (index !== -1) {
+      targetTabs.splice(index, 1);
+      this.toastr.success('Xóa tab thành công');
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
