@@ -7,16 +7,27 @@
     <ng-container modalBody>
       <div class="modal-body-placeholder">
         <!-- Loading state -->
-        <div *ngIf="dupPhoneList.loading && dupPhoneList.rows.length === 0" class="text-center py-5">
+        <div
+          *ngIf="dupPhoneList.loading && dupPhoneList.rows.length === 0"
+          class="text-center py-5"
+        >
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Đang tải...</span>
           </div>
-          <p class="text-muted mt-3">Đang tải danh sách số điện thoại trùng lặp...</p>
+          <p class="text-muted mt-3">
+            Đang tải danh sách số điện thoại trùng lặp...
+          </p>
         </div>
 
         <!-- Empty state -->
-        <div *ngIf="!dupPhoneList.loading && dupPhoneList.rows.length === 0" class="text-center py-5">
-          <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+        <div
+          *ngIf="!dupPhoneList.loading && dupPhoneList.rows.length === 0"
+          class="text-center py-5"
+        >
+          <i
+            class="fas fa-check-circle text-success"
+            style="font-size: 3rem"
+          ></i>
           <p class="text-muted mt-3 mb-0">Không có số điện thoại trùng lặp</p>
         </div>
 
@@ -29,20 +40,30 @@
             (isOpenChange)="onToggleAccordion(item.phone, $event)"
           >
             <!-- Action bar - chỉ hiển thị ở accordion đang active -->
-            <div *ngIf="shouldShowActionBar(item.phone)" class="action-bar-container mb-3">
+            <div
+              *ngIf="shouldShowActionBar(item.phone)"
+              class="action-bar-container mb-3"
+            >
               <div class="table-responsive">
                 <div class="bg-light rounded border p-2 p-md-3">
                   <div class="d-flex flex-column gap-2">
                     <!-- Header row -->
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div
+                      class="d-flex align-items-center justify-content-between flex-wrap gap-2"
+                    >
                       <span class="fw-semibold text-primary small">
                         <i class="fas fa-check-circle me-1"></i>
-                        Đã chọn {{ getSelectedCount() }} tác vụ ({{ getValidTaskCountToMerge() }} tác vụ hợp lệ)
+                        Đã chọn {{ getSelectedCount() }} tác vụ ({{
+                          getValidTaskCountToMerge()
+                        }}
+                        tác vụ hợp lệ)
                       </span>
                     </div>
-                    
+
                     <!-- Controls row -->
-                    <div class="d-flex flex-column flex-md-row gap-2 align-items-stretch">
+                    <div
+                      class="d-flex flex-column flex-md-row gap-2 align-items-stretch"
+                    >
                       <ng-select
                         placeholder="Chọn tác vụ gốc"
                         appearance="outline"
@@ -51,7 +72,9 @@
                         bindLabel="code"
                         bindValue="id"
                         [(ngModel)]="selectedOriginalTask"
-                        [class.is-invalid]="!selectedOriginalTask && selectedAction"
+                        [class.is-invalid]="
+                          !selectedOriginalTask && selectedAction
+                        "
                         class="flex-fill"
                         [attr.aria-label]="'Chọn tác vụ gốc'"
                         [attr.aria-required]="true"
@@ -59,7 +82,12 @@
                         <ng-template ng-option-tmp let-item="item">
                           <div>
                             <strong>{{ item.code }}</strong>
-                            <small class="text-muted d-block" *ngIf="item.leadDeal?.name">{{ item.leadDeal.name }}</small>
+                            <small
+                              class="text-muted d-block"
+                              *ngIf="item.leadDeal?.name"
+                            >
+                              {{ item.leadDeal.name }}
+                            </small>
                           </div>
                         </ng-template>
                       </ng-select>
@@ -68,22 +96,38 @@
                         [clearable]="false"
                         placeholder="Chọn hành động"
                         [(ngModel)]="selectedAction"
-                        [class.is-invalid]="!selectedAction && selectedOriginalTask"
+                        [class.is-invalid]="
+                          !selectedAction && selectedOriginalTask
+                        "
                         class="flex-fill"
                         [attr.aria-label]="'Chọn hành động'"
                         [attr.aria-required]="true"
                       >
-                        <ng-option value="keepOriginal">Giữ nguyên tác vụ gốc và xoá các tác vụ còn lại</ng-option>
+                        <ng-option value="keepOriginal">
+                          Giữ nguyên tác vụ gốc và xoá các tác vụ còn lại
+                        </ng-option>
                       </ng-select>
                       <div class="d-flex gap-2 flex-shrink-0">
                         <button
                           type="button"
                           class="btn btn-primary btn-sm"
                           (click)="handleUpdateAction()"
-                          [disabled]="!selectedOriginalTask || !selectedAction || isProcessing || getValidTaskCountToMerge() === 0"
+                          [disabled]="
+                            !selectedOriginalTask ||
+                            !selectedAction ||
+                            isProcessing ||
+                            getValidTaskCountToMerge() === 0
+                          "
                         >
-                          <i class="fas fa-check me-1" *ngIf="!isProcessing"></i>
-                          <span class="spinner-border spinner-border-sm me-1" *ngIf="isProcessing" role="status"></span>
+                          <i
+                            class="fas fa-check me-1"
+                            *ngIf="!isProcessing"
+                          ></i>
+                          <span
+                            class="spinner-border spinner-border-sm me-1"
+                            *ngIf="isProcessing"
+                            role="status"
+                          ></span>
                           Cập nhật
                         </button>
                         <button
@@ -97,13 +141,19 @@
                         </button>
                       </div>
                     </div>
-                    
+
                     <!-- Error messages -->
-                    <div class="text-danger small" *ngIf="!selectedOriginalTask && selectedAction">
+                    <div
+                      class="text-danger small"
+                      *ngIf="!selectedOriginalTask && selectedAction"
+                    >
                       <i class="fas fa-exclamation-circle me-1"></i>
                       Vui lòng chọn tác vụ gốc
                     </div>
-                    <div class="text-danger small" *ngIf="selectedOriginalTask && !selectedAction">
+                    <div
+                      class="text-danger small"
+                      *ngIf="selectedOriginalTask && !selectedAction"
+                    >
                       <i class="fas fa-exclamation-circle me-1"></i>
                       Vui lòng chọn hành động
                     </div>
@@ -123,8 +173,16 @@
                           (change)="handleSelectAll(item.phone, $event)"
                           [checked]="isAllSelected(item.phone)"
                           [disabled]="isCheckboxDisabled(item.phone)"
-                          [attr.aria-label]="'Chọn tất cả tác vụ cho ' + item.phone"
-                          [title]="isCheckboxDisabled(item.phone) ? 'Vui lòng hoàn tất lựa chọn ở accordion khác trước' : (isAllSelected(item.phone) ? 'Bỏ chọn tất cả' : 'Chọn tất cả')"
+                          [attr.aria-label]="
+                            'Chọn tất cả tác vụ cho ' + item.phone
+                          "
+                          [title]="
+                            isCheckboxDisabled(item.phone)
+                              ? 'Vui lòng hoàn tất lựa chọn ở accordion khác trước'
+                              : isAllSelected(item.phone)
+                                ? 'Bỏ chọn tất cả'
+                                : 'Chọn tất cả'
+                          "
                         />
                         <span class="checkmark"></span>
                       </label>
@@ -132,15 +190,21 @@
                     <th>Tác vụ</th>
                     <th>Khách hàng</th>
                     <th>Tác vụ đã đóng</th>
+                    <th>Ngày tạo</th>
                   </tr>
                 </thead>
                 <tbody *ngIf="tasksByPhone[item.phone] as taskState">
                   <tr *ngIf="taskState.loading">
                     <td colspan="4" class="text-center py-4">
-                      <div class="spinner-border spinner-border-sm text-primary" role="status">
+                      <div
+                        class="spinner-border spinner-border-sm text-primary"
+                        role="status"
+                      >
                         <span class="visually-hidden">Đang tải...</span>
                       </div>
-                      <span class="ms-2 text-muted">Đang tải danh sách tác vụ...</span>
+                      <span class="ms-2 text-muted">
+                        Đang tải danh sách tác vụ...
+                      </span>
                     </td>
                   </tr>
                   <tr *ngIf="!taskState.loading && taskState.rows.length === 0">
@@ -150,7 +214,11 @@
                     </td>
                   </tr>
                   <tr
-                    *ngFor="let task of taskState.rows; trackBy: trackByFn; let i = index"
+                    *ngFor="
+                      let task of taskState.rows;
+                      trackBy: trackByFn;
+                      let i = index
+                    "
                     [class.table-active]="isTaskSelected(task.id)"
                     [class.table-warning]="task.id === selectedOriginalTask"
                   >
@@ -159,26 +227,44 @@
                         <input
                           type="checkbox"
                           [checked]="isTaskSelected(task.id)"
-                          (change)="handleSelectTask(item.phone, task.id, $event)"
+                          (change)="
+                            handleSelectTask(item.phone, task.id, $event)
+                          "
                           [disabled]="isCheckboxDisabled(item.phone)"
                           [attr.aria-label]="'Chọn tác vụ ' + task.code"
-                          [title]="isCheckboxDisabled(item.phone) ? 'Vui lòng hoàn tất lựa chọn ở accordion khác trước' : (isTaskSelected(task.id) ? 'Bỏ chọn' : 'Chọn')"
+                          [title]="
+                            isCheckboxDisabled(item.phone)
+                              ? 'Vui lòng hoàn tất lựa chọn ở accordion khác trước'
+                              : isTaskSelected(task.id)
+                                ? 'Bỏ chọn'
+                                : 'Chọn'
+                          "
                         />
                         <span class="checkmark"></span>
                       </label>
                     </td>
                     <td>
-                      <span class="fw-semibold">{{ task.code }}</span>
-                      <span *ngIf="task.id === selectedOriginalTask" class="badge bg-primary ms-2">Gốc</span>
+                      <span class="fw-semibold text-link" (click)="handleViewTask(task.id)">{{ task.code }}</span>
+                      <span
+                        *ngIf="task.id === selectedOriginalTask"
+                        class="badge bg-primary ms-2"
+                      >
+                        Gốc
+                      </span>
                     </td>
                     <td>{{ task.leadDeal?.name || '-' }}</td>
                     <td>
                       <span *ngIf="task.isTaskClosed" class="badge bg-success">
-                        <i class="fas fa-check me-1"></i>Đã đóng
+                        <i class="fas fa-check me-1"></i>
+                        Đã đóng
                       </span>
                       <span *ngIf="!task.isTaskClosed" class="badge bg-danger">
-                        <i class="fas fa-times me-1"></i>Chưa đóng
+                        <i class="fas fa-times me-1"></i>
+                        Chưa đóng
                       </span>
+                    </td>
+                    <td class="fs-7">
+                      {{ task.createdAt | date: 'dd/MM/yyyy HH:mm' }}
                     </td>
                   </tr>
                 </tbody>
@@ -200,7 +286,11 @@
     <ng-container modalFooter>
       <div class="d-flex justify-content-end align-items-center w-100">
         <!-- Close button -->
-        <button type="button" class="btn button-medium button-outline" (click)="hideModal()">
+        <button
+          type="button"
+          class="btn button-medium button-outline"
+          (click)="hideModal()"
+        >
           Đóng
         </button>
       </div>

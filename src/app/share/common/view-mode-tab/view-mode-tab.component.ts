@@ -1,6 +1,5 @@
 import {
   AfterViewInit,
-  ChangeDetectorRef,
   Component,
   Input,
   OnChanges,
@@ -39,9 +38,7 @@ import {
   DragDropModule,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import {SortByPipe} from '@app/share/pipe/sort-by.pipe';
 import {calculateNextPos} from '@app/utils/common';
-import {Hex2RgbPipe} from '@app/share/pipe/hex2rgb.pipe';
 
 @Component({
   selector: 'app-view-mode-tab',
@@ -61,7 +58,6 @@ import {Hex2RgbPipe} from '@app/share/pipe/hex2rgb.pipe';
     CustomModalComponent,
     CustomInputSearchComponent,
     DragDropModule,
-    Hex2RgbPipe,
   ],
   templateUrl: './view-mode-tab.component.html',
   styleUrls: ['./view-mode-tab.component.scss'],
@@ -243,7 +239,10 @@ export class ViewModeTabComponent
       }
     }
 
-    if (scrollWidth > 0 && scrollWidth - scrollLeft === clientWidth) {
+    if (
+      scrollWidth > 0 &&
+      scrollWidth - Math.trunc(scrollLeft) === clientWidth
+    ) {
       if (buttonNext) {
         buttonNext.classList.add('hide');
       }
@@ -315,9 +314,9 @@ export class ViewModeTabComponent
     const scrollTab = document.querySelector('.nav-tabs');
     if (scrollTab) {
       if (type === 'prev') {
-        scrollTab.scrollLeft -= 500;
+        scrollTab.scrollLeft = 0;
       } else {
-        scrollTab.scrollLeft += 500;
+        scrollTab.scrollLeft = scrollTab.scrollWidth;
       }
       setTimeout(() => {
         this.checkHideButtonNext();
@@ -899,6 +898,40 @@ export class ViewModeTabComponent
 
             this.toastr.success('Cập nhật màu tab thành công');
             this.autoTaskService.setChangedDashboardViewModes([...this.tabs]);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
+  }
+
+  handleRemoveColor(tab: IViewModeDto, event: any): void {
+    event.stopPropagation();
+    if (!tab.isEditView) {
+      this.toastr.warning('Bạn không có quyền xóa màu tab này');
+      return;
+    }
+
+    this.autoTaskService.settingView
+      .update({
+        ...tab,
+        tabViewModeBorderColor: '',
+      } as IViewDto)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            const tabIndex = this.tabs.findIndex((item) => item.id === tab.id);
+            if (tabIndex !== -1) {
+              this.tabs[tabIndex].tabViewModeBorderColor = undefined;
+            }
+
+            this.toastr.success('Xóa màu tab thành công');
+            this.autoTaskService.setChangedDashboardViewModes([...this.tabs]);
+            this.applyTabViewColor();
           } else {
             this.commonService.handleResErr(res);
           }

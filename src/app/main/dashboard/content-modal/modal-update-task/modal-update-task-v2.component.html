@@ -75,14 +75,14 @@
                   >
                     <div class="fw-bold me-1">TAG</div>
                     @if (!selectTag) {
-                      <div>
+                      <div class="d-flex align-items-center gap-2 flex-wrap">
                         @for (
                           tagId of $any(updateForm.value.tags);
                           track $index
                         ) {
                           @if (findTag(tagId)?.id) {
                             <div
-                              class="tag-item me-2"
+                              class="tag-item"
                               *ngIf="findTag(tagId)?.id"
                               [ngClass]="{
                                 nonBack: !findTag(tagId)?.bgColor
@@ -261,11 +261,11 @@
                         </ul>
                       </div>
                     }
-                    <div class="action-reload">
+                    <div class="d-flex gap-2">
                       @if (sourceData?.id) {
                         <button
                           (click)="handleDropTask(sourceData?.id)"
-                          class="btn button-medium button-outline me-2"
+                          class="btn button-medium button-outline"
                           type="button"
                           [disabled]="submittedModal.dropTask || isTaskClosed"
                           [tooltip]="'Thả số'"
@@ -295,7 +295,23 @@
                   </div>
                 </div>
               </div>
-              <div class="col-9">
+              <div
+                class="col-9 position-relative"
+                [ngClass]="{'col-12': !isShowLeftTab}"
+              >
+                <button
+                  class="left-tab-toggle-btn"
+                  (click)="handleToggleLeftTab()"
+                  title="{{
+                    isShowLeftTab ? 'Ẩn Hoạt Động' : 'Hiển thị Hoạt Động'
+                  }}"
+                >
+                  <i
+                    class="fa-solid {{
+                      isShowLeftTab ? 'fa-chevron-right' : 'fa-chevron-left'
+                    }}"
+                  ></i>
+                </button>
                 <div class="d-flex flex-column gap-3">
                   <div class="row g-3">
                     <!-- <ng-container *ngIf="sourceData">
@@ -716,97 +732,91 @@
 
                       <ng-container *ngIf="activeLeftTabMenu === 'order'">
                         <div class="custom-scrollbar section-area">
-                          @if (!orders.rows.length) {
-                            <div>
-                              <div
-                                class="d-flex justify-content-between align-items-center"
-                              >
-                                <div class="headline">
-                                  Sản phẩm quan tâm
-                                  <i
-                                    class="fa-regular fa-circle-question ms-1"
-                                    [tooltip]="
-                                      'Những sản phẩm và dịch vụ mà khách quan tâm có thể được tạo thành đơn hàng bằng cách sử dụng nút Tạo đơn hàng cho Tác vụ ở kế bên.'
+                          <div>
+                            <div
+                              class="d-flex justify-content-between align-items-center"
+                            >
+                              <div class="headline">
+                                Sản phẩm quan tâm
+                                <i
+                                  class="fa-regular fa-circle-question ms-1"
+                                  [tooltip]="
+                                    'Những sản phẩm và dịch vụ mà khách quan tâm có thể được tạo thành đơn hàng bằng cách sử dụng nút Tạo đơn hàng cho Tác vụ ở kế bên.'
+                                  "
+                                  placement="right"
+                                ></i>
+                              </div>
+                              <div class="d-flex gap-2">
+                                @if (!!sourceData?.id) {
+                                  <button
+                                    (click)="handleCreateTaskOrder()"
+                                    [disabled]="
+                                      loading.createOrder || isTaskClosed
                                     "
-                                    placement="right"
-                                  ></i>
-                                </div>
-                                <div class="d-flex gap-2">
-                                  @if (!!sourceData?.id) {
-                                    <button
-                                      (click)="handleCreateTaskOrder()"
-                                      [disabled]="
-                                        loading.createOrder || isTaskClosed
-                                      "
-                                      class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
-                                      type="button"
-                                    >
-                                      @if (loading.createOrder) {
-                                        <i
-                                          class="fa-solid fa-spin fa-spinner me-2"
-                                        ></i>
-                                      } @else {
-                                        <i class="fa-solid fa-plus me-2"></i>
-                                      }
-                                      Tạo đơn hàng cho Task
-                                    </button>
-                                  }
-                                </div>
-                              </div>
-                              <app-interested-products
-                                [formGroup]="updateForm"
-                                [readOnly]="isTaskClosed"
-                              ></app-interested-products>
-                            </div>
-                          }
-                          @if (sourceData?.orderIds?.length) {
-                            <div>
-                              <div
-                                class="d-flex justify-content-between align-items-center"
-                              >
-                                <div class="headline">Đơn đã tạo</div>
-                                <div class="d-flex gap-2">
-                                  @if (
-                                    !!sourceData?.id &&
-                                    sourceData?.orderIds &&
-                                    sourceData!.orderIds.length
-                                  ) {
-                                    <button
-                                      (click)="handleViewCreatedOrder()"
-                                      class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
-                                      type="button"
-                                    >
+                                    class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                                    type="button"
+                                  >
+                                    @if (loading.createOrder) {
                                       <i
-                                        class="fa-solid fa-cart-shopping me-2"
+                                        class="fa-solid fa-spin fa-spinner me-2"
                                       ></i>
-                                      Xem đơn đã tạo
-                                    </button>
-
-                                    <button
-                                      (click)="
-                                        getOrderDetail(
-                                          sourceData?.orderIds || []
-                                        )
-                                      "
-                                      class="btn button-medium button-outline"
-                                      type="button"
-                                      [disabled]="loading.getOrderDetail"
-                                    >
-                                      @if (!loading.getOrderDetail) {
-                                        <i class="fa-solid fa-rotate"></i>
-                                      } @else {
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                      }
-                                    </button>
-                                  }
-                                </div>
+                                    } @else {
+                                      <i class="fa-solid fa-plus me-2"></i>
+                                    }
+                                    Tạo đơn hàng cho Task
+                                  </button>
+                                }
                               </div>
-                              <app-orders
-                                [orders]="orders.rows"
-                                [loading]="orders.loading"
-                              ></app-orders>
                             </div>
-                          }
+                            <app-interested-products
+                              [formGroup]="updateForm"
+                              [readOnly]="isTaskClosed"
+                            ></app-interested-products>
+                          </div>
+                          <div class="mt-2">
+                            <div
+                              class="d-flex justify-content-between align-items-center"
+                            >
+                              <div class="headline">Đơn đã tạo</div>
+                              <div class="d-flex gap-2">
+                                @if (
+                                  !!sourceData?.id &&
+                                  sourceData?.orderIds &&
+                                  sourceData!.orderIds.length
+                                ) {
+                                  <button
+                                    (click)="handleViewCreatedOrder()"
+                                    class="btn button-medium button-sub-primary secondary-color d-flex align-items-center"
+                                    type="button"
+                                  >
+                                    <i
+                                      class="fa-solid fa-cart-shopping me-2"
+                                    ></i>
+                                    Xem đơn đã tạo
+                                  </button>
+
+                                  <button
+                                    (click)="
+                                      getOrderDetail(sourceData?.orderIds || [])
+                                    "
+                                    class="btn button-medium button-outline"
+                                    type="button"
+                                    [disabled]="loading.getOrderDetail"
+                                  >
+                                    @if (!loading.getOrderDetail) {
+                                      <i class="fa-solid fa-rotate"></i>
+                                    } @else {
+                                      <i class="fas fa-spinner fa-spin"></i>
+                                    }
+                                  </button>
+                                }
+                              </div>
+                            </div>
+                            <app-orders
+                              [orders]="orders.rows"
+                              [loading]="orders.loading"
+                            ></app-orders>
+                          </div>
                         </div>
                       </ng-container>
 
@@ -820,30 +830,11 @@
                         </div>
                       </ng-container>
                     </div>
-
-                    <div>
-                      <button
-                        class="btn button-medium center-item button-filter-top button-fill secondary-color w-100"
-                        (click)="
-                          taskHasNoChainOpen
-                            ? handleCloseTask()
-                            : handleConfirmToCloseTask($event)
-                        "
-                      >
-                        <img
-                          src="./assets/icons/lock.svg"
-                          alt=""
-                          width="24"
-                          height="24"
-                        />
-                        Đóng tác vụ
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
 
-              <div class="col-3 h-100">
+              <div class="col-3 h-100" [ngClass]="{'d-none': !isShowLeftTab}">
                 <div class="card" style="border-radius: 4px">
                   <div class="card-body p-0">
                     <nav class="lead-form-tab-menu">
@@ -921,26 +912,50 @@
                     </ng-container>
                   </div>
                 </div>
-                <div class="d-flex align-items-center gap-2 mt-3">
-                  <button
-                    type="button"
-                    class="btn button-medium button-outline"
-                    style="width: 165px"
-                    (click)="hideModal()"
-                  >
-                    Hủy
-                  </button>
-                  <custom-button-loading
-                    [isLoading]="loading.submit"
-                    [isDisabled]="loading.submit"
-                    (action)="onSubmit()"
-                    [type]="'button'"
-                    [textButton]="'Xác nhận'"
-                    [className]="
-                      'btn button-medium button-fill secondary-color d-flex  justify-content-center'
-                    "
-                    [styleBtn]="'width: 165px;'"
-                  ></custom-button-loading>
+              </div>
+            </div>
+            <div class="row g-3 mt-1">
+              <div class="col-9">
+                <button
+                  class="btn button-medium center-item button-filter-top button-fill secondary-color w-100"
+                  (click)="
+                    taskHasNoChainOpen
+                      ? handleCloseTask()
+                      : handleConfirmToCloseTask($event)
+                  "
+                >
+                  <img
+                    src="./assets/icons/lock.svg"
+                    alt=""
+                    width="24"
+                    height="24"
+                  />
+                  Đóng tác vụ
+                </button>
+              </div>
+              <div class="col-3">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="flex-grow-1">
+                    <button
+                      type="button"
+                      class="btn button-medium button-outline w-100"
+                      (click)="hideModal()"
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                  <div class="flex-grow-1">
+                    <custom-button-loading
+                      [isLoading]="loading.submit"
+                      [isDisabled]="loading.submit"
+                      (action)="onSubmit()"
+                      [type]="'button'"
+                      [textButton]="'Xác nhận'"
+                      [className]="
+                        'btn button-medium button-fill secondary-color d-flex  justify-content-center w-100'
+                      "
+                    ></custom-button-loading>
+                  </div>
                 </div>
               </div>
             </div>

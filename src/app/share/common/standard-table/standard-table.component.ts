@@ -104,6 +104,7 @@ export class StandardTableComponent<T, K extends any>
         page: 1,
       };
     }
+    delete this.item.paramsQuery.after;
     this.getDataSource();
   }
 

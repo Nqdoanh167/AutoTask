@@ -1,3 +1,4 @@
+@import 'src/app/styles/variable';
 .modal-check-duplicated-phone {
   .modal-body-placeholder {
     height: 70vh;
@@ -6,19 +7,19 @@
 
   .action-bar-container {
     transition: all 0.3s ease;
-    
+
     .table-responsive {
       overflow-x: visible;
     }
-    
+
     .ng-select {
       min-width: 0;
-      
+
       &.is-invalid {
         border-color: #dc3545;
       }
     }
-    
+
     .btn {
       white-space: nowrap;
     }
@@ -50,10 +51,19 @@
         width: 100% !important;
         min-width: 100% !important;
       }
-      
+
       .btn {
         flex: 1;
       }
     }
+  }
+}
+
+.text-link {
+  color: inherit;
+  &:hover {
+    text-decoration: underline;
+    cursor: pointer;
+    color: $primary;
   }
 }

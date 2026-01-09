@@ -121,6 +121,7 @@ export class ModalUpdateTaskComponent
   public rightTabsMenu: ISettingTabItem[] = [];
   public activeLeftTabMenu: string = 'task';
   public activeRightTabMenu: string = 'history';
+  public isShowLeftTab: boolean = true;
 
   constructor(
     private readonly modalRef: BsModalRef,
@@ -1419,5 +1420,20 @@ export class ModalUpdateTaskComponent
 
   get isTaskClosed(): boolean {
     return this.sourceData?.isTaskClosed ?? false;
+  }
+
+  handleToggleLeftTab() {
+    this.isShowLeftTab = !this.isShowLeftTab;
+    const modalDialog = document.querySelector('.modal-dialog');
+    if (!modalDialog) {
+      return;
+    }
+    if (!this.isShowLeftTab) {
+      modalDialog.classList.add('modal-xl');
+      modalDialog.classList.remove('modal-medium');
+    } else {
+      modalDialog.classList.remove('modal-xl');
+      modalDialog.classList.add('modal-medium');
+    }
   }
 }

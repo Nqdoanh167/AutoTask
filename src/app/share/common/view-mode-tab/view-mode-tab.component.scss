@@ -245,6 +245,28 @@
       height: 18px;
     }
   }
+
+  .btn-remove-color {
+    width: 100%;
+    padding: 4px 12px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    color: #000;
+    font-size: 14px;
+    font-weight: 400;
+    transition: all 0.2s;
+    margin-top: 8px;
+
+    &:hover {
+      background-color: #f5f5f5;
+      border-color: #d0d0d0;
+    }
+
+    &:active {
+      background-color: #eeeeee;
+    }
+  }
 }
 
 .badge {

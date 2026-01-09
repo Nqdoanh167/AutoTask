@@ -67,6 +67,7 @@ button[disabled] {
 .btn-primary {
   border: none !important;
   color: $white;
+  background-color: $neutral;
 
   &:hover {
     color: $white;

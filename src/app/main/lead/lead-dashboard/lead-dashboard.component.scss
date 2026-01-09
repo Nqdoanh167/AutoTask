@@ -13,8 +13,8 @@
 }
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '318px');
-  @include mixins.calculateSize('height', '100vh', '318px');
+  @include mixins.calculateSize('max-height', '100vh', '250px');
+  @include mixins.calculateSize('height', '100vh', '250px');
 }
 
 .lead-sidebar {
@@ -446,7 +446,8 @@
 
 .lead-pagination {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  gap: 16px;
   padding: 16px;
   background-color: #f7fcff;
   border-bottom-left-radius: 4px;

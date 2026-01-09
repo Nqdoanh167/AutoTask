@@ -41,7 +41,7 @@ $cyan: #0dcaf0;
 
 $neutral: #1b3da1;
 $secondary-color: $neutral;
-$primary: $neutral;
+$primary: $blue;
 $secondary: $gray-600;
 $success: $green;
 $info: $cyan;
@@ -463,10 +463,10 @@ $pagination-height: 56;
   // padding: 8px;
   height: 36px;
   &.secondary-color {
-    background-color: $primary;
+    background-color: $neutral;
     color: $white;
     &:hover {
-      background-color: $primary;
+      background-color: $neutral;
       color: $white;
     }
   }

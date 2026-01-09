@@ -30,7 +30,6 @@ import {
 } from 'rxjs';
 import {FolderFormModalComponent} from './folder-form-modal/folder-form-modal.component';
 import {AuthService} from '@app/services/api/auth.service';
-import {EBotherAdvanceBasicFilter} from '@app/types/common';
 import {
   CdkDragDrop,
   CdkDragMove,
@@ -970,5 +969,24 @@ Tất cả dữ liệu liên quan đến Phễu này sẽ bị xóa vĩnh viễn
     modalRef.content?.success?.subscribe(() => {
       this.handleAction('reload');
     });
+  }
+
+  override pageChanged(dataPage: {page: number; limit: number}): void {
+    const {page, limit} = dataPage;
+    if (page) {
+      this.item.paramsQuery = {
+        ...this.item.paramsQuery,
+        page: page,
+      };
+    }
+    if (limit) {
+      this.item.paramsQuery = {
+        ...this.item.paramsQuery,
+        page: page,
+        limit: Number(limit),
+      };
+    }
+    delete this.item.paramsQuery.after;
+    this.getDataSource();
   }
 }

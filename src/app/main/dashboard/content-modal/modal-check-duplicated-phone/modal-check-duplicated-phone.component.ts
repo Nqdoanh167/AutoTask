@@ -1,14 +1,17 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AutoTaskService } from '@app/services/api/autoTask.service';
-import { SocketService } from '@app/services/api/socket.service';
-import { CommonService } from '@app/services/common/common.service';
-import { ILeadDealDto, ITask } from '@app/types/flow';
-import { EntityPagination } from '@app/types/viewmodels';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { ToastrService } from 'ngx-toastr';
-import { Subject, takeUntil } from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AuthService} from '@app/services/api/auth.service';
+import {AutoTaskService} from '@app/services/api/autoTask.service';
+import {SocketService} from '@app/services/api/socket.service';
+import {CommonService} from '@app/services/common/common.service';
+import {ILeadDealDto, ITask} from '@app/types/flow';
+import {Biz, EntityPagination} from '@app/types/viewmodels';
+import {BsModalRef} from 'ngx-bootstrap/modal';
+import {ToastrService} from 'ngx-toastr';
+import {Subject, takeUntil} from 'rxjs';
+import {environment} from 'src/environments/environment';
 
-interface ITaskInfo extends Pick<ITask, 'id' | 'code' | 'isTaskClosed'> {
+interface ITaskInfo
+  extends Pick<ITask, 'id' | 'code' | 'isTaskClosed' | 'createdAt'> {
   leadDeal: {
     name: ILeadDealDto['name'];
   };
@@ -21,6 +24,7 @@ interface ITaskInfo extends Pick<ITask, 'id' | 'code' | 'isTaskClosed'> {
 })
 export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
+  public currentBiz?: Biz;
 
   constructor(
     private readonly modalRef: BsModalRef,
@@ -28,22 +32,29 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
     private readonly commonService: CommonService,
     private readonly toastr: ToastrService,
     private readonly socketService: SocketService,
+    private readonly authService: AuthService,
   ) {
-    this.socketService.listen('task/BULK_DELETED').pipe(takeUntil(this.destroy$)).subscribe(() => {
-      setTimeout(() => {
-        this.getDupPhoneList();
-      }, 1000);
-    });
+    this.socketService
+      .listen('task/BULK_DELETED')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        setTimeout(() => {
+          this.getDupPhoneList();
+        }, 1000);
+      });
   }
 
   // === State Properties ===
-  public dupPhoneList: EntityPagination<{ phone: string; count: number }> = {
+  public dupPhoneList: EntityPagination<{phone: string; count: number}> = {
     rows: [],
     after: null,
     loading: false,
   };
 
-  public tasksByPhone: Record<string, { rows: ITaskInfo[]; loading: boolean; loaded: boolean }> = {};
+  public tasksByPhone: Record<
+    string,
+    {rows: ITaskInfo[]; loading: boolean; loaded: boolean}
+  > = {};
   public accordionStates: Record<string, boolean> = {};
 
   // Selection state - chỉ 1 accordion được phép có selections
@@ -58,6 +69,11 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
 
   // === Lifecycle ===
   ngOnInit(): void {
+    this.authService.currentBiz
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((biz) => {
+        this.currentBiz = biz;
+      });
     this.getDupPhoneList();
   }
 
@@ -77,7 +93,7 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
 
     this.dupPhoneList.loading = true;
 
-    this.autoTaskService.task.getListDuplicatedPhone({ after }).subscribe({
+    this.autoTaskService.task.getListDuplicatedPhone({after}).subscribe({
       next: (res) => {
         if (res.status === 200) {
           this.dupPhoneList.rows = res.data;
@@ -98,9 +114,9 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
     const current = this.tasksByPhone[phone];
     if (current?.loading || current?.loaded) return;
 
-    this.tasksByPhone[phone] = { rows: [], loading: true, loaded: false };
+    this.tasksByPhone[phone] = {rows: [], loading: true, loaded: false};
 
-    this.autoTaskService.task.getListDuplicatedPhoneTask({ phone }).subscribe({
+    this.autoTaskService.task.getListDuplicatedPhoneTask({phone}).subscribe({
       next: (res) => {
         if (res.status === 200) {
           this.tasksByPhone[phone] = {
@@ -112,12 +128,12 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
             this.updateValidOriginalTasks();
           }
         } else {
-          this.tasksByPhone[phone] = { rows: [], loading: false, loaded: false };
+          this.tasksByPhone[phone] = {rows: [], loading: false, loaded: false};
           this.commonService.handleResErr(res);
         }
       },
       error: (err) => {
-        this.tasksByPhone[phone] = { rows: [], loading: false, loaded: false };
+        this.tasksByPhone[phone] = {rows: [], loading: false, loaded: false};
         this.commonService.handleErr(err);
       },
     });
@@ -143,7 +159,9 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
   // Kiểm tra xem checkbox có bị disable không
   isCheckboxDisabled(phone: string): boolean {
     // Disable nếu đang có active accordion khác
-    return this.activeAccordionPhone !== null && this.activeAccordionPhone !== phone;
+    return (
+      this.activeAccordionPhone !== null && this.activeAccordionPhone !== phone
+    );
   }
 
   // Kiểm tra xem action bar có hiển thị ở accordion này không
@@ -157,7 +175,7 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
 
   isAllSelected(phone: string): boolean {
     const taskIds = this.getTaskIds(phone);
-    return taskIds.length > 0 && taskIds.every(id => this.isTaskSelected(id));
+    return taskIds.length > 0 && taskIds.every((id) => this.isTaskSelected(id));
   }
 
   getSelectedCount(): number {
@@ -165,13 +183,14 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
   }
 
   getValidTaskCountToMerge(): number {
-    return this.validOriginalTasks.filter(i => i.isTaskClosed === false).length;
+    return this.validOriginalTasks.filter((i) => i.isTaskClosed === false)
+      .length;
   }
 
   getValidOriginalTasks(): ITaskInfo[] {
     if (!this.activeAccordionPhone) return [];
     const tasks = this.tasksByPhone[this.activeAccordionPhone]?.rows || [];
-    return tasks.filter(task => this.selectedTasks.includes(task.id));
+    return tasks.filter((task) => this.selectedTasks.includes(task.id));
   }
 
   private updateValidOriginalTasks(): void {
@@ -179,7 +198,7 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
   }
 
   private getTaskIds(phone: string): string[] {
-    return this.tasksByPhone[phone]?.rows?.map(task => task.id) || [];
+    return this.tasksByPhone[phone]?.rows?.map((task) => task.id) || [];
   }
 
   // === Selection Handlers ===
@@ -195,7 +214,7 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
         this.selectedTasks.push(taskId);
       }
     } else {
-      this.selectedTasks = this.selectedTasks.filter(id => id !== taskId);
+      this.selectedTasks = this.selectedTasks.filter((id) => id !== taskId);
       // Nếu không còn selection nào → reset active accordion
       if (this.selectedTasks.length === 0) {
         this.activeAccordionPhone = null;
@@ -214,13 +233,15 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
 
     if (checked) {
       this.activeAccordionPhone = phone;
-      taskIds.forEach(id => {
+      taskIds.forEach((id) => {
         if (!this.selectedTasks.includes(id)) {
           this.selectedTasks.push(id);
         }
       });
     } else {
-      this.selectedTasks = this.selectedTasks.filter(id => !taskIds.includes(id));
+      this.selectedTasks = this.selectedTasks.filter(
+        (id) => !taskIds.includes(id),
+      );
       if (this.selectedTasks.length === 0) {
         this.activeAccordionPhone = null;
         this.selectedOriginalTask = null;
@@ -235,7 +256,10 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
   private autoSelectOriginalTask(): void {
     const validTasks = this.getValidOriginalTasks();
     if (validTasks.length > 0) {
-      if (!this.selectedOriginalTask || !validTasks.some(t => t.id === this.selectedOriginalTask)) {
+      if (
+        !this.selectedOriginalTask ||
+        !validTasks.some((t) => t.id === this.selectedOriginalTask)
+      ) {
         this.selectedOriginalTask = validTasks[0].id;
       }
     } else {
@@ -255,14 +279,20 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
 
   // === Action Handler ===
   handleUpdateAction(): void {
-    if (!this.activeAccordionPhone || !this.selectedOriginalTask || !this.selectedAction) {
+    if (
+      !this.activeAccordionPhone ||
+      !this.selectedOriginalTask ||
+      !this.selectedAction
+    ) {
       this.toastr.warning('Vui lòng chọn tác vụ gốc và hành động');
       return;
     }
 
     if (this.isProcessing) return;
 
-    const taskIdsToDelete = this.selectedTasks.filter(id => id !== this.selectedOriginalTask);
+    const taskIdsToDelete = this.selectedTasks.filter(
+      (id) => id !== this.selectedOriginalTask,
+    );
 
     if (this.selectedAction === 'keepOriginal') {
       if (taskIdsToDelete.length === 0) {
@@ -271,21 +301,23 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
       }
 
       this.isProcessing = true;
-      this.autoTaskService.task.mergeDuplicatedPhone({ taskIds: taskIdsToDelete }).subscribe({
-        next: (res) => {
-          this.isProcessing = false;
-          if (res.status === 200) {
-            this.toastr.success('Đã nhận yêu cầu xử lý');
-            this.refreshData();
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err) => {
-          this.isProcessing = false;
-          this.commonService.handleErr(err);
-        }
-      });
+      this.autoTaskService.task
+        .mergeDuplicatedPhone({taskIds: taskIdsToDelete})
+        .subscribe({
+          next: (res) => {
+            this.isProcessing = false;
+            if (res.status === 200) {
+              this.toastr.success('Đã nhận yêu cầu xử lý');
+              this.refreshData();
+            } else {
+              this.commonService.handleResErr(res);
+            }
+          },
+          error: (err) => {
+            this.isProcessing = false;
+            this.commonService.handleErr(err);
+          },
+        });
     }
   }
 
@@ -307,5 +339,10 @@ export class ModalCheckDuplicatedPhoneComponent implements OnInit, OnDestroy {
   // === Utils ===
   trackByFn(_index: number, task: ITaskInfo): string {
     return task?.id;
+  }
+
+  handleViewTask(taskId: string): void {
+    let url = `${environment.urlDomain}/${this.currentBiz?.alias}/auto-task/dashboard?id=${taskId}`;
+    window.open(url, '_blank');
   }
 }

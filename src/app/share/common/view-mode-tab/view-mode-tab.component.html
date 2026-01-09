@@ -143,6 +143,14 @@
                       <img src="./assets/images/icon/color-wheel.png" alt="" />
                     </div>
                   </div>
+                  <button
+                    *ngIf="tabz.tabViewModeBorderColor"
+                    type="button"
+                    class="btn-remove-color"
+                    (click)="handleRemoveColor(tabz, $event)"
+                  >
+                    Xóa màu
+                  </button>
                 </div>
               </li>
               <li role="menuitem">
@@ -336,6 +344,14 @@
                               />
                             </div>
                           </div>
+                          <button
+                            *ngIf="tabz.tabViewModeBorderColor"
+                            type="button"
+                            class="btn-remove-color"
+                            (click)="handleRemoveColor(tabz, $event)"
+                          >
+                            Xóa màu
+                          </button>
                         </div>
                       </li>
                       <li role="menuitem">
