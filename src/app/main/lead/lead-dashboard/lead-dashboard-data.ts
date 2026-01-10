@@ -223,6 +223,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
       )
       .subscribe((res) => {
         this.tags.rows = res.data || [];
+        this.leadService.setListLeadTag(this.tags.rows);
         const configFilterTag = this.configFilters.find(
           (item) => item.name === 'tagIds_in',
         );

@@ -10,11 +10,16 @@ import {Subject, takeUntil} from 'rxjs';
 import {Biz, Order} from '@app/types/viewmodels';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '@app/services/api/auth.service';
+import { CommonModule } from '@angular/common';
+import { TimeViewPipe } from '@app/share/pipe/timeView.pipe';
+import { MycurrencyPipe } from '@app/share/pipe/mycurrency.pipe';
 
 @Component({
   selector: 'app-orders',
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
+  standalone: true,
+  imports: [CommonModule, MycurrencyPipe, TimeViewPipe],  
 })
 export class OrdersComponent implements OnDestroy, OnInit, OnChanges {
   @Input() orders!: Order[];

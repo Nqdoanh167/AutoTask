@@ -78,7 +78,6 @@ import {ActivityLogComponent} from './content-modal/activity-log/activity-log.co
     CustomerInfoComponent,
     ModalAssignTeamComponent,
     ModalCallComponent,
-    OrdersComponent,
     HistoryComponent,
     ActivityLogComponent,
     ModalAssignTeamV2Component,
@@ -139,7 +138,8 @@ import {ActivityLogComponent} from './content-modal/activity-log/activity-log.co
     InputCheckboxModule,
     InArrayFilterPipe,
     CdkDragPlaceholder,
-    TaskCreateSourceComponent
+    TaskCreateSourceComponent,
+    OrdersComponent
 ],
 })
 export class DashboardModule {}

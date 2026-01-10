@@ -286,6 +286,10 @@ export class LeadService extends BaseApiService implements OnDestroy {
     this.listLeadFolder$.next(items);
   }
 
+  setListLeadTag(items: ITag[]) {
+    this.listLeadTag$.next(items);
+  }
+
   ngOnDestroy(): void {
     this.destroy.next(true);
     this.destroy.complete();

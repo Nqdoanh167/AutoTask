@@ -1,5 +1,5 @@
 import {Customer} from '../customer';
-import {AccountPublic, ITag} from '../viewmodels';
+import {AccountPublic, ITag, Order} from '../viewmodels';
 import {ITeam, IBranchTaskDto} from '../flow';
 import {
   ITask,
@@ -45,6 +45,7 @@ export interface ILead {
   taskCodes: string[];
   orderId?: string[];
   orderCodes: string[];
+  orders?: Order[];
   customer?: Customer;
   createdBy?: AccountPublic;
   updatedBy?: AccountPublic;

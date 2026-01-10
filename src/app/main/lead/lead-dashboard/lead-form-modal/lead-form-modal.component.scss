@@ -378,7 +378,7 @@
 
 .activity-area {
   width: calc(100% + -0px);
-  height: calc(100vh - 214px);
+  height: calc(100vh - 234px);
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -743,5 +743,11 @@
   &.active {
     background-color: vars.$primary;
     color: #fff;
+  }
+}
+
+::ng-deep .ng-select {
+  .ng-select-container {
+    min-width: 180px !important;
   }
 }

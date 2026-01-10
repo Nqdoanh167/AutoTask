@@ -32,8 +32,6 @@ import {ITaskChain} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
 import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
 import {ISetting, ISettingTabItem} from '@app/types/setting';
-import {LeadUpdateModalComponent} from '../lead-update-modal/lead-update-modal.component';
-import {take} from 'rxjs';
 import {LeadDashboardData} from '../lead-dashboard-data';
 import {DEFAULT_LEAD_TABS} from '@app/main/setting/tab-display/tab-display.variable';
 import {isEmpty} from 'lodash';
@@ -48,6 +46,7 @@ export class LeadFormModalComponent
   implements OnInit, OnDestroy
 {
   @Input() lead?: ILead;
+  @Input() currentFunnelId?: string;
   @Output() saveEvent = new EventEmitter<ILeadCreateDto | ILeadUpdateDto>();
 
   private listBizUsers: User[] = [];
@@ -122,7 +121,7 @@ export class LeadFormModalComponent
     this.initForm();
     this.loadBizUsers();
     this.loadAutoTaskSetting();
-    this.initializeBranch();
+    // this.initializeBranch();
     this.getFolderLead();
   }
 
@@ -144,7 +143,10 @@ export class LeadFormModalComponent
       tagIds: [initialTagIds],
       picture: [this.lead?.picture || ''],
       sourceId: [this.lead?.['sourceId'] || null],
-      funnelId: [this.lead?.['funnelId'] || '', [Validators.required]],
+      funnelId: [
+        this.lead?.['funnelId'] || this.currentFunnelId || '',
+        [Validators.required],
+      ],
       address: [this.lead?.address || ''],
       street: [this.lead?.street || ''],
       province: [this.lead?.province || null],
@@ -154,9 +156,15 @@ export class LeadFormModalComponent
       ward: [this.lead?.ward || null],
       wardCode: [this.lead?.wardCode || null],
       teams: this.fb.array([]),
-      branch: [null, [Validators.required]],
+      branch: [[]],
       typeLead: ['lead'],
     });
+
+    if (this.currentFunnelId) {
+      this.leadForm.patchValue({
+        funnelId: this.currentFunnelId,
+      });
+    }
   }
 
   get formTeams(): FormArray {
@@ -565,27 +573,6 @@ export class LeadFormModalComponent
     }
   }
 
-  openUpdateModal(): void {
-    this.isOpenBackDrop = true;
-    const modal = this.modalService.show(LeadUpdateModalComponent, {
-      class: 'modal-dialog-centered modal-xl',
-      initialState: {
-        lead: this.lead,
-      },
-    });
-
-    modal.content?.saveEvent?.subscribe((updatedLead: ILead) => {
-      if (this.lead?.id === updatedLead.id) {
-        Object.assign(this.lead, updatedLead);
-        this.initForm();
-      }
-    });
-
-    modal.onHidden?.pipe(take(1)).subscribe(() => {
-      this.isOpenBackDrop = false;
-    });
-  }
-
   onHoverBadge(index: number): void {
     if (this.hoveredBadgeIndex < index) {
       this.hoveredBadgeIndexCurrent = index;
@@ -634,5 +621,86 @@ export class LeadFormModalComponent
           );
         },
       });
+  }
+
+  hideModal(): void {
+    this.modalRef.hide();
+  }
+
+  onSubmit(): void {
+    if (this.leadForm.invalid) {
+      this.leadForm.markAllAsTouched();
+      this.toastr.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+      return;
+    }
+
+    this.loading.isSubmitting = true;
+
+    const formValue = this.leadForm.value;
+    const teams = formValue.teams
+      .filter((t: any) => t.userId)
+      .map((t: any) => ({
+        roleId: t.roleId,
+        userId: t.userId,
+      }));
+
+    const submitData = {
+      ...formValue,
+      teams,
+      branch: formValue.branch?.id || formValue.branch,
+    };
+
+    if (this.isEditMode && this.lead?.id) {
+      // Update existing lead
+      this.leadService.lead
+        .update(this.lead.id, {
+          id: this.lead.id,
+          ...submitData,
+        })
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => {
+            this.loading.isSubmitting = false;
+          }),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200 || res.status === 201) {
+              this.toastr.success('Cập nhật lead thành công');
+              this.saveEvent.emit(res.data);
+              this.modalRef.hide();
+            } else {
+              this.toastr.error(res.message || 'Cập nhật lead thất bại');
+            }
+          },
+          error: (err) => {
+            this.toastr.error(err.message || 'Cập nhật lead thất bại');
+          },
+        });
+    } else {
+      // Create new lead
+      this.leadService.lead
+        .create(submitData)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => {
+            this.loading.isSubmitting = false;
+          }),
+        )
+        .subscribe({
+          next: (res) => {
+            if (res.status === 200 || res.status === 201) {
+              this.toastr.success('Tạo lead thành công');
+              this.saveEvent.emit(res.data);
+              this.modalRef.hide();
+            } else {
+              this.toastr.error(res.message || 'Tạo lead thất bại');
+            }
+          },
+          error: (err) => {
+            this.toastr.error(err.message || 'Tạo lead thất bại');
+          },
+        });
+    }
   }
 }

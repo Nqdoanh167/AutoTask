@@ -37,13 +37,14 @@ import {InputCheckboxModule} from '@share/input/input-checkbox/input-checkbox.mo
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {AccordionModule} from 'ngx-bootstrap/accordion';
 import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
-import { MycurrencyPipe } from '@app/share/pipe/mycurrency.pipe';
-import { Hex2RgbPipe } from '@app/share/pipe/hex2rgb.pipe';
-import { ModalModule } from "ngx-bootstrap/modal";
-import { CustomDatePickerComponent } from '@app/share/custom/custom-date-picker/custom-date-picker.component';
-import { SelectLocationComponent } from '@app/share/common/select-location/select-location.component';
-import { FilterAdvancedModule } from "./lead-dashboard/filter-advanced/filter-advanced.module";
-import { LeadCreateBulkComponent } from "./lead-dashboard/lead-create-bulk/lead-create-bulk.component";
+import {MycurrencyPipe} from '@app/share/pipe/mycurrency.pipe';
+import {Hex2RgbPipe} from '@app/share/pipe/hex2rgb.pipe';
+import {ModalModule} from 'ngx-bootstrap/modal';
+import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
+import {SelectLocationComponent} from '@app/share/common/select-location/select-location.component';
+import {FilterAdvancedModule} from './lead-dashboard/filter-advanced/filter-advanced.module';
+import {LeadCreateBulkComponent} from './lead-dashboard/lead-create-bulk/lead-create-bulk.component';
+import {OrdersComponent} from '../dashboard/content-modal/orders/orders.component';
 
 @NgModule({
   declarations: [
@@ -94,8 +95,9 @@ import { LeadCreateBulkComponent } from "./lead-dashboard/lead-create-bulk/lead-
     AccordionModule,
     SelectLocationComponent,
     FilterAdvancedModule,
-    LeadCreateBulkComponent
-],
+    LeadCreateBulkComponent,
+    OrdersComponent,
+  ],
   providers: [DatePipe],
 })
 export class LeadModule {}

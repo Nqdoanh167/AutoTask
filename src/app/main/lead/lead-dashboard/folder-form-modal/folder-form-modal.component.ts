@@ -32,6 +32,8 @@ export class FolderFormModalComponent
 {
   @Output() saveEvent = new EventEmitter<void>();
   @Input() type: 'folder' | 'group' | 'funnel' = 'folder';
+  @Input() folderId?: string;
+  @Input() groupId?: string;
   @Input() dataSource?: IFolderLead | IFunnelGroup | IFunnel;
 
   public folderForm!: FormGroup;
@@ -90,6 +92,18 @@ export class FolderFormModalComponent
 
     if (this.dataSource) {
       this.folderForm.patchValue(this.dataSource);
+    }
+
+    if (this.folderId) {
+      this.folderForm.patchValue({
+        folderId: this.folderId,
+      });
+    }
+
+    if (this.groupId) {
+      this.folderForm.patchValue({
+        funnelGroupId: this.groupId,
+      });
     }
   }
 

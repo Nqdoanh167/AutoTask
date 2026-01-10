@@ -191,11 +191,16 @@ export class LeadDashboardComponent
       });
   }
 
-  handleAddFolder(type: 'folder' | 'group' | 'funnel' = 'folder') {
+  handleAddFolder(
+    type: 'folder' | 'group' | 'funnel' = 'folder',
+    option?: {folderId?: string; groupId?: string},
+  ) {
     const modalRef = this.modalService.show(FolderFormModalComponent, {
       class: 'modal-dialog-centered modal-md',
       initialState: {
         type: type,
+        folderId: option?.folderId,
+        groupId: option?.groupId,
       },
     });
 
@@ -263,8 +268,8 @@ export class LeadDashboardComponent
           },
         });
     } else {
-      const modalRef = this.modalService.show(LeadCreateModalComponent, {
-        class: 'modal-dialog-centered',
+      const modalRef = this.modalService.show(LeadFormModalComponent, {
+        class: 'modal-dialog-centered modal-medium',
         initialState: {
           currentFunnelId: this.currentFunnel$.value?.id,
         } as any,
