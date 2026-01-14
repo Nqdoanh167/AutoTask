@@ -34,16 +34,30 @@
     }
 
     .card-content {
-      display: inline-flex;
       padding: 16px;
-      align-items: flex-start;
-      gap: 16px;
       border-radius: 0 0 4px 4px;
       background: #f8fafc;
-    }
 
-    .card-content {
-      flex: 1;
+      .field-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        .button-edit {
+          opacity: 0;
+          visibility: hidden;
+          transition:
+            opacity 0.2s ease,
+            visibility 0.2s ease;
+          padding: 0;
+          border: none;
+          background: transparent;
+        }
+
+        &:hover .button-edit {
+          opacity: 1;
+          visibility: visible;
+        }
+      }
     }
 
     .navigation-tabs {

@@ -1,266 +1,372 @@
 <div class="setting-tab-display">
-  <div class="d-flex align-items-center justify-content-end mb-3">
-    <app-filter-top-table
-      [configButtons]="configButtons"
-      (clickButtonEvent)="handleAction($event)"
-    ></app-filter-top-table>
-  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between">
+        <tabset class="custom-tab-basic">
+          <tab
+            *ngFor="let tab of tabs"
+            [active]="tab.key === activeTab"
+            (selectTab)="selectTab(tab.key)"
+          >
+            <ng-template tabHeading>
+              <div class="title-tab">
+                <span>{{ tab.name }}</span>
+              </div>
+            </ng-template>
+          </tab>
+        </tabset>
 
-  <div class="row g-3">
-    <!-- Card LEAD -->
-    <div class="col-12 col-md-6">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between">
-            <h5 class="mb-3 text-neutral fw-500">{{ tabs[0].name }}</h5>
-            <app-filter-top-table
-              [configButtons]="configButtonsLead"
-              (clickButtonEvent)="handleAction($event)"
-            ></app-filter-top-table>
-          </div>
-          <div class="list-data mt-2">
-            <div class="table-responsive tableFixHead custom-scrollbar">
-              <table class="table ui-v2">
-                <thead>
-                  <tr>
-                    <th class="column-name" style="width: 200px">Tab</th>
-                    <th style="width: 200px">
-                      Vị trí hiển thị
-                      <span id="popover-position">
-                        <i
-                          class="fa fa-question-circle"
-                          [popover]="popoverPosition"
-                          placement="bottom"
-                          triggers="hover"
-                          containerClass="card"
-                        ></i>
-                      </span>
-
-                      <ng-template #popoverPosition>
-                        <img
-                          src="https://cdn.smax.in/s03/opla/bizs/68d25aed327cc7001ac89b6f/branch/1767695089201.jpg?expire=1799231089436&signature=61fb629b268036625a62214c0aaa12dc6ae0cb2b0329c2ab670c2ddbb35b534a"
-                          alt=""
-                          width="400"
-                          height="400"
-                        />
-                      </ng-template>
-                    </th>
-                    <th class="column-action text-center" style="width: 200px">
-                      Cho phép hiển thị
-                    </th>
-                    <th></th>
-                    <th class="text-center">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody cdkDropList (cdkDropListDropped)="dropLeadTab($event)">
-                  <tr class="text-center" *ngIf="!leadTabs.length">
-                    <td colspan="4">
-                      <div>Không có dữ liệu</div>
-                    </td>
-                  </tr>
-                  <ng-container *ngFor="let tab of leadTabs; index as tabIndex">
-                    <tr cdkDrag [class.opacity-50]="!tab.active">
-                      <td>
-                        <div class="d-flex align-items-center gap-2">
-                          <img
-                            *ngIf="tab.icon"
-                            [src]="'./assets/icons/' + tab.icon + '.svg'"
-                            [alt]="tab.name"
-                            width="24"
-                            height="24"
-                          />
-                          <span>{{ tab.name }}</span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <ng-select
-                          [items]="
-                            tab.positionOptions || [
-                              {value: 'left', label: 'Cột trái'},
-                              {value: 'right', label: 'Cột phải'}
-                            ]
-                          "
-                          [(ngModel)]="tab.positions"
-                          [placeholder]="'Chọn vị trí hiển thị'"
-                          [clearable]="false"
-                          bindValue="value"
-                          bindLabel="label"
-                          appendTo=".card"
-                          [multiple]="true"
-                        ></ng-select>
-                      </td>
-                      <td class="text-center">
-                        <div class="form-check form-switch d-inline-block">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            [checked]="tab.active"
-                            (change)="toggleTabVisibility(tab)"
-                            id="lead-tab-{{ tabIndex }}"
-                          />
-                          <label
-                            class="form-check-label"
-                            for="lead-tab-{{ tabIndex }}"
-                          ></label>
-                        </div>
-                      </td>
-                      <td></td>
-                      <td>
-                        <div
-                          class="d-flex align-items-center gap-3 justify-content-center"
-                        >
-                          <i
-                            class="fa fa-grip-vertical cursor-move"
-                            cdkDragHandle
-                          ></i>
-                          <ng-container *ngIf="!tab.isDefault">
-                            <span
-                              class="d-flex align-items-center cursor-pointer"
-                              (click)="editTab(tab, 'lead')"
-                              title="Chỉnh sửa"
-                            >
-                              <img src="./assets/images/icon/edit.svg" alt="" />
-                            </span>
-                            <span
-                              class="d-flex align-items-center cursor-pointer"
-                              (click)="deleteTab(tab, 'lead')"
-                              title="Xóa"
-                            >
-                              <img
-                                src="./assets/images/icon/remove.svg"
-                                alt=""
-                              />
-                            </span>
-                          </ng-container>
-                        </div>
-                      </td>
-                    </tr>
-                  </ng-container>
-                </tbody>
-              </table>
-            </div>
-          </div>
+        <div class="d-flex align-items-center gap-2">
+          <app-filter-top-table
+            [configButtons]="configButtonsAddTab"
+            (clickButtonEvent)="handleAction($event)"
+          ></app-filter-top-table>
+          <app-filter-top-table
+            [configButtons]="configButtons"
+            (clickButtonEvent)="handleAction($event)"
+          ></app-filter-top-table>
         </div>
       </div>
-    </div>
 
-    <!-- Card TASK -->
-    <div class="col-12 col-md-6">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between">
-            <h5 class="mb-3 text-neutral fw-500">{{ tabs[1].name }}</h5>
-            <app-filter-top-table
-              [configButtons]="configButtonsTask"
-              (clickButtonEvent)="handleAction($event)"
-            ></app-filter-top-table>
+      <div class="content-site mt-3">
+        <div class="row g-3">
+          <!-- Table bên trái -->
+          <div class="col-12 col-lg-6">
+            <ng-container [ngSwitch]="activeTab">
+              <!-- Tab LEAD -->
+              <ng-container *ngSwitchCase="ETabDisplayTab.LEAD">
+                <div class="list-data">
+                  <div class="table-responsive tableFixHead custom-scrollbar">
+                    <table class="table ui-v2">
+                      <thead>
+                        <tr>
+                          <th class="column-name" style="width: 150px">Tab</th>
+                          <th style="width: 150px">Vị trí hiển thị</th>
+                          <th
+                            class="column-action text-center"
+                            style="width: 120px"
+                          >
+                            Hiển thị
+                          </th>
+                          <th class="text-center" style="width: 100px">
+                            Thao tác
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        cdkDropList
+                        (cdkDropListDropped)="dropLeadTab($event)"
+                      >
+                        <tr class="text-center" *ngIf="!leadTabs.length">
+                          <td colspan="4">
+                            <div>Không có dữ liệu</div>
+                          </td>
+                        </tr>
+                        <ng-container
+                          *ngFor="let tab of leadTabs; index as tabIndex"
+                        >
+                          <tr cdkDrag [class.opacity-50]="!tab.active">
+                            <td>
+                              <div class="d-flex align-items-center gap-2">
+                                <img
+                                  *ngIf="tab.icon"
+                                  [src]="'./assets/icons/' + tab.icon + '.svg'"
+                                  [alt]="tab.name"
+                                  width="20"
+                                  height="20"
+                                />
+                                <span
+                                  class="text-truncate"
+                                  style="max-width: 100px"
+                                >
+                                  {{ tab.name }}
+                                </span>
+                              </div>
+                            </td>
+
+                            <td>
+                              <ng-select
+                                [items]="
+                                  tab.positionOptions || [
+                                    {value: 'left', label: 'Cột trái'},
+                                    {value: 'right', label: 'Cột phải'}
+                                  ]
+                                "
+                                [(ngModel)]="tab.positions"
+                                [placeholder]="'Chọn vị trí'"
+                                [clearable]="false"
+                                bindValue="value"
+                                bindLabel="label"
+                                appendTo=".card"
+                                [multiple]="true"
+                                style="font-size: 12px"
+                              ></ng-select>
+                            </td>
+                            <td class="text-center">
+                              <div
+                                class="form-check form-switch d-inline-block"
+                              >
+                                <input
+                                  class="form-check-input"
+                                  type="checkbox"
+                                  [checked]="tab.active"
+                                  (change)="toggleTabVisibility(tab)"
+                                  id="lead-tab-{{ tabIndex }}"
+                                />
+                                <label
+                                  class="form-check-label"
+                                  for="lead-tab-{{ tabIndex }}"
+                                ></label>
+                              </div>
+                            </td>
+                            <td>
+                              <div
+                                class="d-flex align-items-center gap-2 justify-content-center"
+                              >
+                                <i
+                                  class="fa fa-grip-vertical cursor-move"
+                                  cdkDragHandle
+                                ></i>
+                                <ng-container *ngIf="!tab.isDefault">
+                                  <span
+                                    class="d-flex align-items-center cursor-pointer"
+                                    (click)="createUpdateTab(tab)"
+                                    title="Chỉnh sửa"
+                                  >
+                                    <img
+                                      src="./assets/images/icon/edit.svg"
+                                      alt=""
+                                      width="16"
+                                      height="16"
+                                    />
+                                  </span>
+                                  <span
+                                    class="d-flex align-items-center cursor-pointer"
+                                    (click)="deleteTab(tab)"
+                                    title="Xóa"
+                                  >
+                                    <img
+                                      src="./assets/images/icon/remove.svg"
+                                      alt=""
+                                      width="16"
+                                      height="16"
+                                    />
+                                  </span>
+                                </ng-container>
+                              </div>
+                            </td>
+                          </tr>
+                        </ng-container>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Tab TASK -->
+              <ng-container *ngSwitchCase="ETabDisplayTab.TASK">
+                <div class="list-data">
+                  <div class="table-responsive tableFixHead custom-scrollbar">
+                    <table class="table ui-v2">
+                      <thead>
+                        <tr>
+                          <th class="column-name" style="width: 150px">Tab</th>
+                          <th style="width: 150px">Vị trí hiển thị</th>
+                          <th
+                            class="column-action text-center"
+                            style="width: 120px"
+                          >
+                            Hiển thị
+                          </th>
+                          <th class="text-center" style="width: 100px">
+                            Thao tác
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        cdkDropList
+                        (cdkDropListDropped)="dropTaskTab($event)"
+                      >
+                        <tr class="text-center" *ngIf="!taskTabs.length">
+                          <td colspan="4">
+                            <div>Không có dữ liệu</div>
+                          </td>
+                        </tr>
+                        <ng-container
+                          *ngFor="let tab of taskTabs; index as tabIndex"
+                        >
+                          <tr cdkDrag [class.opacity-50]="!tab.active">
+                            <td>
+                              <div class="d-flex align-items-center gap-2">
+                                <img
+                                  *ngIf="tab.icon"
+                                  [src]="'./assets/icons/' + tab.icon + '.svg'"
+                                  [alt]="tab.name"
+                                  width="20"
+                                  height="20"
+                                />
+                                <span
+                                  class="text-truncate"
+                                  style="max-width: 100px"
+                                >
+                                  {{ tab.name }}
+                                </span>
+                              </div>
+                            </td>
+
+                            <td>
+                              <ng-select
+                                [items]="
+                                  tab.positionOptions || [
+                                    {value: 'left', label: 'Cột trái'},
+                                    {value: 'right', label: 'Cột phải'}
+                                  ]
+                                "
+                                [(ngModel)]="tab.positions"
+                                [placeholder]="'Chọn vị trí'"
+                                [clearable]="false"
+                                bindValue="value"
+                                bindLabel="label"
+                                appendTo=".card"
+                                [multiple]="true"
+                                style="font-size: 12px"
+                              ></ng-select>
+                            </td>
+                            <td class="text-center">
+                              <div
+                                class="form-check form-switch d-inline-block"
+                              >
+                                <input
+                                  class="form-check-input"
+                                  type="checkbox"
+                                  [checked]="tab.active"
+                                  (change)="toggleTabVisibility(tab)"
+                                  id="task-tab-{{ tabIndex }}"
+                                />
+                                <label
+                                  class="form-check-label"
+                                  for="task-tab-{{ tabIndex }}"
+                                ></label>
+                              </div>
+                            </td>
+                            <td>
+                              <div
+                                class="d-flex align-items-center gap-2 justify-content-center"
+                              >
+                                <i
+                                  class="fa fa-grip-vertical cursor-move"
+                                  cdkDragHandle
+                                ></i>
+                                <ng-container *ngIf="!tab.isDefault">
+                                  <span
+                                    class="d-flex align-items-center cursor-pointer"
+                                    (click)="createUpdateTab(tab)"
+                                    title="Chỉnh sửa"
+                                  >
+                                    <img
+                                      src="./assets/images/icon/edit.svg"
+                                      alt=""
+                                      width="16"
+                                      height="16"
+                                    />
+                                  </span>
+                                  <span
+                                    class="d-flex align-items-center cursor-pointer"
+                                    (click)="deleteTab(tab)"
+                                    title="Xóa"
+                                  >
+                                    <img
+                                      src="./assets/images/icon/remove.svg"
+                                      alt=""
+                                      width="16"
+                                      height="16"
+                                    />
+                                  </span>
+                                </ng-container>
+                              </div>
+                            </td>
+                          </tr>
+                        </ng-container>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
           </div>
-          <div class="list-data mt-2">
-            <div class="table-responsive tableFixHead custom-scrollbar">
-              <table class="table ui-v2">
-                <thead>
-                  <tr>
-                    <th class="column-name" style="width: 200px">Tab</th>
-                    <th style="width: 200px">Vị trí hiển thị</th>
-                    <th class="column-action text-center" style="width: 200px">
-                      Cho phép hiển thị
-                    </th>
-                    <th></th>
-                    <th class="text-center">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody cdkDropList (cdkDropListDropped)="dropTaskTab($event)">
-                  <tr class="text-center" *ngIf="!taskTabs.length">
-                    <td colspan="4">
-                      <div>Không có dữ liệu</div>
-                    </td>
-                  </tr>
-                  <ng-container *ngFor="let tab of taskTabs; index as tabIndex">
-                    <tr cdkDrag [class.opacity-50]="!tab.active">
-                      <td style="width: 200px">
-                        <div class="d-flex align-items-center gap-2">
-                          <i
-                            class="fa fa-grip-vertical me-2 cursor-move"
-                            cdkDragHandle
-                          ></i>
+
+          <!-- Preview bên phải -->
+          <div class="col-12 col-lg-6">
+            <div class="d-flex justify-content-center align-items-center">
+              <div class="card preview-container">
+                <h6 class="mb-3 text-neutral fw-500">Preview</h6>
+                <div class="preview-layout">
+                  <!-- Cột trái - Nội dung chính -->
+                  <div class="preview-column preview-main">
+                    <div class="preview-main-header">
+                      <div class="preview-header-info">
+                        <span class="preview-label">Tác vụ/Lead</span>
+                      </div>
+                      <div class="preview-tabs-container">
+                        <div
+                          class="preview-tab-header"
+                          *ngFor="let tab of getTabsByPosition('left')"
+                          [class.active]="tab.active"
+                        >
                           <img
                             *ngIf="tab.icon"
                             [src]="'./assets/icons/' + tab.icon + '.svg'"
                             [alt]="tab.name"
-                            width="24"
-                            height="24"
+                            width="16"
+                            height="16"
                           />
                           <span>{{ tab.name }}</span>
                         </div>
-                      </td>
-
-                      <td>
-                        <ng-select
-                          [items]="
-                            tab.positionOptions || [
-                              {value: 'left', label: 'Cột trái'},
-                              {value: 'right', label: 'Cột phải'}
-                            ]
-                          "
-                          [(ngModel)]="tab.positions"
-                          [placeholder]="'Chọn vị trí hiển thị'"
-                          [clearable]="false"
-                          bindValue="value"
-                          bindLabel="label"
-                          appendTo=".card"
-                          [multiple]="true"
-                        ></ng-select>
-                      </td>
-                      <td class="text-center" style="width: 200px">
-                        <div class="form-check form-switch d-inline-block">
-                          <input
-                            class="form-check-input"
-                            type="checkbox"
-                            [checked]="tab.active"
-                            (change)="toggleTabVisibility(tab)"
-                            id="task-tab-{{ tabIndex }}"
-                          />
-                          <label
-                            class="form-check-label"
-                            for="task-tab-{{ tabIndex }}"
-                          ></label>
-                        </div>
-                      </td>
-                      <td></td>
-                      <td>
                         <div
-                          class="d-flex align-items-center gap-3 justify-content-center"
+                          *ngIf="getTabsByPosition('left').length === 0"
+                          class="preview-tabs-empty"
                         >
-                          <i
-                            class="fa fa-grip-vertical cursor-move"
-                            cdkDragHandle
-                          ></i>
-                          <ng-container *ngIf="!tab.isDefault">
-                            <span
-                              class="d-flex align-items-center cursor-pointer"
-                              (click)="editTab(tab, 'task')"
-                              title="Chỉnh sửa"
-                            >
-                              <img src="./assets/images/icon/edit.svg" alt="" />
-                            </span>
-                            <span
-                              class="d-flex align-items-center cursor-pointer"
-                              (click)="deleteTab(tab, 'task')"
-                              title="Xóa"
-                            >
-                              <img
-                                src="./assets/images/icon/remove.svg"
-                                alt=""
-                              />
-                            </span>
-                          </ng-container>
+                          <span class="text-muted small">Chưa có tab</span>
                         </div>
-                      </td>
-                    </tr>
-                  </ng-container>
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+                    <div class="preview-main-content">
+                      <div class="preview-placeholder">
+                        <i class="fa fa-file-alt"></i>
+                        <span>Nội dung tab sẽ hiển thị ở đây</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Cột phải - Sidebar -->
+                  <div class="preview-column preview-sidebar">
+                    <div class="preview-sidebar-section">
+                      <div class="preview-tabs-sidebar">
+                        <div
+                          class="preview-tab-sidebar-item"
+                          *ngFor="let tab of getTabsByPosition('right')"
+                          [class.active]="tab.active"
+                        >
+                          <img
+                            *ngIf="tab.icon"
+                            [src]="'./assets/icons/' + tab.icon + '.svg'"
+                            [alt]="tab.name"
+                            width="16"
+                            height="16"
+                          />
+                          <span>{{ tab.name }}</span>
+                        </div>
+                        <div
+                          *ngIf="getTabsByPosition('right').length === 0"
+                          class="preview-empty"
+                        >
+                          <span class="text-muted small">Chưa có tab</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

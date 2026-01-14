@@ -117,8 +117,10 @@ export class ModalUpdateTaskComponent
 
   private resetTaskSubject$ = new Subject<string>();
 
-  public leftTabsMenu: ISettingTabItem[] = [];
-  public rightTabsMenu: ISettingTabItem[] = [];
+  public tabsMenu = {
+    left: [] as ISettingTabItem[],
+    right: [] as ISettingTabItem[],
+  };
   public activeLeftTabMenu: string = 'task';
   public activeRightTabMenu: string = 'history';
   public isShowLeftTab: boolean = true;
@@ -160,25 +162,25 @@ export class ModalUpdateTaskComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((res) => {
         if (res) {
-          this.leftTabsMenu = res.taskTabs.filter(
+          this.tabsMenu.left = res.taskTabs.filter(
             (tab) => tab.positions.includes('left') && tab.active,
           );
-          this.rightTabsMenu = res.taskTabs.filter(
+          this.tabsMenu.right = res.taskTabs.filter(
             (tab) => tab.positions.includes('right') && tab.active,
           );
-          if (isEmpty(this.leftTabsMenu)) {
-            this.leftTabsMenu = DEFAULT_TASK_TABS.filter(
+          if (isEmpty(this.tabsMenu.left)) {
+            this.tabsMenu.left = DEFAULT_TASK_TABS.filter(
               (tab) => tab.positions.includes('left') && tab.active,
             );
           }
-          if (isEmpty(this.rightTabsMenu)) {
-            this.rightTabsMenu = DEFAULT_TASK_TABS.filter(
+          if (isEmpty(this.tabsMenu.right)) {
+            this.tabsMenu.right = DEFAULT_TASK_TABS.filter(
               (tab) => tab.positions.includes('right') && tab.active,
             );
           }
 
-          this.activeLeftTabMenu = this.leftTabsMenu[0]?.key || 'task';
-          this.activeRightTabMenu = this.rightTabsMenu[0]?.key || 'history';
+          this.activeLeftTabMenu = this.tabsMenu.left[0]?.key || 'task';
+          this.activeRightTabMenu = this.tabsMenu.right[0]?.key || 'history';
         }
       });
 

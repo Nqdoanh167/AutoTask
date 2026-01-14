@@ -5,6 +5,7 @@ import {
   Input,
   Output,
   EventEmitter,
+  SimpleChanges,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -13,7 +14,7 @@ import {
   FormArray,
   FormControl,
 } from '@angular/forms';
-import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
+import {BsModalRef} from 'ngx-bootstrap/modal';
 import {finalize, takeUntil} from 'rxjs';
 import {
   ILead,
@@ -68,8 +69,10 @@ export class LeadFormModalComponent
   public funnelOptions: Array<
     IFunnel & {folderName: string; funnelGroupName: string}
   > = [];
-  public leftTabsMenu: ISettingTabItem[] = [];
-  public rightTabsMenu: ISettingTabItem[] = [];
+  public tabsMenu = {
+    left: [] as ISettingTabItem[],
+    right: [] as ISettingTabItem[],
+  };
   public activeLeftTabMenu: string = 'discuss';
   public activeRightTabMenu: string = 'history';
   public typeLeads = TYPE_LEAD_OPTIONS;
@@ -85,11 +88,16 @@ export class LeadFormModalComponent
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
-    private readonly modalService: BsModalService,
     private readonly storageService: StorageService,
     private readonly toastr: ToastrService,
   ) {
     super();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['lead']) {
+      this.initForm();
+    }
   }
 
   override ngOnInit(): void {
@@ -97,25 +105,25 @@ export class LeadFormModalComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((res) => {
         if (res) {
-          this.leftTabsMenu = res.leadTabs.filter(
+          this.tabsMenu.left = res.leadTabs.filter(
             (tab) => tab.positions.includes('left') && tab.active,
           );
-          this.rightTabsMenu = res.leadTabs.filter(
+          this.tabsMenu.right = res.leadTabs.filter(
             (tab) => tab.positions.includes('right') && tab.active,
           );
-          if (isEmpty(this.leftTabsMenu)) {
-            this.leftTabsMenu = DEFAULT_LEAD_TABS.filter(
+          if (isEmpty(this.tabsMenu.left)) {
+            this.tabsMenu.left = DEFAULT_LEAD_TABS.filter(
               (tab) => tab.positions.includes('left') && tab.active,
             );
           }
-          if (isEmpty(this.rightTabsMenu)) {
-            this.rightTabsMenu = DEFAULT_LEAD_TABS.filter(
+          if (isEmpty(this.tabsMenu.right)) {
+            this.tabsMenu.right = DEFAULT_LEAD_TABS.filter(
               (tab) => tab.positions.includes('right') && tab.active,
             );
           }
 
-          this.activeLeftTabMenu = this.leftTabsMenu[0]?.key || 'discuss';
-          this.activeRightTabMenu = this.rightTabsMenu[0]?.key || 'history';
+          this.activeLeftTabMenu = this.tabsMenu.left[0]?.key || 'discuss';
+          this.activeRightTabMenu = this.tabsMenu.right[0]?.key || 'history';
         }
       });
     this.initForm();
@@ -156,7 +164,6 @@ export class LeadFormModalComponent
       ward: [this.lead?.ward || null],
       wardCode: [this.lead?.wardCode || null],
       teams: this.fb.array([]),
-      branch: [[]],
       typeLead: ['lead'],
     });
 
@@ -247,7 +254,6 @@ export class LeadFormModalComponent
     const control = this.leadForm.get(fieldName);
     if (control?.hasError('required')) {
       if (fieldName === 'funnelId') return 'Vui lòng chọn Phễu';
-      if (fieldName === 'branch') return 'Vui lòng chọn Chi nhánh';
       return 'Trường này là bắt buộc';
     }
     if (control?.hasError('email')) {
@@ -484,77 +490,12 @@ export class LeadFormModalComponent
     }, 50);
   }
 
-  setFieldHover(fieldName: string, hover: boolean): void {
-    this.getFieldState(fieldName).hover = hover;
-  }
-
   isValueChanged(newValue: any, oldValue: any): boolean {
     if (Array.isArray(newValue) && Array.isArray(oldValue)) {
       if (newValue.length !== oldValue.length) return true;
       return !newValue.every((val) => oldValue.includes(val));
     }
     return newValue !== oldValue;
-  }
-
-  submitField(
-    fieldName: string,
-    control: FormControl,
-    displayName?: string,
-  ): void {
-    if (!this.lead?.id) {
-      this.getFieldState(fieldName).editing = false;
-      return;
-    }
-
-    control.markAsTouched();
-    const trimmedValue =
-      typeof control.value === 'string' ? control.value.trim() : control.value;
-
-    if (control.invalid) {
-      this.toastr.error(`${displayName || fieldName} không hợp lệ`);
-      control.setValue((this.lead as any)[fieldName] || '');
-      this.getFieldState(fieldName).editing = false;
-      return;
-    }
-
-    if (!this.isValueChanged(trimmedValue, (this.lead as any)[fieldName])) {
-      this.getFieldState(fieldName).editing = false;
-      return;
-    }
-
-    this.getFieldState(fieldName).updating = true;
-    this.leadService.lead
-      .update(this.lead.id, {id: this.lead.id, [fieldName]: trimmedValue})
-      .pipe(
-        finalize(() => {
-          this.getFieldState(fieldName).updating = false;
-          this.getFieldState(fieldName).editing = false;
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200 || res.status === 201) {
-            if (this.lead) {
-              (this.lead as any)[fieldName] = trimmedValue;
-              Object.assign(this.lead, res.data);
-            }
-            this.toastr.success(
-              `Cập nhật ${displayName || fieldName} thành công`,
-            );
-            this.saveEvent.emit(res.data);
-          } else {
-            this.toastr.error(
-              res.message || `Cập nhật ${displayName || fieldName} thất bại`,
-            );
-            control.setValue((this.lead as any)[fieldName] || '');
-          }
-        },
-        error: () => {
-          this.toastr.error(`Cập nhật ${displayName || fieldName} thất bại`);
-          control.setValue((this.lead as any)[fieldName] || '');
-        },
-      });
   }
 
   initializeBranch(): void {

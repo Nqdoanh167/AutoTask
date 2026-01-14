@@ -464,7 +464,7 @@
                         <ul>
                           <li
                             [ngClass]="{active: activeLeftTabMenu === menu.key}"
-                            *ngFor="let menu of leftTabsMenu; let index = index"
+                            *ngFor="let menu of tabsMenu.left; let index = index"
                           >
                             <div
                               (click)="activeLeftTabMenu = menu.key"
@@ -841,7 +841,7 @@
                       <ul>
                         <li
                           [ngClass]="{active: activeRightTabMenu === menu.key}"
-                          *ngFor="let menu of rightTabsMenu; let index = index"
+                          *ngFor="let menu of tabsMenu.right; let index = index"
                         >
                           <div
                             (click)="activeRightTabMenu = menu.key"

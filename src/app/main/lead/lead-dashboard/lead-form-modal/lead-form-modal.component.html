@@ -8,14 +8,15 @@
   <div modalBody>
     <div class="h-100">
       <div class="header-container">
-        <div class="input-wrapper">
+        <div
+          class="input-wrapper"
+          (click)="nameInput.focus()"
+          [ngClass]="{
+            'is-invalid': isFieldInvalid('name')
+          }"
+        >
           <div class="d-flex align-items-center gap-2">
-            <div
-              class="funnel-icon-wrapper"
-              [ngClass]="{
-                'is-invalid': isFieldInvalid('name')
-              }"
-            >
+            <div class="funnel-icon-wrapper">
               <img
                 src="./assets/icons/icon-lead/funnel.svg"
                 alt=""
@@ -24,13 +25,12 @@
               />
             </div>
             <input
+              #nameInput
               type="text"
               class="funnel-name-input"
               [formControl]="nameControl"
               [placeholder]="'Nhập tên lead'"
-              (blur)="submitField('name', nameControl, 'Tên lead')"
-              (keydown.enter)="submitField('name', nameControl, 'Tên lead')"
-              [disabled]="getFieldState('name').updating"
+              style="width: 500px"
             />
           </div>
         </div>
@@ -40,8 +40,6 @@
             class="lead-badge"
             [class.active]="hoveredBadgeIndexCurrent >= index"
             *ngFor="let status of lead?.statusGroupFlow; let index = index"
-            (mouseenter)="onHoverBadge(index)"
-            (mouseleave)="onLeaveBadge(index)"
             (click)="onClickBadge(status)"
           >
             {{ status.statusName }}
@@ -55,7 +53,7 @@
               <div class="row g-3">
                 <div class="col-12">
                   <div class="row g-3">
-                    <div class="col-7 d-flex flex-column">
+                    <div class="col-12 d-flex flex-column">
                       <div class="card-header">
                         <ng-select
                           formControlName="typeLead"
@@ -97,41 +95,49 @@
                             </div>
                           </ng-template>
                         </ng-select>
-                        <div>#1987564</div>
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="wrap-avatar">
+                            <img
+                              alt=""
+                              (click)="onAvatarClick()"
+                              class="avatar cursor-pointer"
+                              onerror="this.src='https://smax.app/assets/images/noavatar.png'"
+                              src="{{ avatarUrl }}"
+                            />
+
+                            <div
+                              class="layer-loading"
+                              *ngIf="loading.isUploadingAvatar"
+                            >
+                              <i class="fas fa-spinner fa-spin px-2"></i>
+                            </div>
+                          </div>
+                          <div class="lead-name text-truncate-1">
+                            {{ lead?.name || '-' }}
+                          </div>
+                        </div>
                       </div>
                       <div class="card-content">
                         <div class="row g-2">
-                          <div
-                            class="col-3 overflow-hidden"
-                            (mouseenter)="setFieldHover('phone', true)"
-                            (mouseleave)="setFieldHover('phone', false)"
-                          >
+                          <div class="col-3 field-wrapper">
                             <label class="text-neutral fs-7">
                               Số điện thoại:
                             </label>
-                            <div
-                              class="d-flex align-items-center gap-2"
-                              style="height: 36px"
-                            >
+                            <div class="d-flex align-items-center gap-2">
                               <ng-container
                                 *ngIf="
                                   !getFieldState('phone').editing && lead;
                                   else phoneEditing
                                 "
                               >
-                                <div class="text-truncate-1">
+                                <span class="text-truncate-1">
                                   {{ lead?.phone || '-' }}
-                                </div>
+                                </span>
                                 <button
-                                  *ngIf="getFieldState('phone').hover"
                                   type="button"
-                                  class="btn btn-link p-0"
+                                  class="button-edit"
                                   (click)="
-                                    startFieldEdit(
-                                      'phone',
-                                      phoneControl,
-                                      $event
-                                    )
+                                    getFieldState('phone').editing = true
                                   "
                                 >
                                   <img
@@ -144,25 +150,15 @@
                               </ng-container>
                               <ng-template #phoneEditing>
                                 <input
+                                  #phoneInput
                                   type="text"
                                   class="form-control form-control-sm"
                                   [formControl]="phoneControl"
-                                  (blur)="
-                                    submitField(
-                                      'phone',
-                                      phoneControl,
-                                      'Số điện thoại'
-                                    )
-                                  "
-                                  (keydown.enter)="
-                                    submitField(
-                                      'phone',
-                                      phoneControl,
-                                      'Số điện thoại'
-                                    )
-                                  "
                                   [disabled]="getFieldState('phone').updating"
                                   placeholder="Nhập số điện thoại"
+                                  (blur)="
+                                    getFieldState('phone').editing = false
+                                  "
                                 />
                               </ng-template>
                             </div>
@@ -173,11 +169,7 @@
                             <div class="text-truncate-1">Ads Minh Senpal</div>
                           </div>
 
-                          <div
-                            class="col-5 overflow-hidden"
-                            (mouseenter)="setFieldHover('tagIds', true)"
-                            (mouseleave)="setFieldHover('tagIds', false)"
-                          >
+                          <div class="col-5 overflow-hidden">
                             <label class="text-neutral fs-7">Thẻ tag:</label>
                             <div class="d-flex align-items-center gap-2">
                               <ng-container
@@ -241,13 +233,6 @@
                                   [clearable]="true"
                                   [closeOnSelect]="false"
                                   [disabled]="getFieldState('tagIds').updating"
-                                  (close)="
-                                    submitField(
-                                      'tagIds',
-                                      tagIdsControl,
-                                      'Thẻ tag'
-                                    )
-                                  "
                                   appendTo=".modal"
                                 >
                                   <ng-template ng-option-tmp let-item="item">
@@ -279,11 +264,7 @@
                             </div>
                           </div>
 
-                          <div
-                            class="col-3 overflow-hidden"
-                            (mouseenter)="setFieldHover('email', true)"
-                            (mouseleave)="setFieldHover('email', false)"
-                          >
+                          <div class="col-3 overflow-hidden">
                             <label class="text-neutral fs-7">Email:</label>
                             <div
                               class="d-flex align-items-center gap-2"
@@ -323,12 +304,6 @@
                                   type="text"
                                   class="form-control form-control-sm"
                                   [formControl]="emailControl"
-                                  (blur)="
-                                    submitField('email', emailControl, 'Email')
-                                  "
-                                  (keydown.enter)="
-                                    submitField('email', emailControl, 'Email')
-                                  "
                                   [disabled]="getFieldState('email').updating"
                                   placeholder="Nhập email"
                                 />
@@ -336,11 +311,7 @@
                             </div>
                           </div>
 
-                          <div
-                            class="col-4 overflow-hidden"
-                            (mouseenter)="setFieldHover('funnelId', true)"
-                            (mouseleave)="setFieldHover('funnelId', false)"
-                          >
+                          <div class="col-4 overflow-hidden">
                             <label class="text-neutral fs-7">Phễu:</label>
                             <div
                               class="d-flex align-items-center gap-2"
@@ -387,13 +358,6 @@
                                   [disabled]="
                                     getFieldState('funnelId').updating
                                   "
-                                  (change)="
-                                    submitField(
-                                      'funnelId',
-                                      funnelControl,
-                                      'Phễu'
-                                    )
-                                  "
                                   (blur)="
                                     getFieldState('funnelId').editing = false
                                   "
@@ -417,8 +381,6 @@
                             class="col-5"
                             formArrayName="teams"
                             *ngIf="currentSetting?.roles?.length"
-                            (mouseenter)="setFieldHover('teams', true)"
-                            (mouseleave)="setFieldHover('teams', false)"
                           >
                             <label class="text-neutral fs-7">
                               Nhân sự phụ trách:
@@ -551,7 +513,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-5 d-flex flex-column">
+                    <!-- <div class="col-5 d-flex flex-column">
                       <div class="card-header">
                         <div class="text-neutral fw-500">Khách Hàng</div>
                         <div class="d-flex align-items-center gap-2">
@@ -660,7 +622,7 @@
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
 
@@ -669,7 +631,7 @@
                     <ul>
                       <li
                         [ngClass]="{active: activeLeftTabMenu === menu.key}"
-                        *ngFor="let menu of leftTabsMenu; let index = index"
+                        *ngFor="let menu of tabsMenu.left; let index = index"
                       >
                         <div
                           (click)="activeLeftTabMenu = menu.key"
@@ -855,10 +817,7 @@
                     <ul class="overflow-hidden">
                       <li
                         [ngClass]="{active: activeRightTabMenu === menu.key}"
-                        *ngFor="
-                          let menu of rightTabsMenu.slice(0, 3);
-                          let index = index
-                        "
+                        *ngFor="let menu of tabsMenu.right; let index = index"
                       >
                         <div class="tab-link">
                           <div class="icon">

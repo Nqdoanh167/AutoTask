@@ -14,3 +14,209 @@
   background-color: #fff;
   overflow: hidden;
 }
+
+.preview-container {
+  width: 600px;
+  .preview-layout {
+    display: flex;
+    gap: 12px;
+    height: 500px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 12px;
+    background-color: #f8f9fa;
+  }
+
+  .preview-column {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    background-color: #fff;
+    overflow: hidden;
+
+    &.preview-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &.preview-sidebar {
+      width: 150px;
+      min-width: 150px;
+    }
+  }
+
+  .preview-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+  }
+
+  // Main content area (left)
+  .preview-main {
+    .preview-main-header {
+      padding: 12px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+
+      .preview-header-info {
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .preview-tabs-container {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+
+        .preview-tab-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          color: #666;
+          background-color: #f8f9fa;
+          border: 1px solid #e0e0e0;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            background-color: #e9ecef;
+          }
+
+          &.active {
+            background-color: #e7f3ff;
+            border-color: #0d6efd;
+            color: #0d6efd;
+            font-weight: 500;
+          }
+
+          img {
+            flex-shrink: 0;
+          }
+
+          span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .preview-tabs-empty {
+          padding: 8px;
+          text-align: center;
+          font-size: 11px;
+          color: #999;
+        }
+      }
+    }
+
+    .preview-main-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+
+      .preview-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: #999;
+        font-size: 13px;
+        text-align: center;
+
+        i {
+          font-size: 32px;
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+
+  // Sidebar (right)
+  .preview-sidebar {
+    .preview-sidebar-section {
+      border-bottom: 1px solid #e0e0e0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .preview-sidebar-header {
+        padding: 10px 12px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+        font-weight: 500;
+      }
+
+      .preview-sidebar-content {
+        padding: 12px;
+
+        .preview-info-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 12px;
+          color: #666;
+
+          i {
+            color: #999;
+          }
+        }
+      }
+
+      .preview-tabs-sidebar {
+        padding: 8px;
+
+        .preview-tab-sidebar-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          margin-bottom: 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          color: #666;
+          background-color: #f8f9fa;
+          border: 1px solid #e0e0e0;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            background-color: #e9ecef;
+          }
+
+          &.active {
+            background-color: #e7f3ff;
+            border-color: #0d6efd;
+            color: #0d6efd;
+            font-weight: 500;
+          }
+
+          img {
+            flex-shrink: 0;
+          }
+
+          span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .preview-empty {
+          padding: 12px;
+          text-align: center;
+          font-size: 11px;
+          color: #999;
+        }
+      }
+    }
+  }
+}

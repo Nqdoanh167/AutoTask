@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
-import { BizService } from './biz.service';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {BehaviorSubject} from 'rxjs';
+import {distinctUntilChanged} from 'rxjs/operators';
+import {BizService} from './biz.service';
 import {
   Biz,
   BizModule,
@@ -11,7 +11,7 @@ import {
   ERole,
   User,
 } from 'src/app/types/viewmodels';
-import { environment } from 'src/environments/environment';
+import {environment} from 'src/environments/environment';
 import {
   EPerActFlow,
   EPerActSetting,
@@ -69,7 +69,7 @@ export class AuthService {
   constructor(
     private bizService: BizService,
     protected httpClient: HttpClient,
-  ) { }
+  ) {}
 
   getCurrentBiz() {
     return this.currentBizSubject.getValue();
@@ -80,7 +80,7 @@ export class AuthService {
   }
 
   popular() {
-    let alias = localStorage.getItem('smaxapp_bizAlias') || 'test'
+    let alias = localStorage.getItem('smaxapp_bizAlias') || 'test';
 
     const parsedURL = new URL(location.href);
     if (!environment.production && !this.isAuthenticated()) {
@@ -106,12 +106,13 @@ export class AuthService {
             window.location.href = parsedURL.origin;
           }
         },
-        error: () => {
-          if (environment.production) {
-            window.location.href = '/';
-          } else {
-            this.loginInDev();
-          }
+        error: (error) => {
+          console.log('error', error);
+          // if (environment.production) {
+          //   window.location.href = '/';
+          // } else {
+          //   this.loginInDev();
+          // }
         },
       });
     } else {
@@ -126,7 +127,7 @@ export class AuthService {
   public setCurrentClientSocketId(clientId: string) {
     this.currentClientSocketId.next(clientId);
   }
-  
+
   public getCurrentClientSocketId() {
     return this.currentClientSocketId.getValue();
   }
@@ -189,7 +190,12 @@ export class AuthService {
 
   getAccessibleModules() {
     let accessibleModules: EModule[] = [];
-    const modules = [EModule.SETTING, EModule.CONFIG, EModule.DASHBOARD, EModule.LEAD];
+    const modules = [
+      EModule.SETTING,
+      EModule.CONFIG,
+      EModule.DASHBOARD,
+      EModule.LEAD,
+    ];
     modules.forEach((module) => {
       if (this.checkUserAccessModule(module)) {
         accessibleModules.push(module);
@@ -202,10 +208,15 @@ export class AuthService {
   }
 
   isPerBranch(id: string | null, per?: string) {
-    const hasItem = this.biz.user.flatBranches?.find(b => b.id === id);
+    const hasItem = this.biz.user.flatBranches?.find((b) => b.id === id);
     if (hasItem && ['LEADER', 'OWNER'].includes(hasItem.role!)) return true;
     const userAccessPer = this.userAccessPerSubject.getValue();
-    return per && userAccessPer?.roleBranch && userAccessPer?.roleBranch[id!] && userAccessPer?.roleBranch[id!].includes(per);
+    return (
+      per &&
+      userAccessPer?.roleBranch &&
+      userAccessPer?.roleBranch[id!] &&
+      userAccessPer?.roleBranch[id!].includes(per)
+    );
   }
 
   hasPerRole(branch: string | null, per?: string) {
@@ -214,85 +225,86 @@ export class AuthService {
   }
 
   isMod() {
-    return this.biz.user.role === ERole.MOD
-  }
-  
-  isAdmin() {
-    return this.biz.user.role === ERole.ADMIN
+    return this.biz.user.role === ERole.MOD;
   }
 
-  getBranchPer(pers: string[] = [], option = { isFullBranch: false }) {
+  isAdmin() {
+    return this.biz.user.role === ERole.ADMIN;
+  }
+
+  getBranchPer(pers: string[] = [], option = {isFullBranch: false}) {
     let branches: Branch[] = [];
 
     if (this.isOwner() || option.isFullBranch) {
-      branches = this.biz.branches.filter(b => b.isActive && (this.biz.user.branchIds?.includes(b.id) || option.isFullBranch));
-      branches = branches.map(branch => {
+      branches = this.biz.branches.filter(
+        (b) =>
+          b.isActive &&
+          (this.biz.user.branchIds?.includes(b.id) || option.isFullBranch),
+      );
+      branches = branches.map((branch) => {
         branch.role = ERole.OWNER;
-        branch.children = branch.departments.map(department => {
+        branch.children = branch.departments.map((department) => {
           if (department.teams?.length) {
             department.children = department.teams;
-            department.role = ERole.OWNER
+            department.role = ERole.OWNER;
           }
           return department;
-        })
+        });
         return branch;
-      })
+      });
     } else {
       const userAccessPer = this.userAccessPerSubject.getValue();
       if (userAccessPer) {
-        this.biz.user.roleBranches?.forEach(branch => {
+        this.biz.user.roleBranches?.forEach((branch) => {
           const obj: Branch = {
             ...branch,
             departments: [],
-            children: []
-          }
+            children: [],
+          };
 
           let hasPer = !!userAccessPer.roleBranch?.[branch.id!];
           // OWNER và có quyền biz thì toàn bộ các quyền nhỏ hơn sẽ đc gán là OWNER
           if (branch.role === ERole.OWNER && hasPer) {
-            obj.departments = branch.departments?.map(de => ({
+            obj.departments = branch.departments?.map((de) => ({
               ...de,
               role: branch.role,
-              teams: de.teams?.map(t => ({
+              teams: de.teams?.map((t) => ({
                 ...t,
                 role: branch.role,
               })),
-              children: de.teams?.map(t => ({
+              children: de.teams?.map((t) => ({
                 ...t,
                 role: branch.role,
-              }))
+              })),
             }));
             obj.children = obj.departments;
-          }
-          else if (branch.departments?.length) {
-            obj.departments = branch.departments?.filter(department => {
+          } else if (branch.departments?.length) {
+            obj.departments = branch.departments?.filter((department) => {
               hasPer = !!userAccessPer.roleBranch?.[department.id!];
               if (department.role === 'OWNER' && hasPer) {
-                department.teams = department.teams.map(t => ({
+                department.teams = department.teams.map((t) => ({
                   ...t,
                   role: department.role,
-                }))
+                }));
                 department.children = department.teams;
                 return true;
-
               } else if (department.teams?.length) {
-                department.teams = department.teams.filter(team => {
-                  hasPer = !!userAccessPer.roleBranch?.[team.id!]
+                department.teams = department.teams.filter((team) => {
+                  hasPer = !!userAccessPer.roleBranch?.[team.id!];
                   return hasPer;
-                })
+                });
                 department.children = department.teams;
                 if (department.teams.length) return true;
-
               } else if (hasPer) return true;
-              return false
-            })
+              return false;
+            });
             obj.children = obj.departments;
           }
 
           if (hasPer) {
             branches.push(obj);
           }
-        })
+        });
       }
     }
     return branches;
@@ -300,7 +312,7 @@ export class AuthService {
 
   /**
    * Từ danh sách id (branchId,departmentId,teamId) => Bóc tách ra vị trí cuối cùng có quyền của user
-   * @param bids 
+   * @param bids
    * @returns {
    *    ids: [...branchIds, ...departmentIds, ...teamIds]
    *    nestedIds: ID vị trí kèm các vị trí cấp trên, format: [[1,2,3], [1,2],[1]]
@@ -311,55 +323,62 @@ export class AuthService {
     const branchIds: string[] = [];
     const departmentIds: string[] = [];
     const teamIds: string[] = [];
-    const nestedIds: any = [];       // [[1,2,3], [1,2],[1]]
-    const nestedNames: any = [];       // [[1,2,3], [1,2],[1]]
-    const rows: any[] = [];          // d/sách object vị trí cuối cùng có quyền theo bids
+    const nestedIds: any = []; // [[1,2,3], [1,2],[1]]
+    const nestedNames: any = []; // [[1,2,3], [1,2],[1]]
+    const rows: any[] = []; // d/sách object vị trí cuối cùng có quyền theo bids
     // loop all bộ phận trong biz => Chọn lọc id ở vị trí cuối cùng hoặc cuối cùng theo OWNER thì push vào vị trí tương ướng để search.
-    this.biz.user.roleBranches?.forEach(roleB => {
+    this.biz.user.roleBranches?.forEach((roleB) => {
       let isMatchPosition = false;
-      roleB.departments.forEach(department => {
-        const teams = department.teams.filter(t => bids.includes(t.id!));
+      roleB.departments.forEach((department) => {
+        const teams = department.teams.filter((t) => bids.includes(t.id!));
         if (teams.length) {
-          teams.forEach(team => {
+          teams.forEach((team) => {
             teamIds.push(team.id!);
             nestedIds.push([roleB.id, department.id, team.id]);
             nestedNames.push([roleB.name, department.name, team.name]);
-            rows.push({ ...team, level: 'team', branchId: roleB.id, departmentId: department.id });
+            rows.push({
+              ...team,
+              level: 'team',
+              branchId: roleB.id,
+              departmentId: department.id,
+            });
           });
 
           isMatchPosition = true;
-        } else if ((!department.teams.length || department.role === 'OWNER') && bids.includes(department.id!)) {
-
+        } else if (
+          (!department.teams.length || department.role === 'OWNER') &&
+          bids.includes(department.id!)
+        ) {
           departmentIds.push(department.id!);
-          nestedIds.push([roleB.id, department.id])
+          nestedIds.push([roleB.id, department.id]);
           nestedNames.push([roleB.name, department.name]);
           department.level = 'department';
           department.branchId = roleB.id;
           rows.push(department);
           isMatchPosition = true;
         }
-      })
-      if (!isMatchPosition && (!roleB.departments.length || roleB.role === 'OWNER') && bids.includes(roleB.id)) {
+      });
+      if (
+        !isMatchPosition &&
+        (!roleB.departments.length || roleB.role === 'OWNER') &&
+        bids.includes(roleB.id)
+      ) {
         branchIds.push(roleB.id);
-        nestedIds.push([roleB.id])
-        nestedNames.push([roleB.name])
+        nestedIds.push([roleB.id]);
+        nestedNames.push([roleB.name]);
         roleB.level = 'branch';
         rows.push(roleB);
       }
-    })
+    });
     return {
       branchIds,
       departmentIds,
       teamIds,
-      ids: [
-        ...branchIds,
-        ...departmentIds,
-        ...teamIds,
-      ],
+      ids: [...branchIds, ...departmentIds, ...teamIds],
       nestedIds,
       nestedNames,
-      rows
-    }
+      rows,
+    };
   }
   checkUserAccessModule(module: EModule): boolean {
     const userPer = this.userAccessPerSubject.getValue();
@@ -377,7 +396,7 @@ export class AuthService {
       case EModule.LEAD:
         // TODO: Implement permission check for lead module later
         return true;
-        // return userPer[EPerActType.LEAD].includes(EPerActLead.VIEW_LEAD);
+      // return userPer[EPerActType.LEAD].includes(EPerActLead.VIEW_LEAD);
       default:
         return false;
     }
@@ -420,7 +439,10 @@ export class AuthService {
   }
 
   isOwner(): boolean {
-    return this.currentBizSubject?.value?.user.role == ERole.OWNER || this.user?.role === ERole.ADMIN;
+    return (
+      this.currentBizSubject?.value?.user.role == ERole.OWNER ||
+      this.user?.role === ERole.ADMIN
+    );
   }
 
   getToken(name = 'smaxapp_token'): string {
@@ -458,12 +480,14 @@ export class AuthService {
       window.location.reload();
       return;
     }
-    
+
     const email = localStorage.getItem('smaxapp_email');
     const password = localStorage.getItem('smaxapp_password');
-    let encodedAuthInfo = 'ZHVvbmdsb25nLmRldkBnbWFpbC5jb206MTIzMTIz' // Dương Long
+    let encodedAuthInfo = 'ZHVvbmdsb25nLmRldkBnbWFpbC5jb206MTIzMTIz'; // Dương Long
     if (email && password) {
-      encodedAuthInfo = btoa(unescape(encodeURIComponent(`${email}:${password}`)));
+      encodedAuthInfo = btoa(
+        unescape(encodeURIComponent(`${email}:${password}`)),
+      );
     }
     const headers = new HttpHeaders().set(
       'Authorization',
@@ -472,7 +496,7 @@ export class AuthService {
     const res = this.httpClient.post(
       'https://dev.smax.app/api/auth',
       {},
-      { headers },
+      {headers},
     );
     res.pipe().subscribe({
       next: (res: any) => {

@@ -15,7 +15,7 @@ import {v4 as uuidv4} from 'uuid';
   templateUrl: './modal-create-update-tab.component.html',
 })
 export class ModalCreateUpdateTabComponent implements OnInit {
-  @Input() tabData?: ISettingTabItem;
+  @Input() tabData: ISettingTabItem | null = null;
   @Output() saveEvent = new EventEmitter<any>();
 
   public iframeForm: FormGroup;

@@ -11,6 +11,11 @@ import {ToastrService} from 'ngx-toastr';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {isEmpty} from 'lodash';
 
+enum ETabDisplayTab {
+  LEAD = 'LEAD',
+  TASK = 'TASK',
+}
+
 @Component({
   selector: 'app-tab-display',
   templateUrl: './tab-display.component.html',
@@ -20,9 +25,11 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   public tabs = [
-    {name: 'Màn hình chi tiết lead'},
-    {name: 'Màn hình chi tiết tác vụ'},
+    {key: ETabDisplayTab.LEAD, name: 'Màn hình chi tiết lead'},
+    {key: ETabDisplayTab.TASK, name: 'Màn hình chi tiết tác vụ'},
   ];
+  public activeTab: ETabDisplayTab = ETabDisplayTab.LEAD;
+  protected readonly ETabDisplayTab = ETabDisplayTab;
 
   public leadTabs: ISettingTabItem[] = [];
   public taskTabs: ISettingTabItem[] = [];
@@ -35,18 +42,9 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
       iconAwesome: 'fas fa-save',
     },
   ];
-  public configButtonsLead: IFilterTopButton[] = [
+  public configButtonsAddTab: IFilterTopButton[] = [
     {
-      name: 'add_tab_lead',
-      type: ETypeButton.PRIMARY,
-      label: 'Thêm tab',
-      icon: './assets/images/icon-plus-bold.svg',
-      tooltip: 'Thêm tab',
-    },
-  ];
-  public configButtonsTask: IFilterTopButton[] = [
-    {
-      name: 'add_tab_task',
+      name: 'add_tab',
       type: ETypeButton.PRIMARY,
       label: 'Thêm tab',
       icon: './assets/images/icon-plus-bold.svg',
@@ -112,6 +110,10 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
     });
   }
 
+  selectTab(tab: ETabDisplayTab) {
+    this.activeTab = tab;
+  }
+
   handleAction(name: string) {
     if (name === 'save') {
       this.configButtons.find((btn) => btn.name === name)!.disabled = true;
@@ -138,31 +140,8 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
             this.toastr.error('Lưu thất bại');
           },
         });
-    } else if (name === 'add_tab_lead' || name === 'add_tab_task') {
-      const modalRef = this.modalService.show(ModalCreateUpdateTabComponent, {
-        class: 'modal-dialog-centered modal-md',
-      });
-
-      modalRef.content?.saveEvent?.subscribe((data: any) => {
-        const newTab: ISettingTabItem = {
-          key: data.key || `iframe_${uuidv4()}`,
-          name: data.name,
-          active: data.isActive,
-          position: 'left',
-          url: data.url,
-          params:
-            data.parameters?.map((param: {argKey: string; argRef: string}) => ({
-              key: param.argRef,
-              value: param.argKey,
-            })) || [],
-        } as any;
-
-        if (name === 'add_tab_lead') {
-          this.leadTabs.push(newTab);
-        } else if (name === 'add_tab_task') {
-          this.taskTabs.push(newTab);
-        }
-      });
+    } else if (name === 'add_tab') {
+      this.createUpdateTab();
     }
   }
 
@@ -178,7 +157,7 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
     tab.active = !tab.active;
   }
 
-  public editTab(tab: ISettingTabItem, type: 'lead' | 'task'): void {
+  public createUpdateTab(tab: ISettingTabItem | null = null): void {
     const modalRef = this.modalService.show(ModalCreateUpdateTabComponent, {
       class: 'modal-dialog-centered modal-md',
       initialState: {
@@ -191,39 +170,71 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
     }
 
     modalRef.content?.saveEvent?.subscribe((data: any) => {
-      const updatedTab: ISettingTabItem = {
-        ...tab,
-        key: data.key || tab.key,
-        name: data.name,
-        active: data.isActive,
-        url: data.url,
-        params:
-          data.parameters?.map((param: {argKey: string; argRef: string}) => ({
-            key: param.argRef,
-            value: param.argKey,
-          })) || [],
-      } as any;
+      const targetTabs =
+        this.activeTab === ETabDisplayTab.LEAD ? this.leadTabs : this.taskTabs;
 
-      const targetTabs = type === 'lead' ? this.leadTabs : this.taskTabs;
-      const index = targetTabs.findIndex((t) => t.key === tab.key);
-      if (index !== -1) {
-        targetTabs[index] = updatedTab;
+      if (tab) {
+        // Edit existing tab
+        const updatedTab: ISettingTabItem = {
+          ...tab,
+          key: data.key || tab.key,
+          name: data.name,
+          active: data.isActive,
+          url: data.url,
+          params:
+            data.parameters?.map((param: {argKey: string; argRef: string}) => ({
+              key: param.argRef,
+              value: param.argKey,
+            })) || [],
+        } as any;
+
+        const index = targetTabs.findIndex((t) => t.key === tab.key);
+        if (index !== -1) {
+          targetTabs[index] = updatedTab;
+        }
+      } else {
+        // Create new tab
+        const newTab: ISettingTabItem = {
+          key: data.key || `iframe_${uuidv4()}`,
+          name: data.name,
+          active: data.isActive,
+          position: 'left',
+          url: data.url,
+          params:
+            data.parameters?.map((param: {argKey: string; argRef: string}) => ({
+              key: param.argRef,
+              value: param.argKey,
+            })) || [],
+        } as any;
+
+        targetTabs.push(newTab);
       }
+
+      this.handleAction('save');
     });
   }
 
-  public deleteTab(tab: ISettingTabItem, type: 'lead' | 'task'): void {
+  public deleteTab(tab: ISettingTabItem): void {
     if (tab.isDefault) {
       this.toastr.warning('Không thể xóa tab mặc định');
       return;
     }
 
-    const targetTabs = type === 'lead' ? this.leadTabs : this.taskTabs;
+    const targetTabs =
+      this.activeTab === ETabDisplayTab.LEAD ? this.leadTabs : this.taskTabs;
     const index = targetTabs.findIndex((t) => t.key === tab.key);
     if (index !== -1) {
       targetTabs.splice(index, 1);
       this.toastr.success('Xóa tab thành công');
     }
+  }
+
+  public getTabsByPosition(position: 'left' | 'right'): ISettingTabItem[] {
+    const targetTabs =
+      this.activeTab === ETabDisplayTab.LEAD ? this.leadTabs : this.taskTabs;
+    return targetTabs.filter(
+      (tab) => tab.active && tab.positions?.includes(position),
+    );
   }
 
   ngOnDestroy(): void {
