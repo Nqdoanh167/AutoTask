@@ -9,9 +9,11 @@
     margin-bottom: 0;
 
     tr {
+      .action-add-row {
+        width: 20px;
+      }
       &:hover {
         .action-add-row {
-          width: 20px;
           .btn {
             display: block !important;
           }

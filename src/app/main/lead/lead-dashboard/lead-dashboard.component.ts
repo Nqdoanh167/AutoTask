@@ -10,25 +10,19 @@ import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LeadDashboardData} from './lead-dashboard-data';
-import {
-  ILead,
-  ILeadStatus,
-  IFunnel,
-  IFolderLead,
-  IFunnelGroup,
-} from '@app/types/lead';
-import {User, BizRole, EntityPagination, ITag} from '@app/types/viewmodels';
+import {ILead, ILeadStatus, IFunnel} from '@app/types/lead';
+import {User, BizRole, ITag} from '@app/types/viewmodels';
 import {ISetting} from '@app/types/setting';
-import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
-import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
 import {
   takeUntil,
   finalize,
   shareReplay,
   BehaviorSubject,
   distinctUntilChanged,
+  forkJoin,
+  catchError,
+  of,
 } from 'rxjs';
-import {FolderFormModalComponent} from './folder-form-modal/folder-form-modal.component';
 import {AuthService} from '@app/services/api/auth.service';
 import {
   CdkDragDrop,
@@ -36,7 +30,6 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
-import {LeadCreateModalComponent} from './lead-create-modal/lead-create-modal.component';
 import {LeadFormModalComponent} from './lead-form-modal/lead-form-modal.component';
 import {LeadCreateBulkComponent} from './lead-create-bulk/lead-create-bulk.component';
 
@@ -53,17 +46,7 @@ export class LeadDashboardComponent
   kanbanBoard?: ElementRef<HTMLElement>;
 
   public viewMode: 'kanban' | 'list' = 'kanban';
-  public leadsByStatus: Map<string, ILead[]> = new Map();
   public isGroupFolderExpanded: boolean = false;
-  public expandedFunnelGroups: Map<string, Set<string>> = new Map();
-  public folderLeads: EntityPagination<IFolderLead> = {
-    rows: [],
-    limit: 1000,
-    page: 1,
-    total: 0,
-    loading: false,
-  };
-  private _folderLeads: IFolderLead[] = [];
   public currentFunnel$ = new BehaviorSubject<IFunnel | null>(null);
 
   private autoScrollInterval: any;
@@ -87,13 +70,30 @@ export class LeadDashboardComponent
   public setting!: ISetting;
   public statusesDisplay: ILeadStatus[] = [];
 
+  public loading = {
+    kanban: false,
+  };
+  public kanbanLoadingMore: {[statusId: string]: boolean} = {};
+  public kanbanDatas: {
+    statusId: string;
+    items: ILead[];
+    total: number;
+    after?: string;
+  }[] = [];
+
+  public kanbanFilters$ = new BehaviorSubject<
+    {
+      statusId: string;
+      after?: string;
+    }[]
+  >([]);
+
   constructor(
     private readonly modalService: BsModalService,
     private readonly toastrService: ToastrService,
     private readonly route: ActivatedRoute,
     override readonly cdr: ChangeDetectorRef,
     override readonly authService: AuthService,
-    private readonly modalConfirmService: ModalConfirmService,
     private readonly router: Router,
   ) {
     super();
@@ -101,18 +101,38 @@ export class LeadDashboardComponent
 
   override ngOnInit(): void {
     this.setupCheckbox();
-    this.getFolderLead();
     this.getStatuses();
     this.getStatusGroups();
     this.getTags();
 
-    // Subscribe vào currentFolderId$ để tự động getDataSource khi thay đổi
     this.currentFunnel$
       .pipe(takeUntil(this.destroy$), distinctUntilChanged())
       .subscribe((funnel) => {
         if (funnel) {
-          this.getDataSource(true);
-          this.openFunnelGroup(funnel.id!);
+          const statusGroup = this.statusGroups.rows.find(
+            (group) => group.id === funnel?.statusGroupId,
+          );
+
+          if (statusGroup) {
+            this.statusesDisplay = statusGroup.leadStatusIds
+              .map((statusId) =>
+                this.statuses.rows.find((status) => status.id === statusId),
+              )
+              .filter(Boolean) as ILeadStatus[];
+
+            this.kanbanFilters$.next(
+              statusGroup.leadStatusIds.map((statusId) => ({
+                statusId: statusId,
+                after: '',
+              })),
+            );
+          }
+
+          if (this.viewMode === 'kanban') {
+            this.getKanbanData();
+          } else {
+            this.getDataSource(true);
+          }
         }
       });
 
@@ -144,7 +164,6 @@ export class LeadDashboardComponent
 
   override handleAction(name: string) {
     if (name === 'reload' && !this.item.loading) {
-      this.getFolderLead();
       if (this.currentFunnel$.value) {
         this.getDataSource(true);
       }
@@ -171,59 +190,7 @@ export class LeadDashboardComponent
       .subscribe((res) => {
         this.statusGroups.rows = res.data || [];
         this.leadService.setListLeadStatusGroup(this.statusGroups.rows);
-        this.currentFunnel$
-          .pipe(takeUntil(this.destroy$), distinctUntilChanged())
-          .subscribe((funnel) => {
-            if (funnel) {
-              const statusGroup = this.statusGroups.rows.find(
-                (group) => group.id === funnel?.statusGroupId,
-              );
-
-              if (statusGroup) {
-                this.statusesDisplay = statusGroup.leadStatusIds
-                  .map((statusId) =>
-                    this.statuses.rows.find((status) => status.id === statusId),
-                  )
-                  .filter(Boolean) as ILeadStatus[];
-              }
-            }
-          });
       });
-  }
-
-  handleAddFolder(
-    type: 'folder' | 'group' | 'funnel' = 'folder',
-    option?: {folderId?: string; groupId?: string},
-  ) {
-    const modalRef = this.modalService.show(FolderFormModalComponent, {
-      class: 'modal-dialog-centered modal-md',
-      initialState: {
-        type: type,
-        folderId: option?.folderId,
-        groupId: option?.groupId,
-      },
-    });
-
-    modalRef.content?.saveEvent?.subscribe(() => {
-      this.getFolderLead();
-    });
-  }
-
-  handleEditFolder(
-    folder: IFolderLead | IFunnelGroup | IFunnel,
-    type: 'folder' | 'group' | 'funnel' = 'folder',
-  ) {
-    const modalRef = this.modalService.show(FolderFormModalComponent, {
-      class: 'modal-dialog-centered modal-md',
-      initialState: {
-        type,
-        dataSource: folder,
-      },
-    });
-
-    modalRef.content?.saveEvent?.subscribe(() => {
-      this.getFolderLead();
-    });
   }
 
   handleClearQueryParams() {
@@ -233,6 +200,16 @@ export class LeadDashboardComponent
       },
       queryParamsHandling: 'merge',
     });
+  }
+
+  onFunnelSelected(funnel: IFunnel | null) {
+    if (funnel) {
+      this.currentFunnel$.next(funnel);
+    }
+  }
+
+  onFolderReloaded() {
+    // Handle folder reloaded event if needed
   }
 
   openLeadModal(leadId?: string) {
@@ -315,23 +292,14 @@ export class LeadDashboardComponent
     return this.statuses.rows.find((status) => status.id === statusId);
   }
 
-  override getDataSource(isReset?: boolean) {
-    this.item.loading = true;
-    if (isReset) {
-      this.item.paramsQuery.page = 1;
-    }
-    let params = {...this.item.paramsQuery};
-    Object.keys(this.sort).forEach((key) => {
-      if (this.sort[key] !== 0) {
-        let sortAll = params.sort?.split(',') || [];
-        sortAll.push(this.sort[key] === 1 ? `${key}` : `-${key}`);
-        params.sort = sortAll.join(',');
-      }
-    });
+  getKanbanDataByStatusId(statusId?: string) {
+    return this.kanbanDatas.find((data) => data.statusId === statusId);
+  }
 
-    this.item.rows = [];
-    const filterObj = JSON.parse(params.filter || '{}');
-
+  /**
+   * Áp dụng các filter chung cho filterObj (funnelId, accessibleIds, roleIds)
+   */
+  private applyCommonFilters(filterObj: any): void {
     const currentFunnelId = this.currentFunnel$.value?.id;
     if (currentFunnelId) {
       filterObj['funnelId_in'] = currentFunnelId;
@@ -353,6 +321,25 @@ export class LeadDashboardComponent
     } else {
       delete filterObj['teams.roleId_in'];
     }
+  }
+
+  override getDataSource(isReset?: boolean) {
+    this.item.loading = true;
+    if (isReset) {
+      this.item.paramsQuery.page = 1;
+    }
+    let params = {...this.item.paramsQuery};
+    Object.keys(this.sort).forEach((key) => {
+      if (this.sort[key] !== 0) {
+        let sortAll = params.sort?.split(',') || [];
+        sortAll.push(this.sort[key] === 1 ? `${key}` : `-${key}`);
+        params.sort = sortAll.join(',');
+      }
+    });
+
+    this.item.rows = [];
+    const filterObj = JSON.parse(params.filter || '{}');
+    this.applyCommonFilters(filterObj);
     params.filter = JSON.stringify(filterObj);
 
     this.leadService.lead
@@ -370,13 +357,83 @@ export class LeadDashboardComponent
             this.item.rows = res.data;
             this.item.total = res.meta?.total || 0;
             if (res.meta?.after) this.item.after = res.meta.after;
-            this.groupLeadsByStatus();
           } else {
             this.commonService.handleResErr(res);
           }
         },
         error: (err: any) => {
           console.error('Error fetching leads:', err);
+          this.commonService.handleResErr(err);
+        },
+      });
+  }
+
+  getKanbanData() {
+    this.loading.kanban = true;
+    this.kanbanDatas = [];
+    this.kanbanLoadingMore = {};
+
+    let params = {
+      ...this.item.paramsQuery,
+      limit: 20,
+    };
+    delete params.page;
+    const filterObj = JSON.parse(params.filter || '{}');
+    this.applyCommonFilters(filterObj);
+
+    filterObj.items = [];
+    this.kanbanFilters$.value.forEach((filter) => {
+      filterObj.items.push({
+        statusId: filter.statusId,
+        after: filter.after || undefined,
+      });
+    });
+    params.filter = JSON.stringify(filterObj);
+
+    forkJoin({
+      resCount: this.leadService.lead.getCount(params),
+      resKanban: this.leadService.lead.getKanban(params),
+    })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loading.kanban = false;
+        }),
+      )
+      .subscribe({
+        next: ({resCount, resKanban}) => {
+          if (resCount.status === 200) {
+            (resCount.data || []).forEach((item: any) => {
+              this.kanbanDatas.push({
+                statusId: item.statusId,
+                items: item.items || [],
+                after: item.after,
+                total: item.total || item.count || 0,
+              });
+            });
+          }
+
+          if (resKanban.status === 200) {
+            (resKanban.data || []).forEach((item: any) => {
+              const itemData = this.kanbanDatas.find(
+                (data) => data.statusId === item.statusId,
+              );
+              if (itemData) {
+                itemData.items = [...item.items];
+                itemData.after = item.after;
+              } else {
+                this.kanbanDatas.push({
+                  statusId: item.statusId,
+                  items: [...item.items],
+                  after: item.after,
+                  total: item.items?.length || 0,
+                });
+              }
+            });
+          }
+        },
+        error: (err: any) => {
+          console.error('Error in forkJoin:', err);
           this.commonService.handleResErr(err);
         },
       });
@@ -614,255 +671,6 @@ export class LeadDashboardComponent
     this.isGroupFolderExpanded = !this.isGroupFolderExpanded;
   }
 
-  getFolderLead(): void {
-    this.folderLeads.loading = true;
-    this.leadService.leadFolder
-      .getWithFunnels({
-        page: 1,
-        limit: 1000,
-      })
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.folderLeads.loading = false;
-        }),
-      )
-      .subscribe({
-        next: (res: any) => {
-          if (res.status === 200 && res.data) {
-            this.folderLeads.rows = res.data;
-            this._folderLeads = res.data;
-            this.leadService.setListLeadFolder(res.data);
-
-            // Nếu chưa có currentFolderId, lấy funnel đầu tiên
-            if (
-              !this.currentFunnel$.value &&
-              this.folderLeads.rows.length > 0
-            ) {
-              const firstFunnel = this.folderLeads.rows
-                .flatMap((folder) => folder.funnelGroups || [])
-                .flatMap((group) => group.funnels || [])
-                .find((funnel) => funnel.id);
-
-              if (firstFunnel) {
-                this.currentFunnel$.next(firstFunnel);
-              }
-            }
-          }
-        },
-        error: (err: any) => {
-          console.error('Error loading folder leads:', err);
-        },
-      });
-  }
-
-  toggleFunnelGroup(folderId: string, groupId: string): void {
-    if (!this.expandedFunnelGroups.has(folderId)) {
-      this.expandedFunnelGroups.set(folderId, new Set());
-    }
-    const groups = this.expandedFunnelGroups.get(folderId)!;
-    if (groups.has(groupId)) {
-      groups.delete(groupId);
-    } else {
-      groups.add(groupId);
-    }
-  }
-
-  isFunnelGroupExpanded(folderId: string, groupId: string): boolean {
-    return this.expandedFunnelGroups.get(folderId)?.has(groupId) || false;
-  }
-
-  private openFunnelGroup(funnelId: string): void {
-    for (const folder of this.folderLeads.rows) {
-      if (!folder.id) continue;
-
-      for (const group of folder.funnelGroups || []) {
-        if (!group.id) continue;
-
-        const hasFunnel = group.funnels?.some((f: any) => f.id === funnelId);
-        if (hasFunnel) {
-          if (!this.expandedFunnelGroups.has(folder.id)) {
-            this.expandedFunnelGroups.set(folder.id, new Set());
-          }
-          this.expandedFunnelGroups.get(folder.id)!.add(group.id);
-          return;
-        }
-      }
-    }
-  }
-
-  selectFunnel(funnel: IFunnel): void {
-    this.currentFunnel$.next(funnel);
-  }
-
-  handleDeleteFolder(folderId: string): void {
-    const title = 'Xóa Folder';
-    const description = `Bạn có chắc chắn muốn xóa Folder này không? Hành động này không thể hoàn tác. 
-Tất cả các Nhóm Phễu, Phễu và dữ liệu liên quan trong Folder này sẽ bị xóa vĩnh viễn.`;
-    const okText = 'Xóa';
-
-    const modalContent: IModalConfirmContent = {
-      title,
-      description,
-      okText,
-      type: 'danger',
-      modalType: 'advance',
-    };
-
-    this.modalConfirmService.openModal(modalContent, undefined, () => {
-      this.deleteFolder(folderId);
-    });
-  }
-
-  handleDeleteGroup(groupId: string): void {
-    const title = 'Xóa Nhóm Phễu';
-    const description = `Bạn có chắc chắn muốn xóa Nhóm Phễu này không? Hành động này không thể hoàn tác. 
-Tất cả các Phễu và dữ liệu liên quan trong Nhóm Phễu này sẽ bị xóa vĩnh viễn.`;
-    const okText = 'Xóa';
-
-    const modalContent: IModalConfirmContent = {
-      title,
-      description,
-      okText,
-      type: 'danger',
-      modalType: 'advance',
-    };
-
-    this.modalConfirmService.openModal(modalContent, undefined, () => {
-      this.deleteGroup(groupId);
-    });
-  }
-
-  handleDeleteFunnel(funnelId: string): void {
-    const title = 'Xóa Phễu';
-    const description = `Bạn có chắc chắn muốn xóa Phễu này không? Hành động này không thể hoàn tác. 
-Tất cả dữ liệu liên quan đến Phễu này sẽ bị xóa vĩnh viễn.`;
-    const okText = 'Xóa';
-
-    const modalContent: IModalConfirmContent = {
-      title,
-      description,
-      okText,
-      type: 'danger',
-      modalType: 'advance',
-    };
-
-    this.modalConfirmService.openModal(modalContent, undefined, () => {
-      this.deleteFunnel(funnelId);
-    });
-  }
-
-  private deleteFolder(folderId: string): void {
-    this.leadService.leadFolder.delete(folderId).subscribe({
-      next: (res: any) => {
-        if (res.status === 200) {
-          this.toastrService.success('Xóa Folder thành công');
-          this.getFolderLead();
-
-          if (this.currentFunnel$.value?.id) {
-            const folder = this.folderLeads.rows.find((f) => f.id === folderId);
-            if (folder) {
-              const hasCurrentFunnel = folder.funnelGroups?.some(
-                (group) =>
-                  group.funnels?.some(
-                    (f) => f.id === this.currentFunnel$.value?.id,
-                  ),
-              );
-              if (hasCurrentFunnel) {
-                this.currentFunnel$.next(null);
-              }
-            }
-          }
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      error: (err: any) => {
-        this.toastrService.error('Xóa Folder thất bại');
-      },
-    });
-  }
-
-  private deleteGroup(groupId: string): void {
-    this.leadService.leadGroupFunnel.delete(groupId).subscribe({
-      next: (res: any) => {
-        if (res.status === 200) {
-          this.toastrService.success('Xóa Nhóm Phễu thành công');
-          this.getFolderLead();
-
-          if (this.currentFunnel$.value?.id) {
-            for (const folder of this.folderLeads.rows) {
-              const group = folder.funnelGroups?.find((g) => g.id === groupId);
-              if (group) {
-                const hasCurrentFunnel = group.funnels?.some(
-                  (f) => f.id === this.currentFunnel$.value?.id,
-                );
-                if (hasCurrentFunnel) {
-                  this.currentFunnel$.next(null);
-                }
-                break;
-              }
-            }
-          }
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      error: (err: any) => {
-        this.toastrService.error('Xóa Nhóm Phễu thất bại');
-      },
-    });
-  }
-
-  private deleteFunnel(funnelId: string): void {
-    this.leadService.leadFunnel.delete(funnelId).subscribe({
-      next: (res: any) => {
-        if (res.status === 200) {
-          this.toastrService.success('Xóa Phễu thành công');
-          this.getFolderLead();
-
-          if (this.currentFunnel$.value?.id === funnelId) {
-            this.currentFunnel$.next(null);
-          }
-        } else {
-          this.commonService.handleResErr(res);
-        }
-      },
-      error: (err: any) => {
-        this.toastrService.error('Xóa Phễu thất bại');
-      },
-    });
-  }
-
-  onSearchFolder(term: string) {
-    const searchTerm = term?.trim() || '';
-
-    if (!searchTerm) {
-      this.folderLeads.rows = [...this._folderLeads];
-      return;
-    }
-
-    this.folderLeads.rows = this._folderLeads.filter((folder) =>
-      folder.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }
-
-  //kanban board
-  groupLeadsByStatus() {
-    this.leadsByStatus.clear();
-    this.statuses.rows
-      .filter((status) => status.isActive)
-      .forEach((status) => {
-        this.leadsByStatus.set(status.id, []);
-      });
-    this.item.rows.forEach((lead) => {
-      const statusId = lead.statusId || lead.status?.id;
-      if (statusId && this.leadsByStatus.has(statusId)) {
-        this.leadsByStatus.get(statusId)!.push(lead);
-      }
-    });
-  }
-
   onLeadDragMoved(event: CdkDragMove) {
     if (!this.kanbanBoard) return;
 
@@ -916,15 +724,21 @@ Tất cả dữ liệu liên quan đến Phễu này sẽ bị xóa vĩnh viễn
     const previousStatusId = event.previousContainer.id;
     const currentStatusId = event.container.id;
     const lead = event.item.data;
+    const previousData = this.kanbanDatas.find(
+      (data) => data.statusId === previousStatusId,
+    );
+    const currentData = this.kanbanDatas.find(
+      (data) => data.statusId === currentStatusId,
+    );
 
     if (event.previousContainer === event.container) {
-      const leads = this.leadsByStatus.get(currentStatusId) || [];
+      const leads = currentData?.items || [];
       moveItemInArray(leads, event.previousIndex, event.currentIndex);
       return;
     }
 
-    const previousLeads = this.leadsByStatus.get(previousStatusId) || [];
-    const currentLeads = this.leadsByStatus.get(currentStatusId) || [];
+    const previousLeads = previousData?.items || [];
+    const currentLeads = currentData?.items || [];
 
     transferArrayItem(
       previousLeads,
@@ -959,6 +773,83 @@ Tất cả dữ liệu liên quan đến Phễu này sẽ bị xóa vĩnh viễn
             event.previousIndex,
           );
           console.error('Update lead status error:', err);
+        },
+      });
+  }
+
+  onKanbanColumnScroll(event: Event, statusId: string) {
+    const element = event.target as HTMLElement;
+    const scrollTop = element.scrollTop;
+    const scrollHeight = element.scrollHeight;
+    const clientHeight = element.clientHeight;
+
+    if (
+      scrollHeight - scrollTop - clientHeight < 100 &&
+      !this.kanbanLoadingMore[statusId]
+    ) {
+      const kanbanData = this.getKanbanDataByStatusId(statusId);
+      if (kanbanData?.after && kanbanData.items.length < kanbanData.total) {
+        this.loadMoreKanbanData(statusId);
+      }
+    }
+  }
+
+  loadMoreKanbanData(statusId: string) {
+    const kanbanData = this.getKanbanDataByStatusId(statusId);
+    if (!kanbanData?.after || this.kanbanLoadingMore[statusId]) {
+      return;
+    }
+
+    this.kanbanLoadingMore[statusId] = true;
+
+    let params = {
+      ...this.item.paramsQuery,
+      limit: 20,
+    };
+    delete params.page;
+    const filterObj = JSON.parse(params.filter || '{}');
+    this.applyCommonFilters(filterObj);
+
+    filterObj.items = [
+      {
+        statusId: statusId,
+        after: kanbanData.after,
+      },
+    ];
+    params.filter = JSON.stringify(filterObj);
+
+    this.leadService.lead
+      .getKanban(params)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.kanbanLoadingMore[statusId] = false;
+        }),
+      )
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === 200) {
+            const responseData = (res.data || []).find(
+              (item: any) => item.statusId === statusId,
+            );
+            if (responseData && kanbanData) {
+              kanbanData.items = [...kanbanData.items, ...responseData.items];
+              kanbanData.after = responseData.after;
+
+              const filters = this.kanbanFilters$.value.map((filter) =>
+                filter.statusId === statusId
+                  ? {...filter, after: responseData.after}
+                  : filter,
+              );
+              this.kanbanFilters$.next(filters);
+            }
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err: any) => {
+          console.error('Error loading more leads:', err);
+          this.commonService.handleResErr(err);
         },
       });
   }

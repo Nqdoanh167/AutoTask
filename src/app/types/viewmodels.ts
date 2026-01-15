@@ -1609,7 +1609,7 @@ export interface IQueryBase {
   'limit'?: number;
   'page'?: number;
   'before'?: Date;
-  'after'?: Date;
+  'after'?: string;
   'q'?: string;
   'filter'?: any;
   'sort'?: string;

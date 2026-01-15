@@ -10,18 +10,16 @@ import {
   SimpleChanges,
   ViewChildren,
 } from '@angular/core';
+import {finalize, Subject, takeUntil, forkJoin, of} from 'rxjs';
 import {
-  distinctUntilKeyChanged,
-  finalize,
-  Subject,
-  takeUntil,
-  forkJoin,
-  of,
-} from 'rxjs';
-import {AbstractControl, FormGroup} from '@angular/forms';
+  AbstractControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import {ApiLocationService} from '@app/services/api/location';
 import {IDistrict, IProvince, IWard} from '@app/types/location';
-import {EntityPagination, ITag} from '@app/types/viewmodels';
+import {ITag} from '@app/types/viewmodels';
 import {CommonService} from '@app/services/common/common.service';
 import {InputSuggestCustomerComponent} from '@share/common/input-select-customer/input-suggest-customer.component';
 import {CustomerService} from '@app/services/api/customer.service';
@@ -37,6 +35,10 @@ import {RfmService} from '@app/services/api/rfm.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {LeadService} from '@app/services/api/lead.service';
 import {ILeadStatus} from '@app/types/lead';
+import {CommonModule} from '@angular/common';
+import {NgSelectModule} from '@ng-select/ng-select';
+import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 
 type ViewOrderType = 'completed' | 'cancelled' | 'trash';
 
@@ -44,6 +46,16 @@ type ViewOrderType = 'completed' | 'cancelled' | 'trash';
   selector: 'app-customer-info',
   templateUrl: './customer-info.component.html',
   styleUrls: ['./customer-info.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgSelectModule,
+    InputSuggestCustomerComponent,
+    TimeViewPipe,
+    TooltipModule,
+  ],
 })
 export class CustomerInfoComponent implements OnDestroy, OnInit, OnChanges {
   @ViewChildren(InputSuggestCustomerComponent)

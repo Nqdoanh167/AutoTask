@@ -42,6 +42,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        height: 36px;
         .button-edit {
           opacity: 0;
           visibility: hidden;
@@ -385,14 +386,14 @@
 
 .section-area {
   width: calc(100% + -0px);
-  height: calc(100vh - 400px);
+  height: calc(100vh - 364px);
   overflow-y: scroll;
   overflow-x: hidden;
 }
 
 .activity-area {
   width: calc(100% + -0px);
-  height: calc(100vh - 234px);
+  height: calc(100vh - 240px);
   overflow-y: scroll;
   overflow-x: hidden;
 }

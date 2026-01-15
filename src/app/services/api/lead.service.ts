@@ -105,6 +105,30 @@ export class LeadService extends BaseApiService implements OnDestroy {
         this.createUrl([this.api.lead, 'bulk']),
         body,
       ),
+
+    getKanban: (params: IQueryBase = {}) =>
+      this.httpClient.get<
+        EntityResult<
+          {
+            statusId: string;
+            items: ILead[];
+          }[]
+        >
+      >(this.createUrl([this.api.lead, 'kanban']), {
+        params: this.createParams(params),
+      }),
+
+    getCount: (params: IQueryBase = {}) =>
+      this.httpClient.get<
+        EntityResult<
+          {
+            statusId: string;
+            count: number;
+          }[]
+        >
+      >(this.createUrl([this.api.lead, 'count']), {
+        params: this.createParams(params),
+      }),
   };
 
   leadStatus = {

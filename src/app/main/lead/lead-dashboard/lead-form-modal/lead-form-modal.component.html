@@ -126,19 +126,17 @@
                             <div class="d-flex align-items-center gap-2">
                               <ng-container
                                 *ngIf="
-                                  !getFieldState('phone').editing && lead;
+                                  !getFieldState('phone').editing;
                                   else phoneEditing
                                 "
                               >
                                 <span class="text-truncate-1">
-                                  {{ lead?.phone || '-' }}
+                                  {{ leadForm.get('phone')?.value || '-' }}
                                 </span>
                                 <button
                                   type="button"
                                   class="button-edit"
-                                  (click)="
-                                    getFieldState('phone').editing = true
-                                  "
+                                  (click)="startFieldEdit('phone')"
                                 >
                                   <img
                                     src="./assets/icons/edit.svg"
@@ -150,35 +148,46 @@
                               </ng-container>
                               <ng-template #phoneEditing>
                                 <input
-                                  #phoneInput
                                   type="text"
                                   class="form-control form-control-sm"
-                                  [formControl]="phoneControl"
-                                  [disabled]="getFieldState('phone').updating"
+                                  formControlName="phone"
                                   placeholder="Nhập số điện thoại"
                                   (blur)="
                                     getFieldState('phone').editing = false
                                   "
+                                  [ngClass]="{
+                                    'is-invalid': f['phone'].errors
+                                  }"
                                 />
                               </ng-template>
                             </div>
                           </div>
 
-                          <div class="col-4 overflow-hidden">
+                          <div class="col-3 field-wrapper">
                             <label class="text-neutral fs-7">Nguồn lead:</label>
                             <div class="text-truncate-1">Ads Minh Senpal</div>
                           </div>
 
-                          <div class="col-5 overflow-hidden">
-                            <label class="text-neutral fs-7">Thẻ tag:</label>
+                          <div class="col-6 field-wrapper">
+                            <label
+                              class="text-neutral fs-7"
+                              style="width: 52px"
+                            >
+                              Thẻ tag:
+                            </label>
                             <div class="d-flex align-items-center gap-2">
                               <ng-container
                                 *ngIf="
-                                  !getFieldState('tagIds').editing && lead;
+                                  !getFieldState('tagIds').editing;
                                   else tagsEditing
                                 "
                               >
                                 <div class="tags-view-mode flex-grow-1">
+                                  <ng-container
+                                    *ngIf="getSelectedTags().length === 0"
+                                  >
+                                    -
+                                  </ng-container>
                                   <span
                                     *ngFor="let tag of getSelectedTags()"
                                     class="text-capitalize me-2 tag-item"
@@ -190,29 +199,11 @@
                                       {{ tag.name }}
                                     </span>
                                   </span>
-                                  <span
-                                    *ngIf="getSelectedTags().length === 0"
-                                    class="tags-placeholder"
-                                  >
-                                    <img
-                                      src="./assets/icons/tag.svg"
-                                      alt=""
-                                      width="24"
-                                      height="24"
-                                    />
-                                  </span>
                                 </div>
                                 <button
-                                  *ngIf="getFieldState('tagIds').hover"
                                   type="button"
-                                  class="btn btn-link p-0"
-                                  (click)="
-                                    startFieldEdit(
-                                      'tagIds',
-                                      tagIdsControl,
-                                      $event
-                                    )
-                                  "
+                                  class="button-edit"
+                                  (click)="startFieldEdit('tagIds')"
                                 >
                                   <img
                                     src="./assets/icons/edit.svg"
@@ -223,48 +214,52 @@
                                 </button>
                               </ng-container>
                               <ng-template #tagsEditing>
-                                <ng-select
-                                  [formControl]="tagIdsControl"
-                                  [items]="tags.rows"
-                                  bindLabel="name"
-                                  bindValue="id"
-                                  placeholder="Chọn Tag"
-                                  [multiple]="true"
-                                  [clearable]="true"
-                                  [closeOnSelect]="false"
-                                  [disabled]="getFieldState('tagIds').updating"
-                                  appendTo=".modal"
-                                >
-                                  <ng-template ng-option-tmp let-item="item">
-                                    <span
-                                      class="text-capitalize tag-item"
-                                      [ngClass]="{nonBack: !item.bgColor}"
-                                      [ngStyle]="{background: item.bgColor}"
-                                    >
-                                      <span>
-                                        <i class="fa-solid fa-filter"></i>
-                                        {{ item.name }}
+                                <div style="z-index: 1">
+                                  <ng-select
+                                    formControlName="tagIds"
+                                    [items]="tags.rows"
+                                    bindLabel="name"
+                                    bindValue="id"
+                                    placeholder="Chọn Tag"
+                                    [multiple]="true"
+                                    [clearable]="true"
+                                    [closeOnSelect]="false"
+                                    appendTo=".modal"
+                                    (blur)="
+                                      getFieldState('tagIds').editing = false
+                                    "
+                                  >
+                                    <ng-template ng-option-tmp let-item="item">
+                                      <span
+                                        class="text-capitalize tag-item"
+                                        [ngClass]="{nonBack: !item.bgColor}"
+                                        [ngStyle]="{background: item.bgColor}"
+                                      >
+                                        <span>
+                                          <i class="fa-solid fa-filter"></i>
+                                          {{ item.name }}
+                                        </span>
                                       </span>
-                                    </span>
-                                  </ng-template>
-                                  <ng-template ng-label-tmp let-item="item">
-                                    <span
-                                      class="text-capitalize tag-item"
-                                      [ngClass]="{nonBack: !item.bgColor}"
-                                      [ngStyle]="{background: item.bgColor}"
-                                    >
-                                      <span>
-                                        <i class="fa-solid fa-filter"></i>
-                                        {{ item.name }}
+                                    </ng-template>
+                                    <ng-template ng-label-tmp let-item="item">
+                                      <span
+                                        class="text-capitalize tag-item"
+                                        [ngClass]="{nonBack: !item.bgColor}"
+                                        [ngStyle]="{background: item.bgColor}"
+                                      >
+                                        <span>
+                                          <i class="fa-solid fa-filter"></i>
+                                          {{ item.name }}
+                                        </span>
                                       </span>
-                                    </span>
-                                  </ng-template>
-                                </ng-select>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
                               </ng-template>
                             </div>
                           </div>
 
-                          <div class="col-3 overflow-hidden">
+                          <div class="col-3 field-wrapper">
                             <label class="text-neutral fs-7">Email:</label>
                             <div
                               class="d-flex align-items-center gap-2"
@@ -272,24 +267,17 @@
                             >
                               <ng-container
                                 *ngIf="
-                                  !getFieldState('email').editing && lead;
+                                  !getFieldState('email').editing;
                                   else emailEditing
                                 "
                               >
                                 <div class="text-truncate-1">
-                                  {{ lead?.email || '-' }}
+                                  {{ leadForm.get('email')?.value || '-' }}
                                 </div>
                                 <button
-                                  *ngIf="getFieldState('email').hover"
                                   type="button"
-                                  class="btn btn-link p-0"
-                                  (click)="
-                                    startFieldEdit(
-                                      'email',
-                                      emailControl,
-                                      $event
-                                    )
-                                  "
+                                  class="button-edit"
+                                  (click)="startFieldEdit('email')"
                                 >
                                   <img
                                     src="./assets/icons/edit.svg"
@@ -303,15 +291,17 @@
                                 <input
                                   type="text"
                                   class="form-control form-control-sm"
-                                  [formControl]="emailControl"
-                                  [disabled]="getFieldState('email').updating"
+                                  formControlName="email"
                                   placeholder="Nhập email"
+                                  (blur)="
+                                    getFieldState('email').editing = false
+                                  "
                                 />
                               </ng-template>
                             </div>
                           </div>
 
-                          <div class="col-4 overflow-hidden">
+                          <div class="col-3 field-wrapper">
                             <label class="text-neutral fs-7">Phễu:</label>
                             <div
                               class="d-flex align-items-center gap-2"
@@ -319,7 +309,7 @@
                             >
                               <ng-container
                                 *ngIf="
-                                  !getFieldState('funnelId').editing && lead;
+                                  !getFieldState('funnelId').editing;
                                   else funnelEditing
                                 "
                               >
@@ -327,16 +317,9 @@
                                   {{ getFunnelName() }}
                                 </div>
                                 <button
-                                  *ngIf="getFieldState('funnelId').hover"
                                   type="button"
-                                  class="btn btn-link p-0"
-                                  (click)="
-                                    startFieldEdit(
-                                      'funnelId',
-                                      funnelControl,
-                                      $event
-                                    )
-                                  "
+                                  class="button-edit"
+                                  (click)="startFieldEdit('funnelId')"
                                 >
                                   <img
                                     src="./assets/icons/edit.svg"
@@ -348,16 +331,13 @@
                               </ng-container>
                               <ng-template #funnelEditing>
                                 <ng-select
-                                  [formControl]="funnelControl"
+                                  formControlName="funnelId"
                                   [items]="funnelOptions"
                                   bindLabel="name"
                                   bindValue="id"
                                   placeholder="Chọn phễu"
                                   [groupBy]="groupByFolder"
                                   [clearable]="false"
-                                  [disabled]="
-                                    getFieldState('funnelId').updating
-                                  "
                                   (blur)="
                                     getFieldState('funnelId').editing = false
                                   "
@@ -378,14 +358,14 @@
                           </div>
 
                           <div
-                            class="col-5"
+                            class="col-6 field-wrapper"
                             formArrayName="teams"
                             *ngIf="currentSetting?.roles?.length"
                           >
                             <label class="text-neutral fs-7">
                               Nhân sự phụ trách:
                               <i
-                                *ngIf="getFieldState('teams').updating"
+                                *ngIf="getFieldState('teams').editing"
                                 class="fa fa-spinner fa-spin ms-1"
                               ></i>
                             </label>
@@ -413,9 +393,8 @@
                                           teamControl.value?.userName
                                         : teamControl.value?.roleName
                                     "
-                                    [disabled]="getFieldState('teams').updating"
                                     [class.disabled]="
-                                      getFieldState('teams').updating
+                                      getFieldState('teams').editing
                                     "
                                   >
                                     <ng-container
@@ -626,7 +605,7 @@
                   </div>
                 </div>
 
-                <div>
+                <div class="pe-0">
                   <nav class="lead-form-tab-menu">
                     <ul>
                       <li
@@ -801,6 +780,29 @@
                             [orders]="lead?.orders || []"
                           ></app-orders>
                         </div>
+                      </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="activeLeftTabMenu === 'customer'">
+                      <div class="custom-scrollbar section-area">
+                        <div class="headline">
+                          Thông tin khách hàng
+                          <i
+                            class="fa-regular fa-circle-question ms-1"
+                            [tooltip]="
+                              'Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới'
+                            "
+                            placement="right"
+                          ></i>
+                        </div>
+                        <!-- <app-customer-info
+                          [hasUpdateTaskPer]="permissions.canEditLead"
+                          [submitted]="submitted"
+                          [formGroup]="leadForm"
+                          [selectedCustomerId]="leadForm.value.id"
+                          [leadId]="leadData?.id || f['leadId']?.value"
+                          [(isOpenBackdrop)]="isOpenBackDrop"
+                        ></app-customer-info> -->
                       </div>
                     </ng-container>
                   </div>

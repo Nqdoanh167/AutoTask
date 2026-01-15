@@ -44,7 +44,10 @@ import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/cu
 import {SelectLocationComponent} from '@app/share/common/select-location/select-location.component';
 import {FilterAdvancedModule} from './lead-dashboard/filter-advanced/filter-advanced.module';
 import {LeadCreateBulkComponent} from './lead-dashboard/lead-create-bulk/lead-create-bulk.component';
+import {LeadFolderListComponent} from './lead-dashboard/lead-folder-list/lead-folder-list.component';
 import {OrdersComponent} from '../dashboard/content-modal/orders/orders.component';
+import {CallCustomerInfoComponent} from '@app/share/common/call-customer-info/call-customer-info.component';
+import {CustomerInfoComponent} from '@app/main/dashboard/content-modal/customer-info/customer-info.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +61,7 @@ import {OrdersComponent} from '../dashboard/content-modal/orders/orders.componen
     LeadCommentsSidebarComponent,
     SortLeadStatusModalComponent,
     FolderFormModalComponent,
+    LeadFolderListComponent,
   ],
   imports: [
     CommonModule,
@@ -97,6 +101,8 @@ import {OrdersComponent} from '../dashboard/content-modal/orders/orders.componen
     FilterAdvancedModule,
     LeadCreateBulkComponent,
     OrdersComponent,
+    CallCustomerInfoComponent,
+    CustomerInfoComponent,
   ],
   providers: [DatePipe],
 })

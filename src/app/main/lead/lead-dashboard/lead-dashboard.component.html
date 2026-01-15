@@ -69,318 +69,11 @@
 </app-header>
 
 <div class="dashboard-site">
-  <div class="lead-sidebar">
-    <div class="search-box">
-      <custom-input-search
-        [className]="'input-medium ui-v2'"
-        (searchEvent)="onSearchFolder($event)"
-        [placeholder]="'Tìm kiếm...'"
-        [isCollapsible]="false"
-      ></custom-input-search>
-
-      <div
-        class="btn-group cursor-pointer btn-dropdown"
-        dropdown
-        placement="bottom right"
-        dropdownToggle
-      >
-        <div class="button-icon-wrapper" id="button-alignment">
-          <button class="button-icon bg-neutral">
-            <img src="./assets/images/icon/plus.svg" alt="" />
-          </button>
-        </div>
-        <ul
-          id="dropdown-basic"
-          *dropdownMenu
-          class="dropdown-menu dropdown-menu-right"
-          role="menu"
-        >
-          <li role="menuitem" (click)="handleAddFolder()">
-            <div href="#" class="dropdown-item cursor-pointer">
-              <div class="d-flex align-items-center gap-2">
-                <img
-                  src="./assets/icons/icon-lead/folder.svg"
-                  alt=""
-                  width="24"
-                  height="24"
-                />
-                <div class="folder-name">Thêm Thư mục</div>
-              </div>
-            </div>
-          </li>
-
-          <li role="menuitem" (click)="handleAddFolder('group')">
-            <div href="#" class="dropdown-item cursor-pointer">
-              <div class="d-flex align-items-center gap-2">
-                <img
-                  src="./assets/icons/icon-lead/folder.svg"
-                  alt=""
-                  width="24"
-                  height="24"
-                />
-                <div class="folder-name">Thêm Nhóm Phễu</div>
-              </div>
-            </div>
-          </li>
-
-          <li role="menuitem" (click)="handleAddFolder('funnel')">
-            <div href="#" class="dropdown-item cursor-pointer">
-              <div class="d-flex align-items-center gap-2">
-                <img
-                  src="./assets/icons/icon-lead/folder.svg"
-                  alt=""
-                  width="24"
-                  height="24"
-                />
-                <div class="folder-name">Thêm Phễu</div>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="list-folder custom-scrollbar">
-      <ng-container *ngFor="let folder of folderLeads.rows">
-        <div class="folder">
-          <div class="d-flex align-items-center gap-2">
-            <img
-              src="./assets/icons/icon-lead/folder.svg"
-              width="24"
-              height="24"
-            />
-            <div class="folder-name">{{ folder.name }}</div>
-          </div>
-
-          <div
-            class="d-flex align-items-center gap-2 actions"
-            (click)="$event.stopPropagation()"
-          >
-            <div
-              class="btn-group cursor-pointer btn-dropdown"
-              dropdown
-              #folderDropdown="bs-dropdown"
-              placement="bottom right"
-              dropdownToggle
-            >
-              <div id="button-alignment">
-                <i class="fas fa-ellipsis-v"></i>
-              </div>
-              <ul
-                id="dropdown-basic"
-                *dropdownMenu
-                class="dropdown-menu dropdown-menu-right"
-                role="menu"
-              >
-                <li
-                  role="menuitem"
-                  (click)="handleAddFolder('group', {folderId: folder.id})"
-                >
-                  <div href="#" class="dropdown-item cursor-pointer">
-                    <i class="far fa-folder me-2"></i>
-                    Thêm nhóm phễu
-                  </div>
-                </li>
-                <li
-                  role="menuitem"
-                  (click)="handleEditFolder(folder, 'folder')"
-                >
-                  <div href="#" class="dropdown-item cursor-pointer">
-                    <i class="far fa-edit me-2"></i>
-                    Cập nhật
-                  </div>
-                </li>
-                <li role="menuitem">
-                  <div href="#" class="dropdown-item cursor-pointer">
-                    <i
-                      class="fa-regular fa-clipboard me-2"
-                      style="width: 14px"
-                    ></i>
-                    Copy
-                  </div>
-                </li>
-                <li
-                  role="menuitem"
-                  (click)="handleDeleteFolder(folder.id || '')"
-                >
-                  <div href="#" class="dropdown-item cursor-pointer">
-                    <i class="far fa-trash-alt me-2"></i>
-                    Delete
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <ng-container *ngFor="let group of folder.funnelGroups">
-          <div
-            class="group-folder"
-            (click)="toggleFunnelGroup(folder.id || '', group.id || '')"
-          >
-            <div class="d-flex align-items-center gap-2">
-              <img
-                src="./assets/icons/icon-lead/arrow-right.svg"
-                width="24"
-                height="24"
-                [class.rotated]="
-                  isFunnelGroupExpanded(folder.id || '', group.id || '')
-                "
-                class="dropdown-icon"
-              />
-              <div class="folder-name">{{ group.name }}</div>
-            </div>
-
-            <div
-              class="d-flex align-items-center gap-2 actions"
-              (click)="$event.stopPropagation()"
-            >
-              <div
-                class="btn-group cursor-pointer btn-dropdown"
-                dropdown
-                placement="bottom right"
-                dropdownToggle
-              >
-                <div id="button-alignment">
-                  <i class="fas fa-ellipsis-v"></i>
-                </div>
-                <ul
-                  id="dropdown-basic"
-                  *dropdownMenu
-                  class="dropdown-menu dropdown-menu-right"
-                  role="menu"
-                >
-                  <li
-                    role="menuitem"
-                    (click)="handleAddFolder('funnel', {groupId: group.id})"
-                  >
-                    <div href="#" class="dropdown-item cursor-pointer">
-                      <i class="far fa-folder me-2"></i>
-                      Thêm phễu
-                    </div>
-                  </li>
-                  <li
-                    role="menuitem"
-                    (click)="handleEditFolder(group, 'group')"
-                  >
-                    <div href="#" class="dropdown-item cursor-pointer">
-                      <i class="far fa-edit me-2"></i>
-                      Cập nhật
-                    </div>
-                  </li>
-                  <li role="menuitem">
-                    <div href="#" class="dropdown-item cursor-pointer">
-                      <i
-                        class="fa-regular fa-clipboard me-2"
-                        style="width: 14px"
-                      ></i>
-                      Copy
-                    </div>
-                  </li>
-                  <li
-                    role="menuitem"
-                    (click)="handleDeleteGroup(group.id || '')"
-                  >
-                    <div href="#" class="dropdown-item cursor-pointer">
-                      <i class="far fa-trash-alt me-2"></i>
-                      Delete
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <ng-container
-            *ngIf="isFunnelGroupExpanded(folder.id || '', group.id || '')"
-          >
-            <div
-              class="item-folder"
-              *ngFor="let funnel of group.funnels"
-              (click)="selectFunnel(funnel)"
-              [ngClass]="{active: currentFunnel$.value?.id === funnel.id}"
-            >
-              <div class="d-flex align-items-center gap-2">
-                <img
-                  src="./assets/icons/icon-lead/funnel-disable.svg"
-                  width="24"
-                  height="24"
-                />
-                <div class="folder-name fw-400">{{ funnel.name }}</div>
-              </div>
-
-              <!-- <div class="text-neutral bg-input-bg p-1 rounded-pill">
-                {{ funnel.statLeadCount || 0 }}
-              </div> -->
-              <div
-                class="d-flex align-items-center gap-2 actions"
-                (click)="$event.stopPropagation()"
-              >
-                <div
-                  class="btn-group cursor-pointer btn-dropdown"
-                  dropdown
-                  placement="bottom right"
-                  dropdownToggle
-                >
-                  <div id="button-alignment">
-                    <i class="fas fa-ellipsis-v"></i>
-                  </div>
-                  <ul
-                    id="dropdown-basic"
-                    *dropdownMenu
-                    class="dropdown-menu dropdown-menu-right"
-                    role="menu"
-                  >
-                    <li
-                      role="menuitem"
-                      (click)="handleEditFolder(funnel, 'funnel')"
-                    >
-                      <div href="#" class="dropdown-item cursor-pointer">
-                        <i class="far fa-edit me-2"></i>
-                        Cập nhật
-                      </div>
-                    </li>
-                    <li role="menuitem">
-                      <div href="#" class="dropdown-item cursor-pointer">
-                        <i
-                          class="fa-regular fa-clipboard me-2"
-                          style="width: 14px"
-                        ></i>
-                        Copy
-                      </div>
-                    </li>
-                    <li
-                      role="menuitem"
-                      (click)="handleDeleteFunnel(funnel.id || '')"
-                    >
-                      <div href="#" class="dropdown-item cursor-pointer">
-                        <i class="far fa-trash-alt me-2"></i>
-                        Delete
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-        </ng-container>
-      </ng-container>
-      <ng-container *ngIf="!folderLeads.rows.length && !folderLeads.loading">
-        <div class="text-center">
-          <div class="fw-500 text-neutral">Không có dữ liệu</div>
-        </div>
-      </ng-container>
-      <ng-container *ngIf="folderLeads.loading">
-        <div
-          class="loading-folder d-flex align-items-center justify-content-center"
-        >
-          <div class="spinner-grow text-primary" role="status">
-            <span class="visually-hidden">Loading</span>
-          </div>
-        </div>
-      </ng-container>
-    </div>
-  </div>
+  <app-lead-folder-list
+    [currentFunnel$]="currentFunnel$"
+    (funnelSelected)="onFunnelSelected($event)"
+    (folderReloaded)="onFolderReloaded()"
+  ></app-lead-folder-list>
 
   <div class="main-content">
     <!-- View Mode Toggle -->
@@ -632,7 +325,7 @@
     <div class="content-kanban" *ngIf="viewMode === 'kanban'">
       <div
         class="kanban-board"
-        *ngIf="!item.loading"
+        *ngIf="!loading.kanban"
         cdkDropListGroup
         cdkScrollable
         #kanbanBoard
@@ -643,7 +336,7 @@
           [ngStyle]="{'background-color': status.bgColor | hex2rgb}"
           cdkDropList
           [id]="status.id"
-          [cdkDropListData]="leadsByStatus.get(status.id) || []"
+          [cdkDropListData]="getKanbanDataByStatusId(status.id)?.items || []"
           (cdkDropListDropped)="onLeadDrop($event)"
         >
           <div class="kanban-column-header">
@@ -655,14 +348,19 @@
               <h3>{{ status.name }}</h3>
             </div>
             <span class="lead-count">
-              {{ (leadsByStatus.get(status.id) || []).length }}
+              {{ getKanbanDataByStatusId(status.id)?.total || 0 }}
             </span>
           </div>
 
-          <div class="kanban-column-content">
+          <div
+            class="kanban-column-content"
+            (scroll)="onKanbanColumnScroll($event, status.id)"
+          >
             <div
               class="kanban-card"
-              *ngFor="let lead of leadsByStatus.get(status.id) || []"
+              *ngFor="
+                let lead of getKanbanDataByStatusId(status.id)?.items || []
+              "
               cdkDrag
               [cdkDragData]="lead"
               (cdkDragMoved)="onLeadDragMoved($event)"
@@ -782,16 +480,24 @@
 
             <div
               class="kanban-column-empty"
-              *ngIf="!(leadsByStatus.get(status.id) || []).length"
+              *ngIf="!getKanbanDataByStatusId(status.id)?.items?.length"
             >
               <i class="fa fa-inbox"></i>
               <p>Không có lead nào</p>
+            </div>
+
+            <div
+              class="kanban-loading-more"
+              *ngIf="kanbanLoadingMore[status.id]"
+            >
+              <i class="fa fa-spinner fa-spin"></i>
+              <span>Đang tải thêm...</span>
             </div>
           </div>
         </div>
       </div>
 
-      <ng-container *ngIf="item.loading">
+      <ng-container *ngIf="loading.kanban">
         <div class="kanban-loading">
           <div class="center-item">
             <div class="spinner-custom"></div>

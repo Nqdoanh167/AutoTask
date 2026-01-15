@@ -56,7 +56,7 @@ export class LeadFormModalComponent
   public isOpenBackDrop: boolean = false;
   public leadForm!: FormGroup;
   public fieldStates: {
-    [key: string]: {editing: boolean; hover: boolean; updating: boolean};
+    [key: string]: {editing: boolean; hover: boolean};
   } = {};
   public units = this.autoTaskService.getUserUnits(false);
   public EGenderType = EGenderType;
@@ -84,6 +84,11 @@ export class LeadFormModalComponent
   public EChainNextActionType = EChainNextActionType;
   public readonly hoveredBadgeIndex: number = 0;
   public hoveredBadgeIndexCurrent: number = this.hoveredBadgeIndex;
+
+  public submitted = false;
+  public permissions = {
+    canEditLead: true,
+  };
 
   constructor(
     private readonly fb: FormBuilder,
@@ -146,7 +151,7 @@ export class LeadFormModalComponent
     this.leadForm = this.fb.group({
       name: [this.lead?.name || '', [Validators.required]],
       phone: [this.lead?.phone || '', [Validators.required]],
-      email: [this.lead?.email || '', [Validators.email]],
+      email: [this.lead?.email || ''],
       gender: [this.lead?.gender || EGenderType.OTHER],
       tagIds: [initialTagIds],
       picture: [this.lead?.picture || ''],
@@ -313,8 +318,9 @@ export class LeadFormModalComponent
   };
 
   getFunnelName(): string {
-    if (!this.lead?.funnelId) return '-';
-    const funnel = this.funnelOptions.find((f) => f.id === this.lead?.funnelId);
+    const funnelId = this.leadForm.get('funnelId')?.value;
+    if (!funnelId) return '-';
+    const funnel = this.funnelOptions.find((f) => f.id === funnelId);
     return funnel?.name || '-';
   }
 
@@ -378,7 +384,6 @@ export class LeadFormModalComponent
       userPicture: user.picture,
       userEmail: user.email,
     });
-    this.submitTeamsUpdate();
   }
 
   onRemoveTeam(index: number): void {
@@ -389,41 +394,6 @@ export class LeadFormModalComponent
       userPicture: null,
       userEmail: null,
     });
-    this.submitTeamsUpdate();
-  }
-
-  submitTeamsUpdate(): void {
-    if (!this.lead?.id) return;
-
-    const teams = this.formTeams.value.filter((team: any) => team.userId);
-
-    this.getFieldState('teams').updating = true;
-    this.leadService.lead
-      .update(this.lead.id, {id: this.lead.id, teams})
-      .pipe(
-        finalize(() => {
-          this.getFieldState('teams').updating = false;
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200 || res.status === 201) {
-            if (this.lead) {
-              Object.assign(this.lead, res.data);
-            }
-            this.toastr.success('Cập nhật nhân sự phụ trách thành công');
-            this.saveEvent.emit(res.data);
-          } else {
-            this.toastr.error(
-              res.message || 'Cập nhật nhân sự phụ trách thất bại',
-            );
-          }
-        },
-        error: () => {
-          this.toastr.error('Cập nhật nhân sự phụ trách thất bại');
-        },
-      });
   }
 
   getAvailableUsers(roleId?: string): User[] {
@@ -462,23 +432,13 @@ export class LeadFormModalComponent
       this.fieldStates[fieldName] = {
         editing: false,
         hover: false,
-        updating: false,
       };
     }
     return this.fieldStates[fieldName];
   }
 
-  startFieldEdit(
-    fieldName: string,
-    control: FormControl,
-    event?: MouseEvent,
-  ): void {
-    event?.stopPropagation();
+  startFieldEdit(fieldName: string): void {
     this.getFieldState(fieldName).editing = true;
-    const currentValue = (this.lead as any)?.[fieldName];
-    if (currentValue !== undefined && currentValue !== null) {
-      control.setValue(currentValue);
-    }
     setTimeout(() => {
       const input = document.querySelector(
         `input[formControlName="${fieldName}"]`,
@@ -486,6 +446,13 @@ export class LeadFormModalComponent
       if (input) {
         input.focus();
         input.select();
+      }
+      const select = document.querySelector(
+        `ng-select[formControlName="${fieldName}"]`,
+      ) as HTMLSelectElement;
+      if (select) {
+        const input = select?.querySelector('input');
+        input?.focus();
       }
     }, 50);
   }
@@ -569,9 +536,9 @@ export class LeadFormModalComponent
   }
 
   onSubmit(): void {
+    this.submitted = true;
     if (this.leadForm.invalid) {
       this.leadForm.markAllAsTouched();
-      this.toastr.error('Vui lòng điền đầy đủ thông tin bắt buộc');
       return;
     }
 
@@ -602,6 +569,7 @@ export class LeadFormModalComponent
           takeUntil(this.destroy$),
           finalize(() => {
             this.loading.isSubmitting = false;
+            this.submitted = false;
           }),
         )
         .subscribe({
@@ -626,6 +594,7 @@ export class LeadFormModalComponent
           takeUntil(this.destroy$),
           finalize(() => {
             this.loading.isSubmitting = false;
+            this.submitted = false;
           }),
         )
         .subscribe({
