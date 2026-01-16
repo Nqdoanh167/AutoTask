@@ -61,11 +61,9 @@ export class LeadFormModalComponent
   public units = this.autoTaskService.getUserUnits(false);
   public EGenderType = EGenderType;
   public loading = {
-    getFolderLead: false,
     isSubmitting: false,
     isUploadingAvatar: false,
   };
-  public folderLeads: IFolderLead[] = [];
   public funnelOptions: Array<
     IFunnel & {folderName: string; funnelGroupName: string}
   > = [];
@@ -135,7 +133,7 @@ export class LeadFormModalComponent
     this.loadBizUsers();
     this.loadAutoTaskSetting();
     // this.initializeBranch();
-    this.getFolderLead();
+    this.transformFunnelOptions();
   }
 
   getTaskDetailUrl(taskId: string) {
@@ -211,34 +209,9 @@ export class LeadFormModalComponent
     return !!this.lead;
   }
 
-  getFolderLead(): void {
-    this.loading.getFolderLead = true;
-    this.leadService.leadFolder
-      .getWithFunnels({
-        page: 1,
-        limit: 1000,
-      })
-      .pipe(
-        finalize(() => (this.loading.getFolderLead = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.folderLeads = res.data;
-            this.leadService.setListLeadFolder(res.data);
-            this.transformFunnelOptions();
-          }
-        },
-        error: (err: any) => {
-          console.error('Error loading folder leads:', err);
-        },
-      });
-  }
-
   transformFunnelOptions(): void {
     this.funnelOptions = [];
-    this.folderLeads?.forEach((folder) => {
+    this.folder.rows?.forEach((folder) => {
       folder?.funnelGroups?.forEach((funnelGroup) => {
         funnelGroup.funnels?.forEach((funnel) => {
           this.funnelOptions.push({

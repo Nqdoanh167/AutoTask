@@ -20,8 +20,6 @@ import {
   BehaviorSubject,
   distinctUntilChanged,
   forkJoin,
-  catchError,
-  of,
 } from 'rxjs';
 import {AuthService} from '@app/services/api/auth.service';
 import {
@@ -73,12 +71,12 @@ export class LeadDashboardComponent
   public loading = {
     kanban: false,
   };
-  public kanbanLoadingMore: {[statusId: string]: boolean} = {};
   public kanbanDatas: {
     statusId: string;
     items: ILead[];
     total: number;
     after?: string;
+    loadingMore?: boolean;
   }[] = [];
 
   public kanbanFilters$ = new BehaviorSubject<
@@ -128,11 +126,7 @@ export class LeadDashboardComponent
             );
           }
 
-          if (this.viewMode === 'kanban') {
-            this.getKanbanData();
-          } else {
-            this.getDataSource(true);
-          }
+          this.handleAction('reload');
         }
       });
 
@@ -164,7 +158,9 @@ export class LeadDashboardComponent
 
   override handleAction(name: string) {
     if (name === 'reload' && !this.item.loading) {
-      if (this.currentFunnel$.value) {
+      if (this.viewMode === 'kanban') {
+        this.getKanbanData();
+      } else {
         this.getDataSource(true);
       }
     }
@@ -229,7 +225,7 @@ export class LeadDashboardComponent
               });
 
               modalRef.content?.saveEvent?.subscribe((lead: ILead) => {
-                this.getDataSource(true);
+                this.handleAction('reload');
               });
 
               modalRef?.onHidden?.subscribe(() => {
@@ -253,7 +249,7 @@ export class LeadDashboardComponent
       });
 
       modalRef.content?.saveEvent?.subscribe((lead: ILead) => {
-        this.getDataSource(true);
+        this.handleAction('reload');
       });
 
       modalRef?.onHidden?.subscribe(() => {
@@ -371,11 +367,9 @@ export class LeadDashboardComponent
   getKanbanData() {
     this.loading.kanban = true;
     this.kanbanDatas = [];
-    this.kanbanLoadingMore = {};
 
     let params = {
       ...this.item.paramsQuery,
-      limit: 20,
     };
     delete params.page;
     const filterObj = JSON.parse(params.filter || '{}');
@@ -782,29 +776,30 @@ export class LeadDashboardComponent
     const scrollTop = element.scrollTop;
     const scrollHeight = element.scrollHeight;
     const clientHeight = element.clientHeight;
-
+    const kanbanData = this.getKanbanDataByStatusId(statusId);
+    if (!kanbanData) return;
     if (
       scrollHeight - scrollTop - clientHeight < 100 &&
-      !this.kanbanLoadingMore[statusId]
+      !kanbanData?.loadingMore
     ) {
-      const kanbanData = this.getKanbanDataByStatusId(statusId);
       if (kanbanData?.after && kanbanData.items.length < kanbanData.total) {
         this.loadMoreKanbanData(statusId);
+      } else {
+        kanbanData.loadingMore = false;
       }
     }
   }
 
   loadMoreKanbanData(statusId: string) {
     const kanbanData = this.getKanbanDataByStatusId(statusId);
-    if (!kanbanData?.after || this.kanbanLoadingMore[statusId]) {
+    if (!kanbanData?.after || kanbanData?.loadingMore) {
       return;
     }
 
-    this.kanbanLoadingMore[statusId] = true;
+    kanbanData.loadingMore = true;
 
     let params = {
       ...this.item.paramsQuery,
-      limit: 20,
     };
     delete params.page;
     const filterObj = JSON.parse(params.filter || '{}');
@@ -823,7 +818,7 @@ export class LeadDashboardComponent
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
-          this.kanbanLoadingMore[statusId] = false;
+          kanbanData.loadingMore = false;
         }),
       )
       .subscribe({

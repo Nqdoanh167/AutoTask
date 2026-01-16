@@ -85,6 +85,20 @@ export const DEFAULT_LEAD_TABS: ISettingTabItem[] = [
       },
     ],
   },
+  {
+    key: 'customer',
+    name: 'Khách hàng',
+    icon: 'user',
+    active: true,
+    positions: ['left'],
+    isDefault: true,
+    positionOptions: [
+      {
+        value: 'left',
+        label: 'Cột phải',
+      },
+    ],
+  },
 ];
 
 export const DEFAULT_TASK_TABS: ISettingTabItem[] = [

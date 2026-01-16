@@ -258,6 +258,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
       .subscribe((res) => {
         this.folder.rows = res.data || [];
         this.folder.total = res.meta?.total || 0;
+        this.leadService.setListLeadFolder(res.data);
       });
   }
 

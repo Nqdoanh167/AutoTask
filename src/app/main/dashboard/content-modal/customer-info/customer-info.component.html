@@ -395,250 +395,252 @@
     }
 
     <!-- Row 1: Tên KH, SĐT, Email, Giới tính -->
-    <div style="padding-left: 1px" class="row mt-2">
-      <div class="col-3" [class.col-12]="isMobile">
-        <label class="form-control-label" for="leadDeal.name">
-          Tên khách hàng
-          <span class="required">*</span>
-        </label>
-        <input
-          formControlName="name"
-          type="text"
-          name="leadDeal.name"
-          id="leadDeal.name"
-          placeholder="Nhập Tên khách hàng..."
-          class="form-control"
-          [class]="submitted && f['name'].errors ? 'is-invalid' : ''"
-        />
-        @if (submitted && f['name'].errors) {
-          @if (f['name'].errors?.['required']) {
-            <div class="invalid-feedback">Tên không được bỏ trống</div>
-          }
-          @if (f['name'].errors?.['maxlength']) {
-            <div class="invalid-feedback">Tên không hợp lệ</div>
-          }
-        }
-      </div>
-      <div class="col-3" [class.col-12]="isMobile">
-        <label class="form-control-label" for="leadDeal.phone">
-          Số điện thoại
-        </label>
-        <app-input-suggest-customer
-          id="input-phone-customer"
-          [uiType]="'text'"
-          [inputId]="'input-phone-customer'"
-          [placeholder]="'Nhập số điện thoại...'"
-          formControlName="phone"
-          [submitted]="submitted"
-          (valueChange)="onChangePhoneCustomer($event)"
-          (selectCustomer)="getCustomerDetailFromPhone($event?.id!)"
-          [readOnly]="!hasUpdateTaskPer"
-        ></app-input-suggest-customer>
-      </div>
-      <div class="col-3" [class.col-12]="isMobile">
-        <label class="form-control-label" for="leadDeal.email">Email</label>
-        <input
-          formControlName="email"
-          type="text"
-          name="leadDeal.email"
-          id="leadDeal.email"
-          placeholder="Nhập Email..."
-          class="form-control"
-          [class]="submitted && f['email'].errors ? 'is-invalid' : ''"
-        />
-        @if (submitted && f['email'].errors) {
-          @if (f['email'].errors?.['email']) {
-            <div class="invalid-feedback">Email không hợp lệ</div>
-          }
-        }
-      </div>
-      <div class="col-3" [class.col-12]="isMobile">
-        <label class="form-control-label" for="leadDeal.gender">
-          Giới tính
-        </label>
-        <div
-          id="leadDeal.gender"
-          class="d-flex align-items-center gap-4 input-medium"
-        >
-          <div class="basic-radio">
-            <input
-              formControlName="gender"
-              type="radio"
-              name="gender"
-              class="check"
-              id="male"
-              [value]="'male'"
-            />
-            <label for="male">
-              <div class="container">
-                <div class="cRadioBtn">
-                  <div class="overlay"></div>
-                  <div class="drops xsDrop"></div>
-                  <div class="drops mdDrop"></div>
-                  <div class="drops lgDrop"></div>
-                </div>
-              </div>
-              <span>Nam</span>
-            </label>
-          </div>
-          <div class="basic-radio">
-            <input
-              formControlName="gender"
-              [value]="'female'"
-              type="radio"
-              name="gender"
-              class="check"
-              id="female"
-            />
-            <label for="female">
-              <div class="container">
-                <div class="cRadioBtn">
-                  <div class="overlay"></div>
-                  <div class="drops xsDrop"></div>
-                  <div class="drops mdDrop"></div>
-                  <div class="drops lgDrop"></div>
-                </div>
-              </div>
-              <span>Nữ</span>
-            </label>
-          </div>
-          <div class="basic-radio">
-            <input
-              formControlName="gender"
-              [value]="'other'"
-              type="radio"
-              name="gender"
-              class="check"
-              id="lead.other"
-            />
-            <label for="lead.other">
-              <div class="container">
-                <div class="cRadioBtn">
-                  <div class="overlay"></div>
-                  <div class="drops xsDrop"></div>
-                  <div class="drops mdDrop"></div>
-                  <div class="drops lgDrop"></div>
-                </div>
-              </div>
-              <span>Khác</span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mt-2">
-      <label class="form-control-label" for="leadDeal.address">Địa chỉ</label>
-      <div id="leadDeal.address" class="row g-2">
+    <ng-container *ngIf="!onlyView">
+      <div style="padding-left: 1px" class="row mt-2">
         <div class="col-3" [class.col-12]="isMobile">
-          <ng-select
-            [clearable]="false"
-            [ngClass]="{
-              'is-invalid': submitted && f['provinceCode'].errors
-            }"
-            [placeholder]="'Chọn Tỉnh/Thành phố'"
-            appearance="outline"
-            formControlName="provinceCode"
-            id="province"
-            labelForId="province"
-            [items]="listProvince"
-            bindValue="provinceCode"
-            bindLabel="province"
-            (change)="handleChangeLocation($event.provinceCode, 'province')"
-            appendTo=".modal"
-          ></ng-select>
-        </div>
-        <div class="col-3" [class.col-12]="isMobile">
-          <ng-select
-            [clearable]="false"
-            [ngClass]="{
-              'input-disabled': !f['provinceCode']?.value
-            }"
-            [disabled]="!f['provinceCode']?.value"
-            [readonly]="!f['provinceCode']?.value"
-            [placeholder]="'Chọn Quận/Huyện'"
-            appearance="outline"
-            formControlName="districtCode"
-            id="district"
-            labelForId="district"
-            [items]="listDistrict"
-            bindValue="districtCode"
-            bindLabel="district"
-            (change)="handleChangeLocation($event.districtCode, 'district')"
-            appendTo=".modal"
-          ></ng-select>
-        </div>
-        <div class="col-3" [class.col-12]="isMobile">
-          <ng-select
-            [clearable]="false"
-            [ngClass]="{
-              'input-disabled': !f['districtCode']?.value
-            }"
-            [disabled]="!f['districtCode']?.value"
-            [readonly]="!f['districtCode']?.value"
-            [placeholder]="'Chọn Phường/Xã'"
-            class="input-medium"
-            appearance="outline"
-            formControlName="wardCode"
-            id="ward"
-            labelForId="ward"
-            [items]="listWard"
-            bindValue="wardCode"
-            bindLabel="ward"
-            (change)="handleChangeLocation($event.wardCode, 'ward')"
-            appendTo=".modal"
-          ></ng-select>
-        </div>
-        <div class="col-3" [class.col-12]="isMobile">
+          <label class="form-control-label" for="leadDeal.name">
+            Tên khách hàng
+            <span class="required">*</span>
+          </label>
           <input
-            class="form-control"
-            [ngClass]="{
-              'is-invalid': submitted && f['street'].errors
-            }"
-            (change)="handleCombineAddress()"
-            [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
-            formControlName="street"
-            id="street"
+            formControlName="name"
             type="text"
+            name="leadDeal.name"
+            id="leadDeal.name"
+            placeholder="Nhập Tên khách hàng..."
+            class="form-control"
+            [class]="submitted && f['name'].errors ? 'is-invalid' : ''"
           />
+          @if (submitted && f['name'].errors) {
+            @if (f['name'].errors?.['required']) {
+              <div class="invalid-feedback">Tên không được bỏ trống</div>
+            }
+            @if (f['name'].errors?.['maxlength']) {
+              <div class="invalid-feedback">Tên không hợp lệ</div>
+            }
+          }
+        </div>
+        <div class="col-3" [class.col-12]="isMobile">
+          <label class="form-control-label" for="leadDeal.phone">
+            Số điện thoại
+          </label>
+          <app-input-suggest-customer
+            id="input-phone-customer"
+            [uiType]="'text'"
+            [inputId]="'input-phone-customer'"
+            [placeholder]="'Nhập số điện thoại...'"
+            formControlName="phone"
+            [submitted]="submitted"
+            (valueChange)="onChangePhoneCustomer($event)"
+            (selectCustomer)="getCustomerDetailFromPhone($event?.id!)"
+            [readOnly]="!hasUpdateTaskPer"
+          ></app-input-suggest-customer>
+        </div>
+        <div class="col-3" [class.col-12]="isMobile">
+          <label class="form-control-label" for="leadDeal.email">Email</label>
+          <input
+            formControlName="email"
+            type="text"
+            name="leadDeal.email"
+            id="leadDeal.email"
+            placeholder="Nhập Email..."
+            class="form-control"
+            [class]="submitted && f['email'].errors ? 'is-invalid' : ''"
+          />
+          @if (submitted && f['email'].errors) {
+            @if (f['email'].errors?.['email']) {
+              <div class="invalid-feedback">Email không hợp lệ</div>
+            }
+          }
+        </div>
+        <div class="col-3" [class.col-12]="isMobile">
+          <label class="form-control-label" for="leadDeal.gender">
+            Giới tính
+          </label>
+          <div
+            id="leadDeal.gender"
+            class="d-flex align-items-center gap-4 input-medium"
+          >
+            <div class="basic-radio">
+              <input
+                formControlName="gender"
+                type="radio"
+                name="gender"
+                class="check"
+                id="male"
+                [value]="'male'"
+              />
+              <label for="male">
+                <div class="container">
+                  <div class="cRadioBtn">
+                    <div class="overlay"></div>
+                    <div class="drops xsDrop"></div>
+                    <div class="drops mdDrop"></div>
+                    <div class="drops lgDrop"></div>
+                  </div>
+                </div>
+                <span>Nam</span>
+              </label>
+            </div>
+            <div class="basic-radio">
+              <input
+                formControlName="gender"
+                [value]="'female'"
+                type="radio"
+                name="gender"
+                class="check"
+                id="female"
+              />
+              <label for="female">
+                <div class="container">
+                  <div class="cRadioBtn">
+                    <div class="overlay"></div>
+                    <div class="drops xsDrop"></div>
+                    <div class="drops mdDrop"></div>
+                    <div class="drops lgDrop"></div>
+                  </div>
+                </div>
+                <span>Nữ</span>
+              </label>
+            </div>
+            <div class="basic-radio">
+              <input
+                formControlName="gender"
+                [value]="'other'"
+                type="radio"
+                name="gender"
+                class="check"
+                id="lead.other"
+              />
+              <label for="lead.other">
+                <div class="container">
+                  <div class="cRadioBtn">
+                    <div class="overlay"></div>
+                    <div class="drops xsDrop"></div>
+                    <div class="drops mdDrop"></div>
+                    <div class="drops lgDrop"></div>
+                  </div>
+                </div>
+                <span>Khác</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div *ngIf="leadId" class="mt-3">
-        <div class="headline">Thông tin Lead</div>
-        <div class="row mt-3">
-          <div class="col-6">
-            <label class="form-label">Trạng thái Lead</label>
+      <div class="mt-2">
+        <label class="form-control-label" for="leadDeal.address">Địa chỉ</label>
+        <div id="leadDeal.address" class="row g-2">
+          <div class="col-3" [class.col-12]="isMobile">
             <ng-select
-              formControlName="leadStatusId"
-              placeholder="Chọn trạng thái lead..."
-              [items]="leadStatuses"
-              bindValue="id"
-              bindLabel="name"
-              [loading]="loadingLeadData"
               [clearable]="false"
+              [ngClass]="{
+                'is-invalid': submitted && f['provinceCode'].errors
+              }"
+              [placeholder]="'Chọn Tỉnh/Thành phố'"
+              appearance="outline"
+              formControlName="provinceCode"
+              id="province"
+              labelForId="province"
+              [items]="listProvince"
+              bindValue="provinceCode"
+              bindLabel="province"
+              (change)="handleChangeLocation($event.provinceCode, 'province')"
               appendTo=".modal"
-              (change)="onLeadStatusChange($event)"
             ></ng-select>
           </div>
-
-          <div class="col-6">
-            <label class="form-label">Tag Lead</label>
+          <div class="col-3" [class.col-12]="isMobile">
             <ng-select
-              formControlName="leadTags"
-              placeholder="Chọn tag lead..."
-              [items]="leadTags"
-              bindValue="id"
-              bindLabel="name"
-              [multiple]="true"
-              [loading]="loadingLeadData"
-              [closeOnSelect]="false"
+              [clearable]="false"
+              [ngClass]="{
+                'input-disabled': !f['provinceCode']?.value
+              }"
+              [disabled]="!f['provinceCode']?.value"
+              [readonly]="!f['provinceCode']?.value"
+              [placeholder]="'Chọn Quận/Huyện'"
+              appearance="outline"
+              formControlName="districtCode"
+              id="district"
+              labelForId="district"
+              [items]="listDistrict"
+              bindValue="districtCode"
+              bindLabel="district"
+              (change)="handleChangeLocation($event.districtCode, 'district')"
               appendTo=".modal"
-              (change)="onLeadTagsChange($event)"
             ></ng-select>
+          </div>
+          <div class="col-3" [class.col-12]="isMobile">
+            <ng-select
+              [clearable]="false"
+              [ngClass]="{
+                'input-disabled': !f['districtCode']?.value
+              }"
+              [disabled]="!f['districtCode']?.value"
+              [readonly]="!f['districtCode']?.value"
+              [placeholder]="'Chọn Phường/Xã'"
+              class="input-medium"
+              appearance="outline"
+              formControlName="wardCode"
+              id="ward"
+              labelForId="ward"
+              [items]="listWard"
+              bindValue="wardCode"
+              bindLabel="ward"
+              (change)="handleChangeLocation($event.wardCode, 'ward')"
+              appendTo=".modal"
+            ></ng-select>
+          </div>
+          <div class="col-3" [class.col-12]="isMobile">
+            <input
+              class="form-control"
+              [ngClass]="{
+                'is-invalid': submitted && f['street'].errors
+              }"
+              (change)="handleCombineAddress()"
+              [placeholder]="'Nhập chi tiết (Số nhà, ngách, ngõ, đường)'"
+              formControlName="street"
+              id="street"
+              type="text"
+            />
+          </div>
+        </div>
+
+        <div *ngIf="leadId" class="mt-3">
+          <div class="headline">Thông tin Lead</div>
+          <div class="row mt-3">
+            <div class="col-6">
+              <label class="form-label">Trạng thái Lead</label>
+              <ng-select
+                formControlName="leadStatusId"
+                placeholder="Chọn trạng thái lead..."
+                [items]="leadStatuses"
+                bindValue="id"
+                bindLabel="name"
+                [loading]="loadingLeadData"
+                [clearable]="false"
+                appendTo=".modal"
+                (change)="onLeadStatusChange($event)"
+              ></ng-select>
+            </div>
+
+            <div class="col-6">
+              <label class="form-label">Tag Lead</label>
+              <ng-select
+                formControlName="leadTags"
+                placeholder="Chọn tag lead..."
+                [items]="leadTags"
+                bindValue="id"
+                bindLabel="name"
+                [multiple]="true"
+                [loading]="loadingLeadData"
+                [closeOnSelect]="false"
+                appendTo=".modal"
+                (change)="onLeadTagsChange($event)"
+              ></ng-select>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </ng-container>
   </div>
 
   <ng-template #selectNoData>

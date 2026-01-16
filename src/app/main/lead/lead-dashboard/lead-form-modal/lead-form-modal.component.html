@@ -119,8 +119,8 @@
                       </div>
                       <div class="card-content">
                         <div class="row g-2">
-                          <div class="col-3 field-wrapper">
-                            <label class="text-neutral fs-7">
+                          <div class="col-4 field-wrapper">
+                            <label class="text-neutral fs-7 label-card">
                               Số điện thoại:
                             </label>
                             <div class="d-flex align-items-center gap-2">
@@ -163,14 +163,16 @@
                             </div>
                           </div>
 
-                          <div class="col-3 field-wrapper">
-                            <label class="text-neutral fs-7">Nguồn lead:</label>
+                          <div class="col-4 field-wrapper">
+                            <label class="text-neutral fs-7 label-card">
+                              Nguồn lead:
+                            </label>
                             <div class="text-truncate-1">Ads Minh Senpal</div>
                           </div>
 
-                          <div class="col-6 field-wrapper">
+                          <div class="col-4 field-wrapper">
                             <label
-                              class="text-neutral fs-7"
+                              class="text-neutral fs-7 label-card"
                               style="width: 52px"
                             >
                               Thẻ tag:
@@ -259,8 +261,10 @@
                             </div>
                           </div>
 
-                          <div class="col-3 field-wrapper">
-                            <label class="text-neutral fs-7">Email:</label>
+                          <div class="col-4 field-wrapper">
+                            <label class="text-neutral fs-7 label-card">
+                              Email:
+                            </label>
                             <div
                               class="d-flex align-items-center gap-2"
                               style="height: 36px"
@@ -301,8 +305,10 @@
                             </div>
                           </div>
 
-                          <div class="col-3 field-wrapper">
-                            <label class="text-neutral fs-7">Phễu:</label>
+                          <div class="col-4 field-wrapper">
+                            <label class="text-neutral fs-7 label-card">
+                              Phễu:
+                            </label>
                             <div
                               class="d-flex align-items-center gap-2"
                               style="height: 36px"
@@ -358,11 +364,11 @@
                           </div>
 
                           <div
-                            class="col-6 field-wrapper"
+                            class="col-4 field-wrapper"
                             formArrayName="teams"
                             *ngIf="currentSetting?.roles?.length"
                           >
-                            <label class="text-neutral fs-7">
+                            <label class="text-neutral fs-7 label-card">
                               Nhân sự phụ trách:
                               <i
                                 *ngIf="getFieldState('teams').editing"
@@ -605,7 +611,7 @@
                   </div>
                 </div>
 
-                <div class="pe-0">
+                <div>
                   <nav class="lead-form-tab-menu">
                     <ul>
                       <li
@@ -644,10 +650,7 @@
                       ></app-lead-comments-sidebar>
                     </ng-container>
 
-                    <div
-                      class="tasks-section"
-                      *ngIf="activeLeftTabMenu === 'task'"
-                    >
+                    <div *ngIf="activeLeftTabMenu === 'task'">
                       <ng-container *ngIf="lead?.tasks?.length; else noTasks">
                         <ng-container *ngFor="let task of lead?.tasks">
                           <div class="task-card mb-3">
@@ -769,41 +772,35 @@
                     </div>
 
                     <ng-container *ngIf="activeLeftTabMenu === 'product'">
-                      <div class="card">
-                        <div class="card-body">
-                          <div
-                            class="d-flex justify-content-between align-items-center"
-                          >
-                            <div class="headline">Đơn đã tạo</div>
-                          </div>
-                          <app-orders
-                            [orders]="lead?.orders || []"
-                          ></app-orders>
-                        </div>
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <div class="headline">Đơn đã tạo</div>
                       </div>
+                      <app-orders [orders]="lead?.orders || []"></app-orders>
                     </ng-container>
 
                     <ng-container *ngIf="activeLeftTabMenu === 'customer'">
-                      <div class="custom-scrollbar section-area">
-                        <div class="headline">
-                          Thông tin khách hàng
-                          <i
-                            class="fa-regular fa-circle-question ms-1"
-                            [tooltip]="
-                              'Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới'
-                            "
-                            placement="right"
-                          ></i>
-                        </div>
-                        <!-- <app-customer-info
-                          [hasUpdateTaskPer]="permissions.canEditLead"
-                          [submitted]="submitted"
-                          [formGroup]="leadForm"
-                          [selectedCustomerId]="leadForm.value.id"
-                          [leadId]="leadData?.id || f['leadId']?.value"
-                          [(isOpenBackdrop)]="isOpenBackDrop"
-                        ></app-customer-info> -->
+                      <div class="headline">
+                        Thông tin khách hàng
+                        <i
+                          class="fa-regular fa-circle-question ms-1"
+                          [tooltip]="
+                            'Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới'
+                          "
+                          placement="right"
+                        ></i>
                       </div>
+                      <!-- <app-customer-info
+                        [hasUpdateTaskPer]="permissions.canEditLead"
+                        [submitted]="submitted"
+                        [formGroup]="leadForm"
+                        [selectedCustomerId]="leadForm.value.id"
+                        [leadId]="lead?.id"
+                        [(isOpenBackdrop)]="isOpenBackDrop"
+                        [hasUpdateTaskPer]="false"
+                        [onlyView]="true"
+                      ></app-customer-info> -->
                     </ng-container>
                   </div>
                 </div>
