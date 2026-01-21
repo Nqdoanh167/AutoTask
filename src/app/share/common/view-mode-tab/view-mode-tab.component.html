@@ -33,6 +33,7 @@
             *ngIf="!tabz.isRename"
             (dblclick)="handleEditTab(tabz, $event, index)"
             [tooltip]="getUserById(tabz?.ownerId)?.name || 'Không xác định'"
+            [style.opacity]="tabz.isActive ? 1 : 0.5"
           >
             <!-- <i
               class="fa-solid fa-home"

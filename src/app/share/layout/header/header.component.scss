@@ -6,8 +6,12 @@
   left: 0;
   width: 100%;
   z-index: 999;
-  padding: 0 16px 0 60px;
+  padding: 0 16px 0 70px;
   height: 50px;
+  transition: padding-left 0.3s ease;
+  &.sidebar-expanded {
+    padding-left: 262px;
+  }
 
   .frame-avatar {
     // padding-left: 24px;

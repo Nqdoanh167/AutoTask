@@ -948,7 +948,7 @@ export class ViewModeTabComponent
         `view-mode-id-${tab.id}-link`,
       );
       if (navLinkTabElement) {
-        navLinkTabElement.style.borderTop = `3px solid ${
+        navLinkTabElement.style.borderBottom = `3px solid ${
           tab.tabViewModeBorderColor || 'transparent'
         }`;
       }

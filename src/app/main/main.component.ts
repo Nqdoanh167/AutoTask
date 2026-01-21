@@ -18,6 +18,7 @@ export class MainComponent
   implements OnInit, OnDestroy
 {
   public isHiddenSidebar = false;
+  public isSidebarExpanded = false;
   public listNavItems: ISidebar[] = [];
   public isLeadModule = false;
   public isLeadDashboard = false;
@@ -75,6 +76,10 @@ export class MainComponent
         this.listNavItems = res;
       }
     });
+  }
+
+  onSidebarToggle(isExpanded: boolean) {
+    this.isSidebarExpanded = isExpanded;
   }
 
   override ngOnDestroy(): void {

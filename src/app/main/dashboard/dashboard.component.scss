@@ -10,8 +10,8 @@
 }
 
 .table-responsive {
-  @include mixins.calculateSize('max-height', '100vh', '205px');
-  @include mixins.calculateSize('height', '100vh', '205px');
+  @include mixins.calculateSize('max-height', '100vh', '218px');
+  @include mixins.calculateSize('height', '100vh', '218px');
 }
 
 .avatar {

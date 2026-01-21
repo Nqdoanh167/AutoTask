@@ -1,4 +1,4 @@
-<div class="navbar-component">
+<div class="navbar-component" [ngClass]="{'sidebar-expanded': isSidebarExpanded}">
   <div class="d-flex justify-content-between align-items-center h-100">
     <div class="d-flex">
       <ng-content select=".left"></ng-content>

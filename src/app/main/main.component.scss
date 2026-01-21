@@ -10,9 +10,19 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 50px 0 0 50px;
+    padding: 50px 0 0 64px;
     overflow: hidden;
     min-width: 0;
+    transition: padding-left 0.3s ease;
+    &.ps-0 {
+      padding-left: 0;
+    }
+    &.sidebar-expanded {
+      padding-left: 256px;
+    }
+    &.sidebar-collapsed {
+      padding-left: 64px;
+    }
 
     .router-outlet-container {
       flex: 1;

@@ -1,10 +1,17 @@
 <div class="wrapper">
   <!-- <app-sidebar></app-sidebar> -->
-  <app-sidebar *ngIf="currentBiz && !isHiddenSidebar"></app-sidebar>
+  <app-sidebar
+    *ngIf="currentBiz && !isHiddenSidebar"
+    (sidebarToggle)="onSidebarToggle($event)"
+  ></app-sidebar>
   <div
     class="content-wrapper"
     style="height: 100vh"
-    [ngClass]="{'ps-0': isHiddenSidebar}"
+    [ngClass]="{
+      'ps-0': isHiddenSidebar,
+      'sidebar-collapsed': !isHiddenSidebar && !isSidebarExpanded,
+      'sidebar-expanded': !isHiddenSidebar && isSidebarExpanded
+    }"
   >
     <ng-container *ngIf="currentBiz; else nonBiz">
       <app-header>

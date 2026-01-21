@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter} from '@angular/core';
 import {NavigationEnd, Router} from '@angular/router';
 import {AuthService} from 'src/app/services/api/auth.service';
 import {Biz, EModule, ISidebar, User} from 'src/app/types/viewmodels';
@@ -18,6 +18,8 @@ import {MainService} from '@app/services/api/main.service';
   styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
+  @Output() sidebarToggle = new EventEmitter<boolean>();
+  public isExpanded = false;
   public listConfigNavItems: ISidebar[] = listConfigNavItems;
   public listDashboardNavItems: ISidebar[] = listDashboardNavItems;
   public listSettingNavItems: ISidebar[] = listSettingNavItems;
@@ -83,6 +85,7 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit(): void {
     this.changeRoute();
+    this.mainService.setSidebarExpanded(this.isExpanded);
   }
 
   changeRoute() {
@@ -129,6 +132,12 @@ export class SidebarComponent implements OnInit {
 
   onItemHover(item: ISidebar, isHovered: boolean) {
     item.isHovered = isHovered;
+  }
+
+  toggleSidebar() {
+    this.isExpanded = !this.isExpanded;
+    this.mainService.setSidebarExpanded(this.isExpanded);
+    this.sidebarToggle.emit(this.isExpanded);
   }
 
   getPositionString(text: string, subString: string, index: number) {

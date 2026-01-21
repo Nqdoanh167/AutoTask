@@ -126,80 +126,172 @@
   </div>
 </app-header>
 <div class="dashboard-site">
-  <div class="d-flex align-items-start" style="gap: 3px">
-    <div class="btn-group" dropdown>
-      <button
-        type="button"
-        class="btn center-item button-filter-top button-fill secondary-color"
-        (click)="handleAction('add_new')"
-      >
-        <img src="{{ taskConfigButton.icon }}" alt="" class="activeIcon" />
-        {{ taskConfigButton.label }}
-      </button>
-
-      @if (taskConfigButton.children && taskConfigButton.children.length) {
+  <div class="bg-white p-3 rounded-1">
+    <div class="d-flex align-items-start" style="gap: 3px">
+      <div class="btn-group" dropdown>
         <button
           type="button"
-          class="btn btn-dropdown {{
-            taskConfigButton.className
-          }} dropdown-toggle p-2 dropdown-toggle-split button-fill secondary-color"
-          dropdownToggle
-          aria-haspopup="true"
-          aria-expanded="false"
-          style="border-left: 1px solid #ffffff15"
+          class="btn center-item button-filter-top button-fill secondary-color"
+          (click)="handleAction('add_new')"
         >
-          <span class="visually-hidden">Toggle Dropdown</span>
+          <img src="{{ taskConfigButton.icon }}" alt="" class="activeIcon" />
+          {{ taskConfigButton.label }}
         </button>
-        <ul *dropdownMenu class="dropdown-menu dropdown-menu-left" role="menu">
-          @for (
-            child of taskConfigButton.children;
-            track childIndex;
-            let childIndex = $index
-          ) {
-            <li role="menuitem">
-              <div
-                class="dropdown-item d-flex align-items-center"
-                (click)="handleAction(child.name || '')"
-                [class.disabled]="child.disabled"
-              >
-                @if (child.icon) {
-                  <img
-                    src="{{ child.icon }}"
-                    alt=""
-                    class="me-2"
-                    style="width: 16px; height: 16px"
-                  />
-                }
-                {{ child.tooltip || child.label || child.name }}
-              </div>
-            </li>
-          }
-        </ul>
-      }
-    </div>
 
-    <app-view-mode-tab
-      [isActiveChangeTab]="!item.loading"
-      [key]="EScreens.DASHBOARD"
-      [quantity]="item.total"
-      [checkbox]="checkbox"
-    ></app-view-mode-tab>
-  </div>
-  <div class="card">
-    <div class="card-body">
-      <div class="content-site">
-        <cdk-virtual-scroll-viewport
-          #virtualScroll
-          [itemSize]="82"
-          [minBufferPx]="82 * 9"
-          [maxBufferPx]="82 * 18"
-          class="table-responsive tableFixHead custom-scrollbar"
-        >
-          <table class="table col-resizable ui-v2">
-            <thead>
-              @if (!getLengthCheckRow()) {
-                <tr>
-                  @if (permission.edit) {
+        @if (taskConfigButton.children && taskConfigButton.children.length) {
+          <button
+            type="button"
+            class="btn btn-dropdown {{
+              taskConfigButton.className
+            }} dropdown-toggle p-2 dropdown-toggle-split button-fill secondary-color"
+            dropdownToggle
+            aria-haspopup="true"
+            aria-expanded="false"
+            style="border-left: 1px solid #ffffff15"
+          >
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul
+            *dropdownMenu
+            class="dropdown-menu dropdown-menu-left"
+            role="menu"
+          >
+            @for (
+              child of taskConfigButton.children;
+              track childIndex;
+              let childIndex = $index
+            ) {
+              <li role="menuitem">
+                <div
+                  class="dropdown-item d-flex align-items-center"
+                  (click)="handleAction(child.name || '')"
+                  [class.disabled]="child.disabled"
+                >
+                  @if (child.icon) {
+                    <img
+                      src="{{ child.icon }}"
+                      alt=""
+                      class="me-2"
+                      style="width: 16px; height: 16px"
+                    />
+                  }
+                  {{ child.tooltip || child.label || child.name }}
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <app-view-mode-tab
+        [isActiveChangeTab]="!item.loading"
+        [key]="EScreens.DASHBOARD"
+        [quantity]="item.total"
+        [checkbox]="checkbox"
+      ></app-view-mode-tab>
+    </div>
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="content-site">
+          <cdk-virtual-scroll-viewport
+            #virtualScroll
+            [itemSize]="82"
+            [minBufferPx]="82 * 9"
+            [maxBufferPx]="82 * 18"
+            class="table-responsive tableFixHead custom-scrollbar"
+          >
+            <table class="table col-resizable ui-v2">
+              <thead>
+                @if (!getLengthCheckRow()) {
+                  <tr>
+                    @if (permission.edit) {
+                      <th
+                        scope="col"
+                        style="width: 40px"
+                        class="column-checkbox"
+                        [style.top]="
+                          -(
+                            virtualScroll!.getOffsetToRenderedContentStart() ||
+                            0
+                          ) + 'px'
+                        "
+                      >
+                        <label class="basic-checkbox standalone">
+                          <input
+                            type="checkbox"
+                            (change)="
+                              handleSelectRow({type: 'all', event: $event})
+                            "
+                            [checked]="isAllChecked()"
+                          />
+                          <span class="checkmark"></span>
+                        </label>
+                      </th>
+                    }
+                    <ng-container
+                      *ngFor="let columns of dataColumnsShow; index as i"
+                    >
+                      <th
+                        (mousedown)="startResizing($event)"
+                        [style.top]="
+                          -(
+                            virtualScroll!.getOffsetToRenderedContentStart() ||
+                            0
+                          ) + 'px'
+                        "
+                        [ngClass]="{
+                          'last-column': i === dataColumnsShow.length - 1
+                        }"
+                      >
+                        <div class="d-flex align-items-center gap-2">
+                          <i
+                            *ngIf="columns.showTooltip"
+                            class="fa fa-question-circle"
+                            [tooltipHtml]="columns.tooltip || ''"
+                          ></i>
+                          {{ columns.name }}
+                          <span
+                            *ngIf="columns.fieldSort"
+                            class="caret-wrapper justify-content-center"
+                            (click)="changeSort(columns.fieldSort)"
+                          >
+                            <i
+                              class="fa fa-caret-up asc"
+                              [ngClass]="{
+                                'text-primary': sort[columns.fieldSort] === 1
+                              }"
+                            ></i>
+                            <i
+                              class="fa fa-caret-down desc"
+                              [ngClass]="{
+                                'text-primary': sort[columns.fieldSort] === -1
+                              }"
+                            ></i>
+                          </span>
+                          <ng-container
+                            *ngIf="i === dataColumnsShow.length - 1"
+                          >
+                            <div
+                              class="button-icon-wrapper"
+                              (click)="showModalOrderableTable()"
+                              [tooltip]="'Tùy chỉnh bảng'"
+                              [placement]="'left'"
+                            >
+                              <button class="button-icon">
+                                <img
+                                  src="./assets/icons/setting-table.svg"
+                                  alt=""
+                                />
+                              </button>
+                            </div>
+                          </ng-container>
+                        </div>
+                      </th>
+                    </ng-container>
+                    <!-- <th class="columns-action">Hành động</th> -->
+                  </tr>
+                } @else {
+                  <tr>
                     <th
                       scope="col"
                       style="width: 40px"
@@ -221,805 +313,743 @@
                         <span class="checkmark"></span>
                       </label>
                     </th>
-                  }
-                  <ng-container
-                    *ngFor="let columns of dataColumnsShow; index as i"
-                  >
                     <th
-                      (mousedown)="startResizing($event)"
+                      colspan="12"
                       [style.top]="
                         -(
                           virtualScroll!.getOffsetToRenderedContentStart() || 0
                         ) + 'px'
                       "
-                      [ngClass]="{
-                        'last-column': i === dataColumnsShow.length - 1
-                      }"
                     >
-                      <div class="d-flex align-items-center gap-2">
-                        <i
-                          *ngIf="columns.showTooltip"
-                          class="fa fa-question-circle"
-                          [tooltipHtml]="columns.tooltip || ''"
-                        ></i>
-                        {{ columns.name }}
-                        <span
-                          *ngIf="columns.fieldSort"
-                          class="caret-wrapper justify-content-center"
-                          (click)="changeSort(columns.fieldSort)"
+                      <div class="d-flex align-items-center gap-3">
+                        <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
+                        <ng-select
+                          #selectBatchActions
+                          appearance="outline"
+                          [clearable]="false"
+                          placeholder="Thao tác hàng loạt"
+                          style="width: 250px"
+                          [items]="multipleAction"
+                          (change)="showModalMultipleAction($event)"
+                          appendTo="body"
+                          class="ng-select ng-select-single"
+                        ></ng-select>
+                        <button
+                          class="btn button-outline"
+                          (click)="handleRefreshRow()"
                         >
-                          <i
-                            class="fa fa-caret-up asc"
-                            [ngClass]="{
-                              'text-primary': sort[columns.fieldSort] === 1
-                            }"
-                          ></i>
-                          <i
-                            class="fa fa-caret-down desc"
-                            [ngClass]="{
-                              'text-primary': sort[columns.fieldSort] === -1
-                            }"
-                          ></i>
-                        </span>
-                        <ng-container *ngIf="i === dataColumnsShow.length - 1">
-                          <div
-                            class="button-icon-wrapper"
-                            (click)="showModalOrderableTable()"
-                            [tooltip]="'Tùy chỉnh bảng'"
-                            [placement]="'left'"
-                          >
-                            <button class="button-icon">
-                              <img
-                                src="./assets/icons/setting-table.svg"
-                                alt=""
-                              />
-                            </button>
-                          </div>
-                        </ng-container>
+                          Bỏ chọn tất cả
+                        </button>
                       </div>
                     </th>
-                  </ng-container>
-                  <!-- <th class="columns-action">Hành động</th> -->
-                </tr>
-              } @else {
-                <tr>
-                  <th
-                    scope="col"
-                    style="width: 40px"
-                    class="column-checkbox"
-                    [style.top]="
-                      -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
-                      'px'
-                    "
-                  >
-                    <label class="basic-checkbox standalone">
-                      <input
-                        type="checkbox"
-                        (change)="handleSelectRow({type: 'all', event: $event})"
-                        [checked]="isAllChecked()"
-                      />
-                      <span class="checkmark"></span>
-                    </label>
-                  </th>
-                  <th
-                    colspan="12"
-                    [style.top]="
-                      -(virtualScroll!.getOffsetToRenderedContentStart() || 0) +
-                      'px'
-                    "
-                  >
-                    <div class="d-flex align-items-center gap-3">
-                      <span>Đã chọn {{ getLengthCheckRow() }} bản ghi</span>
-                      <ng-select
-                        #selectBatchActions
-                        appearance="outline"
-                        [clearable]="false"
-                        placeholder="Thao tác hàng loạt"
-                        style="width: 250px"
-                        [items]="multipleAction"
-                        (change)="showModalMultipleAction($event)"
-                        appendTo="body"
-                        class="ng-select ng-select-single"
-                      ></ng-select>
-                      <button
-                        class="btn button-outline"
-                        (click)="handleRefreshRow()"
-                      >
-                        Bỏ chọn tất cả
-                      </button>
-                    </div>
-                  </th>
-                </tr>
-              }
-            </thead>
-            <tbody>
-              <tr
-                class="text-center"
-                *ngIf="!item.rows.length && !item.loading"
-              >
-                <td colspan="12">
-                  <div>Không có dữ liệu</div>
-                </td>
-              </tr>
-              <tr class="text-center" *ngIf="item.loading">
-                <td colspan="12">
-                  <div class="spinner-grow text-primary" role="status">
-                    <span class="visually-hidden">Loading</span>
-                  </div>
-                  <div>Loading</div>
-                </td>
-              </tr>
-              <tr *cdkVirtualFor="let item of item.rows; index as i">
-                @if (permission.edit) {
-                  <td>
-                    <label class="basic-checkbox">
-                      <input
-                        value="{{ item.id }}"
-                        [checked]="isCheckRow(item)"
-                        (change)="handleSelectRow({item, event: $event})"
-                        (keydown)="isShift = true"
-                        (keyup)="isShift = false"
-                        type="checkbox"
-                      />
-                      <span class="checkmark"></span>
-                    </label>
-                  </td>
+                  </tr>
                 }
-                <ng-container
-                  *ngFor="let columns of dataColumnsShow; index as i"
+              </thead>
+              <tbody>
+                <tr
+                  class="text-center"
+                  *ngIf="!item.rows.length && !item.loading"
                 >
-                  <ng-container [ngSwitch]="columns.value">
-                    <ng-container *ngSwitchCase="'name'">
-                      <td>
-                        <div *ngIf="item.isTaskClosed">
-                          <div
-                            *ngIf="item.closeTaskResult === true"
-                            class="close-text-success"
-                          >
-                            <span>Thành công</span>
-                          </div>
-                          <div
-                            *ngIf="item.closeTaskResult === false"
-                            class="close-text-failure"
-                          >
-                            <span>Thất bại</span>
-                          </div>
-                        </div>
-                        <div
-                          class="fw-500 cursor-pointer"
-                          [routerLink]="['/']"
-                          [queryParams]="{id: item.id}"
-                        >
-                          {{ item.name || '-' }}
-                        </div>
-                        <div
-                          class="fw-500 cursor-pointer text-link mt-1"
-                          [routerLink]="['/']"
-                          [queryParams]="{id: item.id}"
-                        >
-                          {{ item.code || '-' }}
-                        </div>
-                        <div class="d-flex flex-row flex-wrap gap-1 mt-1">
-                          <div *ngFor="let tagId of item.tags">
-                            <span
-                              *ngIf="getTagById(tagId) as tag"
-                              class="text-capitalize me-2 tag-item"
-                              [ngClass]="{nonBack: !tag.bgColor}"
-                              [ngStyle]="{background: tag.bgColor}"
-                            >
-                              <span>{{ tag.name }}</span>
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'taskChains'">
-                      <td class="column-action-chain">
-                        <div class="list-chain d-flex flex-column gap-2">
-                          <ng-container *ngIf="item?.taskChains?.length">
+                  <td colspan="12">
+                    <div>Không có dữ liệu</div>
+                  </td>
+                </tr>
+                <tr class="text-center" *ngIf="item.loading">
+                  <td colspan="12">
+                    <div class="spinner-grow text-primary" role="status">
+                      <span class="visually-hidden">Loading</span>
+                    </div>
+                    <div>Loading</div>
+                  </td>
+                </tr>
+                <tr *cdkVirtualFor="let item of item.rows; index as i">
+                  @if (permission.edit) {
+                    <td>
+                      <label class="basic-checkbox">
+                        <input
+                          value="{{ item.id }}"
+                          [checked]="isCheckRow(item)"
+                          (change)="handleSelectRow({item, event: $event})"
+                          (keydown)="isShift = true"
+                          (keyup)="isShift = false"
+                          type="checkbox"
+                        />
+                        <span class="checkmark"></span>
+                      </label>
+                    </td>
+                  }
+                  <ng-container
+                    *ngFor="let columns of dataColumnsShow; index as i"
+                  >
+                    <ng-container [ngSwitch]="columns.value">
+                      <ng-container *ngSwitchCase="'name'">
+                        <td>
+                          <div *ngIf="item.isTaskClosed">
                             <div
-                              *ngFor="
-                                let taskChain of item?.taskChains
-                                  | inArrayFilter
-                                    : 'chainActId'
-                                    : [
-                                        currentActiveViewMode?.options
-                                          ?.chainActId
-                                      ]
-                              "
-                              class="chain-item"
-                              [class.item-lock]="
-                                taskChain.status === ETaskChainType.CLOSED
-                              "
+                              *ngIf="item.closeTaskResult === true"
+                              class="close-text-success"
                             >
-                              <div class="lock" tooltip="Chuỗi đã đóng">
-                                <img
-                                  src="./assets/images/icon/grey-lock.svg"
-                                  alt=""
-                                />
-                              </div>
+                              <span>Thành công</span>
+                            </div>
+                            <div
+                              *ngIf="item.closeTaskResult === false"
+                              class="close-text-failure"
+                            >
+                              <span>Thất bại</span>
+                            </div>
+                          </div>
+                          <div
+                            class="fw-500 cursor-pointer"
+                            [routerLink]="['/']"
+                            [queryParams]="{id: item.id}"
+                          >
+                            {{ item.name || '-' }}
+                          </div>
+                          <div
+                            class="fw-500 cursor-pointer text-link mt-1"
+                            [routerLink]="['/']"
+                            [queryParams]="{id: item.id}"
+                          >
+                            {{ item.code || '-' }}
+                          </div>
+                          <div class="d-flex flex-row flex-wrap gap-1 mt-1">
+                            <div *ngFor="let tagId of item.tags">
+                              <span
+                                *ngIf="getTagById(tagId) as tag"
+                                class="text-capitalize me-2 tag-item"
+                                [ngClass]="{nonBack: !tag.bgColor}"
+                                [ngStyle]="{background: tag.bgColor}"
+                              >
+                                <span>{{ tag.name }}</span>
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'taskChains'">
+                        <td class="column-action-chain">
+                          <div class="list-chain d-flex flex-column gap-2">
+                            <ng-container *ngIf="item?.taskChains?.length">
+                              <div
+                                *ngFor="
+                                  let taskChain of item?.taskChains
+                                    | inArrayFilter
+                                      : 'chainActId'
+                                      : [
+                                          currentActiveViewMode?.options
+                                            ?.chainActId
+                                        ]
+                                "
+                                class="chain-item"
+                                [class.item-lock]="
+                                  taskChain.status === ETaskChainType.CLOSED
+                                "
+                              >
+                                <div class="lock" tooltip="Chuỗi đã đóng">
+                                  <img
+                                    src="./assets/images/icon/grey-lock.svg"
+                                    alt=""
+                                  />
+                                </div>
 
-                              <div class="list-act">
-                                <div
-                                  *ngFor="
-                                    let taskChainResult of taskChain?.taskChainResults;
-                                    let resultIndex = index
-                                  "
-                                  class="list-act-item"
-                                >
-                                  <span>#{{ resultIndex + 1 }}</span>
-                                  <span>
-                                    -
-                                    <span
-                                      *ngIf="!!taskChainResult?.executedDate"
-                                      class="completed"
-                                    >
-                                      <i class="fa-solid fa-check"></i>
-                                    </span>
-                                    <span
-                                      *ngIf="
-                                        !taskChainResult?.executedDate &&
-                                        taskChainResult?.deadlineDate &&
-                                        taskChain?.status !==
-                                          ETaskChainType.CLOSED
-                                      "
-                                    >
-                                      <ng-container
-                                        [ngTemplateOutlet]="timeLeft"
-                                        [ngTemplateOutletContext]="{
-                                          dataTimeLeft:
-                                            (taskChainResult.deadlineDate
-                                            | calculateTaskDeadline: taskChain)
-                                        }"
-                                      ></ng-container>
-                                      @if (
-                                        taskChainResult?.reasonEditedDate
-                                          ?.length
-                                      ) {
-                                        <i
-                                          [popover]="changeHistoriesPop"
-                                          placement="right"
-                                          [outsideClick]="true"
-                                          class="fa-solid fa-circle-exclamation warning-change-time"
-                                          container="body"
-                                          [tooltip]="
-                                            'Lịch sử chỉnh sửa thời gian'
-                                          "
-                                        ></i>
-                                        <ng-template #changeHistoriesPop>
-                                          <div
-                                            class="popover-change-histories align-items-center"
-                                          >
-                                            <div class="headline mb-2">
-                                              Lịch sử chỉnh sửa thời gian
-                                            </div>
+                                <div class="list-act">
+                                  <div
+                                    *ngFor="
+                                      let taskChainResult of taskChain?.taskChainResults;
+                                      let resultIndex = index
+                                    "
+                                    class="list-act-item"
+                                  >
+                                    <span>#{{ resultIndex + 1 }}</span>
+                                    <span>
+                                      -
+                                      <span
+                                        *ngIf="!!taskChainResult?.executedDate"
+                                        class="completed"
+                                      >
+                                        <i class="fa-solid fa-check"></i>
+                                      </span>
+                                      <span
+                                        *ngIf="
+                                          !taskChainResult?.executedDate &&
+                                          taskChainResult?.deadlineDate &&
+                                          taskChain?.status !==
+                                            ETaskChainType.CLOSED
+                                        "
+                                      >
+                                        <ng-container
+                                          [ngTemplateOutlet]="timeLeft"
+                                          [ngTemplateOutletContext]="{
+                                            dataTimeLeft:
+                                              (taskChainResult.deadlineDate
+                                              | calculateTaskDeadline
+                                                : taskChain)
+                                          }"
+                                        ></ng-container>
+                                        @if (
+                                          taskChainResult?.reasonEditedDate
+                                            ?.length
+                                        ) {
+                                          <i
+                                            [popover]="changeHistoriesPop"
+                                            placement="right"
+                                            [outsideClick]="true"
+                                            class="fa-solid fa-circle-exclamation warning-change-time"
+                                            container="body"
+                                            [tooltip]="
+                                              'Lịch sử chỉnh sửa thời gian'
+                                            "
+                                          ></i>
+                                          <ng-template #changeHistoriesPop>
                                             <div
-                                              class="table-responsive tableFixHead custom-scrollbar"
-                                              [style.max-height]="'300px'"
+                                              class="popover-change-histories align-items-center"
                                             >
-                                              <table
-                                                class="table table-change-histories"
+                                              <div class="headline mb-2">
+                                                Lịch sử chỉnh sửa thời gian
+                                              </div>
+                                              <div
+                                                class="table-responsive tableFixHead custom-scrollbar"
+                                                [style.max-height]="'300px'"
                                               >
-                                                <thead>
-                                                  <tr>
-                                                    <th>Thời gian chỉnh sửa</th>
-                                                    <th>Trước khi chỉnh sửa</th>
-                                                    <th>Sau khi chỉnh sửa</th>
-                                                    <th>Người sửa</th>
-                                                    <th>Ghi chú</th>
-                                                  </tr>
-                                                </thead>
-                                                <tbody>
-                                                  @for (
-                                                    reasonEditedDate of taskChainResult?.reasonEditedDate;
-                                                    track reasonEditedDateIndex;
-                                                    let reasonEditedDateIndex = $index
-                                                  ) {
+                                                <table
+                                                  class="table table-change-histories"
+                                                >
+                                                  <thead>
                                                     <tr>
-                                                      <td>
-                                                        {{
-                                                          reasonEditedDate?.editedDate
-                                                            | date
-                                                              : 'dd/MM/yyyy HH:mm'
-                                                        }}
-                                                      </td>
-                                                      <td>
-                                                        @if (
-                                                          reasonEditedDate?.deadDate &&
-                                                          reasonEditedDate?.editedDate
-                                                        ) {
-                                                          <div
-                                                            *ngLet="
-                                                              reasonEditedDate.deadDate <
-                                                              reasonEditedDate.editedDate as outOfDeadline
-                                                            "
-                                                          >
+                                                      <th>
+                                                        Thời gian chỉnh sửa
+                                                      </th>
+                                                      <th>
+                                                        Trước khi chỉnh sửa
+                                                      </th>
+                                                      <th>Sau khi chỉnh sửa</th>
+                                                      <th>Người sửa</th>
+                                                      <th>Ghi chú</th>
+                                                    </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                    @for (
+                                                      reasonEditedDate of taskChainResult?.reasonEditedDate;
+                                                      track reasonEditedDateIndex;
+                                                      let reasonEditedDateIndex = $index
+                                                    ) {
+                                                      <tr>
+                                                        <td>
+                                                          {{
+                                                            reasonEditedDate?.editedDate
+                                                              | date
+                                                                : 'dd/MM/yyyy HH:mm'
+                                                          }}
+                                                        </td>
+                                                        <td>
+                                                          @if (
+                                                            reasonEditedDate?.deadDate &&
+                                                            reasonEditedDate?.editedDate
+                                                          ) {
                                                             <div
-                                                              class="{{
-                                                                outOfDeadline
-                                                                  ? 'text-danger'
-                                                                  : 'text-primary'
-                                                              }}"
+                                                              *ngLet="
+                                                                reasonEditedDate.deadDate <
+                                                                reasonEditedDate.editedDate as outOfDeadline
+                                                              "
                                                             >
+                                                              <div
+                                                                class="{{
+                                                                  outOfDeadline
+                                                                    ? 'text-danger'
+                                                                    : 'text-primary'
+                                                                }}"
+                                                              >
+                                                                {{
+                                                                  outOfDeadline
+                                                                    ? 'Trễ'
+                                                                    : 'Còn'
+                                                                }}
+                                                                {{
+                                                                  reasonEditedDate.deadDate
+                                                                    | calculateDeadline
+                                                                      : reasonEditedDate.editedDate
+                                                                }}
+                                                              </div>
+                                                            </div>
+                                                          }
+                                                        </td>
+                                                        <td>
+                                                          @if (
+                                                            reasonEditedDate?.newDate &&
+                                                            reasonEditedDate?.editedDate
+                                                          ) {
+                                                            <div
+                                                              class="text-primary"
+                                                            >
+                                                              Còn
                                                               {{
-                                                                outOfDeadline
-                                                                  ? 'Trễ'
-                                                                  : 'Còn'
-                                                              }}
-                                                              {{
-                                                                reasonEditedDate.deadDate
+                                                                reasonEditedDate.newDate
                                                                   | calculateDeadline
                                                                     : reasonEditedDate.editedDate
                                                               }}
                                                             </div>
-                                                          </div>
-                                                        }
-                                                      </td>
-                                                      <td>
-                                                        @if (
-                                                          reasonEditedDate?.newDate &&
-                                                          reasonEditedDate?.editedDate
-                                                        ) {
+                                                          }
+                                                        </td>
+                                                        <td>
                                                           <div
-                                                            class="text-primary"
+                                                            class="d-flex gap-2 align-items-center"
                                                           >
-                                                            Còn
+                                                            <img
+                                                              class="avatar"
+                                                              src="{{
+                                                                reasonEditedDate
+                                                                  ?.editedBy
+                                                                  ?.picture
+                                                              }}"
+                                                              alt=""
+                                                            />
+                                                            <span
+                                                              class="fw-500"
+                                                            >
+                                                              {{
+                                                                reasonEditedDate
+                                                                  ?.editedBy
+                                                                  ?.name
+                                                              }}
+                                                            </span>
+                                                          </div>
+                                                        </td>
+                                                        <td class="column-note">
+                                                          <div>
                                                             {{
-                                                              reasonEditedDate.newDate
-                                                                | calculateDeadline
-                                                                  : reasonEditedDate.editedDate
+                                                              reasonEditedDate?.reason ||
+                                                                '-'
                                                             }}
                                                           </div>
-                                                        }
-                                                      </td>
-                                                      <td>
-                                                        <div
-                                                          class="d-flex gap-2 align-items-center"
-                                                        >
-                                                          <img
-                                                            class="avatar"
-                                                            src="{{
-                                                              reasonEditedDate
-                                                                ?.editedBy
-                                                                ?.picture
-                                                            }}"
-                                                            alt=""
-                                                          />
-                                                          <span class="fw-500">
-                                                            {{
-                                                              reasonEditedDate
-                                                                ?.editedBy?.name
-                                                            }}
-                                                          </span>
-                                                        </div>
-                                                      </td>
-                                                      <td class="column-note">
-                                                        <div>
-                                                          {{
-                                                            reasonEditedDate?.reason ||
-                                                              '-'
-                                                          }}
-                                                        </div>
-                                                      </td>
-                                                    </tr>
-                                                  }
-                                                  <tr></tr>
-                                                </tbody>
-                                              </table>
+                                                        </td>
+                                                      </tr>
+                                                    }
+                                                    <tr></tr>
+                                                  </tbody>
+                                                </table>
+                                              </div>
                                             </div>
-                                          </div>
+                                          </ng-template>
+                                        }
+                                        <ng-template
+                                          #timeLeft
+                                          let-dataTimeLeft="dataTimeLeft"
+                                        >
+                                          <span
+                                            class="{{
+                                              dataTimeLeft?.typeOverDeadline
+                                            }}"
+                                          >
+                                            <ng-container
+                                              [ngSwitch]="
+                                                dataTimeLeft?.typeOverDeadline
+                                              "
+                                            >
+                                              <span *ngSwitchCase="'over'">
+                                                <i
+                                                  class="fa-solid fa-triangle-exclamation"
+                                                  style="color: #ef6a6a"
+                                                ></i>
+                                              </span>
+                                              <span *ngSwitchCase="'notOver'">
+                                                <i
+                                                  class="fa-solid fa-stopwatch"
+                                                  style="color: #4277ff"
+                                                ></i>
+                                              </span>
+                                              <span *ngSwitchCase="'now'">
+                                                Ngay lập tức
+                                              </span>
+                                            </ng-container>
+                                            <span
+                                              *ngIf="
+                                                dataTimeLeft.typeOverDeadline !==
+                                                'now'
+                                              "
+                                            >
+                                              {{ dataTimeLeft.timeLeft }}
+                                            </span>
+                                          </span>
                                         </ng-template>
-                                      }
-                                      <ng-template
-                                        #timeLeft
-                                        let-dataTimeLeft="dataTimeLeft"
+                                      </span>
+                                    </span>
+                                    <span>
+                                      <ng-container
+                                        [ngSwitch]="
+                                          taskChainResult?.action?.name
+                                        "
                                       >
                                         <span
-                                          class="{{
-                                            dataTimeLeft?.typeOverDeadline
-                                          }}"
+                                          *ngSwitchCase="
+                                            'Call block automation'
+                                          "
                                         >
-                                          <ng-container
-                                            [ngSwitch]="
-                                              dataTimeLeft?.typeOverDeadline
-                                            "
-                                          >
-                                            <span *ngSwitchCase="'over'">
-                                              <i
-                                                class="fa-solid fa-triangle-exclamation"
-                                                style="color: #ef6a6a"
-                                              ></i>
-                                            </span>
-                                            <span *ngSwitchCase="'notOver'">
-                                              <i
-                                                class="fa-solid fa-stopwatch"
-                                                style="color: #4277ff"
-                                              ></i>
-                                            </span>
-                                            <span *ngSwitchCase="'now'">
-                                              Ngay lập tức
-                                            </span>
-                                          </ng-container>
-                                          <span
-                                            *ngIf="
-                                              dataTimeLeft.typeOverDeadline !==
-                                              'now'
-                                            "
-                                          >
-                                            {{ dataTimeLeft.timeLeft }}
-                                          </span>
+                                          Gọi Block Automation
                                         </span>
-                                      </ng-template>
+                                        <span *ngSwitchCase="'Close chain'">
+                                          Đóng chuỗi
+                                        </span>
+                                        <span
+                                          *ngSwitchCase="'Auto create order'"
+                                        >
+                                          Tạo đơn hàng thủ công
+                                        </span>
+                                        <span *ngSwitchDefault class="fw-500">
+                                          {{ taskChainResult?.action?.name }}
+                                        </span>
+                                      </ng-container>
                                     </span>
-                                  </span>
-                                  <span>
-                                    <ng-container
-                                      [ngSwitch]="taskChainResult?.action?.name"
+                                    <span
+                                      *ngIf="!!taskChainResult.result?.name"
                                     >
-                                      <span
-                                        *ngSwitchCase="'Call block automation'"
-                                      >
-                                        Gọi Block Automation
-                                      </span>
-                                      <span *ngSwitchCase="'Close chain'">
-                                        Đóng chuỗi
-                                      </span>
-                                      <span *ngSwitchCase="'Auto create order'">
-                                        Tạo đơn hàng thủ công
-                                      </span>
-                                      <span *ngSwitchDefault class="fw-500">
-                                        {{ taskChainResult?.action?.name }}
-                                      </span>
-                                    </ng-container>
-                                  </span>
-                                  <span *ngIf="!!taskChainResult.result?.name">
-                                    -
-                                    {{ taskChainResult?.result?.name || '-' }}
+                                      -
+                                      {{ taskChainResult?.result?.name || '-' }}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <span>
+                                    {{ taskChain?.name || '-' }}
                                   </span>
                                 </div>
                               </div>
-
-                              <div>
-                                <span>
-                                  {{ taskChain?.name || '-' }}
+                            </ng-container>
+                            <ng-container *ngIf="!item?.taskChains?.length">
+                              -
+                            </ng-container>
+                          </div>
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'leadDeal'">
+                        <td>
+                          <div class="d-flex flex-column" *ngIf="item.leadDeal">
+                            <div class="d-flex">
+                              <img
+                                height="30px"
+                                width="30px"
+                                class="me-2 rounded-circle"
+                                [src]="
+                                  item.leadDeal?.picture ||
+                                  './assets/images/noavatar.png'
+                                "
+                                style="line-height: 130%"
+                              />
+                              <div class="d-flex flex-column">
+                                <span class="fw-500">
+                                  {{ item.leadDeal?.name || '-' }}
+                                </span>
+                                <span
+                                  class="fs-7 text-link"
+                                  *ngIf="item.leadDeal?.phone"
+                                >
+                                  {{ item.leadDeal?.phone || '-' }}
                                 </span>
                               </div>
                             </div>
-                          </ng-container>
-                          <ng-container *ngIf="!item?.taskChains?.length">
-                            -
-                          </ng-container>
-                        </div>
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'leadDeal'">
-                      <td>
-                        <div class="d-flex flex-column" *ngIf="item.leadDeal">
-                          <div class="d-flex">
-                            <img
-                              height="30px"
-                              width="30px"
-                              class="me-2 rounded-circle"
-                              [src]="
-                                item.leadDeal?.picture ||
-                                './assets/images/noavatar.png'
-                              "
-                              style="line-height: 130%"
-                            />
-                            <div class="d-flex flex-column">
-                              <span class="fw-500">
-                                {{ item.leadDeal?.name || '-' }}
-                              </span>
+                          </div>
+                          <div class="d-flex flex-row flex-wrap gap-1">
+                            <div *ngFor="let tag of item.leadDeal?.tags">
                               <span
-                                class="fs-7 text-link"
-                                *ngIf="item.leadDeal?.phone"
+                                class="text-capitalize tag-item"
+                                [ngClass]="{nonBack: !tag.bgColor}"
+                                [ngStyle]="{background: tag.bgColor}"
                               >
-                                {{ item.leadDeal?.phone || '-' }}
+                                <span>{{ tag.name }}</span>
                               </span>
                             </div>
                           </div>
-                        </div>
-                        <div class="d-flex flex-row flex-wrap gap-1">
-                          <div *ngFor="let tag of item.leadDeal?.tags">
-                            <span
-                              class="text-capitalize tag-item"
-                              [ngClass]="{nonBack: !tag.bgColor}"
-                              [ngStyle]="{background: tag.bgColor}"
-                            >
-                              <span>{{ tag.name }}</span>
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'cart'">
-                      <td class="column-interested-product">
-                        <div class="list-product">
-                          <ng-container
-                            *ngFor="let product of item.cart?.products"
-                          >
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'cart'">
+                        <td class="column-interested-product">
+                          <div class="list-product">
                             <ng-container
-                              [ngTemplateOutlet]="templateProductItem"
-                              [ngTemplateOutletContext]="{
-                                product: product,
-                                type: 'Sản phẩm'
-                              }"
-                            ></ng-container>
-                          </ng-container>
-                          <ng-template
-                            #templateProductItem
-                            let-product="product"
-                            let-type="type"
-                          >
-                            <div
-                              tooltip="{{ product.name }}: {{
-                                product.quantity
-                              }} x {{ product.price | currency: 'VND' }}"
-                              placement="top"
-                              class="product-item d-flex align-items-center"
+                              *ngFor="let product of item.cart?.products"
                             >
-                              <img
-                                src="{{
-                                  product?.picture ||
-                                    'assets/images/default-product.png'
-                                }}"
-                                fallback="assets/images/avatar.svg"
-                                class="product-item-image me-2"
-                                alt=""
-                              />
-                              <div class="product-item-name">
-                                {{ product.name || '-' }}
-                              </div>
-                            </div>
-                          </ng-template>
-                        </div>
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'branch'">
-                      <td class="column-branch">
-                        <div
-                          *ngIf="
-                            getBranch(item?.branch) as branch;
-                            else nonBranch
-                          "
-                        >
-                          {{ branch?.teamName && branch?.teamName + ', ' }}
-                          {{
-                            branch?.departmentName &&
-                              branch?.departmentName + ', '
-                          }}
-                          {{ branch?.name || '-' }}
-                        </div>
-                        <ng-template #nonBranch>
-                          <div>-</div>
-                        </ng-template>
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'orderIds'">
-                      <td>
-                        <div
-                          class="d-flex flex-column"
-                          *ngIf="item?.orderCodes?.length; else nonContent"
-                        >
-                          <div class="list-order d-flex flex-column gap-2">
-                            <div
-                              *ngFor="let code of item.orderCodes"
-                              class="order-item"
+                              <ng-container
+                                [ngTemplateOutlet]="templateProductItem"
+                                [ngTemplateOutletContext]="{
+                                  product: product,
+                                  type: 'Sản phẩm'
+                                }"
+                              ></ng-container>
+                            </ng-container>
+                            <ng-template
+                              #templateProductItem
+                              let-product="product"
+                              let-type="type"
                             >
                               <div
-                                (click)="handleCreateOrder(code)"
-                                class="d-flex gap-2 align-items-center cursor-pointer"
+                                tooltip="{{ product.name }}: {{
+                                  product.quantity
+                                }} x {{ product.price | currency: 'VND' }}"
+                                placement="top"
+                                class="product-item d-flex align-items-center"
                               >
                                 <img
-                                  src="./assets/images/logo-modules/sale-center.svg"
+                                  src="{{
+                                    product?.picture ||
+                                      'assets/images/default-product.png'
+                                  }}"
+                                  fallback="assets/images/avatar.svg"
+                                  class="product-item-image me-2"
                                   alt=""
-                                  [style.height]="'25px'"
                                 />
-                                <div class="fw-500 text-link">
-                                  {{ code }}
+                                <div class="product-item-name">
+                                  {{ product.name || '-' }}
+                                </div>
+                              </div>
+                            </ng-template>
+                          </div>
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'branch'">
+                        <td class="column-branch">
+                          <div
+                            *ngIf="
+                              getBranch(item?.branch) as branch;
+                              else nonBranch
+                            "
+                          >
+                            {{ branch?.teamName && branch?.teamName + ', ' }}
+                            {{
+                              branch?.departmentName &&
+                                branch?.departmentName + ', '
+                            }}
+                            {{ branch?.name || '-' }}
+                          </div>
+                          <ng-template #nonBranch>
+                            <div>-</div>
+                          </ng-template>
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'orderIds'">
+                        <td>
+                          <div
+                            class="d-flex flex-column"
+                            *ngIf="item?.orderCodes?.length; else nonContent"
+                          >
+                            <div class="list-order d-flex flex-column gap-2">
+                              <div
+                                *ngFor="let code of item.orderCodes"
+                                class="order-item"
+                              >
+                                <div
+                                  (click)="handleCreateOrder(code)"
+                                  class="d-flex gap-2 align-items-center cursor-pointer"
+                                >
+                                  <img
+                                    src="./assets/images/logo-modules/sale-center.svg"
+                                    alt=""
+                                    [style.height]="'25px'"
+                                  />
+                                  <div class="fw-500 text-link">
+                                    {{ code }}
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'teams'">
-                      <td>
-                        <div class="d-flex align-items-center flex-wrap">
-                          <ng-container *ngFor="let team of item.teams">
-                            <div
-                              class="ms-1 mt-1 team-img"
-                              *ngIf="team?.userId"
-                            >
-                              <img
-                                src="{{ team.userPicture }}"
-                                fallback="assets/images/avatar.svg"
-                                loading="lazy"
-                                height="30px"
-                                width="30px"
-                                class="rounded-circle"
-                              />
-                              <div class="icon-add">
-                                <i
-                                  class="fa-solid"
-                                  [ngClass]="team.roleIcon"
-                                ></i>
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'teams'">
+                        <td>
+                          <div class="d-flex align-items-center flex-wrap">
+                            <ng-container *ngFor="let team of item.teams">
+                              <div
+                                class="ms-1 mt-1 team-img"
+                                *ngIf="team?.userId"
+                              >
+                                <img
+                                  src="{{ team.userPicture }}"
+                                  fallback="assets/images/avatar.svg"
+                                  loading="lazy"
+                                  height="30px"
+                                  width="30px"
+                                  class="rounded-circle"
+                                />
+                                <div class="icon-add">
+                                  <i
+                                    class="fa-solid"
+                                    [ngClass]="team.roleIcon"
+                                  ></i>
+                                </div>
                               </div>
-                            </div>
-                          </ng-container>
-                        </div>
+                            </ng-container>
+                          </div>
 
-                        <div *ngIf="!item.teams?.length">-</div>
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'createdAt'">
-                      <td>
-                        {{ item.createdAt | timeView }}
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'updatedAt'">
-                      <td>
-                        {{ item.updatedAt | timeView }}
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'updatedBy'">
-                      <td>
-                        <div
-                          class="d-flex justify-content-start align-items-center"
-                        >
-                          <img
-                            *ngIf="item.updatedBy?.picture"
-                            width="30"
-                            height="30"
-                            class="rounded-pill cover-fill"
-                            [src]="item.updatedBy?.picture"
-                            alt=""
-                          />
-                          <!-- <div class="ms-2 text-secondary name">
-                                {{ item.updatedBy?.name }}
-                              </div> -->
-                        </div>
-                      </td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'createdBy'">
-                      <td>
-                        <div
-                          class="d-flex justify-content-start align-items-center"
-                        >
-                          <img
-                            *ngIf="item.createdBy?.picture"
-                            width="30"
-                            height="30"
-                            class="rounded-pill cover-fill"
-                            [src]="item.createdBy?.picture"
-                            alt=""
-                          />
-                          <!-- <div class="ms-2 text-secondary name">
-                                {{ item.createdBy?.name }}
-                              </div> -->
-                        </div>
-                      </td>
-                    </ng-container>
+                          <div *ngIf="!item.teams?.length">-</div>
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'createdAt'">
+                        <td>
+                          {{ item.createdAt | timeView }}
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'updatedAt'">
+                        <td>
+                          {{ item.updatedAt | timeView }}
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'updatedBy'">
+                        <td>
+                          <div
+                            class="d-flex justify-content-start align-items-center"
+                          >
+                            <img
+                              *ngIf="item.updatedBy?.picture"
+                              width="30"
+                              height="30"
+                              class="rounded-pill cover-fill"
+                              [src]="item.updatedBy?.picture"
+                              alt=""
+                            />
+                            <!-- <div class="ms-2 text-secondary name">
+                                  {{ item.updatedBy?.name }}
+                                </div> -->
+                          </div>
+                        </td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'createdBy'">
+                        <td>
+                          <div
+                            class="d-flex justify-content-start align-items-center"
+                          >
+                            <img
+                              *ngIf="item.createdBy?.picture"
+                              width="30"
+                              height="30"
+                              class="rounded-pill cover-fill"
+                              [src]="item.createdBy?.picture"
+                              alt=""
+                            />
+                            <!-- <div class="ms-2 text-secondary name">
+                                  {{ item.createdBy?.name }}
+                                </div> -->
+                          </div>
+                        </td>
+                      </ng-container>
 
-                    <ng-container *ngSwitchCase="'fbAdId'">
-                      <td>{{ item.fbAdId }}</td>
-                    </ng-container>
-                    <ng-container *ngSwitchCase="'utm'">
-                      <td>
-                        <div *ngIf="item.utmSource">
-                          - UTM Source:
-                          <span class="fs-7">{{ item.utmSource }}</span>
-                        </div>
-                        <div *ngIf="item.utmMedium">
-                          - UTM Medium:
-                          <span class="fs-7">{{ item.utmMedium }}</span>
-                        </div>
-                        <div *ngIf="item.utmCampaign">
-                          - UTM Campaign:
-                          <span class="fs-7">{{ item.utmCampaign }}</span>
-                        </div>
-                        <div *ngIf="item.utmContent">
-                          - UTM Content:
-                          <span class="fs-7">{{ item.utmContent }}</span>
-                        </div>
-                        <div *ngIf="item.utmTerm">
-                          - UTM Term:
-                          <span class="fs-7">{{ item.utmContent }}</span>
-                        </div>
-                      </td>
+                      <ng-container *ngSwitchCase="'fbAdId'">
+                        <td>{{ item.fbAdId }}</td>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'utm'">
+                        <td>
+                          <div *ngIf="item.utmSource">
+                            - UTM Source:
+                            <span class="fs-7">{{ item.utmSource }}</span>
+                          </div>
+                          <div *ngIf="item.utmMedium">
+                            - UTM Medium:
+                            <span class="fs-7">{{ item.utmMedium }}</span>
+                          </div>
+                          <div *ngIf="item.utmCampaign">
+                            - UTM Campaign:
+                            <span class="fs-7">{{ item.utmCampaign }}</span>
+                          </div>
+                          <div *ngIf="item.utmContent">
+                            - UTM Content:
+                            <span class="fs-7">{{ item.utmContent }}</span>
+                          </div>
+                          <div *ngIf="item.utmTerm">
+                            - UTM Term:
+                            <span class="fs-7">{{ item.utmContent }}</span>
+                          </div>
+                        </td>
+                      </ng-container>
                     </ng-container>
                   </ng-container>
-                </ng-container>
-                <!-- <td class="columns-action">
-                      <div class="d-flex">
-                        @if (permission.edit) {
-                          <span
-                            (click)="handleUpdate(item)"
-                            class="d-flex align-items-center btn-action-table"
-                          >
-                            <img src="./assets/images/icon/edit.svg" alt="" />
-                          </span>
-                          <span
-                            (click)="handleCopy(item)"
-                            class="d-flex align-items-center btn-action-table"
-                          >
-                            <img src="./assets/images/icon/copy.svg" alt="" />
-                          </span>
-                        }
-  
-                        @if (permission.delete) {
-                          <span
-                            (click)="handleDeleteAction(item)"
-                            class="d-flex align-items-center btn-action-table"
-                          >
-                            <img src="./assets/images/icon/remove.svg" alt="" />
-                          </span>
-                        }
-                      </div>
-                    </td> -->
-              </tr>
-            </tbody>
-          </table>
-        </cdk-virtual-scroll-viewport>
+                  <!-- <td class="columns-action">
+                        <div class="d-flex">
+                          @if (permission.edit) {
+                            <span
+                              (click)="handleUpdate(item)"
+                              class="d-flex align-items-center btn-action-table"
+                            >
+                              <img src="./assets/images/icon/edit.svg" alt="" />
+                            </span>
+                            <span
+                              (click)="handleCopy(item)"
+                              class="d-flex align-items-center btn-action-table"
+                            >
+                              <img src="./assets/images/icon/copy.svg" alt="" />
+                            </span>
+                          }
+    
+                          @if (permission.delete) {
+                            <span
+                              (click)="handleDeleteAction(item)"
+                              class="d-flex align-items-center btn-action-table"
+                            >
+                              <img src="./assets/images/icon/remove.svg" alt="" />
+                            </span>
+                          }
+                        </div>
+                      </td> -->
+                </tr>
+              </tbody>
+            </table>
+          </cdk-virtual-scroll-viewport>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="d-flex p-3" style="background-color: #f7fcff">
-    <!-- Icon List -->
-    <div
-      class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2"
-      style="width: 40%"
-    >
+    <div class="d-flex p-3" style="background-color: #f7fcff">
+      <!-- Icon List -->
       <div
-        class="button-icon-wrapper"
-        (click)="showModalAssignTeamV2()"
-        [tooltip]="'Chia tác vụ'"
-        *ngIf="hasPerSplitTasks()"
+        class="d-flex align-items-center flex-grow-0 flex-shrink-0 gap-2"
+        style="width: 40%"
       >
-        <button class="button-icon">
-          <img src="./assets/images/icon/split.svg" alt="split-tasks" />
-        </button>
+        <div
+          class="button-icon-wrapper"
+          (click)="showModalAssignTeamV2()"
+          [tooltip]="'Chia tác vụ'"
+          *ngIf="hasPerSplitTasks()"
+        >
+          <button class="button-icon">
+            <img src="./assets/images/icon/split.svg" alt="split-tasks" />
+          </button>
+        </div>
+
+        <div
+          class="button-icon-wrapper"
+          (click)="showModalExportExcel()"
+          [tooltip]="'Tải xuống tác vụ'"
+        >
+          <button class="button-icon">
+            <img src="./assets/images/icon/download.svg" alt="" />
+          </button>
+        </div>
+
+        <div
+          class="button-icon-wrapper"
+          [tooltip]="'Kiểm tra trùng số'"
+          (click)="showModalCheckDuplicatedPhone()"
+          *ngIf="permission.viewDuplicatedPhoneConfig"
+        >
+          <button class="button-icon">
+            <img src="./assets/images/icon/order-duplicate.svg" alt="" />
+          </button>
+        </div>
       </div>
 
+      <!-- Pagination -->
       <div
-        class="button-icon-wrapper"
-        (click)="showModalExportExcel()"
-        [tooltip]="'Tải xuống tác vụ'"
+        class="d-flex align-items-center flex-grow-0 flex-shrink-0 justify-content-end"
+        style="width: 57%"
       >
-        <button class="button-icon">
-          <img src="./assets/images/icon/download.svg" alt="" />
-        </button>
+        <custom-pagination
+          [showConfig]="true"
+          [selectedSize]="item.paramsQuery.limit"
+          [currentPage]="item.paramsQuery.page"
+          (changePageEvent)="pageChanged($event)"
+          [total]="item.total"
+          [optionSize]="[10, 20, 50, 100, 500, 1000]"
+          [type]="item.rows.length > 10000 ? 'lazy' : 'number'"
+          (changePageLazyEvent)="handleChangePageLazy($event)"
+          [maxRecords]="10000"
+        />
       </div>
-
-      <div
-        class="button-icon-wrapper"
-        [tooltip]="'Kiểm tra trùng số'"
-        (click)="showModalCheckDuplicatedPhone()"
-        *ngIf="permission.viewDuplicatedPhoneConfig"
-      >
-        <button class="button-icon">
-          <img src="./assets/images/icon/order-duplicate.svg" alt="" />
-        </button>
-      </div>
-    </div>
-
-    <!-- Pagination -->
-    <div
-      class="d-flex align-items-center flex-grow-0 flex-shrink-0 justify-content-end"
-      style="width: 57%"
-    >
-      <custom-pagination
-        [showConfig]="true"
-        [selectedSize]="item.paramsQuery.limit"
-        [currentPage]="item.paramsQuery.page"
-        (changePageEvent)="pageChanged($event)"
-        [total]="item.total"
-        [optionSize]="[10, 20, 50, 100, 500, 1000]"
-        [type]="item.rows.length > 10000 ? 'lazy' : 'number'"
-        (changePageLazyEvent)="handleChangePageLazy($event)"
-        [maxRecords]="10000"
-      />
     </div>
   </div>
 </div>

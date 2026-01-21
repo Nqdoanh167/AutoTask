@@ -98,11 +98,10 @@ export class LeadDashboardComponent
   }
 
   override ngOnInit(): void {
-    this.setupCheckbox();
     this.getStatuses();
     this.getStatusGroups();
     this.getTags();
-
+    this.setupCheckbox();
     this.currentFunnel$
       .pipe(takeUntil(this.destroy$), distinctUntilChanged())
       .subscribe((funnel) => {
@@ -365,6 +364,10 @@ export class LeadDashboardComponent
   }
 
   getKanbanData() {
+    if (!this.kanbanFilters$.value || this.kanbanFilters$.value.length === 0) {
+      return;
+    }
+
     this.loading.kanban = true;
     this.kanbanDatas = [];
 

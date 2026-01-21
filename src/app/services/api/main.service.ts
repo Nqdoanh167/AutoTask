@@ -37,6 +37,11 @@ export class MainService extends BaseApiService implements OnDestroy {
     .asObservable()
     .pipe(distinctUntilChanged());
 
+  private sidebarExpandedSubject = new BehaviorSubject<boolean>(false);
+  public sidebarExpanded$ = this.sidebarExpandedSubject
+    .asObservable()
+    .pipe(distinctUntilChanged());
+
   private leadDashboardComponentSubject = new BehaviorSubject<any>(null);
   public leadDashboardComponent$ = this.leadDashboardComponentSubject
     .asObservable()
@@ -465,6 +470,10 @@ export class MainService extends BaseApiService implements OnDestroy {
 
   getHeaderTabs() {
     return this.headerTabsSubject.value;
+  }
+
+  setSidebarExpanded(isExpanded: boolean) {
+    this.sidebarExpandedSubject.next(isExpanded);
   }
 
   clearHeaderTabs() {
