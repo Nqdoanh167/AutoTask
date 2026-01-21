@@ -483,7 +483,7 @@ export class AuthService {
 
     const email = localStorage.getItem('smaxapp_email');
     const password = localStorage.getItem('smaxapp_password');
-    let encodedAuthInfo = 'ZHVvbmdsb25nLmRldkBnbWFpbC5jb206MTIzMTIz'; // Dương Long
+    let encodedAuthInfo = 'bnFkY250dDIwMDJAZ21haWwuY29tOjEyMzQ1Ng=='; // Quốc Doanh
     if (email && password) {
       encodedAuthInfo = btoa(
         unescape(encodeURIComponent(`${email}:${password}`)),
