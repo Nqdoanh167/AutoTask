@@ -1,0 +1,11 @@
+{
+  "buildCommand": "npm run build -- --configuration development --base-href=/",
+  "outputDirectory": "dist/fontend",
+  "installCommand": "npm install --legacy-peer-deps",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
