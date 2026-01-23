@@ -565,6 +565,29 @@
     margin: 0;
     padding: 0;
     background-color: vars.$body-bg;
+
+    &:hover {
+      .tab-settings-btn {
+        display: flex;
+      }
+    }
+    .tab-settings-btn {
+      display: none;
+      width: 32px;
+      border: none;
+      background-color: transparent;
+      border-radius: 4px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-left: 10px;
+
+      i {
+        font-size: 14px;
+        color: #1a3791;
+      }
+    }
   }
 
   li {

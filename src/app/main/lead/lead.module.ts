@@ -48,6 +48,7 @@ import {LeadFolderListComponent} from './lead-dashboard/lead-folder-list/lead-fo
 import {OrdersComponent} from '../dashboard/content-modal/orders/orders.component';
 import {CallCustomerInfoComponent} from '@app/share/common/call-customer-info/call-customer-info.component';
 import {CustomerInfoComponent} from '@app/main/dashboard/content-modal/customer-info/customer-info.component';
+import { TooltipDirective } from "@app/share/directive/tooltip/tooltip-directive.directive";
 
 @NgModule({
   declarations: [
@@ -103,7 +104,8 @@ import {CustomerInfoComponent} from '@app/main/dashboard/content-modal/customer-
     OrdersComponent,
     CallCustomerInfoComponent,
     CustomerInfoComponent,
-  ],
+    TooltipDirective
+],
   providers: [DatePipe],
 })
 export class LeadModule {}

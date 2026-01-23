@@ -1,43 +1,79 @@
-<aside class="sidebar" [ngClass]="{'expanded': isExpanded}">
+<aside class="sidebar" [ngClass]="{expanded: isExpanded}">
   @if (!!biz) {
-  <div class="sidebar__logo">
-    <smaxapp-logo [bizAlias]="biz.alias" [currentModule]="biz.module" [modules]="biz.user.modules || []"
-      [quickModules]="biz.user.quickModules" [menuPlacement]="'right'"></smaxapp-logo>
-    <span class="sidebar-text">App.vn</span>
-  </div>
+    <div class="sidebar__logo">
+      <smaxapp-logo
+        [bizAlias]="biz.alias"
+        [currentModule]="biz.module"
+        [modules]="biz.user.modules || []"
+        [quickModules]="biz.user.quickModules"
+        [menuPlacement]="'right'"
+      ></smaxapp-logo>
+      <span class="sidebar-text">CRM</span>
+    </div>
   }
   <nav class="sidebar__items">
     @for (item of sidebars; track $index) {
-    <div class="item" [ngClass]="{active: item.isActive, disabled: item.disabled}"
-      (mouseenter)="onItemHover(item, true)" (mouseleave)="onItemHover(item, false)">
-      @if (item.children?.length) {
-      <div class="item-link">
-        <img [src]="!item.isActive && !item.isHovered ? item.icon : item.iconActive" alt="" class="icon" />
-        <span class="sidebar-text">{{ item.name }}</span>
-      </div>
-      <div class="item__child">
-        @for (child of item.children; track $index) {
-        <div class="item">
-          <a [routerLink]="child.link" class="item-link">
-            {{ child.name }}
+      <div
+        class="item"
+        [ngClass]="{active: item.isActive, disabled: item.disabled}"
+        (mouseenter)="onItemHover(item, true)"
+        (mouseleave)="onItemHover(item, false)"
+      >
+        @if (item.children?.length) {
+          <div class="item-link">
+            <!-- <img
+              [src]="
+                !item.isActive && !item.isHovered ? item.icon : item.iconActive
+              "
+              alt=""
+              class="icon"
+            /> -->
+            <div class="icon-wrapper">
+              <i
+                [ngClass]="!item.isActive ? item.icon : item.iconActive"
+                style="font-size: 16px"
+              ></i>
+            </div>
+            <span class="sidebar-text">{{ item.name }}</span>
+          </div>
+          <div class="item__child">
+            @for (child of item.children; track $index) {
+              <div class="item">
+                <a [routerLink]="child.link" class="item-link">
+                  {{ child.name }}
+                </a>
+              </div>
+            }
+          </div>
+          <span class="tooltip">{{ item.name }}</span>
+        } @else {
+          <a [routerLink]="item.link" class="item-link">
+            <!-- <img
+              [src]="
+                !item.isActive && !item.isHovered ? item.icon : item.iconActive
+              "
+              alt=""
+              class="icon"
+            /> -->
+            <div class="icon-wrapper">
+              <i
+                [ngClass]="!item.isActive ? item.icon : item.iconActive"
+                style="font-size: 16px"
+              ></i>
+            </div>
+            <span class="sidebar-text">{{ item.name }}</span>
           </a>
-        </div>
+          <span class="tooltip">{{ item.name }}</span>
         }
       </div>
-      <span class="tooltip">{{ item.name }}</span>
-      } @else {
-      <a [routerLink]="item.link" class="item-link">
-        <img [src]="!item.isActive && !item.isHovered ? item.icon : item.iconActive" alt="" class="icon" />
-        <span class="sidebar-text">{{ item.name }}</span>
-      </a>
-      <span class="tooltip">{{ item.name }}</span>
-      }
-    </div>
     }
   </nav>
   <div class="sidebar__footer">
     <button class="toggle-btn" (click)="toggleSidebar()">
-      <i class="fa-solid fa-chevron-left" [ngClass]="{'rotate-180': isExpanded}"></i>
+      <i
+        class="fa-solid fa-chevron-left"
+        [ngClass]="{'rotate-180': isExpanded}"
+      ></i>
     </button>
   </div>
 </aside>

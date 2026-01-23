@@ -66,6 +66,7 @@ import {ModalCloseTaskComponent} from './content-modal/modal-close-task/modal-cl
 import {ModalCloseMultiTasksComponent} from './content-modal/modal-close-multi-tasks/modal-close-multi-tasks.component';
 import {ModalCheckDuplicatedPhoneComponent} from './content-modal/modal-check-duplicated-phone/modal-check-duplicated-phone.component';
 import {ActivityLogComponent} from './content-modal/activity-log/activity-log.component';
+import { TooltipDirective } from "@app/share/directive/tooltip/tooltip-directive.directive";
 
 @NgModule({
   declarations: [
@@ -140,6 +141,7 @@ import {ActivityLogComponent} from './content-modal/activity-log/activity-log.co
     TaskCreateSourceComponent,
     OrdersComponent,
     CustomerInfoComponent,
-  ],
+    TooltipDirective
+],
 })
 export class DashboardModule {}

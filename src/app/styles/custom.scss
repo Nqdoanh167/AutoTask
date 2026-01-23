@@ -1223,7 +1223,8 @@ bs-tooltip-container.custom-tooltip-tab-filter {
       font-weight: 500 !important;
       // border-radius: $radius-s !important;
       // background-color: $body-bg;
-      // background-color: $tab-bg;
+      border-bottom: 3px solid transparent;
+      background-color: #fff;
       .button-edit-tab {
         display: none;
       }
@@ -1327,13 +1328,10 @@ bs-tooltip-container.custom-tooltip-tab-filter {
         }
       }
 
-      &:hover {
-        border: none;
-      }
-
       &.active {
         background-color: #fff !important;
-        border-radius: $input-border-radius !important;
+        // border-bottom: 3px solid #1b3da1 !important;
+        // border-radius: $input-border-radius !important;
         .button-edit-tab {
           display: flex;
         }

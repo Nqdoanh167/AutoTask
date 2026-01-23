@@ -36,6 +36,7 @@ import {ISetting, ISettingTabItem} from '@app/types/setting';
 import {LeadDashboardData} from '../lead-dashboard-data';
 import {DEFAULT_LEAD_TABS} from '@app/main/setting/tab-display/tab-display.variable';
 import {isEmpty} from 'lodash';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-lead-form-modal',
@@ -93,6 +94,7 @@ export class LeadFormModalComponent
     private readonly modalRef: BsModalRef,
     private readonly storageService: StorageService,
     private readonly toastr: ToastrService,
+    private readonly router: Router,
   ) {
     super();
   }
@@ -585,5 +587,13 @@ export class LeadFormModalComponent
           },
         });
     }
+  }
+
+  navigateToTabSettings() {
+    this.hideModal();
+
+    this.router.navigate([`/setting/tab-display`], {
+      fragment: 'LEAD',
+    });
   }
 }

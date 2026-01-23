@@ -948,9 +948,12 @@ export class ViewModeTabComponent
         `view-mode-id-${tab.id}-link`,
       );
       if (navLinkTabElement) {
-        navLinkTabElement.style.borderBottom = `3px solid ${
-          tab.tabViewModeBorderColor || 'transparent'
-        }`;
+        navLinkTabElement.style.borderColor = `transparent`;
+        if (tab.isActive) {
+          navLinkTabElement.style.borderColor = `${
+            tab.tabViewModeBorderColor || '#1b3da1'
+          }`;
+        }
       }
     });
   }

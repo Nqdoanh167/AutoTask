@@ -46,7 +46,7 @@ import {MainService} from '@app/services/api/main.service';
 import {DetailTaskPerms} from '@main/dashboard/content-modal/modal-update-task/detail-task-perms';
 import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
 import {ModalCloneComponent} from '../multiple-action/modal-clone/modal-clone.component';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {SocketService} from '@app/services/api/socket.service';
 import {ModalCloseTaskComponent} from '../modal-close-task/modal-close-task.component';
 import {DEFAULT_TASK_TABS} from '@app/main/setting/tab-display/tab-display.variable';
@@ -134,6 +134,7 @@ export class ModalUpdateTaskComponent
     private readonly toastrService: ToastrService,
     private readonly route: ActivatedRoute,
     private socketService: SocketService,
+    private readonly router: Router,
   ) {
     super();
     this.authService.currentBiz
@@ -1437,5 +1438,13 @@ export class ModalUpdateTaskComponent
       modalDialog.classList.remove('modal-xl');
       modalDialog.classList.add('modal-medium');
     }
+  }
+
+  navigateToTabSettings() {
+    this.hideModal();
+
+    this.router.navigate([`/setting/tab-display`], {
+      fragment: 'TASK',
+    });
   }
 }

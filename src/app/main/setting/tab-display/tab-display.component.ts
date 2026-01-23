@@ -10,6 +10,7 @@ import {v4 as uuidv4} from 'uuid';
 import {ToastrService} from 'ngx-toastr';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {isEmpty} from 'lodash';
+import {ActivatedRoute, Router} from '@angular/router';
 
 enum ETabDisplayTab {
   LEAD = 'LEAD',
@@ -25,10 +26,18 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   public tabs = [
-    {key: ETabDisplayTab.LEAD, name: 'Màn hình chi tiết lead'},
-    {key: ETabDisplayTab.TASK, name: 'Màn hình chi tiết tác vụ'},
+    {
+      key: ETabDisplayTab.TASK,
+      name: 'Màn hình chi tiết tác vụ',
+      fragment: 'TASK',
+    },
+    {
+      key: ETabDisplayTab.LEAD,
+      name: 'Màn hình chi tiết lead',
+      fragment: 'LEAD',
+    },
   ];
-  public activeTab: ETabDisplayTab = ETabDisplayTab.LEAD;
+  public activeTab: ETabDisplayTab = ETabDisplayTab.TASK;
   protected readonly ETabDisplayTab = ETabDisplayTab;
 
   public leadTabs: ISettingTabItem[] = [];
@@ -56,9 +65,21 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
     private readonly autoTaskService: AutoTaskService,
     private readonly modalService: BsModalService,
     private readonly toastr: ToastrService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
   ) {}
 
   ngOnInit(): void {
+    this.route.fragment.pipe(takeUntil(this.destroy$)).subscribe((fragment) => {
+      if (fragment === 'TASK') {
+        this.activeTab = ETabDisplayTab.TASK;
+      } else if (fragment === 'LEAD') {
+        this.activeTab = ETabDisplayTab.LEAD;
+      }
+    });
+
+    this.selectTab(this.activeTab);
+
     this.autoTaskService.currentSetting.subscribe({
       next: (res) => {
         if (res) {
@@ -112,6 +133,15 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
 
   selectTab(tab: ETabDisplayTab) {
     this.activeTab = tab;
+
+    const fragment = this.tabs.find((t) => t.key === tab)?.fragment;
+    if (fragment) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        fragment: fragment,
+        replaceUrl: true,
+      });
+    }
   }
 
   handleAction(name: string) {

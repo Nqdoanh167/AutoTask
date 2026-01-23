@@ -34,6 +34,7 @@
             (dblclick)="handleEditTab(tabz, $event, index)"
             [tooltip]="getUserById(tabz?.ownerId)?.name || 'Không xác định'"
             [style.opacity]="tabz.isActive ? 1 : 0.5"
+            [style.color]="tabz.tabViewModeBorderColor || '#6b7280'"
           >
             <!-- <i
               class="fa-solid fa-home"

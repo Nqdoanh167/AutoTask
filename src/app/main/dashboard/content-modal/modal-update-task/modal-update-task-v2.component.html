@@ -464,7 +464,10 @@
                         <ul>
                           <li
                             [ngClass]="{active: activeLeftTabMenu === menu.key}"
-                            *ngFor="let menu of tabsMenu.left; let index = index"
+                            *ngFor="
+                              let menu of tabsMenu.left;
+                              let index = index
+                            "
                           >
                             <div
                               (click)="activeLeftTabMenu = menu.key"
@@ -489,6 +492,13 @@
                               </span>
                             </div>
                           </li>
+                          <button
+                            class="tab-settings-btn"
+                            (click)="navigateToTabSettings()"
+                            [tooltip]="'Cấu hình tab'"
+                          >
+                            <i class="fa-solid fa-gear"></i>
+                          </button>
                         </ul>
                       </nav>
 
@@ -866,6 +876,14 @@
                             </span>
                           </div>
                         </li>
+
+                        <button
+                          class="tab-settings-btn"
+                          (click)="navigateToTabSettings()"
+                          [tooltip]="'Cấu hình tab'"
+                        >
+                          <i class="fa-solid fa-gear"></i>
+                        </button>
                       </ul>
                     </nav>
 
@@ -912,29 +930,8 @@
                     </ng-container>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="row g-3 mt-1">
-              <div class="col-9">
-                <button
-                  class="btn button-medium center-item button-filter-top button-fill secondary-color w-100"
-                  (click)="
-                    taskHasNoChainOpen
-                      ? handleCloseTask()
-                      : handleConfirmToCloseTask($event)
-                  "
-                >
-                  <img
-                    src="./assets/icons/lock.svg"
-                    alt=""
-                    width="24"
-                    height="24"
-                  />
-                  Đóng tác vụ
-                </button>
-              </div>
-              <div class="col-3">
-                <div class="d-flex align-items-center gap-2">
+
+                <div class="d-flex align-items-center gap-2 mt-3">
                   <div class="flex-grow-1">
                     <button
                       type="button"
@@ -944,6 +941,18 @@
                       Hủy
                     </button>
                   </div>
+                  <button
+                    class="btn button-medium button-outline w-100 text-neutral d-flex align-items-center gap-2 justify-content-center"
+                    style="border-color: #1b3da1"
+                    (click)="
+                      taskHasNoChainOpen
+                        ? handleCloseTask()
+                        : handleConfirmToCloseTask($event)
+                    "
+                  >
+                    <i class="fa-solid fa-lock"></i>
+                    Đóng tác vụ
+                  </button>
                   <div class="flex-grow-1">
                     <custom-button-loading
                       [isLoading]="loading.submit"
