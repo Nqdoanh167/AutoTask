@@ -27,37 +27,141 @@
 .list-folder {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
+  gap: 0;
+  padding: 12px;
   border-radius: vars.$radius-s;
   background-color: vars.$white;
   height: 100%;
+  overflow-y: auto;
 
-  .folder,
-  .group-folder,
-  .item-folder {
-    padding: 8px;
+  .folder {
+    padding: 0 16px;
+    height: 42px;
     border-radius: vars.$radius-s;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    border: 1px solid transparent;
+    background-color: #ebf2ff;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 8px;
 
     &:hover {
-      border-radius: 4px;
-      border: 1px solid vars.$primary;
-    }
-
-    &.active {
-      border-radius: 4px;
-      border: 1px solid vars.$primary;
+      background-color: #dce7ff;
     }
 
     .folder-name {
       color: vars.$neutral;
       font-size: 14px;
+      font-weight: 600;
+    }
+  }
+
+  .group-folder {
+    padding: 0 16px;
+    height: 42px;
+    border-radius: vars.$radius-s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f8f9fb;
+    border: 1px solid #eef2f7;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 8px;
+
+    &:hover {
+      background-color: #f0f2f6;
+    }
+
+    .chevron-wrapper {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      border: 1px solid #e8ebf2;
+      border-radius: 0.25rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .chevron-icon {
+      font-size: 10px;
+      color: vars.$neutral;
+      transition: transform 0.3s ease;
+
+      &.rotated {
+        transform: rotate(90deg);
+      }
+    }
+
+    .group-name {
+      color: #2d3a5e;
+      font-size: 14px;
       font-weight: 500;
+    }
+  }
+
+  .item-folder {
+    padding: 8px 16px;
+    border-radius: vars.$radius-s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 8px;
+
+    &:hover {
+      border-color: vars.$neutral;
+      background-color: rgba(239, 246, 255, 0.5);
+
+      .funnel-name {
+        color: vars.$neutral;
+        span {
+          color: vars.$neutral;
+        }
+      }
+    }
+
+    &.active {
+      border-color: vars.$neutral;
+      background-color: rgba(239, 246, 255, 0.5);
+
+      .funnel-name {
+        color: vars.$neutral;
+        span {
+          color: vars.$neutral;
+        }
+      }
+    }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .folder-name {
+      color: #1f2937;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .metadata {
+      font-size: 10px;
+      color: #9ca3af;
+
+      .metadata-icon {
+        width: 12px;
+        height: 12px;
+      }
     }
   }
 
@@ -75,33 +179,6 @@
   .item-folder {
     &:hover .actions {
       opacity: 1;
-    }
-  }
-
-  .folder {
-    background-color: #edf4ff;
-  }
-
-  .group-folder {
-    background-color: #f8fafc;
-  }
-
-  .item-folder {
-    padding: 8px 8px 8px 20px;
-    background-color: #fff;
-    border-radius: vars.$radius-s;
-  }
-
-  .folder,
-  .group-folder,
-  .item-folder {
-    cursor: pointer;
-  }
-
-  .dropdown-icon {
-    transition: transform 0.3s ease;
-    &.rotated {
-      transform: rotate(90deg);
     }
   }
 

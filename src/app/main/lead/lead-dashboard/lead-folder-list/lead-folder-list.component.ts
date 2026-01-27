@@ -38,6 +38,7 @@ export class LeadFolderListComponent
   }
 
   public expandedFunnelGroups: Map<string, Set<string>> = new Map();
+  public expandedFolders: Set<string> = new Set();
   public folderLeads: EntityPagination<IFolderLead> = {
     rows: [],
     limit: 1000,
@@ -120,6 +121,18 @@ export class LeadFolderListComponent
       });
   }
 
+  toggleFolder(folderId: string): void {
+    if (this.expandedFolders.has(folderId)) {
+      this.expandedFolders.delete(folderId);
+    } else {
+      this.expandedFolders.add(folderId);
+    }
+  }
+
+  isFolderExpanded(folderId: string): boolean {
+    return this.expandedFolders.has(folderId);
+  }
+
   toggleFunnelGroup(folderId: string, groupId: string): void {
     if (!this.expandedFunnelGroups.has(folderId)) {
       this.expandedFunnelGroups.set(folderId, new Set());
@@ -145,6 +158,7 @@ export class LeadFolderListComponent
 
         const hasFunnel = group.funnels?.some((f: any) => f.id === funnelId);
         if (hasFunnel) {
+          this.expandedFolders.add(folder.id);
           if (!this.expandedFunnelGroups.has(folder.id)) {
             this.expandedFunnelGroups.set(folder.id, new Set());
           }

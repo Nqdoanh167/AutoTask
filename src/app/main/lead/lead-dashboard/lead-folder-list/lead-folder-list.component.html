@@ -71,13 +71,15 @@
 
   <div class="list-folder custom-scrollbar">
     <ng-container *ngFor="let folder of folderLeads.rows">
-      <div class="folder">
-        <div class="d-flex align-items-center gap-2">
-          <img
-            src="./assets/icons/icon-lead/folder.svg"
-            width="24"
-            height="24"
-          />
+      <div class="folder" (click)="toggleFolder(folder.id || '')">
+        <div class="d-flex align-items-center gap-3">
+          <i
+            class="fa-solid text-neutral"
+            [ngClass]="{
+              'fa-folder': !isFolderExpanded(folder.id || ''),
+              'fa-folder-open': isFolderExpanded(folder.id || '')
+            }"
+          ></i>
           <div class="folder-name">{{ folder.name }}</div>
         </div>
 
@@ -136,22 +138,22 @@
         </div>
       </div>
 
-      <ng-container *ngFor="let group of folder.funnelGroups">
-        <div
-          class="group-folder"
-          (click)="toggleFunnelGroup(folder.id || '', group.id || '')"
-        >
-          <div class="d-flex align-items-center gap-2">
-            <img
-              src="./assets/icons/icon-lead/arrow-right.svg"
-              width="24"
-              height="24"
-              [class.rotated]="
-                isFunnelGroupExpanded(folder.id || '', group.id || '')
-              "
-              class="dropdown-icon"
-            />
-            <div class="folder-name">{{ group.name }}</div>
+      <ng-container *ngIf="isFolderExpanded(folder.id || '')">
+        <ng-container *ngFor="let group of folder.funnelGroups">
+          <div
+            class="group-folder"
+            (click)="toggleFunnelGroup(folder.id || '', group.id || '')"
+          >
+          <div class="d-flex align-items-center gap-3">
+            <div class="chevron-wrapper">
+              <i
+                class="fa-solid fa-chevron-right chevron-icon"
+                [class.rotated]="
+                  isFunnelGroupExpanded(folder.id || '', group.id || '')
+                "
+              ></i>
+            </div>
+            <div class="group-name">{{ group.name }}</div>
           </div>
 
           <div
@@ -217,18 +219,15 @@
             (click)="selectFunnel(funnel)"
             [ngClass]="{active: currentFunnel$?.value?.id === funnel.id}"
           >
-            <div class="d-flex align-items-center gap-2">
-              <img
-                src="./assets/icons/icon-lead/funnel-disable.svg"
-                width="24"
-                height="24"
-              />
-              <div class="folder-name fw-400">{{ funnel.name }}</div>
+            <div class="item-content">
+              <span class="funnel-name">
+                <div>{{ funnel.name }}</div>
+                <span style="font-size: 10px" class="mt-1 text-gray">
+                  <i class="fa-solid fa-filter me-2"></i>
+                  <span>{{ funnel.statLeadCount || 0 }} leads</span>
+                </span>
+              </span>
             </div>
-
-            <!-- <div class="text-neutral bg-input-bg p-1 rounded-pill">
-              {{ funnel.statLeadCount || 0 }}
-            </div> -->
             <div
               class="d-flex align-items-center gap-2 actions"
               (click)="$event.stopPropagation()"
@@ -279,6 +278,7 @@
               </div>
             </div>
           </div>
+        </ng-container>
         </ng-container>
       </ng-container>
     </ng-container>
