@@ -11,6 +11,8 @@ import {ToastrService} from 'ngx-toastr';
 import {finalize, Subject, takeUntil} from 'rxjs';
 import {isEmpty} from 'lodash';
 import {ActivatedRoute, Router} from '@angular/router';
+import {IModalConfirmContent} from '@share/custom/modal-confirm/modal-confirm.component';
+import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
 
 enum ETabDisplayTab {
   LEAD = 'LEAD',
@@ -67,6 +69,7 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
     private readonly toastr: ToastrService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
+    private readonly modalConfirmService: ModalConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -88,10 +91,16 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
               const defaultTab = DEFAULT_LEAD_TABS.find(
                 (t) => t.key === tab.key,
               );
-              return {
-                ...tab,
-                positionOptions: defaultTab?.positionOptions,
-              };
+
+              if (defaultTab) {
+                return {
+                  ...defaultTab,
+                  active: tab.active,
+                  positions: tab.positions,
+                };
+              }
+
+              return tab;
             }
             return tab;
           });
@@ -101,10 +110,16 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
               const defaultTab = DEFAULT_TASK_TABS.find(
                 (t) => t.key === tab.key,
               );
-              return {
-                ...tab,
-                positionOptions: defaultTab?.positionOptions,
-              };
+
+              if (defaultTab) {
+                return {
+                  ...defaultTab,
+                  active: tab.active,
+                  positions: tab.positions,
+                };
+              }
+
+              return tab;
             }
             return tab;
           });
@@ -216,6 +231,7 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
               key: param.argRef,
               value: param.argKey,
             })) || [],
+          icon: data.icon,
         } as any;
 
         const index = targetTabs.findIndex((t) => t.key === tab.key);
@@ -235,12 +251,34 @@ export class TabDisplayComponent implements OnInit, OnDestroy {
               key: param.argRef,
               value: param.argKey,
             })) || [],
+          icon: data.icon,
         } as any;
 
         targetTabs.push(newTab);
       }
 
       this.handleAction('save');
+    });
+  }
+
+  handleDeleteTab(tab: ISettingTabItem) {
+    const title = 'Xóa Tab';
+    const description = `Bạn sắp xóa Tab <b>${
+      tab.name || ''
+    }</b>, hành động này không thể hoàn tác.`;
+    const okText = 'Xóa';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'warning',
+      modalType: 'advance',
+      context: tab,
+    };
+
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.deleteTab(tab);
     });
   }
 

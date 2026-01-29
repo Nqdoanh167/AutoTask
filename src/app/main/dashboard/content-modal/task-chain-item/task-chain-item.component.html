@@ -296,274 +296,281 @@
 
                   <!-- Thực hiện hành động -->
                   <td class="column-take-action">
-                    <div class="d-flex flex-column mb-3" formGroupName="action">
-                      @switch (taskChainResult?.value.action?.type) {
-                        @case (EActionType.CALL) {
-                          <button
-                            (click)="handleCall(taskChainResult.value)"
-                            type="button"
-                            class="btn button-medium button-sub-primary secondary-color"
-                            [disabled]="
-                              !handleCheckIsAllowEdit(
-                                'actionButton',
-                                taskChainResult.value,
-                                taskChainResultIndex
-                              )
-                            "
-                          >
-                            Gọi điện
-                            <i class="fa-solid fa-phone ms-2"></i>
-                          </button>
-                        }
-                        @case (EActionType.SEND_BLOCK_AUTOMATION) {
-                          <button
-                            (click)="handleSendBlock(taskChainResult.value)"
-                            type="button"
-                            class="btn button-medium button-sub-primary secondary-color"
-                            [disabled]="
-                              !!staticDataChainItem?.taskChainResults?.[
-                                taskChainResultIndex
-                              ]?.['isEdit'] ||
-                              !handleCheckIsAllowEdit(
-                                'actionButton',
-                                taskChainResult.value,
-                                taskChainResultIndex
-                              ) ||
-                              loading.sendBlock
-                            "
-                          >
-                            Gửi Block Automation
-                            @if (!loading.sendBlock) {
-                              <i
-                                class="fa-solid fa-robot ms-2 cursor-pointer"
-                              ></i>
-                            } @else {
-                              <span
-                                class="spinner-border spinner-border-sm ms-2"
-                                role="status"
-                                aria-hidden="true"
-                              ></span>
-                            }
-                          </button>
-                          @if (
-                            f['status'].value !== ETaskChainType.CLOSED &&
-                            !taskChainResult.value.executedDate
-                          ) {
-                            <div
-                              class="mt-2"
-                              formGroupName="callBlockAutomation"
+                    <div class="d-flex flex-column gap-3">
+                      <div class="d-flex flex-column" formGroupName="action">
+                        @switch (taskChainResult?.value.action?.type) {
+                          @case (EActionType.CALL) {
+                            <button
+                              (click)="handleCall(taskChainResult.value)"
+                              type="button"
+                              class="btn button-medium button-sub-primary secondary-color"
+                              [disabled]="
+                                !handleCheckIsAllowEdit(
+                                  'actionButton',
+                                  taskChainResult.value,
+                                  taskChainResultIndex
+                                )
+                              "
                             >
-                              <ng-container>
-                                <ng-select
-                                  [readonly]="
-                                    !staticDataChainItem?.taskChainResults?.[
-                                      taskChainResultIndex
-                                    ]?.['isEdit'] ||
-                                    !handleCheckIsAllowEdit(
-                                      'block',
-                                      taskChainResult.value,
-                                      taskChainResultIndex
-                                    )
-                                  "
-                                  formControlName="blockId"
-                                  [placeholder]="'Chọn Block'"
-                                  [searchable]="true"
-                                  [items]="blocks"
-                                  [loading]="loadingData.blocks"
-                                  [clearable]="false"
-                                  class="ng-select-custom dropdown-auto-width input-medium"
-                                  bindLabel="name"
-                                  bindValue="id"
-                                  appendTo=".modal-update-task"
-                                ></ng-select>
-                              </ng-container>
-                            </div>
+                              Gọi điện
+                              <i class="fa-solid fa-phone ms-2"></i>
+                            </button>
+                          }
+                          @case (EActionType.SEND_BLOCK_AUTOMATION) {
+                            <button
+                              (click)="handleSendBlock(taskChainResult.value)"
+                              type="button"
+                              class="btn button-medium button-sub-primary secondary-color"
+                              [disabled]="
+                                !!staticDataChainItem?.taskChainResults?.[
+                                  taskChainResultIndex
+                                ]?.['isEdit'] ||
+                                !handleCheckIsAllowEdit(
+                                  'actionButton',
+                                  taskChainResult.value,
+                                  taskChainResultIndex
+                                ) ||
+                                loading.sendBlock
+                              "
+                            >
+                              Gửi Block Automation
+                              @if (!loading.sendBlock) {
+                                <i
+                                  class="fa-solid fa-robot ms-2 cursor-pointer"
+                                ></i>
+                              } @else {
+                                <span
+                                  class="spinner-border spinner-border-sm ms-2"
+                                  role="status"
+                                  aria-hidden="true"
+                                ></span>
+                              }
+                            </button>
+                            @if (
+                              f['status'].value !== ETaskChainType.CLOSED &&
+                              !taskChainResult.value.executedDate
+                            ) {
+                              <div
+                                class="mt-2"
+                                formGroupName="callBlockAutomation"
+                              >
+                                <ng-container>
+                                  <ng-select
+                                    [readonly]="
+                                      !staticDataChainItem?.taskChainResults?.[
+                                        taskChainResultIndex
+                                      ]?.['isEdit'] ||
+                                      !handleCheckIsAllowEdit(
+                                        'block',
+                                        taskChainResult.value,
+                                        taskChainResultIndex
+                                      )
+                                    "
+                                    formControlName="blockId"
+                                    [placeholder]="'Chọn Block'"
+                                    [searchable]="true"
+                                    [items]="blocks"
+                                    [loading]="loadingData.blocks"
+                                    [clearable]="false"
+                                    class="ng-select-custom dropdown-auto-width input-medium"
+                                    bindLabel="name"
+                                    bindValue="id"
+                                    appendTo=".modal-update-task"
+                                  ></ng-select>
+                                </ng-container>
+                              </div>
+                            }
+                          }
+                          @case (EActionType.OTHER) {
+                            <div>Khác</div>
+                          }
+                          @default {
+                            <div>-</div>
                           }
                         }
-                        @case (EActionType.OTHER) {
-                          <div>Khác</div>
-                        }
-                        @default {
-                          <div>-</div>
-                        }
-                      }
-                    </div>
+                      </div>
 
-                    @if ((taskChainResult.value?.subActions || []).length > 0) {
-                      @for (
-                        subAction of taskChainResult.value?.subActions || [];
-                        track subActionIndex;
-                        let subActionIndex = $index
-                      ) {
-                        <div class="d-flex flex-column mb-2 ms-2">
-                          @switch (subAction.type) {
-                            @case (EActionType.FEEDBACK) {
-                              <div
-                                *ngIf="
-                                  getSubActionFeedback(
-                                    taskChainResult.value?.feedbacks,
-                                    subAction.id
-                                  ) as feedback;
-                                  else noFeedback
-                                "
-                              >
-                                <b>Đánh giá:</b>
-                                <span>
-                                  {{ feedback.comment }}
-                                </span>
+                      <div
+                        class="d-flex flex-column gap-2"
+                        *ngIf="taskChainResult.value?.subActions?.length"
+                      >
+                        @for (
+                          subAction of taskChainResult.value?.subActions || [];
+                          track subActionIndex;
+                          let subActionIndex = $index
+                        ) {
+                          <div class="d-flex flex-column ms-2">
+                            @switch (subAction.type) {
+                              @case (EActionType.FEEDBACK) {
+                                <div
+                                  *ngIf="
+                                    getSubActionFeedback(
+                                      taskChainResult.value?.feedbacks,
+                                      subAction.id
+                                    ) as feedback;
+                                    else noFeedback
+                                  "
+                                >
+                                  <b>Đánh giá:</b>
+                                  <span>
+                                    {{ feedback.comment }}
+                                  </span>
 
-                                <div class="d-inline-flex align-items-center">
-                                  <span>{{ feedback.rate }}⭐</span>
-                                  <div
-                                    class="fst-italic text-primary fs-7 cursor-pointer"
-                                    (click)="handleViewFeedback(feedback.id)"
-                                  >
-                                    Xem đánh giá
+                                  <div class="d-inline-flex align-items-center">
+                                    <span>{{ feedback.rate }}⭐</span>
+                                    <div
+                                      class="fst-italic text-primary fs-7 cursor-pointer"
+                                      (click)="handleViewFeedback(feedback.id)"
+                                    >
+                                      Xem đánh giá
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              <ng-template #noFeedback>
-                                <button
-                                  (click)="
-                                    handleFeedback(
-                                      taskChainResult.value,
-                                      taskChainResultIndex,
+                                <ng-template #noFeedback>
+                                  <button
+                                    (click)="
+                                      handleFeedback(
+                                        taskChainResult.value,
+                                        taskChainResultIndex,
+                                        subAction.id
+                                      )
+                                    "
+                                    type="button"
+                                    class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+                                    [disabled]="
+                                      !handleCheckIsAllowEdit(
+                                        'actionButton',
+                                        taskChainResult.value,
+                                        taskChainResultIndex
+                                      ) || !hasPermitFeedback
+                                    "
+                                  >
+                                    Đánh giá
+                                    <i class="fa-solid fa-comment ms-2"></i>
+                                  </button>
+                                </ng-template>
+                              }
+                              @case (EActionType.MANUAL_CREATE_ORDER) {
+                                <div
+                                  *ngIf="
+                                    getSubActionOrder(
+                                      taskChainResult.value?.orders,
                                       subAction.id
-                                    )
-                                  "
-                                  type="button"
-                                  class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
-                                  [disabled]="
-                                    !handleCheckIsAllowEdit(
-                                      'actionButton',
-                                      taskChainResult.value,
-                                      taskChainResultIndex
-                                    ) || !hasPermitFeedback
+                                    ) as order;
+                                    else noOrder
                                   "
                                 >
-                                  Đánh giá
-                                  <i class="fa-solid fa-comment ms-2"></i>
-                                </button>
-                              </ng-template>
-                            }
-                            @case (EActionType.MANUAL_CREATE_ORDER) {
-                              <div
-                                *ngIf="
-                                  getSubActionOrder(
-                                    taskChainResult.value?.orders,
-                                    subAction.id
-                                  ) as order;
-                                  else noOrder
-                                "
-                              >
-                                <b>Đơn hàng:</b>
-                                <span
-                                  class="text-primary fs-7 fst-italic"
-                                  style="cursor: pointer"
-                                  (click)="
-                                    handleCreateOrder(
-                                      taskChainResult.value,
-                                      taskChainResultIndex,
-                                      subAction.id,
-                                      order?.id
-                                    )
-                                  "
-                                >
-                                  {{ order?.code || order?.id }}
-                                </span>
-                              </div>
+                                  <b>Đơn hàng:</b>
+                                  <span
+                                    class="text-primary fs-7 fst-italic"
+                                    style="cursor: pointer"
+                                    (click)="
+                                      handleCreateOrder(
+                                        taskChainResult.value,
+                                        taskChainResultIndex,
+                                        subAction.id,
+                                        order?.id
+                                      )
+                                    "
+                                  >
+                                    {{ order?.code || order?.id }}
+                                  </span>
+                                </div>
 
-                              <ng-template #noOrder>
-                                <button
-                                  (click)="
-                                    handleCreateOrder(
-                                      taskChainResult.value,
-                                      taskChainResultIndex,
+                                <ng-template #noOrder>
+                                  <button
+                                    (click)="
+                                      handleCreateOrder(
+                                        taskChainResult.value,
+                                        taskChainResultIndex,
+                                        subAction.id
+                                      )
+                                    "
+                                    type="button"
+                                    class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+                                    [disabled]="
+                                      !handleCheckIsAllowEdit(
+                                        'actionButton',
+                                        taskChainResult.value,
+                                        taskChainResultIndex
+                                      )
+                                    "
+                                  >
+                                    Tạo đơn hàng
+                                    <i
+                                      class="fa-solid fa-cart-shopping ms-2"
+                                    ></i>
+                                  </button>
+                                </ng-template>
+                              }
+                              @case (EActionType.BOOKING) {
+                                <div
+                                  *ngIf="
+                                    getSubActionBooking(
+                                      taskChainResult.value?.bookings,
                                       subAction.id
-                                    )
+                                    ) as booking;
+                                    else noBooking
                                   "
-                                  type="button"
-                                  class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
-                                  [disabled]="
-                                    !handleCheckIsAllowEdit(
-                                      'actionButton',
-                                      taskChainResult.value,
-                                      taskChainResultIndex
-                                    )
-                                  "
+                                  class="d-flex align-items-center"
                                 >
-                                  Tạo đơn hàng
-                                  <i class="fa-solid fa-cart-shopping ms-2"></i>
-                                </button>
-                              </ng-template>
-                            }
-                            @case (EActionType.BOOKING) {
-                              <div
-                                *ngIf="
-                                  getSubActionBooking(
-                                    taskChainResult.value?.bookings,
-                                    subAction.id
-                                  ) as booking;
-                                  else noBooking
-                                "
-                                class="d-flex align-items-center"
-                              >
-                                <b>Lịch hẹn:</b>
-                                <span
-                                  class="text-primary fs-7 fst-italic ms-1"
-                                  style="
-                                    cursor: pointer;
-                                    display: inline-block;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                    white-space: nowrap;
-                                    max-width: 100px;
-                                  "
-                                  (click)="handleViewBooking(booking?.id!)"
-                                >
-                                  {{ booking?.title }}
-                                </span>
-                              </div>
+                                  <b>Lịch hẹn:</b>
+                                  <span
+                                    class="text-primary fs-7 fst-italic ms-1"
+                                    style="
+                                      cursor: pointer;
+                                      display: inline-block;
+                                      overflow: hidden;
+                                      text-overflow: ellipsis;
+                                      white-space: nowrap;
+                                      max-width: 100px;
+                                    "
+                                    (click)="handleViewBooking(booking?.id!)"
+                                  >
+                                    {{ booking?.title }}
+                                  </span>
+                                </div>
 
-                              <ng-template #noBooking>
-                                <button
-                                  (click)="
-                                    handleCreateBooking(
-                                      taskChainResult.value,
-                                      taskChainResultIndex,
-                                      subAction.id
-                                    )
-                                  "
-                                  type="button"
-                                  class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
-                                  [disabled]="
-                                    !handleCheckIsAllowEdit(
-                                      'actionButton',
-                                      taskChainResult.value,
-                                      taskChainResultIndex
-                                    )
-                                  "
-                                >
-                                  Tạo booking
-                                  <i class="fa-solid fa-calendar ms-2"></i>
-                                </button>
-                              </ng-template>
+                                <ng-template #noBooking>
+                                  <button
+                                    (click)="
+                                      handleCreateBooking(
+                                        taskChainResult.value,
+                                        taskChainResultIndex,
+                                        subAction.id
+                                      )
+                                    "
+                                    type="button"
+                                    class="btn button-small button-sub-primary secondary-color d-flex align-items-center justify-content-center"
+                                    [disabled]="
+                                      !handleCheckIsAllowEdit(
+                                        'actionButton',
+                                        taskChainResult.value,
+                                        taskChainResultIndex
+                                      )
+                                    "
+                                  >
+                                    Tạo booking
+                                    <i class="fa-solid fa-calendar ms-2"></i>
+                                  </button>
+                                </ng-template>
+                              }
+                              @case (EActionType.OTHER) {
+                                <div>Khác</div>
+                              }
+                              @default {
+                                <div>-</div>
+                              }
                             }
-                            @case (EActionType.OTHER) {
-                              <div>Khác</div>
-                            }
-                            @default {
-                              <div>-</div>
-                            }
-                          }
-                        </div>
-                      }
-                    }
+                          </div>
+                        }
+                      </div>
+                    </div>
                   </td>
 
                   <!-- Kết quả hành động -->
-                  <td class="column-result d-flex">
+                  <td class="column-result">
                     @if (
                       !!staticDataChainItem?.taskChainResults?.[
                         taskChainResultIndex

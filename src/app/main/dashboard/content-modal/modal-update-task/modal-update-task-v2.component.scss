@@ -11,8 +11,9 @@
   .subhead {
     padding: 20px 16px;
     border-right: 1px solid var(--bs-gray-200);
+    border-left: 1px solid var(--bs-gray-200);
     width: max-content;
-    color: vars.$neutral;
+    color: vars.$gray-900;
   }
 }
 
@@ -90,7 +91,7 @@
       &.active {
         color: #007bff;
         border-bottom-color: #007bff;
-        font-weight: 600;
+        font-weight: 500;
       }
 
       span {
@@ -242,7 +243,7 @@
       background-color: #f8f9fa;
       border-bottom: 1px solid #e9ecef;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 500;
       color: #3b82f6;
     }
 
@@ -295,11 +296,25 @@
 
 .section-area {
   width: calc(100% + -0px);
-  height: calc(100vh - 250px);
+  height: calc(100vh - 282px);
   overflow-y: scroll;
   overflow-x: hidden;
-  padding: 16px;
-  background-color: #fff;
+  // padding: 16px;
+  // background-color: #fff;
+  border-bottom-left-radius: vars.$radius-s;
+  border-bottom-right-radius: vars.$radius-s;
+  &.no-show-left-tab {
+    height: calc(100vh - 332px);
+  }
+}
+
+.section-area-right {
+  width: calc(100% + -0px);
+  height: calc(100vh - 332px);
+  overflow-y: scroll;
+  overflow-x: hidden;
+  // padding: 16px;
+  // background-color: #fff;
   border-bottom-left-radius: vars.$radius-s;
   border-bottom-right-radius: vars.$radius-s;
 }
@@ -488,7 +503,11 @@
   padding: 5px 16px;
   border: 1px solid vars.$input-border-color;
 
-  .funnel-name-input {
+  &:focus-within {
+    background-color: vars.$white;
+  }
+
+  .task-name-input {
     border: none;
     background: transparent;
     color: #1a3791;
@@ -509,7 +528,9 @@
     }
   }
   &.is-invalid {
-    border: 1px solid #dc3545;
+    i {
+      color: inherit;
+    }
   }
 }
 
@@ -587,4 +608,33 @@
   &:hover img {
     opacity: 1;
   }
+}
+
+.btn-dropdown {
+  // width: 30px;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 0 14px 16px;
+}
+
+.dropdown-menu {
+  padding: 8px 0;
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 20px;
+
+  &:active {
+    color: #fff;
+    text-decoration: none;
+    background-color: #2077fa;
+  }
+}
+
+.custom-input-tag .ng-select-container {
+  max-width: 100% !important;
 }

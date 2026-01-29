@@ -14,7 +14,7 @@
       <div modalBody>
         <div class="wrapper">
           <div class="row mb-3 g-2">
-            <div class="col-12">
+            <div class="col-6">
               <label for="iframe-name" class="form-control-label">
                 Nhập tên iframe
               </label>
@@ -34,6 +34,30 @@
                   Tên iframe không được bỏ trống
                 </div>
               </div>
+            </div>
+
+            <div class="col-6">
+              <label for="icon-tab" class="form-control-label">Icon tab</label>
+              <ng-select
+                id="icon-tab"
+                class="ng-select-custom"
+                formControlName="icon"
+                [items]="listIcons"
+                [virtualScroll]="true"
+                [clearable]="false"
+                appendTo=".modal-create-update-tab"
+                placeholder="Chọn icon"
+              >
+                <ng-template ng-option-tmp let-item="item">
+                  <i [ngClass]="item" class="me-1"></i>
+                  <span>{{ item }}</span>
+                </ng-template>
+
+                <ng-template ng-label-tmp let-item="item">
+                  <i [ngClass]="item" class="me-1"></i>
+                  <span>{{ item }}</span>
+                </ng-template>
+              </ng-select>
             </div>
           </div>
 

@@ -36,7 +36,7 @@ export class DetailTaskData extends DashboardData {
     leadDeal: this.fb.group({
       id: null,
       type: 'LEAD',
-      name: [null, [Validators.required]],
+      name: [null],
       picture: null,
       gender: 'other',
       phone: null,
@@ -90,7 +90,7 @@ export class DetailTaskData extends DashboardData {
     modal: false,
     deleteChainTask: false,
     closeChainTask: false,
-    getOrderDetail: false
+    getOrderDetail: false,
   };
 
   protected orders: EntityPagination<Order> = {
@@ -507,7 +507,7 @@ export class DetailTaskData extends DashboardData {
                 delayType: nextAction?.childNextAction?.delayType,
                 moveToAction: nextAction?.childNextAction?.moveToAction,
                 callBlockAutomation:
-                nextAction?.childNextAction?.callBlockAutomation,
+                  nextAction?.childNextAction?.callBlockAutomation,
                 closeTaskResult: [nextAction?.childNextAction?.closeTaskResult],
                 closeCloneTask: [nextAction?.childNextAction?.closeCloneTask],
                 addNewChain: nextAction?.childNextAction?.addNewChain,
@@ -530,7 +530,7 @@ export class DetailTaskData extends DashboardData {
   }
 
   getOrderDetail(orderIds: string[]) {
-    if(this.loading.getOrderDetail || !orderIds || orderIds.length === 0) {
+    if (this.loading.getOrderDetail || !orderIds || orderIds.length === 0) {
       return;
     }
     this.loading.getOrderDetail = true;

@@ -121,8 +121,8 @@ export class ModalUpdateTaskComponent
     left: [] as ISettingTabItem[],
     right: [] as ISettingTabItem[],
   };
-  public activeLeftTabMenu: string = 'task';
-  public activeRightTabMenu: string = 'history';
+  public activeLeftTabMenu!: ISettingTabItem;
+  public activeRightTabMenu!: ISettingTabItem;
   public isShowLeftTab: boolean = true;
 
   constructor(
@@ -156,18 +156,21 @@ export class ModalUpdateTaskComponent
         this.activeTab = fragment as ETabTaskDetail;
       }
     });
-  }
 
-  override async ngOnInit() {
+    const isShowLeftTab = localStorage.getItem('isShowLeftTab');
+    if (isShowLeftTab) {
+      this.isShowLeftTab = isShowLeftTab === 'true';
+    }
+
     this.autoTaskService.currentSetting
       .pipe(takeUntil(this.destroy$))
       .subscribe((res) => {
         if (res) {
-          this.tabsMenu.left = res.taskTabs.filter(
-            (tab) => tab.positions.includes('left') && tab.active,
+          this.tabsMenu.left = (res.taskTabs || []).filter(
+            (tab) => (tab.positions || []).includes('left') && tab.active,
           );
-          this.tabsMenu.right = res.taskTabs.filter(
-            (tab) => tab.positions.includes('right') && tab.active,
+          this.tabsMenu.right = (res.taskTabs || []).filter(
+            (tab) => (tab.positions || []).includes('right') && tab.active,
           );
           if (isEmpty(this.tabsMenu.left)) {
             this.tabsMenu.left = DEFAULT_TASK_TABS.filter(
@@ -180,11 +183,13 @@ export class ModalUpdateTaskComponent
             );
           }
 
-          this.activeLeftTabMenu = this.tabsMenu.left[0]?.key || 'task';
-          this.activeRightTabMenu = this.tabsMenu.right[0]?.key || 'history';
+          this.activeLeftTabMenu = this.tabsMenu.left[0];
+          this.activeRightTabMenu = this.tabsMenu.right[0];
         }
       });
+  }
 
+  override async ngOnInit() {
     this.resetTaskSubject$
       .pipe(debounceTime(300), takeUntil(this.destroy$))
       .subscribe({
@@ -1427,6 +1432,10 @@ export class ModalUpdateTaskComponent
 
   handleToggleLeftTab() {
     this.isShowLeftTab = !this.isShowLeftTab;
+    localStorage.setItem('isShowLeftTab', this.isShowLeftTab.toString());
+  }
+
+  private applyModalDialogSize(): void {
     const modalDialog = document.querySelector('.modal-dialog');
     if (!modalDialog) {
       return;

@@ -9,6 +9,7 @@ import {
 import {BsModalRef} from 'ngx-bootstrap/modal';
 import {ESourceArgKey, ISettingTabItem} from '@app/types/setting';
 import {v4 as uuidv4} from 'uuid';
+import LIST_ICONS from '@app/utils/fa-icon.json';
 
 @Component({
   selector: 'app-modal-create-update-tab',
@@ -53,6 +54,8 @@ export class ModalCreateUpdateTabComponent implements OnInit {
     },
   ];
 
+  public listIcons: string[] = LIST_ICONS;
+
   constructor(
     private readonly fb: FormBuilder,
     public readonly bsModalRef: BsModalRef,
@@ -62,6 +65,7 @@ export class ModalCreateUpdateTabComponent implements OnInit {
       url: [null, [Validators.required]],
       isActive: [true],
       parameters: this.fb.array([]),
+      icon: [null],
     });
   }
 
@@ -74,6 +78,7 @@ export class ModalCreateUpdateTabComponent implements OnInit {
         name: tabData.name || null,
         url: (tabData as any).url || null,
         isActive: tabData.active,
+        icon: tabData.icon || null,
       });
 
       const parameters = (tabData as any).params || [];
@@ -170,6 +175,7 @@ export class ModalCreateUpdateTabComponent implements OnInit {
         isActive: formValue.isActive,
         parameters: formValue.parameters,
         key: this.tabData?.key || `iframe_${uuidv4()}`,
+        icon: formValue.icon,
       });
       this.bsModalRef.hide();
     }

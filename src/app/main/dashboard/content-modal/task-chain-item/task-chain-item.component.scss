@@ -1,6 +1,10 @@
 @use 'src/app/styles/variable' as vars;
 @use 'src/app/styles/mixins' as mixins;
 
+.table {
+  min-width: unset;
+}
+
 .input__title {
   width: 500px;
 }
@@ -63,7 +67,8 @@
 }
 
 .column-result {
-  width: 35%;
+  width: 20%;
+  text-align: center;
   .data-result-reason {
     .reason {
       font-style: italic;
@@ -73,10 +78,11 @@
 
 .column-take-action {
   width: 15%;
+  text-align: center;
 }
 
 .column-next-step {
-  width: 35%;
+  width: 50%;
   .next-step-item {
     padding: 5px 0;
     &:hover {

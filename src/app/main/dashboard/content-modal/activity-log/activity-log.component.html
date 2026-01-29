@@ -1,5 +1,5 @@
 <div class="activity-log">
-  <div class="activity-log-content activity-area custom-scrollbar">
+  <div class="activity-log-content">
     @if (loading) {
       <div class="text-center p-4">
         <div class="spinner-grow text-primary" role="status">
@@ -13,11 +13,13 @@
       @for (group of groupedActivities; track group.title) {
         <div class="activity-log-section">
           <div class="d-flex align-items-center gap-2 mb-3">
-            <img
-              [src]="'./assets/icons/' + group.icon + '.svg'"
-              width="24"
-              height="24"
-            />
+            <div class="p-1">
+              <img
+                [src]="'./assets/icons/' + group.icon + '.svg'"
+                width="16"
+                height="16"
+              />
+            </div>
             <span class="activity-log-section-title">
               {{ group.title }}
             </span>
@@ -31,25 +33,29 @@
             <div class="activity-log-item">
               @if (hasConnectorLine(group, i)) {
                 <div class="activity-log-item-icon-wrapper">
+                  <div class="p-1 bg-white z-1">
+                    <img
+                      [src]="
+                        activity.actionBy?.picture || './assets/icons/logo.svg'
+                      "
+                      width="16"
+                      height="16"
+                      class="rounded-circle"
+                    />
+                  </div>
+                  <div class="activity-log-connector-line"></div>
+                </div>
+              } @else {
+                <div class="p-1 bg-white z-1">
                   <img
                     [src]="
                       activity.actionBy?.picture || './assets/icons/logo.svg'
                     "
                     width="16"
                     height="16"
-                    style="border-radius: 100%"
+                    class="rounded-circle"
                   />
-                  <div class="activity-log-connector-line"></div>
                 </div>
-              } @else {
-                <img
-                  [src]="
-                    activity.actionBy?.picture || './assets/icons/logo.svg'
-                  "
-                  width="16"
-                  height="16"
-                  style="border-radius: 100%"
-                />
               }
               <div class="activity-log-item-content">
                 <div class="d-flex align-items-center justify-content-between">

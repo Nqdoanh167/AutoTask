@@ -91,6 +91,7 @@
 
 .table {
   margin: 0;
+  min-width: max-content;
 
   th,
   td {
@@ -110,7 +111,7 @@
     color: var(--bs-gray-500);
     padding-top: 12px;
     padding-bottom: 12px;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 12px;
     line-height: 15px;
     vertical-align: middle;
@@ -166,19 +167,19 @@ ul {
 // title
 
 .title-3 {
-  font-weight: 600;
+  font-weight: 500;
   font-size: 28px;
   line-height: 36px;
 }
 
 .title-4 {
-  font-weight: 600;
+  font-weight: 500;
   font-size: 24px;
   line-height: 32px;
 }
 
 .title-5 {
-  font-weight: 600;
+  font-weight: 500;
   font-size: 20px;
   line-height: 26px;
 }
@@ -271,7 +272,7 @@ app-main {
 
   &-label {
     color: $neutral-400;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 12px;
     line-height: 14px;
     margin-bottom: 8px;
@@ -503,7 +504,7 @@ app-main {
       border: none;
       color: $gray-900;
       text-transform: uppercase;
-      font-weight: bold;
+      font-weight: 500;
     }
   }
 
@@ -513,7 +514,7 @@ app-main {
     &.tab-fixed-order {
       .nav-link.disabled {
         color: $gray-900;
-        font-weight: bold;
+        font-weight: 500;
         display: flex;
         font-size: 16px;
         padding-right: 0;
@@ -849,7 +850,7 @@ a {
   .nav-item {
     .nav-link {
       color: #686c7b;
-      font-weight: bold;
+      font-weight: 500;
       line-height: 20px;
       border-radius: 8px;
       &.active {
@@ -970,7 +971,7 @@ a {
 
   &:focus-within {
     outline: 1px solid $neutral;
-  } 
+  }
 }
 
 .button-icon-wrapper {
@@ -1066,7 +1067,7 @@ a {
 
   &-label {
     color: $text-color;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 12px;
     line-height: 14px;
     margin-bottom: 8px;
@@ -1153,16 +1154,14 @@ textarea.ui-v2 {
   }
 
   th {
-    color: #6b7280;
+    color: var(--bs-gray-500);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     font-size: 12px;
     vertical-align: middle;
     background-color: #f9fafb !important;
     border-color: $table-border;
     border-bottom: 1px solid $body-bg;
-    padding: 12px 8px 12px 8px;
+    padding: 28px 8px 28px 8px;
     border-radius: $table-border-radius;
     line-height: 20px;
 
@@ -1177,5 +1176,18 @@ textarea.ui-v2 {
     line-height: 18px;
     vertical-align: middle;
     padding: 0.5rem;
+  }
+}
+
+cdk-virtual-scroll-viewport {
+  &::-webkit-scrollbar:horizontal {
+    display: none;
+  }
+  .cdk-virtual-scroll-content-wrapper {
+    overflow-x: auto !important;
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
   }
 }

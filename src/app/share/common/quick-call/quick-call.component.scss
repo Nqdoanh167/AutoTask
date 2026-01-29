@@ -5,7 +5,7 @@
   z-index: 99999;
   width: 68px;
   height: 68px;
-  background-color: #53B27F;
+  background-color: #53b27f;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -26,11 +26,11 @@ $call-box-width: 260px;
   bottom: 16px;
   right: 16px;
   z-index: 99999;
-  box-shadow: 0 .125rem .25rem rgba(#000, .075);
+  box-shadow: 0 0.125rem 0.25rem rgba(#000, 0.075);
 
   &-header {
     padding: 16px;
-    border-bottom: 1px solid #E8ECF2;
+    border-bottom: 1px solid #e8ecf2;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -50,14 +50,14 @@ $call-box-width: 260px;
 
       &-item {
         padding: 8px;
-        border-bottom: 1px solid #E8ECF2;
+        border-bottom: 1px solid #e8ecf2;
         color: #afb2bd;
         cursor: pointer;
 
         &.active {
-          font-weight: 600;
-          color: #0F1835;
-          border-bottom: 1px solid #0F1835;
+          font-weight: 500;
+          color: #0f1835;
+          border-bottom: 1px solid #0f1835;
         }
       }
     }
@@ -69,8 +69,8 @@ $call-box-width: 260px;
         width: 60px;
         height: 60px;
         border-radius: 50%;
-        background-color: #E8ECF2;
-        color: #0F1835;
+        background-color: #e8ecf2;
+        color: #0f1835;
         font-size: 30px;
         cursor: pointer;
         display: flex;
@@ -82,7 +82,7 @@ $call-box-width: 260px;
       .btn-call {
         padding: 8px;
         border-radius: 8px;
-        background-color: #53B27F;
+        background-color: #53b27f;
         color: #fff;
         display: flex;
         align-items: center;
@@ -106,9 +106,9 @@ $call-box-width: 260px;
     top: -165px;
     left: -8px;
     background-color: #fff;
-    color: #0F1835;
+    color: #0f1835;
     transform: translate(-100%, -100%);
-    box-shadow: 0 .125rem .25rem rgba(#000, .075);
+    box-shadow: 0 0.125rem 0.25rem rgba(#000, 0.075);
   }
 }
 
@@ -125,7 +125,7 @@ $call-box-width: 260px;
   width: calc(100% + 100px);
   transform: translateX(-50px);
   padding: 8px 16px;
-  background-color: #EEF3FF;
+  background-color: #eef3ff;
   border-radius: 6px;
   display: flex;
   justify-content: center;

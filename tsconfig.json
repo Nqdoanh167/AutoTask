@@ -29,7 +29,7 @@
     "checkJs": false,
     "skipLibCheck": true,
     "types": ["@hgiasac/stringee-types"],
-    "allowJs": true
+    "resolveJsonModule": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

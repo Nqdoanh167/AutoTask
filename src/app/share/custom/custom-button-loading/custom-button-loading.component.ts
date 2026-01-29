@@ -13,13 +13,14 @@ import {CommonModule} from '@angular/common';
       [id]="id"
       [style]="styleBtn"
     >
-      <span
+      <!-- <span
         *ngIf="isLoading"
         class="spinner-border spinner-border-sm me-2"
         role="status"
         aria-hidden="true"
-      ></span>
+      ></span> -->
       <span>{{ textButton }}</span>
+      <i class="fas fa-spinner fa-spin ms-2" *ngIf="isLoading"></i>
     </button>
   `,
   styleUrls: ['./custom-button-loading.component.scss'],

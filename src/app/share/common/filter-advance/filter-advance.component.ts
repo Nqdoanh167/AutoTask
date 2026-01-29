@@ -21,7 +21,7 @@ import {takeUntil} from 'rxjs';
 import {CustomDatePickerComponent} from '@app/share/custom/custom-date-picker/custom-date-picker.component';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {DashboardCheckPermission} from '@app/main/dashboard/dashboard-check-permission';
-import {cloneDeep, isEqual} from 'lodash';
+import {cloneDeep, isEmpty, isEqual} from 'lodash';
 import moment from 'moment';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {FormsModule} from '@angular/forms';
@@ -145,6 +145,10 @@ export class FilterAdvanceComponent
             ? item.value
             : '',
       }));
+
+    if (isEmpty(this.conditionList)) {
+      this.addFilterCondition();
+    }
   }
 
   onChangeValueActionResult(

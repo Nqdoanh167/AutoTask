@@ -68,13 +68,7 @@
                           <tr cdkDrag [class.opacity-50]="!tab.active">
                             <td>
                               <div class="d-flex align-items-center gap-2">
-                                <img
-                                  *ngIf="tab.icon"
-                                  [src]="'./assets/icons/' + tab.icon + '.svg'"
-                                  [alt]="tab.name"
-                                  width="20"
-                                  height="20"
-                                />
+                                <i [class]="tab.icon" *ngIf="tab.icon"></i>
                                 <span
                                   class="text-truncate"
                                   style="max-width: 100px"
@@ -142,7 +136,7 @@
                                   </span>
                                   <span
                                     class="d-flex align-items-center cursor-pointer"
-                                    (click)="deleteTab(tab)"
+                                    (click)="handleDeleteTab(tab)"
                                     title="Xóa"
                                   >
                                     <img
@@ -198,13 +192,14 @@
                           <tr cdkDrag [class.opacity-50]="!tab.active">
                             <td>
                               <div class="d-flex align-items-center gap-2">
-                                <img
+                                <!-- <img
                                   *ngIf="tab.icon"
                                   [src]="'./assets/icons/' + tab.icon + '.svg'"
                                   [alt]="tab.name"
                                   width="20"
                                   height="20"
-                                />
+                                /> -->
+                                <i [class]="tab.icon" *ngIf="tab.icon"></i>
                                 <span
                                   class="text-truncate"
                                   style="max-width: 100px"
@@ -272,7 +267,7 @@
                                   </span>
                                   <span
                                     class="d-flex align-items-center cursor-pointer"
-                                    (click)="deleteTab(tab)"
+                                    (click)="handleDeleteTab(tab)"
                                     title="Xóa"
                                   >
                                     <img
@@ -313,13 +308,14 @@
                           *ngFor="let tab of getTabsByPosition('left')"
                           [class.active]="tab.active"
                         >
-                          <img
+                          <!-- <img
                             *ngIf="tab.icon"
                             [src]="'./assets/icons/' + tab.icon + '.svg'"
                             [alt]="tab.name"
                             width="16"
                             height="16"
-                          />
+                          /> -->
+                          <i [class]="tab.icon" *ngIf="tab.icon"></i>
                           <span>{{ tab.name }}</span>
                         </div>
                         <div
@@ -347,13 +343,14 @@
                           *ngFor="let tab of getTabsByPosition('right')"
                           [class.active]="tab.active"
                         >
-                          <img
+                          <!-- <img
                             *ngIf="tab.icon"
                             [src]="'./assets/icons/' + tab.icon + '.svg'"
                             [alt]="tab.name"
                             width="16"
                             height="16"
-                          />
+                          /> -->
+                          <i [class]="tab.icon" *ngIf="tab.icon"></i>
                           <span>{{ tab.name }}</span>
                         </div>
                         <div
