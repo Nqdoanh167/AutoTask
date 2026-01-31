@@ -14,7 +14,7 @@ import {StorageService} from '@app/services/api/storage.service';
 import {ToastrService} from 'ngx-toastr';
 import {User} from '@app/types/viewmodels';
 import {ISetting} from '@app/types/setting';
-import {LeadDashboardData} from '../lead-dashboard-data';
+import {LeadDashboardData} from '../lead-dashboard.definition';
 
 @Component({
   selector: 'app-lead-create-modal',

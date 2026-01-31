@@ -1,5 +1,5 @@
-import {inject} from '@angular/core';
-import {finalize, shareReplay, takeUntil} from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {finalize, takeUntil} from 'rxjs';
 import {CheckboxSortTableComponent} from '@share/common/checkbox-table/checkbox-sort-table.component';
 import {
   ILead,
@@ -14,6 +14,7 @@ import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {LeadService} from '@app/services/api/lead.service';
 import {ISource} from '@app/types/setting';
 
+@Injectable()
 export class LeadDashboardData extends CheckboxSortTableComponent<
   ILead,
   IQueryBase
@@ -102,49 +103,6 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
             }
           });
         }
-      });
-  }
-
-  override getDataSource(isReset?: boolean) {
-    this.item.loading = true;
-    if (isReset) {
-      this.item.paramsQuery.page = 1;
-    }
-    let params = {...this.item.paramsQuery};
-
-    // Apply sort
-    Object.keys(this.sort).forEach((key) => {
-      if (this.sort[key] !== 0) {
-        let sortAll = params.sort?.split(',') || [];
-        sortAll.push(this.sort[key] === 1 ? `${key}` : `-${key}`);
-        params.sort = sortAll.join(',');
-      }
-    });
-
-    this.item.rows = [];
-    this.leadService.lead
-      .get(params)
-      .pipe(
-        finalize(() => {
-          this.item = {...this.item, loading: false};
-        }),
-        shareReplay(1),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res: any) => {
-          if (res.status === 200) {
-            this.item.rows = res.data;
-            this.item.total = res.meta?.total || 0;
-            if (res.meta?.after) this.item.after = res.meta.after;
-          } else {
-            this.commonService.handleResErr(res);
-          }
-        },
-        error: (err: any) => {
-          console.error('Error fetching leads:', err);
-          this.commonService.handleResErr(err);
-        },
       });
   }
 
@@ -304,26 +262,11 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
       });
   }
 
-  changeSort(field: string) {
-    if (this.sort[field] === 0) {
-      this.sort[field] = -1;
-    } else if (this.sort[field] === -1) {
-      this.sort[field] = 1;
-    } else {
-      this.sort[field] = 0;
-    }
-    this.getDataSource(true);
+  getTagById(tagId?: string): ITag | undefined {
+    return this.tags.rows.find((tag) => tag.id === tagId);
   }
 
-  handleSearch(term: string) {
-    this.item.paramsQuery.q = term;
-    this.getDataSource(true);
-  }
-
-  handleFilterChange(filters: any) {
-    const filterObj = JSON.parse(this.item.paramsQuery.filter || '{}');
-    Object.assign(filterObj, filters);
-    this.item.paramsQuery.filter = JSON.stringify(filterObj);
-    this.getDataSource(true);
+  getStatusById(statusId?: string): ILeadStatus | undefined {
+    return this.statuses.rows.find((status) => status.id === statusId);
   }
 }

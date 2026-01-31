@@ -19,7 +19,7 @@ import {EntityResult, ICommonDataLazy, IQueryBase} from '@app/types/viewmodels';
 import {ToastrService} from 'ngx-toastr';
 import {IChainAct} from '@app/types/flow';
 import {uniqBy} from 'lodash';
-import {LeadDashboardData} from '../lead-dashboard-data';
+import {LeadDashboardData} from '../lead-dashboard.definition';
 
 @Component({
   selector: 'app-folder-form-modal',

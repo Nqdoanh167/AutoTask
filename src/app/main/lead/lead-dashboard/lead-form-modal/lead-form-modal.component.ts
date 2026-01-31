@@ -21,7 +21,6 @@ import {
   ILeadCreateDto,
   ILeadUpdateDto,
   EGenderType,
-  IFolderLead,
   IFunnel,
 } from '@app/types/lead';
 import {StorageService} from '@app/services/api/storage.service';
@@ -33,10 +32,10 @@ import {ITaskChain} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
 import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
 import {ISetting, ISettingTabItem} from '@app/types/setting';
-import {LeadDashboardData} from '../lead-dashboard-data';
+import {LeadDashboardData} from '../lead-dashboard.definition';
 import {DEFAULT_LEAD_TABS} from '@app/main/setting/tab-display/tab-display.variable';
 import {isEmpty} from 'lodash';
-import { Router } from '@angular/router';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-lead-form-modal',

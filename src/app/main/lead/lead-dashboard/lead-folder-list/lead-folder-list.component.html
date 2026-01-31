@@ -83,202 +83,76 @@
           <div class="folder-name">{{ folder.name }}</div>
         </div>
 
-        <div
-          class="d-flex align-items-center gap-2 actions"
-          (click)="$event.stopPropagation()"
-        >
-          <div
-            class="btn-group cursor-pointer btn-dropdown"
-            dropdown
-            #folderDropdown="bs-dropdown"
-            placement="bottom right"
-            dropdownToggle
-          >
-            <div id="button-alignment">
-              <i class="fas fa-ellipsis-v"></i>
-            </div>
-            <ul
-              id="dropdown-basic"
-              *dropdownMenu
-              class="dropdown-menu dropdown-menu-right"
-              role="menu"
-            >
-              <li
-                role="menuitem"
-                (click)="handleAddFolder('group', {folderId: folder.id})"
-              >
-                <div href="#" class="dropdown-item cursor-pointer">
-                  <i class="far fa-folder me-2"></i>
-                  Thêm nhóm phễu
-                </div>
-              </li>
-              <li role="menuitem" (click)="handleEditFolder(folder, 'folder')">
-                <div href="#" class="dropdown-item cursor-pointer">
-                  <i class="far fa-edit me-2"></i>
-                  Cập nhật
-                </div>
-              </li>
-              <li role="menuitem">
-                <div href="#" class="dropdown-item cursor-pointer">
-                  <i
-                    class="fa-regular fa-clipboard me-2"
-                    style="width: 14px"
-                  ></i>
-                  Copy
-                </div>
-              </li>
-              <li role="menuitem" (click)="handleDeleteFolder(folder.id || '')">
-                <div href="#" class="dropdown-item cursor-pointer">
-                  <i class="far fa-trash-alt me-2"></i>
-                  Delete
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <ng-container
+          *ngTemplateOutlet="
+            itemActionsMenu;
+            context: {entity: folder, menuType: 'folder'}
+          "
+        ></ng-container>
       </div>
 
       <ng-container *ngIf="isFolderExpanded(folder.id || '')">
+        <ng-container *ngIf="!folder.funnelGroups?.length">
+          <div class="empty-nested text-gray py-2 px-3">
+            Không có nhóm phễu nào
+          </div>
+        </ng-container>
         <ng-container *ngFor="let group of folder.funnelGroups">
           <div
             class="group-folder"
             (click)="toggleFunnelGroup(folder.id || '', group.id || '')"
           >
-          <div class="d-flex align-items-center gap-3">
-            <div class="chevron-wrapper">
-              <i
-                class="fa-solid fa-chevron-right chevron-icon"
-                [class.rotated]="
-                  isFunnelGroupExpanded(folder.id || '', group.id || '')
-                "
-              ></i>
-            </div>
-            <div class="group-name">{{ group.name }}</div>
-          </div>
-
-          <div
-            class="d-flex align-items-center gap-2 actions"
-            (click)="$event.stopPropagation()"
-          >
-            <div
-              class="btn-group cursor-pointer btn-dropdown"
-              dropdown
-              placement="bottom right"
-              dropdownToggle
-            >
-              <div id="button-alignment">
-                <i class="fas fa-ellipsis-v"></i>
+            <div class="d-flex align-items-center gap-3">
+              <div class="chevron-wrapper">
+                <i
+                  class="fa-solid fa-chevron-right chevron-icon"
+                  [class.rotated]="
+                    isFunnelGroupExpanded(folder.id || '', group.id || '')
+                  "
+                ></i>
               </div>
-              <ul
-                id="dropdown-basic"
-                *dropdownMenu
-                class="dropdown-menu dropdown-menu-right"
-                role="menu"
-              >
-                <li
-                  role="menuitem"
-                  (click)="handleAddFolder('funnel', {groupId: group.id})"
-                >
-                  <div href="#" class="dropdown-item cursor-pointer">
-                    <i class="far fa-folder me-2"></i>
-                    Thêm phễu
-                  </div>
-                </li>
-                <li role="menuitem" (click)="handleEditFolder(group, 'group')">
-                  <div href="#" class="dropdown-item cursor-pointer">
-                    <i class="far fa-edit me-2"></i>
-                    Cập nhật
-                  </div>
-                </li>
-                <li role="menuitem">
-                  <div href="#" class="dropdown-item cursor-pointer">
-                    <i
-                      class="fa-regular fa-clipboard me-2"
-                      style="width: 14px"
-                    ></i>
-                    Copy
-                  </div>
-                </li>
-                <li role="menuitem" (click)="handleDeleteGroup(group.id || '')">
-                  <div href="#" class="dropdown-item cursor-pointer">
-                    <i class="far fa-trash-alt me-2"></i>
-                    Delete
-                  </div>
-                </li>
-              </ul>
+              <div class="group-name">{{ group.name }}</div>
             </div>
-          </div>
-        </div>
 
-        <ng-container
-          *ngIf="isFunnelGroupExpanded(folder.id || '', group.id || '')"
-        >
-          <div
-            class="item-folder"
-            *ngFor="let funnel of group.funnels"
-            (click)="selectFunnel(funnel)"
-            [ngClass]="{active: currentFunnel$?.value?.id === funnel.id}"
+            <ng-container
+              *ngTemplateOutlet="
+                itemActionsMenu;
+                context: {entity: group, menuType: 'group'}
+              "
+            ></ng-container>
+          </div>
+
+          <ng-container
+            *ngIf="isFunnelGroupExpanded(folder.id || '', group.id || '')"
           >
-            <div class="item-content">
-              <span class="funnel-name">
-                <div>{{ funnel.name }}</div>
-                <span style="font-size: 10px" class="mt-1 text-gray">
-                  <i class="fa-solid fa-filter me-2"></i>
-                  <span>{{ funnel.statLeadCount || 0 }} leads</span>
+            <ng-container *ngIf="!group.funnels?.length">
+              <div class="empty-nested text-gray py-2 px-3">
+                Không có phễu nào
+              </div>
+            </ng-container>
+            <div
+              class="item-folder"
+              *ngFor="let funnel of group.funnels"
+              (click)="selectFunnel(funnel)"
+              [ngClass]="{active: currentFunnel?.id === funnel.id}"
+            >
+              <div class="item-content">
+                <span class="funnel-name">
+                  <div>{{ funnel.name }}</div>
+                  <span style="font-size: 10px" class="mt-1 text-gray">
+                    <i class="fa-solid fa-filter me-2"></i>
+                    <span>{{ funnel.statLeadCount || 0 }} leads</span>
+                  </span>
                 </span>
-              </span>
-            </div>
-            <div
-              class="d-flex align-items-center gap-2 actions"
-              (click)="$event.stopPropagation()"
-            >
-              <div
-                class="btn-group cursor-pointer btn-dropdown"
-                dropdown
-                placement="bottom right"
-                dropdownToggle
-              >
-                <div id="button-alignment">
-                  <i class="fas fa-ellipsis-v"></i>
-                </div>
-                <ul
-                  id="dropdown-basic"
-                  *dropdownMenu
-                  class="dropdown-menu dropdown-menu-right"
-                  role="menu"
-                >
-                  <li
-                    role="menuitem"
-                    (click)="handleEditFolder(funnel, 'funnel')"
-                  >
-                    <div href="#" class="dropdown-item cursor-pointer">
-                      <i class="far fa-edit me-2"></i>
-                      Cập nhật
-                    </div>
-                  </li>
-                  <li role="menuitem">
-                    <div href="#" class="dropdown-item cursor-pointer">
-                      <i
-                        class="fa-regular fa-clipboard me-2"
-                        style="width: 14px"
-                      ></i>
-                      Copy
-                    </div>
-                  </li>
-                  <li
-                    role="menuitem"
-                    (click)="handleDeleteFunnel(funnel.id || '')"
-                  >
-                    <div href="#" class="dropdown-item cursor-pointer">
-                      <i class="far fa-trash-alt me-2"></i>
-                      Delete
-                    </div>
-                  </li>
-                </ul>
               </div>
+              <ng-container
+                *ngTemplateOutlet="
+                  itemActionsMenu;
+                  context: {entity: funnel, menuType: 'funnel'}
+                "
+              ></ng-container>
             </div>
-          </div>
-        </ng-container>
+          </ng-container>
         </ng-container>
       </ng-container>
     </ng-container>
@@ -298,3 +172,66 @@
     </ng-container>
   </div>
 </div>
+
+<ng-template #itemActionsMenu let-entity="entity" let-menuType="menuType">
+  <div
+    class="d-flex align-items-center gap-2 actions"
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="btn-group cursor-pointer btn-dropdown"
+      dropdown
+      placement="bottom right"
+      dropdownToggle
+    >
+      <div id="button-alignment">
+        <i class="fas fa-ellipsis-v"></i>
+      </div>
+      <ul
+        id="dropdown-basic"
+        *dropdownMenu
+        class="dropdown-menu dropdown-menu-right"
+        role="menu"
+      >
+        <li
+          *ngIf="menuType === 'folder'"
+          role="menuitem"
+          (click)="handleAddFolder('group', {folderId: entity.id})"
+        >
+          <div href="#" class="dropdown-item cursor-pointer">
+            <i class="far fa-folder me-2"></i>
+            Thêm nhóm phễu
+          </div>
+        </li>
+        <li
+          *ngIf="menuType === 'group'"
+          role="menuitem"
+          (click)="handleAddFolder('funnel', {groupId: entity.id})"
+        >
+          <div href="#" class="dropdown-item cursor-pointer">
+            <i class="far fa-folder me-2"></i>
+            Thêm phễu
+          </div>
+        </li>
+        <li role="menuitem" (click)="handleEditFolder(entity, menuType)">
+          <div href="#" class="dropdown-item cursor-pointer">
+            <i class="far fa-edit me-2"></i>
+            Cập nhật
+          </div>
+        </li>
+        <!-- <li role="menuitem">
+          <div href="#" class="dropdown-item cursor-pointer">
+            <i class="fa-regular fa-clipboard me-2" style="width: 14px"></i>
+            Copy
+          </div>
+        </li> -->
+        <li role="menuitem" (click)="onDeleteEntity(entity, menuType)">
+          <div href="#" class="dropdown-item cursor-pointer">
+            <i class="far fa-trash-alt me-2"></i>
+            Delete
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</ng-template>

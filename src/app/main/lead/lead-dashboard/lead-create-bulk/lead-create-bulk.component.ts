@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {OnDestroy} from '@angular/core';
-import {LeadDashboardData} from '../lead-dashboard-data';
+import {LeadDashboardData} from '../lead-dashboard.definition';
 import {CustomModalComponent} from '@app/share/custom/custom-modal/custom-modal.component';
 import {CommonModule} from '@angular/common';
 import {BsModalRef} from 'ngx-bootstrap/modal';
@@ -22,7 +22,7 @@ import {lastValueFrom} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {IProgress} from '@app/types/viewmodels';
 import {ILeadCreateBulk} from '@app/types/lead';
-import { ProgressbarModule } from "ngx-bootstrap/progressbar";
+import {ProgressbarModule} from 'ngx-bootstrap/progressbar';
 @Component({
   selector: 'app-lead-create-bulk',
   templateUrl: './lead-create-bulk.component.html',
@@ -36,8 +36,8 @@ import { ProgressbarModule } from "ngx-bootstrap/progressbar";
     ReactiveFormsModule,
     NgSelectModule,
     TooltipModule,
-    ProgressbarModule
-],
+    ProgressbarModule,
+  ],
 })
 export class LeadCreateBulkComponent
   extends LeadDashboardData

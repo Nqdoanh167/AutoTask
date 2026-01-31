@@ -48,7 +48,10 @@ import {LeadFolderListComponent} from './lead-dashboard/lead-folder-list/lead-fo
 import {OrdersComponent} from '../dashboard/content-modal/orders/orders.component';
 import {CallCustomerInfoComponent} from '@app/share/common/call-customer-info/call-customer-info.component';
 import {CustomerInfoComponent} from '@app/main/dashboard/content-modal/customer-info/customer-info.component';
-import { TooltipDirective } from "@app/share/directive/tooltip/tooltip-directive.directive";
+import {TooltipDirective} from '@app/share/directive/tooltip/tooltip-directive.directive';
+import {LeadListViewComponent} from './lead-dashboard/lead-list-view/lead-list-view.component';
+import {LeadKanbanViewComponent} from './lead-dashboard/lead-kanban-view/lead-kanban-view.component';
+import { LetDirective } from "@app/share/directive/ng-let.directive";
 
 @NgModule({
   declarations: [
@@ -63,6 +66,8 @@ import { TooltipDirective } from "@app/share/directive/tooltip/tooltip-directive
     SortLeadStatusModalComponent,
     FolderFormModalComponent,
     LeadFolderListComponent,
+    LeadListViewComponent,
+    LeadKanbanViewComponent,
   ],
   imports: [
     CommonModule,
@@ -104,7 +109,8 @@ import { TooltipDirective } from "@app/share/directive/tooltip/tooltip-directive
     OrdersComponent,
     CallCustomerInfoComponent,
     CustomerInfoComponent,
-    TooltipDirective
+    TooltipDirective,
+    LetDirective
 ],
   providers: [DatePipe],
 })

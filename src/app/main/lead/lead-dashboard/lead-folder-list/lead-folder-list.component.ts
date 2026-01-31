@@ -6,11 +6,12 @@ import {
   Input,
   Output,
   EventEmitter,
+  SimpleChanges,
 } from '@angular/core';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
 import {BehaviorSubject} from 'rxjs';
-import {LeadDashboardData} from '../lead-dashboard-data';
+import {LeadDashboardData} from '../lead-dashboard.definition';
 import {IFunnel, IFolderLead, IFunnelGroup} from '@app/types/lead';
 import {EntityPagination} from '@app/types/viewmodels';
 import {ModalConfirmService} from '@share/custom/modal-confirm/modal-confirm.service';
@@ -28,7 +29,7 @@ export class LeadFolderListComponent
   extends LeadDashboardData
   implements OnInit, OnDestroy
 {
-  @Input() currentFunnel$!: BehaviorSubject<IFunnel | null>;
+  @Input() currentFunnel!: IFunnel | null;
   @Output() funnelSelected = new EventEmitter<IFunnel>();
   @Output() folderReloaded = new EventEmitter<void>();
 
@@ -58,17 +59,14 @@ export class LeadFolderListComponent
     super();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['currentFunnel']) {
+      this.openFunnelGroup(changes['currentFunnel'].currentValue?.id!);
+    }
+  }
+
   override ngOnInit(): void {
     this.getFolderLead();
-
-    // Subscribe vào currentFunnel$ để tự động mở funnel group khi thay đổi
-    if (this.currentFunnel$) {
-      this.currentFunnel$.pipe(takeUntil(this.destroy$)).subscribe((funnel) => {
-        if (funnel) {
-          this.openFunnelGroup(funnel.id!);
-        }
-      });
-    }
   }
 
   override ngOnDestroy(): void {
@@ -97,18 +95,13 @@ export class LeadFolderListComponent
             this.leadService.setListLeadFolder(res.data);
 
             // Nếu chưa có currentFolderId, lấy funnel đầu tiên
-            if (
-              this.currentFunnel$ &&
-              !this.currentFunnel$.value &&
-              this.folderLeads.rows.length > 0
-            ) {
+            if (!this.currentFunnel && this.folderLeads.rows.length > 0) {
               const firstFunnel = this.folderLeads.rows
                 .flatMap((folder) => folder.funnelGroups || [])
                 .flatMap((group) => group.funnels || [])
                 .find((funnel) => funnel.id);
 
               if (firstFunnel) {
-                this.currentFunnel$.next(firstFunnel);
                 this.funnelSelected.emit(firstFunnel);
               }
             }
@@ -170,9 +163,6 @@ export class LeadFolderListComponent
   }
 
   selectFunnel(funnel: IFunnel): void {
-    if (this.currentFunnel$) {
-      this.currentFunnel$.next(funnel);
-    }
     this.funnelSelected.emit(funnel);
   }
 
@@ -249,6 +239,16 @@ Tất cả các Phễu và dữ liệu liên quan trong Nhóm Phễu này sẽ b
     });
   }
 
+  onDeleteEntity(
+    entity: {id?: string},
+    type: 'folder' | 'group' | 'funnel',
+  ): void {
+    const id = entity?.id || '';
+    if (type === 'folder') this.handleDeleteFolder(id);
+    else if (type === 'group') this.handleDeleteGroup(id);
+    else this.handleDeleteFunnel(id);
+  }
+
   handleDeleteFunnel(funnelId: string): void {
     const title = 'Xóa Phễu';
     const description = `Bạn có chắc chắn muốn xóa Phễu này không? Hành động này không thể hoàn tác. 
@@ -275,17 +275,14 @@ Tất cả dữ liệu liên quan đến Phễu này sẽ bị xóa vĩnh viễn
           this.toastrService.success('Xóa Folder thành công');
           this.getFolderLead();
 
-          if (this.currentFunnel$?.value?.id) {
+          if (this.currentFunnel?.id) {
             const folder = this.folderLeads.rows.find((f) => f.id === folderId);
             if (folder) {
               const hasCurrentFunnel = folder.funnelGroups?.some(
                 (group) =>
-                  group.funnels?.some(
-                    (f) => f.id === this.currentFunnel$.value?.id,
-                  ),
+                  group.funnels?.some((f) => f.id === this.currentFunnel?.id),
               );
               if (hasCurrentFunnel) {
-                this.currentFunnel$.next(null);
                 this.funnelSelected.emit(null as any);
               }
             }
@@ -307,15 +304,14 @@ Tất cả dữ liệu liên quan đến Phễu này sẽ bị xóa vĩnh viễn
           this.toastrService.success('Xóa Nhóm Phễu thành công');
           this.getFolderLead();
 
-          if (this.currentFunnel$?.value?.id) {
+          if (this.currentFunnel?.id) {
             for (const folder of this.folderLeads.rows) {
               const group = folder.funnelGroups?.find((g) => g.id === groupId);
               if (group) {
                 const hasCurrentFunnel = group.funnels?.some(
-                  (f) => f.id === this.currentFunnel$.value?.id,
+                  (f) => f.id === this.currentFunnel?.id,
                 );
                 if (hasCurrentFunnel) {
-                  this.currentFunnel$.next(null);
                   this.funnelSelected.emit(null as any);
                 }
                 break;
@@ -339,8 +335,7 @@ Tất cả dữ liệu liên quan đến Phễu này sẽ bị xóa vĩnh viễn
           this.toastrService.success('Xóa Phễu thành công');
           this.getFolderLead();
 
-          if (this.currentFunnel$?.value?.id === funnelId) {
-            this.currentFunnel$.next(null);
+          if (this.currentFunnel?.id === funnelId) {
             this.funnelSelected.emit(null as any);
           }
         } else {

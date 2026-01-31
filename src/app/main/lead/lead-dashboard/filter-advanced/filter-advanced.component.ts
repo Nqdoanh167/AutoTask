@@ -6,7 +6,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import {LeadDashboardData} from '../lead-dashboard-data';
+import {LeadDashboardData} from '../lead-dashboard.definition';
 import {ETypeFilter, IFilterTopTable} from '@app/types/common';
 import {IDateRange} from '@app/types/viewmodels';
 import {cloneDeep, isEmpty} from 'lodash';
@@ -50,6 +50,10 @@ export class FilterAdvancedComponent
         value: item.value || '',
         options: this._configCopy,
       }));
+
+    if (isEmpty(this.conditionChoosen)) {
+      this.addFilterCondition();
+    }
   }
 
   getCdtLabel(key: string): string {

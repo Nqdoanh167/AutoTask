@@ -26,7 +26,7 @@ import {AuthService} from '@app/services/api/auth.service';
 import {ISetting} from '@app/types/setting';
 import {ISelectedLocation} from '@app/types/location';
 import {IPlatform} from '../lead-form-modal/lead-form-modal.interface';
-import {LeadDashboardData} from '../lead-dashboard-data';
+import {LeadDashboardData} from '../lead-dashboard.definition';
 
 @Component({
   selector: 'app-lead-update-modal',

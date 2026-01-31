@@ -1,0 +1,176 @@
+<div class="content-kanban">
+  <div
+    class="kanban-board"
+    *ngIf="!loading.kanban"
+    cdkDropListGroup
+    #kanbanBoard
+  >
+    <ng-container *ngFor="let status of statusesDisplay">
+      <div
+        *ngLet="getKanbanDataByStatusId(status.id) as kanbanData"
+        class="kanban-column"
+        [ngStyle]="{'background-color': status.bgColor | hex2rgb}"
+        [id]="status.id"
+        cdkDropList
+        [cdkDropListData]="kanbanData?.items || []"
+        (cdkDropListDropped)="onLeadDrop($event)"
+      >
+        <div class="kanban-column-header">
+          <div class="column-title">
+            <span
+              class="status-indicator"
+              [ngStyle]="{'background-color': status.bgColor}"
+            ></span>
+            <h3>{{ status.name }}</h3>
+          </div>
+          <span class="lead-count">
+            {{ kanbanData?.total || 0 }}
+          </span>
+        </div>
+
+        <div
+          class="kanban-column-content"
+          (scroll)="onKanbanColumnScroll($event, status.id)"
+        >
+          <div
+            class="kanban-card"
+            *ngFor="let lead of kanbanData?.items || []"
+            cdkDrag
+            [cdkDragData]="lead"
+            (cdkDragMoved)="onLeadDragMoved($event)"
+            [routerLink]="['/lead']"
+            [queryParams]="{id: lead.id}"
+          >
+            <div class="card-header">
+              <div class="lead-info">
+                <div class="lead-avatar-small">
+                  <img
+                    [src]="lead.picture || './assets/images/noavatar.png'"
+                    alt="Avatar"
+                    class="img-fluid rounded-circle"
+                    width="48"
+                    height="48"
+                  />
+
+                  <div class="icon-type-lead">
+                    <img src="./assets/icons/icon-lead/lead.svg" alt="" />
+                  </div>
+                </div>
+                <div class="d-flex flex-column gap-1">
+                  <div class="lead-name" [title]="lead.name">
+                    {{ lead.name }}
+                  </div>
+                  <div class="d-flex flex-row flex-wrap gap-1">
+                    <div *ngFor="let tagId of lead.tagIds">
+                      <span
+                        *ngIf="getTagById(tagId) as tag"
+                        class="badge text-capitalize tag-item"
+                        [style.background-color]="tag.bgColor || '#6c757d'"
+                      >
+                        <i class="fa-solid fa-filter"></i>
+                        {{ tag.name }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider-body"></div>
+
+            <div class="row g-2">
+              <div
+                class="col-12 fw-500 d-flex align-items-center gap-1"
+                *ngIf="lead.email"
+              >
+                <img
+                  src="./assets/icons/icon-lead/email-disabled.svg"
+                  alt=""
+                  width="12"
+                  height="10"
+                />
+                <span class="text-truncate-1">{{ lead.email }}</span>
+              </div>
+
+              <div
+                class="col-6 text-primary fw-500 d-flex align-items-center gap-1"
+                *ngIf="lead.phone"
+              >
+                <img
+                  src="./assets/icons/icon-lead/phone-disabled.svg"
+                  alt=""
+                  width="12"
+                  height="12"
+                />
+                <span class="text-truncate-1">{{ lead.phone }}</span>
+              </div>
+
+              <div
+                class="col-6 text-primary fw-500 d-flex align-items-center gap-1"
+                *ngIf="lead.taskCodes.length"
+              >
+                <img
+                  src="./assets/icons/icon-lead/task-disabled.svg"
+                  alt=""
+                  width="12"
+                  height="12"
+                />
+                <span class="text-truncate-1">
+                  {{ lead.taskCodes.join(', ') }}
+                </span>
+              </div>
+
+              <div
+                class="col-6 text-primary fw-500 d-flex align-items-center gap-1"
+                *ngIf="lead.orderCodes.length"
+              >
+                <img
+                  src="./assets/icons/icon-lead/order-disabled.svg"
+                  alt=""
+                  width="14"
+                  height="14"
+                />
+                <span class="text-truncate-1">
+                  {{ lead.orderCodes.join(', ') }}
+                </span>
+              </div>
+
+              <div
+                class="col-6 d-flex align-items-center gap-1"
+                *ngIf="lead.createdAt"
+              >
+                <img
+                  src="./assets/icons/icon-lead/calendar-disabled.svg"
+                  alt=""
+                  width="14"
+                  height="14"
+                />
+                <span class="text-truncate-1">
+                  {{ lead.createdAt | timeView }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kanban-column-empty" *ngIf="!kanbanData?.items?.length">
+            <i class="fa fa-inbox"></i>
+            <p>Không có lead nào</p>
+          </div>
+
+          <div class="kanban-loading-more" *ngIf="kanbanData?.loadingMore">
+            <i class="fa fa-spinner fa-spin"></i>
+            <span>Đang tải thêm...</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <ng-container *ngIf="loading.kanban">
+    <div class="kanban-loading">
+      <div class="center-item">
+        <div class="spinner-custom"></div>
+      </div>
+    </div>
+  </ng-container>
+</div>
