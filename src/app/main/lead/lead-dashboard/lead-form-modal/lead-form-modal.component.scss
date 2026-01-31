@@ -126,6 +126,21 @@
   background-color: #fff;
   border-bottom-left-radius: vars.$radius-s;
   border-bottom-right-radius: vars.$radius-s;
+
+  &.no-show-left-tab {
+    height: calc(100vh - 416px);
+  }
+}
+
+.section-area-right {
+  width: calc(100% + -0px);
+  height: calc(100vh - 272px);
+  overflow-y: scroll;
+  overflow-x: hidden;
+  // padding: 16px;
+  // background-color: #fff;
+  border-bottom-left-radius: vars.$radius-s;
+  border-bottom-right-radius: vars.$radius-s;
 }
 
 .status-item {
@@ -668,14 +683,10 @@
 
 .wrap-avatar {
   position: relative;
-  &:hover {
-    opacity: 0.7;
-  }
   .avatar {
     width: 32px;
     height: 32px;
     border-radius: 100%;
-    border: 2px solid #c9e0ff;
     overflow: hidden;
     img {
       width: 100%;
@@ -717,19 +728,26 @@
   border-radius: vars.$radius-s;
   padding: 6px 16px;
   border: 1px solid vars.$input-border-color;
+  color: vars.$neutral;
+
+  &:focus-within {
+    background-color: vars.$white;
+  }
 
   .funnel-name-input {
     border: none;
     background: transparent;
-    color: #1a3791;
+    color: vars.$neutral;
     font-size: 16px;
     font-weight: 500;
     padding: 0;
     outline: none;
+    width: 500px;
 
     &::placeholder {
-      color: #1a3791;
+      color: vars.$neutral;
       opacity: 0.7;
+      font-weight: 400;
     }
 
     &:focus {
@@ -737,7 +755,9 @@
     }
   }
   &.is-invalid {
-    border: 1px solid #dc3545;
+    i {
+      color: inherit;
+    }
   }
 }
 
@@ -794,5 +814,67 @@
 ::ng-deep .ng-select {
   .ng-select-container {
     min-width: 180px !important;
+  }
+}
+
+.btn-dropdown {
+  // width: 30px;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 0 14px 16px;
+  border-left: 1px solid var(--bs-gray-200);
+}
+
+.dropdown-menu {
+  padding: 8px 0;
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 20px;
+
+  &:active {
+    color: #fff;
+    text-decoration: none;
+    background-color: #2077fa;
+  }
+}
+
+.custom-input-tag .ng-select-container {
+  width: fit-content;
+}
+
+.left-tab-toggle-btn {
+  position: absolute;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border-radius: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-50%);
+  top: 50%;
+  right: -16px;
+  border: none;
+
+  &:hover {
+    background: #e8e8e8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  img {
+    opacity: 0.7;
+  }
+
+  &:hover img {
+    opacity: 1;
   }
 }

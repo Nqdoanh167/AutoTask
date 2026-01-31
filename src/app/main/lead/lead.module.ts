@@ -51,7 +51,8 @@ import {CustomerInfoComponent} from '@app/main/dashboard/content-modal/customer-
 import {TooltipDirective} from '@app/share/directive/tooltip/tooltip-directive.directive';
 import {LeadListViewComponent} from './lead-dashboard/lead-list-view/lead-list-view.component';
 import {LeadKanbanViewComponent} from './lead-dashboard/lead-kanban-view/lead-kanban-view.component';
-import { LetDirective } from "@app/share/directive/ng-let.directive";
+import {LetDirective} from '@app/share/directive/ng-let.directive';
+import {ActivityLogComponent} from '@app/share/common/activity-log/activity-log.component';
 
 @NgModule({
   declarations: [
@@ -110,8 +111,9 @@ import { LetDirective } from "@app/share/directive/ng-let.directive";
     CallCustomerInfoComponent,
     CustomerInfoComponent,
     TooltipDirective,
-    LetDirective
-],
+    LetDirective,
+    ActivityLogComponent,
+  ],
   providers: [DatePipe],
 })
 export class LeadModule {}

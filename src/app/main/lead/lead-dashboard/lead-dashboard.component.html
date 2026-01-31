@@ -155,25 +155,25 @@
       </div>
     </div>
 
-    <!-- Lead Table -->
-    <ng-container *ngIf="viewMode === 'list'">
-      <app-lead-list-view
-        class="h-100"
-        [currentFunnel]="currentFunnel$ | async"
-        [checkbox]="checkbox"
-        [item]="item"
-      ></app-lead-list-view>
-    </ng-container>
+    <div class="view-area">
+      <!-- Lead Table -->
+      <ng-container *ngIf="viewMode === 'list'">
+        <app-lead-list-view
+          [currentFunnel]="currentFunnel$ | async"
+          [checkbox]="checkbox"
+          [item]="item"
+        ></app-lead-list-view>
+      </ng-container>
 
-    <!-- Kanban View -->
-    <ng-container *ngIf="viewMode === 'kanban'">
-      <app-lead-kanban-view
-        class="h-100"
-        [currentFunnel]="currentFunnel$ | async"
-        [checkbox]="checkbox"
-        [item]="item"
-      ></app-lead-kanban-view>
-    </ng-container>
+      <!-- Kanban View -->
+      <ng-container *ngIf="viewMode === 'kanban'">
+        <app-lead-kanban-view
+          [currentFunnel]="currentFunnel$ | async"
+          [checkbox]="checkbox"
+          [item]="item"
+        ></app-lead-kanban-view>
+      </ng-container>
+    </div>
   </div>
 </div>
 

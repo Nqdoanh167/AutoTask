@@ -65,8 +65,8 @@ import {CdkDragPlaceholder} from '@angular/cdk/drag-drop';
 import {ModalCloseTaskComponent} from './content-modal/modal-close-task/modal-close-task.component';
 import {ModalCloseMultiTasksComponent} from './content-modal/modal-close-multi-tasks/modal-close-multi-tasks.component';
 import {ModalCheckDuplicatedPhoneComponent} from './content-modal/modal-check-duplicated-phone/modal-check-duplicated-phone.component';
-import {ActivityLogComponent} from './content-modal/activity-log/activity-log.component';
-import { TooltipDirective } from "@app/share/directive/tooltip/tooltip-directive.directive";
+import {ActivityLogComponent} from '../../share/common/activity-log/activity-log.component';
+import {TooltipDirective} from '@app/share/directive/tooltip/tooltip-directive.directive';
 
 @NgModule({
   declarations: [
@@ -79,7 +79,6 @@ import { TooltipDirective } from "@app/share/directive/tooltip/tooltip-directive
     ModalAssignTeamComponent,
     ModalCallComponent,
     HistoryComponent,
-    ActivityLogComponent,
     ModalAssignTeamV2Component,
     ModalFeedbackComponent,
     ModalCreateOrderComponent,
@@ -141,7 +140,8 @@ import { TooltipDirective } from "@app/share/directive/tooltip/tooltip-directive
     TaskCreateSourceComponent,
     OrdersComponent,
     CustomerInfoComponent,
-    TooltipDirective
-],
+    TooltipDirective,
+    ActivityLogComponent,
+  ],
 })
 export class DashboardModule {}

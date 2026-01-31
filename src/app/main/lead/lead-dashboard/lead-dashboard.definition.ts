@@ -35,7 +35,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
   public statuses: EntityPagination<ILeadStatus> = {
     rows: [],
     loading: false,
-    limit: 1000,
+    limit: 100,
     page: 1,
     total: 0,
   };
@@ -43,7 +43,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
   public statusGroups: EntityPagination<ILeadStatusGroup> = {
     rows: [],
     loading: false,
-    limit: 1000,
+    limit: 100,
     page: 1,
     total: 0,
   };
@@ -66,7 +66,7 @@ export class LeadDashboardData extends CheckboxSortTableComponent<
 
   public folder: EntityPagination<IFolderLead> = {
     rows: [],
-    limit: 1000,
+    limit: 100,
     page: 1,
     total: 0,
     loading: false,

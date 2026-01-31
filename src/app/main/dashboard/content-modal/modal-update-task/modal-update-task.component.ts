@@ -17,7 +17,14 @@ import {
   ITaskDto,
   ModifiedUserUnit,
 } from '@app/types/flow';
-import {debounceTime, finalize, Subject, take, takeUntil} from 'rxjs';
+import {
+  BehaviorSubject,
+  debounceTime,
+  finalize,
+  Subject,
+  take,
+  takeUntil,
+} from 'rxjs';
 import {FormArray, FormGroup, ValidationErrors} from '@angular/forms';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {
@@ -50,6 +57,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {SocketService} from '@app/services/api/socket.service';
 import {ModalCloseTaskComponent} from '../modal-close-task/modal-close-task.component';
 import {DEFAULT_TASK_TABS} from '@app/main/setting/tab-display/tab-display.variable';
+import {ActivityLogComponent} from '../../../../share/common/activity-log/activity-log.component';
 
 declare function smaxCallSdkMakeCall(callInfo: any): void;
 declare function smaxCallSdkClearCall(): void;
@@ -73,6 +81,9 @@ export class ModalUpdateTaskComponent
   // Call to clear
   @ViewChild(CustomerInfoComponent)
   customerInfoComponent!: CustomerInfoComponent;
+
+  @ViewChild(ActivityLogComponent)
+  activityLogComponent!: ActivityLogComponent;
 
   @Input() sourceData?: ITask;
   @Input() taskId?: string;
@@ -614,7 +625,11 @@ export class ModalUpdateTaskComponent
   onSubmit(): void {
     this.submitted = true;
     if (this.updateForm.valid) {
-      this.handleUpdate();
+      this.handleUpdate().then(() => {
+        if (this.activityLogComponent) {
+          this.activityLogComponent.loadActivities();
+        }
+      });
     } else {
       this.toastr.warning('Vui lòng điền đầy đủ thông tin');
     }

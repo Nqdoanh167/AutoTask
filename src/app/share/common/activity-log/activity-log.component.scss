@@ -36,7 +36,7 @@
 
   &-item {
     display: flex;
-    gap: 12px;
+    gap: 4px;
     padding-bottom: 16px;
 
     &:last-child {
@@ -103,7 +103,6 @@
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;
-    margin-bottom: 4px;
   }
 
   &-item-description {

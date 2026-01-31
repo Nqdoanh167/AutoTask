@@ -81,6 +81,11 @@ export class LeadListViewComponent
     this.item.rows = [];
     const filterObj = JSON.parse(params.filter || '{}');
     this.applyCommonFilters(filterObj);
+    if (this.currentFunnel?.id) {
+      filterObj['funnelId_in'] = this.currentFunnel?.id;
+    } else {
+      delete filterObj['funnelId_in'];
+    }
     params.filter = JSON.stringify(filterObj);
 
     this.leadService.lead

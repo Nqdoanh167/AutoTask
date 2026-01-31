@@ -502,6 +502,7 @@
   border-radius: vars.$radius-s;
   padding: 5px 16px;
   border: 1px solid vars.$input-border-color;
+  color: vars.$neutral;
 
   &:focus-within {
     background-color: vars.$white;
@@ -510,7 +511,7 @@
   .task-name-input {
     border: none;
     background: transparent;
-    color: #1a3791;
+    color: vars.$neutral;
     font-size: 16px;
     font-weight: 500;
     padding: 0;
@@ -518,7 +519,7 @@
     width: 500px;
 
     &::placeholder {
-      color: #1a3791;
+      color: vars.$neutral;
       opacity: 0.7;
       font-weight: 400;
     }
@@ -633,8 +634,4 @@
     text-decoration: none;
     background-color: #2077fa;
   }
-}
-
-.custom-input-tag .ng-select-container {
-  max-width: 100% !important;
 }

@@ -17,12 +17,7 @@
         >
           <div class="d-flex align-items-center gap-2">
             <div class="funnel-icon-wrapper">
-              <img
-                src="./assets/icons/icon-lead/funnel.svg"
-                alt=""
-                width="24"
-                height="24"
-              />
+              <i class="fa-solid fa-filter"></i>
             </div>
             <input
               #nameInput
@@ -30,25 +25,106 @@
               class="funnel-name-input"
               [formControl]="nameControl"
               [placeholder]="'Nhập tên lead'"
-              style="width: 500px"
             />
           </div>
         </div>
 
-        <div class="">
-          <div
-            class="lead-badge"
-            [class.active]="hoveredBadgeIndexCurrent >= index"
-            *ngFor="let status of lead?.statusGroupFlow; let index = index"
-            (click)="onClickBadge(status)"
-          >
-            {{ status.statusName }}
+        <div class="d-flex align-items-center">
+          <div class="pe-3">
+            <div
+              class="lead-badge"
+              [class.active]="hoveredBadgeIndexCurrent >= index"
+              *ngFor="let status of lead?.statusGroupFlow; let index = index"
+              (click)="onClickBadge(status)"
+            >
+              {{ status.statusName }}
+            </div>
           </div>
+
+          @if (f['id'].value) {
+            <div
+              class="btn-group cursor-pointer btn-dropdown"
+              dropdown
+              placement="bottom right"
+              dropdownToggle
+            >
+              <div id="button-alignment">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+              <ul
+                id="dropdown-basic"
+                *dropdownMenu
+                class="dropdown-menu dropdown-menu-right"
+                role="menu"
+              >
+                <li role="menuitem">
+                  <div
+                    href="#"
+                    class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
+                  >
+                    <div style="width: 14px">
+                      <i class="fa-regular fa-clipboard"></i>
+                    </div>
+                    <span>Sao chép ID</span>
+                  </div>
+                </li>
+                <li role="menuitem">
+                  <div
+                    href="#"
+                    class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
+                  >
+                    <div style="width: 14px">
+                      <i class="far fa-clone"></i>
+                    </div>
+                    <span>Tạo bản sao</span>
+                  </div>
+                </li>
+                <li role="menuitem">
+                  <div
+                    href="#"
+                    class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
+                  >
+                    <div style="width: 14px">
+                      <i class="far fa-trash-alt"></i>
+                    </div>
+                    <span>Xóa lead</span>
+                  </div>
+                </li>
+                <li role="menuitem" (click)="navigateToTabSettings()">
+                  <div
+                    href="#"
+                    class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
+                  >
+                    <div style="width: 14px">
+                      <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <span>Cấu hình tab hiển thị</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          }
         </div>
       </div>
       <div class="body-container">
         <div class="row g-3">
-          <div class="col-9">
+          <div
+            class="col-9 position-relative"
+            [ngClass]="{'col-12': !isShowLeftTab}"
+          >
+            <button
+              class="left-tab-toggle-btn"
+              (click)="handleToggleLeftTab()"
+              title="{{
+                isShowLeftTab ? 'Ẩn Hoạt Động' : 'Hiển thị Hoạt Động'
+              }}"
+            >
+              <i
+                class="fa-solid {{
+                  isShowLeftTab ? 'fa-chevron-right' : 'fa-chevron-left'
+                }}"
+              ></i>
+            </button>
             <form [formGroup]="leadForm">
               <div class="row g-3">
                 <div class="col-12">
@@ -95,31 +171,36 @@
                             </div>
                           </ng-template>
                         </ng-select>
-                        <div class="d-flex align-items-center gap-2">
-                          <div class="wrap-avatar">
-                            <img
-                              alt=""
-                              (click)="onAvatarClick()"
-                              class="avatar cursor-pointer"
-                              onerror="this.src='https://smax.app/assets/images/noavatar.png'"
-                              src="{{ avatarUrl }}"
-                            />
 
-                            <div
-                              class="layer-loading"
-                              *ngIf="loading.isUploadingAvatar"
-                            >
-                              <i class="fas fa-spinner fa-spin px-2"></i>
+                        <ng-container *ngIf="lead?.customer">
+                          <div class="d-flex align-items-center gap-2">
+                            <div class="wrap-avatar">
+                              <img
+                                alt=""
+                                class="avatar"
+                                onerror="this.src='https://smax.app/assets/images/noavatar.png'"
+                                src="{{ avatarUrl }}"
+                              />
                             </div>
+                            <a
+                              class="lead-name text-truncate-1 text-href"
+                              [href]="
+                                environment.urlDomain +
+                                '/' +
+                                (currentBiz?.alias || '') +
+                                '/customers/' +
+                                lead?.customer?.id
+                              "
+                              target="_blank"
+                            >
+                              {{ lead?.name || '-' }}
+                            </a>
                           </div>
-                          <div class="lead-name text-truncate-1">
-                            {{ lead?.name || '-' }}
-                          </div>
-                        </div>
+                        </ng-container>
                       </div>
                       <div class="card-content">
                         <div class="row g-2">
-                          <div class="col-4 field-wrapper">
+                          <div class="col-3 field-wrapper">
                             <label class="text-neutral fs-7 label-card">
                               Số điện thoại:
                             </label>
@@ -153,31 +234,33 @@
                                   formControlName="phone"
                                   placeholder="Nhập số điện thoại"
                                   (blur)="
-                                    getFieldState('phone').editing = false
+                                    !f['phone'].errors &&
+                                      (getFieldState('phone').editing = false)
                                   "
                                   [ngClass]="{
-                                    'is-invalid': f['phone'].errors
+                                    'is-invalid': f['phone'].errors && submitted
                                   }"
                                 />
                               </ng-template>
                             </div>
                           </div>
 
-                          <div class="col-4 field-wrapper">
+                          <div class="col-3 field-wrapper">
                             <label class="text-neutral fs-7 label-card">
                               Nguồn lead:
                             </label>
                             <div class="text-truncate-1">Ads Minh Senpal</div>
                           </div>
 
-                          <div class="col-4 field-wrapper">
+                          <div class="col-6 field-wrapper">
                             <label
-                              class="text-neutral fs-7 label-card"
-                              style="width: 52px"
+                              class="text-neutral fs-7 label-card w-[65px]"
                             >
                               Thẻ tag:
                             </label>
-                            <div class="d-flex align-items-center gap-2">
+                            <div
+                              class="d-flex align-items-center gap-2 mw-[400px]"
+                            >
                               <ng-container
                                 *ngIf="
                                   !getFieldState('tagIds').editing;
@@ -230,30 +313,35 @@
                                     (blur)="
                                       getFieldState('tagIds').editing = false
                                     "
+                                    class="custom-input-tag"
                                   >
                                     <ng-template ng-option-tmp let-item="item">
-                                      <span
-                                        class="text-capitalize tag-item"
+                                      <div
+                                        class="tag-item"
                                         [ngClass]="{nonBack: !item.bgColor}"
                                         [ngStyle]="{background: item.bgColor}"
                                       >
-                                        <span>
-                                          <i class="fa-solid fa-filter"></i>
-                                          {{ item.name }}
-                                        </span>
-                                      </span>
+                                        {{ item.name }}
+                                      </div>
                                     </ng-template>
-                                    <ng-template ng-label-tmp let-item="item">
+                                    <ng-template
+                                      ng-label-tmp
+                                      let-item="item"
+                                      let-clear="clear"
+                                    >
                                       <span
-                                        class="text-capitalize tag-item"
+                                        class="ng-value-icon"
+                                        (click)="clear(item)"
+                                      >
+                                        ×
+                                      </span>
+                                      <div
+                                        class="tag-item"
                                         [ngClass]="{nonBack: !item.bgColor}"
                                         [ngStyle]="{background: item.bgColor}"
                                       >
-                                        <span>
-                                          <i class="fa-solid fa-filter"></i>
-                                          {{ item.name }}
-                                        </span>
-                                      </span>
+                                        {{ item.name }}
+                                      </div>
                                     </ng-template>
                                   </ng-select>
                                 </div>
@@ -261,7 +349,7 @@
                             </div>
                           </div>
 
-                          <div class="col-4 field-wrapper">
+                          <div class="col-3 field-wrapper">
                             <label class="text-neutral fs-7 label-card">
                               Email:
                             </label>
@@ -305,7 +393,7 @@
                             </div>
                           </div>
 
-                          <div class="col-4 field-wrapper">
+                          <div class="col-3 field-wrapper">
                             <label class="text-neutral fs-7 label-card">
                               Phễu:
                             </label>
@@ -364,7 +452,7 @@
                           </div>
 
                           <div
-                            class="col-4 field-wrapper"
+                            class="col-6 field-wrapper"
                             formArrayName="teams"
                             *ngIf="currentSetting?.roles?.length"
                           >
@@ -376,7 +464,7 @@
                               ></i>
                             </label>
                             <div
-                              class="d-flex align-items-center gap-1 flex-wrap"
+                              class="d-flex align-items-center gap-2 flex-wrap"
                             >
                               <ng-container
                                 *ngFor="
@@ -615,15 +703,12 @@
                   <nav class="lead-form-tab-menu">
                     <ul>
                       <li
-                        [ngClass]="{active: activeLeftTabMenu === menu.key}"
-                        *ngFor="let menu of tabsMenu.left; let index = index"
+                        [ngClass]="{active: activeLeftTabMenu.key === tab.key}"
+                        *ngFor="let tab of tabsMenu.left; let index = index"
                       >
-                        <div
-                          (click)="activeLeftTabMenu = menu.key"
-                          class="tab-link"
-                        >
-                          <div class="icon">
-                            <img
+                        <div (click)="activeLeftTabMenu = tab" class="tab-link">
+                          <div class="icon" *ngIf="tab.icon">
+                            <!-- <img
                               [src]="
                                 activeLeftTabMenu === menu.key
                                   ? 'assets/icons/' + menu.icon + '-active.svg'
@@ -632,33 +717,29 @@
                               alt=""
                               width="24"
                               height="24"
-                            />
+                            /> -->
+                            <i [ngClass]="tab.icon"></i>
                           </div>
                           <span class="nav-text fw-500">
-                            {{ menu.name }}
+                            {{ tab.name }}
                           </span>
                         </div>
                       </li>
-
-                      <button
-                        class="tab-settings-btn"
-                        (click)="navigateToTabSettings()"
-                        [tooltip]="'Cấu hình tab'"
-                      >
-                        <i class="fa-solid fa-gear"></i>
-                      </button>
                     </ul>
                   </nav>
 
-                  <div class="section-area custom-scrollbar">
-                    <ng-container *ngIf="activeLeftTabMenu === 'discuss'">
+                  <div
+                    class="section-area custom-scrollbar"
+                    [ngClass]="{'no-show-left-tab': !isShowLeftTab}"
+                  >
+                    <ng-container *ngIf="activeLeftTabMenu.key === 'discuss'">
                       <app-lead-comments-sidebar
                         [isOpen]="true"
                         [lead]="lead"
                       ></app-lead-comments-sidebar>
                     </ng-container>
 
-                    <div *ngIf="activeLeftTabMenu === 'task'">
+                    <div *ngIf="activeLeftTabMenu.key === 'task'">
                       <ng-container *ngIf="lead?.tasks?.length; else noTasks">
                         <ng-container *ngFor="let task of lead?.tasks">
                           <div class="task-card mb-3">
@@ -779,7 +860,7 @@
                       </ng-template>
                     </div>
 
-                    <ng-container *ngIf="activeLeftTabMenu === 'product'">
+                    <ng-container *ngIf="activeLeftTabMenu.key === 'product'">
                       <div
                         class="d-flex justify-content-between align-items-center"
                       >
@@ -788,7 +869,7 @@
                       <app-orders [orders]="lead?.orders || []"></app-orders>
                     </ng-container>
 
-                    <ng-container *ngIf="activeLeftTabMenu === 'customer'">
+                    <ng-container *ngIf="activeLeftTabMenu.key === 'customer'">
                       <div class="headline">
                         Thông tin khách hàng
                         <i
@@ -799,36 +880,41 @@
                           placement="right"
                         ></i>
                       </div>
-                      <!-- <app-customer-info
+                      <app-customer-info
                         [hasUpdateTaskPer]="permissions.canEditLead"
                         [submitted]="submitted"
                         [formGroup]="leadForm"
                         [selectedCustomerId]="leadForm.value.id"
-                        [leadId]="lead?.id"
                         [(isOpenBackdrop)]="isOpenBackDrop"
-                        [hasUpdateTaskPer]="false"
-                        [onlyView]="true"
-                      ></app-customer-info> -->
+                      ></app-customer-info>
                     </ng-container>
                   </div>
                 </div>
               </div>
             </form>
+
+            <ng-container
+              *ngIf="!isShowLeftTab"
+              [ngTemplateOutlet]="btnAction"
+            ></ng-container>
           </div>
 
-          <div class="col-3">
+          <div class="col-3 h-100" [ngClass]="{'d-none': !isShowLeftTab}">
             <div class="card" style="border-radius: 4px">
               <div class="card-body p-0">
                 <div class="activity-log">
                   <nav class="lead-form-tab-menu">
                     <ul class="overflow-hidden">
                       <li
-                        [ngClass]="{active: activeRightTabMenu === menu.key}"
-                        *ngFor="let menu of tabsMenu.right; let index = index"
+                        [ngClass]="{active: activeRightTabMenu.key === tab.key}"
+                        *ngFor="let tab of tabsMenu.right; let index = index"
                       >
-                        <div class="tab-link">
-                          <div class="icon">
-                            <img
+                        <div
+                          class="tab-link"
+                          (click)="activeRightTabMenu = tab"
+                        >
+                          <div class="icon" *ngIf="tab.icon">
+                            <!-- <img
                               [src]="
                                 activeRightTabMenu === menu.key
                                   ? 'assets/icons/' + menu.icon + '-active.svg'
@@ -837,408 +923,31 @@
                               alt=""
                               width="24"
                               height="24"
-                            />
+                            /> -->
+                            <i [ngClass]="tab.icon"></i>
                           </div>
                           <span class="nav-text fw-500">
-                            {{ menu.name }}
+                            {{ tab.name }}
                           </span>
                         </div>
                       </li>
-
-                      <button
-                        class="tab-settings-btn"
-                        (click)="navigateToTabSettings()"
-                        [tooltip]="'Cấu hình tab'"
-                      >
-                        <i class="fa-solid fa-gear"></i>
-                      </button>
                     </ul>
                   </nav>
 
-                  <div
-                    class="activity-log-content activity-area custom-scrollbar"
-                  >
-                    <ng-container *ngIf="lead; else noLead">
-                      <!-- Hôm Nay -->
-                      <div class="activity-log-section">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                          <img
-                            src="./assets/icons/calendar-check.svg"
-                            width="24"
-                            height="24"
-                          />
-                          <span class="activity-log-section-title">
-                            Hôm Nay
-                          </span>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <div class="activity-log-item-icon-wrapper">
-                            <img
-                              src="./assets/icons/user.svg"
-                              width="16"
-                              height="16"
-                            />
-                            <div class="activity-log-connector-line"></div>
-                          </div>
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">
-                                Trần Như Ý
-                              </div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 20:25
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã đặt 1 đơn hàng DH3282
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <img
-                            src="./assets/icons/logo.svg"
-                            width="16"
-                            height="16"
-                          />
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">Hệ Thống</div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 10:24
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã gửi 1 tin ZNS
-                            </div>
-                          </div>
-                        </div>
+                  <div class="card">
+                    <div class="card-body">
+                      <div
+                        class="activity-log-content section-area-right custom-scrollbar"
+                      >
+                        <ng-container
+                          *ngIf="activeRightTabMenu.key === 'history'"
+                        >
+                          <app-activity-log
+                            [taskId]="lead?.id || ''"
+                          ></app-activity-log>
+                        </ng-container>
                       </div>
-
-                      <div class="divider"></div>
-
-                      <!-- Hôm Qua -->
-                      <div class="activity-log-section">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                          <img
-                            src="./assets/icons/calendar-check.svg"
-                            width="24"
-                            height="24"
-                          />
-                          <span class="activity-log-section-title">
-                            Hôm Qua
-                          </span>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <div class="activity-log-item-icon-wrapper">
-                            <img
-                              src="./assets/icons/user.svg"
-                              width="16"
-                              height="16"
-                            />
-                            <div class="activity-log-connector-line"></div>
-                          </div>
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">Sale Vi</div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 20:25
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã hỗ trợ báo giá sản phẩm SKU191200
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <img
-                            src="./assets/icons/user.svg"
-                            width="16"
-                            height="16"
-                          />
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">
-                                Trần Như Ý
-                              </div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 10:24
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã hỏi giá sản phẩm SKU191200
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Tuần Này -->
-                      <div class="activity-log-section">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                          <img
-                            src="./assets/icons/calendar-check.svg"
-                            width="24"
-                            height="24"
-                          />
-                          <span class="activity-log-section-title">
-                            Tuần Này
-                          </span>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <div class="activity-log-item-icon-wrapper">
-                            <img
-                              src="./assets/icons/user.svg"
-                              width="16"
-                              height="16"
-                            />
-                            <div class="activity-log-connector-line"></div>
-                          </div>
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">Sale Vi</div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 20:25
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã hỗ trợ tư vấn liên hệ Chăm Sóc Khách Hàng từ
-                              Trần Như Ý
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <div class="activity-log-item-icon-wrapper">
-                            <img
-                              src="./assets/icons/user.svg"
-                              width="16"
-                              height="16"
-                            />
-                            <div class="activity-log-connector-line"></div>
-                          </div>
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">
-                                Trần Như Ý
-                              </div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 10:24
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã liên hệ Chăm Sóc Khách Hàng Sale Vi
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <img
-                            src="./assets/icons/logo.svg"
-                            width="16"
-                            height="16"
-                          />
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">Hệ Thống</div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 10:24
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã gửi 1 tin ZNS trong chiến dịch Black Friday
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="activity-log-section">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                          <img
-                            src="./assets/icons/calendar-check.svg"
-                            width="24"
-                            height="24"
-                          />
-                          <span class="activity-log-section-title">
-                            Tuần Này
-                          </span>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <div class="activity-log-item-icon-wrapper">
-                            <img
-                              src="./assets/icons/user.svg"
-                              width="16"
-                              height="16"
-                            />
-                            <div class="activity-log-connector-line"></div>
-                          </div>
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">Sale Vi</div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 20:25
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã hỗ trợ tư vấn liên hệ Chăm Sóc Khách Hàng từ
-                              Trần Như Ý
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <div class="activity-log-item-icon-wrapper">
-                            <img
-                              src="./assets/icons/user.svg"
-                              width="16"
-                              height="16"
-                            />
-                            <div class="activity-log-connector-line"></div>
-                          </div>
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">
-                                Trần Như Ý
-                              </div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 10:24
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã liên hệ Chăm Sóc Khách Hàng Sale Vi
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <img
-                            src="./assets/icons/logo.svg"
-                            width="16"
-                            height="16"
-                          />
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">Hệ Thống</div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 10:24
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã gửi 1 tin ZNS trong chiến dịch Black Friday
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="activity-log-section">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                          <img
-                            src="./assets/icons/calendar-check.svg"
-                            width="24"
-                            height="24"
-                          />
-                          <span class="activity-log-section-title">
-                            Tuần Này
-                          </span>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <div class="activity-log-item-icon-wrapper">
-                            <img
-                              src="./assets/icons/user.svg"
-                              width="16"
-                              height="16"
-                            />
-                            <div class="activity-log-connector-line"></div>
-                          </div>
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">Sale Vi</div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 20:25
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã hỗ trợ tư vấn liên hệ Chăm Sóc Khách Hàng từ
-                              Trần Như Ý
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <div class="activity-log-item-icon-wrapper">
-                            <img
-                              src="./assets/icons/user.svg"
-                              width="16"
-                              height="16"
-                            />
-                            <div class="activity-log-connector-line"></div>
-                          </div>
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">
-                                Trần Như Ý
-                              </div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 10:24
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã liên hệ Chăm Sóc Khách Hàng Sale Vi
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="activity-log-item">
-                          <img
-                            src="./assets/icons/logo.svg"
-                            width="16"
-                            height="16"
-                          />
-                          <div class="activity-log-item-content">
-                            <div
-                              class="d-flex align-items-center justify-content-between"
-                            >
-                              <div class="activity-log-item-name">Hệ Thống</div>
-                              <div class="activity-log-item-time">
-                                11/04/2024 - 10:24
-                              </div>
-                            </div>
-                            <div class="activity-log-item-description">
-                              Đã gửi 1 tin ZNS trong chiến dịch Black Friday
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </ng-container>
+                    </div>
                   </div>
                 </div>
 
@@ -1248,29 +957,7 @@
               </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2 mt-3">
-              <div class="flex-grow-1">
-                <button
-                  type="button"
-                  class="btn button-medium button-outline w-100"
-                  (click)="hideModal()"
-                >
-                  Hủy
-                </button>
-              </div>
-              <div class="flex-grow-1">
-                <custom-button-loading
-                  [isLoading]="loading.isSubmitting"
-                  [isDisabled]="loading.isSubmitting"
-                  (action)="onSubmit()"
-                  [type]="'button'"
-                  [textButton]="'Xác nhận'"
-                  [className]="
-                    'btn button-medium button-fill secondary-color d-flex  justify-content-center w-100'
-                  "
-                ></custom-button-loading>
-              </div>
-            </div>
+            <ng-container [ngTemplateOutlet]="btnAction"></ng-container>
           </div>
         </div>
       </div>
@@ -1280,3 +967,25 @@
 @if (isOpenBackDrop) {
   <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
 }
+
+<ng-template #btnAction>
+  <div class="d-flex align-items-center justify-content-end gap-2 mt-3">
+    <button
+      type="button"
+      class="btn button-medium button-outline w-[145px]"
+      (click)="hideModal()"
+    >
+      Hủy
+    </button>
+    <custom-button-loading
+      [isLoading]="loading.isSubmitting"
+      [isDisabled]="loading.isSubmitting"
+      (action)="onSubmit()"
+      [type]="'button'"
+      [textButton]="'Xác nhận'"
+      [className]="
+        'btn button-medium button-fill secondary-color d-flex  justify-content-center w-[176px]'
+      "
+    ></custom-button-loading>
+  </div>
+</ng-template>

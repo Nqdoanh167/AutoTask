@@ -831,7 +831,7 @@ bs-daterangepicker-container {
   left: 10px;
 }
 .text-href:hover {
-  color: var(--bs-primary);
+  color: $neutral !important;
   text-decoration: underline;
   transition: 0.2s all ease;
 }

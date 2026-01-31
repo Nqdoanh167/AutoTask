@@ -1843,8 +1843,16 @@ i {
     width: #{$i}px !important;
   }
 
+  .mw-\[#{$i}px\] {
+    max-width: #{$i}px !important;
+  }
+
   .h-\[#{$i}px\] {
     height: #{$i}px !important;
+  }
+
+  .h-#{$i} {
+    height: $i * 1% !important;
   }
 
   .mt-\[#{$i}px\] {

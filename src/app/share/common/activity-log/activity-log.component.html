@@ -1,0 +1,186 @@
+<div class="activity-log">
+  <div class="activity-log-content">
+    @if (loading) {
+      <div class="text-center p-4">
+        <div class="spinner-grow text-primary" role="status">
+          <span class="visually-hidden">Loading</span>
+        </div>
+        <div>Đang tải...</div>
+      </div>
+    } @else if (groupedActivities.length === 0) {
+      <div class="text-center p-4 text-muted">Chưa có hoạt động nào</div>
+    } @else {
+      @for (group of groupedActivities; track group.title) {
+        <div class="activity-log-section">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="p-1">
+              <img
+                [src]="'./assets/icons/' + group.icon + '.svg'"
+                width="16"
+                height="16"
+              />
+            </div>
+            <span class="activity-log-section-title">
+              {{ group.title }}
+            </span>
+          </div>
+
+          @for (
+            item of group.activities;
+            track item.id;
+            let i = $index
+          ) {
+            <div class="activity-log-item">
+              @if (hasConnectorLine(group, i)) {
+                <div class="activity-log-item-icon-wrapper">
+                  <div class="p-1 bg-white z-1">
+                    <img
+                      [src]="
+                        item.actionBy?.picture || './assets/icons/logo.svg'
+                      "
+                      width="16"
+                      height="16"
+                      class="rounded-circle"
+                    />
+                  </div>
+                  <div class="activity-log-connector-line"></div>
+                </div>
+              } @else {
+                <div class="p-1 bg-white z-1">
+                  <img
+                    [src]="
+                      item.actionBy?.picture || './assets/icons/logo.svg'
+                    "
+                    width="16"
+                    height="16"
+                    class="rounded-circle"
+                  />
+                </div>
+              }
+              <div class="activity-log-item-content p-1">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="activity-log-item-name">
+                    {{ item.actionBy?.name || 'Hệ Thống' }}
+                  </div>
+                  <div class="activity-log-item-time">
+                    {{ formatDateTime(item.createdAt) }}
+                  </div>
+                </div>
+                <div class="content-history">
+                  @switch (item.tabKey) {
+                    @case (ETabHistoryKey.ORDER_PRODUCT) {
+                      <ul>
+                        @for (
+                          contentHistory of item.content.orderProduct || [];
+                          track $index
+                        ) {
+                          <li>
+                            {{ getActionContent(contentHistory.key) }}
+                            <span class="text-link cursor-text">
+                              {{ contentHistory.value }}
+                            </span>
+                            @if (contentHistory.sub?.length) {
+                              <div class="ms-4">
+                                <ul>
+                                  @for (
+                                    sub of contentHistory.sub;
+                                    track $index
+                                  ) {
+                                    <li>
+                                      {{ getActionContent(sub?.key) }}
+                                      <span class="text-link cursor-text">
+                                        {{ sub?.value }}
+                                      </span>
+                                    </li>
+                                  }
+                                </ul>
+                              </div>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                    @case (ETabHistoryKey.NOTE) {
+                      <ul>
+                        @for (
+                          contentHistory of item.content.note || [];
+                          track $index
+                        ) {
+                          <li>
+                            {{ getActionContent(contentHistory.key) }}
+                            <span class="text-link cursor-text">
+                              {{ contentHistory.value }}
+                            </span>
+                          </li>
+                        }
+                      </ul>
+                    }
+                    @case (ETabHistoryKey.INFORMATION) {
+                      <ul>
+                        @for (
+                          contentHistory of item.content.information || [];
+                          track $index
+                        ) {
+                          <li>
+                            <div class="d-flex align-items-center gap-2">
+                              <div>
+                                {{ getActionContent(contentHistory.key) }}
+                              </div>
+                              @if (contentHistory.key === CALL_PHONE_ACTION) {
+                                <div>
+                                  @if (contentHistory.value) {
+                                    <audio
+                                      controls
+                                      class="mt-1"
+                                      style="max-width: 500px; height: 30px"
+                                    >
+                                      <source
+                                        [src]="contentHistory.value"
+                                        type="audio/ogg"
+                                      />
+                                    </audio>
+                                  } @else {
+                                    <div>---Không có file ghi âm---</div>
+                                  }
+                                </div>
+                              } @else {
+                                <div class="text-link cursor-text">
+                                  {{ contentHistory.value }}
+                                </div>
+                              }
+                            </div>
+                            @if (contentHistory.sub?.length) {
+                              <div class="ms-4">
+                                <ul>
+                                  @for (
+                                    sub of contentHistory.sub;
+                                    track $index
+                                  ) {
+                                    <li>
+                                      {{ getActionContent(sub?.key) }}
+                                      <span class="text-link cursor-text">
+                                        {{ sub?.value }}
+                                      </span>
+                                    </li>
+                                  }
+                                </ul>
+                              </div>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (!$last) {
+          <div class="divider"></div>
+        }
+      }
+    }
+  </div>
+</div>

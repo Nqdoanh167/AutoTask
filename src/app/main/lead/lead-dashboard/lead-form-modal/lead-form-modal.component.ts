@@ -6,6 +6,8 @@ import {
   Output,
   EventEmitter,
   SimpleChanges,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -46,6 +48,7 @@ export class LeadFormModalComponent
   extends LeadDashboardData
   implements OnInit, OnDestroy
 {
+  @ViewChild('nameInput') nameInput!: ElementRef;
   @Input() lead?: ILead;
   @Input() currentFunnelId?: string;
   @Output() saveEvent = new EventEmitter<ILeadCreateDto | ILeadUpdateDto>();
@@ -62,7 +65,6 @@ export class LeadFormModalComponent
   public EGenderType = EGenderType;
   public loading = {
     isSubmitting: false,
-    isUploadingAvatar: false,
   };
   public funnelOptions: Array<
     IFunnel & {folderName: string; funnelGroupName: string}
@@ -71,8 +73,8 @@ export class LeadFormModalComponent
     left: [] as ISettingTabItem[],
     right: [] as ISettingTabItem[],
   };
-  public activeLeftTabMenu: string = 'discuss';
-  public activeRightTabMenu: string = 'history';
+  public activeLeftTabMenu!: ISettingTabItem;
+  public activeRightTabMenu!: ISettingTabItem;
   public typeLeads = TYPE_LEAD_OPTIONS;
   public genderOptions = [
     {value: EGenderType.MALE, label: 'Nam'},
@@ -87,6 +89,8 @@ export class LeadFormModalComponent
   public permissions = {
     canEditLead: true,
   };
+  public readonly environment = environment;
+  public isShowLeftTab: boolean = true;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -96,6 +100,11 @@ export class LeadFormModalComponent
     private readonly router: Router,
   ) {
     super();
+
+    const isShowLeftTab = localStorage.getItem('isShowLeftTab');
+    if (isShowLeftTab) {
+      this.isShowLeftTab = isShowLeftTab === 'true';
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -109,10 +118,10 @@ export class LeadFormModalComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((res) => {
         if (res) {
-          this.tabsMenu.left = res.leadTabs.filter(
+          this.tabsMenu.left = (res.leadTabs || []).filter(
             (tab) => tab.positions.includes('left') && tab.active,
           );
-          this.tabsMenu.right = res.leadTabs.filter(
+          this.tabsMenu.right = (res.leadTabs || []).filter(
             (tab) => tab.positions.includes('right') && tab.active,
           );
           if (isEmpty(this.tabsMenu.left)) {
@@ -126,8 +135,8 @@ export class LeadFormModalComponent
             );
           }
 
-          this.activeLeftTabMenu = this.tabsMenu.left[0]?.key || 'discuss';
-          this.activeRightTabMenu = this.tabsMenu.right[0]?.key || 'history';
+          this.activeLeftTabMenu = this.tabsMenu.left[0];
+          this.activeRightTabMenu = this.tabsMenu.right[0];
         }
       });
     this.initForm();
@@ -148,6 +157,7 @@ export class LeadFormModalComponent
       this.lead?.tagIds || this.lead?.tags?.map((t) => t.id) || [];
 
     this.leadForm = this.fb.group({
+      id: [this.lead?.id || null],
       name: [this.lead?.name || '', [Validators.required]],
       phone: [this.lead?.phone || '', [Validators.required]],
       email: [this.lead?.email || ''],
@@ -175,6 +185,18 @@ export class LeadFormModalComponent
       this.leadForm.patchValue({
         funnelId: this.currentFunnelId,
       });
+    }
+
+    if (!this.lead) {
+      this.getFieldState('phone').editing = true;
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (!this.lead && this.nameInput?.nativeElement) {
+      setTimeout(() => {
+        this.nameInput.nativeElement.focus();
+      }, 0);
     }
   }
 
@@ -244,29 +266,6 @@ export class LeadFormModalComponent
   isFieldInvalid(fieldName: string): boolean {
     const control = this.leadForm.get(fieldName);
     return !!(control && control.invalid && (control.dirty || control.touched));
-  }
-
-  onAvatarClick(): void {
-    if (this.loading.isUploadingAvatar) {
-      return;
-    }
-
-    this.loading.isUploadingAvatar = true;
-    const accept = 'image/x-png,image/gif,image/jpeg,image/x-icon';
-
-    this.storageService.attach(accept, 2).subscribe({
-      next: (res) => {
-        if (res?.data?.length) {
-          const avatarUrl = res.data[0];
-          this.leadForm.patchValue({picture: avatarUrl});
-        }
-        this.loading.isUploadingAvatar = false;
-      },
-      error: (err) => {
-        this.toastr.warning(err || 'Upload ảnh đại diện thất bại');
-        this.loading.isUploadingAvatar = false;
-      },
-    });
   }
 
   get avatarUrl(): string {
@@ -419,7 +418,7 @@ export class LeadFormModalComponent
       ) as HTMLInputElement;
       if (input) {
         input.focus();
-        input.select();
+        // input.select();
       }
       const select = document.querySelector(
         `ng-select[formControlName="${fieldName}"]`,
@@ -594,5 +593,10 @@ export class LeadFormModalComponent
     this.router.navigate([`/setting/tab-display`], {
       fragment: 'LEAD',
     });
+  }
+
+  handleToggleLeftTab() {
+    this.isShowLeftTab = !this.isShowLeftTab;
+    localStorage.setItem('isShowLeftTab', this.isShowLeftTab.toString());
   }
 }
