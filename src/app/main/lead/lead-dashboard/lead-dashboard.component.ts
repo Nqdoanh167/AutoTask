@@ -61,6 +61,8 @@ export class LeadDashboardComponent
     this.getStatuses();
     this.getTags();
     this.getStatusGroups();
+    this.getSource();
+    this.getFolders();
     this.setupCheckbox();
   }
 

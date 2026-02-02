@@ -14,94 +14,89 @@
   background-color: vars.$body-bg;
   padding: 16px !important;
 
-  form {
-    display: flex;
-    flex-direction: column;
+  .card-header {
+    display: inline-flex;
+    padding: 8px 16px;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px 4px 0 0;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: vars.$neutral;
+    width: 100%;
+    height: 48px;
+  }
 
-    .card-header {
-      display: inline-flex;
-      padding: 8px 16px;
-      justify-content: space-between;
-      align-items: center;
-      border-radius: 4px 4px 0 0;
-      background: #fff;
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 20px;
-      color: vars.$neutral;
-      width: 100%;
-      height: 48px;
-    }
+  .card-content {
+    padding: 16px;
+    border-radius: 0 0 4px 4px;
+    background: #f8fafc;
 
-    .card-content {
-      padding: 16px;
-      border-radius: 0 0 4px 4px;
-      background: #f8fafc;
+    // .label-card {
+    //   width: 102px;
+    // }
 
-      // .label-card {
-      //   width: 102px;
-      // }
-
-      .field-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        height: 36px;
-        .button-edit {
-          opacity: 0;
-          visibility: hidden;
-          transition:
-            opacity 0.2s ease,
-            visibility 0.2s ease;
-          padding: 0;
-          border: none;
-          background: transparent;
-        }
-
-        &:hover .button-edit {
-          opacity: 1;
-          visibility: visible;
-        }
-      }
-    }
-
-    .navigation-tabs {
+    .field-wrapper {
       display: flex;
       align-items: center;
-      border-bottom: 1px solid rgb(232, 236, 242);
-      background-color: #fff;
-      padding: 0;
-      margin: 0;
-      margin-top: 16px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      flex-shrink: 0;
+      gap: 8px;
+      height: 36px;
+      .button-edit {
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          opacity 0.2s ease,
+          visibility 0.2s ease;
+        padding: 0;
+        border: none;
+        background: transparent;
+      }
 
-      .tab-item {
-        padding: 12px 20px;
-        cursor: pointer;
-        border-bottom: 2px solid transparent;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-        font-size: 0.9rem;
-        color: #6c757d;
+      &:hover .button-edit {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+  }
+
+  .navigation-tabs {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgb(232, 236, 242);
+    background-color: #fff;
+    padding: 0;
+    margin: 0;
+    margin-top: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+
+    .tab-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      font-size: 0.9rem;
+      color: #6c757d;
+      font-weight: 500;
+      position: relative;
+
+      &:hover {
+        color: #495057;
+        background-color: #f8f9fa;
+      }
+
+      &.active {
+        color: #007bff;
+        border-bottom-color: #007bff;
         font-weight: 500;
-        position: relative;
+      }
 
-        &:hover {
-          color: #495057;
-          background-color: #f8f9fa;
-        }
-
-        &.active {
-          color: #007bff;
-          border-bottom-color: #007bff;
-          font-weight: 500;
-        }
-
-        span {
-          display: inline-block;
-        }
+      span {
+        display: inline-block;
       }
     }
   }
@@ -226,70 +221,35 @@
   }
 }
 
-// Teams section styling - Vai trò / Nhân sự phụ trách
-.role-item-wrapper {
-  position: relative;
-}
-
-.role-item-btn {
+.button-role {
   width: 32px;
   height: 32px;
-  border-radius: 50% !important;
-  padding: 0 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #dee2e6;
-  background-color: #fff;
-  transition: all 0.2s ease;
-  position: relative;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    border-color: #adb5bd;
+  padding: 0;
+}
+.dropdown-menu {
+  max-height: 40vh;
+  overflow: auto;
+  .item-user-dropdown {
+    &.disabled {
+      cursor: not-allowed;
+      color: #dcdcdc;
+    }
+    &:hover {
+      color: var(--bs-secondary);
+      border-radius: 6px;
+      background-color: #4277ff1a;
+      font-weight: 500;
+    }
+    &.selected {
+      color: var(--bs-secondary);
+      border-radius: 6px;
+      background-color: #4277ff1a;
+      font-weight: 500;
+    }
   }
-
-  &:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  i {
-    font-size: 16px;
-    color: #495057;
-    flex-shrink: 0;
-  }
-
-  // Tooltip sẽ hiển thị tên role và user
-  &::after {
-    content: attr(title);
-    position: absolute;
-    bottom: -35px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-    z-index: 1000;
-  }
-
-  &:hover::after {
-    opacity: 1;
-  }
+}
+.avatar {
+  @include mixins.imageCircle(30px);
 }
 
 .task-card {
@@ -418,142 +378,6 @@
   height: calc(100vh - 240px);
   overflow-y: scroll;
   overflow-x: hidden;
-}
-
-// ============ ACTIVITY LOG STYLES ============
-.activity-log {
-  display: flex;
-  flex-direction: column;
-
-  &-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    border-bottom: 1px solid vars.$body-bg;
-
-    &-title {
-      color: #1a3791;
-      font-size: 16px;
-      font-weight: 500;
-      line-height: 24px;
-    }
-  }
-
-  &-content {
-    padding: 16px;
-  }
-
-  &-section {
-    margin-bottom: 24px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  &-section-title {
-    color: vars.$primary;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 24px;
-  }
-
-  &-item {
-    display: flex;
-    gap: 12px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #f8fafc;
-
-    &:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-  }
-
-  &-item-icon-wrapper {
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    width: 16px;
-    flex-shrink: 0;
-
-    img {
-      position: relative;
-      z-index: 1;
-    }
-  }
-
-  &-connector-line {
-    position: absolute;
-    left: 50%;
-    top: 16px;
-    transform: translateX(-50%);
-    width: 1px;
-    height: 100%;
-    background-color: #e2e8f0;
-    z-index: 0;
-  }
-
-  &-item-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: #fff;
-    font-size: 14px;
-
-    &-blue {
-      background-color: #3b82f6;
-    }
-
-    &-orange {
-      background-color: #f97316;
-    }
-
-    &-purple {
-      background-color: #a855f7;
-    }
-  }
-
-  &-item-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &-item-name {
-    color: #0f172a;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    margin-bottom: 4px;
-  }
-
-  &-item-description {
-    color: #0f172a;
-    font-size: 13px;
-    line-height: 18px;
-    margin-bottom: 4px;
-  }
-
-  &-item-time {
-    color: #1b3da1;
-    font-size: 12px;
-    font-weight: 300;
-    line-height: 14px;
-  }
-}
-
-.divider {
-  height: 1px;
-  width: 100%;
-  background-color: vars.$body-bg;
-  margin: 16px 0;
 }
 
 .btn-icon {

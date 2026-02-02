@@ -5,7 +5,6 @@ import {
   Input,
   Output,
   EventEmitter,
-  SimpleChanges,
   ViewChild,
   ElementRef,
 } from '@angular/core';
@@ -17,19 +16,21 @@ import {
   FormControl,
 } from '@angular/forms';
 import {BsModalRef} from 'ngx-bootstrap/modal';
-import {finalize, takeUntil} from 'rxjs';
-import {
-  ILead,
-  ILeadCreateDto,
-  ILeadUpdateDto,
-  EGenderType,
-  IFunnel,
-} from '@app/types/lead';
-import {StorageService} from '@app/services/api/storage.service';
-import {ToastrService} from 'ngx-toastr';
+import {BehaviorSubject, finalize, takeUntil} from 'rxjs';
+import {ILead, EGenderType, IFunnel} from '@app/types/lead';
 import {Customer} from '@app/types/customer';
-import {User} from '@app/types/viewmodels';
-import {EChainNextActionType, ETaskChainType, ITeam} from '@app/types/flow';
+import {
+  ERole,
+  FlatBranch,
+  OrderPlatformSource,
+  User,
+} from '@app/types/viewmodels';
+import {
+  EChainNextActionType,
+  ETaskChainType,
+  ITeam,
+  ModifiedUserUnit,
+} from '@app/types/flow';
 import {ITaskChain} from './lead-form-modal.interface';
 import {environment} from 'src/environments/environment';
 import {TYPE_LEAD_OPTIONS} from '../../lead.variable';
@@ -38,6 +39,12 @@ import {LeadDashboardData} from '../lead-dashboard.definition';
 import {DEFAULT_LEAD_TABS} from '@app/main/setting/tab-display/tab-display.variable';
 import {isEmpty} from 'lodash';
 import {Router} from '@angular/router';
+import {TreeNodeSelectEvent, TreeNodeUnSelectEvent} from 'primeng/tree';
+import {ActivityLogComponent} from '@app/share/common/activity-log/activity-log.component';
+import {ToastrService} from 'ngx-toastr';
+import {MainService} from '@app/services/api/main.service';
+import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
+import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
 
 @Component({
   selector: 'app-lead-form-modal',
@@ -48,14 +55,16 @@ export class LeadFormModalComponent
   extends LeadDashboardData
   implements OnInit, OnDestroy
 {
+  @ViewChild(ActivityLogComponent)
+  activityLogComponent!: ActivityLogComponent;
   @ViewChild('nameInput') nameInput!: ElementRef;
   @Input() lead?: ILead;
   @Input() currentFunnelId?: string;
-  @Output() saveEvent = new EventEmitter<ILeadCreateDto | ILeadUpdateDto>();
-
-  private listBizUsers: User[] = [];
+  @Output() saveEvent = new EventEmitter<ILead>();
 
   public currentSetting!: ISetting;
+  public readonly environment = environment;
+  protected readonly ERole = ERole;
   public isOpenBackDrop: boolean = false;
   public leadForm!: FormGroup;
   public fieldStates: {
@@ -89,27 +98,22 @@ export class LeadFormModalComponent
   public permissions = {
     canEditLead: true,
   };
-  public readonly environment = environment;
   public isShowLeftTab: boolean = true;
+  public infoUnit$ = new BehaviorSubject<FlatBranch | undefined>(undefined);
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly modalRef: BsModalRef,
-    private readonly storageService: StorageService,
-    private readonly toastr: ToastrService,
     private readonly router: Router,
+    private readonly mainService: MainService,
+    private readonly toastrService: ToastrService,
+    private readonly modalConfirmService: ModalConfirmService,
   ) {
     super();
 
     const isShowLeftTab = localStorage.getItem('isShowLeftTab');
     if (isShowLeftTab) {
       this.isShowLeftTab = isShowLeftTab === 'true';
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['lead']) {
-      this.initForm();
     }
   }
 
@@ -137,13 +141,13 @@ export class LeadFormModalComponent
 
           this.activeLeftTabMenu = this.tabsMenu.left[0];
           this.activeRightTabMenu = this.tabsMenu.right[0];
+          this.currentSetting = res;
         }
       });
-    this.initForm();
-    this.loadBizUsers();
-    this.loadAutoTaskSetting();
-    // this.initializeBranch();
     this.transformFunnelOptions();
+
+    this.initForm();
+    this.patchForm(this.lead);
   }
 
   getTaskDetailUrl(taskId: string) {
@@ -153,42 +157,73 @@ export class LeadFormModalComponent
   }
 
   initForm(): void {
-    const initialTagIds =
-      this.lead?.tagIds || this.lead?.tags?.map((t) => t.id) || [];
-
     this.leadForm = this.fb.group({
-      id: [this.lead?.id || null],
-      name: [this.lead?.name || '', [Validators.required]],
-      phone: [this.lead?.phone || '', [Validators.required]],
-      email: [this.lead?.email || ''],
-      gender: [this.lead?.gender || EGenderType.OTHER],
-      tagIds: [initialTagIds],
-      picture: [this.lead?.picture || ''],
-      sourceId: [this.lead?.['sourceId'] || null],
-      funnelId: [
-        this.lead?.['funnelId'] || this.currentFunnelId || '',
-        [Validators.required],
-      ],
-      address: [this.lead?.address || ''],
-      street: [this.lead?.street || ''],
-      province: [this.lead?.province || null],
-      provinceCode: [this.lead?.provinceCode || null],
-      district: [this.lead?.district || null],
-      districtCode: [this.lead?.districtCode || null],
-      ward: [this.lead?.ward || null],
-      wardCode: [this.lead?.wardCode || null],
+      id: null,
+      name: [null, [Validators.required]],
+      funnelId: [null, [Validators.required]],
+      statusId: null,
+      branch: null,
+      platformSourceIds: [[]],
+      platformSources: [[]],
+      customer: this.fb.group({
+        id: null,
+        name: null,
+        picture: null,
+        gender: 'other',
+        phone: null,
+        email: null,
+        address: null,
+        street: null,
+        ward: null,
+        wardCode: null,
+        district: null,
+        districtCode: null,
+        province: null,
+        provinceCode: null,
+      }),
+      tagIds: [[]],
       teams: this.fb.array([]),
-      typeLead: ['lead'],
+      type: ['LEAD'],
     });
+  }
 
-    if (this.currentFunnelId) {
+  getInfoUnit(id?: string | null) {
+    this.infoUnit$.next(this.authService.getInfoInUnit(id));
+  }
+
+  patchForm(dataSource?: ILead): void {
+    try {
+      this.mappingTeams();
+      if (this.currentFunnelId) {
+        this.leadForm.patchValue({
+          funnelId: this.currentFunnelId,
+        });
+      }
+      if (!dataSource) {
+        let branch = this.leadService.getFirstUnit();
+        this.getInfoUnit(branch?.team || branch?.department || branch?.id);
+        this.leadForm.patchValue({
+          branch: branch as any,
+          funnelId: this.currentFunnelId,
+        });
+        return;
+      }
+
       this.leadForm.patchValue({
-        funnelId: this.currentFunnelId,
+        ...this.lead,
+        tagIds: this.lead?.tagIds || this.lead?.tags?.map((t) => t.id) || [],
       });
-    }
 
-    if (!this.lead) {
-      this.getFieldState('phone').editing = true;
+      if (dataSource.branch) {
+        const {branch} = dataSource;
+        this.getInfoUnit(branch?.team || branch?.department || branch?.id);
+        const foundUnit = this.leadService.findUnitFromData(branch);
+        this.leadForm.patchValue({
+          branch: foundUnit as any,
+        });
+      }
+    } catch (error) {
+      console.error('error', error);
     }
   }
 
@@ -198,6 +233,10 @@ export class LeadFormModalComponent
         this.nameInput.nativeElement.focus();
       }, 0);
     }
+  }
+
+  get formCustomer() {
+    return <FormGroup>this.leadForm.get('customer');
   }
 
   get formTeams(): FormArray {
@@ -212,24 +251,12 @@ export class LeadFormModalComponent
     return this.leadForm?.get('name') as FormControl;
   }
 
-  get phoneControl(): FormControl {
-    return this.leadForm?.get('phone') as FormControl;
-  }
-
-  get emailControl(): FormControl {
-    return this.leadForm?.get('email') as FormControl;
-  }
-
   get funnelControl(): FormControl {
     return this.leadForm?.get('funnelId') as FormControl;
   }
 
   get f(): {[key: string]: any} {
     return this.leadForm.controls;
-  }
-
-  get isEditMode(): boolean {
-    return !!this.lead;
   }
 
   transformFunnelOptions(): void {
@@ -301,29 +328,6 @@ export class LeadFormModalComponent
     if (!customer) return;
   }
 
-  private loadAutoTaskSetting(): void {
-    this.autoTaskService.currentSetting
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((setting) => {
-        this.currentSetting = setting;
-        if (this.currentSetting?.roles?.length && this.currentBiz) {
-          this.mappingTeams();
-        }
-      });
-  }
-
-  private loadBizUsers(): void {
-    this.authService.currentBiz
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((biz) => {
-        this.currentBiz = biz;
-        this.listBizUsers = biz?.users || [];
-        if (this.currentSetting?.roles?.length && this.currentBiz) {
-          this.mappingTeams();
-        }
-      });
-  }
-
   mappingTeams(): void {
     this.formTeams.clear();
     this.currentSetting?.roles?.forEach((roleId: string) => {
@@ -369,12 +373,40 @@ export class LeadFormModalComponent
     });
   }
 
+  handleChangePlatFormSource(data: OrderPlatformSource[]) {
+    this.leadForm.patchValue({
+      platformSourceIds: data.map((item) => item.id),
+      platformSources: data,
+    } as any);
+  }
+
+  handleChangeUnit(value: TreeNodeSelectEvent | TreeNodeUnSelectEvent) {
+    const node = value.node as ModifiedUserUnit;
+    this.getInfoUnit(node?.team || node?.department || node?.id);
+    // this.formTeams.controls?.forEach((form) => {
+    //   form.patchValue({
+    //     userId: null,
+    //   });
+    // });
+  }
+
+  preventUnselect(value: TreeNodeUnSelectEvent) {
+    const currentBranchValue = this.leadForm.get('branch')?.value;
+    if (currentBranchValue) {
+      setTimeout(() => {
+        this.leadForm.patchValue({
+          branch: currentBranchValue,
+        });
+      }, 0);
+    }
+  }
+
   getAvailableUsers(roleId?: string): User[] {
-    if (!roleId || !this.listBizUsers?.length) {
+    if (!roleId || !this.bizUsers?.length) {
       return [];
     }
 
-    return this.listBizUsers.filter((user: User) => {
+    return this.bizUsers.filter((user: User) => {
       if (!user.isActive) return false;
 
       const userRoleIds = user.roleIds || [];
@@ -464,46 +496,6 @@ export class LeadFormModalComponent
     this.hoveredBadgeIndexCurrent = this.hoveredBadgeIndex;
   }
 
-  onClickBadge(status: {statusId: string; statusName: string}): void {
-    if (!this.lead?.id || !status?.statusId) {
-      return;
-    }
-
-    if (this.lead.statusId === status.statusId) {
-      return;
-    }
-
-    this.loading.isSubmitting = true;
-    this.leadService.lead
-      .update(this.lead.id, {id: this.lead.id, statusId: status.statusId})
-      .pipe(
-        finalize(() => (this.loading.isSubmitting = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200 || res.status === 201) {
-            this.toastr.success('Cập nhật trạng thái lead thành công');
-            if (this.lead) {
-              this.lead.statusId = status.statusId;
-              this.lead.status = res.data?.status;
-            }
-            Object.assign(this.lead || {}, res.data);
-            this.saveEvent.emit(res.data);
-          } else {
-            this.toastr.error(
-              res.message || 'Có lỗi xảy ra khi cập nhật trạng thái',
-            );
-          }
-        },
-        error: (err) => {
-          this.toastr.error(
-            err.message || 'Có lỗi xảy ra khi cập nhật trạng thái lead',
-          );
-        },
-      });
-  }
-
   hideModal(): void {
     this.modalRef.hide();
   }
@@ -518,73 +510,48 @@ export class LeadFormModalComponent
     this.loading.isSubmitting = true;
 
     const formValue = this.leadForm.value;
-    const teams = formValue.teams
-      .filter((t: any) => t.userId)
-      .map((t: any) => ({
-        roleId: t.roleId,
-        userId: t.userId,
-      }));
+    const branchForm = this.f['branch'].value;
 
-    const submitData = {
+    const body = {
       ...formValue,
-      teams,
-      branch: formValue.branch?.id || formValue.branch,
+      branch: branchForm
+        ? {
+            unit: branchForm.level,
+            id: branchForm.id,
+            name: branchForm.name,
+            department: branchForm.department,
+            departmentName: branchForm.departmentName,
+            team: branchForm.team,
+            teamName: branchForm.teamName,
+          }
+        : null,
     };
 
-    if (this.isEditMode && this.lead?.id) {
-      // Update existing lead
-      this.leadService.lead
-        .update(this.lead.id, {
-          id: this.lead.id,
-          ...submitData,
-        })
-        .pipe(
-          takeUntil(this.destroy$),
-          finalize(() => {
-            this.loading.isSubmitting = false;
-            this.submitted = false;
-          }),
-        )
-        .subscribe({
-          next: (res) => {
-            if (res.status === 200 || res.status === 201) {
-              this.toastr.success('Cập nhật lead thành công');
-              this.saveEvent.emit(res.data);
-              this.modalRef.hide();
-            } else {
-              this.toastr.error(res.message || 'Cập nhật lead thất bại');
-            }
-          },
-          error: (err) => {
-            this.toastr.error(err.message || 'Cập nhật lead thất bại');
-          },
-        });
-    } else {
-      // Create new lead
-      this.leadService.lead
-        .create(submitData)
-        .pipe(
-          takeUntil(this.destroy$),
-          finalize(() => {
-            this.loading.isSubmitting = false;
-            this.submitted = false;
-          }),
-        )
-        .subscribe({
-          next: (res) => {
-            if (res.status === 200 || res.status === 201) {
-              this.toastr.success('Tạo lead thành công');
-              this.saveEvent.emit(res.data);
-              this.modalRef.hide();
-            } else {
-              this.toastr.error(res.message || 'Tạo lead thất bại');
-            }
-          },
-          error: (err) => {
-            this.toastr.error(err.message || 'Tạo lead thất bại');
-          },
-        });
-    }
+    const action$ = this.lead?.id
+      ? this.leadService.lead.update(this.lead.id, body)
+      : this.leadService.lead.create(body);
+
+    action$
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.loading.isSubmitting = false)),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.commonService.handleResSuccess(
+              this.lead?.id ? 'update' : 'create',
+            );
+            this.activityLogComponent.loadActivities();
+            this.saveEvent.emit(res.data);
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err) => {
+          this.commonService.handleErr(err);
+        },
+      });
   }
 
   navigateToTabSettings() {
@@ -598,5 +565,42 @@ export class LeadFormModalComponent
   handleToggleLeftTab() {
     this.isShowLeftTab = !this.isShowLeftTab;
     localStorage.setItem('isShowLeftTab', this.isShowLeftTab.toString());
+  }
+
+  copyText(text: string) {
+    this.mainService.copyText(text);
+    this.toastrService.success('Sao chép thành công');
+  }
+
+  handleDeleteLead() {
+    if (!this.lead) return;
+    const title = 'Xóa Lead';
+    const description = `Bạn có chắc muốn xóa Lead <b>${
+      this.lead?.name || ''
+    }</b> không?`;
+    const okText = 'Đồng ý';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'warning',
+      modalType: 'advance',
+    };
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDeleteLead(this.lead!);
+    });
+  }
+
+  onDeleteLead(lead: ILead) {
+    this.leadService.lead.delete(lead.id).subscribe({
+      next: (res) => {
+        if (res.status === 200) {
+          this.toastrService.success('Xóa lead thành công');
+          this.saveEvent.emit();
+          this.hideModal();
+        }
+      },
+    });
   }
 }

@@ -1,11 +1,14 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BaseApiService} from './base.service';
-import {EntityResult, IQueryBase, ITag} from 'src/app/types/viewmodels';
+import {
+  EntityResult,
+  IHistory,
+  IQueryBase,
+  ITag,
+} from 'src/app/types/viewmodels';
 import {
   ILead,
-  ILeadCreateDto,
-  ILeadUpdateDto,
   ILeadComment,
   ILeadCommentCreateDto,
   IFolderLead,
@@ -18,6 +21,7 @@ import {
 import {BehaviorSubject, Subject, takeUntil} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {AuthService} from './auth.service';
+import {IBranchTaskDto, ModifiedUserUnit} from '@app/types/flow';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +31,7 @@ export class LeadService extends BaseApiService implements OnDestroy {
 
   public api = {
     lead: 'lead',
+    history: 'lead-history',
   };
 
   private listLeadStatus$ = new BehaviorSubject<ILeadStatus[]>([]);
@@ -75,12 +80,12 @@ export class LeadService extends BaseApiService implements OnDestroy {
           params: this.createParams(params),
         },
       ),
-    create: (body: ILeadCreateDto) =>
+    create: (body: ILead) =>
       this.httpClient.post<EntityResult<ILead>>(
         this.createUrl([this.api.lead]),
         body,
       ),
-    update: (id: string, body: ILeadUpdateDto) =>
+    update: (id: string, body: ILead) =>
       this.httpClient.patch<EntityResult<ILead>>(
         this.createUrl([this.api.lead, id]),
         body,
@@ -300,6 +305,16 @@ export class LeadService extends BaseApiService implements OnDestroy {
       ),
   };
 
+  history = {
+    get: (params = {}) =>
+      this.httpClient.get<EntityResult<IHistory[]>>(
+        this.createUrl([this.api.history]),
+        {
+          params: this.createParams({...params}),
+        },
+      ),
+  };
+
   setListLeadStatus(items: ILeadStatus[]) {
     this.listLeadStatus$.next(items);
   }
@@ -312,6 +327,102 @@ export class LeadService extends BaseApiService implements OnDestroy {
 
   setListLeadTag(items: ITag[]) {
     this.listLeadTag$.next(items);
+  }
+
+  getUserUnits(isCheckSelectable = true) {
+    let units: ModifiedUserUnit[] = [];
+    const currentBiz = this.authService.getCurrentBiz();
+    if (currentBiz?.user?.roleBranches) {
+      units = currentBiz.user.roleBranches?.map((branch) => {
+        return {
+          key: branch.id,
+          data: branch.id,
+          label: branch.name,
+          selectable: isCheckSelectable ? !branch.departments?.length : true,
+          id: branch.id,
+          name: branch.name,
+          department: null,
+          departmentName: null,
+          team: null,
+          teamName: null,
+          children: branch.departments?.map((department) => {
+            return {
+              key: department.id,
+              data: department.id,
+              label: department.name,
+              selectable: isCheckSelectable ? !department.teams?.length : true,
+              id: branch.id,
+              name: branch.name,
+              department: department.id,
+              departmentName: department.name,
+              team: null,
+              teamName: null,
+              children: department.teams?.map((team) => {
+                return {
+                  key: team.id,
+                  data: team.id,
+                  label: team.name,
+                  selectable: true,
+                  id: branch.id,
+                  name: branch.name,
+                  department: department.id,
+                  departmentName: department.name,
+                  team: team.id,
+                  teamName: team.name,
+                };
+              }),
+            };
+          }),
+        };
+      });
+    }
+    return units;
+  }
+
+  getFirstUnit() {
+    const units = this.getUserUnits();
+    const firstBranch = units?.[0];
+    const firstDepartment = units?.[0]?.children?.[0];
+    const firstTeam = units?.[0]?.children?.[0]?.children?.[0];
+    return firstTeam || firstDepartment || firstBranch;
+  }
+
+  // nhận vào mảng ids gồm id của cả chi nhánh , phòng ban và đội nhóm
+  // trả về đơn vị đầu tiên tìm thấy trong mảng ids nếu là chi nhánh thì tìm phòng ban và đội nhóm đầu tiên của chi nhánh đó
+  // nếu là phòng ban thì tìm đội nhóm đầu tiên của phòng ban đó
+  // nếu là đội nhóm thì trả về đội nhóm đó
+  getFirstUnitByIds(ids: string[]) {
+    const dfs = (units: any): any => {
+      for (const u of units) {
+        if (ids.includes(u.data)) {
+          return u.children?.length ? dfs(u.children) : u;
+        }
+      }
+    };
+    return dfs(this.getUserUnits());
+  }
+
+  findUnitFromData(data: IBranchTaskDto) {
+    const units = this.getUserUnits();
+    let res: ModifiedUserUnit | undefined = undefined;
+    units.forEach((branch) => {
+      if (branch.data === data?.id && !data.department) {
+        res = branch;
+      } else {
+        branch.children?.forEach((department) => {
+          if (department.data === data?.department && !data.team) {
+            res = department;
+          } else {
+            department.children?.forEach((team) => {
+              if (team.data === data?.team) {
+                res = team;
+              }
+            });
+          }
+        });
+      }
+    });
+    return res;
   }
 
   ngOnDestroy(): void {

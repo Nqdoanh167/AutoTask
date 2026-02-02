@@ -34,11 +34,11 @@ import {ModalUpdateCustomerComponent} from '@main/dashboard/content-modal/modal-
 import {RfmService} from '@app/services/api/rfm.service';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {LeadService} from '@app/services/api/lead.service';
-import {ILeadStatus} from '@app/types/lead';
+import {ILead, ILeadStatus} from '@app/types/lead';
 import {CommonModule} from '@angular/common';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {TimeViewPipe} from '@app/share/pipe/timeView.pipe';
-import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
 
 type ViewOrderType = 'completed' | 'cancelled' | 'trash';
 
@@ -700,7 +700,7 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
 
     this.loadingLeadData = true;
     this.leadService.lead
-      .update(leadId, {id: leadId, statusId})
+      .update(leadId, {id: leadId, statusId} as ILead)
       .pipe(
         finalize(() => (this.loadingLeadData = false)),
         takeUntil(this.destroy$),
@@ -727,7 +727,7 @@ Tất cả thông tin bạn đã điền trong này, như Tên, thẻ Tag, SĐT,
 
     this.loadingLeadData = true;
     this.leadService.lead
-      .update(leadId, {id: leadId, tagIds})
+      .update(leadId, {id: leadId, tagIds} as ILead)
       .pipe(
         finalize(() => (this.loadingLeadData = false)),
         takeUntil(this.destroy$),

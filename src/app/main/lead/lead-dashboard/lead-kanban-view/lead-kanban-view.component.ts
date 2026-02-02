@@ -327,7 +327,7 @@ export class LeadKanbanViewComponent
 
     const newStatusId = currentStatusId;
     this.leadService.lead
-      .update(lead.id, {id: lead.id, statusId: newStatusId})
+      .update(lead.id, {id: lead.id, statusId: newStatusId} as ILead)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: any) => {

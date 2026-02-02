@@ -122,9 +122,9 @@
                           track $index
                         ) {
                           <li>
-                            <div class="d-flex align-items-center gap-2">
-                              <div>
-                                {{ getActionContent(contentHistory.key) }}
+                            <div class="d-flex align-items-center flex-wrap">
+                              <div class="me-2">
+                                {{ getActionContent(contentHistory.key) }}:
                               </div>
                               @if (contentHistory.key === CALL_PHONE_ACTION) {
                                 <div>
@@ -145,7 +145,7 @@
                                 </div>
                               } @else {
                                 <div class="text-link cursor-text">
-                                  {{ contentHistory.value }}
+                                  {{ contentHistory.value || '-' }}
                                 </div>
                               }
                             </div>

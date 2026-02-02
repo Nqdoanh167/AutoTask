@@ -1504,6 +1504,15 @@ export enum EInformationContentHistoryTask {
   DRAW_TASK = 'DRAW_TASK',
   CLOSE_TASK = 'CLOSE_TASK',
 }
+
+export enum EInformationContentHistoryLead {
+  CREATE_LEAD = 'CREATE_LEAD',
+  NAME_LEAD = 'NAME_LEAD',
+  STATUS = 'STATUS',
+  CHANGE_STATUS = 'CHANGE_STATUS',
+  FUNNEL = 'FUNNEL',
+  CHANGE_FUNNEL = 'CHANGE_FUNNEL',
+}
 export interface IContentHistoryTask {
   orderProduct?: IOrderProductContentHistoryTask[];
   information?: IInformationContentHistoryTask[];

@@ -9,11 +9,13 @@ import {
   ENoteContentHistoryTask,
   ESubInformationContentHistoryTask,
   ESubOrderProductHistoryTask,
+  EInformationContentHistoryLead,
 } from '@app/types/viewmodels';
 import {AutoTaskService} from '@app/services/api/autoTask.service';
 import {AuthService} from '@app/services/api/auth.service';
 import moment from 'moment';
 import {CommonModule} from '@angular/common';
+import {LeadService} from '@app/services/api/lead.service';
 
 interface IActivityGroup {
   title: string;
@@ -42,6 +44,7 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   constructor(
     private readonly autoTaskService: AutoTaskService,
     private readonly authService: AuthService,
+    private readonly leadService: LeadService,
   ) {
     this.authService.currentBiz
       .pipe(takeUntil(this.destroy$))
@@ -55,7 +58,6 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
   }
 
   loadActivities() {
-    this.loading = true;
     const params = {
       page: 1,
       limit: 100,
@@ -63,30 +65,57 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
       sort: '-createdAt',
     };
 
-    if (this.leadId) {
-      params.filter = JSON.stringify({leadId: this.leadId});
+    if (this.taskId) {
+      this.loading = true;
+      this.autoTaskService.history
+        .get(params)
+        .pipe(
+          finalize(() => (this.loading = false)),
+          takeUntil(this.destroy$),
+        )
+        .subscribe({
+          next: (res) => {
+            const activities = res.data?.map((item) => ({
+              ...item,
+              actionBy:
+                this.currentBiz.users?.find(
+                  (user) => user.id === item.actionBy.id,
+                ) ||
+                item.actionBy ||
+                {},
+            }));
+            this.groupActivitiesByDate(activities);
+          },
+        });
+      return;
     }
 
-    this.autoTaskService.history
-      .get(params)
-      .pipe(
-        finalize(() => (this.loading = false)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (res) => {
-          const activities = res.data?.map((item) => ({
-            ...item,
-            actionBy:
-              this.currentBiz.users?.find(
-                (user) => user.id === item.actionBy.id,
-              ) ||
-              item.actionBy ||
-              {},
-          }));
-          this.groupActivitiesByDate(activities);
-        },
-      });
+    if (this.leadId) {
+      params.filter = JSON.stringify({leadId: this.leadId});
+      this.loading = true;
+      this.leadService.history
+        .get(params)
+        .pipe(
+          finalize(() => (this.loading = false)),
+          takeUntil(this.destroy$),
+        )
+        .subscribe({
+          next: (res) => {
+            const activities = res.data?.map((item) => ({
+              ...item,
+              actionBy:
+                this.currentBiz.users?.find(
+                  (user) => user.id === item.actionBy.id,
+                ) ||
+                item.actionBy ||
+                {},
+            }));
+            this.groupActivitiesByDate(activities);
+          },
+        });
+
+      return;
+    }
   }
 
   groupActivitiesByDate(activities: IHistory[]) {
@@ -235,6 +264,18 @@ export class ActivityLogComponent implements OnInit, OnDestroy {
         return `Thả số thành công`;
       case EInformationContentHistoryTask.CLOSE_TASK:
         return `Đóng tác vụ`;
+      case EInformationContentHistoryLead.CREATE_LEAD:
+        return `Tạo lead`;
+      case EInformationContentHistoryLead.NAME_LEAD:
+        return `Thay đổi tên lead`;
+      case EInformationContentHistoryLead.STATUS:
+        return `Trạng thái`;
+      case EInformationContentHistoryLead.CHANGE_STATUS:
+        return `Thay đổi trạng thái`;
+      case EInformationContentHistoryLead.FUNNEL:
+        return `Funnel`;
+      case EInformationContentHistoryLead.CHANGE_FUNNEL:
+        return `Thay đổi funnel`;
       default:
         return '';
     }

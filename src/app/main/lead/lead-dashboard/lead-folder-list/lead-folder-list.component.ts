@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {ToastrService} from 'ngx-toastr';
-import {BehaviorSubject} from 'rxjs';
 import {LeadDashboardData} from '../lead-dashboard.definition';
 import {IFunnel, IFolderLead, IFunnelGroup} from '@app/types/lead';
 import {EntityPagination} from '@app/types/viewmodels';
@@ -79,7 +78,7 @@ export class LeadFolderListComponent
     this.leadService.leadFolder
       .getWithFunnels({
         page: 1,
-        limit: 1000,
+        limit: 100,
       })
       .pipe(
         takeUntil(this.destroy$),

@@ -1,592 +1,531 @@
-<app-custom-modal
-  [isSubmitting]="loading.isSubmitting"
-  [textOk]="'Lưu'"
-  (hideModal)="onCancel()"
-  [hideFooter]="true"
-  [hideHeader]="true"
->
-  <div modalBody>
-    <div class="h-100">
-      <div class="header-container">
-        <div
-          class="input-wrapper"
-          (click)="nameInput.focus()"
-          [ngClass]="{
-            'is-invalid': isFieldInvalid('name')
-          }"
-        >
-          <div class="d-flex align-items-center gap-2">
-            <div class="funnel-icon-wrapper">
-              <i class="fa-solid fa-filter"></i>
-            </div>
-            <input
-              #nameInput
-              type="text"
-              class="funnel-name-input"
-              [formControl]="nameControl"
-              [placeholder]="'Nhập tên lead'"
-            />
-          </div>
-        </div>
-
-        <div class="d-flex align-items-center">
-          <div class="pe-3">
-            <div
-              class="lead-badge"
-              [class.active]="hoveredBadgeIndexCurrent >= index"
-              *ngFor="let status of lead?.statusGroupFlow; let index = index"
-              (click)="onClickBadge(status)"
-            >
-              {{ status.statusName }}
-            </div>
-          </div>
-
-          @if (f['id'].value) {
-            <div
-              class="btn-group cursor-pointer btn-dropdown"
-              dropdown
-              placement="bottom right"
-              dropdownToggle
-            >
-              <div id="button-alignment">
-                <i class="fas fa-ellipsis-v"></i>
-              </div>
-              <ul
-                id="dropdown-basic"
-                *dropdownMenu
-                class="dropdown-menu dropdown-menu-right"
-                role="menu"
-              >
-                <li role="menuitem">
-                  <div
-                    href="#"
-                    class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
-                  >
-                    <div style="width: 14px">
-                      <i class="fa-regular fa-clipboard"></i>
-                    </div>
-                    <span>Sao chép ID</span>
-                  </div>
-                </li>
-                <li role="menuitem">
-                  <div
-                    href="#"
-                    class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
-                  >
-                    <div style="width: 14px">
-                      <i class="far fa-clone"></i>
-                    </div>
-                    <span>Tạo bản sao</span>
-                  </div>
-                </li>
-                <li role="menuitem">
-                  <div
-                    href="#"
-                    class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
-                  >
-                    <div style="width: 14px">
-                      <i class="far fa-trash-alt"></i>
-                    </div>
-                    <span>Xóa lead</span>
-                  </div>
-                </li>
-                <li role="menuitem" (click)="navigateToTabSettings()">
-                  <div
-                    href="#"
-                    class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
-                  >
-                    <div style="width: 14px">
-                      <i class="fa-solid fa-gear"></i>
-                    </div>
-                    <span>Cấu hình tab hiển thị</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          }
-        </div>
-      </div>
-      <div class="body-container">
-        <div class="row g-3">
+<div class="lead-form-modal">
+  <app-custom-modal
+    [isSubmitting]="loading.isSubmitting"
+    [textOk]="'Lưu'"
+    (hideModal)="onCancel()"
+    [hideFooter]="true"
+    [hideHeader]="true"
+  >
+    <div modalBody>
+      <form [formGroup]="leadForm" class="h-100">
+        <div class="header-container">
           <div
-            class="col-9 position-relative"
-            [ngClass]="{'col-12': !isShowLeftTab}"
+            class="input-wrapper"
+            (click)="nameInput.focus()"
+            [ngClass]="{
+              'is-invalid': isFieldInvalid('name')
+            }"
           >
-            <button
-              class="left-tab-toggle-btn"
-              (click)="handleToggleLeftTab()"
-              title="{{
-                isShowLeftTab ? 'Ẩn Hoạt Động' : 'Hiển thị Hoạt Động'
-              }}"
-            >
-              <i
-                class="fa-solid {{
-                  isShowLeftTab ? 'fa-chevron-right' : 'fa-chevron-left'
-                }}"
-              ></i>
-            </button>
-            <form [formGroup]="leadForm">
-              <div class="row g-3">
-                <div class="col-12">
-                  <div class="row g-3">
-                    <div class="col-12 d-flex flex-column">
-                      <div class="card-header">
-                        <ng-select
-                          formControlName="typeLead"
-                          [items]="typeLeads"
-                          bindLabel="name"
-                          bindValue="key"
-                          [clearable]="false"
-                          [searchable]="false"
-                          style="width: 200px"
-                          class="ng-select-custom ui-v2"
-                        >
-                          <ng-template ng-option-tmp let-item="item">
-                            <div class="d-flex align-items-center gap-2">
-                              <img
-                                [src]="
-                                  './assets/icons/icon-lead/' +
-                                  item.icon +
-                                  '.svg'
-                                "
-                                [alt]="item.name"
-                                width="24"
-                                height="24"
-                              />
-                              <span>{{ item.name }}</span>
-                            </div>
-                          </ng-template>
-                          <ng-template ng-label-tmp let-item="item">
-                            <div class="d-flex align-items-center gap-2">
-                              <img
-                                [src]="
-                                  './assets/icons/icon-lead/' +
-                                  item.icon +
-                                  '.svg'
-                                "
-                                width="24"
-                                height="24"
-                              />
-                              <span>{{ item.name }}</span>
-                            </div>
-                          </ng-template>
-                        </ng-select>
+            <div class="d-flex align-items-center gap-2">
+              <div class="funnel-icon-wrapper">
+                <i class="fa-solid fa-filter"></i>
+              </div>
+              <input
+                #nameInput
+                type="text"
+                class="funnel-name-input"
+                formControlName="name"
+                [placeholder]="'Nhập tên lead'"
+              />
+            </div>
+          </div>
 
-                        <ng-container *ngIf="lead?.customer">
-                          <div class="d-flex align-items-center gap-2">
-                            <div class="wrap-avatar">
-                              <img
-                                alt=""
-                                class="avatar"
-                                onerror="this.src='https://smax.app/assets/images/noavatar.png'"
-                                src="{{ avatarUrl }}"
-                              />
-                            </div>
-                            <a
-                              class="lead-name text-truncate-1 text-href"
-                              [href]="
-                                environment.urlDomain +
-                                '/' +
-                                (currentBiz?.alias || '') +
-                                '/customers/' +
-                                lead?.customer?.id
-                              "
-                              target="_blank"
-                            >
-                              {{ lead?.name || '-' }}
-                            </a>
-                          </div>
-                        </ng-container>
+          <div class="d-flex align-items-center">
+            <div class="pe-3">
+              <div
+                class="lead-badge"
+                [class.active]="hoveredBadgeIndexCurrent >= index"
+                *ngFor="let status of lead?.statusGroupFlow; let index = index"
+              >
+                {{ status.statusName }}
+              </div>
+            </div>
+
+            @if (f['id'].value) {
+              <div
+                class="btn-group cursor-pointer btn-dropdown"
+                dropdown
+                placement="bottom right"
+                dropdownToggle
+              >
+                <div id="button-alignment">
+                  <i class="fas fa-ellipsis-v"></i>
+                </div>
+                <ul
+                  id="dropdown-basic"
+                  *dropdownMenu
+                  class="dropdown-menu dropdown-menu-right"
+                  role="menu"
+                >
+                  <li role="menuitem" (click)="copyText(f['id'].value)">
+                    <div
+                      href="#"
+                      class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
+                    >
+                      <div style="width: 14px">
+                        <i class="fa-regular fa-clipboard"></i>
                       </div>
-                      <div class="card-content">
-                        <div class="row g-2">
-                          <div class="col-3 field-wrapper">
-                            <label class="text-neutral fs-7 label-card">
-                              Số điện thoại:
-                            </label>
-                            <div class="d-flex align-items-center gap-2">
-                              <ng-container
-                                *ngIf="
-                                  !getFieldState('phone').editing;
-                                  else phoneEditing
-                                "
-                              >
-                                <span class="text-truncate-1">
-                                  {{ leadForm.get('phone')?.value || '-' }}
-                                </span>
-                                <button
-                                  type="button"
-                                  class="button-edit"
-                                  (click)="startFieldEdit('phone')"
-                                >
+                      <span>Sao chép ID</span>
+                    </div>
+                  </li>
+                  <!-- <li role="menuitem">
+                    <div
+                      href="#"
+                      class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
+                    >
+                      <div style="width: 14px">
+                        <i class="far fa-clone"></i>
+                      </div>
+                      <span>Tạo bản sao</span>
+                    </div>
+                  </li> -->
+                  <li role="menuitem" (click)="handleDeleteLead()">
+                    <div
+                      href="#"
+                      class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
+                    >
+                      <div style="width: 14px">
+                        <i class="far fa-trash-alt"></i>
+                      </div>
+                      <span>Xóa lead</span>
+                    </div>
+                  </li>
+                  <li role="menuitem" (click)="navigateToTabSettings()">
+                    <div
+                      href="#"
+                      class="dropdown-item cursor-pointer d-flex align-items-center gap-2"
+                    >
+                      <div style="width: 14px">
+                        <i class="fa-solid fa-gear"></i>
+                      </div>
+                      <span>Cấu hình tab hiển thị</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="body-container">
+          <div class="row g-3">
+            <div
+              class="col-9 position-relative"
+              [ngClass]="{'col-12': !isShowLeftTab}"
+            >
+              <button
+                class="left-tab-toggle-btn"
+                (click)="handleToggleLeftTab()"
+                title="{{
+                  isShowLeftTab ? 'Ẩn Hoạt Động' : 'Hiển thị Hoạt Động'
+                }}"
+              >
+                <i
+                  class="fa-solid {{
+                    isShowLeftTab ? 'fa-chevron-right' : 'fa-chevron-left'
+                  }}"
+                ></i>
+              </button>
+              <div class="d-flex flex-column">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <div class="row g-3">
+                      <div class="col-12 d-flex flex-column">
+                        <div class="card-header">
+                          <div class="d-flex align-items-center gap-2">
+                            <ng-select
+                              formControlName="type"
+                              [items]="typeLeads"
+                              bindLabel="name"
+                              bindValue="key"
+                              [clearable]="false"
+                              [searchable]="false"
+                              style="width: 200px"
+                              class="ng-select-custom ui-v2"
+                            >
+                              <ng-template ng-option-tmp let-item="item">
+                                <div class="d-flex align-items-center gap-2">
                                   <img
-                                    src="./assets/icons/edit.svg"
-                                    alt=""
-                                    width="16"
-                                    height="16"
+                                    [src]="
+                                      './assets/icons/icon-lead/' +
+                                      item.icon +
+                                      '.svg'
+                                    "
+                                    [alt]="item.name"
+                                    width="24"
+                                    height="24"
                                   />
-                                </button>
-                              </ng-container>
-                              <ng-template #phoneEditing>
-                                <input
-                                  type="text"
-                                  class="form-control form-control-sm"
-                                  formControlName="phone"
-                                  placeholder="Nhập số điện thoại"
-                                  (blur)="
-                                    !f['phone'].errors &&
-                                      (getFieldState('phone').editing = false)
-                                  "
-                                  [ngClass]="{
-                                    'is-invalid': f['phone'].errors && submitted
-                                  }"
-                                />
+                                  <span>{{ item.name }}</span>
+                                </div>
                               </ng-template>
+                              <ng-template ng-label-tmp let-item="item">
+                                <div class="d-flex align-items-center gap-2">
+                                  <img
+                                    [src]="
+                                      './assets/icons/icon-lead/' +
+                                      item.icon +
+                                      '.svg'
+                                    "
+                                    width="24"
+                                    height="24"
+                                  />
+                                  <span>{{ item.name }}</span>
+                                </div>
+                              </ng-template>
+                            </ng-select>
+
+                            <div style="width: 250px">
+                              <p-treeSelect
+                                [filter]="true"
+                                [options]="units"
+                                formControlName="branch"
+                                class="w-100"
+                                containerStyleClass="w-100 input-medium custom-tree-select"
+                                [ngClass]="{
+                                  'is-invalid': submitted && f['branch'].errors
+                                }"
+                                placeholder="Chọn Đơn vị..."
+                                (onNodeSelect)="handleChangeUnit($event)"
+                                (onNodeUnselect)="preventUnselect($event)"
+                              ></p-treeSelect>
                             </div>
                           </div>
 
-                          <div class="col-3 field-wrapper">
-                            <label class="text-neutral fs-7 label-card">
-                              Nguồn lead:
-                            </label>
-                            <div class="text-truncate-1">Ads Minh Senpal</div>
-                          </div>
-
-                          <div class="col-6 field-wrapper">
-                            <label
-                              class="text-neutral fs-7 label-card w-[65px]"
-                            >
-                              Thẻ tag:
-                            </label>
-                            <div
-                              class="d-flex align-items-center gap-2 mw-[400px]"
-                            >
-                              <ng-container
-                                *ngIf="
-                                  !getFieldState('tagIds').editing;
-                                  else tagsEditing
+                          <ng-container *ngIf="lead?.customer">
+                            <div class="d-flex align-items-center gap-2">
+                              <div class="wrap-avatar">
+                                <img
+                                  alt=""
+                                  class="avatar"
+                                  onerror="this.src='https://smax.app/assets/images/noavatar.png'"
+                                  src="{{ avatarUrl }}"
+                                />
+                              </div>
+                              <a
+                                class="lead-name text-truncate-1 text-href"
+                                [href]="
+                                  environment.urlDomain +
+                                  '/' +
+                                  (currentBiz?.alias || '') +
+                                  '/customers/' +
+                                  lead?.customer?.id
                                 "
+                                target="_blank"
                               >
-                                <div class="tags-view-mode flex-grow-1">
-                                  <ng-container
-                                    *ngIf="getSelectedTags().length === 0"
-                                  >
-                                    -
-                                  </ng-container>
-                                  <span
-                                    *ngFor="let tag of getSelectedTags()"
-                                    class="text-capitalize me-2 tag-item"
-                                    [ngClass]="{nonBack: !tag.bgColor}"
-                                    [ngStyle]="{background: tag.bgColor}"
-                                  >
-                                    <span>
-                                      <i class="fa-solid fa-filter"></i>
-                                      {{ tag.name }}
-                                    </span>
-                                  </span>
-                                </div>
-                                <button
-                                  type="button"
-                                  class="button-edit"
-                                  (click)="startFieldEdit('tagIds')"
+                                {{ lead?.name || '-' }}
+                              </a>
+                            </div>
+                          </ng-container>
+                        </div>
+                        <div class="card-content">
+                          <div class="row g-2">
+                            <div class="col-6 field-wrapper">
+                              <label
+                                class="text-neutral fs-7 label-card w-[50px]"
+                              >
+                                Phễu:
+                              </label>
+                              <div
+                                class="d-flex align-items-center gap-2"
+                                style="height: 36px"
+                              >
+                                <ng-container
+                                  *ngIf="
+                                    !getFieldState('funnelId').editing;
+                                    else funnelEditing
+                                  "
                                 >
-                                  <img
-                                    src="./assets/icons/edit.svg"
-                                    alt=""
-                                    width="16"
-                                    height="16"
-                                  />
-                                </button>
-                              </ng-container>
-                              <ng-template #tagsEditing>
-                                <div style="z-index: 1">
+                                  <div class="text-truncate-1">
+                                    {{ getFunnelName() }}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    class="button-edit"
+                                    (click)="startFieldEdit('funnelId')"
+                                  >
+                                    <img
+                                      src="./assets/icons/edit.svg"
+                                      alt=""
+                                      width="16"
+                                      height="16"
+                                    />
+                                  </button>
+                                </ng-container>
+                                <ng-template #funnelEditing>
                                   <ng-select
-                                    formControlName="tagIds"
-                                    [items]="tags.rows"
+                                    formControlName="funnelId"
+                                    [items]="funnelOptions"
                                     bindLabel="name"
                                     bindValue="id"
-                                    placeholder="Chọn Tag"
-                                    [multiple]="true"
-                                    [clearable]="true"
-                                    [closeOnSelect]="false"
-                                    appendTo=".modal"
+                                    placeholder="Chọn phễu"
+                                    [groupBy]="groupByFolder"
+                                    [clearable]="false"
                                     (blur)="
-                                      getFieldState('tagIds').editing = false
+                                      getFieldState('funnelId').editing = false
                                     "
-                                    class="custom-input-tag"
+                                    appendTo=".modal"
                                   >
-                                    <ng-template ng-option-tmp let-item="item">
-                                      <div
-                                        class="tag-item"
-                                        [ngClass]="{nonBack: !item.bgColor}"
-                                        [ngStyle]="{background: item.bgColor}"
-                                      >
+                                    <ng-template ng-label-tmp let-item="item">
+                                      <span class="text-truncate-1">
                                         {{ item.name }}
-                                      </div>
-                                    </ng-template>
-                                    <ng-template
-                                      ng-label-tmp
-                                      let-item="item"
-                                      let-clear="clear"
-                                    >
-                                      <span
-                                        class="ng-value-icon"
-                                        (click)="clear(item)"
-                                      >
-                                        ×
-                                      </span>
-                                      <div
-                                        class="tag-item"
-                                        [ngClass]="{nonBack: !item.bgColor}"
-                                        [ngStyle]="{background: item.bgColor}"
-                                      >
-                                        {{ item.name }}
-                                      </div>
-                                    </ng-template>
-                                  </ng-select>
-                                </div>
-                              </ng-template>
-                            </div>
-                          </div>
-
-                          <div class="col-3 field-wrapper">
-                            <label class="text-neutral fs-7 label-card">
-                              Email:
-                            </label>
-                            <div
-                              class="d-flex align-items-center gap-2"
-                              style="height: 36px"
-                            >
-                              <ng-container
-                                *ngIf="
-                                  !getFieldState('email').editing;
-                                  else emailEditing
-                                "
-                              >
-                                <div class="text-truncate-1">
-                                  {{ leadForm.get('email')?.value || '-' }}
-                                </div>
-                                <button
-                                  type="button"
-                                  class="button-edit"
-                                  (click)="startFieldEdit('email')"
-                                >
-                                  <img
-                                    src="./assets/icons/edit.svg"
-                                    alt=""
-                                    width="16"
-                                    height="16"
-                                  />
-                                </button>
-                              </ng-container>
-                              <ng-template #emailEditing>
-                                <input
-                                  type="text"
-                                  class="form-control form-control-sm"
-                                  formControlName="email"
-                                  placeholder="Nhập email"
-                                  (blur)="
-                                    getFieldState('email').editing = false
-                                  "
-                                />
-                              </ng-template>
-                            </div>
-                          </div>
-
-                          <div class="col-3 field-wrapper">
-                            <label class="text-neutral fs-7 label-card">
-                              Phễu:
-                            </label>
-                            <div
-                              class="d-flex align-items-center gap-2"
-                              style="height: 36px"
-                            >
-                              <ng-container
-                                *ngIf="
-                                  !getFieldState('funnelId').editing;
-                                  else funnelEditing
-                                "
-                              >
-                                <div class="text-truncate-1">
-                                  {{ getFunnelName() }}
-                                </div>
-                                <button
-                                  type="button"
-                                  class="button-edit"
-                                  (click)="startFieldEdit('funnelId')"
-                                >
-                                  <img
-                                    src="./assets/icons/edit.svg"
-                                    alt=""
-                                    width="16"
-                                    height="16"
-                                  />
-                                </button>
-                              </ng-container>
-                              <ng-template #funnelEditing>
-                                <ng-select
-                                  formControlName="funnelId"
-                                  [items]="funnelOptions"
-                                  bindLabel="name"
-                                  bindValue="id"
-                                  placeholder="Chọn phễu"
-                                  [groupBy]="groupByFolder"
-                                  [clearable]="false"
-                                  (blur)="
-                                    getFieldState('funnelId').editing = false
-                                  "
-                                  appendTo=".modal"
-                                >
-                                  <ng-template ng-label-tmp let-item="item">
-                                    <span class="text-truncate-1">
-                                      {{ item.name }}
-                                      <!-- <span class="fw-bold text-truncate-1">
+                                        <!-- <span class="fw-bold text-truncate-1">
                                         ({{ item.funnelGroupName }} -
                                         {{ item.folderName }})
                                       </span> -->
-                                    </span>
-                                  </ng-template>
-                                </ng-select>
-                              </ng-template>
+                                      </span>
+                                    </ng-template>
+                                  </ng-select>
+                                </ng-template>
+                              </div>
                             </div>
-                          </div>
 
-                          <div
-                            class="col-6 field-wrapper"
-                            formArrayName="teams"
-                            *ngIf="currentSetting?.roles?.length"
-                          >
-                            <label class="text-neutral fs-7 label-card">
-                              Nhân sự phụ trách:
-                              <i
-                                *ngIf="getFieldState('teams').editing"
-                                class="fa fa-spinner fa-spin ms-1"
-                              ></i>
-                            </label>
-                            <div
-                              class="d-flex align-items-center gap-2 flex-wrap"
-                            >
-                              <ng-container
-                                *ngFor="
-                                  let teamControl of formTeams.controls;
-                                  let i = index
-                                "
+                            <div class="col-6 field-wrapper">
+                              <label
+                                class="text-neutral fs-7 label-card w-[110px]"
                               >
-                                <div
-                                  class="btn-group role-item-wrapper"
-                                  dropdown
+                                Nguồn lead:
+                              </label>
+                              <app-order-create-source
+                                (changePlatformSource)="
+                                  handleChangePlatFormSource($event)
+                                "
+                                [values]="f['platformSources'].value || []"
+                                [valueIds]="f['platformSourceIds'].value || []"
+                              ></app-order-create-source>
+                            </div>
+
+                            <div class="col-6 field-wrapper">
+                              <label
+                                class="text-neutral fs-7 label-card w-[50px]"
+                              >
+                                Thẻ tag:
+                              </label>
+                              <div
+                                class="d-flex align-items-center gap-2 mw-[400px]"
+                              >
+                                <ng-container
+                                  *ngIf="
+                                    !getFieldState('tagIds').editing;
+                                    else tagsEditing
+                                  "
                                 >
+                                  <div class="tags-view-mode flex-grow-1">
+                                    <ng-container
+                                      *ngIf="getSelectedTags().length === 0"
+                                    >
+                                      -
+                                    </ng-container>
+                                    <span
+                                      *ngFor="let tag of getSelectedTags()"
+                                      class="text-capitalize me-2 tag-item"
+                                      [ngClass]="{nonBack: !tag.bgColor}"
+                                      [ngStyle]="{background: tag.bgColor}"
+                                    >
+                                      <span>
+                                        <i class="fa-solid fa-filter"></i>
+                                        {{ tag.name }}
+                                      </span>
+                                    </span>
+                                  </div>
                                   <button
-                                    dropdownToggle
                                     type="button"
-                                    class="btn btn-sm role-item-btn"
-                                    [attr.title]="
-                                      teamControl.value?.userName
-                                        ? teamControl.value?.roleName +
-                                          ': ' +
-                                          teamControl.value?.userName
-                                        : teamControl.value?.roleName
-                                    "
-                                    [class.disabled]="
-                                      getFieldState('teams').editing
-                                    "
+                                    class="button-edit"
+                                    (click)="startFieldEdit('tagIds')"
                                   >
-                                    <ng-container
-                                      *ngIf="teamControl.value.userId"
-                                    >
-                                      <img
-                                        width="24"
-                                        height="24"
-                                        class="rounded-circle"
-                                        [src]="
-                                          teamControl.value?.userPicture ||
-                                          'assets/images/avatar.svg'
-                                        "
-                                        alt=""
-                                        style="object-fit: cover"
-                                      />
-                                    </ng-container>
-                                    <ng-container
-                                      *ngIf="!teamControl.value.userId"
-                                    >
-                                      <i
-                                        class="fa-solid"
-                                        [ngClass]="
-                                          teamControl.value?.roleIcon ||
-                                          'fa-user'
-                                        "
-                                      ></i>
-                                    </ng-container>
+                                    <img
+                                      src="./assets/icons/edit.svg"
+                                      alt=""
+                                      width="16"
+                                      height="16"
+                                    />
                                   </button>
-                                  <ul
-                                    *dropdownMenu
-                                    class="dropdown-menu"
-                                    role="menu"
-                                    style="max-height: 300px; overflow-y: auto"
-                                  >
-                                    <li
-                                      *ngFor="
-                                        let user of getAvailableUsers(
-                                          teamControl.value?.roleId
-                                        )
+                                </ng-container>
+                                <ng-template #tagsEditing>
+                                  <div style="z-index: 1">
+                                    <ng-select
+                                      formControlName="tagIds"
+                                      [items]="tags.rows"
+                                      bindLabel="name"
+                                      bindValue="id"
+                                      placeholder="Chọn Tag"
+                                      [multiple]="true"
+                                      [clearable]="true"
+                                      [closeOnSelect]="false"
+                                      appendTo=".modal"
+                                      (blur)="
+                                        getFieldState('tagIds').editing = false
                                       "
-                                      role="menuitem"
-                                      class="dropdown-item"
-                                      [class.active]="
-                                        user.id === teamControl.value.userId
-                                      "
-                                      (click)="onChooseTeam(i, user)"
-                                      style="cursor: pointer"
+                                      class="custom-input-tag"
                                     >
-                                      <div class="d-flex align-items-center">
-                                        <img
-                                          class="rounded-circle me-2"
-                                          [src]="
-                                            user.picture ||
-                                            'assets/images/avatar.svg'
-                                          "
-                                          alt=""
-                                          style="
-                                            width: 32px;
-                                            height: 32px;
-                                            object-fit: cover;
-                                          "
-                                        />
-                                        <div class="text-truncate">
-                                          <div>{{ user.name }}</div>
-                                          <small
-                                            class="text-muted"
-                                            *ngIf="user.email"
-                                          >
-                                            {{ user.email }}
-                                          </small>
+                                      <ng-template
+                                        ng-option-tmp
+                                        let-item="item"
+                                      >
+                                        <div
+                                          class="tag-item"
+                                          [ngClass]="{nonBack: !item.bgColor}"
+                                          [ngStyle]="{background: item.bgColor}"
+                                        >
+                                          {{ item.name }}
                                         </div>
-                                      </div>
-                                    </li>
-                                    <li
-                                      *ngIf="teamControl.value.userId"
-                                      role="menuitem"
-                                      class="dropdown-item text-danger"
-                                      (click)="onRemoveTeam(i)"
-                                      style="
-                                        cursor: pointer;
-                                        border-top: 1px solid #ddd;
-                                      "
+                                      </ng-template>
+                                      <ng-template
+                                        ng-label-tmp
+                                        let-item="item"
+                                        let-clear="clear"
+                                      >
+                                        <span
+                                          class="ng-value-icon"
+                                          (click)="clear(item)"
+                                        >
+                                          ×
+                                        </span>
+                                        <div
+                                          class="tag-item"
+                                          [ngClass]="{nonBack: !item.bgColor}"
+                                          [ngStyle]="{background: item.bgColor}"
+                                        >
+                                          {{ item.name }}
+                                        </div>
+                                      </ng-template>
+                                    </ng-select>
+                                  </div>
+                                </ng-template>
+                              </div>
+                            </div>
+
+                            <div
+                              class="col-6 field-wrapper"
+                              formArrayName="teams"
+                              *ngIf="currentSetting?.roles?.length"
+                            >
+                              <label
+                                class="text-neutral fs-7 label-card w-[110px]"
+                              >
+                                Nhân sự phụ trách:
+                                <i
+                                  *ngIf="getFieldState('teams').editing"
+                                  class="fa fa-spinner fa-spin ms-1"
+                                ></i>
+                              </label>
+                              <div
+                                class="d-flex align-items-center gap-2 flex-wrap"
+                              >
+                                @for (
+                                  settingRole of formTeams.controls;
+                                  track settingRoleIndex;
+                                  let settingRoleIndex = $index
+                                ) {
+                                  <div
+                                    class="btn-group"
+                                    dropdown
+                                    container=".lead-form-modal"
+                                    [autoClose]="true"
+                                  >
+                                    <button
+                                      dropdownToggle
+                                      type="button"
+                                      class="btn btn-default border rounded-pill button-role bg-white"
+                                      popoverTitle="Vai trò: {{
+                                        settingRole.value?.roleName
+                                      }}"
+                                      popover="Thông tin: {{
+                                        settingRole.value?.userName
+                                      }} - {{ settingRole.value?.userEmail }}"
+                                      triggers="mouseenter:mouseleave"
+                                      placement="bottom"
+                                      container=".lead-form-modal"
                                     >
-                                      <div class="p-2">
-                                        <i class="fa fa-times me-2"></i>
-                                        Xóa người phụ trách
-                                      </div>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </ng-container>
+                                      @if (settingRole.value.userId) {
+                                        <img
+                                          width="32"
+                                          height="32"
+                                          class="rounded-pill"
+                                          [src]="settingRole.value?.userPicture"
+                                          alt=""
+                                        />
+                                      } @else {
+                                        <i
+                                          class="fa-solid"
+                                          [ngClass]="
+                                            settingRole.value?.roleIcon
+                                          "
+                                        ></i>
+                                      }
+                                    </button>
+                                    <ul
+                                      id="dropdown-select-role{{
+                                        settingRole.value.roleId
+                                      }}"
+                                      *dropdownMenu
+                                      class="dropdown-menu"
+                                      role="menu"
+                                      aria-labelledby="button-select-role"
+                                    >
+                                      @if (infoUnit$ | async; as infoUnit) {
+                                        @if (
+                                          infoUnit?.role === ERole.OWNER
+                                            ? bizUsers
+                                            : [currentUser];
+                                          as users
+                                        ) {
+                                          @for (
+                                            item of users
+                                              | getDataArray
+                                                : 'id'
+                                                : infoUnit?.userIds || []
+                                              | getDataArray
+                                                : 'roleIds'
+                                                : settingRole.value.roleId
+                                                : 'role'
+                                                : 'OWNER'
+                                                : 'id';
+                                            track 'id'
+                                          ) {
+                                            <li
+                                              role="menuitem"
+                                              class="item-user-dropdown"
+                                              [class.selected]="
+                                                item.id ===
+                                                settingRole.value.userId
+                                              "
+                                              [class.disabled]="!item.isActive"
+                                              (click)="
+                                                item.id !==
+                                                  settingRole.value.userId &&
+                                                  onChooseTeam(
+                                                    settingRoleIndex,
+                                                    item
+                                                  )
+                                              "
+                                            >
+                                              <div
+                                                class="d-flex align-items-center p-3 cursor-pointer"
+                                              >
+                                                <div>
+                                                  <img
+                                                    class="avatar me-2"
+                                                    src="{{ item.picture }}"
+                                                    fallback="assets/images/avatar.svg"
+                                                    alt=""
+                                                  />
+                                                </div>
+                                                <div class="text-truncate">
+                                                  {{ item.name }}
+                                                </div>
+                                              </div>
+                                            </li>
+                                          }
+                                        }
+                                      }
+                                    </ul>
+                                  </div>
+                                }
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <!-- <div class="col-5 d-flex flex-column">
+                      <!-- <div class="col-5 d-flex flex-column">
                       <div class="card-header">
                         <div class="text-neutral fw-500">Khách Hàng</div>
                         <div class="d-flex align-items-center gap-2">
@@ -696,19 +635,24 @@
                         </div>
                       </div>
                     </div> -->
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <nav class="lead-form-tab-menu">
-                    <ul>
-                      <li
-                        [ngClass]="{active: activeLeftTabMenu.key === tab.key}"
-                        *ngFor="let tab of tabsMenu.left; let index = index"
-                      >
-                        <div (click)="activeLeftTabMenu = tab" class="tab-link">
-                          <div class="icon" *ngIf="tab.icon">
-                            <!-- <img
+                  <div>
+                    <nav class="lead-form-tab-menu">
+                      <ul>
+                        <li
+                          [ngClass]="{
+                            active: activeLeftTabMenu.key === tab.key
+                          }"
+                          *ngFor="let tab of tabsMenu.left; let index = index"
+                        >
+                          <div
+                            (click)="activeLeftTabMenu = tab"
+                            class="tab-link"
+                          >
+                            <div class="icon" *ngIf="tab.icon">
+                              <!-- <img
                               [src]="
                                 activeLeftTabMenu === menu.key
                                   ? 'assets/icons/' + menu.icon + '-active.svg'
@@ -718,203 +662,211 @@
                               width="24"
                               height="24"
                             /> -->
-                            <i [ngClass]="tab.icon"></i>
-                          </div>
-                          <span class="nav-text fw-500">
-                            {{ tab.name }}
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </nav>
-
-                  <div
-                    class="section-area custom-scrollbar"
-                    [ngClass]="{'no-show-left-tab': !isShowLeftTab}"
-                  >
-                    <ng-container *ngIf="activeLeftTabMenu.key === 'discuss'">
-                      <app-lead-comments-sidebar
-                        [isOpen]="true"
-                        [lead]="lead"
-                      ></app-lead-comments-sidebar>
-                    </ng-container>
-
-                    <div *ngIf="activeLeftTabMenu.key === 'task'">
-                      <ng-container *ngIf="lead?.tasks?.length; else noTasks">
-                        <ng-container *ngFor="let task of lead?.tasks">
-                          <div class="task-card mb-3">
-                            <div
-                              class="task-header d-flex align-items-center gap-2"
-                            >
-                              <a
-                                [href]="getTaskDetailUrl(task.id)"
-                                target="_blank"
-                              >
-                                <span class="task-code fw-bold">
-                                  {{ task.code }}
-                                </span>
-                                &nbsp;
-                                <i class="fa-solid fa-link"></i>
-                              </a>
-                              <ng-container *ngFor="let tag of task.tags">
-                                <span class="task-tag">
-                                  <span
-                                    class="tag-item"
-                                    [ngClass]="{nonBack: !tag.bgColor}"
-                                    [ngStyle]="{background: tag.bgColor}"
-                                  >
-                                    {{ tag.name }}
-                                  </span>
-                                </span>
-                              </ng-container>
+                              <i [ngClass]="tab.icon"></i>
                             </div>
-                            <div class="task-name" *ngIf="task.name">
-                              {{ task.name }}
-                            </div>
-
-                            <ng-container *ngFor="let chain of task.taskChains">
-                              <div class="task-chain-card">
-                                <div
-                                  class="chain-header d-flex justify-content-between align-items-center"
-                                >
-                                  <span
-                                    class="chain-name text-uppercase fw-semibold"
-                                  >
-                                    {{ getChainName(chain) }}
-                                  </span>
-                                  <span
-                                    class="chain-status"
-                                    [class.closed]="chain.status === 'CLOSED'"
-                                  >
-                                    <i
-                                      class="fa fa-lock me-1"
-                                      *ngIf="chain.status === 'CLOSED'"
-                                    ></i>
-                                    {{
-                                      chain.status === 'CLOSED'
-                                        ? 'Đã đóng'
-                                        : 'Đang mở'
-                                    }}
-                                  </span>
-                                </div>
-
-                                <div class="chain-results-table">
-                                  <div class="table-header">
-                                    <div class="col-date">Thực hiện</div>
-                                    <div class="col-action">Tên hành động</div>
-                                    <div class="col-result">
-                                      Kết quả & Nguyên nhân
-                                    </div>
-                                    <div class="col-note">Ghi chú</div>
-                                  </div>
-                                  <div class="table-body">
-                                    <div
-                                      class="table-row"
-                                      *ngFor="
-                                        let result of chain.taskChainResults
-                                      "
-                                    >
-                                      @if (
-                                        result.type ===
-                                        EChainNextActionType.MANUAL
-                                      ) {
-                                        <div class="col-date">
-                                          {{
-                                            result.executedDate
-                                              ? (result.executedDate
-                                                | date: 'HH:mm dd/MM/yyyy')
-                                              : '-'
-                                          }}
-                                        </div>
-                                        <div class="col-action">
-                                          {{ result.action?.name || '-' }}
-                                        </div>
-                                        <div class="col-result">
-                                          <div class="result-name">
-                                            {{ result.result?.name || '-' }}
-                                          </div>
-                                          <div
-                                            class="result-reason"
-                                            *ngIf="result.reason"
-                                          >
-                                            <em>{{ result.reason.name }}</em>
-                                          </div>
-                                        </div>
-                                        <div class="col-note">
-                                          {{ result.note || '-' }}
-                                        </div>
-                                      }
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </ng-container>
+                            <span class="nav-text fw-500">
+                              {{ tab.name }}
+                            </span>
                           </div>
-                        </ng-container>
+                        </li>
+                      </ul>
+                    </nav>
+
+                    <div
+                      class="section-area custom-scrollbar"
+                      [ngClass]="{'no-show-left-tab': !isShowLeftTab}"
+                    >
+                      <ng-container *ngIf="activeLeftTabMenu.key === 'discuss'">
+                        <app-lead-comments-sidebar
+                          [isOpen]="true"
+                          [lead]="lead"
+                        ></app-lead-comments-sidebar>
                       </ng-container>
 
-                      <ng-template #noTasks>
-                        <div class="text-center text-neutral">
-                          Không có dữ liệu
+                      <div *ngIf="activeLeftTabMenu.key === 'task'">
+                        <ng-container *ngIf="lead?.tasks?.length; else noTasks">
+                          <ng-container *ngFor="let task of lead?.tasks">
+                            <div class="task-card mb-3">
+                              <div
+                                class="task-header d-flex align-items-center gap-2"
+                              >
+                                <a
+                                  [href]="getTaskDetailUrl(task.id)"
+                                  target="_blank"
+                                >
+                                  <span class="task-code fw-bold">
+                                    {{ task.code }}
+                                  </span>
+                                  &nbsp;
+                                  <i class="fa-solid fa-link"></i>
+                                </a>
+                                <ng-container *ngFor="let tag of task.tags">
+                                  <span class="task-tag">
+                                    <span
+                                      class="tag-item"
+                                      [ngClass]="{nonBack: !tag.bgColor}"
+                                      [ngStyle]="{background: tag.bgColor}"
+                                    >
+                                      {{ tag.name }}
+                                    </span>
+                                  </span>
+                                </ng-container>
+                              </div>
+                              <div class="task-name" *ngIf="task.name">
+                                {{ task.name }}
+                              </div>
+
+                              <ng-container
+                                *ngFor="let chain of task.taskChains"
+                              >
+                                <div class="task-chain-card">
+                                  <div
+                                    class="chain-header d-flex justify-content-between align-items-center"
+                                  >
+                                    <span
+                                      class="chain-name text-uppercase fw-semibold"
+                                    >
+                                      {{ getChainName(chain) }}
+                                    </span>
+                                    <span
+                                      class="chain-status"
+                                      [class.closed]="chain.status === 'CLOSED'"
+                                    >
+                                      <i
+                                        class="fa fa-lock me-1"
+                                        *ngIf="chain.status === 'CLOSED'"
+                                      ></i>
+                                      {{
+                                        chain.status === 'CLOSED'
+                                          ? 'Đã đóng'
+                                          : 'Đang mở'
+                                      }}
+                                    </span>
+                                  </div>
+
+                                  <div class="chain-results-table">
+                                    <div class="table-header">
+                                      <div class="col-date">Thực hiện</div>
+                                      <div class="col-action">
+                                        Tên hành động
+                                      </div>
+                                      <div class="col-result">
+                                        Kết quả & Nguyên nhân
+                                      </div>
+                                      <div class="col-note">Ghi chú</div>
+                                    </div>
+                                    <div class="table-body">
+                                      <div
+                                        class="table-row"
+                                        *ngFor="
+                                          let result of chain.taskChainResults
+                                        "
+                                      >
+                                        @if (
+                                          result.type ===
+                                          EChainNextActionType.MANUAL
+                                        ) {
+                                          <div class="col-date">
+                                            {{
+                                              result.executedDate
+                                                ? (result.executedDate
+                                                  | date: 'HH:mm dd/MM/yyyy')
+                                                : '-'
+                                            }}
+                                          </div>
+                                          <div class="col-action">
+                                            {{ result.action?.name || '-' }}
+                                          </div>
+                                          <div class="col-result">
+                                            <div class="result-name">
+                                              {{ result.result?.name || '-' }}
+                                            </div>
+                                            <div
+                                              class="result-reason"
+                                              *ngIf="result.reason"
+                                            >
+                                              <em>{{ result.reason.name }}</em>
+                                            </div>
+                                          </div>
+                                          <div class="col-note">
+                                            {{ result.note || '-' }}
+                                          </div>
+                                        }
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </ng-container>
+                            </div>
+                          </ng-container>
+                        </ng-container>
+
+                        <ng-template #noTasks>
+                          <div class="text-center text-neutral">
+                            Không có dữ liệu
+                          </div>
+                        </ng-template>
+                      </div>
+
+                      <ng-container *ngIf="activeLeftTabMenu.key === 'product'">
+                        <div
+                          class="d-flex justify-content-between align-items-center"
+                        >
+                          <div class="headline">Đơn đã tạo</div>
                         </div>
-                      </ng-template>
-                    </div>
+                        <app-orders [orders]="lead?.orders || []"></app-orders>
+                      </ng-container>
 
-                    <ng-container *ngIf="activeLeftTabMenu.key === 'product'">
-                      <div
-                        class="d-flex justify-content-between align-items-center"
+                      <ng-container
+                        *ngIf="activeLeftTabMenu.key === 'customer'"
                       >
-                        <div class="headline">Đơn đã tạo</div>
-                      </div>
-                      <app-orders [orders]="lead?.orders || []"></app-orders>
-                    </ng-container>
-
-                    <ng-container *ngIf="activeLeftTabMenu.key === 'customer'">
-                      <div class="headline">
-                        Thông tin khách hàng
-                        <i
-                          class="fa-regular fa-circle-question ms-1"
-                          [tooltip]="
-                            'Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới'
-                          "
-                          placement="right"
-                        ></i>
-                      </div>
-                      <app-customer-info
-                        [hasUpdateTaskPer]="permissions.canEditLead"
-                        [submitted]="submitted"
-                        [formGroup]="leadForm"
-                        [selectedCustomerId]="leadForm.value.id"
-                        [(isOpenBackdrop)]="isOpenBackDrop"
-                      ></app-customer-info>
-                    </ng-container>
+                        <div class="headline">
+                          Thông tin khách hàng
+                          <i
+                            class="fa-regular fa-circle-question ms-1"
+                            [tooltip]="
+                              'Nếu Liên hệ này chưa tồn tại thì hệ thống sẽ tự tạo 1 bản ghi Khách hàng tương ứng với thông tin mà bạn nhập bên dưới'
+                            "
+                            placement="right"
+                          ></i>
+                        </div>
+                        <app-customer-info
+                          [hasUpdateTaskPer]="permissions.canEditLead"
+                          [submitted]="submitted"
+                          [formGroup]="formCustomer"
+                          [selectedCustomerId]="formCustomer.value.id"
+                          [(isOpenBackdrop)]="isOpenBackDrop"
+                        ></app-customer-info>
+                      </ng-container>
+                    </div>
                   </div>
                 </div>
               </div>
-            </form>
 
-            <ng-container
-              *ngIf="!isShowLeftTab"
-              [ngTemplateOutlet]="btnAction"
-            ></ng-container>
-          </div>
+              <ng-container
+                *ngIf="!isShowLeftTab"
+                [ngTemplateOutlet]="btnAction"
+              ></ng-container>
+            </div>
 
-          <div class="col-3 h-100" [ngClass]="{'d-none': !isShowLeftTab}">
-            <div class="card" style="border-radius: 4px">
-              <div class="card-body p-0">
-                <div class="activity-log">
-                  <nav class="lead-form-tab-menu">
-                    <ul class="overflow-hidden">
-                      <li
-                        [ngClass]="{active: activeRightTabMenu.key === tab.key}"
-                        *ngFor="let tab of tabsMenu.right; let index = index"
-                      >
-                        <div
-                          class="tab-link"
-                          (click)="activeRightTabMenu = tab"
+            <div class="col-3 h-100" [ngClass]="{'d-none': !isShowLeftTab}">
+              <div class="card" style="border-radius: 4px">
+                <div class="card-body p-0">
+                  <div class="activity-log">
+                    <nav class="lead-form-tab-menu">
+                      <ul class="overflow-hidden">
+                        <li
+                          [ngClass]="{
+                            active: activeRightTabMenu.key === tab.key
+                          }"
+                          *ngFor="let tab of tabsMenu.right; let index = index"
                         >
-                          <div class="icon" *ngIf="tab.icon">
-                            <!-- <img
+                          <div
+                            class="tab-link"
+                            (click)="activeRightTabMenu = tab"
+                          >
+                            <div class="icon" *ngIf="tab.icon">
+                              <!-- <img
                               [src]="
                                 activeRightTabMenu === menu.key
                                   ? 'assets/icons/' + menu.icon + '-active.svg'
@@ -924,46 +876,47 @@
                               width="24"
                               height="24"
                             /> -->
-                            <i [ngClass]="tab.icon"></i>
+                              <i [ngClass]="tab.icon"></i>
+                            </div>
+                            <span class="nav-text fw-500">
+                              {{ tab.name }}
+                            </span>
                           </div>
-                          <span class="nav-text fw-500">
-                            {{ tab.name }}
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </nav>
+                        </li>
+                      </ul>
+                    </nav>
 
-                  <div class="card">
-                    <div class="card-body">
-                      <div
-                        class="activity-log-content section-area-right custom-scrollbar"
-                      >
-                        <ng-container
-                          *ngIf="activeRightTabMenu.key === 'history'"
+                    <div class="card">
+                      <div class="card-body">
+                        <div
+                          class="activity-log-content section-area-right custom-scrollbar"
                         >
-                          <app-activity-log
-                            [taskId]="lead?.id || ''"
-                          ></app-activity-log>
-                        </ng-container>
+                          <ng-container
+                            *ngIf="activeRightTabMenu.key === 'history'"
+                          >
+                            <app-activity-log
+                              [leadId]="lead?.id!"
+                            ></app-activity-log>
+                          </ng-container>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  <ng-template #noLead>
+                    <div class="text-center text-neutral">Không có dữ liệu</div>
+                  </ng-template>
                 </div>
-
-                <ng-template #noLead>
-                  <div class="text-center text-neutral">Không có dữ liệu</div>
-                </ng-template>
               </div>
-            </div>
 
-            <ng-container [ngTemplateOutlet]="btnAction"></ng-container>
+              <ng-container [ngTemplateOutlet]="btnAction"></ng-container>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
-  </div>
-</app-custom-modal>
+  </app-custom-modal>
+</div>
 @if (isOpenBackDrop) {
   <bs-modal-backdrop class="modal-backdrop fade in show"></bs-modal-backdrop>
 }

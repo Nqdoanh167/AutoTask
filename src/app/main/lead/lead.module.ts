@@ -5,9 +5,7 @@ import {LeadRoutingModule} from './lead-routing.module';
 import {LeadDashboardComponent} from './lead-dashboard/lead-dashboard.component';
 import {LeadFormModalComponent} from './lead-dashboard/lead-form-modal/lead-form-modal.component';
 import {LeadCreateModalComponent} from './lead-dashboard/lead-create-modal/lead-create-modal.component';
-import {LeadUpdateModalComponent} from './lead-dashboard/lead-update-modal/lead-update-modal.component';
 import {LeadBulkMoveModalComponent} from './lead-dashboard/lead-bulk-move-modal/lead-bulk-move-modal.component';
-import {LeadConnectionsModalComponent} from './lead-dashboard/lead-connections-modal/lead-connections-modal.component';
 import {LeadCommentsSidebarComponent} from './lead-dashboard/lead-comments-sidebar/lead-comments-sidebar.component';
 import {SortLeadStatusModalComponent} from './lead-dashboard/sort-lead-status-modal/sort-lead-status-modal.component';
 import {FolderFormModalComponent} from './lead-dashboard/folder-form-modal/folder-form-modal.component';
@@ -53,6 +51,8 @@ import {LeadListViewComponent} from './lead-dashboard/lead-list-view/lead-list-v
 import {LeadKanbanViewComponent} from './lead-dashboard/lead-kanban-view/lead-kanban-view.component';
 import {LetDirective} from '@app/share/directive/ng-let.directive';
 import {ActivityLogComponent} from '@app/share/common/activity-log/activity-log.component';
+import {GetDataArrayPipe} from '@app/share/pipe/get-data-array/getDataArray.pipe';
+import { TaskCreateSourceComponent } from "@app/main/dashboard/content-modal/task-create-source/task-create-source.component";
 
 @NgModule({
   declarations: [
@@ -60,9 +60,7 @@ import {ActivityLogComponent} from '@app/share/common/activity-log/activity-log.
     LeadDashboardComponent,
     LeadFormModalComponent,
     LeadCreateModalComponent,
-    LeadUpdateModalComponent,
     LeadBulkMoveModalComponent,
-    LeadConnectionsModalComponent,
     LeadCommentsSidebarComponent,
     SortLeadStatusModalComponent,
     FolderFormModalComponent,
@@ -113,7 +111,9 @@ import {ActivityLogComponent} from '@app/share/common/activity-log/activity-log.
     TooltipDirective,
     LetDirective,
     ActivityLogComponent,
-  ],
+    GetDataArrayPipe,
+    TaskCreateSourceComponent
+],
   providers: [DatePipe],
 })
 export class LeadModule {}

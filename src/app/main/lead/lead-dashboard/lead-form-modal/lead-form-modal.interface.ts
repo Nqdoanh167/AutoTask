@@ -1,4 +1,4 @@
-import { EChainNextActionType, ETaskChainType } from "@app/types/flow";
+import {EChainNextActionType, ETaskChainType} from '@app/types/flow';
 
 export interface ILeadTeam {
   roleId: string;
@@ -15,16 +15,16 @@ export interface ITaskChainResult {
   action: {
     id: string;
     name: string;
-  }
+  };
   executedDate?: Date;
   result: {
     id: string;
     name: string;
-  }
+  };
   reason: null | {
     id: string;
     name: string;
-  }
+  };
   note: string;
   type: EChainNextActionType;
 }
@@ -72,18 +72,4 @@ export interface ILeadFormModalSubmitData {
 
 export interface ILeadFormModalVisibleData extends ILeadFormModalSubmitData {
   tasks: ITask[];
-}
-
-export interface IConnection {
-  id?: string;
-  platformId: string; // ID Nền tảng
-  customerId: string; // ID Khách hàng
-  customerName?: string; // Tên khách hàng (nếu có)
-  isInterested?: boolean; // Quan tâm (cho Zalo OA)
-}
-
-export interface IPlatform {
-  platform: string; // Platform type: FACEBOOK, ZALO, etc.
-  platformName: string; // Platform name: Facebook, Zalo Cá Nhân, Zalo OA, etc.
-  connections: IConnection[];
 }

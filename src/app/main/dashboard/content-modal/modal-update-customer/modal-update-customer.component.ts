@@ -23,6 +23,7 @@ import {ISelectedLocation} from '@app/types/location';
 import {CustomerService} from '@app/services/api/customer.service';
 import {EntityPagination} from '@app/types/viewmodels';
 import {CustomDatePickerComponent} from '../../../../share/custom/custom-date-picker/custom-date-picker.component';
+import {StorageService} from '@app/services/api/storage.service';
 
 @Component({
   selector: 'app-modal-update-customer',
@@ -61,12 +62,14 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
     province: null,
     provinceCode: null,
     birthday: null,
+    picture: null,
   });
 
   public selectedLocation?: ISelectedLocation;
 
   public loading = {
     submit: false,
+    uploadAvatar: false,
   };
 
   public tags: EntityPagination<CustomerTag> = {
@@ -78,6 +81,7 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
     private readonly fb: FormBuilder,
     private readonly commonService: CommonService,
     private readonly customerService: CustomerService,
+    private readonly storageService: StorageService,
   ) {}
 
   get f(): {[key: string]: AbstractControl} {
@@ -131,11 +135,11 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
 
   getBirthdayValue(): Date | undefined {
     const value = this.updateForm.get('birthday')?.value;
-  
+
     if (!value) return undefined;
-  
+
     const date = new Date(value);
-  
+
     return isNaN(date.getTime()) ? undefined : date;
   }
 
@@ -192,6 +196,22 @@ export class ModalUpdateCustomerComponent implements OnInit, OnDestroy {
         birthday: value,
       });
     }
+  }
+
+  onUploadAvatar() {
+    this.loading.uploadAvatar = true;
+    const accept = 'image/x-png,image/gif,image/jpeg,image/x-icon';
+    this.storageService.attach(accept, 2).subscribe({
+      next: (res) => {
+        if (res?.data?.length) {
+          this.updateForm.patchValue({picture: res.data[0] as any});
+        }
+        this.loading.uploadAvatar = false;
+      },
+      error: (err) => {
+        this.loading.uploadAvatar = false;
+      },
+    });
   }
 
   ngOnDestroy(): void {

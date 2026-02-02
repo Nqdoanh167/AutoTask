@@ -1,10 +1,7 @@
 import {Customer} from '../customer';
-import {AccountPublic, ITag, Order} from '../viewmodels';
+import {AccountPublic, ITag, Order, OrderPlatformSource} from '../viewmodels';
 import {ITeam, IBranchTaskDto} from '../flow';
-import {
-  ITask,
-  IPlatform,
-} from '@app/main/lead/lead-dashboard/lead-form-modal/lead-form-modal.interface';
+import {ITask} from '@app/main/lead/lead-dashboard/lead-form-modal/lead-form-modal.interface';
 
 export enum EGenderType {
   MALE = 'male',
@@ -22,22 +19,9 @@ export enum ELeadCommentContentType {
 
 export interface ILead {
   id: string;
-  code?: string;
   name: string;
-  phone?: string;
-  email?: string;
-  gender?: EGenderType;
-  address?: string;
-  street?: string;
-  ward?: string;
-  wardCode?: string;
-  district?: string;
-  districtCode?: string;
-  province?: string;
-  provinceCode?: string;
-  platforms?: IPlatform[]; // Danh sách nền tảng và kết nối
-  totalPrice?: number;
-  status?: ILeadStatus;
+  platformSourceIds?: string[]; // Danh sách id nguồn dữ liệu
+  platformSources?: OrderPlatformSource[]; // Danh sách nguồn dữ liệu
   statusId?: string;
   tags?: ITag[]; // Populated tag objects (for display)
   tagIds?: string[]; // Tag IDs (matches backend response)
@@ -51,9 +35,6 @@ export interface ILead {
   updatedBy?: AccountPublic;
   createdAt: Date;
   updatedAt: Date;
-  checked?: boolean;
-  picture?: string;
-  sourceId?: string;
   funnelId?: string;
   teams?: ITeam[]; // Danh sách nhân sự phụ trách theo vai trò
   tasks?: ITask[]; // Danh sách các task
@@ -62,34 +43,6 @@ export interface ILead {
     statusId: string;
     statusName: string;
   }[];
-  birthday?: Date;
-}
-
-export interface ILeadCreateDto {
-  name: string;
-  statusId: string; // Required - MongoDB ID of lead status
-  phone: string;
-  email?: string;
-  gender?: EGenderType;
-  address?: string;
-  street?: string;
-  ward?: string;
-  wardCode?: string;
-  district?: string;
-  districtCode?: string;
-  province?: string;
-  provinceCode?: string;
-  platforms?: IPlatform[]; // Danh sách nền tảng và kết nối
-  tagIds?: string[]; // Array of tag IDs (matches backend DTO)
-  picture?: string; // Avatar URL
-  sourceId?: string; // Nguồn dữ liệu (Data source)
-  funnelId?: string; // Phễu
-  teams?: ITeam[]; // Danh sách nhân sự phụ trách theo vai trò
-  branch?: IBranchTaskDto; // Chi nhánh / phòng ban / đội nhóm
-}
-
-export interface ILeadUpdateDto extends Partial<ILeadCreateDto> {
-  id: string;
 }
 
 export interface ILeadComment {

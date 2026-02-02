@@ -174,13 +174,13 @@
                   <ng-container *ngSwitchCase="'phone'">
                     <td>
                       <span class="text-primary fw-500">
-                        {{ item.phone }}
+                        {{ item.customer?.phone }}
                       </span>
                     </td>
                   </ng-container>
 
                   <ng-container *ngSwitchCase="'email'">
-                    <td>{{ item.email }}</td>
+                    <td>{{ item.customer?.email }}</td>
                   </ng-container>
 
                   <ng-container *ngSwitchCase="'status'">

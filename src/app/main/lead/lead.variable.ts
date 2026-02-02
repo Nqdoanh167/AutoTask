@@ -195,9 +195,9 @@ export const LEAD_STATUS_TYPE_OPTIONS = [
 
 // type lead
 export const TYPE_LEAD_OPTIONS = [
-  {key: 'lead', name: 'Lead', icon: 'lead'},
-  {key: 'qualified', name: 'Qualified Lead', icon: 'qualified-lead'},
-  {key: 'opportunity', name: 'Opportunity', icon: 'opportunity-lead'},
-  {key: 'closed-won', name: 'Closed Won', icon: 'closed-won-lead'},
-  {key: 'closed-lost', name: 'Closed Lost', icon: 'closed-lost-lead'},
+  {key: 'LEAD', name: 'Lead', icon: 'lead'},
+  {key: 'QUALIFIED', name: 'Qualified Lead', icon: 'qualified-lead'},
+  {key: 'OPPORTUNITY', name: 'Opportunity', icon: 'opportunity-lead'},
+  {key: 'WON', name: 'Closed Won', icon: 'closed-won-lead'},
+  {key: 'LOST', name: 'Closed Lost', icon: 'closed-lost-lead'},
 ];
