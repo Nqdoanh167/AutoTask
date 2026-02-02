@@ -17,6 +17,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import {LeadDashboardData} from '../lead-dashboard.definition';
 import {ICommonDataSource, IQueryBase} from '@app/types/viewmodels';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-lead-kanban-view',
@@ -48,11 +49,14 @@ export class LeadKanbanViewComponent
   public loading = {
     kanban: false,
   };
+  public isDragging = false;
   public statusesDisplay: ILeadStatus[] = [];
-  public kanbanFilters: {
-    statusId: string;
-    after?: string;
-  }[] = [];
+  public kanbanFilters$ = new BehaviorSubject<
+    {
+      statusId: string;
+      after?: string;
+    }[]
+  >([]);
   public kanbanDatas: {
     statusId: string;
     items: ILead[];
@@ -63,6 +67,22 @@ export class LeadKanbanViewComponent
   private autoScrollInterval: any;
   private readonly SCROLL_SPEED = 15;
   private readonly EDGE_THRESHOLD = 100;
+
+  constructor(private readonly toastr: ToastrService) {
+    super();
+  }
+
+  trackByStatusId(_: number, status: ILeadStatus): string {
+    return status.id;
+  }
+
+  trackByLeadId(_: number, lead: ILead): string {
+    return lead.id;
+  }
+
+  trackByTagId(_: number, tagId: string): string {
+    return tagId;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['currentFunnel']) {
@@ -76,15 +96,23 @@ export class LeadKanbanViewComponent
             this.statuses.rows.find((status) => status.id === statusId),
           )
           .filter(Boolean) as ILeadStatus[];
-      }
 
-      this.kanbanFilters =
-        statusGroup?.leadStatusIds.map((statusId) => ({
-          statusId: statusId,
-          after: '',
-        })) || [];
-      this.getCountData();
+        this.kanbanFilters$.next(
+          statusGroup?.leadStatusIds.map((statusId) => ({
+            statusId: statusId,
+            after: '',
+          })) || [],
+        );
+      }
     }
+  }
+
+  override ngOnInit(): void {
+    this.kanbanFilters$
+      .pipe(takeUntil(this.destroy$), distinctUntilChanged())
+      .subscribe(() => {
+        this.getCountData();
+      });
   }
 
   override ngOnDestroy(): void {
@@ -124,7 +152,7 @@ export class LeadKanbanViewComponent
   }
 
   getCountData() {
-    if (!this.kanbanFilters.length) {
+    if (!this.kanbanFilters$.value.length) {
       return;
     }
 
@@ -143,7 +171,7 @@ export class LeadKanbanViewComponent
     }
 
     filterObj.items = [];
-    this.kanbanFilters.forEach((filter) => {
+    this.kanbanFilters$.value.forEach((filter) => {
       filterObj.items.push({
         statusId: filter.statusId,
         after: filter.after || undefined,
@@ -171,7 +199,7 @@ export class LeadKanbanViewComponent
               });
             });
             // update kanbanFilters (loại bỏ những status có count = 0)
-            const filters = this.kanbanFilters.filter((filter) => {
+            const filters = this.kanbanFilters$.value.filter((filter) => {
               const count = res.data.find(
                 (item: any) => item.statusId === filter.statusId,
               )?.count;
@@ -305,6 +333,14 @@ export class LeadKanbanViewComponent
         next: (res: any) => {
           if (res.status === 200) {
             lead.statusId = newStatusId;
+            this.toastr.success('Cập nhật trạng thái lead thành công!');
+            // Cập nhật total
+            const kanbanPrev = this.getKanbanDataByStatusId(previousStatusId);
+            const kanbanCur = this.getKanbanDataByStatusId(currentStatusId);
+            if (kanbanPrev && kanbanCur) {
+              kanbanPrev.total = kanbanPrev.total - 1;
+              kanbanCur.total = kanbanCur.total + 1;
+            }
           } else {
             transferArrayItem(
               currentLeads,
@@ -387,12 +423,12 @@ export class LeadKanbanViewComponent
               kanbanData.items = [...kanbanData.items, ...responseData.items];
               kanbanData.after = responseData.after;
 
-              const filters = this.kanbanFilters.map((filter) =>
+              const filters = this.kanbanFilters$.value.map((filter) =>
                 filter.statusId === statusId
                   ? {...filter, after: responseData.after}
                   : filter,
               );
-              this.kanbanFilters = [...filters];
+              this.kanbanFilters$.next([...filters]);
             }
           } else {
             this.commonService.handleResErr(res);

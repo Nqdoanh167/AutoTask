@@ -4,11 +4,20 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import {LeadDashboardData} from '../lead-dashboard.definition';
 import {finalize, shareReplay, takeUntil} from 'rxjs';
-import {IFunnel, ILead} from '@app/types/lead';
-import {ICommonDataSource, IQueryBase} from '@app/types/viewmodels';
+import {ELeadBulkAction, IFunnel, ILead} from '@app/types/lead';
+import {IColumns, ICommonDataSource, IQueryBase} from '@app/types/viewmodels';
+import {LEAD_MULTIPLE_ACTIONS} from '../../lead.variable';
+import {NgSelectComponent} from '@ng-select/ng-select';
+import {ToastrService} from 'ngx-toastr';
+import {IModalConfirmContent} from '@app/share/custom/modal-confirm/modal-confirm.component';
+import {ModalConfirmService} from '@app/share/custom/modal-confirm/modal-confirm.service';
+import {listColumnsLeadDefault} from '@app/variable';
+import {BsModalService} from 'ngx-bootstrap/modal';
+import {OrderableTableComponent} from '@app/share/orderable-table/orderable-table.component';
 
 @Component({
   selector: 'app-lead-list-view',
@@ -19,6 +28,7 @@ export class LeadListViewComponent
   extends LeadDashboardData
   implements OnInit, OnDestroy
 {
+  @ViewChild('selectBatchActions') selectBatchActions?: NgSelectComponent;
   @Input() currentFunnel!: IFunnel | null;
   @Input() checkbox: any = {};
   @Input() override item: ICommonDataSource<ILead, IQueryBase> = {
@@ -34,9 +44,31 @@ export class LeadListViewComponent
     total: 0,
     after: '',
   };
+  public multipleAction = LEAD_MULTIPLE_ACTIONS;
+  public dataColumnsShow!: IColumns[];
+
+  constructor(
+    private readonly toastrService: ToastrService,
+    private readonly modalConfirmService: ModalConfirmService,
+    private readonly modalService: BsModalService,
+  ) {
+    super();
+
+    //set column show
+    const typeColumn = 'columnLeadDashboard';
+    const defaultColumn = listColumnsLeadDefault;
+    const dataColumns = JSON.parse(localStorage.getItem(typeColumn) as string);
+    if (
+      !dataColumns ||
+      !dataColumns.length ||
+      typeof dataColumns[0] !== 'object'
+    ) {
+      localStorage.setItem(typeColumn, JSON.stringify(defaultColumn));
+    }
+    this.dataColumnsShow = dataColumns || defaultColumn;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log({changes: changes['currentFunnel']});
     if (changes['currentFunnel']) {
       this.getDataSource(true);
     }
@@ -131,5 +163,78 @@ export class LeadListViewComponent
     }
     delete this.item.paramsQuery.after;
     this.getDataSource();
+  }
+
+  showModalMultipleAction(action: any) {
+    const selectedLeads = this.getCheckRows();
+    if (!selectedLeads.length) {
+      // this.toastrService.warning('Vui lòng chọn ít nhất 1 lead');
+      this.selectBatchActions?.handleClearClick();
+      return;
+    }
+
+    switch (action.value) {
+      case ELeadBulkAction.DELETE_MULTI:
+        this.handleDeleteMultiple(selectedLeads);
+        break;
+      default:
+        this.selectBatchActions?.handleClearClick();
+        break;
+    }
+  }
+
+  handleDeleteMultiple(leads: ILead[]) {
+    const title = 'Xóa hàng loạt Lead';
+    const description = `Bạn có chắc chắn muốn xóa ${leads.length} lead đã chọn? Hành động này không thể hoàn tác.`;
+    const okText = 'Đồng ý';
+
+    const modalContent: IModalConfirmContent = {
+      title,
+      description,
+      okText,
+      type: 'danger',
+      modalType: 'advance',
+    };
+    this.modalConfirmService.openModal(modalContent, undefined, () => {
+      this.onDeleteMultiple(leads);
+    });
+
+    this.selectBatchActions?.handleClearClick();
+  }
+
+  onDeleteMultiple(leads: ILead[]) {
+    const ids = leads.map((l) => l.id);
+    this.leadService.lead
+      .bulkDelete(ids)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: any) => {
+          if (res.status === 200) {
+            this.toastrService.success('Xóa lead thành công');
+            this.getDataSource(true);
+            this.handleRefreshRow();
+          } else {
+            this.commonService.handleResErr(res);
+          }
+        },
+        error: (err: any) => {
+          this.toastrService.error('Xóa lead thất bại');
+        },
+      });
+  }
+
+  showModalOrderableTable() {
+    const modalRef = this.modalService.show(OrderableTableComponent, {
+      initialState: {
+        typeColumn: 'columnLeadDashboard',
+      },
+      class: 'modal-opacity-4 modal-lg modal-dialog-centered modal-default',
+    });
+
+    modalRef.content?.triggerColumnChange
+      .pipe()
+      .subscribe((sequenceColumns: IColumns[]) => {
+        this.dataColumnsShow = [...sequenceColumns];
+      });
   }
 }

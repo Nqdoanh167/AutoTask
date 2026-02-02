@@ -5,15 +5,13 @@
     cdkDropListGroup
     #kanbanBoard
   >
-    <ng-container *ngFor="let status of statusesDisplay">
+    <ng-container
+      *ngFor="let status of statusesDisplay; trackBy: trackByStatusId"
+    >
       <div
         *ngLet="getKanbanDataByStatusId(status.id) as kanbanData"
         class="kanban-column"
         [ngStyle]="{'background-color': status.bgColor | hex2rgb}"
-        [id]="status.id"
-        cdkDropList
-        [cdkDropListData]="kanbanData?.items || []"
-        (cdkDropListDropped)="onLeadDrop($event)"
       >
         <div class="kanban-column-header">
           <div class="column-title">
@@ -31,16 +29,24 @@
         <div
           class="kanban-column-content"
           (scroll)="onKanbanColumnScroll($event, status.id)"
+          [id]="status.id"
+          cdkDropList
+          [cdkDropListData]="kanbanData?.items || []"
+          (cdkDropListDropped)="onLeadDrop($event)"
         >
           <div
             class="kanban-card"
-            *ngFor="let lead of kanbanData?.items || []"
+            *ngFor="let lead of kanbanData?.items || []; trackBy: trackByLeadId"
             cdkDrag
             [cdkDragData]="lead"
+            (cdkDragStarted)="isDragging = true"
+            (cdkDragEnded)="isDragging = false"
             (cdkDragMoved)="onLeadDragMoved($event)"
             [routerLink]="['/lead']"
             [queryParams]="{id: lead.id}"
           >
+            <div class="kanban-card-placeholder" *cdkDragPlaceholder></div>
+
             <div class="card-header">
               <div class="lead-info">
                 <div class="lead-avatar-small">
@@ -61,7 +67,9 @@
                     {{ lead.name }}
                   </div>
                   <div class="d-flex flex-row flex-wrap gap-1">
-                    <div *ngFor="let tagId of lead.tagIds">
+                    <div
+                      *ngFor="let tagId of lead.tagIds; trackBy: trackByTagId"
+                    >
                       <span
                         *ngIf="getTagById(tagId) as tag"
                         class="badge text-capitalize tag-item"
@@ -87,7 +95,7 @@
                   src="./assets/icons/icon-lead/email-disabled.svg"
                   alt=""
                   width="12"
-                  height="10"
+                  height="12"
                 />
                 <span class="text-truncate-1">{{ lead.email }}</span>
               </div>
@@ -127,8 +135,8 @@
                 <img
                   src="./assets/icons/icon-lead/order-disabled.svg"
                   alt=""
-                  width="14"
-                  height="14"
+                  width="12"
+                  height="12"
                 />
                 <span class="text-truncate-1">
                   {{ lead.orderCodes.join(', ') }}
@@ -142,8 +150,8 @@
                 <img
                   src="./assets/icons/icon-lead/calendar-disabled.svg"
                   alt=""
-                  width="14"
-                  height="14"
+                  width="12"
+                  height="12"
                 />
                 <span class="text-truncate-1">
                   {{ lead.createdAt | timeView }}
@@ -152,7 +160,10 @@
             </div>
           </div>
 
-          <div class="kanban-column-empty" *ngIf="!kanbanData?.items?.length">
+          <div
+            class="kanban-column-empty"
+            *ngIf="!kanbanData?.items?.length && !isDragging"
+          >
             <i class="fa fa-inbox"></i>
             <p>Không có lead nào</p>
           </div>

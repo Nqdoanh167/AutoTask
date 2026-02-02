@@ -4,7 +4,6 @@ import {
   ETypeFilter,
   IFilterTopButton,
   IFilterTopTable,
-  EBotherAdvanceBasicFilter,
 } from '@app/types/common';
 import {IColumns} from '@app/types/viewmodels';
 
@@ -145,25 +144,21 @@ export const LEAD_COLUMNS_DEFAULT: IColumns[] = LEAD_COLUMNS.filter((col) =>
 
 export const LEAD_MULTIPLE_ACTIONS = [
   {
-    label: 'Di chuyển hàng loạt Lead',
-    value: ELeadBulkAction.MOVE_TO_FUNNEL,
-  },
-  {
     label: 'Xóa hàng loạt Lead',
     value: ELeadBulkAction.DELETE_MULTI,
   },
-  {
-    label: 'Cập nhật trạng thái',
-    value: ELeadBulkAction.UPDATE_STATUS,
-  },
-  {
-    label: 'Thêm tags',
-    value: ELeadBulkAction.ADD_TAGS,
-  },
-  {
-    label: 'Xóa tags',
-    value: ELeadBulkAction.REMOVE_TAGS,
-  },
+  // {
+  //   label: 'Cập nhật trạng thái',
+  //   value: ELeadBulkAction.UPDATE_STATUS,
+  // },
+  // {
+  //   label: 'Thêm tags',
+  //   value: ELeadBulkAction.ADD_TAGS,
+  // },
+  // {
+  //   label: 'Xóa tags',
+  //   value: ELeadBulkAction.REMOVE_TAGS,
+  // },
 ];
 
 export const LEAD_STATUS_TYPE_LABELS: Record<ELeadStatusType, string> = {

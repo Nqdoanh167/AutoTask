@@ -106,12 +106,6 @@ export const listColumns: IDataColumns = {
       tooltip: 'Email',
     },
     {
-      name: 'Tổng tiền',
-      value: 'totalPrice',
-      fieldSort: 'totalPrice',
-      tooltip: 'Tổng tiền',
-    },
-    {
       name: 'Trạng thái Leads',
       value: 'status',
       tooltip: 'Trạng thái hiện tại của lead',
@@ -138,11 +132,6 @@ export const listColumns: IDataColumns = {
       fieldSort: 'updatedAt',
       tooltip: 'Ngày cập nhật',
     },
-    {
-      name: 'Người tạo',
-      value: 'createdBy',
-      tooltip: 'Người tạo',
-    },
   ],
 };
 
@@ -162,12 +151,6 @@ export const listColumnsLead: IColumns[] = [
     name: 'Email',
     value: 'email',
     tooltip: 'Email',
-  },
-  {
-    name: 'Tổng tiền',
-    value: 'totalPrice',
-    fieldSort: 'totalPrice',
-    tooltip: 'Tổng tiền',
   },
   {
     name: 'Trạng thái Leads',
@@ -196,11 +179,6 @@ export const listColumnsLead: IColumns[] = [
     fieldSort: 'updatedAt',
     tooltip: 'Ngày cập nhật',
   },
-  {
-    name: 'Người tạo',
-    value: 'createdBy',
-    tooltip: 'Người tạo',
-  },
 ];
 
 export const listColumnsDashboardDefault: IColumns[] =
@@ -223,11 +201,11 @@ export const listColumnsLeadDefault: IColumns[] = listColumnsLead.filter((el) =>
     'name',
     'phone',
     'email',
-    'totalPrice',
     'status',
     'taskId',
     'orderId',
     'createdAt',
+    'updatedAt',
   ].includes(el.value),
 );
 
