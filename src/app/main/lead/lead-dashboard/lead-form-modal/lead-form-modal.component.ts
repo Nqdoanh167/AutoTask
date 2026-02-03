@@ -212,6 +212,7 @@ export class LeadFormModalComponent
       this.leadForm.patchValue({
         ...this.lead,
         tagIds: this.lead?.tagIds || this.lead?.tags?.map((t) => t.id) || [],
+        platformSourceIds: this.lead?.platformSources?.map((p) => p.id) || [],
       });
 
       if (dataSource.branch) {

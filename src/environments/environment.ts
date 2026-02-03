@@ -7,11 +7,11 @@ export const environment = {
   module: 'auto-task',
   apiAddress: 'https://dev.smax.app/api',
 
-  apiModule: 'http://192.168.1.113:5020/api',
+  // apiModule: 'http://192.168.1.113:5020/api',
   // apiModule: 'http://localhost:5020/api',
   // apiSocket: 'http://localhost:5022',
 
-  // apiModule: 'https://dev.smax.app/api',
+  apiModule: 'https://dev.smax.app/api',
   apiSocket: 'https://dev.smax.app',
 
   apiSocketPath: '/socket/auto-task/socket.io',

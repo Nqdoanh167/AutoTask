@@ -90,19 +90,20 @@ export class LeadKanbanViewComponent
         (group) =>
           group.id === changes['currentFunnel'].currentValue?.statusGroupId,
       );
+      console.log('statusGroup', statusGroup);
       if (statusGroup) {
-        this.statusesDisplay = statusGroup.leadStatusIds
+        this.statusesDisplay = (statusGroup?.leadStatusIds || [])
           .map((statusId) =>
             this.statuses.rows.find((status) => status.id === statusId),
           )
           .filter(Boolean) as ILeadStatus[];
 
-        this.kanbanFilters$.next(
-          statusGroup?.leadStatusIds.map((statusId) => ({
-            statusId: statusId,
+        this.kanbanFilters$.next([
+          ...this.statusesDisplay.map(({id}) => ({
+            statusId: id,
             after: '',
-          })) || [],
-        );
+          })),
+        ]);
       }
     }
   }
